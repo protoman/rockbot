@@ -11,7 +11,8 @@ Language: **English** for all code, comments and docs.
   - `marsdev/` — build repo (`examples/`, SGDK clone at `sgdk/SGDK/`)
 - Env: `source /mnt/ExtraData/Devel/SDK/MegaDrive/mars/mars.sh` (already in `~/.bashrc`)
   - exports `MARSDEV`, `GDK=$MARSDEV/m68k-elf`, adds `$GDK/bin` to PATH
-- Build this project: `cd mega_drive && make` → `out/rom.bin` (128K, padded)
+- Build this project: `cd mega_drive && make` → `out/rom.bin` (padded to 128K
+  multiples; 384K since the SFX PCM landed)
   - `make debug` / `make clean`. Makefile sets `GDK ?=` then includes `$GDK/makefile.gen`.
 - Templates: `marsdev/examples/sgdk-skeleton` (origin of this project), `sgdk/SGDK/sample/` (official)
 - Known-fixed template bug: removed orphan `src/boot/rom_head.c` (conflicted with `sega.o`) and `main()` → `main(bool hardReset)`. Do not re-add `rom_head.c`.
@@ -143,9 +144,19 @@ Flow in `main.c`: `showIntro()` → `showTitle()` (waits for START) → `runStag
 | `tools/convert_player.py` | `p1.png` → `res/player.png` (anim rows, palette swap) |
 | `tools/convert_enemies.py` | enemy .dat/.png → `res/enemy_*.png`, `res/shot.png`, `src/stage0_enemies.*` |
 | `tools/convert_objects.py` | object .dat/.png → `res/object_*.png`, `src/stage0_objects.*` |
+| `tools/pal_ui.py` | single source of truth for the PAL0 UI/enemy palette |
+| `tools/img2tiles.py` | image → minimal tile set + tilemap (UI screens, HUD) |
+| `tools/convert_sfx.py` | PC `sfx/*.wav` → `res/sfx/*.wav` + `res/sfx_pcm.res` (XGM2 PCM) |
+| `src/sfx.{c,h}` | sound effects (XGM2 PCM, channels 2..4) |
+| `tools/tiles_merge.py` | shared pieces across decomposed screens |
+| `src/menu.{c,h}` | in-game START menu (window/panel over the stage) |
+| `src/hud.{c,h}` | HP balls + boss row (sprites; PAL0 via tools/pal_ui.py) |
+| `src/eshot.{c,h}` | enemy AI projectiles |
 | `res/resources.res` | rescomp manifest |
 
-**Rebuild assets then ROM**
+**Rebuild assets then ROM** — now automatic: `make` runs the converters +
+`img2tiles` for the menu panel whenever a tool or PC source asset changes
+(`res/.assets.stamp`). Force with `make assets`. Manual runs still work:
 ```
 /home/iuri/python3/bin/python3 tools/convert_assets.py
 /home/iuri/python3/bin/python3 tools/convert_stage.py
@@ -154,6 +165,9 @@ Flow in `main.c`: `showIntro()` → `showTitle()` (waits for START) → `runStag
 /home/iuri/python3/bin/python3 tools/convert_objects.py
 make
 ```
+Deleting a res/ PNG that rescomp still lists leaves a stale dependency in
+`out/release/_deps/res/` — `rm -rf out/release/_deps/res out/release/res`
+if make complains about a missing file.
 
 **Controls in Kega** (`Fusion.ini` `Player1Keys`): arrows = D-pad, **C/X/Z** = A/B/C, **Return** = Start.
 

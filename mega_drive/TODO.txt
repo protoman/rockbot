@@ -4,10 +4,8 @@
 
 
 Forgot to tell, other stuff after finishing objects:
-- charged shot projectile is not correct, should have an intermadiate and a fully charged, like in the PC game.
-- decrease enemies movement speed (half it)
-- player hit pushback and animation
-- in-game menu
+Charged shot projectile is not correct, should have an intermadiate and a fully charged, like in the PC game and the correct graphics.
+
 - boss
 - stage select
 

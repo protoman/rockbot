@@ -14,6 +14,7 @@ Rules:
   - MD colors are 3:3:3, RGB is rounded to those 8 levels per channel.
   - Index 0 is always left unused so no pixel can become transparent by accident.
 """
+import hashlib
 import os
 import sys
 from PIL import Image
@@ -166,36 +167,55 @@ def convert(name, spec):
 # HUD energy balls: 5 frames of 10x10 (fill: full..empty) drawn with PAL0,
 # so pixels are quantized into the shared enemy/font palette
 # (stage0_enemies.c palette_ui_enemies) instead of their own.
-ENEMY_PAL_RGB = [
-    (0, 0, 0), (0, 0, 0), (255, 218, 145), (145, 36, 0), (109, 72, 145),
-    (255, 36, 0), (109, 36, 255), (255, 255, 255), (0, 145, 72),
-    (72, 255, 145), (72, 182, 255), (0, 218, 218), (0, 145, 182),
-    (182, 0, 72), (182, 182, 182), (218, 218, 218),
-]
+from pal_ui import PAL_UI_RGB, nearest_index      # shared PAL0 (see pal_ui.py)
+
+HUD_SRC = os.path.join(ROCKBOT, "build/shared/images")
+CODE_DIR = os.path.join(ROOT, "src")
+
+
+COLORKEY = (75, 125, 125)
+
+
+def load_rgba(path):
+    """RGBA with the game colorkey punched to alpha 0 (convert_enemies style)."""
+    im = Image.open(path).convert("RGBA")
+    px = im.load()
+    w, h = im.size
+    for y in range(h):
+        for x in range(w):
+            r, g, b, a = px[x, y]
+            if a < 255 or (r, g, b) == COLORKEY:
+                px[x, y] = (0, 0, 0, 0)
+    return im
 
 
 def convert_hud_ball(src_name="hp_ball.png", out_name="hud_hp_ball.png"):
-    src = os.path.join(ROCKBOT, "build/shared/images", src_name)
+    """One 5-frame 16x16 HP ball sheet (PAL0 via tools/pal_ui.py).
+
+    Player and boss sheets differ only in the fill color; they cannot share
+    tiles through SGDK's per-frame tilesets, so both sheets are emitted —
+    but with the SAME palette table as the enemies (they used to disagree,
+    which made the fill resolve to the wrong color at runtime)."""
+    src = os.path.join(HUD_SRC, src_name)
     if not os.path.exists(src):
         print(f"  SKIP {out_name}: {src} not found")
         return False
-    img = Image.open(src).convert("RGBA")
-    fw = img.height  # square frames (10x10)
-    n = img.width // fw
+    img = load_rgba(src)
+    fw = img.height            # square frames (10x10)
+    n = img.size[0] // fw
     px = img.load()
     out = Image.new("P", (n * 16, 16))
-    out.putpalette([v for c in ENEMY_PAL_RGB for v in c])
+    out.putpalette([v for c in PAL_UI_RGB for v in c] + [0] * (768 - 16 * 3))
     data = [0] * (n * 16 * 16)
     for f in range(n):
         for y in range(fw):
             for x in range(fw):
                 p = px[f * fw + x, y]
-                if p[3] == 0 or p[:3] == COLORKEY:
+                if p[3] == 0:
                     idx = 0
                 else:
-                    idx = min(range(1, 16),
-                              key=lambda i: sum((ENEMY_PAL_RGB[i][k] - p[k]) ** 2
-                                                for k in range(3)))
+                    c = (md_round(p[0]), md_round(p[1]), md_round(p[2]))
+                    idx = 15 if c == (219, 219, 219) else nearest_index(c)
                 data[y * n * 16 + f * 16 + x] = idx
     out.putdata(data)
     os.makedirs(OUT_DIR, exist_ok=True)

@@ -1,4 +1,5 @@
 #include "stage.h"
+#include "sfx.h"
 
 #include "resources.h"
 #include "stage0_enemies.h"
@@ -398,6 +399,27 @@ void stage_force_redraw(void)
     bg_last_cam_x = camera.x;   // no parallax delta across camera jumps
 }
 
+void stage_restore_palette(void)
+{
+    PAL_setPalette(STAGE_PAL, palettes[stage_current_map]->data, CPU);
+}
+
+void stage_redraw_bg(void)
+{
+    bg_load(stage_current_map);
+}
+
+// Drop the stage map: its engine keeps deferred plane updates that flush on
+// the next vblank and repaint BG_A (with the new tile contents) after an
+// overlay/title took over the screen. stage_load() creates a fresh map.
+void stage_release_map(void)
+{
+    if (stage_map) {
+        MAP_release(stage_map);
+        stage_map = NULL;
+    }
+}
+
 // Link arrival: PC sets the new map scroll directly instead of walking the
 // camera there (game.cpp:750 set_scrolling). Centre on the player, then
 // keep any divider at a screen edge on the player's side — e.g. arriving at
@@ -450,6 +472,7 @@ static s16 first_lock_on_bottom(s16 tilex, s16 w, s16 h)
 void stage_teleport_boss(u8 dest_map, u8 dest_tx, u8 dest_ty)
 {
     (void)dest_ty;
+    sfx_play(SFX_TELEPORT);
     stage_load(dest_map);
 
     s16 px = (s16)dest_tx * 16;

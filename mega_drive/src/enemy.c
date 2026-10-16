@@ -1,4 +1,5 @@
 #include "enemy.h"
+#include "sfx.h"
 
 #include "eshot.h"
 #include "stage.h"
@@ -469,6 +470,13 @@ void enemies_update(void)
     }
 }
 
+void enemies_set_visible(bool visible)
+{
+    for (u8 i = 0; i < enemy_count; i++)
+        if (enemies[i].spr)
+            SPR_setVisibility(enemies[i].spr, visible ? VISIBLE : HIDDEN);
+}
+
 bool enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage)
 {
     for (u8 i = 0; i < enemy_count; i++) {
@@ -491,7 +499,9 @@ bool enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage)
 
         e->hp = (dmg >= e->hp) ? 0 : e->hp - dmg;
         if (d->is_boss) e->hurt_timer = BOSS_HURT_FRAMES;
+        sfx_play(SFX_NPC_HIT);
         if (e->hp == 0) {
+            sfx_play(d->is_boss ? SFX_EXPLOSION : SFX_NPC_KILLED);
             if (d->is_boss) boss_died = TRUE;
             if (e->spr) SPR_releaseSprite(e->spr);
             e->spr = NULL;

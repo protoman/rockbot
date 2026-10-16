@@ -5,9 +5,11 @@ SPRITE boberatu_sprite  "boberatu.png"  104p 40p FAST 0
 SPRITE jmd_sprite       "jmd_logo.png"   96p 32p FAST 0
 
 # ---- TITLE (sceneslib.cpp:102 draw_main) ----
-# 320x224 with an 8px CONFIG_BGCOLOR band on top. Index 0 is reserved/unused,
-# so it is drawn on BG_B while text goes on BG_A (font index 0 reveals the logo).
-IMAGE title_logo "title_logo.png" NONE 1
+# Decomposed by tools/img2tiles.py (350 unique tiles, not a 320x224 bitmap):
+# the tiles are packed as src/title_tiles.h/.c and drawn on BG_B by main.c,
+# the text goes on BG_A. rescomp TILESET/IMAGE resources reordered/deduped
+# tiles and mis-drew the logo when the title was re-entered.
+PALETTE title_pal "title_tiles.png"
 
 # ---- STAGE 0: CHAOS CITY (game.cpp INTRO_STAGE, 3 maps) ----
 # The tileset is built from the same image as the map (as the SGDK samples do);
@@ -54,9 +56,11 @@ SPRITE enemy_cannon_ball_sprite "enemy_cannon_ball.png" 24p 24p FAST [[120][18,1
 # Stage boss MILONGA BOT (id 37): 36x33 art in 40x40 cells, stand + walk rows
 SPRITE enemy_milonga_sprite "enemy_milonga.png" 40p 40p FAST [[120][120]]
 SPRITE shot_sprite "shot.png" 8p 8p FAST [[1]]
-# Enemy AI projectile id 11 "Semi-Charged" (game_projectile_list.dat)
-SPRITE enemy_shot_semi_sprite "enemy_shot_semi.png" 16p 16p FAST [[5,5]]
-SPRITE shot_charge_sprite "shot_charge.png" 16p 16p FAST [[6,6,6,6]]
+# Player + enemy charged projectiles (game_projectile_list ids 11/10).
+# Frames are 100ms each (defines.h:644); semi art restored by the enemy
+# converter (charged_semi.png), full by charged_shot.png.
+SPRITE enemy_shot_semi_sprite "enemy_shot_semi.png" 16p 16p FAST [[6,6]]
+SPRITE shot_charge_full_sprite "shot_charge_full.png" 32p 32p FAST [[6,6]]
 
 # ---- STAGE 0 OBJECTS (tools/convert_objects.py) ----
 # Single anim row; shared PAL0 (palette_ui_enemies). Checkpoint cell is
@@ -68,8 +72,15 @@ SPRITE object_platform_up_sprite "object_platform_up.png" 32p 16p FAST [[6,6]]
 SPRITE object_checkpoint_sprite "object_checkpoint.png" 32p 64p FAST [[18,18]]
 SPRITE object_teleporter_stage_boss_sprite "object_teleporter_stage_boss.png" 32p 64p FAST [[7,7,7]]
 
-# ---- HUD (tools/convert_assets.py: PAL0-quantized energy balls) ----
+# ---- HUD (tools/convert_assets.py: HP balls, PAL0 via tools/pal_ui.py) ----
 # 5 frames: fill = full, 3/4, 2/4, 1/4, empty
 SPRITE hud_hp_ball_sprite "hud_hp_ball.png" 16p 16p FAST [[0,0,0,0,0]]
 # Boss row at RES_W-55 (PC draw.cpp:1237), same frame contract
 SPRITE hud_boss_ball_sprite "hud_boss_ball.png" 16p 16p FAST [[0,0,0,0,0]]
+
+# ---- IN-GAME MENU panel (tools/img2tiles.py: PC weapon_menu.png panel,
+# cropped 16px for the 320x224 screen, decomposed to ~46 unique tiles) ----
+# Tiles are NOT a rescomp TILESET: it dedups/reorders by color and breaks
+# the hand-made tilemap. They are packed as src/menu_tiles.h/.c (MD 4bpp)
+# and uploaded with VDP_loadTileData in menu.c.
+PALETTE menu_pal   "menu_tiles.png"

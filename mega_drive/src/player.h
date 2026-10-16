@@ -47,6 +47,11 @@ typedef struct {
     // = semi, >= 2200ms = full, fire on release)
     u16 charge_frames;
     bool fire_prev;
+    // hit pushback (PC ANIM_TYPE_HIT, character.cpp:194): remaining px
+    // away from the facing direction + sub-pixel carry + push direction
+    fix16 hit_push;
+    fix16 hit_acc;
+    s16 hit_dir;
 } Player;
 
 extern Player player;
@@ -70,5 +75,8 @@ void player_take_damage(u8 amount);
 // Record the respawn point (worldX, feet-Y worldY) when touching a
 // checkpoint object. Death and pit-falls respawn there while on that map.
 void player_set_checkpoint(s16 worldX, s16 worldY);
+
+// Hide/show the player sprite (in-game menu overlay).
+void player_set_visible(bool visible);
 
 #endif

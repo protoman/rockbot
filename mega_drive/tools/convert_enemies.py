@@ -40,6 +40,9 @@ import sys
 from collections import Counter
 from PIL import Image
 
+# PAL0 is the shared UI/enemy palette (single source of truth)
+from pal_ui import PAL_UI_RGB, to_vdp, nearest_index
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
@@ -237,61 +240,6 @@ def load_rgba(path):
     return rgba
 
 
-def collect_colors(images):
-    counts = Counter()
-    for im in images:
-        w, h = im.size
-        px = im.load()
-        for y in range(h):
-            for x in range(w):
-                if px[x, y][3] > 0:
-                    r, g, b = px[x, y][:3]
-                    counts[(md_round(r), md_round(g), md_round(b))] += 1
-    return counts
-
-
-def build_pool(counts):
-    """<= MAX_POOL colors; black stays (art), white merges into idx15."""
-    def lum(c):
-        return 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]
-
-    pool = [c for c, _ in counts.most_common() if c != (WHITE8,) * 3]
-    if (0, 0, 0) in pool:                    # keep black first: most frequent use
-        pool.remove((0, 0, 0))
-        pool.insert(0, (0, 0, 0))
-    while len(pool) > MAX_POOL:              # merge nearest pair, keep the brighter
-        bi, bj, bd = 0, 1, 1 << 30
-        for i in range(len(pool)):
-            for j in range(i + 1, len(pool)):
-                a, b = pool[i], pool[j]
-                d = (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2
-                if d < bd:
-                    bd, bi, bj = d, i, j
-        if lum(pool[bj]) > lum(pool[bi]):
-            pool[bi] = pool[bj]
-        del pool[bj]
-    return pool
-
-
-def make_lut(pool):
-    """transparent -> 0, white -> 15, otherwise nearest of 1..14 (never 0)."""
-    def nearest(c):
-        best, bd = 1, 1 << 30
-        for i, p in enumerate(pool):
-            d = (c[0] - p[0]) ** 2 + (c[1] - p[1]) ** 2 + (c[2] - p[2]) ** 2
-            if d < bd:
-                bd, best = d, i + 1
-        return best
-    return nearest
-
-
-def to_vdp(c):
-    r = MD_LEVELS.index(c[0])
-    g = MD_LEVELS.index(c[1])
-    b = MD_LEVELS.index(c[2])
-    return r | (g << 4) | (b << 8)
-
-
 # ---------------------------------------------------------------- main
 
 def main():
@@ -371,6 +319,8 @@ def main():
     shot_rgba = load_rgba(os.path.join(DATA, "images/projectiles/projectile_normal.png"))
     semi_path = os.path.join(DATA, "images/projectiles/charged_semi.png")
     semi_rgba = load_rgba(semi_path) if os.path.exists(semi_path) else shot_rgba
+    # full charge (id 10 "Charged") — art colors must join the shared pool
+    full_rgba = load_rgba(os.path.join(DATA, "images/projectiles/charged_shot.png"))
     proj = open(os.path.join(DATA, "game_projectile_list.dat"), "rb").read()
     p0 = proj[0:PROJ_SZ]
     shot_speed = p0[68]
@@ -378,16 +328,18 @@ def main():
     print(f"projectile 0: '{cstr(p0,0,30)}' speed={shot_speed} damage={shot_dmg} "
           f"max_shots={p0[67]} size={struct.unpack_from('<hh', p0, 60)}")
 
-    # --- shared palette (enemy art + shot art) ------------------------------
-    all_imgs = [p["rgba"] for p in plans.values()] + [shot_rgba, semi_rgba]
-    pool = build_pool(collect_colors(all_imgs))
-    lut = make_lut(pool)
-    print(f"shared PAL0 pool: {len(pool)} colors -> {pool}")
+    # --- shared palette -----------------------------------------------------
+    # PAL0 comes from tools/pal_ui.py (one table for enemies, shots, objects
+    # and the HUD balls — they used to disagree, which made the HP balls
+    # render with the wrong colors).
+    palette = list(PAL_UI_RGB)
 
-    palette = [(0, 0, 0)] + [c for c in pool]
-    while len(palette) < 16:
-        palette.append((0, 0, 0))
-    palette[15] = (WHITE8, WHITE8, WHITE8)
+    def lut(c):
+        if c == (WHITE8,) * 3:
+            return 15
+        return nearest_index(c)
+
+    print(f"PAL0 (tools/pal_ui.py): {len(palette)} entries")
 
     # --- write sprite sheets ------------------------------------------------
     os.makedirs(RES, exist_ok=True)
@@ -440,29 +392,27 @@ def main():
     out.save(os.path.join(RES, "enemy_shot_semi.png"))
     print(f"wrote res/enemy_shot_semi.png {out.size}")
 
-    # charge shot (semi/full): 16x16, 4-frame pulse, same PAL0 pool.
-    # ring = nearest cream, core = pinned white (idx 15).
-    import math
-    ring_idx = lut((md_round(255), md_round(218), md_round(145)))
-    out = Image.new("P", (64, 16))
+    # Fully-charged projectile (game_projectile_list id 10 "Charged",
+    # player_list_v3_1_1 player 0 full_charged_projectile_id): art is
+    # 62x25 = 2 frames of 31x25, declared size 31x30; frames are laid out
+    # width/size.width (projectilelib.cpp:66) at 100ms each
+    # (PROJECTILE_DEFAULT_ANIMATION_TIME, defines.h:644).
+    fw, fh = 31, 30
+    nfull = full_rgba.size[0] // fw                 # 2 frames
+    cw, ch = ceil8(fw), ceil8(fh)                   # 32x32 SGDK cell
+    out = Image.new("P", (nfull * cw, ch))
     out.putpalette([v for c in palette for v in c])
-    data = [0] * (64 * 16)
-    for f in range(4):
-        r_out = 6.5 - (f % 2)          # pulse between 6.5 and 5.5
-        r_in = 2.5 + (f % 2) * 0.5
-        for y in range(16):
-            for x in range(16):
-                d = math.hypot(x - 7.5, y - 7.5)
-                if d <= r_in:
-                    idx = 15
-                elif d <= r_out:
-                    idx = ring_idx
-                else:
-                    idx = 0
-                data[y * 64 + f * 16 + x] = idx
+    data = [0] * (nfull * cw * ch)
+    src = full_rgba.load()
+    for f in range(nfull):
+        for y in range(min(full_rgba.size[1], ch)):
+            for x in range(fw):
+                px = src[f * fw + x, y]
+                idx = 0 if px[3] == 0 else lut((md_round(px[0]), md_round(px[1]), md_round(px[2])))
+                data[y * nfull * cw + f * cw + x] = idx
     out.putdata(data)
-    out.save(os.path.join(RES, "shot_charge.png"))
-    print("wrote res/shot_charge.png 16x16 x4 (charge shot)")
+    out.save(os.path.join(RES, "shot_charge_full.png"))
+    print(f"wrote res/shot_charge_full.png {out.size} ({nfull} frames of {fw}x{fh} in {cw}x{ch} cells)")
 
     # --- spawns -------------------------------------------------------------
     spawn_out = []
@@ -604,12 +554,9 @@ extern const u16 palette_ui_enemies[16];
         spr = "shot_sprite" if pid == 0 else f"enemy_shot_semi_sprite"
         lines.append(f"    [{pid}] = {{ &{spr}, {spd}, {dmg}, {w}, {h} }},\n")
     lines.append("};\n")
-    lines.append("const u16 palette_ui_enemies[16] = {\n    0x0000,")
-    for c in pool:
-        lines.append(f" 0x{to_vdp(c):03X},")
-    lines.append("\n")
-    lines.append("    " + "  ".join("0x0000," for _ in range(14 - len(pool))) + " 0x0EEE\n")
-    lines.append("};\n")
+    lines.append("const u16 palette_ui_enemies[16] = {\n    ")
+    lines.append(", ".join(f"0x{to_vdp(c):03X}" for c in PAL_UI_RGB))
+    lines.append("\n};\n")
     with open(os.path.join(SRC, "stage0_enemies.c"), "w") as f:
         f.writelines(lines)
     print(f"wrote src/stage0_enemies.c/h ({len(ids_sorted)} defs, {len(spawn_out)} spawns)")
@@ -624,7 +571,8 @@ extern const u16 palette_ui_enemies[16];
               f'{p["cw"]}p {p["ch"]}p FAST [[{st}][{wk}]]')
     print('SPRITE shot_sprite "shot.png" 8p 8p FAST [[1]]')
     if 11 in proj_info:
-        print('SPRITE enemy_shot_semi_sprite "enemy_shot_semi.png" 16p 16p FAST [[5,5]]')
+        print('SPRITE enemy_shot_semi_sprite "enemy_shot_semi.png" 16p 16p FAST [[6,6]]')
+    print('SPRITE shot_charge_full_sprite "shot_charge_full.png" 32p 32p FAST [[6,6]]')
     print(f"shot_speed={shot_speed} shot_dmg={shot_dmg}")
     return 0
 

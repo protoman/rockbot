@@ -10,12 +10,14 @@
 #define STAGE_PAL   PAL1
 
 // Parallax background: own palette (PAL3, reloaded on stage_load) and a
-// fixed VRAM block. Layout: system 0..15, stage tilesets from
-// TILE_USER_INDEX (biggest stage-0 tileset = 127 tiles -> ends 143),
-// bg tiles at 144 (bg0 = 768 tiles -> ends 911), animated-tile frames
-// at 912+ (TILE_ANIM_BASE in stage0_data.h, 1 slot -> ends 936), sprite
-// engine 1312..1951 (SPR_initEx(640) at TILE_SPRITE_INDEX = 1952-640),
-// font 1952..2047.
+// fixed VRAM block. VRAM layout (tiles; TILE_FONT_INDEX = 1440 = 0xC000/32
+// minus FONT_LEN 96): system 0..15, stage tilesets from TILE_USER_INDEX
+// (biggest stage-0 tileset = 127 tiles -> ends 143), bg tiles at 144
+// (bg0 = 768 tiles -> ends 911), animated-tile frames 912..935 (1 slot,
+// 24 tiles), sprite engine from TILE_SPRITE_INDEX (1440 - SPR_initEx size;
+// 504 -> 936..1439), font 1440..1535.
+// NOTE: the in-game menu temporarily loads its panel over the bg block
+// (144..) and restores it with stage_redraw_bg().
 #define BG_PAL        PAL3
 #define TILE_BG_INDEX 144
 
@@ -35,6 +37,18 @@ void stage_anim_update(void);
 
 // Force a complete MAP redraw. Call after the camera jumps (respawn, map link).
 void stage_force_redraw(void);
+
+// Re-load the stage tileset palette (PAL1) after a full-screen overlay
+// (in-game menu) borrowed the palette line.
+void stage_restore_palette(void);
+
+// Re-draw the parallax background plane (image, palette, scroll) after an
+// overlay borrowed the background tile block.
+void stage_redraw_bg(void);
+
+// Release the stage map (its deferred vblank updates would repaint the
+// planes after a full-screen overlay or the title took over).
+void stage_release_map(void);
 
 // Direct camera set for a link arrival (PC set_scrolling), divider-safe.
 void stage_arrival_camera(s16 focusX, s16 focusY);

@@ -36,4 +36,7 @@ bool enemies_boss_on_screen(void);
 // classmap.cpp:2273 -> got_weapon()).
 bool enemies_boss_died(void);
 
+// Hide/show every live enemy sprite (in-game menu overlay).
+void enemies_set_visible(bool visible);
+
 #endif

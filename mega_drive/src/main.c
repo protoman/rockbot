@@ -9,6 +9,10 @@
 #include "shot.h"
 #include "eshot.h"
 #include "hud.h"
+#include "menu.h"
+#include "dbg.h"
+#include "title_map.h"
+#include "title_tiles.h"
 
 // Layout derived from the original game, adapted from 320x240 to 320x224.
 //   show_notice()  = game.cpp:506  -> intro logos (sprites)
@@ -77,7 +81,9 @@ static void showIntro(void)
     PAL_setPalette(PAL_JMD, jmd_sprite.palette->data, DMA_QUEUE);
 
     drawCentered("HOMEBREW GAMES TEAM", 8);
-    VDP_drawText("JMD AMIGA MUSIC", 3, 14);
+    // under the JMD logo (which occupies y=JMD_Y..JMD_Y+32 at x=JMD_X);
+    // the intro places its elements in MD space, so this is y = 136
+    VDP_drawText("JMD AMIGA MUSIC", 23, 17);
     drawCentered("PRESENTS", 22);
 
     waitFrames(24); // ~400ms
@@ -98,30 +104,62 @@ static void showIntro(void)
 
 // Title screen. Logo on BG_B, text on BG_A so the font's transparent pixels
 // reveal the logo instead of a solid backdrop.
+// The logo comes from the decomposed PC art (tools/img2tiles.py, 350 unique
+// tiles packed as src/title_tiles.h/.c). The old rescomp IMAGE + VDP_drawImageEx
+// re-drew the logo wrong whenever the title was re-entered from the stage; the
+// explicit 4bpp upload + tilemap is deterministic in both cases.
+#define TITLE_TILE_BASE TILE_USER_INDEX
+
 static void showTitle(void)
 {
-    SPR_end(); // release sprite VRAM so the full-screen image fits
-
-    VDP_clearPlane(BG_A, FALSE);
-    VDP_clearPlane(BG_B, FALSE);
-
-    // Sync to the start of vblank before the image DMA — immediate DMA during
-    // active display corrupts VRAM on accurate emulators (garbled BlastEm
-    // title). VDP_drawImageEx has no DMA_QUEUE option, only DMA/CPU.
+    dbg_state("TITLE.enter");
+    SPR_end();                 // release sprite VRAM so the image fits
+    // Let any scheduled MAP update flush BEFORE we take over the planes,
+    // then drop the map so nothing repaints them afterwards.
     SYS_doVBlankProcess();
-    SYS_disableInts();
-    VDP_drawImageEx(BG_B, &title_logo,
-                    TILE_ATTR_FULL(PAL_TITLE, FALSE, FALSE, FALSE, TILE_USER_INDEX),
-                    0, 0, TRUE, DMA);
-    SYS_enableInts();
+    stage_release_map();
 
-    // rows are tiles (px/8). Row 0 = the 8px band above the logo art.
-    VDP_drawText(VERSION_STRING, 1, 0);
+    // The title can be reached from the stage (in-game menu -> leave stage),
+    // which leaves both planes scrolled to the camera/parallax; the logo and
+    // the text need them at 0.
+    VDP_setHorizontalScroll(BG_A, 0);
+    VDP_setVerticalScroll(BG_A, 0);
+    VDP_setHorizontalScroll(BG_B, 0);
+    VDP_setVerticalScroll(BG_B, 0);
+
+    // Wipe BG_A with the font's space tile: VDP_clearPlane left the intro
+    // texts ("HOMEBREW GAMES TEAM", "JMD AMIGA MUSIC", ...) on screen.
+    VDP_fillTileMapRect(BG_A,
+                        TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, TILE_FONT_INDEX),
+                        0, 0, 40, 28);
+
+    VDP_loadTileData(title_tiles_data, TITLE_TILE_BASE, TITLE_TILE_COUNT, DMA_QUEUE);
+    PAL_setPalette(PAL_TITLE, title_pal.data, DMA_QUEUE);
+    // the plane is 64 tiles wide: wipe the whole thing first so cells the
+    // 40x28 image does not cover cannot show stale stage data
+    VDP_fillTileMapRect(BG_B,
+                        TILE_ATTR_FULL(PAL_TITLE, FALSE, FALSE, FALSE, TITLE_TILE_BASE),
+                        0, 0, 64, 32);
+    static u16 tcell[TITLE_MAP_W * TITLE_MAP_H];
+    for (u16 i = 0; i < TITLE_MAP_W * TITLE_MAP_H; i++) {
+        tcell[i] = TILE_ATTR_FULL(PAL_TITLE, FALSE, FALSE, FALSE,
+                                  TITLE_TILE_BASE + title_map[i]);
+    }
+    // CPU: the queued variant raced with the neighbouring writes when the
+    // title was re-entered (stale cells at the plane edges)
+    VDP_setTileMapDataRect(BG_B, tcell, 0, 0, TITLE_MAP_W, TITLE_MAP_H,
+                           TITLE_MAP_W, CPU);
+
+    // PC draw_main: version at (8,8) -> tile (1,1), over the logo's top
+    VDP_drawText(VERSION_STRING, 1, 1);
     VDP_drawText(COPYRIGHT_STRING, 5, 25);
     drawCentered(SITE_STRING, 27);
 
+    dbg_state("TITLE.done");
     // hold until START; the main menu comes in the next milestone
+    u16 tframe = 0;
     while (TRUE) {
+        if (++tframe == 60) dbg_state("TITLE.late");
         if (JOY_readJoypad(JOY_1) & BUTTON_START) break;
         SYS_doVBlankProcess();
         VDP_setReg(17, 0); // see waitFrames() — DMA clobbers window regs
@@ -135,10 +173,12 @@ static void showTitle(void)
 static void showStageClear(void);
 static void runStage(void)
 {
-    // SPR_initEx(640): sprite VRAM = 1952-640 = 1312..1951 (player + enemy
-    // sheets incl. the 40x40 boss + shots + objects + HUD rows, ~500 tiles
-    // deduped). Animated tiles end at 936, so 937..1311 stays free.
-    SPR_initEx(640); // released again by showTitle()
+    // SPR_initEx(504): sprite VRAM = TILE_SPRITE_INDEX(1440) - 504 =
+    // 936..1439, right after the animated tiles (end 935). TILE_FONT_INDEX
+    // is 1440 (0xC000/32 - FONT_LEN 96), NOT 1952 as older comments said —
+    // a bigger pool would overlap the parallax background tiles.
+    // The engine only holds the tiles of the frames currently on screen.
+    SPR_initEx(504); // released again by showTitle()
 
     // PAL2 still holds intro/title colors; clear it before the player
     // sprite claims it (player_init loads the player palette over this).
@@ -148,42 +188,37 @@ static void runStage(void)
     stage_load(0);
     player_init();
     hud_init();
-    // TEMP M7b test (revert with player.c SPAWN_X): the temp east spawn is
-    // past divider col137, which scroll_lock_camera blocks from camera 0.
-    stage_arrival_camera(player.x + 8, player.y);
 
     XGM2_play(stage_music);   // stage only — intro/title stay silent
+    dbg_state("STAGE.enter");
 
     // NOTE: the old "clear BG_B here" block is gone — stage_load now draws
     // the parallax background on BG_B, and clearing it afterwards wiped the
     // tilemap (sky showed stale/garbage tiles).
 
+    u16 prev_pad = JOY_readJoypad(JOY_1);  // START edge (a press held from
+                                           // the title must not open the menu)
+    bool stage_cleared = FALSE;
     while (TRUE) {
         u16 pad = JOY_readJoypad(JOY_1);
+
+        // START opens the paused in-game menu (PC class_config.cpp:295)
+        if ((pad & BUTTON_START) && !(prev_pad & BUTTON_START)) {
+            // LEAVE STAGE returns from runStage directly (title), it is
+            // NOT a stage clear
+            if (menu_open()) {
+                dbg_state("STAGE.leave");
+                return;
+            }
+            pad = JOY_readJoypad(JOY_1);
+        }
+        prev_pad = pad;
 
         objects_update();   // platforms carry the player before his physics
         player_update(pad);
         hud_update(player.hp);
 #ifdef DEBUG_OBJECTS
         objects_debug_text(25, player.x, player.y, camera.x);
-        {
-            // TEMP ladder debug (revert): row 26 = ladder/ground/vy/rows
-            char d[32];
-            u8 n = 0;
-            s16 v = F16_toInt(player.vy);
-            d[n++] = 'L'; d[n++] = player.on_ladder ? '1' : '0';
-            d[n++] = ' '; d[n++] = player.on_ground ? '1' : '0';
-            d[n++] = ' ';
-            if (v < 0) { d[n++] = '-'; v = -v; }
-            d[n++] = '0' + (v > 9 ? 9 : v);
-            d[n++] = ' ';
-            d[n++] = 'F'; d[n++] = '0' + (((player.y + PLAYER_BOX_B) >> 4) % 10);
-            d[n++] = ' ';
-            d[n++] = 'C';
-            d[n++] = '0' + (((player.y + (PLAYER_BOX_T + PLAYER_BOX_B) / 2) >> 4) % 10);
-            d[n] = 0;
-            VDP_drawText(d, 0, 26);
-        }
 #endif
 
         s16 bl, bt, br, bb;
@@ -216,10 +251,10 @@ static void runStage(void)
         VDP_setReg(18, 0);
 
         // PC classmap.cpp:2273 -> got_weapon() after the stage boss falls
-        if (enemies_boss_died()) break;
+        if (enemies_boss_died()) { stage_cleared = TRUE; break; }
     }
 
-    showStageClear();
+    if (stage_cleared) showStageClear();
 }
 
 // Minimal stand-in for PC got_weapon()/player_victory() (game.cpp:1320):
@@ -228,14 +263,22 @@ static void runStage(void)
 // which does not exist yet).
 static void showStageClear(void)
 {
+    dbg_state("CLEAR.enter");
     XGM2_stop();
+    // flush pending MAP updates, then drop the map (see showTitle)
+    SYS_doVBlankProcess();
+    stage_release_map();
     // The stage leaves the planes scrolled to the arena camera (BG_A x~2866,
     // BG_B parallax) — text and the title after it need both planes at 0.
     VDP_setHorizontalScroll(BG_A, 0);
     VDP_setVerticalScroll(BG_A, 0);
     VDP_setHorizontalScroll(BG_B, 0);
     VDP_setVerticalScroll(BG_B, 0);
-    VDP_clearPlane(BG_A, FALSE);
+    // A plain clear leaves the stage tileset's tile 0 (a visible pattern);
+    // fill with the font's space tile for a black backdrop.
+    VDP_fillTileMapRect(BG_A,
+                        TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, TILE_FONT_INDEX),
+                        0, 0, 40, 28);
     drawCentered("STAGE CLEAR", 12);
     drawCentered("PRESS START", 15);
     while (TRUE) {
@@ -254,7 +297,7 @@ int main(bool hardReset)
     VDP_setScreenWidth320();
     VDP_setScreenHeight224();
     JOY_init();
-    SPR_initEx(640); // see runStage() — sprite VRAM 1312..1951
+    SPR_initEx(504); // see runStage() — sprite VRAM 936..1439
 
     // The default DMA queue (80 entries) overflows during stage_load's force
     // map redraw, silently dropping queued tileset/palette transfers — the
@@ -280,7 +323,9 @@ int main(bool hardReset)
     // main() lands during active display, which is illegal for CRAM and
     // corrupts it on accurate emulators (white screen). See debugging.md.
 
+    dbg_state("BOOT");
     showIntro();
+    dbg_state("INTRO.done");
     while (TRUE) {
         showTitle();
         runStage();   // returns from showStageClear() once the boss falls

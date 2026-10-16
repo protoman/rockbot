@@ -29,7 +29,12 @@ build + emulator run before moving on.
 | M5 | Enemies (5 types) — spawn, patrol AI, contact damage, projectile kill | DONE (verified map0=11 / map1=10, contact dmg, kill) |
 | M6 | Objects (pills, 1UP, fall/fly platforms, checkpoint) | DONE (verified; + platform bug fixes built, emulator re-verify pending user) |
 | M6b | Boss teleporter object (type 32) | DONE (emulator-verified: capsule → arena drop + camera) |
-| M7 | Boss MILONGA BOT + stage clear | PENDING (M7a done, see below) |
+| M7 | Boss MILONGA BOT + stage clear | DONE (boss spawn/AI/HP bar; death -> STAGE CLEAR -> title) |
+| M7c | Enemy AI from game_ai_list.dat + enemy shots | DONE (chance/chains/delays; WALK/FLY/JUMP/WAIT_RANGE/SHOT; eshot.c) |
+| M7d | Charged shots (PC projectiles 11 semi / 10 full) | DONE (real art, speed 3, dmg 2/3, 2-frame 100ms) |
+| M7e | Hit pushback + HIT animation (PC character.cpp:194) | DONE |
+| M7f | In-game menu (PC class_config::execute_ingame_menu) | DONE (panel from decomposed weapon_menu art; A = leave stage) |
+| M9 | Graphics toolchain: img2tiles + tiles_merge + pal_ui, build pipeline | DONE |
 | M8 | Audio (XGM2) | OUT OF SCOPE (later milestone) |
 | — | Menu, saves, stage select, doors/spikes/water/ice, animated tiles, real health bar/HUD, enemy projectiles | OUT OF SCOPE / later |
 
@@ -409,6 +414,20 @@ layout (fall moved right of spawn x208).
 **Standing rule (user)**: every bash call touching the emulator needs an
 explicit timeout; never block/poll indefinitely; check liveness with pgrep.
 
+## Known issues
+
+- (none right now)
+- FIXED: re-entering the TITLE from the stage drew the logo wrong. The
+  title now renders from its own decomposed tiles (src/title_tiles.h/.c),
+  the leave path releases the stage map instead of restoring it, and
+  showTitle/showStageClear flush a vblank before taking over the planes.
+  (Which of the three did it was not isolated — the instrumented runs were
+  cut short; the debug telemetry is in src/dbg.c if it ever regresses.)
+- NOTES: `dbg_state()` (src/dbg.c) prints VDP state via kprintf in DEBUG
+  builds only — do NOT add raw VDP port reads there: they collide with
+  kprintf's Gens debug protocol on the control port and corrupt the video
+  state (that broke the intro once).
+
 ## Notes / conventions
 
 - TERRAIN EASYBLOCK (12) and HARDBLOCK (13) are difficulty pass-through
@@ -419,6 +438,21 @@ explicit timeout; never block/poll indefinitely; check liveness with pgrep.
 - NO difficulty setting also for spawns: enemies/objects are kept unless
   hard-only (difficulty_level >= 2; 0=easy, 1=normal, 2=hard). Stage 0 has
   a single hard-only spawn (enemy id 47, map0) which stays skipped.
+- VRAM map (tiles): system 0..15, stage tileset 16..143, bg 144..911,
+  anim 912..935, sprite pool 936..1439 (SPR_initEx(504); TILE_SPRITE_INDEX =
+  TILE_FONT_INDEX(1440) - size — TILE_FONT_INDEX is 1440, NOT 1952 as older
+  comments claimed), font 1440..1535. The in-game menu temporarily loads its
+  38 panel tiles over the bg block and restores it (stage_redraw_bg()).
+- Big PC images (menu, dialogs...) are decomposed to unique 8x8 tiles by
+  tools/img2tiles.py + a tilemap. WATCH OUT: rescomp's TILESET resource
+  deduplicates/reorders tiles by color, which breaks a hand-made tilemap —
+  the menu loads its tiles from a generated 4bpp C array with
+  VDP_loadTileData instead.
+- PAL0 is one shared palette (tools/pal_ui.py) for enemies, objects, shots
+  and the HUD balls; the balls used to be quantized against a different
+  table and rendered with wrong colors.
+- `make` runs the whole asset pipeline (tools/*.py) when a tool or a PC
+  source asset changes; `make assets` forces it.
 - Debug text overlay (tile pos + HP) and `dbgNum()` removed — kprintf
   debug builds are enough.
 - KNOWN (deferred by user): a small artifact on the right side of some

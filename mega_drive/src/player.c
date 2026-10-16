@@ -1,4 +1,5 @@
 #include "player.h"
+#include "sfx.h"
 
 #include "stage.h"
 #include "shot.h"
@@ -35,14 +36,21 @@
 #define CHARGE_SEMI_FRAMES 60
 #define CHARGE_FULL_FRAMES 132
 
+// Hit pushback (PC character.cpp:194/3555): TILESIZE*1.2 = 19.2px away
+// from the facing direction at 0.5 px/f on the ground, 0.8 in the air.
+// An airborne hit cancels the jump and only pushes half the distance.
+#define HIT_PUSH_FULL   FIX16(19.2)
+#define HIT_PUSH_HALF   FIX16(9.6)
+#define HIT_PUSH_GROUND FIX16(0.5)
+#define HIT_PUSH_AIR    FIX16(0.8)
+
 // Climb pose cycle: the flip toggles every 8 climbed pixels (CLIMB_SPEED
 // = 1px/frame) so the climb anim ticks along with the movement.
 #define CLIMB_FLIP_PX 8
 
 // spawn point: on the ground. Ground top is row 10 -> pixel 160
 // (PC row 11; the top PC row is cropped in convert_stage.py).
-// TEMP M7b test (revert): near the col175 pillar, east of the map divider.
-#define SPAWN_X 2700
+#define SPAWN_X 144
 #define SPAWN_Y (160 - PLAYER_BOX_B)
 
 Player player;
@@ -174,6 +182,9 @@ void player_place(s16 px, s16 py)
     player.charge_frames = 0;
     coyote_timer = 0;
     jump_timer = 0;
+    player.hit_push = 0;
+    player.hit_acc = 0;
+    player.hit_dir = 0;
 }
 
 void player_init(void)
@@ -192,6 +203,9 @@ void player_init(void)
     player.slide_dist = 0;
     player.charge_frames = 0;
     player.fire_prev = FALSE;
+    player.hit_push = 0;
+    player.hit_acc = 0;
+    player.hit_dir = 0;
     coyote_timer = COYOTE_FRAMES;
     jump_timer = 0;
     attack_timer = 0;
@@ -376,6 +390,32 @@ void player_update(u16 pad)
         player.vy = 0;
     }
 
+    // ---- hit pushback (PC ANIM_TYPE_HIT, character.cpp:191-215) -----------
+    // While pushing back, movement/jump/slide input is ignored and the
+    // player slides away from the direction he was facing.
+    if (player.hit_push > 0) {
+        fix16 speed = player.on_ground ? HIT_PUSH_GROUND : HIT_PUSH_AIR;
+        player.hit_push -= speed;
+        player.hit_acc += speed;
+        s16 mv = F16_toInt(player.hit_acc);
+        player.hit_acc -= FIX16(mv);
+        if (mv > 0) {
+            s16 nx = ix + player.hit_dir * mv;
+            s16 t = iy + PLAYER_BOX_T;
+            s16 b = iy + PLAYER_BOX_B;
+            if (player.hit_dir > 0) {
+                s16 col = (nx + PLAYER_BOX_R - 1) >> 4;
+                if (column_hits_solid(col, t, b)) nx = (col << 4) - PLAYER_BOX_R;
+            } else {
+                s16 col = (nx + PLAYER_BOX_L) >> 4;
+                if (column_hits_solid(col, t, b)) nx = ((col + 1) << 4) - PLAYER_BOX_L;
+            }
+            ix = nx;
+        }
+        player.vx = 0;
+        pad &= ~(BUTTON_LEFT | BUTTON_RIGHT | JUMP_BUTTONS | SLIDE_BUTTON);
+    }
+
     // ---- slide (start) -----------------------------------------------------
     // Needs a FRESH press: the PC only starts a slide after the dash button
     // was released again (_dash_button_released, character.cpp:1668), so a
@@ -425,6 +465,7 @@ void player_update(u16 pad)
     prev_pad = pad;
 
     if (coyote_timer > 0 && jump_timer > 0) {
+        sfx_play(SFX_JUMP);
         player.vy = -JUMP_VEL;
         player.on_ground = FALSE;
         coyote_timer = 0;
@@ -598,7 +639,8 @@ void player_update(u16 pad)
 
     // ---- animation + screen position ----------------------------------------
     u16 want;
-    if (!player.on_ground)      want = ANIM_JUMP;
+    if (player.hit_push > 0)    want = ANIM_HIT;
+    else if (!player.on_ground) want = ANIM_JUMP;
     else if (attack_timer > 0)  want = ANIM_ATTACK;
     else if (player.sliding)    want = ANIM_SLIDE;
     else if (player.vx != 0)    want = ANIM_WALK;
@@ -620,12 +662,31 @@ void player_update(u16 pad)
     }
 }
 
+void player_set_visible(bool visible)
+{
+    if (player.spr) SPR_setVisibility(player.spr, visible ? VISIBLE : HIDDEN);
+}
+
 void player_take_damage(u8 amount)
 {
     if (player.invuln > 0) return;
 
     player.hp = (amount >= player.hp) ? 0 : player.hp - amount;
     player.invuln = PLAYER_INVULN_FRAMES;
+    sfx_play((player.hp == 0) ? SFX_PLAYER_DEATH : SFX_PLAYER_HIT);
+
+    // Enter the hit state (PC character.cpp:3036): push away from facing,
+    // half distance + jump cancelled when hit in the air.
+    if (player.hit_push <= 0) {
+        player.hit_dir = (player.facing > 0) ? -1 : 1;
+        player.hit_acc = 0;
+        if (player.on_ground) {
+            player.hit_push = HIT_PUSH_FULL;
+        } else {
+            player.hit_push = HIT_PUSH_HALF;
+            if (player.vy < 0) player.vy = 0;   // _obj_jump.finish()
+        }
+    }
 
     if (player.hp == 0) {              // death: respawn at checkpoint/stage start
         player.hp = PLAYER_INITIAL_HP;
