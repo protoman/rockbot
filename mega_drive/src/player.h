@@ -24,6 +24,7 @@
 #define ANIM_HIT      4
 #define ANIM_TELEPORT 5
 #define ANIM_STAIRS   6
+#define ANIM_SLIDE    7
 
 typedef struct {
     Sprite *spr;
@@ -36,6 +37,15 @@ typedef struct {
     s16 facing;   // 1 = right, -1 = left
     u8 hp;        // 0 = death (respawns with full hp)
     u16 invuln;   // frames of damage immunity + blink
+    // slide (PC: dash button on the ground, character.cpp:1672; needs a
+    // fresh press — _dash_button_released)
+    bool sliding;
+    bool slide_prev;
+    s16 slide_dist;
+    // charge shot (PC check_must_attack: press = normal, hold >= 1000ms
+    // = semi, >= 2200ms = full, fire on release)
+    u16 charge_frames;
+    bool fire_prev;
 } Player;
 
 extern Player player;

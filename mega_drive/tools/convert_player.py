@@ -39,6 +39,7 @@ SWAPS = {
 # animation row -> (source frame indices, per-frame time in 1/60s)
 # order and delays from classplayer.cpp:545 initFrames()
 # STAIRS uses frame 17 (addSpriteFrame ANIM_TYPE_STAIRS, 17)
+# SLIDE uses frame 20 (addSpriteFrame ANIM_TYPE_SLIDE, 20)
 ANIMS = [
     ("STAND",    [3, 4],         [120, 6]),
     ("WALK",     [7, 8, 7, 6],   [9, 9, 9, 9]),
@@ -47,6 +48,7 @@ ANIMS = [
     ("HIT",      [15, 16],       [6, 6]),
     ("TELEPORT", [0, 1, 2],      [12, 6, 6]),
     ("STAIRS",   [17],           [0]),
+    ("SLIDE",    [20],           [0]),
 ]
 
 MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)

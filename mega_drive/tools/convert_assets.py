@@ -163,10 +163,54 @@ def convert(name, spec):
     return True
 
 
+# HUD energy balls: 5 frames of 10x10 (fill: full..empty) drawn with PAL0,
+# so pixels are quantized into the shared enemy/font palette
+# (stage0_enemies.c palette_ui_enemies) instead of their own.
+ENEMY_PAL_RGB = [
+    (0, 0, 0), (0, 0, 0), (255, 218, 145), (145, 36, 0), (109, 72, 145),
+    (255, 36, 0), (109, 36, 255), (255, 255, 255), (0, 145, 72),
+    (72, 255, 145), (72, 182, 255), (0, 218, 218), (0, 145, 182),
+    (182, 0, 72), (182, 182, 182), (218, 218, 218),
+]
+
+
+def convert_hud_ball():
+    src = os.path.join(ROCKBOT, "build/shared/images/hp_ball.png")
+    if not os.path.exists(src):
+        print(f"  SKIP hud_hp_ball: {src} not found")
+        return False
+    img = Image.open(src).convert("RGBA")
+    fw = img.height  # square frames (10x10)
+    n = img.width // fw
+    px = img.load()
+    out = Image.new("P", (n * 16, 16))
+    out.putpalette([v for c in ENEMY_PAL_RGB for v in c])
+    data = [0] * (n * 16 * 16)
+    for f in range(n):
+        for y in range(fw):
+            for x in range(fw):
+                p = px[f * fw + x, y]
+                if p[3] == 0 or p[:3] == COLORKEY:
+                    idx = 0
+                else:
+                    idx = min(range(1, 16),
+                              key=lambda i: sum((ENEMY_PAL_RGB[i][k] - p[k]) ** 2
+                                                for k in range(3)))
+                data[y * n * 16 + f * 16 + x] = idx
+    out.putdata(data)
+    os.makedirs(OUT_DIR, exist_ok=True)
+    out.save(os.path.join(OUT_DIR, "hud_hp_ball.png"))
+    print(f"  OK hud_hp_ball: {img.size} -> {out.size} ({n} frames, PAL0)")
+    return True
+
+
 def main():
     targets = sys.argv[1:] or list(ASSETS)
     ok = sum(1 for n in targets if n in ASSETS and convert(n, ASSETS[n]))
-    print(f"{ok}/{len(targets)} converted -> {OUT_DIR}")
+    if not targets or "hud_hp_ball" in targets:
+        if convert_hud_ball():
+            ok += 1
+    print(f"{ok}/{len(targets) + 1} converted -> {OUT_DIR}")
 
 
 if __name__ == "__main__":

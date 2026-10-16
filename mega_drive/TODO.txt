@@ -1,3 +1,17 @@
+- I should be able to change directions (left/right) when sliding
+
+- objects
+- sound effects (use conversor from zacane)
+- decrease enemies movement speed (half it)
+- player hit pushback and animation
+- in-game menu
+- boss
+- stage select
+- save and load
+- projectiles
+- special weapons
+
+
 - no need for quit game menu
 
 - settings should be simplified

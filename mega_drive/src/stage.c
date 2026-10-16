@@ -23,7 +23,7 @@ static const Image *const bg_images[STAGE0_MAP_COUNT] = {
     &stage0_bg0, &stage0_bg1, NULL
 };
 
-static s32 bg_scroll_fx;   // 16.16 fixed parallax scroll, wraps at plane width
+static s32 bg_scroll_fx;   // 16.16 parallax scroll, wraps at the baked width
 static s16 bg_last_cam_x;
 static u8 anim_frame[STAGE0_ANIM_SLOT_COUNT];
 static u16 anim_timer[STAGE0_ANIM_SLOT_COUNT];
@@ -59,10 +59,13 @@ static void bg_load(u8 map_index)
     // The plane is 64x32 cells: with VSCROLL_PLANE the sky (y < adjust_y)
     // wraps to rows 28..31, so fill through row 31 — never beyond, rows 32+
     // belong to the WINDOW plane at 0xD000.
+    // Start from the IMAGE height, not tileset->numTile / 64: rescomp
+    // dedups identical tiles (the city art is ~94% black), so numTile/64
+    // computed 1 and the fill erased the whole image except row 0.
     u16 row[64];
     const u16 t = TILE_ATTR_FULL(BG_PAL, FALSE, FALSE, FALSE, TILE_BG_INDEX);
     for (u16 i = 0; i < 64; i++) row[i] = t;
-    const u16 rows = img->tileset->numTile / 64;   // image is 64 tiles wide
+    const u16 rows = img->height / 8;   // image height in 8px rows (96 -> 12)
     for (u16 y = rows; y < 32; y++)
         VDP_setTileMapData(VDP_BG_B, row, y * 64, 64, 2, CPU);
 }
@@ -260,8 +263,16 @@ void stage_load(u8 map_index)
     // DOWN by adjust_y means vsram = -adjust_y. Must be written with the
     // VDP enabled — the bg_load write landed inside the disabled window
     // and was lost (art sat at y=0: moon at top, skyline mid-screen).
-    VDP_setVerticalScroll(BG_B, stage0_bg_info[map_index].present
-                          ? -stage0_bg_info[map_index].adjust_y : 0);
+    // BG vertical scroll (PC draws the bg at screen y = adjust_y, classmap
+    // .cpp:614). VSRAM = the plane row at screen top, so pushing the image
+    // DOWN by adjust_y means vsram = -adjust_y. Must be written with the
+    // VDP enabled — the bg_load write landed inside the disabled window
+    // and was lost (art sat at y=0: moon at top, skyline mid-screen).
+    // The -16 corrects for the cropped top PC row (240 -> 224 screen).
+    if (stage0_bg_info[map_index].present)
+        VDP_setVerticalScroll(BG_B, -((s16)stage0_bg_info[map_index].adjust_y - 16));
+    else
+        VDP_setVerticalScroll(BG_B, 0);
 }
 
 // PC test_teleport/check_player_is_on_teleport (game.cpp:638-661, 771-835).
@@ -355,17 +366,16 @@ void stage_update_camera(s16 focusX, s16 focusY)
     scroll_lock_camera(prev_x);
     MAP_scrollTo(stage_map, camera.x, camera.y);
 
-    // Parallax: PC does bg_scroll.x -= camera_dx * speed/10 (classmap.cpp:462)
-    // and draws the art at that offset (negative = plane shifted left).
-    // 16.16 accumulator, wrapped at the plane width (512px).
+    // Parallax city scene (requested look): horizontal scroll tied to the
+    // camera at bg speed/10, wrapped with an overflow-safe modulo into
+    // (-512px, 0]. PC marks these maps auto_scroll=NONE; keeping the effect
+    // is an intentional port deviation (user request).
     const s16 dx = camera.x - bg_last_cam_x;
     bg_last_cam_x = camera.x;
     const StageBgInfo *info = &stage0_bg_info[stage_current_map];
     if (info->present && info->speed) {
         const s32 W = (s32)512 << 16;
         bg_scroll_fx -= ((s32)dx * info->speed * 65536) / 10;
-        // wrap into (-W, 0]; the old "while (fx > 0) fx += W" relied on
-        // signed overflow (UB — gcc turns it into an infinite loop)
         bg_scroll_fx %= W;
         if (bg_scroll_fx > 0) bg_scroll_fx -= W;
         VDP_setHorizontalScroll(BG_B, (s16)(-(bg_scroll_fx >> 16)));

@@ -62,10 +62,11 @@ void enemies_reset(void)
                                TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
         e->alive = (e->spr != NULL);
         if (e->spr) {
-            // World X can exceed the 10-bit VDP sprite field (1184 wraps to
-            // 160 on-screen). AUTO_FAST hides by X against screen width and
-            // skips the SAT write; recomputed on every SPR_setPosition.
-            SPR_setVisibility(e->spr, AUTO_FAST);
+            // visibility is managed manually every frame in enemies_update:
+            // a screen_x > 1023 gets masked to 10 bits in the VDP sprite
+            // table (off-right enemies reappeared on the left, sliding at
+            // camera speed); AUTO_FAST masked before its test and never hid.
+            SPR_setVisibility(e->spr, VISIBLE);
             // rows: 0 = ANIM_STAND, 1 = ANIM_WALK (converter contract)
             SPR_setAnim(e->spr, d->walk_n > 0 ? 1 : 0);
             SPR_setHFlip(e->spr, e->dir < 0);
@@ -140,8 +141,14 @@ void enemies_update(void)
 
         // ---- draw ----------------------------------------------------------
         if (e->spr) {
+            s16 sx = e->x - camera.x;
+            s16 sy = e->y - camera.y;
+            // Manual visibility (see the spawn comment): only show when the
+            // sprite box really overlaps the screen.
+            bool vis = (sx >= -40 && sx < 336 && sy >= -40 && sy < 248);
+            SPR_setVisibility(e->spr, vis ? VISIBLE : HIDDEN);
             SPR_setHFlip(e->spr, e->dir < 0);
-            SPR_setPosition(e->spr, e->x - camera.x, e->y - camera.y);
+            SPR_setPosition(e->spr, sx, sy);
         }
 
         // ---- contact damage ------------------------------------------------
@@ -152,7 +159,7 @@ void enemies_update(void)
     }
 }
 
-bool enemies_try_hit(s16 l, s16 t, s16 r, s16 b)
+bool enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage)
 {
     for (u8 i = 0; i < enemy_count; i++) {
         Enemy *e = &enemies[i];
@@ -163,7 +170,7 @@ bool enemies_try_hit(s16 l, s16 t, s16 r, s16 b)
         if (l >= el + d->box_w || r <= el || t >= et + d->box_h || b <= et)
             continue;
 
-        e->hp--;
+        e->hp = (damage >= e->hp) ? 0 : e->hp - damage;
         if (e->hp == 0) {
             if (e->spr) SPR_releaseSprite(e->spr);
             e->spr = NULL;

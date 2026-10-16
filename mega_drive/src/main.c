@@ -7,6 +7,7 @@
 #include "player.h"
 #include "enemy.h"
 #include "shot.h"
+#include "hud.h"
 
 // Layout derived from the original game, adapted from 320x240 to 320x224.
 //   show_notice()  = game.cpp:506  -> intro logos (sprites)
@@ -143,6 +144,7 @@ static void runStage(void)
 
     stage_load(0);
     player_init();
+    hud_init();
 
     XGM2_play(stage_music);   // stage only — intro/title stay silent
 
@@ -154,6 +156,7 @@ static void runStage(void)
         u16 pad = JOY_readJoypad(JOY_1);
 
         player_update(pad);
+        hud_update(player.hp);
 
         s16 bl, bt, br, bb;
         player_get_box(&bl, &bt, &br, &bb);

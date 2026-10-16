@@ -40,7 +40,7 @@ XGM2 stage_music "music.vgm"
 # 4 cols x 7 anim rows, 32x32 cells. Green/magenta placeholders already swapped
 # to weapon_colors[0] by tools/convert_player.py.
 # rows: STAND, WALK, JUMP, ATTACK, HIT, TELEPORT, STAIRS
-SPRITE  player_sprite "player.png" 32p 32p FAST [[120,6][9,9,9,9][9][9][6,6][12,6,6][0]]
+SPRITE  player_sprite "player.png" 32p 32p FAST [[120,6][9,9,9,9][9][9][6,6][12,6,6][0][0]]
 
 # ---- STAGE 0 ENEMIES + PLAYER SHOT (tools/convert_enemies.py) ----
 # Generated sheets: row 0 = ANIM_STAND, row 1 = ANIM_WALK. Cells are padded
@@ -52,3 +52,8 @@ SPRITE enemy_spinner_ball_sprite "enemy_spinner_ball.png" 24p 24p FAST [[6,6,6,6
 SPRITE enemy_classic_metool_sprite "enemy_classic_metool.png" 24p 24p FAST [[12][12,12]]
 SPRITE enemy_cannon_ball_sprite "enemy_cannon_ball.png" 24p 24p FAST [[120][18,18]]
 SPRITE shot_sprite "shot.png" 8p 8p FAST [[1]]
+SPRITE shot_charge_sprite "shot_charge.png" 16p 16p FAST [[6,6,6,6]]
+
+# ---- HUD (tools/convert_assets.py: PAL0-quantized energy balls) ----
+# 5 frames: fill = full, 3/4, 2/4, 1/4, empty
+SPRITE hud_hp_ball_sprite "hud_hp_ball.png" 16p 16p FAST [[0,0,0,0,0]]

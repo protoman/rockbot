@@ -121,6 +121,7 @@ def read_map(stage_n, map_n):
     bg0_name = rec[0:30].split(b"\0")[0].decode("latin1")
     bg0_adjust_y, = struct.unpack("<h", rec[30:32])
     bg0_speed = struct.unpack("<b", rec[32:33])[0]
+    bg0_auto = rec[33]      # E_BG_SCROLL_MODE: 0 = NONE (static, PC)
     t = raw[MAP_TILES_OFF:MAP_TILES_OFF + MAP_W * MAP_H_SRC * TILE_STRUCT]
     cells = []
     for x in range(MAP_W):
@@ -131,7 +132,7 @@ def read_map(stage_n, map_n):
             t1x, t1y, t3x, t3y = struct.unpack("bbbb", v[1:5])
             col.append((locked, t1x, t1y, t3x, t3y))
         cells.append(col)
-    return bg, (bg0_name, bg0_adjust_y, bg0_speed), cells
+    return bg, (bg0_name, bg0_adjust_y, bg0_speed, bg0_auto), cells
 
 
 def build_palette(rgbs):
@@ -431,11 +432,14 @@ def main():
     bg_infos = []
     for m in range(MAPS_PER_STAGE):
         _, bg0, _ = read_map(STAGE_INDEX, m)
-        name, adj, spd = bg0
+        name, adj, spd, auto = bg0
         if name:
-            bg_infos.append(convert_background(m, name, adj, spd))
+            info = convert_background(m, name, adj, spd)
+            info["auto_scroll"] = auto
+            bg_infos.append(info)
         else:
-            bg_infos.append({"present": 0, "adjust_y": 0, "speed": 0})
+            bg_infos.append({"present": 0, "adjust_y": 0, "speed": 0,
+                             "auto_scroll": 0})
 
     n = len(used_maps)
     with open(os.path.join(SRC, "stage0_data.h"), "w") as f:
@@ -465,7 +469,7 @@ def main():
             "                           (t) != TERRAIN_EASYBLOCK && \\\n"
             "                           (t) != TERRAIN_HARDBLOCK)\n\n"
             "typedef struct { u8 map_from, tile_x, tile_y; u8 map_to, dst_x, dst_y; } StageLink;\n\n"
-            "typedef struct { u8 present; s16 adjust_y; s8 speed; } StageBgInfo;\n\n"
+            "typedef struct { u8 present; s16 adjust_y; s8 speed; u8 auto_scroll; } StageBgInfo;\n\n"
             f"extern const u8 stage0_terrain[STAGE0_MAP_COUNT][STAGE0_MAP_W * STAGE0_MAP_H];\n"
             f"extern const StageLink stage0_links[{len(links)}];\n"
             f"extern const StageBgInfo stage0_bg_info[STAGE0_MAP_COUNT];\n"
@@ -519,7 +523,8 @@ def main():
     lines.append("const StageBgInfo stage0_bg_info[STAGE0_MAP_COUNT] = {\n")
     for m, info in enumerate(bg_infos):
         comment = "map %d" % m
-        lines.append(f"    {{ {info['present']}, {info['adjust_y']}, {info['speed']} }}, // {comment}\n")
+        lines.append(f"    {{ {info['present']}, {info['adjust_y']}, "
+                     f"{info['speed']}, {info['auto_scroll']} }}, // {comment}\n")
     lines.append("};\n\n")
 
     lines.append("const u8 stage0_scroll_lock_n[STAGE0_MAP_COUNT] = {\n")

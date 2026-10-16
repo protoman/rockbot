@@ -57,9 +57,9 @@ const StageLink stage0_links[STAGE0_LINK_COUNT] = {
 };
 
 const StageBgInfo stage0_bg_info[STAGE0_MAP_COUNT] = {
-    { 1, 149, 5 }, // map 0
-    { 1, 20, 1 }, // map 1
-    { 0, 0, 0 }, // map 2
+    { 1, 149, 5, 0 }, // map 0
+    { 1, 20, 1, 0 }, // map 1
+    { 0, 0, 0, 0 }, // map 2
 };
 
 const u8 stage0_scroll_lock_n[STAGE0_MAP_COUNT] = {

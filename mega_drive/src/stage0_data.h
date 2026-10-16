@@ -29,7 +29,7 @@
 
 typedef struct { u8 map_from, tile_x, tile_y; u8 map_to, dst_x, dst_y; } StageLink;
 
-typedef struct { u8 present; s16 adjust_y; s8 speed; } StageBgInfo;
+typedef struct { u8 present; s16 adjust_y; s8 speed; u8 auto_scroll; } StageBgInfo;
 
 extern const u8 stage0_terrain[STAGE0_MAP_COUNT][STAGE0_MAP_W * STAGE0_MAP_H];
 extern const StageLink stage0_links[2];

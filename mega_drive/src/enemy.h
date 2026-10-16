@@ -18,8 +18,8 @@ void enemies_reset(void);
 // Call once per frame after the camera update, before SPR_update().
 void enemies_update(void);
 
-// Shot AABB against the enemy hitboxes. TRUE = one enemy was hit
-// (1 damage; the enemy dies when hp reaches 0).
-bool enemies_try_hit(s16 left, s16 top, s16 right, s16 bottom);
+// Shot AABB against the enemy hitboxes. TRUE = one enemy was hit.
+// damage: 1 = normal, 2 = semi-charged, 3 = full-charged (piercing).
+bool enemies_try_hit(s16 left, s16 top, s16 right, s16 bottom, u8 damage);
 
 #endif

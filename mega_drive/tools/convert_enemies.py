@@ -367,6 +367,30 @@ def main():
     out.save(os.path.join(RES, "shot.png"))
     print("wrote res/shot.png 8x8")
 
+    # charge shot (semi/full): 16x16, 4-frame pulse, same PAL0 pool.
+    # ring = nearest cream, core = pinned white (idx 15).
+    import math
+    ring_idx = lut((md_round(255), md_round(218), md_round(145)))
+    out = Image.new("P", (64, 16))
+    out.putpalette([v for c in palette for v in c])
+    data = [0] * (64 * 16)
+    for f in range(4):
+        r_out = 6.5 - (f % 2)          # pulse between 6.5 and 5.5
+        r_in = 2.5 + (f % 2) * 0.5
+        for y in range(16):
+            for x in range(16):
+                d = math.hypot(x - 7.5, y - 7.5)
+                if d <= r_in:
+                    idx = 15
+                elif d <= r_out:
+                    idx = ring_idx
+                else:
+                    idx = 0
+                data[y * 64 + f * 16 + x] = idx
+    out.putdata(data)
+    out.save(os.path.join(RES, "shot_charge.png"))
+    print("wrote res/shot_charge.png 16x16 x4 (charge shot)")
+
     # --- spawns -------------------------------------------------------------
     spawn_out = []
     for s in spawns_all:

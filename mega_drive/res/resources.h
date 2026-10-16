@@ -26,5 +26,7 @@ extern const SpriteDefinition enemy_spinner_ball_sprite;
 extern const SpriteDefinition enemy_classic_metool_sprite;
 extern const SpriteDefinition enemy_cannon_ball_sprite;
 extern const SpriteDefinition shot_sprite;
+extern const SpriteDefinition shot_charge_sprite;
+extern const SpriteDefinition hud_hp_ball_sprite;
 
 #endif // _RES_RESOURCES_H_
