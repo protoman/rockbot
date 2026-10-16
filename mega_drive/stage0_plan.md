@@ -27,8 +27,9 @@ build + emulator run before moving on.
 | M3 | HUD | DONE minimal: text debug overlay (tile-pos + HP "H28"); no bar/score/lives yet |
 | M4 | Player attack + buster projectile | DONE (verified in emulator: cooldown, max 3, kill) |
 | M5 | Enemies (5 types) — spawn, patrol AI, contact damage, projectile kill | DONE (verified map0=11 / map1=10, contact dmg, kill) |
-| M6 | Objects (platforms, teleporter, boss door) | PENDING |
-| M7 | Boss MILONGA BOT + stage clear | PENDING |
+| M6 | Objects (pills, 1UP, fall/fly platforms, checkpoint) | DONE (verified; + platform bug fixes built, emulator re-verify pending user) |
+| M6b | Boss teleporter object (type 32) | DONE (emulator-verified: capsule → arena drop + camera) |
+| M7 | Boss MILONGA BOT + stage clear | PENDING (M7a done, see below) |
 | M8 | Audio (XGM2) | OUT OF SCOPE (later milestone) |
 | — | Menu, saves, stage select, doors/spikes/water/ice, animated tiles, real health bar/HUD, enemy projectiles | OUT OF SCOPE / later |
 
@@ -112,15 +113,90 @@ MD has no second scolling plane over sprites →:
 - Verified: map0 spawned=11, map1 spawned=10 (after link), hp 28→26→24→22
   contact, kill with 2 shots.
 
-## M6 — Objects
+## M6 — Objects (DONE, verified)
 
-- id 0/3/9/13/37: identify types in `game_object_list.dat` (pellets?
-  platforms? decorations). Port only what stage 0 uses; moving platforms
-  need PC object.cpp behavior reading.
-- id 41 teleporter: map0 (177,9)→(182,3) — implement if reachable in
-  normal progression.
+- Converter `tools/convert_objects.py`: `game_object_list.dat` (84B
+  `file_object`) + `map_object_data.dat` (18B, stage filter, PC difficulty
+  rule — both modes keep level 0 on EASY). Used defs: 0 pill type7, 9 1UP
+  type9, 3 fall block type10, 13 fly platform type11 (gfx `platform_up.png`),
+  37 checkpoint type29; id 41 boss teleporter skipped (M7). Pre-drops
+  pill/1UP/checkpoint with PC load gravity (step 4px, h iterations, dest
+  bottom corners); platforms keep authored position (gravity skip list).
+  Quantized into shared PAL0 (pool parsed from `stage0_enemies.c`). Emits
+  `res/object_*.png` + `src/stage0_objects.{c,h}`: 5 defs, 37 spawns
+  (map0=11, map1=24; all difficulty_level==0 — includes diff_mode=1 pills,
+  PC keeps them on EASY).
+- Runtime `src/object.{c,h}`: state machine STAND/MOVE/RETURN per PC
+  `move()` — fall 4px/f blocked→RETURN, RETURN 2px/f gated while player
+  stands on it, off-screen y>272→RETURN; fly 4px/f up, RETURN 2px/f
+  CARRIES player (no gate); 13-frame activation delay (220ms). Pickups in
+  `objects_update` (before `player_update` for carry): pill hp+3 cap 28,
+  1UP consume no-op (lives unmodelled), checkpoint sets respawn. One-way
+  platform catch from top only (`objects_land_check` in the fall scan,
+  wins vs terrain only when higher; `objects_stand_check` keeps the player
+  grounded while a fly platform carries him over empty space).
+- Checkpoint respawn in `player.c`: pit-fall + death use
+  `respawn_player()` (checkpoint on current map else stage start) +
+  `stage_arrival_camera` for both. Animation manual: pill/1UP loop
+  always; fall/fly/checkpoint start on trigger (checkpoint loops, others
+  run once).
+- Verified in emulator (user: "Working").
 
-## M7 — Boss
+## M7 — Boss + boss teleporter
+
+### M7a — Boss teleporter (DONE, emulator-verified 2026-10-16)
+
+- Object def id=41, type 32 (`OBJ_STAGE_BOSS_TELEPORTER`), name "Stage Boss
+  Teleporter", gfx `teleporter_stage_boss.png` (96×64 RGBA = 3 frames of
+  32×64). Spawn: map0 tile (177,9) → px(2832,128) after converter y-formula.
+  Dest from `map_object_data.dat`: link_dest=(182,3) tiles, map_dest=0
+  (same map — teleports player to the boss arena entrance on map0).
+- PC behavior (character.cpp:2065-2074 + game.cpp:2199-2230):
+  - Collision block for type 32 is **computed but consumed**: the teleporter
+    branch in `map_collision` leaves `map_block=0` when the capsule misses,
+    so the object is a non-solid trigger (player walks through). MD matches:
+    no object blocking for type 32.
+  - Teleport fires when player capsule-center is inside object's center band
+    (`is_on_teleporter_capsulse`, character.cpp:2303): obj_y < player_y AND
+    obj_y+h > player_y+frame_h AND player center-x strictly between
+    limit_min/max = obj_x + |16-w|/2 .. obj_x + w - |16-w|/2.
+  - Effect: set_direction RIGHT, fade_out 500ms, set_current_map(dest_map),
+    scroll to first lock on left of dest_x, drop player to first solid below
+    dest tile (get_first_lock_on_bottom), reset_scrolled. For type 32
+    must_return=false (no return-teleport memory).
+- MD implementation (KISS, all PC-parity except fade/sfx):
+  - `tools/convert_objects.py`: type 32 kept (SKIP_TYPES removed); def +
+    sheet (PAL0, 3 frames × 7 ticks); `ObjectSpawn` extended with
+    `dest_x, dest_y, dest_map` (u8; from `_lx/_ly/_mdest` — 182 fits u8,
+    plan's s8 was wrong). Teleporter also animates: data `auto_start=1,
+    loop=1` → added to `auto_anim()` + `is_looping()`.
+  - `src/object.c`: MapObj carries dest bytes; overlap branch runs
+    `is_on_teleporter_capsulse` port (frame top/height = player.y / 29,
+    center = player.x+14) → `player.facing=1` (PC set_direction RIGHT) →
+    `stage_teleport_boss()` → immediate `return` (stage_load rebuilds objs[]).
+  - `src/stage.c`: `first_lock_on_bottom()` port (classmap.cpp:953; stage 0
+    has no WATER, EASYBLOCK/HARDBLOCK never column locks) + 
+    `stage_teleport_boss(dest_map, dest_tx, dest_ty)`: stage_load → drop on
+    dest_x column (PC ignores dest_y) at scan row −1 → player_place →
+    stage_arrival_camera (divider-safe; replaces PC get_first_lock_on_left).
+    No fade/sfx (later), no used-latch (must_return=false).
+  - Fixed pre-existing working-tree build-breaker found on the way:
+    `stage_arrival_camera` called `scroll_lock_span(focus_x)` (param is
+    `focusX`) — the M6 tree could not have rebuilt clean with this typo.
+- Geometry (verified from terrain data): teleporter sits in the pillar face
+  at cols 175-178; pocket rows 9-10 with a row-11 ledge at cols 177/178.
+  Capsule fires only from the ledge/arc (floor-standing player: feet ==
+  teleporter bottom → strict `>` fails, same as PC). Arrival col 182:
+  scan row 11 → place y160 → 3px settle onto arena floor row12; camera
+  2866 = divider col179 to left edge, player at screen x46.
+- Verified in emulator (temp SPAWN_X=2700 + temp arrival-camera line, both
+  reverted): walk right blocked at ledge face PX2807, jump right → capsule
+  mid-arc → arena PX2912 settled163, CX2866, divider left edge, full
+  redraw clean, stable (no re-trigger/ping-pong over +90f). ROM 256K.
+- Emulator harness: `/tmp/opencode/m6b_teleport.sh` (BlastEm + xdotool,
+  same pattern as emu_platform_test.sh).
+
+### M7b — Boss MILONGA BOT + stage clear
 
 - Stage boss field: name read by converter (`boss=` printed). Boss data in
   game_enemy_list + AI with scripted states. Likely behind a boss door
@@ -298,6 +374,40 @@ too high. Two bugs in `VDP_setVerticalScroll(BG_B, adjust_y)`:
    (vsram stayed 0 → art at y=0).
 Fix: vsram written after `VDP_setEnable`, value `-adjust_y`. Moon now
 sits low behind the walkway = PC framing.
+
+## M6 platform bug fixes (2026-10-16, user-reported → fixed, built)
+
+User reported: fall/fly platform side-collision broken, land-activation
+broken. Root-caused and fixed (all in working tree, ROM builds clean 256K):
+
+1. Converter platform y: was `(sy-1)*16` → now `s["y"]*16` (PC parity,
+   `object.cpp:66` position.y = sy*TILESIZE).
+2. Side collision: added `objects_block_x()` in `object.c`; `player.c`
+   horizontal move now clamps against platform bodies (PC COLlISION_MODE_XY).
+3. Land activation: `objects_land_check()` + `objects_player_land()`;
+   tie-break `<` → `<=` so exact-edge landing catches.
+4. Carry pre-move eval: fall/fly MOVE and fly RETURN now evaluate
+   `player_on_top()` BEFORE changing `o->y` (was after → carry never fired).
+5. Rising head block: `objects_head_block()` in player.c jump-up branch.
+
+Debug overlay added: `DEBUG_OBJECTS 1` in object.h, `objects_debug_text()`
+shows PX/PY/CX + per-platform state. Remove before release.
+
+Test room (temporary, in `convert_objects.py` `test_spawns`): pill(16,150),
+1UP(32,144), checkpoint(48,112), fall(208,128) right of spawn, fly(112,144)
+left of spawn. Harness `tools/emu_platform_test.sh` (BlastEm + xdotool +
+ImageMagick import). **Test-room spawns and DEBUG_OBJECTS still in tree —
+remove before release (user will test manually).**
+
+Verified in emulator (run 2): fly side-collision clamp x138, fly
+land-activation + rise, fall full cycle (land → fall 128→144 → return-pause
+→ carried down → return home), pill/1UP consumed. Fly carry (player riding
+fly up) NOT yet captured — harness timing/layout interference; fall
+side-block clean capture also pending. User to re-test manually with new
+layout (fall moved right of spawn x208).
+
+**Standing rule (user)**: every bash call touching the emulator needs an
+explicit timeout; never block/poll indefinitely; check liveness with pgrep.
 
 ## Notes / conventions
 

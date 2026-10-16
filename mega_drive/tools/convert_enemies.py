@@ -18,7 +18,12 @@ Emits:
 Simplifications (per user: precompute in converter, simple runtime AI):
   - difficulty: only spawns with difficulty_level <= 0 are emitted
     (PC rule classmap.cpp:545, game_save.difficulty = EASY).
-  - stage boss spawns (is_boss) are skipped -> milestone M7.
+  - boss (is_boss) hp is overridden to BOSS_INITIAL_HP = 36 (PC
+    classnpc.cpp:707 set_stage_boss() ignores file_npc.hp.total).
+  - AI state tables come from game_ai_list.dat (528B records, loaded by
+    game_mediator.cpp:262 — NOT game_ai_list_v3.dat, which the editor
+    keeps and which ships with empty stage-0 AIs). AI index = enemy id
+    (classnpc inherits artificial_inteligence; _number = npc id).
   - walkers are pre-dropped onto the ground (PC
     initialize_npc_position_to_ground, character.cpp:3213).
   - patrol limits precomputed from file_npc.walk_range: spawn +/- range.
@@ -53,6 +58,14 @@ TILE_STRUCT = 5
 NPC_SZ = 6048
 PROJ_SZ = 104
 MAP_NPC_SZ = 12
+AI_SZ = 528            # file_artificial_inteligence (name30+pad + 20x20 + 6x16)
+AI_STATES = 20
+
+# PC defines.h:438, applied by classnpc.cpp:707 set_stage_boss()
+BOSS_INITIAL_HP = 36
+
+# PC defines.h AI_ACTION_LIST + AI_ACTION_GOTO_LIST (goto 0 = chance roll)
+AI_GOTO_CHANCE = 0
 
 ANIM_STAND, ANIM_WALK = 0, 1
 COLORKEY = (75, 125, 125)
@@ -88,12 +101,21 @@ def read_enemy_defs(blob, ids):
                 rect = struct.unpack_from("<4h", b, o + 6)
                 if used:
                     out.append((px, dur, rect))
+        is_boss = b[6026]
+        hp = struct.unpack_from("<h", b, 64)[0]
+        if is_boss:
+            hp = BOSS_INITIAL_HP    # PC classnpc.cpp:707, file value unused
         defs[eid] = {
             "id": eid,
             "name": cstr(b, 3, 30),
             "gfx": cstr(b, 33, 30),
-            "hp": struct.unpack_from("<h", b, 64)[0],
+            "hp": hp,
+            # weakness[0] = normal weapon: (weapon_id, damage_multiplier,
+            # effect) at 5964+3i; PC multiplies projectile damage by it
+            # (classplayer.cpp:747). MILONGA BOT is weak to the buster (x3).
+            "dmg_mul": b[5965],
             "speed": b[69],
+            "proj0": b[1],
             "walk_range": struct.unpack_from("<h", b, 70)[0],
             "fw": struct.unpack_from("<b", b, 5958)[0],
             "fh": struct.unpack_from("<b", b, 5959)[0],
@@ -101,7 +123,7 @@ def read_enemy_defs(blob, ids):
             "fly": b[5963],
             "bgx": struct.unpack_from("<h", b, 6022)[0],
             "bgy": struct.unpack_from("<h", b, 6024)[0],
-            "is_boss": b[6026],
+            "is_boss": is_boss,
             "stand": stand,
             "walk": walk,
         }
@@ -123,6 +145,36 @@ def read_spawns():
             "map": r[8],
             "diffL": r[9],
         })
+    return out
+
+
+def read_ai_states():
+    """game_ai_list.dat per enemy id -> list of 20 sanitized states.
+
+    The file carries uninitialized garbage in unused slots (editor
+    leftovers); PC tolerates it because sane chance sums already reach 100
+    before them. We sanitize the same way: out-of-range fields -> 0.
+    """
+    path = os.path.join(DATA, "game_ai_list.dat")
+    blob = open(path, "rb").read()
+    out = {}
+    for eid in range(len(blob) // AI_SZ):
+        b = blob[eid * AI_SZ:(eid + 1) * AI_SZ]
+        states = []
+        for i in range(AI_STATES):
+            chance, action, go_to, delay, param = struct.unpack_from("<5i", b, 32 + i * 20)
+            if not (0 <= chance <= 100):
+                chance = 0
+            if not (0 <= action <= 23):
+                action = 0
+            if not (0 <= go_to <= 20):
+                go_to = 0
+            if not (0 <= delay <= 20000):
+                delay = 0
+            if not (-128 <= param <= 127):
+                param = 0
+            states.append((chance, action, go_to, delay, param))
+        out[eid] = states
     return out
 
 
@@ -199,11 +251,14 @@ def collect_colors(images):
 
 def build_pool(counts):
     """<= MAX_POOL colors; black stays (art), white merges into idx15."""
+    def lum(c):
+        return 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]
+
     pool = [c for c, _ in counts.most_common() if c != (WHITE8,) * 3]
     if (0, 0, 0) in pool:                    # keep black first: most frequent use
         pool.remove((0, 0, 0))
         pool.insert(0, (0, 0, 0))
-    while len(pool) > MAX_POOL:              # merge nearest pair (convert_stage style)
+    while len(pool) > MAX_POOL:              # merge nearest pair, keep the brighter
         bi, bj, bd = 0, 1, 1 << 30
         for i in range(len(pool)):
             for j in range(i + 1, len(pool)):
@@ -211,6 +266,8 @@ def build_pool(counts):
                 d = (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2
                 if d < bd:
                     bd, bi, bj = d, i, j
+        if lum(pool[bj]) > lum(pool[bi]):
+            pool[bi] = pool[bj]
         del pool[bj]
     return pool
 
@@ -239,6 +296,7 @@ def to_vdp(c):
 def main():
     blob = open(os.path.join(DATA, "game_enemy_list_3_1_2.dat"), "rb").read()
     spawns_all = read_spawns()
+    ai_states = read_ai_states()
 
     used_ids = []
     for s in spawns_all:
@@ -246,11 +304,6 @@ def main():
             continue
         if s["diffL"] > 0:                    # PC classmap.cpp:545, easy mode
             print(f"skip spawn id={s['id']} map={s['map']} pos=({s['x']},{s['y']}): difficulty_level {s['diffL']} > 0")
-            continue
-        eid = blob[s["id"] * NPC_SZ]
-        is_boss = blob[s["id"] * NPC_SZ + 6026]
-        if is_boss:
-            print(f"skip spawn id={s['id']} pos=({s['x']},{s['y']}): is_boss (M7)")
             continue
         used_ids.append(s["id"])
 
@@ -268,7 +321,7 @@ def main():
         rgba = load_rgba(path)
         fw, fh = d["fw"], d["fh"]
         cw, ch = ceil8(fw), ceil8(fh)
-        assert cw <= 32 and ch <= 32, f"{d['gfx']}: cell {cw}x{ch} > 32"
+        assert cw <= 64 and ch <= 64, f"{d['gfx']}: cell {cw}x{ch} > 64"
 
         def frames_of(anim):
             return [(px, dur) for (px, dur, _rect) in anim]
@@ -308,12 +361,15 @@ def main():
             "res_name": "enemy_" + os.path.splitext(d["gfx"])[0],
         }
         res_names[eid] = plans[eid]["res_name"]
-        print(f"id={eid} {d['name']} gfx={d['gfx']} hp={d['hp']} spd={d['speed']} "
-              f"fly={d['fly']} ia={d['ia']} cell={cw}x{ch} box=(bl,bt,w,h)={plans[eid]['box']} "
+        print(f"id={eid} {d['name']} gfx={d['gfx']} hp={d['hp']} mul={d['dmg_mul']} "
+              f"spd={d['speed']} fly={d['fly']} ia={d['ia']} cell={cw}x{ch} "
+              f"box=(bl,bt,w,h)={plans[eid]['box']} "
               f"stand={len(stand)}f walk={len(walk)}f bg=({d['bgx']},{d['bgy']})")
 
     # --- shot ---------------------------------------------------------------
     shot_rgba = load_rgba(os.path.join(DATA, "images/projectiles/projectile_normal.png"))
+    semi_path = os.path.join(DATA, "images/projectiles/charged_semi.png")
+    semi_rgba = load_rgba(semi_path) if os.path.exists(semi_path) else shot_rgba
     proj = open(os.path.join(DATA, "game_projectile_list.dat"), "rb").read()
     p0 = proj[0:PROJ_SZ]
     shot_speed = p0[68]
@@ -322,7 +378,7 @@ def main():
           f"max_shots={p0[67]} size={struct.unpack_from('<hh', p0, 60)}")
 
     # --- shared palette (enemy art + shot art) ------------------------------
-    all_imgs = [p["rgba"] for p in plans.values()] + [shot_rgba]
+    all_imgs = [p["rgba"] for p in plans.values()] + [shot_rgba, semi_rgba]
     pool = build_pool(collect_colors(all_imgs))
     lut = make_lut(pool)
     print(f"shared PAL0 pool: {len(pool)} colors -> {pool}")
@@ -366,6 +422,22 @@ def main():
     out.putdata(data)
     out.save(os.path.join(RES, "shot.png"))
     print("wrote res/shot.png 8x8")
+
+    # enemy projectile id 11 "Semi-Charged": 2 frames of 16x16 (32x16 art)
+    sw, sh = semi_rgba.size
+    nsemi = max(1, sw // 16)
+    out = Image.new("P", (nsemi * 16, 16))
+    out.putpalette([v for c in palette for v in c])
+    data = [0] * (nsemi * 16 * 16)
+    src = semi_rgba.load()
+    for y in range(min(sh, 16)):
+        for x in range(min(sw, nsemi * 16)):
+            px = src[x, y]
+            idx = 0 if px[3] == 0 else lut((md_round(px[0]), md_round(px[1]), md_round(px[2])))
+            data[y * nsemi * 16 + x] = idx
+    out.putdata(data)
+    out.save(os.path.join(RES, "enemy_shot_semi.png"))
+    print(f"wrote res/enemy_shot_semi.png {out.size}")
 
     # charge shot (semi/full): 16x16, 4-frame pulse, same PAL0 pool.
     # ring = nearest cream, core = pinned white (idx 15).
@@ -412,6 +484,22 @@ def main():
         print(f"spawn def={def_idx} id={s['id']} map={s['map']} px=({x},{y}) "
               f"range=[{x_min},{x_max}] dir={s['dir']}")
 
+    # projectiles referenced by the emitted AI shot states + npc defaults
+    used_proj = set()
+    for eid in sorted(defs):
+        for (_ch, act, _g, _d, p) in ai_states.get(eid, []):
+            if act in (5, 6, 7) and 0 <= p < 12:      # SHOT_AHEAD/PLAYER_DIR/INVERT
+                used_proj.add(p)
+        p0 = defs[eid]["proj0"]
+        if 0 <= p0 < 12:
+            used_proj.add(p0)
+    proj_info = {}
+    for pid in sorted(used_proj):
+        r = proj[pid * PROJ_SZ:(pid + 1) * PROJ_SZ]
+        w, h = struct.unpack_from("<2h", r, 60)
+        proj_info[pid] = (r[68], r[69], w, h)
+        print(f"proj[{pid}] '{cstr(r,0,30)}' spd={r[68]} dmg={r[69]} size={w}x{h}")
+
     # --- stage0_enemies.h/.c ------------------------------------------------
     ids_sorted = sorted(defs)
     h = f"""#ifndef STAGE0_ENEMIES_H
@@ -424,14 +512,37 @@ def main():
 
 typedef struct {{
     const SpriteDefinition *spr;
-    u8 hp;              // shots to kill (file_npc.hp.total)
+    u8 hp;              // shots to kill (file_npc.hp.total; boss = 36)
+    u8 dmg_mul;         // weakness[0].damage_multiplier (shot dmg x this)
     u8 speed;           // px/frame (file_npc.speed)
     u8 fly;             // 1 = no gravity (file_npc.fly_flag)
+    u8 is_boss;         // file_npc.is_boss -> boss HP bar + stage clear
+    u8 shot;            // default projectile id when AI SHOT param is -1
+    u16 range;          // file_npc.walk_range: AI walk/wait distance
     s16 box_l, box_t;   // hitbox relative to sprite cell origin
     u16 box_w, box_h;
     u8 stand_n;         // frames in sheet row 0 (ANIM_STAND)
     u8 walk_n;          // frames in sheet row 1 (ANIM_WALK)
 }} EnemyDef;
+
+// game_ai_list.dat state machine (PC artificial_inteligence.cpp):
+// chance roll picks a state; go_to 0 = re-roll chance, N = state N-1;
+// param feeds the action executor (WALK/FLY/JUMP option, projectile id).
+typedef struct {{
+    u8 chance;          // 0..100 cumulative roll weight
+    u8 action;          // AI_ACTION_* (enemy.h)
+    u8 go_to;           // 0 = chance, N = state N-1 (1-based, PC defines.h:758)
+    u16 delay;          // ms before the next step (PC go_to_delay)
+    s8 param;           // action option / projectile id
+}} EnemyAi;
+
+// file_projectile_list.dat, sparse by projectile id (NULL spr = unused).
+typedef struct {{
+    const SpriteDefinition *spr;
+    u8 speed, dmg;
+    u8 w, h;
+}} EnemyProj;
+#define ENEMY_PROJ_MAX 12
 
 typedef struct {{
     u8 def;             // index into enemy_defs
@@ -446,6 +557,10 @@ typedef struct {{
 
 extern const EnemyDef enemy_defs[ENEMY_DEF_COUNT];
 extern const EnemySpawn stage0_enemy_spawns[ENEMY_SPAWN_COUNT];
+// AI state tables, indexed [def][state]; defs without game data get an
+// all-zero table (chance roll falls back to state 0 = WALK).
+extern const EnemyAi enemy_ai[ENEMY_DEF_COUNT][20];
+extern const EnemyProj enemy_proj[ENEMY_PROJ_MAX];
 
 // PAL0 = font white (idx 15) + this palette; index 0 = transparent.
 extern const u16 palette_ui_enemies[16];
@@ -462,9 +577,11 @@ extern const u16 palette_ui_enemies[16];
         p = plans[eid]
         d = defs[eid]
         bl, bt, bw, bh = p["box"]
+        shot0 = d["proj0"] if d["proj0"] in proj_info else 0
         lines.append(
             f"    /* {def_idx_name[eid]} */ {{ &{p['res_name']}_sprite, "
-            f"{d['hp']}, {d['speed']}, {d['fly']}, "
+            f"{d['hp']}, {d['dmg_mul']}, {d['speed']}, {d['fly']}, {d['is_boss']}, "
+            f"{shot0}, {d['walk_range']}, "
             f"{bl}, {bt}, {bw}, {bh}, "
             f"{len(p['stand'])}, {len(p['walk'])} }},  // {d['name']}\n")
     lines.append("};\n\n")
@@ -472,6 +589,20 @@ extern const u16 palette_ui_enemies[16];
     for (di, mp, x, y, xm, xx, dr) in spawn_out:
         lines.append(f"    {{ {di}, {mp}, {x}, {y}, {xm}, {xx}, {dr} }},\n")
     lines.append("};\n\n")
+    lines.append("const EnemyAi enemy_ai[ENEMY_DEF_COUNT][20] = {\n")
+    for eid in ids_sorted:
+        states = ai_states.get(eid, [(0, 0, 0, 0, 0)] * 20)
+        rows = ", ".join(
+            f"{{{ch},{act},{g},{delay},{param}}}"
+            for (ch, act, g, delay, param) in states)
+        lines.append(f"    {{ {rows} }},  // {defs[eid]['name']}\n")
+    lines.append("};\n\n")
+    lines.append("const EnemyProj enemy_proj[ENEMY_PROJ_MAX] = {\n")
+    for pid in sorted(proj_info):
+        spd, dmg, w, h = proj_info[pid]
+        spr = "shot_sprite" if pid == 0 else f"enemy_shot_semi_sprite"
+        lines.append(f"    [{pid}] = {{ &{spr}, {spd}, {dmg}, {w}, {h} }},\n")
+    lines.append("};\n")
     lines.append("const u16 palette_ui_enemies[16] = {\n    0x0000,")
     for c in pool:
         lines.append(f" 0x{to_vdp(c):03X},")
@@ -491,6 +622,8 @@ extern const u16 palette_ui_enemies[16];
         print(f'SPRITE {p["res_name"]}_sprite "{p["res_name"]}.png" '
               f'{p["cw"]}p {p["ch"]}p FAST [[{st}][{wk}]]')
     print('SPRITE shot_sprite "shot.png" 8p 8p FAST [[1]]')
+    if 11 in proj_info:
+        print('SPRITE enemy_shot_semi_sprite "enemy_shot_semi.png" 16p 16p FAST [[5,5]]')
     print(f"shot_speed={shot_speed} shot_dmg={shot_dmg}")
     return 0
 

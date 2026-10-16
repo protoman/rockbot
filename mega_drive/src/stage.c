@@ -3,7 +3,10 @@
 #include "resources.h"
 #include "stage0_enemies.h"
 #include "enemy.h"
+#include "object.h"
+#include "player.h"
 #include "shot.h"
+#include "eshot.h"
 
 
 Map *stage_map;
@@ -65,7 +68,7 @@ static void bg_load(u8 map_index)
     u16 row[64];
     const u16 t = TILE_ATTR_FULL(BG_PAL, FALSE, FALSE, FALSE, TILE_BG_INDEX);
     for (u16 i = 0; i < 64; i++) row[i] = t;
-    const u16 rows = img->height / 8;   // image height in 8px rows (96 -> 12)
+    const u16 rows = img->tilemap->h;   // image height in 8px rows (96px -> 12)
     for (u16 y = rows; y < 32; y++)
         VDP_setTileMapData(VDP_BG_B, row, y * 64, 64, 2, CPU);
 }
@@ -247,9 +250,11 @@ void stage_load(u8 map_index)
     // VDP_drawText keeps working, indices 1..14 hold the enemy colors.
     PAL_setPalette(PAL0, palette_ui_enemies, DMA_QUEUE);
 
-    // enemies/shots are per-map: release the old ones, spawn this map's
+    // enemies/shots/objects are per-map: release the old ones, spawn this map's
     shots_reset();
+    eshots_reset();
     enemies_reset();
+    objects_reset();
 
     // animated-tile frame 0 must be in VRAM before the first full draw
     stage_anim_reset();
@@ -378,7 +383,7 @@ void stage_update_camera(s16 focusX, s16 focusY)
         bg_scroll_fx -= ((s32)dx * info->speed * 65536) / 10;
         bg_scroll_fx %= W;
         if (bg_scroll_fx > 0) bg_scroll_fx -= W;
-        VDP_setHorizontalScroll(BG_B, (s16)(-(bg_scroll_fx >> 16)));
+        VDP_setHorizontalScroll(BG_B, (s16)(bg_scroll_fx >> 16));
     }
 }
 
@@ -404,4 +409,55 @@ void stage_arrival_camera(s16 focusX, s16 focusY)
     clamp_camera();
     scroll_lock_span(focusX);
     stage_force_redraw();
+}
+
+// PC get_first_lock_on_bottom (classmap.cpp:953): scanning up from the map
+// bottom, the first column tile that has `above` clear tiles above it across
+// `right` columns. Returns the free row just above the lock (PC i-1). The
+// PC WATER/EASYBLOCK/HARDBLOCK exclusions match stage 0 (no water; the two
+// difficulty pass-throughs never appear as column locks here).
+static s16 first_lock_on_bottom(s16 tilex, s16 w, s16 h)
+{
+    s16 above = h / 16;
+    if (above < 2) above = 2;
+    s16 right = w / 16;
+    if (right < 1) right = 1;
+
+    for (s16 i = STAGE0_MAP_H - 1; i >= above + 1; i--) {
+        u16 t = stage_terrain_at(stage_current_map, tilex, i);
+        if (t == TERRAIN_UNBLOCKED || t == TERRAIN_EASYBLOCK || t == TERRAIN_HARDBLOCK)
+            continue;
+        bool bad = FALSE;
+        for (s16 j = i - 1; j >= i - above && !bad; j--) {
+            for (s16 k = 0; k < right; k++) {
+                if (tilex + k >= STAGE0_MAP_W) { bad = TRUE; break; }
+                if (stage_terrain_at(stage_current_map, tilex + k, j) != TERRAIN_UNBLOCKED) {
+                    bad = TRUE;
+                    break;
+                }
+            }
+        }
+        if (!bad) return i - 1;
+    }
+    return 0;
+}
+
+// PC game::object_teleport_boss (game.cpp:2199) for OBJ_STAGE_BOSS_TELEPORTER
+// (must_return=false: no return-teleport memory, no used-latch). Fade/sfx
+// skipped; the destination scroll is the divider-safe arrival path (PC
+// get_first_lock_on_left + set_scrolling). dest_ty is unused: PC drops the
+// player on the dest_x column's ground, not at dest_y.
+void stage_teleport_boss(u8 dest_map, u8 dest_tx, u8 dest_ty)
+{
+    (void)dest_ty;
+    stage_load(dest_map);
+
+    s16 px = (s16)dest_tx * 16;
+    s16 pos_y = first_lock_on_bottom(dest_tx,
+                                     PLAYER_BOX_R - PLAYER_BOX_L, PLAYER_BOX_B);
+    if (pos_y < 0 || pos_y > 14) pos_y = 0;    // PC: > RES_H/TILESIZE
+    s16 py = (pos_y - 1) * 16;                 // PC pos_y--; set_position
+    player_place(px, py);
+    stage_arrival_camera(px + (PLAYER_BOX_L + PLAYER_BOX_R) / 2,
+                         py + (PLAYER_BOX_T + PLAYER_BOX_B) / 2);
 }

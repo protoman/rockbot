@@ -115,8 +115,13 @@ Kega Fusion 3.63x (flatpak). RetroArch + Genesis Plus GX also works but needs `-
 - Milestone 3: **intro stage CHAOS CITY** — map scroll, player walk/jump/collision.
 - Stage 0 milestone table + session notes: **`stage0_plan.md`** (single source
   of truth). Current: M0 maps/links/collision, M1 parallax bg, M2 tile3 baked,
-  M3 text HP debug overlay, M4 attack + shots, M5 enemies (5 types) DONE;
-  M6 objects, M7 boss pending.
+  M3 text HP debug overlay, M4 attack + shots, M5 enemies (5 types),
+  M6 objects (pills/1UP/fall+fly platforms/checkpoint) DONE + platform bug
+  fixes (side collision, land-activation, carry) built; user to re-test.
+  **Next: M6b boss teleporter object (type 32) — research in stage0_plan.md
+  M7a section.** Then M7 boss. Backlog after M6 (user order): charged-shot
+  projectiles like PC, halve enemy speed, hit pushback + hit anim, menu,
+  boss, stage select.
 
 Flow in `main.c`: `showIntro()` → `showTitle()` (waits for START) → `runStage()`.
 
@@ -129,12 +134,15 @@ Flow in `main.c`: `showIntro()` → `showTitle()` (waits for START) → `runStag
 | `src/stage0_data.{c,h}` | generated `u8 terrain[200*15]` + `STAGE0_TERRAIN(x,y)` |
 | `src/player.{c,h}` | physics, AABB collision, sprite, ladder grab. `PLAYER_BOX_*`, `ANIM_*` |
 | `src/enemy.{c,h}` | enemy spawn/patrol/contact/kill |
+| `src/object.{c,h}` | map objects: pickups, fall/fly platforms, checkpoint |
 | `src/shot.{c,h}` | player buster shots |
 | `src/stage0_enemies.{c,h}` | generated: defs, spawns, `palette_ui_enemies` |
+| `src/stage0_objects.{c,h}` | generated: object defs, spawns |
 | `tools/convert_assets.py` | logos → indexed PNG |
 | `tools/convert_stage.py` | stage/map data → `res/stage0_map*.png` + `src/stage0_data.*` + parallax `res/stage0_bg*.png` |
 | `tools/convert_player.py` | `p1.png` → `res/player.png` (anim rows, palette swap) |
 | `tools/convert_enemies.py` | enemy .dat/.png → `res/enemy_*.png`, `res/shot.png`, `src/stage0_enemies.*` |
+| `tools/convert_objects.py` | object .dat/.png → `res/object_*.png`, `src/stage0_objects.*` |
 | `res/resources.res` | rescomp manifest |
 
 **Rebuild assets then ROM**
@@ -143,14 +151,15 @@ Flow in `main.c`: `showIntro()` → `showTitle()` (waits for START) → `runStag
 /home/iuri/python3/bin/python3 tools/convert_stage.py
 /home/iuri/python3/bin/python3 tools/convert_player.py
 /home/iuri/python3/bin/python3 tools/convert_enemies.py
+/home/iuri/python3/bin/python3 tools/convert_objects.py
 make
 ```
 
 **Controls in Kega** (`Fusion.ini` `Player1Keys`): arrows = D-pad, **C/X/Z** = A/B/C, **Return** = Start.
 
-**Not implemented**: doors, spikes, water, ice, animated tiles, enemy
-projectiles, bosses/objects (M6/M7), real HUD (score/lives/bar — only text
-debug overlay), audio, menu, saves.
+**Not implemented**: doors, spikes, water, ice, enemy projectiles, bosses
+(M7; boss-teleporter object skipped in M6), real HUD (score/lives/bar — only
+text debug overlay), audio, menu, saves.
 
 **Stage 0 progression (verified from data, NOT guesswork)**
 ```

@@ -25,8 +25,17 @@ extern const SpriteDefinition enemy_spinner_ball_red_sprite;
 extern const SpriteDefinition enemy_spinner_ball_sprite;
 extern const SpriteDefinition enemy_classic_metool_sprite;
 extern const SpriteDefinition enemy_cannon_ball_sprite;
+extern const SpriteDefinition enemy_milonga_sprite;
 extern const SpriteDefinition shot_sprite;
+extern const SpriteDefinition enemy_shot_semi_sprite;
 extern const SpriteDefinition shot_charge_sprite;
+extern const SpriteDefinition object_energy_pill_small_sprite;
+extern const SpriteDefinition object_fall_block_sprite;
+extern const SpriteDefinition object_1up_sprite;
+extern const SpriteDefinition object_platform_up_sprite;
+extern const SpriteDefinition object_checkpoint_sprite;
+extern const SpriteDefinition object_teleporter_stage_boss_sprite;
 extern const SpriteDefinition hud_hp_ball_sprite;
+extern const SpriteDefinition hud_boss_ball_sprite;
 
 #endif // _RES_RESOURCES_H_

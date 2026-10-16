@@ -13,8 +13,9 @@
 // fixed VRAM block. Layout: system 0..15, stage tilesets from
 // TILE_USER_INDEX (biggest stage-0 tileset = 127 tiles -> ends 143),
 // bg tiles at 144 (bg0 = 768 tiles -> ends 911), animated-tile frames
-// at 912+ (TILE_ANIM_BASE in stage0_data.h), sprite engine 1440..1951
-// (SPR_initEx(512) at TILE_SPRITE_INDEX = 1952-512), font 1952..2047.
+// at 912+ (TILE_ANIM_BASE in stage0_data.h, 1 slot -> ends 936), sprite
+// engine 1312..1951 (SPR_initEx(640) at TILE_SPRITE_INDEX = 1952-640),
+// font 1952..2047.
 #define BG_PAL        PAL3
 #define TILE_BG_INDEX 144
 
@@ -37,6 +38,12 @@ void stage_force_redraw(void);
 
 // Direct camera set for a link arrival (PC set_scrolling), divider-safe.
 void stage_arrival_camera(s16 focusX, s16 focusY);
+
+// Boss teleporter (OBJ_STAGE_BOSS_TELEPORTER, PC game::object_teleport_boss
+// game.cpp:2199 with must_return=false): reload dest_map, drop the player on
+// the ground column of dest tile dest_tx (dest_ty unused — PC ignores it),
+// divider-safe arrival camera. No fade/sfx yet.
+void stage_teleport_boss(u8 dest_map, u8 dest_tx, u8 dest_ty);
 
 // TRUE when the given world-space box overlaps a link origin tile of the
 // current map. Fills the destination map index and pixel position.

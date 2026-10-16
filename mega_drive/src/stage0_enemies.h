@@ -8,14 +8,37 @@
 
 typedef struct {
     const SpriteDefinition *spr;
-    u8 hp;              // shots to kill (file_npc.hp.total)
+    u8 hp;              // shots to kill (file_npc.hp.total; boss = 36)
+    u8 dmg_mul;         // weakness[0].damage_multiplier (shot dmg x this)
     u8 speed;           // px/frame (file_npc.speed)
     u8 fly;             // 1 = no gravity (file_npc.fly_flag)
+    u8 is_boss;         // file_npc.is_boss -> boss HP bar + stage clear
+    u8 shot;            // default projectile id when AI SHOT param is -1
+    u16 range;          // file_npc.walk_range: AI walk/wait distance
     s16 box_l, box_t;   // hitbox relative to sprite cell origin
     u16 box_w, box_h;
     u8 stand_n;         // frames in sheet row 0 (ANIM_STAND)
     u8 walk_n;          // frames in sheet row 1 (ANIM_WALK)
 } EnemyDef;
+
+// game_ai_list.dat state machine (PC artificial_inteligence.cpp):
+// chance roll picks a state; go_to 0 = re-roll chance, N = state N-1;
+// param feeds the action executor (WALK/FLY/JUMP option, projectile id).
+typedef struct {
+    u8 chance;          // 0..100 cumulative roll weight
+    u8 action;          // AI_ACTION_* (enemy.h)
+    u8 go_to;           // 0 = chance, N = state N-1 (1-based, PC defines.h:758)
+    u16 delay;          // ms before the next step (PC go_to_delay)
+    s8 param;           // action option / projectile id
+} EnemyAi;
+
+// file_projectile_list.dat, sparse by projectile id (NULL spr = unused).
+typedef struct {
+    const SpriteDefinition *spr;
+    u8 speed, dmg;
+    u8 w, h;
+} EnemyProj;
+#define ENEMY_PROJ_MAX 12
 
 typedef struct {
     u8 def;             // index into enemy_defs
@@ -25,11 +48,15 @@ typedef struct {
     u8 dir;             // ANIM_DIRECTION: 0 = left, 1 = right
 } EnemySpawn;
 
-#define ENEMY_DEF_COUNT 5
-#define ENEMY_SPAWN_COUNT 21
+#define ENEMY_DEF_COUNT 6
+#define ENEMY_SPAWN_COUNT 22
 
 extern const EnemyDef enemy_defs[ENEMY_DEF_COUNT];
 extern const EnemySpawn stage0_enemy_spawns[ENEMY_SPAWN_COUNT];
+// AI state tables, indexed [def][state]; defs without game data get an
+// all-zero table (chance roll falls back to state 0 = WALK).
+extern const EnemyAi enemy_ai[ENEMY_DEF_COUNT][20];
+extern const EnemyProj enemy_proj[ENEMY_PROJ_MAX];
 
 // PAL0 = font white (idx 15) + this palette; index 0 = transparent.
 extern const u16 palette_ui_enemies[16];

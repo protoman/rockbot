@@ -1,14 +1,18 @@
 - I should be able to change directions (left/right) when sliding
 
 - objects
-- sound effects (use conversor from zacane)
+
+
+Forgot to tell, other stuff after finishing objects:
+- charged shot projectile is not correct, should have an intermadiate and a fully charged, like in the PC game.
 - decrease enemies movement speed (half it)
 - player hit pushback and animation
 - in-game menu
 - boss
 - stage select
+
+- sound effects (use conversor from zacane)
 - save and load
-- projectiles
 - special weapons
 
 

@@ -174,10 +174,10 @@ ENEMY_PAL_RGB = [
 ]
 
 
-def convert_hud_ball():
-    src = os.path.join(ROCKBOT, "build/shared/images/hp_ball.png")
+def convert_hud_ball(src_name="hp_ball.png", out_name="hud_hp_ball.png"):
+    src = os.path.join(ROCKBOT, "build/shared/images", src_name)
     if not os.path.exists(src):
-        print(f"  SKIP hud_hp_ball: {src} not found")
+        print(f"  SKIP {out_name}: {src} not found")
         return False
     img = Image.open(src).convert("RGBA")
     fw = img.height  # square frames (10x10)
@@ -199,18 +199,23 @@ def convert_hud_ball():
                 data[y * n * 16 + f * 16 + x] = idx
     out.putdata(data)
     os.makedirs(OUT_DIR, exist_ok=True)
-    out.save(os.path.join(OUT_DIR, "hud_hp_ball.png"))
-    print(f"  OK hud_hp_ball: {img.size} -> {out.size} ({n} frames, PAL0)")
+    out.save(os.path.join(OUT_DIR, out_name))
+    print(f"  OK {out_name}: {img.size} -> {out.size} ({n} frames, PAL0)")
     return True
 
 
 def main():
-    targets = sys.argv[1:] or list(ASSETS)
+    explicit = sys.argv[1:]
+    targets = explicit or list(ASSETS)
     ok = sum(1 for n in targets if n in ASSETS and convert(n, ASSETS[n]))
-    if not targets or "hud_hp_ball" in targets:
-        if convert_hud_ball():
-            ok += 1
-    print(f"{ok}/{len(targets) + 1} converted -> {OUT_DIR}")
+    n = len(targets)
+    if not explicit or "hud_hp_ball" in explicit:
+        ok += convert_hud_ball()
+        n += 1
+    if not explicit or "hud_boss_ball" in explicit:
+        ok += convert_hud_ball("boss_hp_ball.png", "hud_boss_ball.png")
+        n += 1
+    print(f"{ok}/{n} converted -> {OUT_DIR}")
 
 
 if __name__ == "__main__":

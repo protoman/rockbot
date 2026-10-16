@@ -1,12 +1,13 @@
 #include <genesis.h>
 
-
 #include "resources.h"
 
 #include "stage.h"
 #include "player.h"
 #include "enemy.h"
+#include "object.h"
 #include "shot.h"
+#include "eshot.h"
 #include "hud.h"
 
 // Layout derived from the original game, adapted from 320x240 to 320x224.
@@ -131,11 +132,13 @@ static void showTitle(void)
 // INTRO_STAGE = stage 0 = "CHAOS CITY" (game.cpp:439 sets currentStage).
 // Stage 0 crosses two maps through ladders: link 0 is map 0 (136,14) -> map 1
 // (198,0), the only way past the full-height wall at x=137..138.
+static void showStageClear(void);
 static void runStage(void)
 {
-    // SPR_initEx(512): sprite VRAM = TILE_SPRITE_INDEX = 1952-512 = 1440..1951
-    // (player + enemy sheets + shots need ~491 tiles).
-    SPR_initEx(512); // released again by showTitle()
+    // SPR_initEx(640): sprite VRAM = 1952-640 = 1312..1951 (player + enemy
+    // sheets incl. the 40x40 boss + shots + objects + HUD rows, ~500 tiles
+    // deduped). Animated tiles end at 936, so 937..1311 stays free.
+    SPR_initEx(640); // released again by showTitle()
 
     // PAL2 still holds intro/title colors; clear it before the player
     // sprite claims it (player_init loads the player palette over this).
@@ -145,6 +148,9 @@ static void runStage(void)
     stage_load(0);
     player_init();
     hud_init();
+    // TEMP M7b test (revert with player.c SPAWN_X): the temp east spawn is
+    // past divider col137, which scroll_lock_camera blocks from camera 0.
+    stage_arrival_camera(player.x + 8, player.y);
 
     XGM2_play(stage_music);   // stage only — intro/title stay silent
 
@@ -155,8 +161,12 @@ static void runStage(void)
     while (TRUE) {
         u16 pad = JOY_readJoypad(JOY_1);
 
+        objects_update();   // platforms carry the player before his physics
         player_update(pad);
         hud_update(player.hp);
+#ifdef DEBUG_OBJECTS
+        objects_debug_text(25, player.x, player.y, camera.x);
+#endif
 
         s16 bl, bt, br, bb;
         player_get_box(&bl, &bt, &br, &bb);
@@ -178,11 +188,43 @@ static void runStage(void)
         stage_anim_update();
 
         enemies_update();   // patrol/contact first, shots test fresh positions
+        eshots_update();    // enemy AI projectiles -> player
         shot_update();
+        hud_boss(enemies_boss_on_screen() ? (s16)enemies_boss_hp() : -1);
 
         SPR_update();
         SYS_doVBlankProcess();
         VDP_setReg(17, 0); // see above — DMA clobbers window regs
+        VDP_setReg(18, 0);
+
+        // PC classmap.cpp:2273 -> got_weapon() after the stage boss falls
+        if (enemies_boss_died()) break;
+    }
+
+    showStageClear();
+}
+
+// Minimal stand-in for PC got_weapon()/player_victory() (game.cpp:1320):
+// victory flash + weapon screen come in a later milestone. Overlay on the
+// frozen stage, then return to the title (PC leave_stage -> stage select,
+// which does not exist yet).
+static void showStageClear(void)
+{
+    XGM2_stop();
+    // The stage leaves the planes scrolled to the arena camera (BG_A x~2866,
+    // BG_B parallax) — text and the title after it need both planes at 0.
+    VDP_setHorizontalScroll(BG_A, 0);
+    VDP_setVerticalScroll(BG_A, 0);
+    VDP_setHorizontalScroll(BG_B, 0);
+    VDP_setVerticalScroll(BG_B, 0);
+    VDP_clearPlane(BG_A, FALSE);
+    drawCentered("STAGE CLEAR", 12);
+    drawCentered("PRESS START", 15);
+    while (TRUE) {
+        if (JOY_readJoypad(JOY_1) & BUTTON_START) break;
+        SPR_update();
+        SYS_doVBlankProcess();
+        VDP_setReg(17, 0);
         VDP_setReg(18, 0);
     }
 }
@@ -194,7 +236,7 @@ int main(bool hardReset)
     VDP_setScreenWidth320();
     VDP_setScreenHeight224();
     JOY_init();
-    SPR_initEx(512);
+    SPR_initEx(640); // see runStage() — sprite VRAM 1312..1951
 
     // The default DMA queue (80 entries) overflows during stage_load's force
     // map redraw, silently dropping queued tileset/palette transfers — the
@@ -221,10 +263,10 @@ int main(bool hardReset)
     // corrupts it on accurate emulators (white screen). See debugging.md.
 
     showIntro();
-    showTitle();
-    runStage();
-
-    while (TRUE) SYS_doVBlankProcess();
+    while (TRUE) {
+        showTitle();
+        runStage();   // returns from showStageClear() once the boss falls
+    }
 
     return 0;
 }

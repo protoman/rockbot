@@ -2,6 +2,7 @@
 
 #include "stage.h"
 #include "shot.h"
+#include "object.h"
 #include "resources.h"
 
 // Physics, tuned for 60fps. The original normalises movement by
@@ -40,7 +41,8 @@
 
 // spawn point: on the ground. Ground top is row 10 -> pixel 160
 // (PC row 11; the top PC row is cropped in convert_stage.py).
-#define SPAWN_X 144
+// TEMP M7b test (revert): near the col175 pillar, east of the map divider.
+#define SPAWN_X 2700
 #define SPAWN_Y (160 - PLAYER_BOX_B)
 
 Player player;
@@ -58,6 +60,36 @@ static s16 climb_flip_dist;
 // strobed every 8 frames while the fire button is held (PC
 // check_charging_colors cycles the armor colors the same way).
 static u16 flash_pal[2][16];
+
+// Last touched checkpoint (PC st_checkpoint: game.cpp:395 respawns there
+// when set, else at the stage start). cp_y is the feet position.
+static bool cp_active;
+static s16 cp_map, cp_x, cp_y;
+
+void player_set_checkpoint(s16 worldX, s16 worldY)
+{
+    cp_map = stage_current_map;
+    cp_x = worldX;
+    cp_y = worldY;
+    cp_active = TRUE;
+}
+
+// Shared respawn: checkpoint on the current map, else the stage start.
+// camera jumps via stage_arrival_camera so a divider stays at a screen edge.
+static void respawn_player(bool invuln)
+{
+    s16 sx = SPAWN_X;
+    s16 sy = SPAWN_Y;
+    if (cp_active && cp_map == stage_current_map) {
+        sx = cp_x;
+        sy = cp_y - PLAYER_BOX_B;
+    }
+    player_place(sx, sy);
+    player.on_ground = TRUE;
+    if (invuln) player.invuln = PLAYER_INVULN_FRAMES;
+    stage_arrival_camera(sx + (PLAYER_BOX_L + PLAYER_BOX_R) / 2,
+                         sy + (PLAYER_BOX_T + PLAYER_BOX_B) / 2);
+}
 
 static void make_flash_palettes(void)
 {
@@ -362,6 +394,14 @@ void player_update(u16 pad)
                 player.vx = 0;
             }
         }
+        // platform bodies are solid from the side too (PC COLlISION_MODE_XY,
+        // classmap.cpp:1433). Strict overlap: edge contact while standing on
+        // top (b == o->y) never hits, so walking along the top stays free.
+        s16 px;
+        if (objects_block_x(nx, t, b, dx, &px)) {
+            nx = px;
+            player.vx = 0;
+        }
         ix = nx;
     }
 
@@ -381,6 +421,9 @@ void player_update(u16 pad)
         bool blocked = FALSE;
 
         if (dy > 0) {
+            s16 plat_top = objects_land_check(l, r,
+                                              ny + PLAYER_BOX_T,
+                                              ny + PLAYER_BOX_B);
             // falling: scan from the row the feet are in (a resting foot is
             // exactly on a tile boundary; +1 would skip that row and drop the
             // player through the floor) down to the row the feet enter.
@@ -396,6 +439,14 @@ void player_update(u16 pad)
                     }
                 }
             }
+            // one-way platform catch: wins against the terrain landing; ties
+            // go to the platform so a flush spawn still activates
+            if (plat_top >= 0 && (!blocked || plat_top <= ny + PLAYER_BOX_B)) {
+                ny = plat_top - PLAYER_BOX_B;
+                player.on_ground = TRUE;
+                player.vy = 0;
+                objects_player_land(plat_top);
+            }
         } else {
             // rising: scan the rows the head would cross
             for (s16 row = ((iy + PLAYER_BOX_T) >> 4) - 1;
@@ -408,6 +459,14 @@ void player_update(u16 pad)
                         break;
                     }
                 }
+            }
+            // platform bottoms are solid too (PC XY mode); the tighter
+            // (lower) of terrain vs platform wins
+            s16 pny = objects_head_block(l, r, ny + PLAYER_BOX_T,
+                                         iy + PLAYER_BOX_B);
+            if (pny > ny) {
+                ny = pny;
+                player.vy = 0;
             }
         }
         iy = ny;
@@ -422,6 +481,11 @@ void player_update(u16 pad)
                 break;
             }
         }
+        // or a platform top at foot level (keeps the player "grounded" while
+        // a fly platform carries him upward over empty space)
+        if (!player.on_ground &&
+            objects_stand_check(l, r, iy + PLAYER_BOX_B))
+            player.on_ground = TRUE;
     }
 
     if (player.on_ground) coyote_timer = COYOTE_FRAMES;
@@ -444,14 +508,9 @@ void player_update(u16 pad)
 
     // ---- fell out of the level ---------------------------------------------
     if (iy > STAGE0_PIXEL_H + 32) {
-        player_place(SPAWN_X, SPAWN_Y);
-        player.on_ground = TRUE;
-        player.invuln = PLAYER_INVULN_FRAMES;
-        ix = SPAWN_X;
-        iy = SPAWN_Y;
-        camera.x = 0;   // respawn is at the stage start; jump the camera back
-        camera.y = 0;   // first so force_redraw paints the right area
-        stage_force_redraw();
+        respawn_player(TRUE);
+        ix = player.x;
+        iy = player.y;
     }
 
     // ---- fire (B) + charge shot ---------------------------------------------
@@ -520,13 +579,9 @@ void player_take_damage(u8 amount)
     player.hp = (amount >= player.hp) ? 0 : player.hp - amount;
     player.invuln = PLAYER_INVULN_FRAMES;
 
-    if (player.hp == 0) {              // death: respawn at the stage start
-        player_place(SPAWN_X, SPAWN_Y);
-        player.on_ground = TRUE;
+    if (player.hp == 0) {              // death: respawn at checkpoint/stage start
         player.hp = PLAYER_INITIAL_HP;
         PAL_setPalette(PLAYER_PAL, player_sprite.palette->data, DMA_QUEUE);
-        camera.x = 0;
-        camera.y = 0;
-        stage_force_redraw();
+        respawn_player(FALSE);
     }
 }

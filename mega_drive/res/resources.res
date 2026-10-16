@@ -51,9 +51,25 @@ SPRITE enemy_spinner_ball_red_sprite "enemy_spinner_ball_red.png" 24p 24p FAST [
 SPRITE enemy_spinner_ball_sprite "enemy_spinner_ball.png" 24p 24p FAST [[6,6,6,6,6,6][6,6,6,6,6,6]]
 SPRITE enemy_classic_metool_sprite "enemy_classic_metool.png" 24p 24p FAST [[12][12,12]]
 SPRITE enemy_cannon_ball_sprite "enemy_cannon_ball.png" 24p 24p FAST [[120][18,18]]
+# Stage boss MILONGA BOT (id 37): 36x33 art in 40x40 cells, stand + walk rows
+SPRITE enemy_milonga_sprite "enemy_milonga.png" 40p 40p FAST [[120][120]]
 SPRITE shot_sprite "shot.png" 8p 8p FAST [[1]]
+# Enemy AI projectile id 11 "Semi-Charged" (game_projectile_list.dat)
+SPRITE enemy_shot_semi_sprite "enemy_shot_semi.png" 16p 16p FAST [[5,5]]
 SPRITE shot_charge_sprite "shot_charge.png" 16p 16p FAST [[6,6,6,6]]
+
+# ---- STAGE 0 OBJECTS (tools/convert_objects.py) ----
+# Single anim row; shared PAL0 (palette_ui_enemies). Checkpoint cell is
+# 32x64 (SGDK splits it into two 32x32 hardware sprites).
+SPRITE object_energy_pill_small_sprite "object_energy_pill_small.png" 16p 16p FAST [[6,6]]
+SPRITE object_fall_block_sprite "object_fall_block.png" 16p 16p FAST [[6,6]]
+SPRITE object_1up_sprite "object_1up.png" 16p 16p FAST [[12,12,12,12]]
+SPRITE object_platform_up_sprite "object_platform_up.png" 32p 16p FAST [[6,6]]
+SPRITE object_checkpoint_sprite "object_checkpoint.png" 32p 64p FAST [[18,18]]
+SPRITE object_teleporter_stage_boss_sprite "object_teleporter_stage_boss.png" 32p 64p FAST [[7,7,7]]
 
 # ---- HUD (tools/convert_assets.py: PAL0-quantized energy balls) ----
 # 5 frames: fill = full, 3/4, 2/4, 1/4, empty
 SPRITE hud_hp_ball_sprite "hud_hp_ball.png" 16p 16p FAST [[0,0,0,0,0]]
+# Boss row at RES_W-55 (PC draw.cpp:1237), same frame contract
+SPRITE hud_boss_ball_sprite "hud_boss_ball.png" 16p 16p FAST [[0,0,0,0,0]]
