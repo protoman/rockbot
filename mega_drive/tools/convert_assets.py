@@ -22,6 +22,7 @@ from PIL import Image
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)                      # mega_drive/
 ROCKBOT = os.path.dirname(ROOT)                   # rockbot/
+IMAGES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "images")  # hand-owned art
 OUT_DIR = os.path.join(ROOT, "res")
 
 COLORKEY = (75, 125, 125)
@@ -42,12 +43,9 @@ ASSETS = {
     "upperland": dict(src="build/shared/images/upperland.png", colors=15, pad=True),
     "boberatu":  dict(src="build/shared/images/boberatu.png",  colors=15, pad=True),
     "jmd_logo":  dict(src="build/shared/images/jmd_logo.png",  colors=15, pad=True),
-    # title screen: sceneslib.cpp:102 draw_main() -> images/logo.png
-    # The PNG background is (72,126,124): the game's colorkey, off by a few
-    # units from (75,125,125). It must read as dark blue, not teal.
-    "title_logo": dict(src="build/games/RockDroid1/images/logo.png",
-                       colors=15, pad=False, dither=True, band=8,
-                       replace=[((72, 126, 124), BAND_RGB, 20)]),
+    # NOTE: the title logo is no longer an IMAGE here — it is decomposed by
+    # tools/img2tiles.py (res/title_tiles.png + src/title_tiles.c) and drawn
+    # by showTitle(), so no title_logo entry.
 }
 
 MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)

@@ -8,6 +8,10 @@
 #include "player.h"
 #include "shot.h"
 #include "eshot.h"
+#include "bg0_map.h"
+#include "bg0_tiles.h"
+#include "bg1_map.h"
+#include "bg1_tiles.h"
 
 
 Map *stage_map;
@@ -23,8 +27,9 @@ static const TileSet *const tile_sets[STAGE0_MAP_COUNT] = {
 static const Palette *const palettes[STAGE0_MAP_COUNT] = {
     &stage0_pal0, &stage0_pal1, &stage0_pal2
 };
-static const Image *const bg_images[STAGE0_MAP_COUNT] = {
-    &stage0_bg0, &stage0_bg1, NULL
+// PAL3 palettes + decomposed tile data/tilemaps (tools/img2tiles.py)
+static const Palette *const bg_pal[STAGE0_MAP_COUNT] = {
+    &bg0_pal, &bg1_pal, NULL
 };
 
 static s32 bg_scroll_fx;   // 16.16 parallax scroll, wraps at the baked width
@@ -32,10 +37,45 @@ static s16 bg_last_cam_x;
 static u8 anim_frame[STAGE0_ANIM_SLOT_COUNT];
 static u16 anim_timer[STAGE0_ANIM_SLOT_COUNT];
 
-// Draw the parallax background of the given map on BG_B. Art is baked 512px
-// wide (= plane width) by the converter, so the plane wrap is seamless with
-// no runtime tile surgery. Vertical position = adjust_y from the PC data
-// (classmap.cpp:614: bg drawn at bg_scroll.y + adjust_y).
+// Parallax background on BG_B from the decomposed art (tools/img2tiles.py):
+// the unique tiles + a 64-wide tilemap replace the old full-image draw, so
+// VRAM holds ~232 tiles instead of 768 (bg0) and ~26 instead of 896 (bg1) —
+// bg1's tiles used to run into the animated-tile block.
+static void bg_upload_tiles_maps(u8 map_index)
+{
+    static const u32 *const tiles[STAGE0_MAP_COUNT] = {
+        bg0_tiles_data, bg1_tiles_data, NULL
+    };
+    static const u16 tile_n[STAGE0_MAP_COUNT] = {
+        BG0_TILE_COUNT, BG1_TILE_COUNT, 0
+    };
+    static const u16 *const maps[STAGE0_MAP_COUNT] = {
+        bg0_map, bg1_map, NULL
+    };
+    static const u16 map_h[STAGE0_MAP_COUNT] = { BG0_MAP_H, BG1_MAP_H, 0 };
+
+    if (!bg_pal[map_index]) return;
+    PAL_setPalette(BG_PAL, bg_pal[map_index]->data, CPU);
+    VDP_loadTileData(tiles[map_index], TILE_BG_INDEX, tile_n[map_index], DMA);
+
+    const u16 *m = maps[map_index];
+    u16 row[64];
+    // rows the art does not cover: repeat the top-left (sky) tile, like the
+    // old image path did; the plane is 64x32, rows 32+ belong to the WINDOW
+    const u16 sky = TILE_ATTR_FULL(BG_PAL, FALSE, FALSE, FALSE,
+                                   TILE_BG_INDEX + m[0]);
+    for (u16 y = 0; y < 32; y++) {
+        for (u16 x = 0; x < 64; x++) {
+            row[x] = (y < map_h[map_index])
+                         ? TILE_ATTR_FULL(BG_PAL, FALSE, FALSE, FALSE,
+                                          TILE_BG_INDEX + m[y * 64 + x])
+                         : sky;
+        }
+        VDP_setTileMapData(VDP_BG_B, row, y * 64, 64, 2, CPU);
+    }
+}
+
+// Draw the parallax background of the given map on BG_B.
 static void bg_load(u8 map_index)
 {
     bg_scroll_fx = 0;
@@ -45,33 +85,8 @@ static void bg_load(u8 map_index)
     VDP_setHorizontalScroll(BG_B, 0);
 
     const StageBgInfo *info = &stage0_bg_info[map_index];
-    const Image *img = bg_images[map_index];
-    if (!info->present || !img) return;
-
-    PAL_setPalette(BG_PAL, img->palette->data, CPU);
-    SYS_doVBlankProcess();   // sync before the image DMA (see main.c showTitle)
-    SYS_disableInts();
-    VDP_drawImageEx(BG_B, img,
-                    TILE_ATTR_FULL(BG_PAL, FALSE, FALSE, FALSE, TILE_BG_INDEX),
-                    0, 0, TRUE, DMA);
-    SYS_enableInts();
-
-    // Rows below the image: fill with the image's top-left tile (dark sky).
-    // A plain clear would expose system tile 0 with garbage colors.
-    // NOTE: VDP_setTileMapData wants the VRAM address (VDP_BG_B = bgb_addr),
-    // NOT the VDPPlane enum (BG_B == 1) — passing 1 writes over tile data.
-    // The plane is 64x32 cells: with VSCROLL_PLANE the sky (y < adjust_y)
-    // wraps to rows 28..31, so fill through row 31 — never beyond, rows 32+
-    // belong to the WINDOW plane at 0xD000.
-    // Start from the IMAGE height, not tileset->numTile / 64: rescomp
-    // dedups identical tiles (the city art is ~94% black), so numTile/64
-    // computed 1 and the fill erased the whole image except row 0.
-    u16 row[64];
-    const u16 t = TILE_ATTR_FULL(BG_PAL, FALSE, FALSE, FALSE, TILE_BG_INDEX);
-    for (u16 i = 0; i < 64; i++) row[i] = t;
-    const u16 rows = img->tilemap->h;   // image height in 8px rows (96px -> 12)
-    for (u16 y = rows; y < 32; y++)
-        VDP_setTileMapData(VDP_BG_B, row, y * 64, 64, 2, CPU);
+    if (!info->present || !bg_pal[map_index]) return;
+    bg_upload_tiles_maps(map_index);
 }
 
 static void clamp_camera(void)
@@ -83,11 +98,6 @@ static void clamp_camera(void)
 }
 
 // ---- PC scroll lock (classmap.cpp:459/475) ------------------------------
-// A full-wall column (map divider; list precomputed by convert_stage.py)
-// may not sit at the screen edge the camera is moving toward, so the view
-// never shows what is behind the wall. Like PC, the check is directional
-// (it only guards the advancing edge) and a jump spanning several columns
-// is clamped to the first wall it would cross.
 static bool column_locked(s16 tile_x)
 {
     if (tile_x < 0 || tile_x >= STAGE0_MAP_W) return FALSE;
@@ -103,11 +113,10 @@ static void scroll_lock_camera(s16 prev_x)
     if (camera.x == prev_x) return;
 
     if (camera.x > prev_x) {
-        // right-edge tile: scroll.x + RES_W - TILESIZE + 2 (classmap.cpp:459)
         s16 c0 = (prev_x + 320 - 16 + 2) >> 4;
         s16 c1 = (camera.x + 320 - 16 + 2) >> 4;
         if (column_locked(c0)) {
-            camera.x = prev_x;                      // edge already on a wall
+            camera.x = prev_x;
         } else {
             for (s16 c = c0 + 1; c <= c1; c++) {
                 if (column_locked(c)) {
@@ -117,7 +126,6 @@ static void scroll_lock_camera(s16 prev_x)
             }
         }
     } else {
-        // left-edge tile: scroll.x + TILESIZE - 2 (classmap.cpp:475)
         s16 c0 = (prev_x + 16 - 2) >> 4;
         s16 c1 = (camera.x + 16 - 2) >> 4;
         if (column_locked(c0)) {
@@ -133,9 +141,6 @@ static void scroll_lock_camera(s16 prev_x)
     }
 }
 
-// After a camera jump (link arrival) the view can span a divider that
-// incremental walking could never cross. Push the camera so the divider
-// sits at a screen edge, on the focus's side of it.
 static void scroll_lock_span(s16 focus_x)
 {
     s16 cl = (camera.x + 14) >> 4;
@@ -143,31 +148,26 @@ static void scroll_lock_span(s16 focus_x)
     for (s16 c = cl + 1; c < cr; c++) {
         if (!column_locked(c)) continue;
         if (focus_x >= ((s16)c << 4) + 8) {
-            if (camera.x < ((c << 4) + 2)) camera.x = (c << 4) + 2;   // wall to left edge
+            if (camera.x < ((c << 4) + 2)) camera.x = (c << 4) + 2;
         } else {
-            if (camera.x > ((c << 4) - 307)) camera.x = (c << 4) - 307; // wall to right edge
+            if (camera.x > ((c << 4) - 307)) camera.x = (c << 4) - 307;
         }
     }
 }
 
 // ---- animated tiles + above-player tile3 ------------------------------
-// tile3 cells carry TILE_ATTR_PRIORITY so the VDP draws them above sprites
-// (the player, enemies, shots). Anim cells point at a fixed VRAM slot per
-// animation; the SGDK map patch callback rewrites every tilemap buffer
-// (full draw and scroll columns) so stale entries never reach the VDP.
 static void stage_map_patch(Map *map, u16 *buf, u16 x, u16 y,
                             MapUpdateType type, u16 size)
 {
     for (u16 i = 0; i < size; i++) {
         u16 tx = (type == COLUMN_UPDATE) ? x : x + i;
         u16 ty = (type == COLUMN_UPDATE) ? y + i : y;
-        u16 cx = tx >> 1, cy = ty >> 1;    // 16px cells
+        u16 cx = tx >> 1, cy = ty >> 1;
         if (cx >= STAGE0_MAP_W || cy >= STAGE0_MAP_H) continue;
         u16 n = cy * STAGE0_MAP_W + cx;
         bool t3 = stage0_tile3_mask[stage_current_map][n >> 3] & (1 << (n & 7));
         bool an = stage0_anim_mask[stage_current_map][n >> 3] & (1 << (n & 7));
         if (an) {
-            // one anim slot per stage today; multi-slot needs a per-cell slot map
             u16 attr = (map->baseTile & TILE_ATTR_PALETTE_MASK) |
                        (t3 ? TILE_ATTR_PRIORITY_MASK : 0);
             u16 quad = (tx & 1) | ((ty & 1) << 1);
@@ -232,8 +232,17 @@ void stage_load(u8 map_index)
     VDP_clearPlane(BG_A, TRUE);
     VDP_clearPlane(BG_B, TRUE);
 
-    // Load tileset and palette
+    // Load tileset and palettes. CRAM writes are only reliable with the
+    // display disabled (or during vblank): PAL1/PAL3 use CPU writes here
+    // and work; PAL0 used a queued DMA that does not land in this window
+    // (the CRAM readback showed the enemies/objects/HUD line still holding
+    // another, one-step-darker palette).
     PAL_setPalette(STAGE_PAL, palettes[map_index]->data, CPU);
+    // PAL0 = shared font + enemy/object/HUD palette. Loaded from the
+    // rescomp PALETTE resource (same mechanism as the working PAL1/PAL3
+    // lines) instead of the C array, which did not stick: the CRAM readback
+    // showed PAL0 holding another palette while PAL1 decoded exactly.
+    PAL_setPalette(PAL0, pal_ui.data, CPU);
     VDP_loadTileSet(tile_sets[map_index], TILE_USER_INDEX, DMA);
 
     stage_map = MAP_create(map_defs[map_index], STAGE_PLANE,
@@ -245,11 +254,6 @@ void stage_load(u8 map_index)
     MAP_scrollToEx(stage_map, 0, 0, TRUE);   // full draw on first load
 
     bg_load(map_index);
-
-    // PAL0 = shared font + enemy palette (tools/convert_enemies.py):
-    // index 0 transparent, index 15 must stay font white (0x0EEE) so
-    // VDP_drawText keeps working, indices 1..14 hold the enemy colors.
-    PAL_setPalette(PAL0, palette_ui_enemies, DMA_QUEUE);
 
     // enemies/shots/objects are per-map: release the old ones, spawn this map's
     shots_reset();
@@ -263,6 +267,7 @@ void stage_load(u8 map_index)
     // Flush any pending transfers and restore display
     SYS_doVBlankProcess();
     VDP_setEnable(wasEnabled);
+
 
     // BG vertical scroll (PC draws the bg at screen y = adjust_y, classmap
     // .cpp:614). VSRAM = the plane row at screen top, so pushing the image

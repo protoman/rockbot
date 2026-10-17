@@ -2,12 +2,12 @@
 #include "resources.h"
 
 const EnemyDef enemy_defs[ENEMY_DEF_COUNT] = {
-    /* 0 */ { &enemy_shield_sprite, 3, 1, 3, 1, 0, 0, 320, 9, 0, 16, 26, 2, 2 },  // BLUE SHIELDER
-    /* 1 */ { &enemy_spinner_ball_red_sprite, 3, 1, 3, 1, 0, 0, 200, 0, 0, 18, 19, 1, 6 },  // SPINNASTER
-    /* 2 */ { &enemy_spinner_ball_sprite, 1, 1, 12, 1, 0, 0, 240, 2, 0, 14, 19, 6, 6 },  // JUMPINER
-    /* 3 */ { &enemy_milonga_sprite, 36, 3, 4, 0, 1, 0, 320, 0, 0, 36, 33, 1, 1 },  // MILONGA BOT
-    /* 4 */ { &enemy_classic_metool_sprite, 2, 1, 1, 0, 0, 0, 150, 0, 0, 18, 21, 1, 2 },  // MINE HELMUT
-    /* 5 */ { &enemy_cannon_ball_sprite, 4, 1, 2, 1, 0, 0, 200, 0, 0, 23, 20, 1, 2 },  // CANNON BALL
+    /* 0 */ { &enemy_shield_sprite, 3, 1, 3, 1, 0, 0, 320, 9, 0, 16, 26, 2, 2, 0, 0 },  // BLUE SHIELDER
+    /* 1 */ { &enemy_spinner_ball_red_sprite, 3, 1, 3, 1, 0, 0, 200, 0, 0, 18, 19, 1, 6, 4, 1400 },  // SPINNASTER
+    /* 2 */ { &enemy_spinner_ball_sprite, 1, 1, 12, 1, 0, 0, 240, 2, 0, 14, 19, 6, 6, 4, 800 },  // JUMPINER
+    /* 3 */ { &enemy_milonga_sprite, 36, 3, 4, 0, 1, 0, 320, 0, 0, 36, 33, 1, 1, 2, 1000 },  // MILONGA BOT
+    /* 4 */ { &enemy_classic_metool_sprite, 2, 1, 1, 0, 0, 0, 150, 0, 0, 18, 21, 1, 2, 6, 1200 },  // MINE HELMUT
+    /* 5 */ { &enemy_cannon_ball_sprite, 4, 1, 2, 1, 0, 0, 200, 0, 0, 23, 20, 1, 2, 3, 1399 },  // CANNON BALL
 };
 
 const EnemySpawn stage0_enemy_spawns[ENEMY_SPAWN_COUNT] = {
@@ -49,5 +49,5 @@ const EnemyProj enemy_proj[ENEMY_PROJ_MAX] = {
     [11] = { &enemy_shot_semi_sprite, 3, 2, 16, 16 },
 };
 const u16 palette_ui_enemies[16] = {
-    0x000, 0x240, 0x477, 0x135, 0x524, 0x777, 0x227, 0x713, 0x257, 0x472, 0x774, 0x555, 0x353, 0x205, 0x002, 0x666
+    0x000, 0x000, 0x777, 0x764, 0x455, 0x247, 0x704, 0x037, 0x333, 0x440, 0x017, 0x016, 0x311, 0x130, 0x012, 0x666
 };

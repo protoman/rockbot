@@ -10,7 +10,7 @@
 #include "eshot.h"
 #include "hud.h"
 #include "menu.h"
-#include "dbg.h"
+#include "save.h"
 #include "title_map.h"
 #include "title_tiles.h"
 
@@ -112,7 +112,6 @@ static void showIntro(void)
 
 static void showTitle(void)
 {
-    dbg_state("TITLE.enter");
     SPR_end();                 // release sprite VRAM so the image fits
     // Let any scheduled MAP update flush BEFORE we take over the planes,
     // then drop the map so nothing repaints them afterwards.
@@ -155,16 +154,33 @@ static void showTitle(void)
     VDP_drawText(COPYRIGHT_STRING, 5, 25);
     drawCentered(SITE_STRING, 27);
 
-    dbg_state("TITLE.done");
-    // hold until START; the main menu comes in the next milestone
-    u16 tframe = 0;
+    // Minimal PC-style start menu (draw_main): NEW GAME / CONTINUE.
+    // CONTINUE appears once the SRAM holds progress (save.c).
+    bool can_continue = save_exists();
+    s16 sel = 0;
+    u16 prev = JOY_readJoypad(JOY_1);    // don't pick on a held button
     while (TRUE) {
-        if (++tframe == 60) dbg_state("TITLE.late");
-        if (JOY_readJoypad(JOY_1) & BUTTON_START) break;
+        VDP_drawText("NEW GAME", 14, 18);
+        if (can_continue) {
+            VDP_drawText("CONTINUE", 14, 20);
+            VDP_drawText(sel ? " " : ">", 12, 18);
+            VDP_drawText(sel ? ">" : " ", 12, 20);
+        }
+        u16 pad = JOY_readJoypad(JOY_1);
+        if (can_continue && (pad & BUTTON_DOWN) && !(prev & BUTTON_DOWN)) sel = 1;
+        if ((pad & BUTTON_UP) && !(prev & BUTTON_UP)) sel = 0;
+        if ((pad & BUTTON_START) && !(prev & BUTTON_START)) {
+            if (sel == 0) save_clear();   // NEW GAME wipes the progress
+            break;
+        }
+        prev = pad;
+        SPR_update();
         SYS_doVBlankProcess();
-        VDP_setReg(17, 0); // see waitFrames() — DMA clobbers window regs
+        VDP_setReg(17, 0);
         VDP_setReg(18, 0);
     }
+    VDP_drawText("        ", 12, 18);
+    VDP_drawText("        ", 12, 20);
 }
 
 // INTRO_STAGE = stage 0 = "CHAOS CITY" (game.cpp:439 sets currentStage).
@@ -190,7 +206,6 @@ static void runStage(void)
     hud_init();
 
     XGM2_play(stage_music);   // stage only — intro/title stay silent
-    dbg_state("STAGE.enter");
 
     // NOTE: the old "clear BG_B here" block is gone — stage_load now draws
     // the parallax background on BG_B, and clearing it afterwards wiped the
@@ -207,7 +222,6 @@ static void runStage(void)
             // LEAVE STAGE returns from runStage directly (title), it is
             // NOT a stage clear
             if (menu_open()) {
-                dbg_state("STAGE.leave");
                 return;
             }
             pad = JOY_readJoypad(JOY_1);
@@ -217,9 +231,6 @@ static void runStage(void)
         objects_update();   // platforms carry the player before his physics
         player_update(pad);
         hud_update(player.hp);
-#ifdef DEBUG_OBJECTS
-        objects_debug_text(25, player.x, player.y, camera.x);
-#endif
 
         s16 bl, bt, br, bb;
         player_get_box(&bl, &bt, &br, &bb);
@@ -254,7 +265,10 @@ static void runStage(void)
         if (enemies_boss_died()) { stage_cleared = TRUE; break; }
     }
 
-    if (stage_cleared) showStageClear();
+    if (stage_cleared) {
+        save_set_stage(0);   // progress -> the title offers CONTINUE
+        showStageClear();
+    }
 }
 
 // Minimal stand-in for PC got_weapon()/player_victory() (game.cpp:1320):
@@ -263,7 +277,6 @@ static void runStage(void)
 // which does not exist yet).
 static void showStageClear(void)
 {
-    dbg_state("CLEAR.enter");
     XGM2_stop();
     // flush pending MAP updates, then drop the map (see showTitle)
     SYS_doVBlankProcess();
@@ -323,9 +336,8 @@ int main(bool hardReset)
     // main() lands during active display, which is illegal for CRAM and
     // corrupts it on accurate emulators (white screen). See debugging.md.
 
-    dbg_state("BOOT");
+    save_init();
     showIntro();
-    dbg_state("INTRO.done");
     while (TRUE) {
         showTitle();
         runStage();   // returns from showStageClear() once the boss falls

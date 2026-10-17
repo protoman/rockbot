@@ -61,6 +61,7 @@ typedef struct {
     s16 dest_x, dest_y;
     u8 jumping;       // JUMP action in the air
     u8 moving;        // walk anim while the action moves the enemy
+    u8 shooting;      // attack anim while a SHOT action runs
     s16 move_acc;     // 50Hz movement accumulator (PC AI step throttle)
 } Enemy;
 
@@ -130,6 +131,7 @@ static void ai_action_init(Enemy *e)
     s16 half = (d->box_l + d->box_w) / 2 + (s16)d->range;
 
     e->moving = 0;
+    e->shooting = 0;
     switch (st->action) {
     case AI_WALK:
         if (st->param == AI_WALK_TURN || st->param == AI_WALK_TURN_PLYR) {
@@ -272,21 +274,26 @@ static bool ai_action_run(Enemy *e)
     }
 
     case AI_SHOT_AHEAD:
-        if (e->act_t == 1) {
-            u8 pid = (st->param >= 0) ? (u8)st->param : d->shot;
-            eshot_fire(e->x + d->box_l + d->box_w / 2,
-                       e->y + d->box_t + d->box_h / 2, e->dir, pid);
+    case AI_SHOT_DIR: {
+        // The PC plays ANIM_TYPE_ATTACK while firing (metool's 6-frame
+        // shooting motion, the boss's arm swing); the shot leaves inside the
+        // animation. Approximated: fire at ~30% of the attack animation,
+        // which is its long "shot" frame in the data.
+        u16 dur = AI_SHOT_FRAMES;
+        if (d->attack_n) {
+            dur = (u16)(((u32)d->attack_ms * 6) / 100);
+            if (dur < AI_SHOT_FRAMES) dur = AI_SHOT_FRAMES;
+            e->shooting = 1;
         }
-        return e->act_t >= AI_SHOT_FRAMES;
-
-    case AI_SHOT_DIR:
-        if (e->act_t == 1) {
+        if (st->action == AI_SHOT_DIR && e->act_t == 1)
             e->dir = (player.x + 14 > e->x + d->box_l + d->box_w / 2) ? 1 : -1;
+        if (e->act_t == 1 + (dur * 3) / 10) {
             u8 pid = (st->param >= 0) ? (u8)st->param : d->shot;
             eshot_fire(e->x + d->box_l + d->box_w / 2,
                        e->y + d->box_t + d->box_h / 2, e->dir, pid);
         }
-        return e->act_t >= AI_SHOT_FRAMES;
+        return e->act_t >= dur;
+    }
 
     default:
         return TRUE;                                    // unsupported: skip
@@ -457,7 +464,9 @@ void enemies_update(void)
             if (e->hurt_timer && ((e->hurt_timer >> 3) & 1)) vis2 = FALSE;
             SPR_setVisibility(e->spr, vis2 ? VISIBLE : HIDDEN);
             SPR_setHFlip(e->spr, e->dir < 0);
-            if (d->walk_n > 0)
+            if (d->attack_n > 0 && e->shooting)
+                SPR_setAnim(e->spr, 2);          // ANIM_ATTACK row
+            else if (d->walk_n > 0)
                 SPR_setAnim(e->spr, e->moving ? 1 : 0);
             SPR_setPosition(e->spr, e->x - camera.x, e->y - camera.y);
         }

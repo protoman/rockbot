@@ -23,6 +23,7 @@ from PIL import Image
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
+IMAGES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "images")  # hand-owned art
 RES = os.path.join(ROOT, "res")
 
 SRC = os.path.join(ROCKBOT, "build/games/RockDroid1/images/sprites/p1.png")

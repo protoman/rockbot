@@ -258,6 +258,18 @@ static void handle_fire(u16 pad, s16 ix, s16 iy)
     if (attack_timer > 0) attack_timer--;
 }
 
+// Damage blink. Must run on the ladder path too: that path returns before
+// the end of player_update, so a player who grabbed a ladder mid-blink kept
+// whatever visibility the last blink frame set (often hidden for the whole
+// climb).
+static void invuln_blink(void)
+{
+    if (player.invuln > 0) {
+        player.invuln--;
+        SPR_setVisibility(player.spr, (player.invuln & 4) ? HIDDEN : VISIBLE);
+    }
+}
+
 void player_update(u16 pad)
 {
     s16 ix = player.x;
@@ -376,6 +388,7 @@ void player_update(u16 pad)
                 SPR_setAnim(player.spr, stair_anim);
             }
             SPR_setPosition(player.spr, ix - camera.x, iy - camera.y);
+            invuln_blink();
             // JUMP press on a ladder = let go and fall in place (the press
             // is consumed so it cannot double as a ground jump).
             if ((pad & JUMP_BUTTONS) && !(prev_pad & JUMP_BUTTONS)) {
@@ -563,7 +576,7 @@ void player_update(u16 pad)
                 ny = plat_top - PLAYER_BOX_B;
                 player.on_ground = TRUE;
                 player.vy = 0;
-                objects_player_land(plat_top);
+                objects_player_land(l, r, plat_top);
             }
         } else {
             // rising: scan the rows the head would cross
@@ -655,11 +668,7 @@ void player_update(u16 pad)
     }
     SPR_setPosition(player.spr, ix - camera.x, iy - camera.y);
 
-    // ---- invulnerability blink -----------------------------------------------
-    if (player.invuln > 0) {
-        player.invuln--;
-        SPR_setVisibility(player.spr, (player.invuln & 4) ? HIDDEN : VISIBLE);
-    }
+    invuln_blink();
 }
 
 void player_set_visible(bool visible)

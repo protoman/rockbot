@@ -1,10 +1,33 @@
-- I should be able to change directions (left/right) when sliding
 
-- objects
+########################################################################################################
+
+Here are some bugs I found:
+========================================================================================================
+Background color is now purple instead of black as it should.
+========================================================================================================
+The game start screen has black bars on top and bottom.
+========================================================================================================
+There is a part in the room 2 that has two small fall platforms.
+When I step in the first one, the second if the one activated and that falls.
+After that, there are several together, and the same issue happens, the wrong one is activated.
+========================================================================================================
+The checkpoint object must change animation when activated
+========================================================================================================
+The enemy_classic_metool should change the sprite when shooting at the player as in the PC version
+========================================================================================================
+
+After that, let's implement new stuff:
+# stage select screen
+# saving and loading (add the load game menu in the start screen like the PC game)
+# projectiles (check the original game data) for different attacks of enemies and player weapons
+# convert Ape and Daisie bot stages.
+
+You are now on auto-pilot. You can launch emulator at will to test bugs and features.
+Do not ask me quiestions, take a decision, take note of it, and I will review it tomorrow.
+Have fun and good night!
 
 
-Forgot to tell, other stuff after finishing objects:
-Charged shot projectile is not correct, should have an intermadiate and a fully charged, like in the PC game and the correct graphics.
+########################################################################################################
 
 - boss
 - stage select

@@ -414,6 +414,54 @@ layout (fall moved right of spawn x208).
 **Standing rule (user)**: every bash call touching the emulator needs an
 explicit timeout; never block/poll indefinitely; check liveness with pgrep.
 
+## Overnight session (auto-pilot) — bugs fixed
+
+1. **Purple background** — `img2tiles.py` re-quantised art that convert_stage
+   had already put in the target palette, and the tile split didn't preserve
+   the source *indices*; the night sky came out purple. Fix: indexed inputs
+   keep their indices 1:1, and the bg palette is taken from the source art
+   (`PALETTE bg0_pal "stage0_bg0.png"`). Verified on the emulator.
+2. **Title black bars** — the title art's background colour is the game
+   colorkey; punching it made those pixels transparent (backdrop showed).
+   `img2tiles --opaque` + `--replace 72,126,124:5,29,65` restores the PC's
+   dark-blue background. Verified.
+3. **Fall platforms activated the wrong one** — `objects_player_land()` matched
+   by Y only, so two platforms sharing a top edge always started the first in
+   the array. Now matches the X range too (callers pass l, r).
+4. **Checkpoint animation** — its two frames are *states* (inactive /
+   activated), not a loop; removed 29 from `is_looping()` so activation shows
+   the activated frame and stays.
+5. **Enemy attack sprite** — convert_enemies now ships row 2 =
+   ANIM_TYPE_ATTACK for all six enemies (+ times + `attack_ms`), and the AI's
+   SHOT actions play it and fire inside the animation (~30% in; the PC fires
+   on its marked attack frame — close enough, noted as an approximation).
+   resources.res SPRITE lines updated with the third time array.
+
+Also done this session: all big images decomposed (title, both parallaxes,
+stage maps, menu, HUD) — bg0 768->211 tiles, bg1 896->25, ROM 384K->256K,
+plus the latent VRAM overlap of bg1's tiles with the animated-tile block is
+gone. GIMP palettes regenerated (md_pal0/1/2 + md_bg0/md_bg1).
+
+## Start menu + save (PARTIAL — needs the SRAM header)
+
+`src/save.{c,h}` (magic + completed-stages mask), the title now shows a
+NEW GAME / CONTINUE menu with a cursor, stage clear calls `save_set_stage(0)`
+and NEW GAME calls `save_clear()`. **The SRAM does NOT persist yet**: the ROM
+header built by the SDK has no SRAM declaration (checked the project's
+`out/release/sega.s`), so `SRAM_enable()` has nothing to map. Needs the
+header's device/SRAM bytes configured (SDK side: a `rom_head.c` with the SRAM
+size, or the SDK's SRAM build option) — note added for next session.
+
+## Still to do (user list, untouched tonight)
+
+- Stage select screen (needs multi-stage data first — see the multi-stage
+  refactor note: converters are stage-0 hardcoded).
+- Full save/load once SRAM is declared; LOAD then resumes a stage.
+- Projectiles from the original data for the different enemy attacks and
+  player weapons (eshot currently supports LINEAR only; the data has ARC,
+  TARGET_DIRECTION, ...).
+- Convert the Ape and Daisie Bot stages.
+
 ## Known issues
 
 - (none right now)

@@ -47,6 +47,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
 DATA = os.path.join(ROCKBOT, "build/games/RockDroid1")
+IMAGES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "images")  # hand-owned art
 RES = os.path.join(ROOT, "res")
 SRC = os.path.join(ROOT, "src")
 
@@ -71,7 +72,7 @@ BOSS_INITIAL_HP = 36
 # PC defines.h AI_ACTION_LIST + AI_ACTION_GOTO_LIST (goto 0 = chance roll)
 AI_GOTO_CHANCE = 0
 
-ANIM_STAND, ANIM_WALK = 0, 1
+ANIM_STAND, ANIM_WALK, ANIM_ATTACK = 0, 1, 3
 COLORKEY = (75, 125, 125)
 MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)
 WHITE8 = 219           # md_round(219/238/235) == 219 -> CRAM 0x0EEE (font white)
@@ -97,8 +98,9 @@ def read_enemy_defs(blob, ids):
     for eid in sorted(ids):
         b = blob[eid * NPC_SZ:(eid + 1) * NPC_SZ]
         assert b[0] == eid, f"record {eid}: id byte {b[0]} != {eid}"
-        stand, walk = [], []
-        for anim, out in ((ANIM_STAND, stand), (ANIM_WALK, walk)):
+        stand, walk, attack = [], [], []
+        for anim, out in ((ANIM_STAND, stand), (ANIM_WALK, walk),
+                          (ANIM_ATTACK, attack)):
             for f in range(10):
                 o = 78 + (anim * 10 + f) * 14
                 used, dur, px = b[o], struct.unpack_from("<H", b, o + 2)[0], b[o + 4]
@@ -130,6 +132,7 @@ def read_enemy_defs(blob, ids):
             "is_boss": is_boss,
             "stand": stand,
             "walk": walk,
+            "attack": attack,
         }
     return defs
 
@@ -277,6 +280,7 @@ def main():
 
         stand = frames_of(d["stand"]) or frames_of(d["walk"])
         walk = frames_of(d["walk"]) or stand
+        attack = frames_of(d["attack"])   # may be empty (no attack anim)
         # all stand frames / all walk frames, times in 1/60s
         def times(fr):
             return [max(1, round(dur * 6 / 100)) for _, dur in fr]
@@ -288,10 +292,10 @@ def main():
         br = max(r[0] + r[2] for r in rects)
         bb = max(r[1] + r[3] for r in rects)
 
-        cols = max(len(stand), len(walk))
+        cols = max(len(stand), len(walk), len(attack), 1)
         src = rgba.load()
         cells = []
-        for row_frames in (stand, walk):
+        for row_frames in (stand, walk, attack):
             row = []
             for (fcol, _dur) in row_frames:
                 art = []
@@ -303,8 +307,10 @@ def main():
 
         plans[eid] = {
             "d": d, "cw": cw, "ch": ch, "fw": fw, "fh": fh, "cols": cols,
-            "stand": stand, "walk": walk, "stand_t": times(stand),
-            "walk_t": times(walk), "cells": cells,
+            "stand": stand, "walk": walk, "attack": attack,
+            "stand_t": times(stand), "walk_t": times(walk),
+            "attack_t": times(attack), "attack_ms": sum(du for _, du in attack),
+            "cells": cells,
             "box": (bl, bt, br - bl, bb - bt),
             "rgba": rgba,
             "res_name": "enemy_" + os.path.splitext(d["gfx"])[0],
@@ -345,9 +351,9 @@ def main():
     os.makedirs(RES, exist_ok=True)
     for eid, p in sorted(plans.items()):
         cols, cw, ch = p["cols"], p["cw"], p["ch"]
-        out = Image.new("P", (cols * cw, 2 * ch))
+        out = Image.new("P", (cols * cw, 3 * ch))
         out.putpalette([v for c in palette for v in c])
-        data = [0] * (cols * cw * 2 * ch)
+        data = [0] * (cols * cw * 3 * ch)
         for r, row in enumerate(p["cells"]):
             for c, art in enumerate(row):
                 ox, oy = c * cw, r * ch
@@ -474,6 +480,8 @@ typedef struct {{
     u16 box_w, box_h;
     u8 stand_n;         // frames in sheet row 0 (ANIM_STAND)
     u8 walk_n;          // frames in sheet row 1 (ANIM_WALK)
+    u8 attack_n;        // frames in sheet row 2 (ANIM_ATTACK, 0 = none)
+    u16 attack_ms;      // total attack animation time (ms)
 }} EnemyDef;
 
 // game_ai_list.dat state machine (PC artificial_inteligence.cpp):
@@ -534,7 +542,8 @@ extern const u16 palette_ui_enemies[16];
             f"{d['hp']}, {d['dmg_mul']}, {d['speed']}, {d['fly']}, {d['is_boss']}, "
             f"{shot0}, {d['walk_range']}, "
             f"{bl}, {bt}, {bw}, {bh}, "
-            f"{len(p['stand'])}, {len(p['walk'])} }},  // {d['name']}\n")
+            f"{len(p['stand'])}, {len(p['walk'])}, {len(p['attack'])}, "
+            f"{p['attack_ms']} }},  // {d['name']}\n")
     lines.append("};\n\n")
     lines.append("const EnemySpawn stage0_enemy_spawns[ENEMY_SPAWN_COUNT] = {\n")
     for (di, mp, x, y, xm, xx, dr) in spawn_out:
@@ -567,8 +576,9 @@ extern const u16 palette_ui_enemies[16];
         p = plans[eid]
         st = ",".join(str(t) for t in p["stand_t"])
         wk = ",".join(str(t) for t in p["walk_t"])
+        ak = ",".join(str(t) for t in p["attack_t"]) or "0"
         print(f'SPRITE {p["res_name"]}_sprite "{p["res_name"]}.png" '
-              f'{p["cw"]}p {p["ch"]}p FAST [[{st}][{wk}]]')
+              f'{p["cw"]}p {p["ch"]}p FAST [[{st}][{wk}][{ak}]]')
     print('SPRITE shot_sprite "shot.png" 8p 8p FAST [[1]]')
     if 11 in proj_info:
         print('SPRITE enemy_shot_semi_sprite "enemy_shot_semi.png" 16p 16p FAST [[6,6]]')

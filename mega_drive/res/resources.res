@@ -30,10 +30,12 @@ MAP     stage0_map2   "stage0_map2.png"  stage0_tiles2 FAST 0
 
 # ---- STAGE 0 BACKGROUNDS (parallax on BG_B, PAL3) ----
 # Baked to 512px (plane width) by tools/convert_stage.py so the plane wraps
-# naturally. Palette is embedded in the Image and reloaded on every
-# stage_load (intro reuses PAL3).
-IMAGE stage0_bg0 "stage0_bg0.png" NONE 1
-IMAGE stage0_bg1 "stage0_bg1.png" NONE 1
+# naturally, then split into unique tiles + a tilemap by tools/img2tiles.py.
+# Decomposed by tools/img2tiles.py (768 cells -> 232 tiles, 896 -> 26): the
+# tiles/map live in src/bg0_*.{c,h} / src/bg1_*.{c,h} and stage.c bg_load()
+# uploads them; rescomp only supplies the palettes (PAL3).
+PALETTE bg0_pal "stage0_bg0.png"
+PALETTE bg1_pal "stage0_bg1.png"
 
 # ---- MUSIC (XGM2 driver; rescomp runs xgmtool on the .vgm) ----
 XGM2 stage_music "music.vgm"
@@ -48,13 +50,13 @@ SPRITE  player_sprite "player.png" 32p 32p FAST [[120,6][9,9,9,9][9][9][6,6][12,
 # Generated sheets: row 0 = ANIM_STAND, row 1 = ANIM_WALK. Cells are padded
 # to multiples of 8 (SGDK requirement). Shared PAL0 palette
 # (palette_ui_enemies in stage0_enemies.c): index 0 transparent, 15 = white.
-SPRITE enemy_shield_sprite "enemy_shield.png" 32p 32p FAST [[12,12][12,12]]
-SPRITE enemy_spinner_ball_red_sprite "enemy_spinner_ball_red.png" 24p 24p FAST [[1][6,6,6,6,6,6]]
-SPRITE enemy_spinner_ball_sprite "enemy_spinner_ball.png" 24p 24p FAST [[6,6,6,6,6,6][6,6,6,6,6,6]]
-SPRITE enemy_classic_metool_sprite "enemy_classic_metool.png" 24p 24p FAST [[12][12,12]]
-SPRITE enemy_cannon_ball_sprite "enemy_cannon_ball.png" 24p 24p FAST [[120][18,18]]
+SPRITE enemy_shield_sprite "enemy_shield.png" 32p 32p FAST [[12,12][12,12][0]]
+SPRITE enemy_spinner_ball_red_sprite "enemy_spinner_ball_red.png" 24p 24p FAST [[1][6,6,6,6,6,6][12,12,48,12]]
+SPRITE enemy_spinner_ball_sprite "enemy_spinner_ball.png" 24p 24p FAST [[6,6,6,6,6,6][6,6,6,6,6,6][6,6,6,30]]
+SPRITE enemy_classic_metool_sprite "enemy_classic_metool.png" 24p 24p FAST [[12][12,12][9,9,30,6,9,9]]
+SPRITE enemy_cannon_ball_sprite "enemy_cannon_ball.png" 24p 24p FAST [[120][18,18][12,12,60]]
 # Stage boss MILONGA BOT (id 37): 36x33 art in 40x40 cells, stand + walk rows
-SPRITE enemy_milonga_sprite "enemy_milonga.png" 40p 40p FAST [[120][120]]
+SPRITE enemy_milonga_sprite "enemy_milonga.png" 40p 40p FAST [[120][120][12,48]]
 SPRITE shot_sprite "shot.png" 8p 8p FAST [[1]]
 # Player + enemy charged projectiles (game_projectile_list ids 11/10).
 # Frames are 100ms each (defines.h:644); semi art restored by the enemy
@@ -71,6 +73,11 @@ SPRITE object_1up_sprite "object_1up.png" 16p 16p FAST [[12,12,12,12]]
 SPRITE object_platform_up_sprite "object_platform_up.png" 32p 16p FAST [[6,6]]
 SPRITE object_checkpoint_sprite "object_checkpoint.png" 32p 64p FAST [[18,18]]
 SPRITE object_teleporter_stage_boss_sprite "object_teleporter_stage_boss.png" 32p 64p FAST [[7,7,7]]
+
+# ---- PAL0 (enemies/objects/shots/HUD) as a rescomp PALETTE resource:
+# loaded in stage_load exactly like the working PAL1/PAL3 lines; generated
+# from tools/pal_ui_data.py by tools/gen_gpl.py (also emitted as md_pal0.gpl)
+PALETTE pal_ui "pal_ui.png"
 
 # ---- HUD (tools/convert_assets.py: HP balls, PAL0 via tools/pal_ui.py) ----
 # 5 frames: fill = full, 3/4, 2/4, 1/4, empty

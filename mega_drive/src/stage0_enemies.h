@@ -19,6 +19,8 @@ typedef struct {
     u16 box_w, box_h;
     u8 stand_n;         // frames in sheet row 0 (ANIM_STAND)
     u8 walk_n;          // frames in sheet row 1 (ANIM_WALK)
+    u8 attack_n;        // frames in sheet row 2 (ANIM_ATTACK, 0 = none)
+    u16 attack_ms;      // total attack animation time (ms)
 } EnemyDef;
 
 // game_ai_list.dat state machine (PC artificial_inteligence.cpp):
