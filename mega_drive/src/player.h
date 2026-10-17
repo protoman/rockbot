@@ -58,6 +58,23 @@ extern Player player;
 
 void player_init(void);
 
+// Selected player 0..3 (player-select screen). Changes the sprite sheet +
+// palette used in-game (each player has different weapon colours/abilities).
+void player_set_number(u8 n);
+const SpriteDefinition *player_definition(void);
+
+// Per-player abilities (PC file_game_v4.h file_player defaults):
+// P1 shield/slide/charge, P2 double-jump/diagonal/+1 dmg, P3 max_shots 4/-1
+// dmg/2 shots, P4 shield/charge/air-dash.
+u8 player_max_shots(void);
+u8 player_simultaneous(void);
+s8 player_damage_mod(void);
+bool player_can_charge(void);
+bool player_can_double_jump(void);
+bool player_can_slide(void);
+bool player_can_diagonal(void);
+bool player_can_air_dash(void);
+
 // pad = JOY_readJoypad(JOY_1)
 void player_update(u16 pad);
 

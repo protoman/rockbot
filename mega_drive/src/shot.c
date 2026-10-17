@@ -3,6 +3,7 @@
 
 #include "stage.h"
 #include "enemy.h"
+#include "player.h"
 #include "resources.h"
 
 // game_projectile_list.dat record 0 "Normal": speed 4, damage 1, 6x6 art.
@@ -14,7 +15,7 @@
 typedef struct {
     Sprite *spr;
     s16 x, y;
-    s16 dx;
+    s16 dx, dy;
     u8 dmg;
     u8 w, h;    // collision box (8x8 normal, 16x16 semi, 31x30 full charge)
     bool on;
@@ -38,36 +39,56 @@ void shots_reset(void)
     cooldown = 0;
 }
 
-static Shot *shot_alloc(void)
+static Shot *shot_alloc_raw(void)
 {
-    if (cooldown) return NULL;
     for (u8 i = 0; i < SHOT_MAX; i++) {
         if (!shots[i].on) return &shots[i];
     }
     return NULL;
 }
 
-void shot_fire(s16 x, s16 y, s16 dir)
+void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
 {
-    Shot *s = shot_alloc();
-    if (!s) return;
-    s->spr = SPR_addSprite(&shot_sprite, x - camera.x, y - camera.y,
-                           TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
-    if (!s->spr) return;
-    s->x = x;
-    s->y = y;
-    s->dx = (dir < 0) ? -SHOT_SPEED : SHOT_SPEED;
-    s->dmg = 1;
-    s->w = 8;
-    s->h = 8;
-    s->on = TRUE;
+    if (cooldown) return;
+    u8 live = 0;
+    for (u8 i = 0; i < SHOT_MAX; i++) if (shots[i].on) live++;
+    if (live >= player_max_shots()) return;      // PC player.max_shots
+
+    // PC simultaneous_shots (BETABOT fires 2 per press): the extra shot
+    // spawns one tile BEHIND the first and 5px lower (character.cpp:761-771).
+    u8 n = player_simultaneous();
+    for (u8 k = 0; k < n && live < player_max_shots(); k++) {
+        s16 ox = x, oy = y;
+        if (k == 1) {
+            ox = (dir < 0) ? x + 16 : x - 16;
+            oy = y + 5;
+        }
+        Shot *s = shot_alloc_raw();
+        if (!s) break;
+        s->spr = SPR_addSprite(&shot_sprite, ox - camera.x, oy - camera.y,
+                               TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
+        if (!s->spr) break;
+        s->x = ox;
+        s->y = oy;
+        s->dx = (dir < 0) ? -SHOT_SPEED : SHOT_SPEED;
+        s->dy = dy;
+        s->dmg = 1;   // game_projectile_list.dat record 0 "Normal"
+        s->w = 8;
+        s->h = 8;
+        s->on = TRUE;
+        live++;
+    }
     cooldown = SHOT_COOLDOWN;
     sfx_play(SFX_SHOT);
 }
 
 void shot_charge_fire(s16 x, s16 y, s16 dir, u8 level)
 {
-    Shot *s = shot_alloc();
+    if (cooldown) return;
+    u8 live = 0;
+    for (u8 i = 0; i < SHOT_MAX; i++) if (shots[i].on) live++;
+    if (live >= player_max_shots()) return;
+    Shot *s = shot_alloc_raw();
     if (!s) return;
     // PC: semi charge = projectile 11 (charged_semi, 16x16, dmg 2, speed 3);
     // full charge = projectile 10 (charged_shot, 31x30, dmg 3, speed 3) —
@@ -110,9 +131,11 @@ void shot_update(void)
         if (!s->on) continue;
 
         s->x += s->dx;
+        s->y += s->dy;
 
         // off the visible screen
-        if (s->x + s->w < camera.x || s->x > camera.x + 320) {
+        if (s->x + s->w < camera.x || s->x > camera.x + 320 ||
+            s->y + s->h < camera.y || s->y > camera.y + 224) {
             shot_kill(s);
             continue;
         }

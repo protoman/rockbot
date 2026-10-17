@@ -13,6 +13,8 @@
 #include "save.h"
 #include "stageselect.h"
 #include "saveselect.h"
+#include "bossintro.h"
+#include "playerselect.h"
 #include "title_map.h"
 #include "title_tiles.h"
 
@@ -196,11 +198,21 @@ static s16 showTitle(void)
 // (198,0), the only way past the full-height wall at x=137..138.
 static void showStageClear(void);
 static u8 current_save_slot = 0;
+static u8 current_player = 0;      // 0..3, chosen in the player-select screen
 static void runStage(u8 stage)
 {
     // Pick the stage's data bundle (clamped to the converted stages), then
     // load its map 0. Links/map changes stay within the current stage.
     stage_set_data(stage);
+
+    // PC boss intro (sceneslib.cpp:681) before the stage; skipped once the
+    // stage is beaten (game_save.stages[stage] != 0).
+    if (!(save_slot_stages(current_save_slot) & (1u << stage))) {
+        boss_intro_run(stage);
+    }
+
+    player_set_number(current_player);
+
     // SPR_initEx(504): sprite VRAM = TILE_SPRITE_INDEX(1440) - 504 =
     // 936..1439, right after the animated tiles (end 935). TILE_FONT_INDEX
     // is 1440 (0xC000/32 - FONT_LEN 96), NOT 1952 as older comments said —
@@ -359,16 +371,20 @@ int main(bool hardReset)
             if (slot < 0) continue;              // backed out -> title
             save_slot_clear((u8)slot);
             current_save_slot = (u8)slot;
+            // PC main_screen: NEW GAME -> select_player() before the stage.
+            current_player = player_select_run();
+            save_slot_set_player(current_save_slot, current_player);
             runStage(0);
         } else {                                 // LOAD GAME
             s16 slot = save_selector(FALSE);
             if (slot < 0) continue;
             current_save_slot = (u8)slot;
+            current_player = save_slot_player(current_save_slot);
             // PC scenesLib::pick_stage (sceneslib.cpp:529): the intro stage
             // is played first; once it is beaten the stage select appears.
             u8 stage = 0;
             if (save_slot_stages((u8)slot) & 1) {
-                stage = stage_select_run();
+                stage = stage_select_run(current_player);
             }
             runStage(stage);
         }

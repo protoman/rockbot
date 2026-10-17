@@ -44,7 +44,10 @@ XGM2 stage_music "music.vgm"
 # 4 cols x 7 anim rows, 32x32 cells. Green/magenta placeholders already swapped
 # to weapon_colors[0] by tools/convert_player.py.
 # rows: STAND, WALK, JUMP, ATTACK, HIT, TELEPORT, STAIRS, SLIDE, STAIRS_ATTACK
-SPRITE  player_sprite "player.png" 32p 32p FAST [[120,6][9,9,9,9][9][9][6,6][12,6,6][0][0][9]]
+SPRITE  player_p1_sprite "player_p1.png" 32p 32p FAST [[120,6][9,9,9,9][9][9][6,6][12,6,6][0][0][9]]
+SPRITE  player_p2_sprite "player_p2.png" 32p 32p FAST [[120,6][9,9,9,9][9][9][6,6][12,6,6][0][0][9]]
+SPRITE  player_p3_sprite "player_p3.png" 32p 32p FAST [[120,6][9,9,9,9][9][9][6,6][12,6,6][0][0][9]]
+SPRITE  player_p4_sprite "player_p4.png" 32p 32p FAST [[120,6][9,9,9,9][9][9][6,6][12,6,6][0][0][9]]
 
 # ---- STAGE 0 ENEMIES + PLAYER SHOT (tools/convert_enemies.py) ----
 # Generated sheets: row 0 = ANIM_STAND, row 1 = ANIM_WALK. Cells are padded
@@ -115,7 +118,21 @@ SPRITE hud_boss_ball_sprite "hud_boss_ball.png" 16p 16p FAST [[0,0,0,0,0]]
 # the hand-made tilemap. They are packed as src/menu_tiles.h/.c (MD 4bpp)
 # and uploaded with VDP_loadTileData in menu.c.
 PALETTE menu_pal   "menu_tiles.png"
+PALETTE boss_intro_bg_pal "boss_intro_bg_tiles.png"
+PALETTE psel_bg_pal "psel_bg_tiles.png"
+PALETTE psel_p1_pal "psel_p1_tiles.png"
+PALETTE psel_p2_pal "psel_p2_tiles.png"
+PALETTE psel_p3_pal "psel_p3_tiles.png"
+PALETTE psel_p4_pal "psel_p4_tiles.png"
 
+SPRITE ssel_face_p1_sprite "ssel_face_p1.png" 32p 32p FAST [[0]]
+SPRITE ssel_eyes_p1_sprite "ssel_eyes_p1.png" 16p 8p FAST [[0]]
+SPRITE ssel_face_p2_sprite "ssel_face_p2.png" 32p 32p FAST [[0]]
+SPRITE ssel_eyes_p2_sprite "ssel_eyes_p2.png" 16p 8p FAST [[0]]
+SPRITE ssel_face_p3_sprite "ssel_face_p3.png" 32p 32p FAST [[0]]
+SPRITE ssel_eyes_p3_sprite "ssel_eyes_p3.png" 16p 8p FAST [[0]]
+SPRITE ssel_face_p4_sprite "ssel_face_p4.png" 32p 32p FAST [[0]]
+SPRITE ssel_eyes_p4_sprite "ssel_eyes_p4.png" 16p 8p FAST [[0]]
 # ---- STAGE SELECT cursor (tools/convert_stage_select.py) ----
 # classic_style_stage_select_cursor.png, 2 frames of 48x48 split into 4
 # 24x24 quadrants x 2 frames (frame 0 = black brackets, frame 1 = yellow

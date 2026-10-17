@@ -38,6 +38,9 @@ build + emulator run before moving on.
 | M11 | 5-slot SRAM save/load + selector (PC select_save) | DONE (NEW GAME/LOAD GAME -> slot selector; stage clear saves slot) |
 | M12 | Data-driven projectiles (game_projectile_list.dat) | DONE (full table; LINEAR/ARC/DIAG/TARGET/FOLLOW/PROGRESSIVE/QUAKE) |
 | M13 | Multi-stage architecture + DEEP JUNGLE + FLOWER FIELDS | DONE (stages 0/1/2 convert + load; anim slots, spikes, conveyor, big sprites) |
+| M14 | Classic boss intro (PC classic_style_boss_intro) | DONE (bg + stage boss sprite + name, ~6.4s, skipped when beaten) |
+| M15 | Player select on NEW GAME (PC select_player) + stage-select eyes follow cursor | DONE (screen + save field; eyes sprite nudges +-2px) |
+| M16 | Chosen player wired: sprite/palette/abilities + stage-select face | PARTIAL (sprite/palette + all file abilities done from player_list_v3_1_1.dat; shield move pending) |
 | M9 | Graphics toolchain: img2tiles + tiles_merge + pal_ui, build pipeline | DONE |
 | M8 | Audio (XGM2) | OUT OF SCOPE (later milestone) |
 | — | Menu, saves, stage select, doors/spikes/water/ice, animated tiles, real health bar/HUD, enemy projectiles | OUT OF SCOPE / later |
@@ -679,12 +682,131 @@ Goal: run stages other than the intro. Converters were stage-0 hardcoded.
   colorkeys (`is_key`, tol 6) like the importer, so no grey boxes.
   `default.png` has no near-key art, so the map tileset is unaffected.
 
+- **Stage-select background looked dark** (same class as the sprite issues):
+  our hand-emitted palettes used `R | G<<4 | B<<8`, but MD CRAM wants
+  `(R<<1)|(G<<5)|(B<<9)` (white `0x0EEE`) — every colour loaded at ~half
+  brightness. Fixed in convert_stage_select.py / convert_save_selector.py /
+  tools/pal_ui.py. See the convention note above.
+
 ### Still open
 - **APE BOT / DAISIE BOT bosses** use the generic `is_boss` path; their
   attack patterns are untuned and untested.
 - Stage select slots 3..8 clamp to stage 0 (only 0/1/2 are converted).
 - Spike damage / conveyor / stage-2 content verified only by loading, not
   played through.
+
+## Boss intro (M14, 2026-10-17)
+
+`src/bossintro.{c,h}`: PC `classic_style_boss_intro` (sceneslib.cpp:681), the
+VINTAGE path the RockBot1 data uses — **classic style chosen over the
+non-classic `boss_intro/NN.png` splashes** (kept for reference only).
+
+- Full-screen `images/backgrounds/boss_intro/boss_intro_bg.png` decomposed by
+  img2tiles (`boss_intro_bg_tiles.*`, `PALETTE boss_intro_bg_pal`, crop-h 224)
+  on BG_A, PAL1.
+- The stage's boss sprite: the `is_boss` entry in `stage_def->enemy_defs`
+  (STAND frame 0), centred at PC y = 96 - h/2 (shifted 16 for the crop).
+  The enemy's optional `sprites/enemies/backgrounds/<bg>` art is not emitted
+  yet (skipped).
+- Boss name centred at PC y=200 -> tile row 23, from `ssel_boss_names[stage]`.
+- Waits 6.4s (PC wait_and_update_screen(6400)), skippable with any button;
+  skipped entirely when the stage is already in the save mask
+  (PC `game_save.stages[stage] != 0`). Hooked in `main.c runStage()` before
+  `stage_load`.
+
+## Player select + stage-select eyes (M15, 2026-10-17)
+
+- `src/playerselect.{c,h}`: PC `scenesLib::select_player` (sceneslib.cpp:546).
+  `player_selection.png` bg (img2tiles, own palette, PAL1) + the four
+  `player_select_pN.png` portraits (img2tiles, own palettes, PAL2) loaded on
+  demand; name under the portrait; Left/Right cycles, START confirms.
+  Wired in main.c: NEW GAME -> save selector -> player select -> store the
+  choice in the slot (`save_slot_player/set`, slot reserved bytes) -> stage.
+  PC gates players 2..4 behind `game_config.game_finished`; the port allows
+  all four. Names come from `player_list_v3_1_1.dat` (ROCKBOT / BETABOT /
+  CANDYBOT / KITTYBOT) via the generated `player_data[]`.
+- Stage select eyes: PC stage_select.cpp:547-559 draws the player-face eyes
+  at (154,122) and nudges them +-2px toward the cursor cell. They are now a
+  SPRITE (`res/ssel_eyes.png`, 16x8) instead of baked into the face, moved
+  per selection. Verified: the eye region changes between cursor cells.
+- NOT yet wired to the chosen player: the stage-select face and the in-game
+  player sprite are still player 1. Doing so needs 4 player sprite sheets +
+  per-player weapon-colour palettes and per-player face/eyes sprites
+  (all art is imported).
+
+## Chosen player wired (M16, 2026-10-17)
+
+- **Per-player data is data-driven** from `player_list_v3_1_1.dat`, NOT the
+  struct defaults in `file_game_v4.h` (those are the *editor* defaults and
+  their P2/P3 labels are swapped vs the shipped game). `file_player_v3_1_1`
+  is 6216 B/record (4 records); `tools/convert_players.py` compiles a tiny
+  host g++ dumper that includes the PC header, reads the file with the real
+  struct and emits `src/player_data.{c,h}` (name, weapon colours, abilities).
+  Actual players: **0 ROCKBOT, 1 BETABOT, 2 CANDYBOT, 3 KITTYBOT** (Beta is
+  p2, Candy p3).
+- **Per-player palettes**: the art uses THREE swap placeholders — green
+  COLORKEY1, magenta COLORKEY2 and cyan COLORKEY3 `(0,255,255)` (p2/p3 use
+  cyan); only 2 were kept before. `images/sprites/p1..p4.png` now each carry
+  their OWN body palette (derived from their art) with the placeholders on
+  **indices 13/14/15**; `faces/pN.png` + `pN_eyes.png` get their own palette
+  too (eyes reuse the face's). `md_pal2.gpl` is now player-1 only.
+- `convert_player.py` emits `player_p1..p4.png` (32x32, 9 anim rows) with each
+  player's real `weapon_colors[0]` placed on 13/14/15 so indices copy 1:1
+  (quantised to MD 3:3:3): P1 (146,0,109)/(0,109,255)/unset; P2 (255,36,0)/
+  (0,0,0)/(219,255,0); P3 (255,109,182)/(109,36,219)/(73,219,73); P4
+  (0,146,73)/(146,0,109)/unset (cyan placeholder kept where a colour is unset).
+- Runtime: `player_set_number()` / `player_definition()` pick the sheet +
+  palette (PAL2 loaded from that sheet); the in-game menu portrait follows.
+- **Abilities implemented from the file** (`player_data[]` flags/fields):
+  `player_max_shots` (BETABOT/CANDYBOT = 4, others 3), `player_simultaneous`
+  (BETABOT = 2), `player_damage_mod` (BETABOT -1, CANDYBOT +1),
+  `player_can_charge` (ROCKBOT/KITTYBOT), `player_can_double_jump` (CANDYBOT),
+  `player_can_shot_diagonal` (CANDYBOT), `player_can_air_dash` (KITTYBOT),
+  `player_can_slide` (ROCKBOT).
+- **Stage select**: the centre face + eyes are now SPRITES per player
+  (`ssel_face_p1..4`, `ssel_eyes_p1..4`), PAL2 loaded from the chosen player's
+  face sheet.
+- Projectiles: `full_charged_projectile_id` is 10 (ROCKBOT) / 24 (KITTYBOT,
+  invalid id) / -1 otherwise, and every `normal_shot_projectile_id` is -1 or
+  an out-of-range id (25/26/35) — the port keeps the safe defaults normal 0 /
+  semi 11 / full 10 for all players.
+- **simultaneous_shots** (BETABOT = 2 per press) implemented in `shot_fire`:
+  the extra shot spawns one tile (16px) BEHIND and 5px lower, per PC
+  `character.cpp:761-771`; the max_shots cap still applies.
+- **damage_modifier** is DEFENSIVE, applied the PC way (`character.cpp:3001-
+  3004`) on the character RECEIVING damage, not on the player's shots: incoming
+  damage is clamped to >=1 and the modifier only lands when the result stays
+  > 0. BETABOT (-1) takes 1 less per hit, CANDYBOT (+1) 1 more. (Earlier wired
+  to shot damage by mistake — that made BETABOT's buster do 0.)
+- **DMA-clobber fix** (see Notes/conventions): the boss intro and player
+  select were wiping PAL1/PAL2 on an instant confirm, which is why "stage and
+  player colours were all wrong". Verified: the NEW GAME flow now renders the
+  stage identically to a direct load.
+
+### Player differences — status
+- DONE (all from `player_data[]`): `max_shots` (BETA/CANDY=4),
+  `simultaneous_shots=2` (BETA), `damage_modifier` (BETA -1 / CANDY +1,
+  defensive — reduces/increases damage TAKEN),
+  `can_charge_shot` (ROCK/KITTY), `can_double_jump` (CANDY),
+  `can_shot_diagonal` (CANDY, Up/Down aims the shot: dy +-3), `can_air_dash`
+  (KITTY — see below), `can_slide` (ROCK).
+- **Air dash** (KITTY, PC `character.cpp:1668-1735`): it is the SAME slide
+  state, not a separate move — A in the air sets `player.sliding` (so the
+  ANIM_SLIDE/dash sprite shows), gravity is skipped and vy zeroed for a flat
+  horizontal move, up to 5 tiles (`TILESIZE*5`), once per airtime, jump
+  blocked mid-dash. Speed = the port's `MOVE_SPEED` for BOTH the ground slide
+  and the air dash. (PC's dash is `move_speed*2.5` = 4.125px/frame — PC walks
+  at 1.65, this port at 2 — but that ratio reads as too fast here, so the
+  port keeps 2; the dash's length came from gravity, not speed.) The anim
+  selector had `!on_ground` (JUMP) ahead of `sliding`, which is why the dash
+  showed the jump sprite — sliding now wins. Taking a hit cancels the slide
+  (PC ANIM_TYPE_HIT replaces ANIM_TYPE_SLIDE) so the dash cannot leave the
+  player floating.
+- Dash vs slide: PC differs only by hitbox height (24 vs 16px) — this port
+  does not vary the box, so ALL players use the slide button/anim.
+- NOT modelled: `have_shield` (ROCKBOT only) — the shield move does not exist
+  in the port yet. Only weapon 0 (buster) palettes are wired; weapons 1..11
+  use PAL0 art.
 
 ## Known issues
 
@@ -706,7 +828,63 @@ Goal: run stages other than the intro. Converters were stage-0 hardcoded.
   kprintf's Gens debug protocol on the control port and corrupt the video
   state (that broke the intro once).
 
+## Palette ownership (importer rules, 2026-10-17)
+
+- **auto16 generator is distinctness-aware**: MEDIANCUT alone splits by pixel
+  population and returned near-identical colours (player_select_p3 had pairs
+  at dLAB 7-13, wasting slots and flattening the art). `auto_palette()` now
+  only SEEDS from MEDIANCUT, merges entries closer than `merge_t` (CIELAB,
+  default 14), and refills the freed slots with the image's most frequent
+  colours that are still `merge_t` apart (threshold relaxes only if the image
+  cannot supply enough distinct colours). p1/p3 now use 15 fully distinct
+  colours (min dLAB ~14.5). Low-colour screens (bg/cursor/bars) still pad
+  with black, as they have fewer real colours.
+- `tools/convert_save_selector.py` no longer assumes the enabled/disabled
+  bars share pixel indices (they no longer do): the enabled indices are
+  canonical and the disabled palette is rebuilt per enabled index from the
+  colour at the same pixel.
+
+- **Shared gameplay lines**: PAL0 = font white + enemies/bosses/objects/
+  player+enemy shots/HUD; PAL1 = stage tileset + animated tiles; PAL2 =
+  player sprite; PAL3 = parallax bg.
+- **Own palette** (alone on screen, can reload CRAM): every full-screen
+  SCREEN — `backgrounds/**` (title, menu, config, dialog, stage select bg,
+  save-selector bars, cursor, boss splashes, player_select_pN, armor pieces,
+  faces front), `scenes/**` (a multi-layer scene must share ONE palette
+  across the layers drawn together), `ending/**`, and `logo.png`
+  (= PAL_TITLE). The few consumed as sprites/tiles (stage-select cursor,
+  save-selector bars, stage-select bg) already get their palette loaded from
+  the art at runtime (`ssel_pal_*`, `saveselect_pal_*`).
+- **Faces stay GROUPED** (they are drawn together): `faces/boss_*.png` and
+  `faces/00..13.png` -> PAL0 (with the font/enemies); `faces/p1..p4.png` and
+  `p*_eyes.png` -> PAL2 (one palette loaded for the selected player).
+  Only 4 lines exist, so per-face palettes are not possible.
+- Rationale for player_select_pN: it is a SCREEN depicting the player, not
+  the player sprite — forcing PAL2 wasted 6 entries on duplicated blacks and
+  left the art ~9 colours.
+
+- **Queued DMA vs CPU palette writes (recurring class of bug)**: screens
+  load palettes/tiles with `DMA_QUEUE`; the queue flushes at the next vblank.
+  If the player confirms/skips on the FIRST frame, the flush happens AFTER the
+  caller's (CPU) writes and clobbers them — the boss intro and player select
+  were wiping the stage tileset palette (PAL1) / player palette (PAL2), so
+  stages and players rendered with wrong colours. Fix: each such screen calls
+  `SYS_doVBlankProcess()` once right after its loads, before accepting input.
 ## Notes / conventions
+
+- **Stage defs and LTO**: `stage_defs[]` is marked
+  `__attribute__((used))` — with `-flto --gc-sections` the linker dropped the
+  stage 1/2 `StageDef`s when every call site had a constant stage index
+  (the ROM silently shrank 512K->384K and stages 1/2 vanished). If a new
+  data table must survive, mark it `used` or read it through a non-constant
+  index.
+- **MD CRAM palette format (do not get this wrong again)**: a palette word is
+  `(R<<1) | (G<<5) | (B<<9)` with each channel a 3-bit level (white = `0x0EEE`).
+  It is NOT `R | G<<4 | B<<8` (that is the same nibbles shifted one bit down,
+  so every colour loads at ~half brightness and screens look "dark").
+  rescomp `PALETTE` resources already emit the correct format; any palette we
+  emit by hand in C (tools/convert_stage_select.py, convert_save_selector.py,
+  tools/pal_ui.py `to_vdp`) must use the shift above.
 
 - TERRAIN EASYBLOCK (12) and HARDBLOCK (13) are difficulty pass-through
   blocks — ignore them as geometry (TERRAIN_BLOCKS already excludes them).

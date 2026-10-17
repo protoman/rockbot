@@ -95,3 +95,6 @@ rockbot.prx
 # Mega Drive (SGDK) build output
 mega_drive/out/
 mega_drive/screenshots/
+
+# Python bytecode caches
+__pycache__/

@@ -5,6 +5,7 @@
 #include "shot.h"
 #include "object.h"
 #include "resources.h"
+#include "player_data.h"
 
 // Physics, tuned for 60fps. The original normalises movement by
 // fps_movement_multiplier = 60/max_fps (shareddata.cpp:22); here fps is fixed.
@@ -55,6 +56,8 @@
 
 Player player;
 
+static bool air_jump_used;
+static bool air_dash_used;
 static s16 coyote_timer;
 static s16 jump_timer;
 static s16 attack_timer;
@@ -115,9 +118,26 @@ static void respawn_player(bool invuln)
                          sy + (PLAYER_BOX_T + PLAYER_BOX_B) / 2);
 }
 
+static const SpriteDefinition *const player_defs[4] = {
+    &player_p1_sprite, &player_p2_sprite, &player_p3_sprite, &player_p4_sprite
+};
+static u8 player_n;
+
+void player_set_number(u8 n) { player_n = (n < 4) ? n : 0; }
+
+u8 player_max_shots(void) { return player_data[player_n].max_shots; }
+u8 player_simultaneous(void) { return player_data[player_n].simultaneous; }
+s8 player_damage_mod(void) { return player_data[player_n].dmg_mod; }
+bool player_can_charge(void) { return (player_data[player_n].flags & PL_CHARGE) != 0; }
+bool player_can_double_jump(void) { return (player_data[player_n].flags & PL_DJUMP) != 0; }
+bool player_can_slide(void) { return (player_data[player_n].flags & PL_SLIDE) != 0; }
+bool player_can_diagonal(void) { return (player_data[player_n].flags & PL_DIAG) != 0; }
+bool player_can_air_dash(void) { return (player_data[player_n].flags & PL_AIRDASH) != 0; }
+const SpriteDefinition *player_definition(void) { return player_defs[player_n]; }
+
 static void make_flash_palettes(void)
 {
-    const u16 *base = player_sprite.palette->data;
+    const u16 *base = player_defs[player_n]->palette->data;
     for (u8 v = 0; v < 2; v++) {
         u8 boost = v ? 3 : 1;
         for (u8 i = 0; i < 16; i++) {
@@ -237,9 +257,9 @@ void player_init(void)
     ladder_flip = FALSE;
     make_flash_palettes();
 
-    player.spr = SPR_addSprite(&player_sprite, SPAWN_X - camera.x, SPAWN_Y - camera.y,
+    player.spr = SPR_addSprite(player_defs[player_n], SPAWN_X - camera.x, SPAWN_Y - camera.y,
                                TILE_ATTR(PLAYER_PAL, FALSE, FALSE, FALSE));
-    PAL_setPalette(PLAYER_PAL, player_sprite.palette->data, DMA_QUEUE);
+    PAL_setPalette(PLAYER_PAL, player_defs[player_n]->palette->data, DMA_QUEUE);
     SPR_setAnim(player.spr, ANIM_STAND);
 }
 
@@ -253,11 +273,18 @@ static void handle_fire(u16 pad, s16 ix, s16 iy)
     if (fire_ok && !player.fire_prev) {
         if (attack_timer == 0) {
             s16 sx = (player.facing > 0) ? ix + PLAYER_BOX_R : ix + PLAYER_BOX_L - 8;
-            shot_fire(sx, iy + 10, player.facing);
+            // PC can_shot_diagonal (P2): Up/Down held aims the shot (proj
+            // 12/13 diagonal up/down, same art).
+            s16 dy = 0;
+            if (player_can_diagonal()) {
+                if (pad & BUTTON_UP) dy = -3;
+                else if (pad & BUTTON_DOWN) dy = 3;
+            }
+            shot_fire(sx, iy + 10, player.facing, dy);
             attack_timer = ATTACK_FRAMES;
         }
         player.charge_frames = 0;
-    } else if (fire_ok) {
+    } else if (fire_ok && player_can_charge()) {
         if (player.charge_frames < 60000) player.charge_frames++;
         if ((player.charge_frames & 7) == 0) {
             PAL_setPalette(PLAYER_PAL,
@@ -275,7 +302,7 @@ static void handle_fire(u16 pad, s16 ix, s16 iy)
             }
         }
         player.charge_frames = 0;
-        PAL_setPalette(PLAYER_PAL, player_sprite.palette->data, DMA_QUEUE);
+        PAL_setPalette(PLAYER_PAL, player_defs[player_n]->palette->data, DMA_QUEUE);
     }
     player.fire_prev = fire_raw;
     if (attack_timer > 0) attack_timer--;
@@ -452,17 +479,30 @@ void player_update(u16 pad)
         pad &= ~(BUTTON_LEFT | BUTTON_RIGHT | JUMP_BUTTONS | SLIDE_BUTTON);
     }
 
-    // ---- slide (start) -----------------------------------------------------
+    // ---- slide / dash (start) ----------------------------------------------
     // Needs a FRESH press: the PC only starts a slide after the dash button
     // was released again (_dash_button_released, character.cpp:1668), so a
     // held button cannot restart the slide when the distance limit ends it.
     bool slide_btn = (pad & SLIDE_BUTTON) != 0;
     if (!slide_btn) player.slide_prev = TRUE;
-    if (!player.sliding && slide_btn && player.slide_prev && player.on_ground) {
-        player.sliding = TRUE;
-        player.slide_prev = FALSE;
-        player.slide_dist = 0;
-        player.vx = (player.facing < 0) ? -MOVE_SPEED : MOVE_SPEED;
+    // PC dash (can_slide=false) is the same button + anim, only a taller
+    // hitbox (24 vs 16px) which this port does not vary -> allow all players.
+    if (!player.sliding && slide_btn && player.slide_prev) {
+        if (player.on_ground) {
+            player.sliding = TRUE;
+            player.slide_prev = FALSE;
+            player.slide_dist = 0;
+            player.vx = (player.facing < 0) ? -MOVE_SPEED : MOVE_SPEED;
+        } else if (player_can_air_dash() && !air_dash_used) {
+            // PC air dash (character.cpp:1668): the SAME ANIM_TYPE_SLIDE state,
+            // gravity off, up to 5 tiles, once per airtime (_can_execute_airdash).
+            air_dash_used = TRUE;
+            player.sliding = TRUE;
+            player.slide_prev = FALSE;
+            player.slide_dist = 0;
+            player.vy = 0;   // PC _obj_jump.finish(): the dash is horizontal
+            player.vx = (player.facing < 0) ? -MOVE_SPEED : MOVE_SPEED;
+        }
     }
 
     // ---- horizontal --------------------------------------------------------
@@ -500,17 +540,29 @@ void player_update(u16 pad)
     }
     prev_pad = pad;
 
+    if (player.on_ground) { air_jump_used = FALSE; air_dash_used = FALSE; }
+    // PC blocks jumping mid air-dash (character.cpp:1761).
+    if (player.sliding && !player.on_ground) jump_timer = 0;
     if (coyote_timer > 0 && jump_timer > 0) {
         sfx_play(SFX_JUMP);
         player.vy = -JUMP_VEL;
         player.on_ground = FALSE;
         coyote_timer = 0;
         jump_timer = 0;
+    } else if (jump_timer > 0 && !player.on_ground &&
+               player_can_double_jump() && !air_jump_used) {
+        // PC can_double_jump (P2 CANDY): one extra jump while airborne.
+        sfx_play(SFX_JUMP);
+        player.vy = -JUMP_VEL;
+        air_jump_used = TRUE;
+        jump_timer = 0;
     }
     if (jump_timer > 0) jump_timer--;
 
     // ---- gravity -----------------------------------------------------------
-    if (!player.on_ground) {
+    // PC skips gravity while the dash runs (character.cpp:1201: an air-dash
+    // player stays in ANIM_TYPE_SLIDE, so the dash is a flat 5-tile move).
+    if (!player.on_ground && !player.sliding) {
         if (player.vy < MAX_FALL) player.vy += GRAVITY;
         if (player.vy > MAX_FALL) player.vy = MAX_FALL;
     }
@@ -649,12 +701,15 @@ void player_update(u16 pad)
     else if (coyote_timer > 0) coyote_timer--;
 
     // ---- slide (end) -------------------------------------------------------
-    // Ends on: button released, airborne, wall hit (vx zeroed by the
-    // collision) or max distance (5 tiles).
+    // Ends on: button released, wall hit (vx zeroed by the collision) or max
+    // distance (5 tiles). Air-dash players keep sliding off a ledge — PC only
+    // ends on no-ground when can_air_dash() is false (character.cpp:1694).
     if (player.sliding) {
         s16 adx = (dx < 0) ? -dx : dx;
         player.slide_dist += adx;
-        if (!(pad & SLIDE_BUTTON) || !player.on_ground ||
+        bool no_ground_ends = !player_can_air_dash();
+        if (!(pad & SLIDE_BUTTON) ||
+            (no_ground_ends && !player.on_ground) ||
             player.slide_dist > SLIDE_MAX_DIST || player.vx == 0) {
             player.sliding = FALSE;
         }
@@ -706,9 +761,9 @@ void player_update(u16 pad)
     // ---- animation + screen position ----------------------------------------
     u16 want;
     if (player.hit_push > 0)    want = ANIM_HIT;
+    else if (player.sliding)    want = ANIM_SLIDE;   // ground slide + air dash
     else if (!player.on_ground) want = ANIM_JUMP;
     else if (attack_timer > 0)  want = ANIM_ATTACK;
-    else if (player.sliding)    want = ANIM_SLIDE;
     else if (player.vx != 0)    want = ANIM_WALK;
     else                        want = ANIM_STAND;
 
@@ -733,9 +788,23 @@ void player_take_damage(u8 amount)
 {
     if (player.invuln > 0) return;
 
-    player.hp = (amount >= player.hp) ? 0 : player.hp - amount;
+    // PC character.cpp:3001-3004: incoming damage is clamped to >=1, then the
+    // player's damage_modifier lands only if the result stays > 0. It is a
+    // DEFENSIVE trait (set on the character RECEIVING damage): BETABOT -1
+    // (tougher), CANDYBOT +1 (fragile) — it does not touch the player's shots.
+    s16 dmg = (s16)amount;
+    if (dmg < 1) dmg = 1;
+    if (dmg + player_damage_mod() > 0) dmg += player_damage_mod();
+
+    player.hp = (dmg >= (s16)player.hp) ? 0 : (u8)(player.hp - dmg);
     player.invuln = PLAYER_INVULN_FRAMES;
     sfx_play((player.hp == 0) ? SFX_PLAYER_DEATH : SFX_PLAYER_HIT);
+
+    // PC ANIM_TYPE_HIT replaces ANIM_TYPE_SLIDE (character.cpp:1598), so a hit
+    // cancels a slide/air dash — otherwise the dash's gravity-off would leave
+    // the player floating through the hit pushback.
+    player.sliding = FALSE;
+    player.slide_dist = 0;
 
     // Enter the hit state (PC character.cpp:3036): push away from facing,
     // half distance + jump cancelled when hit in the air.
@@ -752,7 +821,7 @@ void player_take_damage(u8 amount)
 
     if (player.hp == 0) {              // death: respawn at checkpoint/stage start
         player.hp = PLAYER_INITIAL_HP;
-        PAL_setPalette(PLAYER_PAL, player_sprite.palette->data, DMA_QUEUE);
+        PAL_setPalette(PLAYER_PAL, player_defs[player_n]->palette->data, DMA_QUEUE);
         respawn_player(FALSE);
     }
 }

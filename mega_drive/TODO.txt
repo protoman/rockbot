@@ -1,3 +1,6 @@
+Still not modelled: the shield move (ROCKBOT only), and dash-vs-slide hitbox height
+
+
 Resume the RockBot → Sega Mega Drive port in mega_drive/.
 Read mega_drive/AGENTS.md and mega_drive/stage0_plan.md first — they're the single source of truth (map, constraints, milestone state, decisions).
 
