@@ -34,8 +34,8 @@ MAP     stage0_map2   "stage0_map2.png"  stage0_tiles2 FAST 0
 # Decomposed by tools/img2tiles.py (768 cells -> 232 tiles, 896 -> 26): the
 # tiles/map live in src/bg0_*.{c,h} / src/bg1_*.{c,h} and stage.c bg_load()
 # uploads them; rescomp only supplies the palettes (PAL3).
-PALETTE bg0_pal "stage0_bg0.png"
-PALETTE bg1_pal "stage0_bg1.png"
+PALETTE stage0_bg0_pal "stage0_bg0_tiles.png"
+PALETTE stage0_bg1_pal "stage0_bg1_tiles.png"
 
 # ---- MUSIC (XGM2 driver; rescomp runs xgmtool on the .vgm) ----
 XGM2 stage_music "music.vgm"
@@ -64,6 +64,30 @@ SPRITE shot_sprite "shot.png" 8p 8p FAST [[1]]
 SPRITE enemy_shot_semi_sprite "enemy_shot_semi.png" 16p 16p FAST [[6,6]]
 SPRITE shot_charge_full_sprite "shot_charge_full.png" 32p 32p FAST [[6,6]]
 
+SPRITE enemy_rhino_sprite "enemy_rhino.png" 96p 72p FAST [[540][540][0]]
+# ---- ENEMY PROJECTILES (tools/convert_enemies.py): one SPRITE per
+# projectile id, art from game_projectile_list.dat graphic_filename.
+# The enemy_proj[] table in stage0_enemies.c references these.
+SPRITE proj_0_sprite "proj_0.png" 8p 8p FAST [[0]]
+SPRITE proj_1_sprite "proj_1.png" 24p 24p FAST [[6,6,6,6]]
+SPRITE proj_2_sprite "proj_2.png" 24p 24p FAST [[0]]
+SPRITE proj_3_sprite "proj_3.png" 16p 16p FAST [[6,6,6,6,6]]
+SPRITE proj_4_sprite "proj_4.png" 56p 56p FAST [[6,6,6,6,6,6,6,6,6]]
+SPRITE proj_5_sprite "proj_5.png" 24p 16p FAST [[6,6,6,6]]
+SPRITE proj_6_sprite "proj_6.png" 16p 16p FAST [[0]]
+SPRITE proj_8_sprite "proj_8.png" 16p 16p FAST [[6,6]]
+SPRITE proj_9_sprite "proj_9.png" 8p 8p FAST [[0]]
+SPRITE proj_10_sprite "proj_10.png" 32p 32p FAST [[6,6]]
+SPRITE proj_11_sprite "proj_11.png" 16p 16p FAST [[6,6]]
+SPRITE proj_12_sprite "proj_12.png" 8p 8p FAST [[0]]
+SPRITE proj_13_sprite "proj_13.png" 8p 8p FAST [[0]]
+SPRITE proj_14_sprite "proj_14.png" 32p 32p FAST [[6,6,6,6,6,6,6]]
+SPRITE proj_15_sprite "proj_15.png" 16p 16p FAST [[6,6,6,6,6,6,6]]
+SPRITE proj_16_sprite "proj_16.png" 16p 16p FAST [[6,6]]
+SPRITE proj_17_sprite "proj_17.png" 24p 16p FAST [[6,6]]
+SPRITE proj_18_sprite "proj_18.png" 16p 16p FAST [[6,6,6,6,6,6,6]]
+SPRITE proj_19_sprite "proj_19.png" 24p 24p FAST [[6,6,6,6]]
+
 # ---- STAGE 0 OBJECTS (tools/convert_objects.py) ----
 # Single anim row; shared PAL0 (palette_ui_enemies). Checkpoint cell is
 # 32x64 (SGDK splits it into two 32x32 hardware sprites).
@@ -91,3 +115,57 @@ SPRITE hud_boss_ball_sprite "hud_boss_ball.png" 16p 16p FAST [[0,0,0,0,0]]
 # the hand-made tilemap. They are packed as src/menu_tiles.h/.c (MD 4bpp)
 # and uploaded with VDP_loadTileData in menu.c.
 PALETTE menu_pal   "menu_tiles.png"
+
+# ---- STAGE SELECT cursor (tools/convert_stage_select.py) ----
+# classic_style_stage_select_cursor.png, 2 frames of 48x48 split into 4
+# 24x24 quadrants x 2 frames (frame 0 = black brackets, frame 1 = yellow
+# pulse). The static screen ships as src/ssel_data.h/.c instead.
+SPRITE ssel_cursor_tl_b_sprite "ssel_cursor_tl_b.png" 24p 24p FAST [[0]]
+SPRITE ssel_cursor_tl_y_sprite "ssel_cursor_tl_y.png" 24p 24p FAST [[0]]
+SPRITE ssel_cursor_tr_b_sprite "ssel_cursor_tr_b.png" 24p 24p FAST [[0]]
+SPRITE ssel_cursor_tr_y_sprite "ssel_cursor_tr_y.png" 24p 24p FAST [[0]]
+SPRITE ssel_cursor_bl_b_sprite "ssel_cursor_bl_b.png" 24p 24p FAST [[0]]
+SPRITE ssel_cursor_bl_y_sprite "ssel_cursor_bl_y.png" 24p 24p FAST [[0]]
+SPRITE ssel_cursor_br_b_sprite "ssel_cursor_br_b.png" 24p 24p FAST [[0]]
+SPRITE ssel_cursor_br_y_sprite "ssel_cursor_br_y.png" 24p 24p FAST [[0]]
+
+# ---- STAGE 1 (DEEP JUNGLE) ----
+SPRITE enemy_rock_metool_sprite "enemy_rock_metool.png" 24p 24p FAST [[180][12,12][9,9,30,6,9,9]]
+SPRITE enemy_apebot_sprite "enemy_apebot.png" 40p 40p FAST [[48][12,12][24,24,24,24]]
+SPRITE enemy_bee_sprite "enemy_bee.png" 24p 24p FAST [[6,6][6,6][0]]
+SPRITE enemy_flower_metool_sprite "enemy_flower_metool.png" 24p 24p FAST [[1][12,12][9,9,30,6,9,9]]
+SPRITE enemy_side_shooter_sprite "enemy_side_shooter.png" 16p 32p FAST [[6][600][48]]
+SPRITE enemy_tamandua_sprite "enemy_tamandua.png" 40p 32p FAST [[18,18][12,12][0]]
+SPRITE enemy_scorpion_sprite "enemy_scorpion.png" 24p 32p FAST [[120][9,8][120]]
+SPRITE enemy_larva_sprite "enemy_larva.png" 40p 16p FAST [[12][10,10,10,10][0]]
+TILESET stage1_tiles0 "stage1_map0.png" FAST ALL
+PALETTE stage1_pal0   "stage1_map0.png"
+MAP     stage1_map0   "stage1_map0.png"  stage1_tiles0 FAST 0
+TILESET stage1_tiles1 "stage1_map1.png" FAST ALL
+PALETTE stage1_pal1   "stage1_map1.png"
+MAP     stage1_map1   "stage1_map1.png"  stage1_tiles1 FAST 0
+TILESET stage1_tiles2 "stage1_map2.png" FAST ALL
+PALETTE stage1_pal2   "stage1_map2.png"
+MAP     stage1_map2   "stage1_map2.png"  stage1_tiles2 FAST 0
+PALETTE stage1_bg0_pal "stage1_bg0_tiles.png"
+PALETTE stage1_bg1_pal "stage1_bg1_tiles.png"
+PALETTE stage1_bg2_pal "stage1_bg2_tiles.png"
+
+# ---- STAGE 2 (FLOWER FIELDS) ----
+SPRITE enemy_flower_vase_sprite "enemy_flower_vase.png" 24p 24p FAST [[120,18][120,18][24,180]]
+SPRITE enemy_daisiebot_sprite "enemy_daisiebot.png" 32p 40p FAST [[12][7,7,7,7][12]]
+SPRITE enemy_roof_shooter_sprite "enemy_roof_shooter.png" 16p 16p FAST [[6,6,6,6,6,6][6,6,6,6,6,6][1,6]]
+SPRITE enemy_ema_sprite "enemy_ema.png" 40p 48p FAST [[6,6,6][6,6,6][0]]
+SPRITE object_platform_down_sprite "object_platform_down.png" 32p 16p FAST [[6,6]]
+TILESET stage2_tiles0 "stage2_map0.png" FAST ALL
+PALETTE stage2_pal0   "stage2_map0.png"
+MAP     stage2_map0   "stage2_map0.png"  stage2_tiles0 FAST 0
+TILESET stage2_tiles1 "stage2_map1.png" FAST ALL
+PALETTE stage2_pal1   "stage2_map1.png"
+MAP     stage2_map1   "stage2_map1.png"  stage2_tiles1 FAST 0
+TILESET stage2_tiles2 "stage2_map2.png" FAST ALL
+PALETTE stage2_pal2   "stage2_map2.png"
+MAP     stage2_map2   "stage2_map2.png"  stage2_tiles2 FAST 0
+PALETTE stage2_bg0_pal "stage2_bg0_tiles.png"
+PALETTE stage2_bg1_pal "stage2_bg1_tiles.png"
+PALETTE stage2_bg2_pal "stage2_bg2_tiles.png"

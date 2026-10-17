@@ -39,10 +39,20 @@ TILE_STRUCT = 5
 MAP_W, MAP_H = 200, 14   # output size: 320x224 NTSC (top PC row cropped)
 MAP_H_SRC = 15           # PC maps are 15 rows (240px)
 TILE = 16
-STAGE_INDEX = 0
+STAGE_INDEX = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+PFX = "stage%d" % STAGE_INDEX
+UP = PFX.upper()
 MAPS_PER_STAGE = 3
 
 COLORKEY = (75, 125, 125)
+KEY_TOL = 6   # art sometimes paints the backdrop with the colorkey a few units
+              # off (palmtree anim = 72,126,124); punch those too
+
+
+def is_key(c):
+    return (abs(c[0] - COLORKEY[0]) <= KEY_TOL
+            and abs(c[1] - COLORKEY[1]) <= KEY_TOL
+            and abs(c[2] - COLORKEY[2]) <= KEY_TOL)
 MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)
 MAX_COLORS = 15  # index 0 stays reserved for transparency
 
@@ -204,7 +214,7 @@ def collect_colors(used, ts_px):
         for yy in range(TILE):
             for xx in range(TILE):
                 r, g, b, a = ts_px[cx * TILE + xx, cy * TILE + yy]
-                if a == 0 or (r, g, b) == COLORKEY:
+                if a == 0 or is_key((r, g, b)):
                     continue
                 rgbs.append((md_round(r), md_round(g), md_round(b)))
     return rgbs
@@ -216,7 +226,7 @@ def convert_map(map_n, ts_px, cells, used, palette, lut, frame0_px, slot_of):
         for yy in range(TILE):
             for xx in range(TILE):
                 r, g, b, a = ts_px[cx * TILE + xx, cy * TILE + yy]
-                if a == 0 or (r, g, b) == COLORKEY:
+                if a == 0 or is_key((r, g, b)):
                     out.append(0)
                 else:
                     c = (md_round(r), md_round(g), md_round(b))
@@ -292,38 +302,30 @@ def convert_background(map_n, name, adjust_y, speed):
     img = Image.new("P", (BG_PLANE_W, bg.height))
     img.putpalette([v for c in pal for v in c])
     img.putdata([lut.get(c, 1) for c in rgbs])
-    out = os.path.join(RES, f"stage0_bg{map_n}.png")
+    out = os.path.join(RES, f"{PFX}_bg{map_n}.png")
     img.save(out)
     print(f"  bg{map_n}: {name} {src.size} -> {img.size} "
-          f"(adjust_y={adjust_y} speed={speed}) -> res/stage0_bg{map_n}.png")
+          f"(adjust_y={adjust_y} speed={speed}) -> res/{PFX}_bg{map_n}.png")
     return {"present": 1, "adjust_y": adjust_y, "speed": speed}
 
 
 def main():
     stage = read_stage(STAGE_INDEX)
     links = read_links(STAGE_INDEX)
-    print(f"stage {STAGE_INDEX}: '{stage['name']}' tileset={stage['tileset']} boss={stage['boss']}")
+    print(f"stage {STAGE_INDEX}: '{stage['name']}' tileset={stage['tileset']} "
+          f"boss={stage['boss']}")
     print(f"links: {links}")
 
     ts = Image.open(os.path.join(DATA, "images/tilesets", stage["tileset"])).convert("RGBA")
     ts_px = ts.load()
-
     os.makedirs(RES, exist_ok=True)
     os.makedirs(SRC, exist_ok=True)
 
-    # One master palette for the whole stage: collect every map's colors
-    # first, then render all maps against the same palette/lut. Per-map
-    # palettes differ in color order, which flashed on map transitions.
     maps_data, all_rgbs, scroll_locks = [], [], []
-    # PC scroll-lock columns: every one of the 15 data rows is
-    # SOLID/DOOR/SPIKE/ICE/SCROLL_LOCK (classmap.cpp:184-193). The camera
-    # edge may never sit on such a column (changeScrolling), so the player
-    # never sees past a map divider.
     lock_terrain = {1, 3, 4, 6, 10}
     for m in range(MAPS_PER_STAGE):
         cells, used = collect_map(m)
-        rgbs = collect_colors(used, ts_px)
-        all_rgbs += rgbs
+        all_rgbs += collect_colors(used, ts_px)
         maps_data.append((cells, used))
         scroll_locks.append([
             x for x in range(MAP_W)
@@ -332,51 +334,42 @@ def main():
     maps_data = [(crop_top_row(cells, links, m), used)
                  for m, (cells, used) in enumerate(maps_data)]
 
-    # ---- animated tiles + tile3 (drawn above the player) ----
-    # tile3: PC showAbove() redraws these over the player; the MD patch
-    # callback (stage.c) sets the per-tile priority bit instead (zero cost).
-    # anim markers: tile1.x < -1 && y == 0, or tile3.x < -1
-    # (graphicslib place_3rd_level_tile) -> id = -x - 2 into anim_block_list.dat.
     anim_blocks = read_anim_blocks()
-    tile3_masks, anim_masks, anim_cell_lists = [], [], []
-    anim_ids = set()
     mask_bytes = (MAP_W * MAP_H + 7) // 8
+    tile3_masks = []
+    anim_cell_slot = []          # per map: u8 per cell, 0 = none, else slot+1
+    anim_slot_gids = []          # per map: gid per compacted slot
     for cells, _ in maps_data:
         mask3 = bytearray(mask_bytes)
-        maska = bytearray(mask_bytes)
-        cell_list = []
+        cell_slot = bytearray(MAP_W * MAP_H)
+        gid_to_slot, slot_gids = {}, []
         for x in range(MAP_W):
             for y in range(MAP_H):
                 _, t1x, t1y, t3x, t3y = cells[x][y]
                 n = y * MAP_W + x
                 if t3x >= 0 and t3y >= 0:
                     mask3[n >> 3] |= 1 << (n & 7)
-                gid, t3flag = None, 0
+                gid = None
                 if t1x < -1 and t1y == 0:
                     gid = (-t1x) - 2
                 if t3x < -1:
                     gid = (-t3x) - 2
-                    t3flag = 1
                     mask3[n >> 3] |= 1 << (n & 7)   # anim on tile3 = above player
                 if gid is None or gid >= len(anim_blocks):
                     continue
-                maska[n >> 3] |= 1 << (n & 7)
-                anim_ids.add(gid)
-                cell_list.append([x, y, gid, t3flag])
+                if gid not in gid_to_slot:
+                    gid_to_slot[gid] = len(slot_gids)
+                    slot_gids.append(gid)
+                cell_slot[n] = gid_to_slot[gid] + 1
         tile3_masks.append(mask3)
-        anim_masks.append(maska)
-        anim_cell_lists.append(cell_list)
+        anim_cell_slot.append(cell_slot)
+        anim_slot_gids.append(slot_gids)
+    anim_slot_max = max(1, max((len(g) for g in anim_slot_gids), default=0))
+    print(f"anim slots per map: {[len(g) for g in anim_slot_gids]} (max {anim_slot_max})")
 
-    # compact slot per used global anim id
-    slots = sorted(anim_ids)
-    slot_of = {gid: s for s, gid in enumerate(slots)}
-    for cell_list in anim_cell_lists:
-        for c in cell_list:
-            c[2] = slot_of[c[2]]
-
-    # strip art joins the master palette so anim frames share it
+    all_gids = sorted({g for gs in anim_slot_gids for g in gs})
     strips = {}
-    for gid in slots:
+    for gid in all_gids:
         fn = anim_blocks[gid][0]
         im = Image.open(os.path.join(DATA, "images/tilesets/anim", fn)).convert("RGBA")
         strips[gid] = im
@@ -387,7 +380,6 @@ def main():
     print(f"master palette: {len(set(all_rgbs))} unique colors -> {MAX_COLORS} slots max")
 
     def frame_tiles(im, frame):
-        """16x16 strip frame -> 4 8x8 tiles (TL,TR,BL,BR), 16 4bpp words each."""
         px = im.load()
         out = []
         for qx, qy in ((0, 0), (8, 0), (0, 8), (8, 8)):
@@ -397,7 +389,7 @@ def main():
                     w = 0
                     for p in range(4):
                         r, g, b, a = px[frame * TILE + qx + k + p, qy + yy]
-                        if a == 0 or (r, g, b) == COLORKEY:
+                        if a == 0 or is_key((r, g, b)):
                             idx = 0
                         else:
                             idx = lut.get((md_round(r), md_round(g), md_round(b)), 1)
@@ -407,7 +399,6 @@ def main():
         return out
 
     def tiles_pixels(t4):
-        """4 8x8 tiles (TL,TR,BL,BR) -> flat 16x16 indexed pixels."""
         px = [0] * (TILE * TILE)
         for q, words in enumerate(t4):
             qx, qy = (q & 1) * 8, (q >> 1) * 8
@@ -418,31 +409,41 @@ def main():
                     px[(qy + yy) * TILE + qx + xi] = (w >> shift) & 0xF
         return px
 
-    anim_frames, frame0_px = [], {}
-    for s, gid in enumerate(slots):
-        im = strips[gid]
-        nf = max(1, im.width // TILE)
-        f0 = frame_tiles(im, 0)
-        frames = []
-        for f in range(ANIM_MAX_FRAMES):
-            t = frame_tiles(im, f) if f < nf else f0
-            frames.append([w for tile in t for w in tile])
-        anim_frames.append(frames)
-        frame0_px[s] = tiles_pixels(f0)
+    # per-map: slot -> frame0 pixels, and slot -> (frames, delays, name)
+    frame0_map, slots_meta = [], []
+    for slot_gids in anim_slot_gids:
+        f0map, meta = {}, []
+        for s, gid in enumerate(slot_gids):
+            im = strips[gid]
+            nf = max(1, im.width // TILE)
+            f0 = frame_tiles(im, 0)
+            frames = []
+            for f in range(ANIM_MAX_FRAMES):
+                t = frame_tiles(im, f) if f < nf else f0
+                frames.append([w for tile in t for w in tile])
+            f0map[s] = tiles_pixels(f0)
+            fn, delays = anim_blocks[gid]
+            dfs = [min(65535, max(1, (ms * 60 + 500) // 1000))
+                   for ms in (delays[f] if f < len(delays) else 200
+                              for f in range(ANIM_MAX_FRAMES))]
+            meta.append({"nf": nf, "frames": frames, "delays": dfs, "name": fn})
+        frame0_map.append(f0map)
+        slots_meta.append(meta)
 
-    terrains, used_maps = [], []
+    terrains = []
     for m, (cells, used) in enumerate(maps_data):
+        slot_of = {g: s for s, g in enumerate(anim_slot_gids[m])}
         img, terrain = convert_map(m, ts_px, cells, used, palette, lut,
-                                   frame0_px, slot_of)
-        img.save(os.path.join(RES, f"stage0_map{m}.png"))
-        print(f"    -> res/stage0_map{m}.png {img.size}")
+                                   frame0_map[m], slot_of)
+        img.save(os.path.join(RES, f"{PFX}_map{m}.png"))
+        print(f"    -> res/{PFX}_map{m}.png {img.size}")
         terrains.append(terrain)
-        used_maps.append(m)
-    for m, cl in enumerate(anim_cell_lists):
+    for m in range(MAPS_PER_STAGE):
+        n = sum(1 for v in anim_cell_slot[m] if v)
         print(f"  map {m}: tile3={sum(bin(b).count('1') for b in tile3_masks[m])} "
-              f"anim_cells={len(cl)}")
+              f"anim_cells={n}")
 
-    bg_infos = []
+    bg_infos, bg_names = [], []
     for m in range(MAPS_PER_STAGE):
         _, bg0, _ = read_map(STAGE_INDEX, m)
         name, adj, spd, auto = bg0
@@ -450,169 +451,180 @@ def main():
             info = convert_background(m, name, adj, spd)
             info["auto_scroll"] = auto
             bg_infos.append(info)
+            bg_names.append(name)
         else:
             bg_infos.append({"present": 0, "adjust_y": 0, "speed": 0,
                              "auto_scroll": 0})
+            bg_names.append("")
 
-    n = len(used_maps)
-    with open(os.path.join(SRC, "stage0_data.h"), "w") as f:
-        f.write(
-            "#ifndef STAGE0_DATA_H\n"
-            "#define STAGE0_DATA_H\n\n"
-            "#include <genesis.h>\n\n"
-            f"// Generated by tools/convert_stage.py from stage {STAGE_INDEX} "
-            f"(\"{stage['name']}\").\n"
-            "// Terrain values match the original TERRAIN_TYPES (defines.h:285).\n\n"
-            f"#define STAGE0_MAP_COUNT {n}\n"
-            f"#define STAGE0_MAP_W {MAP_W}\n"
-            f"#define STAGE0_MAP_H {MAP_H}\n"
-            "#define STAGE0_TILE 16\n"
-            "#define STAGE0_PIXEL_W (STAGE0_MAP_W * STAGE0_TILE)\n"
-            "#define STAGE0_PIXEL_H (STAGE0_MAP_H * STAGE0_TILE)\n\n"
-            "#define TERRAIN_UNBLOCKED 0\n"
-            "#define TERRAIN_SOLID     1\n"
-            "#define TERRAIN_STAIR     2\n"
-            "#define TERRAIN_EASYBLOCK 12\n"
-            "#define TERRAIN_HARDBLOCK 13\n\n"
-            "// Terrain that blocks movement (matches character.cpp:1940 on normal\n"
-            "// difficulty: unblocked/water/scroll-lock/checkpoint/stair and the\n"
-            "// easy/hard mode blocks all pass through).\n"
-            "#define TERRAIN_BLOCKS(t) ((t) != TERRAIN_UNBLOCKED && \\\n"
-            "                           (t) != TERRAIN_STAIR && \\\n"
-            "                           (t) != TERRAIN_EASYBLOCK && \\\n"
-            "                           (t) != TERRAIN_HARDBLOCK)\n\n"
-            "typedef struct { u8 map_from, tile_x, tile_y; u8 map_to, dst_x, dst_y; } StageLink;\n\n"
-            "typedef struct { u8 present; s16 adjust_y; s8 speed; u8 auto_scroll; } StageBgInfo;\n\n"
-            f"extern const u8 stage0_terrain[STAGE0_MAP_COUNT][STAGE0_MAP_W * STAGE0_MAP_H];\n"
-            f"extern const StageLink stage0_links[{len(links)}];\n"
-            f"extern const StageBgInfo stage0_bg_info[STAGE0_MAP_COUNT];\n"
-            f"#define STAGE0_LINK_COUNT {len(links)}\n\n"
-            "// Full-wall columns: every one of the 15 PC data rows is\n"
-            "// SOLID/DOOR/SPIKE/ICE/SCROLL_LOCK (PC classmap.cpp:184-193).\n"
-            "// The camera edge may never sit on one (PC changeScrolling\n"
-            "// classmap.cpp:459/475): the view never shows what is behind a\n"
-            "// map divider.\n"
-            f"#define STAGE0_SCROLL_LOCK_MAX {max(len(l) for l in scroll_locks)}\n"
-            "extern const u8 stage0_scroll_lock_n[STAGE0_MAP_COUNT];\n"
-            "extern const u8 stage0_scroll_lock[STAGE0_MAP_COUNT][STAGE0_SCROLL_LOCK_MAX];\n\n"
-            "u16 stage_terrain_at(u8 map, s16 tileX, s16 tileY);\n\n"
-            "// ---- animated tiles + tile3 (above-player layer) ----\n"
-            "// tile3 cells get TILE_ATTR_PRIORITY via the SGDK map patch\n"
-            "// callback (stage.c) so the VDP draws them over sprites.\n"
-            "// Anim cells point at a fixed VRAM slot (one per animation,\n"
-            "// 6 frames x 4 tiles); frame changes DMA 32 bytes per slot.\n"
-            f"#define TILE_ANIM_BASE {TILE_ANIM_BASE}\n"
-            f"#define TILE_ANIM_STRIDE {TILE_ANIM_STRIDE}\n"
-            f"#define STAGE0_ANIM_SLOT_COUNT {max(1, len(slots))}\n"
-            f"#define STAGE0_ANIM_CELL_MAX {max(1, max((len(c) for c in anim_cell_lists), default=1))}\n\n"
-            "typedef struct { u8 x, y, slot, tile3; } StageAnimCell;\n"
-            "typedef struct { u8 frames; u16 delay[6]; } StageAnimSlot; // delay in frames\n\n"
-            "extern const u8 stage0_tile3_mask[STAGE0_MAP_COUNT][(STAGE0_MAP_W * STAGE0_MAP_H + 7) / 8];\n"
-            "extern const u8 stage0_anim_mask[STAGE0_MAP_COUNT][(STAGE0_MAP_W * STAGE0_MAP_H + 7) / 8];\n"
-            "extern const StageAnimCell stage0_anim_cells[STAGE0_MAP_COUNT][STAGE0_ANIM_CELL_MAX];\n"
-            "extern const u16 stage0_anim_cell_n[STAGE0_MAP_COUNT];\n"
-            "extern const StageAnimSlot stage0_anim_slots[STAGE0_ANIM_SLOT_COUNT];\n"
-            "extern const u16 stage0_anim_frames[STAGE0_ANIM_SLOT_COUNT][6][64];\n"
-            "#endif\n"
-        )
+    lock_max = max(1, max(len(l) for l in scroll_locks))
 
-    lines = ['#include "stage0_data.h"\n\n']
-    lines.append(f"const u8 stage0_terrain[STAGE0_MAP_COUNT][STAGE0_MAP_W * STAGE0_MAP_H] = {{\n")
-    for idx, terr in enumerate(terrains):
-        lines.append("    { // map %d\n" % used_maps[idx])
+    # ---- header ----
+    with open(os.path.join(SRC, f"{PFX}_data.h"), "w") as f:
+        f.write(f"#ifndef {UP}_DATA_H\n#define {UP}_DATA_H\n\n"
+                "#include <genesis.h>\n#include \"stage_data.h\"\n\n"
+                f"// Generated by tools/convert_stage.py from stage "
+                f"{STAGE_INDEX} (\"{stage['name']}\").\n"
+                f"extern const StageDef {PFX}_def;\n\n#endif\n")
+
+    # ---- source ----
+    c = [f'#include "{PFX}_data.h"\n',
+         '#include "resources.h"\n',
+         f'#include "{PFX}_enemies.h"\n',
+         f'#include "{PFX}_objects.h"\n']
+    for m in range(MAPS_PER_STAGE):
+        if bg_names[m]:
+            c.append(f'#include "{PFX}_bg{m}_tiles.h"\n')
+            c.append(f'#include "{PFX}_bg{m}_map.h"\n')
+    c.append("\n")
+
+    c.append(f"static const u8 {PFX}_terrain[{MAPS_PER_STAGE}]"
+             f"[{MAP_W * MAP_H}] = {{\n")
+    for terr in terrains:
+        c.append("    {\n")
         for y in range(MAP_H):
             row = ",".join(str(terr[y * MAP_W + x]) for x in range(MAP_W))
-            lines.append("        " + row + ",\n")
-        lines.append("    },\n")
-    lines.append("};\n\n")
+            c.append("        " + row + ",\n")
+        c.append("    },\n")
+    c.append("};\n\n")
 
-    lines.append(f"const StageLink stage0_links[STAGE0_LINK_COUNT] = {{\n")
+    c.append(f"static const StageLink {PFX}_links[{max(1,len(links))}] = {{\n")
     for (i, frm, to, ox, oy, dx, dy) in links:
-        oy = 0 if oy == 0 else oy - 1   # top PC row cropped
+        oy = 0 if oy == 0 else oy - 1
         dy = 0 if dy == 0 else dy - 1
-        lines.append(f"    {{ {frm}, {ox}, {oy}, {to}, {dx}, {dy} }}, // link{i}\n")
-    lines.append("};\n\n")
+        c.append(f"    {{ {frm}, {ox}, {oy}, {to}, {dx}, {dy} }}, // link{i}\n")
+    c.append("};\n\n")
 
-    lines.append("const StageBgInfo stage0_bg_info[STAGE0_MAP_COUNT] = {\n")
+    c.append(f"static const StageBgInfo {PFX}_bg_info[{MAPS_PER_STAGE}] = {{\n")
     for m, info in enumerate(bg_infos):
-        comment = "map %d" % m
-        lines.append(f"    {{ {info['present']}, {info['adjust_y']}, "
-                     f"{info['speed']}, {info['auto_scroll']} }}, // {comment}\n")
-    lines.append("};\n\n")
+        c.append(f"    {{ {info['present']}, {info['adjust_y']}, "
+                 f"{info['speed']}, {info['auto_scroll']} }}, // map {m}\n")
+    c.append("};\n\n")
 
-    lines.append("const u8 stage0_scroll_lock_n[STAGE0_MAP_COUNT] = {\n")
-    lines.append("    " + ", ".join(str(len(l)) for l in scroll_locks) + "\n};\n\n")
-
-    lines.append("const u8 stage0_scroll_lock[STAGE0_MAP_COUNT][STAGE0_SCROLL_LOCK_MAX] = {\n")
-    lock_max = max(len(l) for l in scroll_locks)
-    for m, locks in enumerate(scroll_locks):
+    c.append(f"static const u8 {PFX}_scroll_lock_n[{MAPS_PER_STAGE}] = {{\n    ")
+    c.append(", ".join(str(len(l)) for l in scroll_locks))
+    c.append("\n};\n\n")
+    c.append(f"static const u8 {PFX}_scroll_lock[{MAPS_PER_STAGE}][{lock_max}] = {{\n")
+    for locks in scroll_locks:
         padded = locks + [0] * (lock_max - len(locks))
-        lines.append("    { " + ", ".join(str(v) for v in padded) + f" }}, // map {m}\n")
-    lines.append("};\n\n")
+        c.append("    { " + ", ".join(str(v) for v in padded) + " },\n")
+    c.append("};\n\n")
 
     def emit_mask(name, masks):
-        lines.append(f"const u8 {name}[STAGE0_MAP_COUNT]"
-                     "[(STAGE0_MAP_W * STAGE0_MAP_H + 7) / 8] = {\n")
-        for m, mask in enumerate(masks):
-            lines.append("    { // map %d\n" % m)
+        c.append(f"static const u8 {name}[{MAPS_PER_STAGE}][{mask_bytes}] = {{\n")
+        for mask in masks:
+            c.append("    {\n")
             for i in range(0, len(mask), 16):
                 chunk = ", ".join("0x%02X" % b for b in mask[i:i + 16])
-                lines.append("        " + chunk + ",\n")
-            lines.append("    },\n")
-        lines.append("};\n\n")
+                c.append("        " + chunk + ",\n")
+            c.append("    },\n")
+        c.append("};\n\n")
 
-    emit_mask("stage0_tile3_mask", tile3_masks)
-    emit_mask("stage0_anim_mask", anim_masks)
+    emit_mask(f"{PFX}_tile3_mask", tile3_masks)
 
-    cell_max = max(1, max((len(c) for c in anim_cell_lists), default=1))
-    lines.append("const StageAnimCell stage0_anim_cells[STAGE0_MAP_COUNT][STAGE0_ANIM_CELL_MAX] = {\n")
-    for m, cl in enumerate(anim_cell_lists):
-        rows = ["{ %d, %d, %d, %d }" % tuple(c) for c in cl]
-        rows += ["{ 0, 0, 0, 0 }"] * (cell_max - len(rows))
-        lines.append("    { " + ", ".join(rows) + " }, // map %d\n" % m)
-    lines.append("};\n\n")
+    c.append(f"static const u8 {PFX}_anim_cell_slot[{MAPS_PER_STAGE}]"
+             f"[{MAP_W * MAP_H}] = {{\n")
+    for cs in anim_cell_slot:
+        c.append("    {\n")
+        for i in range(0, len(cs), 32):
+            c.append("        " + ", ".join(str(b) for b in cs[i:i + 32]) + ",\n")
+        c.append("    },\n")
+    c.append("};\n\n")
+    c.append(f"static const u8 {PFX}_anim_slot_n[{MAPS_PER_STAGE}] = {{\n    ")
+    c.append(", ".join(str(len(g)) for g in anim_slot_gids) + "\n};\n\n")
 
-    lines.append("const u16 stage0_anim_cell_n[STAGE0_MAP_COUNT] = {\n")
-    lines.append("    " + ", ".join(str(len(c)) for c in anim_cell_lists) + "\n};\n\n")
+    c.append(f"static const StageAnimSlot {PFX}_anim_slots"
+             f"[{MAPS_PER_STAGE}][{anim_slot_max}] = {{\n")
+    for meta in slots_meta:
+        rows = [f"{{ {m['nf']}, {{ " + ", ".join(str(d) for d in m['delays'])
+                + " } }" for m in meta]
+        rows += ["{ 1, { 1, 1, 1, 1, 1, 1 } }"] * (anim_slot_max - len(rows))
+        c.append("    { " + ", ".join(rows) + " },\n")
+    c.append("};\n\n")
 
-    lines.append("const StageAnimSlot stage0_anim_slots[STAGE0_ANIM_SLOT_COUNT] = {\n")
-    if not slots:
-        lines.append("    { 1, { 1, 1, 1, 1, 1, 1 } }, // dummy (no anims)\n")
-    for s, gid in enumerate(slots):
-        fn, delays = anim_blocks[gid]
-        nf = max(1, strips[gid].width // TILE)
-        dfs = []
-        for f in range(ANIM_MAX_FRAMES):
-            ms = delays[f] if f < len(delays) else 200
-            dfs.append(min(65535, max(1, (ms * 60 + 500) // 1000)))
-        lines.append("    { %d, { %s } }, // %d: %s\n"
-                     % (nf, ", ".join(str(d) for d in dfs), s, fn))
-    lines.append("};\n\n")
+    c.append(f"static const u16 {PFX}_anim_frames[{MAPS_PER_STAGE}]"
+             f"[{anim_slot_max}][6][64] = {{\n")
+    for meta in slots_meta:
+        c.append("    {\n")
+        for m in meta:
+            c.append("      {\n")
+            for words in m["frames"]:
+                c.append("        { " + ", ".join("0x%04X" % w for w in words) + " },\n")
+            c.append("      },\n")
+        for _ in range(anim_slot_max - len(meta)):
+            c.append("      { { 0 } },\n")
+        c.append("    },\n")
+    c.append("};\n\n")
 
-    lines.append("const u16 stage0_anim_frames[STAGE0_ANIM_SLOT_COUNT][6][64] = {\n")
-    if not slots:
-        lines.append("    { { 0 } }, // dummy\n")
-    for s, frames in enumerate(anim_frames):
-        lines.append("    { // slot %d (%s)\n" % (s, anim_blocks[slots[s]][0]))
-        for words in frames:
-            hexs = ", ".join("0x%04X" % w for w in words)
-            lines.append("        { " + hexs + " },\n")
-        lines.append("    },\n")
-    lines.append("};\n\n")
+    c.append(f"static const MapDefinition *const {PFX}_map_defs[{MAPS_PER_STAGE}] = {{\n")
+    c.append("    " + ", ".join(f"&{PFX}_map{m}" for m in range(MAPS_PER_STAGE)) + "\n};\n")
+    c.append(f"static const TileSet *const {PFX}_tile_sets[{MAPS_PER_STAGE}] = {{\n")
+    c.append("    " + ", ".join(f"&{PFX}_tiles{m}" for m in range(MAPS_PER_STAGE)) + "\n};\n")
+    c.append(f"static const Palette *const {PFX}_palettes[{MAPS_PER_STAGE}] = {{\n")
+    c.append("    " + ", ".join(f"&{PFX}_pal{m}" for m in range(MAPS_PER_STAGE)) + "\n};\n")
+    c.append(f"static const Palette *const {PFX}_bg_pal[{MAPS_PER_STAGE}] = {{\n    ")
+    c.append(", ".join(f"&{PFX}_bg{m}_pal" if bg_names[m] else "NULL"
+                       for m in range(MAPS_PER_STAGE)))
+    c.append("\n};\n")
+    c.append(f"static const u32 *const {PFX}_bg_tiles[{MAPS_PER_STAGE}] = {{\n    ")
+    c.append(", ".join(f"{PFX}_bg{m}_tiles_data" if bg_names[m] else "NULL"
+                       for m in range(MAPS_PER_STAGE)))
+    c.append("\n};\n")
+    c.append(f"static const u16 {PFX}_bg_tiles_n[{MAPS_PER_STAGE}] = {{\n    ")
+    c.append(", ".join(f"{UP}_BG{m}_TILE_COUNT" if bg_names[m] else "0"
+                       for m in range(MAPS_PER_STAGE)))
+    c.append("\n};\n")
+    c.append(f"static const u16 *const {PFX}_bg_maps[{MAPS_PER_STAGE}] = {{\n    ")
+    c.append(", ".join(f"{PFX}_bg{m}_map" if bg_names[m] else "NULL"
+                       for m in range(MAPS_PER_STAGE)))
+    c.append("\n};\n")
+    c.append(f"static const u16 {PFX}_bg_map_h[{MAPS_PER_STAGE}] = {{\n    ")
+    c.append(", ".join(f"{UP}_BG{m}_MAP_H" if bg_names[m] else "0"
+                       for m in range(MAPS_PER_STAGE)))
+    c.append("\n};\n\n")
 
-    lines.append(
-        "u16 stage_terrain_at(u8 map, s16 tileX, s16 tileY)\n"
-        "{\n"
-        "    if (map >= STAGE0_MAP_COUNT) return TERRAIN_SOLID;\n"
-        "    if (tileX < 0 || tileX >= STAGE0_MAP_W) return TERRAIN_SOLID;\n"
-        "    if (tileY < 0 || tileY >= STAGE0_MAP_H) return TERRAIN_UNBLOCKED;\n"
-        "    return stage0_terrain[map][tileY * STAGE0_MAP_W + tileX];\n"
-        "}\n"
-    )
+    c.append(f"const StageDef {PFX}_def = {{\n")
+    c.append(f"    .map_count = {MAPS_PER_STAGE}, .map_w = {MAP_W}, "
+             f".map_h = {MAP_H}, .tile = {TILE},\n")
+    c.append(f"    .map_defs = {PFX}_map_defs, .tile_sets = {PFX}_tile_sets, "
+             f".palettes = {PFX}_palettes,\n")
+    c.append(f"    .terrain = &{PFX}_terrain[0][0],\n")
+    c.append(f"    .links = {PFX}_links, .link_count = {len(links)},\n")
+    c.append(f"    .bg_info = {PFX}_bg_info, .bg_pal = {PFX}_bg_pal, "
+             f".bg_tiles = {PFX}_bg_tiles,\n")
+    c.append(f"    .bg_tiles_n = {PFX}_bg_tiles_n, .bg_maps = {PFX}_bg_maps, "
+             f".bg_map_h = {PFX}_bg_map_h,\n")
+    c.append(f"    .scroll_lock_n = {PFX}_scroll_lock_n, "
+             f".scroll_lock = &{PFX}_scroll_lock[0][0], .scroll_lock_max = {lock_max},\n")
+    c.append(f"    .tile3_mask = &{PFX}_tile3_mask[0][0],\n")
+    c.append(f"    .anim_cell_slot = &{PFX}_anim_cell_slot[0][0], "
+             f".anim_slot_n = {PFX}_anim_slot_n, .anim_slot_max = {anim_slot_max},\n")
+    c.append(f"    .anim_slots = &{PFX}_anim_slots[0][0], "
+             f".anim_frames = &{PFX}_anim_frames[0][0],\n")
+    c.append(f"    .enemy_defs = {PFX}_enemy_defs, "
+             f".enemy_def_count = {UP}_ENEMY_DEF_COUNT,\n")
+    c.append(f"    .enemy_spawns = {PFX}_enemy_spawns, "
+             f".enemy_spawn_count = {UP}_ENEMY_SPAWN_COUNT,\n")
+    c.append(f"    .enemy_ai = {PFX}_enemy_ai, .enemy_proj = {PFX}_enemy_proj, "
+             f".enemy_proj_max = {UP}_ENEMY_PROJ_MAX,\n")
+    c.append(f"    .object_defs = {PFX}_object_defs, "
+             f".object_def_count = {UP}_OBJECT_DEF_COUNT,\n")
+    c.append(f"    .object_spawns = {PFX}_object_spawns, "
+             f".object_spawn_count = {UP}_OBJECT_SPAWN_COUNT,\n")
+    c.append("};\n")
 
-    with open(os.path.join(SRC, "stage0_data.c"), "w") as f:
-        f.write("".join(lines))
-    print(f"wrote src/stage0_data.c/h ({n} maps, {len(links)} links)")
+    with open(os.path.join(SRC, f"{PFX}_data.c"), "w") as f:
+        f.write("".join(c))
+    print(f"wrote src/{PFX}_data.c/h ({len(terrains)} maps, {len(links)} links, "
+          f"{anim_slot_max} anim slots)")
+    print(f"\n--- res/resources.res ---")
+    for m in range(MAPS_PER_STAGE):
+        print(f'TILESET {PFX}_tiles{m} "{PFX}_map{m}.png" FAST ALL')
+        print(f'PALETTE {PFX}_pal{m}   "{PFX}_map{m}.png"')
+        print(f'MAP     {PFX}_map{m}   "{PFX}_map{m}.png"  {PFX}_tiles{m} FAST 0')
+    for m in range(MAPS_PER_STAGE):
+        if bg_names[m]:
+            print(f'PALETTE {PFX}_bg{m}_pal "{PFX}_bg{m}_tiles.png"')
     return 0
 
 

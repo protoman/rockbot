@@ -34,6 +34,10 @@ build + emulator run before moving on.
 | M7d | Charged shots (PC projectiles 11 semi / 10 full) | DONE (real art, speed 3, dmg 2/3, 2-frame 100ms) |
 | M7e | Hit pushback + HIT animation (PC character.cpp:194) | DONE |
 | M7f | In-game menu (PC class_config::execute_ingame_menu) | DONE (panel from decomposed weapon_menu art; A = leave stage) |
+| M10 | Classic stage select screen (PC stage_select.cpp:357) | DONE (screen + input + cursor; loads stage 0 until multi-stage) |
+| M11 | 5-slot SRAM save/load + selector (PC select_save) | DONE (NEW GAME/LOAD GAME -> slot selector; stage clear saves slot) |
+| M12 | Data-driven projectiles (game_projectile_list.dat) | DONE (full table; LINEAR/ARC/DIAG/TARGET/FOLLOW/PROGRESSIVE/QUAKE) |
+| M13 | Multi-stage architecture + DEEP JUNGLE + FLOWER FIELDS | DONE (stages 0/1/2 convert + load; anim slots, spikes, conveyor, big sprites) |
 | M9 | Graphics toolchain: img2tiles + tiles_merge + pal_ui, build pipeline | DONE |
 | M8 | Audio (XGM2) | OUT OF SCOPE (later milestone) |
 | — | Menu, saves, stage select, doors/spikes/water/ice, animated tiles, real health bar/HUD, enemy projectiles | OUT OF SCOPE / later |
@@ -459,6 +463,15 @@ destroying the identity the art was authored with.
     `backgrounds/menu.png`, transparent index 0 = grey (97,97,97)) were read
     as RGB, so the transparent pixels survived as grey. The importer now
     builds an alpha mask from `info["transparency"]` for P sources.
+  - colorkey tolerance: art whose backdrop is the colorkey a few units off
+    (logo.png uses (72,126,124) instead of (75,125,125)) is punched too via
+    `COLORKEY_TOLERANCE = 6` (per channel). Covers logo.png,
+    shared/death_animation.png and the palmtree anim tiles; everything else
+    within tolerance is isolated 1px anti-alias fringe.
+  - `img2tiles.py` preserves an indexed input's palette entry 0 instead of
+    forcing black, so the title logo's backdrop slot keeps CONFIG_BG
+    (5,29,65) — the art's own dark blue. bg0/bg1 outputs are byte-identical
+    (their entry 0 was already black).
 - **convert_player.py**: reads `images/sprites/p1.png`, copies palette
   indices, swaps placeholder index 14/15 -> the weapon-colour indices (6/3)
   **by index** (no RGB lookup). Output pixels are byte-identical to the old
@@ -478,27 +491,208 @@ destroying the identity the art was authored with.
 - `tools/gen_gpl.py` writes `res/md_pal2.gpl` with 14/15 = placeholders so
   painters keep them.
 
-## Start menu + save (PARTIAL — needs the SRAM header)
+## Start menu + save (5 slots + selector, 2026-10-17)
 
-`src/save.{c,h}` (magic + completed-stages mask), the title now shows a
-NEW GAME / CONTINUE menu with a cursor, stage clear calls `save_set_stage(0)`
-and NEW GAME calls `save_clear()`. **The SRAM does NOT persist yet**: the ROM
-header built by the SDK has no SRAM declaration (checked the project's
-`out/release/sega.s`), so `SRAM_enable()` has nothing to map. Needs the
-header's device/SRAM bytes configured (SDK side: a `rom_head.c` with the SRAM
-size, or the SDK's SRAM build option) — note added for next session.
+`src/save.{c,h}`: **5 save slots** like PC (`SAVE_MAX_SLOT_NUMBER 4`), each an
+8-byte SRAM record at byte `8 + slot*8`: `[magic 'RB'][stages mask][reserved]`.
+The title shows NEW GAME / LOAD GAME; LOAD appears only when any slot is valid.
+NEW GAME opens the selector (any slot, it is cleared first), LOAD opens it in
+"occupied only" mode. The chosen slot is `current_save_slot` in `main.c`;
+stage clear writes bit 0 there (`save_slot_set_stage`).
+
+Selector screen (`src/saveselect.c`, art from `tools/convert_save_selector.py`):
+PC `scenesLib::select_save` (sceneslib.cpp:755). The enabled/disabled bar
+PNGs share pixel indices, so ONE tileset is used with two palette lines
+(PAL1 selected, PAL2 normal, index 0 = black interior). Rows at tile row 2,
+40px each; "SLOT n" + "NO SAVE"/"N CLEARED"; d-pad wraps, START/A confirms,
+B backs out. `saveselect_data.c` holds the packed 4bpp tiles + 40x5 row map +
+both palettes. Verified in BlastEm: NEW GAME and LOAD selectors render,
+occupied/empty slots read back from SRAM, LOAD slot -> stage select.
+
+**Previous note was wrong**: the ROM header DOES declare SRAM. sega.s
+`.incbin`s `out/rom_header.bin`, generated from `src/rom_header.c`
+(SGDK `ROMHeader`): `sram_sig "RA"`, `sram_type 0xF820` (odd-byte SRAM),
+start `0x00200000`, end `0x0020FFFF`. Built header bytes at 0x1B0:
+`52 41 F8 20 00 20 00 00 00 20 FF FF`.
+
+Verified end-to-end:
+- reads: seeding `save.sram` (slot magic+mask) drives the selector state;
+- writes: stage clear + BlastEm Esc-menu **Exit** persists the slot;
+- full flow: persisted slot bit 0 -> title LOAD GAME -> selector ->
+  **stage select**.
+
+Important for testing: BlastEm only flushes SRAM on a **normal exit**;
+`flatpak kill`/SIGKILL loses the write. `tools/emu.sh stop` quits via the
+Esc menu (Exit) first, so SRAM is saved. The harness's `quit` also works.
+
+Still no resume-stage index (multi-stage); the stage select loads stage 0.
+
+## Stage select screen (M10, 2026-10-17)
+
+PC `stage_select::pick_stage_classic_style` (stage_select.cpp:357), the
+GAME_STYLE_VINTAGE path the RockBot1 data uses.
+
+- `tools/convert_stage_select.py` composes the static screen from the hand
+  art (`images/backgrounds/classic_style_stage_select_bg.png`,
+  `images/faces/boss_1..8.png`, `images/faces/p1.png` + eyes) into ONE
+  per-tile-palette BG_A tilemap: bg -> PAL3, boss faces -> PAL0, player
+  face -> PAL2. Emits `src/ssel_data.{c,h}` (packed 4bpp tiles + u16 map
+  with palette bits + the 3 palettes + stage/boss name strings).
+  - PC 320x240 is cropped 8px top+bottom to 224; faces use y=40 instead of
+    41 so they sit on 8px tile boundaries (1px up, invisible).
+  - Cursor `classic_style_stage_select_cursor.png` is 2 frames of 48x48,
+    split into 4 x 24x24 quadrant SPRITEs x 2 frames (sprite max is 32x32).
+    Each frame is its OWN single-frame SPRITE resource: a 2-frame SPRITE
+    auto-animates in the sprite engine (2 frames each) and flickers far
+    faster than the intended pulse. The yellow layer is added before the
+    black one (lower sprite index = higher priority) so it can cover the
+    black brackets when visible.
+  - Blink: 48 frames per phase = 0.8s light / 0.8s no-light.
+  - Player face eyes are baked in (PC nudges them 2px with the cursor;
+    skipped as sub-tile motion).
+- `src/stageselect.c`: renders the plane, four cursor sprites (black layer +
+  blinking yellow layer, 48 frames = 0.8s per light/no-light phase), d-pad
+  navigation with the PC wrap and centre slot skipped for text, and the
+  BOSS/STAGE lines over the bottom bar. Returns stage 1..8.
+- `main.c`: after the title, if bit 0 of the save mask is set (intro stage
+  cleared) the stage select runs (PC `scenesLib::pick_stage` only shows it
+  after the intro), else the intro stage starts.
+- **Limitation**: `runStage(stage)` still ignores the selection and loads
+  stage 0 — only stage 0 is converted so far. Selecting a stage is wired
+  through, but multi-stage data/loading is the next task.
+- Emulator helper added: `tools/emu.sh` (start/stop/status/window/shot/key)
+  — kills by exact `blastem.bin` name and `flatpak kill`, never
+  `pkill -f` (which matched the caller shell), detects the NEW window id,
+  and launches under `EMU_TIMEOUT` seconds (default 600) so it cannot linger.
+
+## Title backdrop colour (2026-10-17)
+
+The logo's colorkey background was grey because the PC art paints it with
+(72,126,124) — see the importer tolerance note. After that fix the title
+backdrop was black: the title's visible backdrop is the PAL0 blank-tile
+sheet behind the logo, not the logo palette. `showTitle` now loads PAL0 with
+entry 0 = CONFIG_BGCOLOR (5,29,65 -> 0x0210) and entry 15 = white, so the
+backdrop is PC's dark blue and the font stays white. (Setting the title
+logo palette's entry 0 has no effect — rescomp zeroes palette entry 0.)
 
 ## Still to do (user list, untouched tonight)
 
-- Stage select screen (needs multi-stage data first — see the multi-stage
-  refactor note: converters are stage-0 hardcoded).
-- Full save/load once SRAM is declared; LOAD then resumes a stage.
-- Projectiles from the original data for the different enemy attacks and
-  player weapons (eshot currently supports LINEAR only; the data has ARC,
-  TARGET_DIRECTION, ...).
+- Multi-stage parameterisation + loading (the stage select currently always
+  loads stage 0; converters are stage-0 hardcoded).
+- Resume-stage index inside a save slot (5-slot progress save/load is DONE; the stage select still loads stage 0 because multi-stage data is not converted).
 - Convert the Ape and Daisie Bot stages.
 
+## Data-driven projectiles (M12, 2026-10-17)
+
+PC `projectilelib.cpp` + `game_projectile_list.dat` (file_projectilev3, 104B).
+
+- `tools/convert_enemies.py` now parses the whole projectile table and emits
+  one SPRITE per sane id (0..19): `res/proj_<id>.png`, cell rounded to 8,
+  frames from the art strip (horizontal OR vertical — e.g. big_missile is a
+  7x28x28 vertical strip). `EnemyProj` carries `traj` and `max_shots` now
+  (ENEMY_PROJ_MAX 20). Ids with no art or width >64 are skipped (proj 7
+  chain is 70px wide; none of stages 0..2 use it).
+- `src/eshot.c` fires by data: `max_shots` (0 = unlimited), `speed`, `dmg`,
+  size, `traj`. Trajectories ported:
+    LINEAR (0), ARC (1), QUAKE (4, stationary ~1s; screen shake not ported),
+    FOLLOW (6, homes to the player), PROGRESSIVE (7, moves on the animation
+    reset and snaps to ground), DIAG_UP/DOWN (9/10), TARGET_DIRECTION (13,
+    resolved at fire time from the player's y like PC set_target_position).
+  Anything else falls back to LINEAR.
+  ARC uses the PC trajectory_parabola(RES_W/3) shape, integer-approximated
+  (verified: peak ~62px at half distance, crosses 0 at the full distance).
+- Player shots are unchanged on purpose (shot.c own sprites/speeds); can be
+  folded into the table later.
+
+## Multi-stage architecture (M13, 2026-10-17)
+
+Goal: run stages other than the intro. Converters were stage-0 hardcoded.
+
+- **`src/stage_data.h`** defines every shared type (StageLink, StageBgInfo,
+  StageAnim*, EnemyDef/Ai/Proj/Spawn, ObjectDef/Spawn) plus **`StageDef`**,
+  the per-stage bundle (maps/tilesets/palettes/terrain/links/bg/scroll-lock/
+  tile3+anim tables/enemy+object tables). **`src/stage_data.c`** holds the
+  registry `stage_defs[]` + `stage_set_data(stage)`; `stage_def` is the
+  current bundle. Terrain macros moved here (shared).
+- Converters take the stage index as argv[1] and emit `stageN_*` files:
+  `convert_stage.py N` (arrays + a `stageN_def`), `convert_enemies.py N`,
+  `convert_objects.py N` (drop the typedefs; types are shared). Projectile
+  sprites (`proj_<id>`) are emitted once (stage 0) and referenced by every
+  stage's `enemy_proj[]`.
+- `stage.c`/`enemy.c`/`object.c`/`player.c`/`main.c` read `stage_def->…`
+  instead of `STAGE0_*`; `stage_terrain_at()` is generic in stage.c.
+- Makefile runs the pipeline per stage; `res/resources.res` gets per-stage
+  TILESET/PALETTE/MAP lines and per-bg `stageN_bgM_pal`.
+- **Stage 1 DEEP JUNGLE** converted and loadable (verified in BlastEm via a
+  temp `runStage(1)`): parallax trees, terrain, player all render. Selecting
+  the stage-select "stage 1" slot now loads it.
+- Stage 2 FLOWER FIELDS converts too (3 maps, 10 enemy defs, bgs) but is
+  NOT registered yet — see gaps.
+
+### Resolved (2026-10-17)
+- **Animated tiles now use PER-MAP slots**: only the visible map needs VRAM,
+  so the converter compacts each map's distinct animation ids to slots
+  0..k-1 and emits a per-cell slot map (`anim_cell_slot`, 0 = none). Stage 1
+  needs 6, stage 2 needs 16 (per-map max). The anim block moved from
+  912 (24 tiles) to **TILE_ANIM_BASE 464** (the decomposed-bg region is
+  mostly free: max bg is ~211 tiles), giving 19 slots before the sprite pool.
+  `stage_map_patch` now patches the cell's own slot; `stage_anim_reset` /
+  `stage_anim_update` load the current map's slots. VRAM is fully rebuilt
+  per `stage_load`, so nothing accumulates across stages.
+- **SPIKE (4)**: damages the player on box overlap (PC `damage_spikes`;
+  PC's 188 would be instant death at HP 28, so 4 = 2x contact damage).
+- **MOVE_LEFT/MOVE_RIGHT (7/8)**: not walls (already), standable, and carry
+  the player 1px/frame while standing (PC `check_platform_move`).
+- **RHINOZER** (rhino.png, 96x72) is now emitted: rescomp/SGDK compose the
+  frame from multiple VDP sprites; the 64px cap was raised to 128.
+- **Stage 2 FLOWER FIELDS** registered: 3 maps, 10 enemy defs, 16 anim
+  slots, bgs on all maps. ROM is now 512K (3 stages of art).
+
+### Bug fixes (2026-10-17, user-reported)
+- **Background drifting a few px on its own** (Daisie stage): the parallax
+  accumulated `camera_dx * speed/10` every frame; when the camera sits on a
+  deadzone edge that accumulation drifts/jitters. Now the scroll is derived
+  directly from `camera.x * speed/10` (wrapped into (-512,0]) — deterministic,
+  no drift. Verified: the sky band is byte-identical across idle frames.
+- **Player spawning 1 tile inside the ground** (Ape stage): spawn Y was the
+  hardcoded CHAOS CITY walkway (160). `spawn_ground_y()` now scans the spawn
+  column for the first ground row and puts the feet there (stage 0 unchanged).
+- An emulator crash ("M68K execute at unmapped address") was seen once with a
+  temporary on-screen debug overlay; it did not reproduce after removing it
+  and running stages 1/2 for several seconds. Watch for it.
+
+- **Walkers fell into cliffs** (Tamandua, Ape stage): `step_axis` only
+  checked for walls, never ledges, so AI_WALK enemies walked off edges. PC
+  `check_can_move_to_point` (artificial_inteligence.cpp:2052) samples the
+  tile BELOW the leading edge and stops (turn around) on a hole unless the
+  walk option is HORIZONTAL_AHEAD_FALLING (7). Ported: `step_axis` takes a
+  `can_fall` flag (true only for option 7 / flying) and turns the enemy at
+  the cliff edge. Verified: Tamandua patrols and turns instead of falling.
+
+- **Daisie-stage graphics artifacts** (mixed tiles, corrupted HUD, palm
+  fragments): two causes. (1) stage 2's decomposed bg is **346 tiles**, which
+  ran into the animated-tile block at 464. The block moved to
+  **TILE_ANIM_BASE 496** (`TILE_BG_MAX_TILES 352` reserved; block ends 928 <
+  sprite pool 936). Also `stage.h` had been reverted to 912/8, which made
+  stage 2's 16 slots overflow an 8-entry array — fixed. (2) the palm anim art
+  uses the near-colorkey (72,126,124); `convert_stage.py` now punches near
+  colorkeys (`is_key`, tol 6) like the importer, so no grey boxes.
+  `default.png` has no near-key art, so the map tileset is unaffected.
+
+### Still open
+- **APE BOT / DAISIE BOT bosses** use the generic `is_boss` path; their
+  attack patterns are untuned and untested.
+- Stage select slots 3..8 clamp to stage 0 (only 0/1/2 are converted).
+- Spike damage / conveyor / stage-2 content verified only by loading, not
+  played through.
+
 ## Known issues
+
+- Pre-stage menus (save selector, stage select) have **no cursor SFX**: menu
+  beeps use XGM2 PCM, which loads the Z80 driver before any music is
+  initialised; BlastEm's Z80 core aborts on it ("multi-byte Z80 instruction",
+  writes through the banked area). In-stage SFX/music are fine. Re-add menu
+  SFX when the audio milestone initialises the driver properly.
 
 - (none right now)
 - FIXED: re-entering the TITLE from the stage drew the logo wrong. The

@@ -3,7 +3,7 @@
 
 #include <genesis.h>
 
-#include "stage0_enemies.h"
+#include "stage_data.h"
 
 #define ENEMY_MAX 16
 

@@ -51,7 +51,9 @@ IMAGES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "images"
 RES = os.path.join(ROOT, "res")
 SRC = os.path.join(ROOT, "src")
 
-STAGE_INDEX = 0
+STAGE_INDEX = int(sys.argv[1]) if len(sys.argv) > 1 else 0
+PFX = "stage%d" % STAGE_INDEX
+UP = PFX.upper()
 MAPS_PER_STAGE = 3
 MAP_W = 200
 MAP_H_SRC = 15          # source rows; convert_stage crops the top row
@@ -62,6 +64,7 @@ TILE_STRUCT = 5
 
 NPC_SZ = 6048
 PROJ_SZ = 104
+PROJ_MAX = 20          # ids 0..19 are the ones enemies reference
 MAP_NPC_SZ = 12
 AI_SZ = 528            # file_artificial_inteligence (name30+pad + 20x20 + 6x16)
 AI_STATES = 20
@@ -224,6 +227,59 @@ def drop_to_ground(grid, x, y, box_t, box_h):
     return y, False
 
 
+def read_projectile_list():
+    """game_projectile_list.dat (file_projectilev3, 104B): full table."""
+    blob = open(os.path.join(DATA, "game_projectile_list.dat"), "rb").read()
+    out = []
+    for i in range(len(blob) // PROJ_SZ):
+        b = blob[i * PROJ_SZ:(i + 1) * PROJ_SZ]
+        w, h = struct.unpack_from("<2h", b, 60)
+        out.append({
+            "id": i, "name": cstr(b, 0, 30), "gfx": cstr(b, 30, 30),
+            "w": w, "h": h, "traj": b[66], "max_shots": b[67],
+            "speed": b[68], "dmg": b[69],
+        })
+    return out
+
+
+def emit_proj_sprite(rec, palette, save=True):
+    """One SGDK SPRITE sheet for a projectile (PAL0). Handles horizontal or
+    vertical frame strips (PC uses width/size.width for frames, but several
+    projectiles ship as vertical strips, e.g. big_missile 28x196 = 7x28x28).
+    Returns (name, cw, ch, frames, times) or None."""
+    w, h = rec["w"], rec["h"]
+    if w <= 0 or h <= 0 or w > 64 or h > 64 or not rec["gfx"]:
+        return None
+    path = os.path.join(IMAGES, "projectiles", rec["gfx"])
+    if not os.path.exists(path):
+        return None
+    im, _ = load_indexed(path)
+    aw, ah = im.size
+    hf, vf = aw // w, ah // h
+    if vf > 1 and hf <= 1:
+        frames, vert = vf, True
+    elif hf >= 1:
+        frames, vert = hf, False
+    else:
+        frames, vert = 1, False
+    cw, ch = ceil8(w), ceil8(h)
+    out = Image.new("P", (frames * cw, ch))
+    out.putpalette([v for c in palette for v in c])
+    data = [0] * (frames * cw * ch)
+    src = im.load()
+    for f in range(frames):
+        fx, fy = (0, f * h) if vert else (f * w, 0)
+        for y in range(min(h, ah - fy)):
+            for x in range(min(w, aw - fx)):
+                data[y * frames * cw + f * cw + x] = src[fx + x, fy + y]
+    out.putdata(data)
+    name = "proj_%d" % rec["id"]
+    if save:
+        out.save(os.path.join(RES, name + ".png"))
+    times = [6] * frames if frames > 1 else [0]
+    return name, cw, ch, frames, times
+
+
 # ---------------------------------------------------------------- sheets
 
 def load_indexed(path):
@@ -270,7 +326,10 @@ def main():
             print(f"  !! {path}: palette differs from the first enemy sheet")
         fw, fh = d["fw"], d["fh"]
         cw, ch = ceil8(fw), ceil8(fh)
-        assert cw <= 64 and ch <= 64, f"{d['gfx']}: cell {cw}x{ch} > 64"
+        if cw > 128 or ch > 128:
+            print(f"  !! skip enemy {eid} {d['name']} gfx={d['gfx']}: "
+                  f"cell {cw}x{ch} > 64 (needs a multi-part sprite)")
+            continue
 
         def frames_of(anim):
             return [(px, dur) for (px, dur, _rect) in anim]
@@ -358,6 +417,21 @@ def main():
         out.save(os.path.join(RES, p["res_name"] + ".png"))
         print(f"wrote res/{p['res_name']}.png {out.size}")
 
+    # --- projectile sprites (data-driven, PAL0 hand art) -------------------
+    proj_recs = read_projectile_list()
+    proj_spr = {}
+    for rec in proj_recs[:PROJ_MAX]:
+        info = emit_proj_sprite(rec, palette, save=(STAGE_INDEX == 0))
+        if info is None:
+            if rec["gfx"]:
+                print(f"  !! proj[{rec['id']}] skipped (gfx={rec['gfx']} "
+                      f"size={rec['w']}x{rec['h']})")
+            continue
+        proj_spr[rec["id"]] = info
+        print(f"wrote res/{info[0]}.png ({info[3]}f {info[1]}x{info[2]}) "
+              f"traj={rec['traj']} spd={rec['speed']} dmg={rec['dmg']} "
+              f"max_shots={rec['max_shots']}")
+
     # shot: 6x6 art in an 8x8 cell (SGDK cells like multiples of 8)
     out = Image.new("P", (8, 8))
     out.putpalette([v for c in palette for v in c])
@@ -407,7 +481,7 @@ def main():
     # --- spawns -------------------------------------------------------------
     spawn_out = []
     for s in spawns_all:
-        if s["id"] not in defs:
+        if s["id"] not in plans:      # def skipped (e.g. oversized sprite)
             continue
         d = defs[s["id"]]
         p = plans[s["id"]]
@@ -420,102 +494,47 @@ def main():
                 print(f"  !! spawn id={s['id']} map={s['map']} pos=({s['x']},{s['y']}): no ground found")
         x_min = max(0, x - d["walk_range"])
         x_max = min(MAP_W * 16 - box_w, x + d["walk_range"])
-        def_idx = sorted(defs).index(s["id"])
+        def_idx = sorted(plans).index(s["id"])
         spawn_out.append((def_idx, s["map"], x, y, x_min, x_max, s["dir"]))
         print(f"spawn def={def_idx} id={s['id']} map={s['map']} px=({x},{y}) "
               f"range=[{x_min},{x_max}] dir={s['dir']}")
 
-    # projectiles referenced by the emitted AI shot states + npc defaults
-    used_proj = set()
-    for eid in sorted(defs):
-        for (_ch, act, _g, _d, p) in ai_states.get(eid, []):
-            if act in (5, 6, 7) and 0 <= p < 12:      # SHOT_AHEAD/PLAYER_DIR/INVERT
-                used_proj.add(p)
-        p0 = defs[eid]["proj0"]
-        if 0 <= p0 < 12:
-            used_proj.add(p0)
-    proj_info = {}
-    for pid in sorted(used_proj):
-        r = proj[pid * PROJ_SZ:(pid + 1) * PROJ_SZ]
-        w, h = struct.unpack_from("<2h", r, 60)
-        proj_info[pid] = (r[68], r[69], w, h)
-        print(f"proj[{pid}] '{cstr(r,0,30)}' spd={r[68]} dmg={r[69]} size={w}x{h}")
+    # complete projectile table (sane ids 0..PROJ_MAX-1); no per-stage filtering
+    proj_info = {rec["id"]: rec for rec in proj_recs[:PROJ_MAX]
+                 if rec["id"] in proj_spr}
+    for pid in sorted(proj_info):
+        r = proj_info[pid]
+        print(f"proj[{pid}] '{r['name']}' traj={r['traj']} spd={r['speed']} "
+              f"dmg={r['dmg']} max={r['max_shots']} size={r['w']}x{r['h']}")
 
-    # --- stage0_enemies.h/.c ------------------------------------------------
-    ids_sorted = sorted(defs)
-    h = f"""#ifndef STAGE0_ENEMIES_H
-#define STAGE0_ENEMIES_H
+    # --- {PFX}_enemies.h/.c -----------------------------------------------
+    ids_sorted = sorted(plans)
+    h = f"""#ifndef {UP}_ENEMIES_H
+#define {UP}_ENEMIES_H
 
 #include <genesis.h>
+#include "stage_data.h"
 
 // Generated by tools/convert_enemies.py from game_enemy_list_3_1_2.dat and
-// map_npc_data.dat. Do not edit by hand.
+// map_npc_data.dat. Types live in stage_data.h.
 
-typedef struct {{
-    const SpriteDefinition *spr;
-    u8 hp;              // shots to kill (file_npc.hp.total; boss = 36)
-    u8 dmg_mul;         // weakness[0].damage_multiplier (shot dmg x this)
-    u8 speed;           // px/frame (file_npc.speed)
-    u8 fly;             // 1 = no gravity (file_npc.fly_flag)
-    u8 is_boss;         // file_npc.is_boss -> boss HP bar + stage clear
-    u8 shot;            // default projectile id when AI SHOT param is -1
-    u16 range;          // file_npc.walk_range: AI walk/wait distance
-    s16 box_l, box_t;   // hitbox relative to sprite cell origin
-    u16 box_w, box_h;
-    u8 stand_n;         // frames in sheet row 0 (ANIM_STAND)
-    u8 walk_n;          // frames in sheet row 1 (ANIM_WALK)
-    u8 attack_n;        // frames in sheet row 2 (ANIM_ATTACK, 0 = none)
-    u16 attack_ms;      // total attack animation time (ms)
-}} EnemyDef;
+#define {UP}_ENEMY_DEF_COUNT {len(ids_sorted)}
+#define {UP}_ENEMY_SPAWN_COUNT {len(spawn_out)}
+#define {UP}_ENEMY_PROJ_MAX {PROJ_MAX}
 
-// game_ai_list.dat state machine (PC artificial_inteligence.cpp):
-// chance roll picks a state; go_to 0 = re-roll chance, N = state N-1;
-// param feeds the action executor (WALK/FLY/JUMP option, projectile id).
-typedef struct {{
-    u8 chance;          // 0..100 cumulative roll weight
-    u8 action;          // AI_ACTION_* (enemy.h)
-    u8 go_to;           // 0 = chance, N = state N-1 (1-based, PC defines.h:758)
-    u16 delay;          // ms before the next step (PC go_to_delay)
-    s8 param;           // action option / projectile id
-}} EnemyAi;
-
-// file_projectile_list.dat, sparse by projectile id (NULL spr = unused).
-typedef struct {{
-    const SpriteDefinition *spr;
-    u8 speed, dmg;
-    u8 w, h;
-}} EnemyProj;
-#define ENEMY_PROJ_MAX 12
-
-typedef struct {{
-    u8 def;             // index into enemy_defs
-    u8 map;             // map index (0..2)
-    s16 x, y;           // spawn position in pixels (ground-dropped, walkers)
-    s16 x_min, x_max;   // precomputed patrol limits (file_npc.walk_range)
-    u8 dir;             // ANIM_DIRECTION: 0 = left, 1 = right
-}} EnemySpawn;
-
-#define ENEMY_DEF_COUNT {len(ids_sorted)}
-#define ENEMY_SPAWN_COUNT {len(spawn_out)}
-
-extern const EnemyDef enemy_defs[ENEMY_DEF_COUNT];
-extern const EnemySpawn stage0_enemy_spawns[ENEMY_SPAWN_COUNT];
-// AI state tables, indexed [def][state]; defs without game data get an
-// all-zero table (chance roll falls back to state 0 = WALK).
-extern const EnemyAi enemy_ai[ENEMY_DEF_COUNT][20];
-extern const EnemyProj enemy_proj[ENEMY_PROJ_MAX];
-
-// PAL0 = font white (idx 15) + this palette; index 0 = transparent.
-extern const u16 palette_ui_enemies[16];
+extern const EnemyDef {PFX}_enemy_defs[{UP}_ENEMY_DEF_COUNT];
+extern const EnemySpawn {PFX}_enemy_spawns[{UP}_ENEMY_SPAWN_COUNT];
+extern const EnemyAi {PFX}_enemy_ai[{UP}_ENEMY_DEF_COUNT][20];
+extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
 
 #endif
 """
-    with open(os.path.join(SRC, "stage0_enemies.h"), "w") as f:
+    with open(os.path.join(SRC, f"{PFX}_enemies.h"), "w") as f:
         f.write(h)
 
     def_idx_name = {eid: i for i, eid in enumerate(ids_sorted)}
-    lines = ['#include "stage0_enemies.h"\n', '#include "resources.h"\n\n']
-    lines.append("const EnemyDef enemy_defs[ENEMY_DEF_COUNT] = {\n")
+    lines = [f'#include "{PFX}_enemies.h"\n', '#include "resources.h"\n\n']
+    lines.append(f"const EnemyDef {PFX}_enemy_defs[{UP}_ENEMY_DEF_COUNT] = {{\n")
     for eid in ids_sorted:
         p = plans[eid]
         d = defs[eid]
@@ -529,11 +548,11 @@ extern const u16 palette_ui_enemies[16];
             f"{len(p['stand'])}, {len(p['walk'])}, {len(p['attack'])}, "
             f"{p['attack_ms']} }},  // {d['name']}\n")
     lines.append("};\n\n")
-    lines.append("const EnemySpawn stage0_enemy_spawns[ENEMY_SPAWN_COUNT] = {\n")
+    lines.append(f"const EnemySpawn {PFX}_enemy_spawns[{UP}_ENEMY_SPAWN_COUNT] = {{\n")
     for (di, mp, x, y, xm, xx, dr) in spawn_out:
         lines.append(f"    {{ {di}, {mp}, {x}, {y}, {xm}, {xx}, {dr} }},\n")
     lines.append("};\n\n")
-    lines.append("const EnemyAi enemy_ai[ENEMY_DEF_COUNT][20] = {\n")
+    lines.append(f"const EnemyAi {PFX}_enemy_ai[{UP}_ENEMY_DEF_COUNT][20] = {{\n")
     for eid in ids_sorted:
         states = ai_states.get(eid, [(0, 0, 0, 0, 0)] * 20)
         rows = ", ".join(
@@ -541,18 +560,16 @@ extern const u16 palette_ui_enemies[16];
             for (ch, act, g, delay, param) in states)
         lines.append(f"    {{ {rows} }},  // {defs[eid]['name']}\n")
     lines.append("};\n\n")
-    lines.append("const EnemyProj enemy_proj[ENEMY_PROJ_MAX] = {\n")
+    lines.append(f"const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX] = {{\n")
     for pid in sorted(proj_info):
-        spd, dmg, w, h = proj_info[pid]
-        spr = "shot_sprite" if pid == 0 else f"enemy_shot_semi_sprite"
-        lines.append(f"    [{pid}] = {{ &{spr}, {spd}, {dmg}, {w}, {h} }},\n")
+        r = proj_info[pid]
+        lines.append(f"    [{pid}] = {{ &proj_{pid}_sprite, {r['speed']}, "
+                     f"{r['dmg']}, {r['w']}, {r['h']}, {r['traj']}, "
+                     f"{r['max_shots']} }},\n")
     lines.append("};\n")
-    lines.append("const u16 palette_ui_enemies[16] = {\n    ")
-    lines.append(", ".join(f"0x{to_vdp(c):03X}" for c in palette))
-    lines.append("\n};\n")
-    with open(os.path.join(SRC, "stage0_enemies.c"), "w") as f:
+    with open(os.path.join(SRC, f"{PFX}_enemies.c"), "w") as f:
         f.writelines(lines)
-    print(f"wrote src/stage0_enemies.c/h ({len(ids_sorted)} defs, {len(spawn_out)} spawns)")
+    print(f"wrote src/{PFX}_enemies.c/h ({len(ids_sorted)} defs, {len(spawn_out)} spawns)")
 
     # --- resources.res block ------------------------------------------------
     print("\n--- paste into res/resources.res ---")
@@ -563,9 +580,13 @@ extern const u16 palette_ui_enemies[16];
         ak = ",".join(str(t) for t in p["attack_t"]) or "0"
         print(f'SPRITE {p["res_name"]}_sprite "{p["res_name"]}.png" '
               f'{p["cw"]}p {p["ch"]}p FAST [[{st}][{wk}][{ak}]]')
+    if STAGE_INDEX == 0:
+        for pid in sorted(proj_spr):
+            name, cw, ch, frames, times = proj_spr[pid]
+            tl = ",".join(str(t) for t in times)
+            print(f'SPRITE {name}_sprite "{name}.png" {cw}p {ch}p FAST [[{tl}]]')
     print('SPRITE shot_sprite "shot.png" 8p 8p FAST [[1]]')
-    if 11 in proj_info:
-        print('SPRITE enemy_shot_semi_sprite "enemy_shot_semi.png" 16p 16p FAST [[6,6]]')
+    print('SPRITE enemy_shot_semi_sprite "enemy_shot_semi.png" 16p 16p FAST [[6,6]]')
     print('SPRITE shot_charge_full_sprite "shot_charge_full.png" 32p 32p FAST [[6,6]]')
     print(f"shot_speed={shot_speed} shot_dmg={shot_dmg}")
     return 0

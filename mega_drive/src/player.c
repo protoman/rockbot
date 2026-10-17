@@ -84,10 +84,26 @@ void player_set_checkpoint(s16 worldX, s16 worldY)
 
 // Shared respawn: checkpoint on the current map, else the stage start.
 // camera jumps via stage_arrival_camera so a divider stays at a screen edge.
+// Feet-on-ground Y for a spawn column: the stage 0 spawn Y (160 - box) is
+// CHAOS CITY's walkway; other stages have the floor a row or two off, so
+// scan down for the first ground row instead of trusting a fixed Y.
+static s16 spawn_ground_y(s16 x)
+{
+    s16 l = x + PLAYER_BOX_L, r = x + PLAYER_BOX_R;
+    for (s16 row = 0; row < stage_def->map_h; row++) {
+        for (s16 tx = l >> 4; tx <= (r - 1) >> 4; tx++) {
+            u16 t = stage_terrain_at(stage_current_map, tx, row);
+            if (t != TERRAIN_UNBLOCKED && t != TERRAIN_STAIR)
+                return row * stage_def->tile - PLAYER_BOX_B;
+        }
+    }
+    return SPAWN_Y;
+}
+
 static void respawn_player(bool invuln)
 {
     s16 sx = SPAWN_X;
-    s16 sy = SPAWN_Y;
+    s16 sy = spawn_ground_y(SPAWN_X);
     if (cp_active && cp_map == stage_current_map) {
         sx = cp_x;
         sy = cp_y - PLAYER_BOX_B;
@@ -158,6 +174,13 @@ static bool support_col(s16 tx, s16 top_row, s16 feet_row)
     return FALSE;                       // solid for the full height: a wall
 }
 
+// Moving-platform tiles carry the player (PC check_platform_move, ~2.5px/frame
+// at PC speeds; 1px/frame here) and spikes damage on contact
+// (PC character::damage_spikes; PC value 188 would be instant death with the
+// port's HP 28, so 4 = 2x contact damage).
+#define CONVEYOR_SPEED 1
+#define SPIKE_DAMAGE   4
+
 void player_get_box(s16 *left, s16 *top, s16 *right, s16 *bottom)
 {
     s16 ix = player.x;
@@ -190,7 +213,7 @@ void player_place(s16 px, s16 py)
 void player_init(void)
 {
     player.x = SPAWN_X;
-    player.y = SPAWN_Y;
+    player.y = spawn_ground_y(SPAWN_X);
     player.vx = 0;
     player.vy = 0;
     player.on_ground = TRUE;
@@ -637,11 +660,41 @@ void player_update(u16 pad)
         }
     }
 
+    // ---- moving-platform tiles (PC check_platform_move) --------------------
+    if (player.on_ground && !player.on_ladder) {
+        s16 fcx = (ix + (PLAYER_BOX_L + PLAYER_BOX_R) / 2) >> 4;
+        s16 fcy = (iy + PLAYER_BOX_B) >> 4;
+        u16 ft = stage_terrain_at(stage_current_map, fcx, fcy);
+        if (ft == TERRAIN_MOVE_LEFT || ft == TERRAIN_MOVE_RIGHT) {
+            s16 nx = ix + ((ft == TERRAIN_MOVE_LEFT) ? -CONVEYOR_SPEED : CONVEYOR_SPEED);
+            s16 t = iy + PLAYER_BOX_T, b = iy + PLAYER_BOX_B;
+            s16 col = (ft == TERRAIN_MOVE_LEFT) ? ((nx + PLAYER_BOX_L) >> 4)
+                                                : ((nx + PLAYER_BOX_R - 1) >> 4);
+            if (!column_hits_solid(col, t, b)) ix = nx;
+        }
+    }
+
+    // ---- spikes (PC damage_spikes) -----------------------------------------
+    {
+        s16 l = ix + PLAYER_BOX_L, r = ix + PLAYER_BOX_R;
+        s16 t = iy + PLAYER_BOX_T, b = iy + PLAYER_BOX_B;
+        bool spiked = FALSE;
+        for (s16 ty = t >> 4; ty <= (b - 1) >> 4 && !spiked; ty++) {
+            for (s16 tx = l >> 4; tx <= (r - 1) >> 4; tx++) {
+                if (stage_terrain_at(stage_current_map, tx, ty) == TERRAIN_SPIKE) {
+                    spiked = TRUE;
+                    break;
+                }
+            }
+        }
+        if (spiked) player_take_damage(SPIKE_DAMAGE);
+    }
+
     player.x = ix;
     player.y = iy;
 
     // ---- fell out of the level ---------------------------------------------
-    if (iy > STAGE0_PIXEL_H + 32) {
+    if (iy > (stage_def->map_h * stage_def->tile) + 32) {
         respawn_player(TRUE);
         ix = player.x;
         iy = player.y;

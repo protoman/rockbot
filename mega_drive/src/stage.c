@@ -2,40 +2,30 @@
 #include "sfx.h"
 
 #include "resources.h"
-#include "stage0_enemies.h"
 #include "enemy.h"
 #include "object.h"
 #include "player.h"
 #include "shot.h"
 #include "eshot.h"
-#include "bg0_map.h"
-#include "bg0_tiles.h"
-#include "bg1_map.h"
-#include "bg1_tiles.h"
 
 
 Map *stage_map;
 Vect2D_s16 camera;
 u8 stage_current_map;
 
-static const MapDefinition *const map_defs[STAGE0_MAP_COUNT] = {
-    &stage0_map0, &stage0_map1, &stage0_map2
-};
-static const TileSet *const tile_sets[STAGE0_MAP_COUNT] = {
-    &stage0_tiles0, &stage0_tiles1, &stage0_tiles2
-};
-static const Palette *const palettes[STAGE0_MAP_COUNT] = {
-    &stage0_pal0, &stage0_pal1, &stage0_pal2
-};
-// PAL3 palettes + decomposed tile data/tilemaps (tools/img2tiles.py)
-static const Palette *const bg_pal[STAGE0_MAP_COUNT] = {
-    &bg0_pal, &bg1_pal, NULL
-};
+#define STAGE_MASK_BYTES ((stage_def->map_w * stage_def->map_h + 7) / 8)
 
-static s32 bg_scroll_fx;   // 16.16 parallax scroll, wraps at the baked width
-static s16 bg_last_cam_x;
-static u8 anim_frame[STAGE0_ANIM_SLOT_COUNT];
-static u16 anim_timer[STAGE0_ANIM_SLOT_COUNT];
+static u8 anim_frame[STAGE_ANIM_SLOT_MAX];
+static u16 anim_timer[STAGE_ANIM_SLOT_MAX];
+
+u16 stage_terrain_at(u8 map, s16 tileX, s16 tileY)
+{
+    if (map >= stage_def->map_count) return TERRAIN_SOLID;
+    if (tileX < 0 || tileX >= stage_def->map_w) return TERRAIN_SOLID;
+    if (tileY < 0 || tileY >= stage_def->map_h) return TERRAIN_UNBLOCKED;
+    return stage_def->terrain[map * stage_def->map_w * stage_def->map_h
+                              + tileY * stage_def->map_w + tileX];
+}
 
 // Parallax background on BG_B from the decomposed art (tools/img2tiles.py):
 // the unique tiles + a 64-wide tilemap replace the old full-image draw, so
@@ -43,30 +33,18 @@ static u16 anim_timer[STAGE0_ANIM_SLOT_COUNT];
 // bg1's tiles used to run into the animated-tile block.
 static void bg_upload_tiles_maps(u8 map_index)
 {
-    static const u32 *const tiles[STAGE0_MAP_COUNT] = {
-        bg0_tiles_data, bg1_tiles_data, NULL
-    };
-    static const u16 tile_n[STAGE0_MAP_COUNT] = {
-        BG0_TILE_COUNT, BG1_TILE_COUNT, 0
-    };
-    static const u16 *const maps[STAGE0_MAP_COUNT] = {
-        bg0_map, bg1_map, NULL
-    };
-    static const u16 map_h[STAGE0_MAP_COUNT] = { BG0_MAP_H, BG1_MAP_H, 0 };
+    if (!stage_def->bg_pal[map_index]) return;
+    PAL_setPalette(BG_PAL, stage_def->bg_pal[map_index]->data, CPU);
+    VDP_loadTileData(stage_def->bg_tiles[map_index], TILE_BG_INDEX,
+                     stage_def->bg_tiles_n[map_index], DMA);
 
-    if (!bg_pal[map_index]) return;
-    PAL_setPalette(BG_PAL, bg_pal[map_index]->data, CPU);
-    VDP_loadTileData(tiles[map_index], TILE_BG_INDEX, tile_n[map_index], DMA);
-
-    const u16 *m = maps[map_index];
+    const u16 *m = stage_def->bg_maps[map_index];
     u16 row[64];
-    // rows the art does not cover: repeat the top-left (sky) tile, like the
-    // old image path did; the plane is 64x32, rows 32+ belong to the WINDOW
     const u16 sky = TILE_ATTR_FULL(BG_PAL, FALSE, FALSE, FALSE,
                                    TILE_BG_INDEX + m[0]);
     for (u16 y = 0; y < 32; y++) {
         for (u16 x = 0; x < 64; x++) {
-            row[x] = (y < map_h[map_index])
+            row[x] = (y < stage_def->bg_map_h[map_index])
                          ? TILE_ATTR_FULL(BG_PAL, FALSE, FALSE, FALSE,
                                           TILE_BG_INDEX + m[y * 64 + x])
                          : sky;
@@ -78,14 +56,11 @@ static void bg_upload_tiles_maps(u8 map_index)
 // Draw the parallax background of the given map on BG_B.
 static void bg_load(u8 map_index)
 {
-    bg_scroll_fx = 0;
-    bg_last_cam_x = 0;
-
     VDP_clearPlane(BG_B, TRUE);
     VDP_setHorizontalScroll(BG_B, 0);
 
-    const StageBgInfo *info = &stage0_bg_info[map_index];
-    if (!info->present || !bg_pal[map_index]) return;
+    const StageBgInfo *info = &stage_def->bg_info[map_index];
+    if (!info->present || !stage_def->bg_pal[map_index]) return;
     bg_upload_tiles_maps(map_index);
 }
 
@@ -93,16 +68,17 @@ static void clamp_camera(void)
 {
     if (camera.x < 0) camera.x = 0;
     if (camera.y < 0) camera.y = 0;
-    if (camera.x > STAGE0_PIXEL_W - 320) camera.x = STAGE0_PIXEL_W - 320;
-    if (camera.y > STAGE0_PIXEL_H - 224) camera.y = STAGE0_PIXEL_H - 224;
+    if (camera.x > (stage_def->map_w * stage_def->tile) - 320) camera.x = (stage_def->map_w * stage_def->tile) - 320;
+    if (camera.y > (stage_def->map_h * stage_def->tile) - 224) camera.y = (stage_def->map_h * stage_def->tile) - 224;
 }
 
 // ---- PC scroll lock (classmap.cpp:459/475) ------------------------------
 static bool column_locked(s16 tile_x)
 {
-    if (tile_x < 0 || tile_x >= STAGE0_MAP_W) return FALSE;
-    const u8 *cols = stage0_scroll_lock[stage_current_map];
-    const u8 n = stage0_scroll_lock_n[stage_current_map];
+    if (tile_x < 0 || tile_x >= stage_def->map_w) return FALSE;
+    const u8 *cols = stage_def->scroll_lock
+                      + (u16)stage_current_map * stage_def->scroll_lock_max;
+    const u8 n = stage_def->scroll_lock_n[stage_current_map];
     for (u8 i = 0; i < n; i++)
         if (cols[i] == tile_x) return TRUE;
     return FALSE;
@@ -156,22 +132,28 @@ static void scroll_lock_span(s16 focus_x)
 }
 
 // ---- animated tiles + above-player tile3 ------------------------------
+// Animations are compacted PER MAP (only the visible map needs VRAM): the
+// converter emits one slot list per map plus a per-cell slot map (0 = none,
+// else slot+1). stage_load loads the current map's slots at TILE_ANIM_BASE.
 static void stage_map_patch(Map *map, u16 *buf, u16 x, u16 y,
                             MapUpdateType type, u16 size)
 {
+    const u16 mw = stage_def->map_w, mh = stage_def->map_h;
+    const u8 *cell_slot = stage_def->anim_cell_slot + stage_current_map * mw * mh;
     for (u16 i = 0; i < size; i++) {
         u16 tx = (type == COLUMN_UPDATE) ? x : x + i;
         u16 ty = (type == COLUMN_UPDATE) ? y + i : y;
         u16 cx = tx >> 1, cy = ty >> 1;
-        if (cx >= STAGE0_MAP_W || cy >= STAGE0_MAP_H) continue;
-        u16 n = cy * STAGE0_MAP_W + cx;
-        bool t3 = stage0_tile3_mask[stage_current_map][n >> 3] & (1 << (n & 7));
-        bool an = stage0_anim_mask[stage_current_map][n >> 3] & (1 << (n & 7));
-        if (an) {
+        if (cx >= mw || cy >= mh) continue;
+        u16 n = cy * mw + cx;
+        bool t3 = stage_def->tile3_mask[stage_current_map * STAGE_MASK_BYTES
+                                        + (n >> 3)] & (1 << (n & 7));
+        u8 sv = cell_slot[n];
+        if (sv) {
             u16 attr = (map->baseTile & TILE_ATTR_PALETTE_MASK) |
                        (t3 ? TILE_ATTR_PRIORITY_MASK : 0);
             u16 quad = (tx & 1) | ((ty & 1) << 1);
-            buf[i] = attr | (TILE_ANIM_BASE + anim_frame[0] * 4 + quad);
+            buf[i] = attr | (TILE_ANIM_BASE + anim_frame[sv - 1] * 4 + quad);
         } else if (t3) {
             buf[i] |= TILE_ATTR_PRIORITY_MASK;
         }
@@ -180,50 +162,62 @@ static void stage_map_patch(Map *map, u16 *buf, u16 x, u16 y,
 
 static void stage_anim_reset(void)
 {
-    for (u8 s = 0; s < STAGE0_ANIM_SLOT_COUNT; s++) {
+    u8 n = stage_def->anim_slot_n[stage_current_map];
+    for (u8 s = 0; s < n; s++) {
+        u16 idx = stage_current_map * stage_def->anim_slot_max + s;
         anim_frame[s] = 0;
-        anim_timer[s] = stage0_anim_slots[s].delay[0];
-        VDP_loadTileData((const u32 *)stage0_anim_frames[s][0],
+        anim_timer[s] = stage_def->anim_slots[idx].delay[0];
+        VDP_loadTileData((const u32 *)stage_def->anim_frames[idx][0],
                          TILE_ANIM_BASE + s * TILE_ANIM_STRIDE, 4, DMA_QUEUE);
     }
 }
 
 void stage_anim_update(void)
 {
-    for (u8 s = 0; s < STAGE0_ANIM_SLOT_COUNT; s++) {
-        const StageAnimSlot *slot = &stage0_anim_slots[s];
+    u8 n = stage_def->anim_slot_n[stage_current_map];
+    for (u8 s = 0; s < n; s++) {
+        u16 idx = stage_current_map * stage_def->anim_slot_max + s;
+        const StageAnimSlot *slot = &stage_def->anim_slots[idx];
         if (slot->frames < 2) continue;
         if (anim_timer[s] > 1) { anim_timer[s]--; continue; }
         anim_frame[s]++;
         if (anim_frame[s] >= slot->frames) anim_frame[s] = 0;
         anim_timer[s] = slot->delay[anim_frame[s]];
         u16 base = TILE_ANIM_BASE + s * TILE_ANIM_STRIDE + anim_frame[s] * 4;
-        VDP_loadTileData((const u32 *)stage0_anim_frames[s][anim_frame[s]],
+        VDP_loadTileData((const u32 *)stage_def->anim_frames[idx][anim_frame[s]],
                          base, 4, DMA_QUEUE);
-        // rewrite visible cells of this slot; scroll columns are kept
-        // correct by stage_map_patch
-        const StageAnimCell *cells = stage0_anim_cells[stage_current_map];
-        u16 n = stage0_anim_cell_n[stage_current_map];
+
+        // rewrite the visible cells of this slot
+        const u8 *cell_slot = stage_def->anim_cell_slot
+                              + stage_current_map * stage_def->map_w * stage_def->map_h;
         u16 pal = STAGE_PAL << TILE_ATTR_PALETTE_SFT;
-        for (u16 i = 0; i < n; i++) {
-            if (cells[i].slot != s) continue;
-            s16 sx = (s16)cells[i].x * STAGE0_TILE - camera.x;
-            s16 sy = (s16)cells[i].y * STAGE0_TILE - camera.y;
-            if (sx < -STAGE0_TILE || sx >= 320 ||
-                sy < -STAGE0_TILE || sy >= 224) continue;
-            u16 a = pal | (cells[i].tile3 ? TILE_ATTR_PRIORITY_MASK : 0);
-            u16 tx = cells[i].x * 2, ty = cells[i].y * 2;
-            VDP_setTileMapXY(STAGE_PLANE, a | (base + 0), tx,     ty);
-            VDP_setTileMapXY(STAGE_PLANE, a | (base + 1), tx + 1, ty);
-            VDP_setTileMapXY(STAGE_PLANE, a | (base + 2), tx,     ty + 1);
-            VDP_setTileMapXY(STAGE_PLANE, a | (base + 3), tx + 1, ty + 1);
+        s16 cx0 = camera.x >> 4, cy0 = camera.y >> 4;
+        for (s16 cy = cy0; cy <= cy0 + 14; cy++) {
+            if (cy < 0 || cy >= stage_def->map_h) continue;
+            for (s16 cx = cx0; cx <= cx0 + 20; cx++) {
+                if (cx < 0 || cx >= stage_def->map_w) continue;
+                u16 n2 = cy * stage_def->map_w + cx;
+                if (cell_slot[n2] != s + 1) continue;
+                s16 sx = cx * stage_def->tile - camera.x;
+                s16 sy = cy * stage_def->tile - camera.y;
+                if (sx < -stage_def->tile || sx >= 320 ||
+                    sy < -stage_def->tile || sy >= 224) continue;
+                bool t3 = stage_def->tile3_mask[stage_current_map * STAGE_MASK_BYTES
+                                                + (n2 >> 3)] & (1 << (n2 & 7));
+                u16 a = pal | (t3 ? TILE_ATTR_PRIORITY_MASK : 0);
+                u16 tx = cx * 2, ty = cy * 2;
+                VDP_setTileMapXY(STAGE_PLANE, a | (base + 0), tx,     ty);
+                VDP_setTileMapXY(STAGE_PLANE, a | (base + 1), tx + 1, ty);
+                VDP_setTileMapXY(STAGE_PLANE, a | (base + 2), tx,     ty + 1);
+                VDP_setTileMapXY(STAGE_PLANE, a | (base + 3), tx + 1, ty + 1);
+            }
         }
     }
 }
 
 void stage_load(u8 map_index)
 {
-    if (map_index >= STAGE0_MAP_COUNT) map_index = 0;
+    if (map_index >= stage_def->map_count) map_index = 0;
     stage_current_map = map_index;
 
     bool wasEnabled = VDP_isEnable();
@@ -237,15 +231,15 @@ void stage_load(u8 map_index)
     // and work; PAL0 used a queued DMA that does not land in this window
     // (the CRAM readback showed the enemies/objects/HUD line still holding
     // another, one-step-darker palette).
-    PAL_setPalette(STAGE_PAL, palettes[map_index]->data, CPU);
+    PAL_setPalette(STAGE_PAL, stage_def->palettes[map_index]->data, CPU);
     // PAL0 = shared font + enemy/object/HUD palette. Loaded from the
     // rescomp PALETTE resource (same mechanism as the working PAL1/PAL3
     // lines) instead of the C array, which did not stick: the CRAM readback
     // showed PAL0 holding another palette while PAL1 decoded exactly.
     PAL_setPalette(PAL0, pal_ui.data, CPU);
-    VDP_loadTileSet(tile_sets[map_index], TILE_USER_INDEX, DMA);
+    VDP_loadTileSet(stage_def->tile_sets[map_index], TILE_USER_INDEX, DMA);
 
-    stage_map = MAP_create(map_defs[map_index], STAGE_PLANE,
+    stage_map = MAP_create(stage_def->map_defs[map_index], STAGE_PLANE,
                            TILE_ATTR_FULL(STAGE_PAL, FALSE, FALSE, FALSE, TILE_USER_INDEX));
     MAP_setDataPatchCallback(stage_map, stage_map_patch);
 
@@ -280,8 +274,8 @@ void stage_load(u8 map_index)
     // VDP enabled — the bg_load write landed inside the disabled window
     // and was lost (art sat at y=0: moon at top, skyline mid-screen).
     // The -16 corrects for the cropped top PC row (240 -> 224 screen).
-    if (stage0_bg_info[map_index].present)
-        VDP_setVerticalScroll(BG_B, -((s16)stage0_bg_info[map_index].adjust_y - 16));
+    if (stage_def->bg_info[map_index].present)
+        VDP_setVerticalScroll(BG_B, -((s16)stage_def->bg_info[map_index].adjust_y - 16));
     else
         VDP_setVerticalScroll(BG_B, 0);
 }
@@ -298,10 +292,10 @@ void stage_load(u8 map_index)
 
 static bool link_region(s16 px, s16 py, u8 tx, u8 ty, u8 trans)
 {
-    if (px < (s16)tx * STAGE0_TILE || px > (s16)tx * STAGE0_TILE + STAGE0_TILE)
+    if (px < (s16)tx * stage_def->tile || px > (s16)tx * stage_def->tile + stage_def->tile)
         return FALSE;
-    s16 lim3 = (s16)ty * STAGE0_TILE + 8;
-    s16 lim4 = (s16)ty * STAGE0_TILE + STAGE0_TILE;
+    s16 lim3 = (s16)ty * stage_def->tile + 8;
+    s16 lim4 = (s16)ty * stage_def->tile + stage_def->tile;
     if (trans == LINK_TRANS_T2B) {
         lim3 += 8;      // PC lim3 += TILESIZE * 0.5
         lim4 += 24;     // PC lim4 += TILESIZE * 1.5
@@ -322,8 +316,8 @@ bool stage_check_link(s16 left, s16 top, s16 right, s16 bottom,
     s16 px = (left + right) >> 1;   // PC px = x + width * 0.5 (game.cpp:778)
     s16 py = bottom - 8;            // PC py = y + h * 0.75 = y + 21 (game.cpp:779)
 
-    for (u8 i = 0; i < STAGE0_LINK_COUNT; i++) {
-        const StageLink *lk = &stage0_links[i];
+    for (u8 i = 0; i < stage_def->link_count; i++) {
+        const StageLink *lk = &stage_def->links[i];
         u8 tx, ty, dst_map, dst_x, dst_y;
         u8 trans;
         bool hit;
@@ -351,8 +345,8 @@ bool stage_check_link(s16 left, s16 top, s16 right, s16 bottom,
         if (hit) {
             link_latch = (s8)i;
             *to_map = dst_map;
-            *to_x   = (s16)dst_x * STAGE0_TILE;
-            *to_y   = (s16)dst_y * STAGE0_TILE;
+            *to_x   = (s16)dst_x * stage_def->tile;
+            *to_y   = (s16)dst_y * stage_def->tile;
             return TRUE;
         }
     }
@@ -377,19 +371,17 @@ void stage_update_camera(s16 focusX, s16 focusY)
     scroll_lock_camera(prev_x);
     MAP_scrollTo(stage_map, camera.x, camera.y);
 
-    // Parallax city scene (requested look): horizontal scroll tied to the
-    // camera at bg speed/10, wrapped with an overflow-safe modulo into
-    // (-512px, 0]. PC marks these maps auto_scroll=NONE; keeping the effect
-    // is an intentional port deviation (user request).
-    const s16 dx = camera.x - bg_last_cam_x;
-    bg_last_cam_x = camera.x;
-    const StageBgInfo *info = &stage0_bg_info[stage_current_map];
+    // Parallax: horizontal scroll derived DIRECTLY from camera.x at
+    // speed/10, wrapped into (-512, 0]. PC accumulates camera_dx per frame
+    // (classmap.cpp:449); deriving it from the absolute camera is equivalent
+    // and cannot drift/jitter when the camera sits on a deadzone edge (the
+    // accumulated version moved the bg a few px on its own).
+    const StageBgInfo *info = &stage_def->bg_info[stage_current_map];
     if (info->present && info->speed) {
-        const s32 W = (s32)512 << 16;
-        bg_scroll_fx -= ((s32)dx * info->speed * 65536) / 10;
-        bg_scroll_fx %= W;
-        if (bg_scroll_fx > 0) bg_scroll_fx -= W;
-        VDP_setHorizontalScroll(BG_B, (s16)(bg_scroll_fx >> 16));
+        s32 scroll = -((s32)camera.x * info->speed) / 10;
+        scroll %= 512;
+        if (scroll > 0) scroll -= 512;
+        VDP_setHorizontalScroll(BG_B, (s16)scroll);
     }
 }
 
@@ -401,12 +393,11 @@ void stage_force_redraw(void)
 {
     clamp_camera();
     MAP_scrollToEx(stage_map, camera.x, camera.y, TRUE);
-    bg_last_cam_x = camera.x;   // no parallax delta across camera jumps
 }
 
 void stage_restore_palette(void)
 {
-    PAL_setPalette(STAGE_PAL, palettes[stage_current_map]->data, CPU);
+    PAL_setPalette(STAGE_PAL, stage_def->palettes[stage_current_map]->data, CPU);
 }
 
 void stage_redraw_bg(void)
@@ -450,14 +441,14 @@ static s16 first_lock_on_bottom(s16 tilex, s16 w, s16 h)
     s16 right = w / 16;
     if (right < 1) right = 1;
 
-    for (s16 i = STAGE0_MAP_H - 1; i >= above + 1; i--) {
+    for (s16 i = stage_def->map_h - 1; i >= above + 1; i--) {
         u16 t = stage_terrain_at(stage_current_map, tilex, i);
         if (t == TERRAIN_UNBLOCKED || t == TERRAIN_EASYBLOCK || t == TERRAIN_HARDBLOCK)
             continue;
         bool bad = FALSE;
         for (s16 j = i - 1; j >= i - above && !bad; j--) {
             for (s16 k = 0; k < right; k++) {
-                if (tilex + k >= STAGE0_MAP_W) { bad = TRUE; break; }
+                if (tilex + k >= stage_def->map_w) { bad = TRUE; break; }
                 if (stage_terrain_at(stage_current_map, tilex + k, j) != TERRAIN_UNBLOCKED) {
                     bad = TRUE;
                     break;

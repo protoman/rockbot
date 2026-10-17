@@ -11,6 +11,8 @@
 #include "hud.h"
 #include "menu.h"
 #include "save.h"
+#include "stageselect.h"
+#include "saveselect.h"
 #include "title_map.h"
 #include "title_tiles.h"
 
@@ -110,7 +112,7 @@ static void showIntro(void)
 // explicit 4bpp upload + tilemap is deterministic in both cases.
 #define TITLE_TILE_BASE TILE_USER_INDEX
 
-static void showTitle(void)
+static s16 showTitle(void)
 {
     SPR_end();                 // release sprite VRAM so the image fits
     // Let any scheduled MAP update flush BEFORE we take over the planes,
@@ -134,6 +136,14 @@ static void showTitle(void)
 
     VDP_loadTileData(title_tiles_data, TITLE_TILE_BASE, TITLE_TILE_COUNT, DMA_QUEUE);
     PAL_setPalette(PAL_TITLE, title_pal.data, DMA_QUEUE);
+    // The logo's colorkey background is the title backdrop; on MD it comes
+    // from the font-space tile sheet behind it (PAL0 entry 0), which is
+    // black. PC fills the title with CONFIG_BGCOLOR (5,29,65) -> RGB333
+    // 0x0210. The font glyphs use entry 15, so text stays white.
+    static const u16 title_font_pal[16] = {
+        0x0210, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x0EEE
+    };
+    PAL_setPalette(PAL0, title_font_pal, DMA_QUEUE);
     // the plane is 64 tiles wide: wipe the whole thing first so cells the
     // 40x28 image does not cover cannot show stale stage data
     VDP_fillTileMapRect(BG_B,
@@ -154,41 +164,43 @@ static void showTitle(void)
     VDP_drawText(COPYRIGHT_STRING, 5, 25);
     drawCentered(SITE_STRING, 27);
 
-    // Minimal PC-style start menu (draw_main): NEW GAME / CONTINUE.
-    // CONTINUE appears once the SRAM holds progress (save.c).
-    bool can_continue = save_exists();
+    // PC start menu (draw_main): NEW GAME / LOAD GAME. LOAD only appears
+    // when the SRAM holds at least one save slot.
+    bool can_load = save_exists();
     s16 sel = 0;
     u16 prev = JOY_readJoypad(JOY_1);    // don't pick on a held button
     while (TRUE) {
         VDP_drawText("NEW GAME", 14, 18);
-        if (can_continue) {
-            VDP_drawText("CONTINUE", 14, 20);
+        if (can_load) {
+            VDP_drawText("LOAD GAME", 14, 20);
             VDP_drawText(sel ? " " : ">", 12, 18);
             VDP_drawText(sel ? ">" : " ", 12, 20);
         }
         u16 pad = JOY_readJoypad(JOY_1);
-        if (can_continue && (pad & BUTTON_DOWN) && !(prev & BUTTON_DOWN)) sel = 1;
+        if (can_load && (pad & BUTTON_DOWN) && !(prev & BUTTON_DOWN)) sel = 1;
         if ((pad & BUTTON_UP) && !(prev & BUTTON_UP)) sel = 0;
-        if ((pad & BUTTON_START) && !(prev & BUTTON_START)) {
-            if (sel == 0) save_clear();   // NEW GAME wipes the progress
-            break;
-        }
+        if ((pad & BUTTON_START) && !(prev & BUTTON_START)) break;
         prev = pad;
         SPR_update();
         SYS_doVBlankProcess();
         VDP_setReg(17, 0);
         VDP_setReg(18, 0);
     }
-    VDP_drawText("        ", 12, 18);
-    VDP_drawText("        ", 12, 20);
+    VDP_drawText("          ", 12, 18);
+    VDP_drawText("          ", 12, 20);
+    return sel;
 }
 
 // INTRO_STAGE = stage 0 = "CHAOS CITY" (game.cpp:439 sets currentStage).
 // Stage 0 crosses two maps through ladders: link 0 is map 0 (136,14) -> map 1
 // (198,0), the only way past the full-height wall at x=137..138.
 static void showStageClear(void);
-static void runStage(void)
+static u8 current_save_slot = 0;
+static void runStage(u8 stage)
 {
+    // Pick the stage's data bundle (clamped to the converted stages), then
+    // load its map 0. Links/map changes stay within the current stage.
+    stage_set_data(stage);
     // SPR_initEx(504): sprite VRAM = TILE_SPRITE_INDEX(1440) - 504 =
     // 936..1439, right after the animated tiles (end 935). TILE_FONT_INDEX
     // is 1440 (0xC000/32 - FONT_LEN 96), NOT 1952 as older comments said —
@@ -240,8 +252,8 @@ static void runStage(void)
         if (stage_check_link(bl, bt, br, bb, &to_map, &to_x, &to_y)) {
             stage_load(to_map);
             // centre the player on the destination tile
-            player_place(to_x + STAGE0_TILE / 2 - (PLAYER_BOX_L + PLAYER_BOX_R) / 2,
-                         to_y + STAGE0_TILE / 2 - (PLAYER_BOX_T + PLAYER_BOX_B) / 2);
+            player_place(to_x + stage_def->tile / 2 - (PLAYER_BOX_L + PLAYER_BOX_R) / 2,
+                         to_y + stage_def->tile / 2 - (PLAYER_BOX_T + PLAYER_BOX_B) / 2);
             player_get_box(&bl, &bt, &br, &bb);
             stage_arrival_camera((bl + br) / 2, (bt + bb) / 2);
         }
@@ -266,7 +278,7 @@ static void runStage(void)
     }
 
     if (stage_cleared) {
-        save_set_stage(0);   // progress -> the title offers CONTINUE
+        save_slot_set_stage(current_save_slot, 0);
         showStageClear();
     }
 }
@@ -337,10 +349,29 @@ int main(bool hardReset)
     // corrupts it on accurate emulators (white screen). See debugging.md.
 
     save_init();
+    stage_set_data(0);   // valid stage_def before anything reads it
+
     showIntro();
     while (TRUE) {
-        showTitle();
-        runStage();   // returns from showStageClear() once the boss falls
+        s16 action = showTitle();
+        if (action == 0) {                       // NEW GAME
+            s16 slot = save_selector(TRUE);
+            if (slot < 0) continue;              // backed out -> title
+            save_slot_clear((u8)slot);
+            current_save_slot = (u8)slot;
+            runStage(0);
+        } else {                                 // LOAD GAME
+            s16 slot = save_selector(FALSE);
+            if (slot < 0) continue;
+            current_save_slot = (u8)slot;
+            // PC scenesLib::pick_stage (sceneslib.cpp:529): the intro stage
+            // is played first; once it is beaten the stage select appears.
+            u8 stage = 0;
+            if (save_slot_stages((u8)slot) & 1) {
+                stage = stage_select_run();
+            }
+            runStage(stage);
+        }
     }
 
     return 0;

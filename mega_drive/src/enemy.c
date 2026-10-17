@@ -7,7 +7,7 @@
 #include "resources.h"
 
 // Gravity for walkers (PC GRAVITY_*); AI actions below drive flyers and
-// scripted movement from game_ai_list.dat (see stage0_enemies.h EnemyAi).
+// scripted movement from game_ai_list.dat (see stage_data.h EnemyAi).
 #define ENEMY_GRAVITY FIX16(0.25)
 #define ENEMY_MAX_FALL FIX16(6)
 // Boss intangibility between hits: PC BOSS_HIT_DURATION = 1500ms
@@ -28,6 +28,7 @@
 
 // PC WALK/FLY option parameters we see in stage 0 (defines.h:778/795)
 #define AI_WALK_TURN      1
+#define AI_WALK_FALLING   7   // HORIZONTAL_AHEAD_FALLING: may walk off ledges
 #define AI_WALK_TO_PLAYER 2
 #define AI_WALK_TURN_PLYR 4
 #define AI_FLY_TURN       1
@@ -127,7 +128,7 @@ static s16 sign16(s16 v)
 static void ai_action_init(Enemy *e)
 {
     const EnemyDef *d = e->def;
-    const EnemyAi *st = &enemy_ai[e->def_i][e->ai_chain];
+    const EnemyAi *st = &stage_def->enemy_ai[e->def_i][e->ai_chain];
     s16 half = (d->box_l + d->box_w) / 2 + (s16)d->range;
 
     e->moving = 0;
@@ -180,7 +181,7 @@ static void ai_action_init(Enemy *e)
 // AI step every 20ms (50Hz, artificial_inteligence.cpp:276) so one "speed"
 // pixel lands every 20ms — moving speed px per 60fps frame would be 20%
 // faster than the PC. The accumulator reproduces speed*50 px/s exactly.
-static bool step_axis(Enemy *e, s16 *pos, s16 dest, bool horizontal)
+static bool step_axis(Enemy *e, s16 *pos, s16 dest, bool horizontal, bool can_fall)
 {
     const EnemyDef *d = e->def;
     e->move_acc += (s16)d->speed * 5;
@@ -197,6 +198,22 @@ static bool step_axis(Enemy *e, s16 *pos, s16 dest, bool horizontal)
         if (box_hits_solid(lead, e->y + d->box_t,
                            lead, e->y + d->box_t + d->box_h))
             return TRUE;
+        // PC check_can_move_to_point (artificial_inteligence.cpp:2052): a
+        // walker samples the tile BELOW the leading edge; a hole there stops
+        // it (turn around) unless the option is HORIZONTAL_AHEAD_FALLING.
+        if (!can_fall) {
+            s16 fcol = (dir > 0) ? ((n + d->box_l + d->box_w) >> 4)
+                                 : ((n + d->box_l - 1) >> 4);
+            s16 frow = (e->y + d->box_t + d->box_h + 3) >> 4;
+            s16 ccol = (e->x + d->box_l + d->box_w / 2) >> 4;
+            u16 ahead = stage_terrain_at(stage_current_map, fcol, frow);
+            u16 cur = stage_terrain_at(stage_current_map, ccol, frow);
+            if ((ahead == TERRAIN_UNBLOCKED || ahead == TERRAIN_WATER)
+                && ahead != cur) {
+                e->dir = -dir;          // turn around at the cliff edge
+                return TRUE;
+            }
+        }
         e->dir = dir;
     } else {
         // simple vertical block: stop just at the solid tile
@@ -213,22 +230,23 @@ static bool step_axis(Enemy *e, s16 *pos, s16 dest, bool horizontal)
 static bool ai_action_run(Enemy *e)
 {
     const EnemyDef *d = e->def;
-    const EnemyAi *st = &enemy_ai[e->def_i][e->ai_chain];
+    const EnemyAi *st = &stage_def->enemy_ai[e->def_i][e->ai_chain];
 
     switch (st->action) {
     case AI_WALK:
         if (st->param == AI_WALK_TURN || st->param == AI_WALK_TURN_PLYR)
             return TRUE;                                // instant (PC anim)
         e->moving = 1;
-        return step_axis(e, &e->x, e->dest_x, TRUE);
+        return step_axis(e, &e->x, e->dest_x, TRUE,
+                             st->param == AI_WALK_FALLING);
 
     case AI_FLY: {
         if (st->param == AI_FLY_TURN) return TRUE;
         e->moving = 1;
         if (st->param == AI_FLY_ZIGZAG)
             e->dest_y = e->spawn_y + (((e->act_t >> 5) & 1) ? 12 : -12);
-        bool dx = step_axis(e, &e->x, e->dest_x, TRUE);
-        bool dy = step_axis(e, &e->y, e->dest_y, FALSE);
+        bool dx = step_axis(e, &e->x, e->dest_x, TRUE, TRUE);
+        bool dy = step_axis(e, &e->y, e->dest_y, FALSE, TRUE);
         return dx && dy;
     }
 
@@ -302,7 +320,7 @@ static bool ai_action_run(Enemy *e)
 
 static void ai_pick(Enemy *e, bool initial)
 {
-    const EnemyAi *tbl = enemy_ai[e->def_i];
+    const EnemyAi *tbl = stage_def->enemy_ai[e->def_i];
     u8 go = tbl[e->ai_chain].go_to;
 
     if (initial || go == 0) {
@@ -326,7 +344,7 @@ static void ai_pick(Enemy *e, bool initial)
 
 static void ai_tick(Enemy *e)
 {
-    const EnemyAi *st = &enemy_ai[e->def_i][e->ai_chain];
+    const EnemyAi *st = &stage_def->enemy_ai[e->def_i][e->ai_chain];
 
     if (e->ai_phase == AI_FIRST) {
         ai_pick(e, TRUE);
@@ -357,11 +375,11 @@ void enemies_reset(void)
     boss_died = FALSE;
     boss_screen = FALSE;
 
-    for (u8 i = 0; i < ENEMY_SPAWN_COUNT && enemy_count < ENEMY_MAX; i++) {
-        const EnemySpawn *sp = &stage0_enemy_spawns[i];
+    for (u8 i = 0; i < stage_def->enemy_spawn_count && enemy_count < ENEMY_MAX; i++) {
+        const EnemySpawn *sp = &stage_def->enemy_spawns[i];
         if (sp->map != stage_current_map) continue;
 
-        const EnemyDef *d = &enemy_defs[sp->def];
+        const EnemyDef *d = &stage_def->enemy_defs[sp->def];
         u8 idx = enemy_count;
         Enemy *e = &enemies[enemy_count++];
         e->def = d;
@@ -445,7 +463,7 @@ void enemies_update(void)
                     }
                 }
                 e->y = ny;
-                if (e->y > STAGE0_PIXEL_H + 32) {   // fell out of the level
+                if (e->y > (stage_def->map_h * stage_def->tile) + 32) {   // fell out of the level
                     SPR_releaseSprite(e->spr);
                     e->spr = NULL;
                     e->alive = FALSE;
