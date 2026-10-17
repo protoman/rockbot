@@ -3,6 +3,7 @@
 #include "resources.h"
 #include "ssel_data.h"
 #include "stage.h"
+#include "stage_data.h"   // STAGE_DEFINED_COUNT
 
 #include <string.h>
 
@@ -41,6 +42,13 @@ static u8 complete_stage(void)
     return (stage_n > 5) ? stage_n - 1 : stage_n;
 }
 
+// Only STAGE_DEFINED_COUNT stages exist; stage_set_data() clamps anything else
+// to stage 0, so an unimplemented slot would silently load CHAOS CITY.
+static bool stage_ready(u8 st)
+{
+    return st < STAGE_DEFINED_COUNT;
+}
+
 static void draw_names(void)
 {
     // restore the bottom bar from the static map, then draw the two lines
@@ -57,6 +65,9 @@ static void draw_names(void)
     strcpy(buf, "STAGE ");
     strcat(buf, ssel_stage_names[st]);
     VDP_drawText(buf, 2, BAR_ROW0 + 2);
+    if (!stage_ready(st)) {
+        VDP_drawText("NOT CONVERTED YET", 2, BAR_ROW0 + 3);
+    }
 }
 
 u8 stage_select_run(u8 player)
@@ -127,8 +138,10 @@ u8 stage_select_run(u8 player)
         else if (pressed & (BUTTON_START | BUTTON_A | BUTTON_C)) {
             if (!(sx == 1 && sy == 1)) {    // centre = castle, locked
                 u8 st = complete_stage();
-                SPR_end();
-                return st;
+                if (stage_ready(st)) {
+                    SPR_end();
+                    return st;
+                }
             }
         }
         if (moved) {

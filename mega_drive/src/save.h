@@ -14,6 +14,9 @@ void save_init(void);
 bool save_exists(void);                 // any slot valid
 bool save_slot_exists(u8 slot);
 u16 save_slot_stages(u8 slot);          // completed-stages mask (0 if empty)
+// Owned-weapon mask: PC dataUtil::has_weapon() — weapon n is owned once stage
+// n is beaten; the buster (0) is always owned.
+u16 save_slot_weapon_mask(u8 slot);
 void save_slot_set_stage(u8 slot, u8 stage);
 void save_slot_clear(u8 slot);
 u8 save_slot_player(u8 slot);          // selected player 0..3 (0 if unset)

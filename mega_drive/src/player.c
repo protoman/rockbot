@@ -32,6 +32,16 @@
 #define SLIDE_BUTTON   BUTTON_A
 #define SLIDE_MAX_DIST 80
 
+// PC character.cpp:24 SLIDE_Y_ADJUST — a SLIDING player with can_slide
+// (ROCKBOT) drops the hitbox top by 12px (sprite_hit_area.y + 12, h - 12);
+// a dash (slide_type 0) keeps the full standing box.
+#define SLIDE_TOP_ADJUST 12
+
+// Shield (PC BTN_SHIELD, classplayer.cpp:916) — ROCKBOT only. A 3-button pad
+// has no free button (A=dash, B=fire, C=jump), so the gesture is DOWN+A held
+// while not running; the PC requires no direction/jump for the shield anyway.
+#define SHIELD_MASK (BUTTON_DOWN | BUTTON_A)
+
 // Charge shot (defines.h:665 CHARGED_SHOT_INITIAL_TIME 1000ms,
 // CHARGED_SHOT_TIME 2200ms at 60fps).
 #define CHARGE_SEMI_FRAMES 60
@@ -58,6 +68,8 @@ Player player;
 
 static bool air_jump_used;
 static bool air_dash_used;
+static s16 box_t = PLAYER_BOX_T;   // hitbox offsets (see update_hitbox)
+static s16 box_b = PLAYER_BOX_B;
 static s16 coyote_timer;
 static s16 jump_timer;
 static s16 attack_timer;
@@ -71,6 +83,7 @@ static s16 climb_flip_dist;
 // strobed every 8 frames while the fire button is held (PC
 // check_charging_colors cycles the armor colors the same way).
 static u16 flash_pal[2][16];
+static u16 base_pal[16];    // sheet palette + the current weapon's 13/14/15
 
 // Last touched checkpoint (PC st_checkpoint: game.cpp:395 respawns there
 // when set, else at the stage start). cp_y is the feet position.
@@ -97,7 +110,7 @@ static s16 spawn_ground_y(s16 x)
         for (s16 tx = l >> 4; tx <= (r - 1) >> 4; tx++) {
             u16 t = stage_terrain_at(stage_current_map, tx, row);
             if (t != TERRAIN_UNBLOCKED && t != TERRAIN_STAIR)
-                return row * stage_def->tile - PLAYER_BOX_B;
+                return row * stage_def->tile - box_b;
         }
     }
     return SPAWN_Y;
@@ -109,13 +122,13 @@ static void respawn_player(bool invuln)
     s16 sy = spawn_ground_y(SPAWN_X);
     if (cp_active && cp_map == stage_current_map) {
         sx = cp_x;
-        sy = cp_y - PLAYER_BOX_B;
+        sy = cp_y - box_b;
     }
     player_place(sx, sy);
     player.on_ground = TRUE;
     if (invuln) player.invuln = PLAYER_INVULN_FRAMES;
     stage_arrival_camera(sx + (PLAYER_BOX_L + PLAYER_BOX_R) / 2,
-                         sy + (PLAYER_BOX_T + PLAYER_BOX_B) / 2);
+                         sy + (box_t + box_b) / 2);
 }
 
 static const SpriteDefinition *const player_defs[4] = {
@@ -133,11 +146,22 @@ bool player_can_double_jump(void) { return (player_data[player_n].flags & PL_DJU
 bool player_can_slide(void) { return (player_data[player_n].flags & PL_SLIDE) != 0; }
 bool player_can_diagonal(void) { return (player_data[player_n].flags & PL_DIAG) != 0; }
 bool player_can_air_dash(void) { return (player_data[player_n].flags & PL_AIRDASH) != 0; }
+bool player_can_shield(void) { return (player_data[player_n].flags & PL_SHIELD) != 0; }
+bool player_is_shielding(void) { return player.shielding; }
+
+// Current hitbox top/bottom offsets from the sprite origin. Only a sliding
+// ROCKBOT differs (PC character.cpp:2477); everything else is the base box.
+static void update_hitbox(void)
+{
+    box_t = PLAYER_BOX_T + ((player.sliding && player_can_slide())
+                            ? SLIDE_TOP_ADJUST : 0);
+    box_b = PLAYER_BOX_B;
+}
 const SpriteDefinition *player_definition(void) { return player_defs[player_n]; }
 
 static void make_flash_palettes(void)
 {
-    const u16 *base = player_defs[player_n]->palette->data;
+    const u16 *base = base_pal;
     for (u8 v = 0; v < 2; v++) {
         u8 boost = v ? 3 : 1;
         for (u8 i = 0; i < 16; i++) {
@@ -148,6 +172,50 @@ static void make_flash_palettes(void)
             flash_pal[v][i] = (b << 8) | (g << 4) | r;
         }
     }
+}
+
+static u16 rgb9(u8 r, u8 g, u8 b)
+{
+    return (u16)(((u8)(b >> 5) << 8) | ((u8)(g >> 5) << 4) | (u8)(r >> 5));
+}
+
+// The player palette is the sheet's, with indices 13/14/15 replaced by the
+// SELECTED weapon's colours (PC classplayer.cpp change_player_color swaps the
+// COLORKEY1/2/3 entries with weapon_colors[selected_weapon]). An unset colour
+// keeps the sheet's baked value.
+static void rebuild_player_palette(void)
+{
+    const u16 *sheet = player_defs[player_n]->palette->data;
+    for (u8 i = 0; i < 16; i++) base_pal[i] = sheet[i];
+    const s8 (*wc)[3] = player_data[player_n].wcol[player.weapon];
+    for (u8 k = 0; k < 3; k++) {
+        if (wc[k][0] < 0) continue;
+        base_pal[13 + k] = rgb9((u8)wc[k][0], (u8)wc[k][1], (u8)wc[k][2]);
+    }
+    make_flash_palettes();
+}
+
+u8 player_weapon(void) { return player.weapon; }
+
+u8 player_weapon_ammo(void) { return player.ammo[player.weapon]; }
+
+void player_use_weapon_ammo(void)
+{
+    if (player.ammo[player.weapon]) player.ammo[player.weapon]--;
+}
+
+// PC classPlayer::refill_weapons() (classplayer.cpp:1078) — the game refills
+// every weapon gauge at the start of each stage (game.cpp:265).
+void player_refill_weapons(void)
+{
+    for (u8 i = 0; i < PLAYER_WEAPON_N; i++) player.ammo[i] = PLAYER_INITIAL_HP;
+}
+
+void player_set_weapon(u8 n)
+{
+    player.weapon = (n < PLAYER_WEAPON_N) ? n : 0;
+    rebuild_player_palette();
+    PAL_setPalette(PLAYER_PAL, base_pal, DMA_QUEUE);
 }
 
 static bool tile_blocks(s16 px, s16 py)
@@ -206,9 +274,9 @@ void player_get_box(s16 *left, s16 *top, s16 *right, s16 *bottom)
     s16 ix = player.x;
     s16 iy = player.y;
     *left   = ix + PLAYER_BOX_L;
-    *top    = iy + PLAYER_BOX_T;
+    *top    = iy + box_t;
     *right  = ix + PLAYER_BOX_R;
-    *bottom = iy + PLAYER_BOX_B;
+    *bottom = iy + box_b;
 }
 
 void player_place(s16 px, s16 py)
@@ -249,17 +317,20 @@ void player_init(void)
     player.hit_push = 0;
     player.hit_acc = 0;
     player.hit_dir = 0;
+    player.shielding = FALSE;
+    player.weapon = 0;
+    player_refill_weapons();      // PC refills every gauge at stage start
     coyote_timer = COYOTE_FRAMES;
     jump_timer = 0;
     attack_timer = 0;
     prev_pad = 0;
     current_anim = ANIM_STAND;
     ladder_flip = FALSE;
-    make_flash_palettes();
+    rebuild_player_palette();
 
     player.spr = SPR_addSprite(player_defs[player_n], SPAWN_X - camera.x, SPAWN_Y - camera.y,
                                TILE_ATTR(PLAYER_PAL, FALSE, FALSE, FALSE));
-    PAL_setPalette(PLAYER_PAL, player_defs[player_n]->palette->data, DMA_QUEUE);
+    PAL_setPalette(PLAYER_PAL, base_pal, DMA_QUEUE);
     SPR_setAnim(player.spr, ANIM_STAND);
 }
 
@@ -268,6 +339,15 @@ void player_init(void)
 // the release fires the semi/full charge shot (character.cpp:597).
 static void handle_fire(u16 pad, s16 ix, s16 iy)
 {
+    // PC attack() returns early while the shield is up (classplayer.cpp:300).
+    // fire_prev still tracks the real button so releasing B mid-shield does
+    // not fire a stored charge shot.
+    if (player.shielding) {
+        player.fire_prev = (pad & FIRE_BUTTON) != 0;
+        if (attack_timer > 0) attack_timer--;
+        return;
+    }
+
     bool fire_raw = (pad & FIRE_BUTTON) != 0;
     bool fire_ok = fire_raw && !player.sliding;
     if (fire_ok && !player.fire_prev) {
@@ -302,7 +382,7 @@ static void handle_fire(u16 pad, s16 ix, s16 iy)
             }
         }
         player.charge_frames = 0;
-        PAL_setPalette(PLAYER_PAL, player_defs[player_n]->palette->data, DMA_QUEUE);
+        PAL_setPalette(PLAYER_PAL, base_pal, DMA_QUEUE);
     }
     player.fire_prev = fire_raw;
     if (attack_timer > 0) attack_timer--;
@@ -322,12 +402,13 @@ static void invuln_blink(void)
 
 void player_update(u16 pad)
 {
+    update_hitbox();   // box_t/box_b from the slide state so far
     s16 ix = player.x;
     s16 iy = player.y;
     s16 bl = ix + PLAYER_BOX_L;
-    s16 bt = iy + PLAYER_BOX_T;
+    s16 bt = iy + box_t;
     s16 br = ix + PLAYER_BOX_R;
-    s16 bb = iy + PLAYER_BOX_B;
+    s16 bb = iy + box_b;
     s16 ctx = (bl + br) >> 5;   // centre tile X  ((bl+br)/2) >> 4
     s16 cty = (bt + bb) >> 5;   // centre tile Y
 
@@ -358,6 +439,10 @@ void player_update(u16 pad)
 
     if (player.on_ladder) {
         player.vx = 0;
+        // PC slide() bails out in a stairs frame (character.cpp:1598): a ladder
+        // grab cancels a slide, and with it the short slide hitbox.
+        player.sliding = FALSE;
+        update_hitbox();
         // PC turns the climb sprite in place from left/right
         // (character.cpp:266-269) without moving off the ladder.
         if ((pad & BUTTON_RIGHT) && player.facing != 1) {
@@ -373,19 +458,19 @@ void player_update(u16 pad)
 
         if (climb != 0) {
             s16 ny = iy + climb * F16_toInt(CLIMB_SPEED);
-            s16 nBottom = ny + PLAYER_BOX_B;
-            s16 nTop    = ny + PLAYER_BOX_T;
+            s16 nBottom = ny + box_b;
+            s16 nTop    = ny + box_t;
             u16 under = stage_terrain_at(stage_current_map, ctx, nBottom >> 4);
             u16 over  = stage_terrain_at(stage_current_map, ctx, nTop >> 4);
             u16 centreNew = stage_terrain_at(stage_current_map, ctx,
-                                             ((ny + PLAYER_BOX_T) + (ny + PLAYER_BOX_B)) >> 5);
+                                             ((ny + box_t) + (ny + box_b)) >> 5);
 
             if (climb > 0 && under == TERRAIN_SOLID) {
                 player.on_ladder = FALSE;                       // reached the floor
-                iy = ((nBottom >> 4) << 4) - PLAYER_BOX_B;
+                iy = ((nBottom >> 4) << 4) - box_b;
             } else if (climb < 0 && over == TERRAIN_SOLID) {
                 player.on_ladder = FALSE;                       // hit a ceiling
-                iy = ((nTop >> 4) << 4) + 16 - PLAYER_BOX_T;
+                iy = ((nTop >> 4) << 4) + 16 - box_t;
             } else if (centreNew != TERRAIN_STAIR &&
                        stage_terrain_at(stage_current_map, ctx, nBottom >> 4) != TERRAIN_STAIR) {
                 // Apply the pending step before releasing: skipping it left
@@ -411,7 +496,7 @@ void player_update(u16 pad)
                 // at map1 col 199). The feet-row ground check would then
                 // latch on the wall and freeze the player mid-air. Shift X
                 // clear of the wall so the fall scan misses it.
-                s16 row = (iy + (PLAYER_BOX_T + PLAYER_BOX_B) / 2) >> 4;
+                s16 row = (iy + (box_t + box_b) / 2) >> 4;
                 s16 rc = (ix + PLAYER_BOX_R - 1) >> 4;
                 if (stage_terrain_at(stage_current_map, rc, row) == TERRAIN_SOLID)
                     ix = (rc << 4) - PLAYER_BOX_R;
@@ -464,8 +549,8 @@ void player_update(u16 pad)
         player.hit_acc -= FIX16(mv);
         if (mv > 0) {
             s16 nx = ix + player.hit_dir * mv;
-            s16 t = iy + PLAYER_BOX_T;
-            s16 b = iy + PLAYER_BOX_B;
+            s16 t = iy + box_t;
+            s16 b = iy + box_b;
             if (player.hit_dir > 0) {
                 s16 col = (nx + PLAYER_BOX_R - 1) >> 4;
                 if (column_hits_solid(col, t, b)) nx = (col << 4) - PLAYER_BOX_R;
@@ -479,14 +564,29 @@ void player_update(u16 pad)
         pad &= ~(BUTTON_LEFT | BUTTON_RIGHT | JUMP_BUTTONS | SLIDE_BUTTON);
     }
 
+    // ---- shield (PC classplayer.cpp:916, ROCKBOT only) ---------------------
+    // have_shield && no direction/jump && shield held -> ANIM_TYPE_SHIELD; the
+    // player can't attack (classplayer.cpp:300) and enemy shots are blocked.
+    player.shielding = FALSE;
+    if (player.hit_push <= 0 && player_can_shield() &&
+        (pad & SHIELD_MASK) == SHIELD_MASK &&
+        !(pad & (BUTTON_LEFT | BUTTON_RIGHT | JUMP_BUTTONS))) {
+        player.shielding = TRUE;
+        // PC zeroes the directions while shielding (classplayer.cpp:842) and
+        // attack() returns early, so the whole pad is consumed here (this also
+        // keeps A from starting a slide and C from jumping).
+        pad &= ~(BUTTON_LEFT | BUTTON_RIGHT | BUTTON_UP | BUTTON_DOWN |
+                 JUMP_BUTTONS | FIRE_BUTTON | SLIDE_BUTTON);
+    }
+
     // ---- slide / dash (start) ----------------------------------------------
     // Needs a FRESH press: the PC only starts a slide after the dash button
     // was released again (_dash_button_released, character.cpp:1668), so a
     // held button cannot restart the slide when the distance limit ends it.
     bool slide_btn = (pad & SLIDE_BUTTON) != 0;
     if (!slide_btn) player.slide_prev = TRUE;
-    // PC dash (can_slide=false) is the same button + anim, only a taller
-    // hitbox (24 vs 16px) which this port does not vary -> allow all players.
+    // PC dash (can_slide=false) is the same button + anim; the only difference
+    // is the hitbox height, handled by update_hitbox() -> allow all players.
     if (!player.sliding && slide_btn && player.slide_prev) {
         if (player.on_ground) {
             player.sliding = TRUE;
@@ -504,6 +604,9 @@ void player_update(u16 pad)
             player.vx = (player.facing < 0) ? -MOVE_SPEED : MOVE_SPEED;
         }
     }
+
+    // The slide may have just started: refresh the box before it is used.
+    update_hitbox();
 
     // ---- horizontal --------------------------------------------------------
     if (player.sliding) {
@@ -577,8 +680,8 @@ void player_update(u16 pad)
     // full box-width backward ("bounce back"). See findings.md FIND-09.
     if (dx != 0) {
         s16 nx = ix + dx;
-        s16 t = iy + PLAYER_BOX_T;
-        s16 b = iy + PLAYER_BOX_B;
+        s16 t = iy + box_t;
+        s16 b = iy + box_b;
 
         if (dx > 0) {
             s16 col = (nx + PLAYER_BOX_R - 1) >> 4;
@@ -621,23 +724,23 @@ void player_update(u16 pad)
 
         if (dy > 0) {
             s16 plat_top = objects_land_check(l, r,
-                                              ny + PLAYER_BOX_T,
-                                              ny + PLAYER_BOX_B);
+                                              ny + box_t,
+                                              ny + box_b);
             // falling: scan from the row the feet are in (a resting foot is
             // exactly on a tile boundary; +1 would skip that row and drop the
             // player through the floor) down to the row the feet enter. The
             // current (unsnapped) pose keeps its real centre row; deeper
             // candidate rows use the snapped-pose centre (row - 1).
-            s16 centre_now = (iy + (PLAYER_BOX_T + PLAYER_BOX_B) / 2) >> 4;
-            s16 top_now = (iy + PLAYER_BOX_T) >> 4;
-            for (s16 row = (iy + PLAYER_BOX_B) >> 4;
-                 row <= ((ny + PLAYER_BOX_B) >> 4) && !blocked; row++) {
-                s16 centre_row = (row == ((iy + PLAYER_BOX_B) >> 4))
+            s16 centre_now = (iy + (box_t + box_b) / 2) >> 4;
+            s16 top_now = (iy + box_t) >> 4;
+            for (s16 row = (iy + box_b) >> 4;
+                 row <= ((ny + box_b) >> 4) && !blocked; row++) {
+                s16 centre_row = (row == ((iy + box_b) >> 4))
                                      ? centre_now : row - 1;
                 for (s16 tx = x0; tx <= x1; tx++) {
                     if (ground_pair(tx, row, centre_row) &&
                         support_col(tx, top_now, row)) {
-                        ny = (row << 4) - PLAYER_BOX_B;
+                        ny = (row << 4) - box_b;
                         player.on_ground = TRUE;
                         player.vy = 0;
                         blocked = TRUE;
@@ -647,19 +750,19 @@ void player_update(u16 pad)
             }
             // one-way platform catch: wins against the terrain landing; ties
             // go to the platform so a flush spawn still activates
-            if (plat_top >= 0 && (!blocked || plat_top <= ny + PLAYER_BOX_B)) {
-                ny = plat_top - PLAYER_BOX_B;
+            if (plat_top >= 0 && (!blocked || plat_top <= ny + box_b)) {
+                ny = plat_top - box_b;
                 player.on_ground = TRUE;
                 player.vy = 0;
                 objects_player_land(l, r, plat_top);
             }
         } else {
             // rising: scan the rows the head would cross
-            for (s16 row = ((iy + PLAYER_BOX_T) >> 4) - 1;
-                 row >= ((ny + PLAYER_BOX_T) >> 4) && !blocked; row--) {
+            for (s16 row = ((iy + box_t) >> 4) - 1;
+                 row >= ((ny + box_t) >> 4) && !blocked; row--) {
                 for (s16 tx = x0; tx <= x1; tx++) {
                     if (stage_terrain_at(stage_current_map, tx, row) == TERRAIN_SOLID) {
-                        ny = ((row + 1) << 4) - PLAYER_BOX_T;
+                        ny = ((row + 1) << 4) - box_t;
                         player.vy = 0;
                         blocked = TRUE;
                         break;
@@ -668,8 +771,8 @@ void player_update(u16 pad)
             }
             // platform bottoms are solid too (PC XY mode); the tighter
             // (lower) of terrain vs platform wins
-            s16 pny = objects_head_block(l, r, ny + PLAYER_BOX_T,
-                                         iy + PLAYER_BOX_B);
+            s16 pny = objects_head_block(l, r, ny + box_t,
+                                         iy + box_b);
             if (pny > ny) {
                 ny = pny;
                 player.vy = 0;
@@ -680,9 +783,9 @@ void player_update(u16 pad)
         // standing still: is there floor right under the feet?
         s16 l = ix + PLAYER_BOX_L;
         s16 r = ix + PLAYER_BOX_R;
-        s16 row = (iy + PLAYER_BOX_B) >> 4;
-        s16 centre_row = (iy + (PLAYER_BOX_T + PLAYER_BOX_B) / 2) >> 4;
-        s16 top_row = (iy + PLAYER_BOX_T) >> 4;
+        s16 row = (iy + box_b) >> 4;
+        s16 centre_row = (iy + (box_t + box_b) / 2) >> 4;
+        s16 top_row = (iy + box_t) >> 4;
         for (s16 tx = l >> 4; tx <= (r - 1) >> 4; tx++) {
             if (ground_pair(tx, row, centre_row) &&
                 support_col(tx, top_row, row)) {
@@ -693,7 +796,7 @@ void player_update(u16 pad)
         // or a platform top at foot level (keeps the player "grounded" while
         // a fly platform carries him upward over empty space)
         if (!player.on_ground &&
-            objects_stand_check(l, r, iy + PLAYER_BOX_B))
+            objects_stand_check(l, r, iy + box_b))
             player.on_ground = TRUE;
     }
 
@@ -718,11 +821,11 @@ void player_update(u16 pad)
     // ---- moving-platform tiles (PC check_platform_move) --------------------
     if (player.on_ground && !player.on_ladder) {
         s16 fcx = (ix + (PLAYER_BOX_L + PLAYER_BOX_R) / 2) >> 4;
-        s16 fcy = (iy + PLAYER_BOX_B) >> 4;
+        s16 fcy = (iy + box_b) >> 4;
         u16 ft = stage_terrain_at(stage_current_map, fcx, fcy);
         if (ft == TERRAIN_MOVE_LEFT || ft == TERRAIN_MOVE_RIGHT) {
             s16 nx = ix + ((ft == TERRAIN_MOVE_LEFT) ? -CONVEYOR_SPEED : CONVEYOR_SPEED);
-            s16 t = iy + PLAYER_BOX_T, b = iy + PLAYER_BOX_B;
+            s16 t = iy + box_t, b = iy + box_b;
             s16 col = (ft == TERRAIN_MOVE_LEFT) ? ((nx + PLAYER_BOX_L) >> 4)
                                                 : ((nx + PLAYER_BOX_R - 1) >> 4);
             if (!column_hits_solid(col, t, b)) ix = nx;
@@ -732,7 +835,7 @@ void player_update(u16 pad)
     // ---- spikes (PC damage_spikes) -----------------------------------------
     {
         s16 l = ix + PLAYER_BOX_L, r = ix + PLAYER_BOX_R;
-        s16 t = iy + PLAYER_BOX_T, b = iy + PLAYER_BOX_B;
+        s16 t = iy + box_t, b = iy + box_b;
         bool spiked = FALSE;
         for (s16 ty = t >> 4; ty <= (b - 1) >> 4 && !spiked; ty++) {
             for (s16 tx = l >> 4; tx <= (r - 1) >> 4; tx++) {
@@ -761,6 +864,7 @@ void player_update(u16 pad)
     // ---- animation + screen position ----------------------------------------
     u16 want;
     if (player.hit_push > 0)    want = ANIM_HIT;
+    else if (player.shielding)  want = ANIM_SHIELD;
     else if (player.sliding)    want = ANIM_SLIDE;   // ground slide + air dash
     else if (!player.on_ground) want = ANIM_JUMP;
     else if (attack_timer > 0)  want = ANIM_ATTACK;
@@ -821,7 +925,7 @@ void player_take_damage(u8 amount)
 
     if (player.hp == 0) {              // death: respawn at checkpoint/stage start
         player.hp = PLAYER_INITIAL_HP;
-        PAL_setPalette(PLAYER_PAL, player_defs[player_n]->palette->data, DMA_QUEUE);
+        PAL_setPalette(PLAYER_PAL, base_pal, DMA_QUEUE);
         respawn_player(FALSE);
     }
 }

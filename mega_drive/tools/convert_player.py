@@ -57,6 +57,8 @@ ANIMS = [
     ("SLIDE",    [20],           [0]),
     # classplayer.cpp:606 addSpriteFrame(ANIM_TYPE_STAIRS_ATTACK, 19)
     ("STAIRS_ATTACK", [19],      [9]),
+    # classplayer.cpp:616 addSpriteFrame(ANIM_TYPE_SHIELD, 22, ..., 100)
+    ("SHIELD",   [22],           [100]),
 ]
 
 MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)

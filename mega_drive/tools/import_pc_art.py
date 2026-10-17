@@ -2,8 +2,9 @@
 
 The point: from now on hand edits live in images/, NOT in the PC port, and the
 piece converters read images/. That's why the copies are pre-indexed here to
-the MD palette the art actually uses at runtime -- you open them in GIMP,
-pick the matching .gpl, and edit colours by index.
+the MD palette the art actually uses at runtime -- the PNG carries its own
+palette, so GIMP opens it ready to edit by index (shared-palette art can still
+be matched against res/md_pal*.gpl).
 
 Rules:
   * original size is kept (240p art stays 240p; the converters do the 224 crop)
@@ -21,8 +22,7 @@ Rules:
       map_backgrounds/stars_bg.png, stars_fullsize.png  -> BG1   res/md_bg1.gpl
       logo.png                                          -> TITLE res/md_title.gpl
       everything else (screens, scenes, other bgs)      -> 16 colours derived
-         from the image itself (each of those owns a palette in the port),
-         and a matching <name>.gpl is written next to it.
+         from the image itself (each of those owns a palette in the port).
 
 Matching uses CIELAB distance, so a purple that is close to a palette purple
 is not stolen by a numerically-closer grey.
@@ -192,13 +192,6 @@ def auto_palette(im, size=15, merge_t=14.0, exclude=()):
     return kept[:size]
 
 
-def write_gpl(path, name, cols):
-    with open(path, "w") as f:
-        f.write("GIMP Palette\nName: %s\nColumns: 4\n#\n" % name)
-        for i, c in enumerate(cols):
-            f.write("%3d %3d %3d\t%d\n" % (c[0], c[1], c[2], i))
-
-
 # ---------------------------------------------------------------- rules
 def palette_for(rel):
     """(palette or None, label, exact-index overrides); None -> derive."""
@@ -354,8 +347,6 @@ def main():
             # the backdrop, which is exactly how the port draws them (the
             # title's dark blue IS the backdrop colour, not art).
             convert(im, palette, overrides=overrides, last=last).save(dst)
-            if label == "auto16" or label in ("PLAYER_SHEET", "PLAYER_FACE"):
-                write_gpl(dst[:-4] + ".gpl", rel, palette)
             per[label] = per.get(label, 0) + 1
             n += 1
     # shared tree (intro logos, HUD) -> images/shared, own tree preserved
@@ -375,8 +366,6 @@ def main():
                 dst = os.path.join(OUT, "shared", rel)
                 os.makedirs(os.path.dirname(dst), exist_ok=True)
                 convert(im, palette).save(dst)
-                if label == "auto16":
-                    write_gpl(dst[:-4] + ".gpl", "shared/" + rel, palette)
                 per[label] = per.get(label, 0) + 1
                 n += 1
     lines = ["# images/ -- hand-owned MD art",
@@ -393,7 +382,7 @@ def main():
              "| BG0 city night | %d | res/md_bg0.gpl |" % per.get("BG0", 0),
              "| BG1 stars | %d | res/md_bg1.gpl |" % per.get("BG1", 0),
              "| PAL_TITLE logo | %d | res/md_title.gpl |" % per.get("PAL_TITLE", 0),
-             "| own 16 colours (screens) | %d | <file>.gpl beside it |" % per.get("auto16", 0),
+             "| own 16 colours (screens) | %d | indexed in the PNG itself |" % per.get("auto16", 0),
              "",
              "Total: %d files. Skipped (not MD art): %s" % (n, ", ".join(skipped) or "none"),
              ""]
@@ -403,7 +392,7 @@ def main():
     for k in sorted(per):
         print("   %-10s %d" % (k, per[k]))
     print("   skipped:", ", ".join(skipped) or "none")
-    print("   auto-palette files (own .gpl written):", ", ".join(auto) or "none")
+    print("   auto-palette files (16 colours derived from the art):", ", ".join(auto) or "none")
 
 
 if __name__ == "__main__":

@@ -6,8 +6,7 @@ The five palettes the game actually loads, in the MD 3:3:3 values:
   res/md_pal0.gpl  PAL0  enemies + objects + projectiles + HUD balls
                          (tools/pal_ui_data.py — THE table to convert art to)
   res/md_pal1.gpl  PAL1  stage tileset (current stage-0 map art)
-  res/md_pal2.gpl  PAL2  player 1 (each player now has its own palette; the
-                         importer writes images/sprites/pN.gpl too)
+  res/md_pal2.gpl  PAL2  player 1 (each player now has its own palette)
   res/md_pal3.gpl  PAL3  parallax background (current stage-0 bg art)
 
 Convert images in GIMP with Image > Mode > Indexed, "Use custom palette",

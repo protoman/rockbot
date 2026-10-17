@@ -3,6 +3,8 @@
 
 #include <genesis.h>
 
+#include "player_data.h"   // PLAYER_WEAPON_N
+
 // Hitbox relative to the sprite origin.
 // Source art is 29x29 (file_player_v3_1.sprite_size), padded to 32x32.
 #define PLAYER_BOX_L 6
@@ -26,6 +28,7 @@
 #define ANIM_STAIRS   6
 #define ANIM_SLIDE    7
 #define ANIM_STAIRS_ATTACK 8
+#define ANIM_SHIELD   9
 
 typedef struct {
     Sprite *spr;
@@ -43,6 +46,13 @@ typedef struct {
     bool sliding;
     bool slide_prev;
     s16 slide_dist;
+    // shield (PC ANIM_TYPE_SHIELD, ROCKBOT only): standing still + the shield
+    // gesture held; blocks enemy shots and forbids attacking
+    bool shielding;
+    // weapon (PC selected_weapon): drives the shot (weapon_data[]) and the
+    // palette swap on indices 13/14/15 (player_data[].wcol[])
+    u8 weapon;
+    u8 ammo[PLAYER_WEAPON_N];   // PC game_save.items.weapons[] gauge (0..28)
     // charge shot (PC check_must_attack: press = normal, hold >= 1000ms
     // = semi, >= 2200ms = full, fire on release)
     u16 charge_frames;
@@ -63,9 +73,8 @@ void player_init(void);
 void player_set_number(u8 n);
 const SpriteDefinition *player_definition(void);
 
-// Per-player abilities (PC file_game_v4.h file_player defaults):
-// P1 shield/slide/charge, P2 double-jump/diagonal/+1 dmg, P3 max_shots 4/-1
-// dmg/2 shots, P4 shield/charge/air-dash.
+// Per-player abilities (from player_list_v3_1_1.dat, src/player_data.c):
+// see the M16 notes in stage0_plan.md for the per-player breakdown.
 u8 player_max_shots(void);
 u8 player_simultaneous(void);
 s8 player_damage_mod(void);
@@ -74,6 +83,17 @@ bool player_can_double_jump(void);
 bool player_can_slide(void);
 bool player_can_diagonal(void);
 bool player_can_air_dash(void);
+bool player_can_shield(void);
+
+// TRUE while the shield is up (ROCKBOT); enemy shots are blocked (eshot.c).
+bool player_is_shielding(void);
+
+// Weapon (PC selected_weapon / weapon_colors[selected_weapon]).
+u8 player_weapon(void);
+void player_set_weapon(u8 n);
+u8 player_weapon_ammo(void);        // 0 = can't fire (PC classplayer.cpp:336)
+void player_use_weapon_ammo(void);  // one unit per shot
+void player_refill_weapons(void);   // PC refill_weapons(), at stage start
 
 // pad = JOY_readJoypad(JOY_1)
 void player_update(u16 pad);

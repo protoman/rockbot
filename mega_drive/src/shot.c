@@ -2,22 +2,28 @@
 #include "sfx.h"
 
 #include "stage.h"
+#include "stage_data.h"
 #include "enemy.h"
 #include "player.h"
+#include "weapon_data.h"
 #include "resources.h"
 
-// game_projectile_list.dat record 0 "Normal": speed 4, damage 1, 6x6 art.
-// Charged shots (records 11 semi / 10 full) both move at speed 3.
-#define SHOT_SPEED    4
+// game_projectile_list.dat: the player shot's sprite/speed/damage/size come
+// from the projectile the SELECTED weapon fires (weapon_data[].proj), read out
+// of stage_def->enemy_proj. Weapon 0 is the buster (projectile 0).
 #define SHOT_CHARGE_SPEED 3
 #define SHOT_COOLDOWN 10   // frames between shots (design choice, not in data)
+#define SHOT_QUAKE_LIFE 60 // ~1s for the stationary QUAKE shot
 
 typedef struct {
     Sprite *spr;
     s16 x, y;
+    s16 x0, y0;         // fire origin (ARC)
     s16 dx, dy;
     u8 dmg;
-    u8 w, h;    // collision box (8x8 normal, 16x16 semi, 31x30 full charge)
+    u8 w, h;    // collision box (from the projectile table)
+    u8 traj;
+    u16 age;
     bool on;
 } Shot;
 
@@ -31,6 +37,16 @@ static void shot_kill(Shot *s)
         s->spr = NULL;
         s->on = FALSE;
     }
+}
+
+// Same PC trajectory_parabola shape eshot.c uses (ARC weapons: PETALS
+// RAINBOW). ARC_DIST is defined in eshot.c; keep the formula local here.
+static s16 arc_offset(s16 n)
+{
+    if (n < 0) n = -n;
+    if (n > 300) n = 300;
+    s32 y = (s32)53 * n - ((s32)n * n + n) / 2;
+    return (s16)((y * 64) / 1404);
 }
 
 void shots_reset(void)
@@ -50,6 +66,18 @@ static Shot *shot_alloc_raw(void)
 void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
 {
     if (cooldown) return;
+
+    // PC classplayer.cpp:336: only the DEFAULT weapon is unlimited; any other
+    // weapon needs gauge left (refilled at each stage start).
+    u8 w = player_weapon();
+    if (w != 0 && player_weapon_ammo() == 0) return;
+
+    const EnemyProj *pd = &stage_def->enemy_proj[weapon_data[w].proj];
+    // Some ids have no art in the port (e.g. 7 SPIKED CHAIN is skipped by the
+    // converter) — fall back to the buster so the weapon still shoots.
+    if (!pd->spr || !pd->speed) pd = &stage_def->enemy_proj[0];
+    const SpriteDefinition *spr = pd->spr ? pd->spr : &shot_sprite;
+
     u8 live = 0;
     for (u8 i = 0; i < SHOT_MAX; i++) if (shots[i].on) live++;
     if (live >= player_max_shots()) return;      // PC player.max_shots
@@ -65,26 +93,39 @@ void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
         }
         Shot *s = shot_alloc_raw();
         if (!s) break;
-        s->spr = SPR_addSprite(&shot_sprite, ox - camera.x, oy - camera.y,
+        s->spr = SPR_addSprite(spr, ox - camera.x, oy - camera.y,
                                TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
         if (!s->spr) break;
         s->x = ox;
         s->y = oy;
-        s->dx = (dir < 0) ? -SHOT_SPEED : SHOT_SPEED;
+        s->x0 = ox;
+        s->y0 = oy;
+        s->dx = (dir < 0) ? -(s16)pd->speed : (s16)pd->speed;
         s->dy = dy;
-        s->dmg = 1;   // game_projectile_list.dat record 0 "Normal"
-        s->w = 8;
-        s->h = 8;
+        s->dmg = pd->dmg;
+        s->w = pd->w ? pd->w : 8;
+        s->h = pd->h ? pd->h : 8;
+        s->traj = pd->traj;
+        s->age = 0;
         s->on = TRUE;
         live++;
     }
     cooldown = SHOT_COOLDOWN;
     sfx_play(SFX_SHOT);
+
+    // PC ammo cost (classplayer.cpp:466): QUAKE 4, anything else 1; the
+    // default weapon never consumes.
+    if (w != 0) {
+        u8 cost = (pd->traj == TRAJ_QUAKE) ? 4 : 1;
+        for (u8 i = 0; i < cost; i++) player_use_weapon_ammo();
+    }
 }
 
 void shot_charge_fire(s16 x, s16 y, s16 dir, u8 level)
 {
     if (cooldown) return;
+    u8 w = player_weapon();
+    if (w != 0 && player_weapon_ammo() == 0) return;
     u8 live = 0;
     for (u8 i = 0; i < SHOT_MAX; i++) if (shots[i].on) live++;
     if (live >= player_max_shots()) return;
@@ -109,10 +150,16 @@ void shot_charge_fire(s16 x, s16 y, s16 dir, u8 level)
     SPR_setAnim(s->spr, 0);
     s->x = x;
     s->y = y;
+    s->x0 = x;
+    s->y0 = y;
     s->dx = (dir < 0) ? -SHOT_CHARGE_SPEED : SHOT_CHARGE_SPEED;
+    s->dy = 0;
+    s->traj = TRAJ_LINEAR;
+    s->age = 0;
     s->on = TRUE;
     cooldown = SHOT_COOLDOWN;
     sfx_play(SFX_CHARGE);
+    if (w != 0) player_use_weapon_ammo();
 }
 
 void shots_set_visible(bool visible)
@@ -129,9 +176,22 @@ void shot_update(void)
     for (u8 i = 0; i < SHOT_MAX; i++) {
         Shot *s = &shots[i];
         if (!s->on) continue;
+        s->age++;
 
-        s->x += s->dx;
-        s->y += s->dy;
+        switch (s->traj) {
+        case TRAJ_QUAKE:
+            // PC shakes the screen; the projectile itself stays put (~1s).
+            if (s->age > SHOT_QUAKE_LIFE) { shot_kill(s); continue; }
+            break;
+        case TRAJ_ARC:
+            s->x += s->dx;
+            s->y = s->y0 - arc_offset(s->x - s->x0);
+            break;
+        default:                    // LINEAR / DIAG_* / not ported -> straight
+            s->x += s->dx;
+            s->y += s->dy;
+            break;
+        }
 
         // off the visible screen
         if (s->x + s->w < camera.x || s->x > camera.x + 320 ||

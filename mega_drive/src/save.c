@@ -32,6 +32,13 @@ u16 save_slot_stages(u8 slot)
     return SRAM_readWord(slot_off(slot) + 2);
 }
 
+u16 save_slot_weapon_mask(u8 slot)
+{
+    // PC dataUtil::has_weapon() (data/datautil.cpp:23): weapon n is owned when
+    // stage n has been beaten; the buster (0) is always available.
+    return (u16)(save_slot_stages(slot) | 1u);
+}
+
 void save_slot_set_stage(u8 slot, u8 stage)
 {
     if (slot >= SAVE_SLOT_COUNT) return;

@@ -40,7 +40,8 @@ build + emulator run before moving on.
 | M13 | Multi-stage architecture + DEEP JUNGLE + FLOWER FIELDS | DONE (stages 0/1/2 convert + load; anim slots, spikes, conveyor, big sprites) |
 | M14 | Classic boss intro (PC classic_style_boss_intro) | DONE (bg + stage boss sprite + name, ~6.4s, skipped when beaten) |
 | M15 | Player select on NEW GAME (PC select_player) + stage-select eyes follow cursor | DONE (screen + save field; eyes sprite nudges +-2px) |
-| M16 | Chosen player wired: sprite/palette/abilities + stage-select face | PARTIAL (sprite/palette + all file abilities done from player_list_v3_1_1.dat; shield move pending) |
+| M16 | Chosen player wired: sprite/palette/abilities + stage-select face | DONE (all abilities incl. shield; per-player hitbox height) |
+| M17 | Weapons (buster + the eight boss weapons) | DONE (table, per-weapon palette, projectile, ammo gauge, menu switch) |
 | M9 | Graphics toolchain: img2tiles + tiles_merge + pal_ui, build pipeline | DONE |
 | M8 | Audio (XGM2) | OUT OF SCOPE (later milestone) |
 | — | Menu, saves, stage select, doors/spikes/water/ice, animated tiles, real health bar/HUD, enemy projectiles | OUT OF SCOPE / later |
@@ -789,7 +790,7 @@ non-classic `boss_intro/NN.png` splashes** (kept for reference only).
   defensive — reduces/increases damage TAKEN),
   `can_charge_shot` (ROCK/KITTY), `can_double_jump` (CANDY),
   `can_shot_diagonal` (CANDY, Up/Down aims the shot: dy +-3), `can_air_dash`
-  (KITTY — see below), `can_slide` (ROCK).
+  (KITTY — see below), `can_slide` (ROCK), `have_shield` (ROCK — see below).
 - **Air dash** (KITTY, PC `character.cpp:1668-1735`): it is the SAME slide
   state, not a separate move — A in the air sets `player.sliding` (so the
   ANIM_SLIDE/dash sprite shows), gravity is skipped and vy zeroed for a flat
@@ -804,9 +805,52 @@ non-classic `boss_intro/NN.png` splashes** (kept for reference only).
   player floating.
 - Dash vs slide: PC differs only by hitbox height (24 vs 16px) — this port
   does not vary the box, so ALL players use the slide button/anim.
-- NOT modelled: `have_shield` (ROCKBOT only) — the shield move does not exist
-  in the port yet. Only weapon 0 (buster) palettes are wired; weapons 1..11
-  use PAL0 art.
+- **Shield** (ROCKBOT, PC `classplayer.cpp:916`): gesture is **DOWN+A** (a
+  3-button pad has no free button; PC has a dedicated key). While held with no
+  direction/jump the player enters `ANIM_SHIELD` (sprite frame 22), all input
+  is consumed (no walk/jump/attack — PC zeroes the directions at
+  `classplayer.cpp:842` and `attack()` returns early), and enemy shots are
+  blocked in `eshot.c` instead of damaging (PC `classnpc.cpp:532`). PC reflects
+  the shot (`projectile::reflect()`); the port destroys it — reflection is not
+  ported (the port's `eshot.c` has no enemy-hit path).
+- **Hitbox height**: `box_t`/`box_b` (`update_hitbox()`) follow PC
+  `character.cpp:2477`: only a SLIDING player with `can_slide` (ROCKBOT) drops
+  the box top by `SLIDE_TOP_ADJUST 12` (PC `SLIDE_Y_ADJUST`); a dash and the
+  air dash keep the standing box. A ladder grab cancels the slide (PC
+  `character.cpp:1598`) and the box with it.
+- NOT modelled: nothing left from the file data. Only weapon 0 (buster)
+  palettes are wired; weapons 1..11 use PAL0 art.
+
+## Weapons (M17, 2026-10-17)
+
+- `tools/convert_weapons.py` -> `src/weapon_data.{c,h}` from
+  `game_weapons_v301.dat` (33-byte `file_weapon`: id_projectile, name[30],
+  damage, id_projectile_charged). 20 records: 0 = NORMAL WEAPON (buster),
+  1..8 = the boss weapons, 9..13 = item weapons (coil/jet/tanks), 14.. unused.
+  `WEAPON_PLAYER_N 9` = the switchable range.
+- Ownership: PC `dataUtil::has_weapon()` = `game_save.stages[n] == 1` — a
+  weapon is owned once its stage is beaten. `save_slot_weapon_mask()` returns
+  that mask (bit n) plus the always-owned buster.
+- Palette: `convert_players.py` now emits ALL 12 `weapon_colors` per player as
+  `s8 wcol[12][3][3]` (-1 = unset, because (0,0,0) is a real colour — BETABOT's
+  weapon 0 c2 is black). `rebuild_player_palette()` copies the sheet palette
+  and overrides indices 13/14/15 with the selected weapon's colours (PC
+  `change_player_color` swaps the COLORKEY1/2/3 entries).
+- Shot: `shot.c` takes sprite/speed/damage/size/trajectory from
+  `stage_def->enemy_proj[weapon_data[weapon].proj]`. QUAKE (stationary ~1s) and
+  ARC are ported; everything else falls back to LINEAR. Projectiles with no art
+  in the port (7 SPIKED CHAIN is skipped by the converter) fall back to the
+  buster's entry so the weapon still shoots.
+- Ammo: PC gauge `game_save.items.weapons[]` = 0..28, refilled for EVERY
+  weapon at each stage start (`refill_weapons()`, game.cpp:265), consumed per
+  shot (QUAKE 4, else 1, classplayer.cpp:466). Only the buster is unlimited
+  (classplayer.cpp:336 checks the gauge only for non-default weapons).
+- Menu: `menu_open(weapon_mask)` shows the weapon name + gauge and cycles the
+  owned weapons with LEFT/RIGHT (PC `find_next_weapon`, class_config.cpp:419).
+- NOT modelled: the item weapons (coil/jet/tanks), the PC weapon-grid UI, the
+  got-weapon screen, and trajectories other than LINEAR/ARC/QUAKE. Projectile 4
+  (MAGIC STAR) is 56x56 — larger than the MD's 32x32 sprite limit; it is used
+  by the enemy shots too, so it is not a regression.
 
 ## Known issues
 

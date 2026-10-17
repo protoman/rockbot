@@ -245,7 +245,7 @@ static void runStage(u8 stage)
         if ((pad & BUTTON_START) && !(prev_pad & BUTTON_START)) {
             // LEAVE STAGE returns from runStage directly (title), it is
             // NOT a stage clear
-            if (menu_open()) {
+            if (menu_open(save_slot_weapon_mask(current_save_slot))) {
                 return;
             }
             pad = JOY_readJoypad(JOY_1);

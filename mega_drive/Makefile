@@ -41,6 +41,7 @@ $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA)
 	$(PYTHON) tools/img2tiles.py res/stage2_bg1.png --name stage2_bg1
 	$(PYTHON) tools/img2tiles.py res/stage2_bg2.png --name stage2_bg2
 	$(PYTHON) tools/convert_players.py
+	$(PYTHON) tools/convert_weapons.py
 	$(PYTHON) tools/convert_player.py
 	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/boss_intro/boss_intro_bg.png \
 	    --name boss_intro_bg --crop-h 224

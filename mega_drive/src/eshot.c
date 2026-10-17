@@ -5,18 +5,8 @@
 #include "resources.h"
 #include "stage_data.h"
 
-// PROJECTILE_TRAJECTORIES (PC defines.h) — the ones ported so far. Anything
-// else falls back to LINEAR (the converter emits the real value; see the
-// trajectory print in tools/convert_enemies.py).
-#define TRAJ_LINEAR            0
-#define TRAJ_ARC               1
-#define TRAJ_QUAKE             4
-#define TRAJ_FOLLOW            6
-#define TRAJ_PROGRESSIVE       7
-#define TRAJ_DIAG_UP           9
-#define TRAJ_DIAG_DOWN        10
-#define TRAJ_TARGET_DIRECTION 13
-
+// PROJECTILE_TRAJECTORIES (PC defines.h) live in stage_data.h (shared with the
+// player shots in shot.c).
 #define ARC_DIST   (320 / 3)     // PC: trajectory_parabola(RES_W/3)
 #define QUAKE_LIFE 60            // ~1s (PC: 50 * QUAKE_TIMER 20ms)
 
@@ -210,7 +200,11 @@ void eshots_update(void)
 
         // player collision (PC projectile vs player)
         if (pl < r && pr > l && pt < b && pb > t) {
-            player_take_damage(s->dmg);
+            // PC classnpc.cpp:532: a shielded player blocks the shot instead of
+            // taking damage. The player's shield_type is SHIELD_FRONT, but the
+            // player branch of is_shielded() (character.cpp:3357) ignores the
+            // shot direction, so any side blocks.
+            if (!player_is_shielding()) player_take_damage(s->dmg);
             kill(s);
             continue;
         }
