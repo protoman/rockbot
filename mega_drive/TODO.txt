@@ -1,3 +1,26 @@
+Resume the RockBot → Sega Mega Drive port in mega_drive/.
+Read mega_drive/AGENTS.md and mega_drive/stage0_plan.md first — they're the single source of truth (map, constraints, milestone state, decisions).
+
+Immediate task (in flight, finish this first) — make the sprite converters index-preserving, so hand-edited art under mega_drive/images/ flows into the build:
+- Background: images/ is the new hand-owned art tree (mirrors build/games/RockDroid1/images → 350 files, plus build/shared/images → images/shared), all P-mode indexed, index 0 = transparent slot, native sizes kept (240p), colours matched in CIELAB, palette per group = res/md_*.gpl, manifest in images/PALETTES.md. Importer: tools/import_pc_art.py (manual only — running it again overwrites images/).
+
+- I tried pointing convert_enemies/objects/player/stage/assets at images/ — it broke all sprite colours and was reverted; they read the PC art again now (verified good: res/player.png = PAL2 exactly, res/enemy_*.png + res/shot.png = PAL0 exactly).
+
+- Why it broke: those converters colour-key transparency and rebuild the palette from the sheet's unique RGB colours; the player converter keys the weapon swap on exact placeholders green (55,255,0) and magenta (255,0,255). Quantizing the art first destroys that identity.
+
+- Fix: (1) re-import sprites/p1..p4.png with a palette that keeps the two placeholders as their own indices (e.g. 14/15); make convert_player.py copy indices and swap weapon colour by index, not RGB. (2) For enemies/objects: trust input indices and take the palette from the art (PAL0) instead of rebuilding it. img2tiles.py's keep_pal path (used by the title) is the correct pattern to copy.
+
+Then the task list, in the user's order:
+1. Stage select screen (PC art already imported: images/backgrounds/classic_style_stage_select_*). Blocked by: converters are stage-0 hardcoded — needs multi-stage parameterisation first.
+
+2. Save/load — src/save.{c,h} + the title's NEW GAME/CONTINUE menu exist, but SRAM does not persist: the ROM header declares no SRAM (confirmed: no SRAM field in the project's out/release/sega.s). Needs the header's SRAM/device bytes.
+
+3. Data-driven projectiles — src/eshot.{c,h} supports LINEAR only; game_projectile_list.dat has ARC/TARGET_DIRECTION etc. Research the data first.
+
+4. Convert the Ape Bot and Daisie Bot stages (biggest — generalise tools/convert_stage.py).
+Working rules: decide and act on auto-pilot, but ask before anything that needs a permission I don't have (touching the SDK dir or outside the project triggers prompts — that kills the flow); work only inside project paths; don't commit unless asked; record decisions and progress in stage0_plan.md as you go.
+Emulator notes: Kega Fusion (flatpak run --command=Fusion com.carpeludum.KegaFusion @@ out/rom.bin @@) is for play tests but its window can't be grabbed with import; BlastEm + the harness at /tmp/opencode/harness.sh is what gives scripted screenshots — and it sometimes wedges (black window, debug-console timeouts); restart it if so. Last user-confirmed state: bugs fixed, palette/colour work verified, art workflow half-done (see above).
+
 
 ########################################################################################################
 

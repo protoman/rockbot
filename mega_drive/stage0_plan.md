@@ -442,6 +442,42 @@ stage maps, menu, HUD) — bg0 768->211 tiles, bg1 896->25, ROM 384K->256K,
 plus the latent VRAM overlap of bg1's tiles with the animated-tile block is
 gone. GIMP palettes regenerated (md_pal0/1/2 + md_bg0/md_bg1).
 
+## Hand art import + index-preserving sprite converters (2026-10-17)
+
+Goal: hand-edited art under `mega_drive/images/` (indexed, one palette per
+group) flows into the build without the converters re-quantizing it and
+destroying the identity the art was authored with.
+
+- **Importer** `tools/import_pc_art.py` (manual, overwrites `images/`):
+  - p1..p4 keep the two palette-swap placeholders on their own indices:
+    **14 = green (55,255,0), 15 = magenta (255,0,255)** (exact-index
+    overrides, not nearest-match).
+  - reserved indices are never nearest-match targets: PAL0 index 15 (font
+    white) and PAL2 indices 14/15 (placeholders). Without this, CIELAB stole
+    art pixels into font-white/green.
+  - **bug fixed**: P-mode sources with a tRNS transparency index (e.g.
+    `backgrounds/menu.png`, transparent index 0 = grey (97,97,97)) were read
+    as RGB, so the transparent pixels survived as grey. The importer now
+    builds an alpha mask from `info["transparency"]` for P sources.
+- **convert_player.py**: reads `images/sprites/p1.png`, copies palette
+  indices, swaps placeholder index 14/15 -> the weapon-colour indices (6/3)
+  **by index** (no RGB lookup). Output pixels are byte-identical to the old
+  PC-art version (`res/player.png` verified equal); only palette entries
+  14/15 now hold the (unused) placeholders.
+- **convert_enemies.py / convert_objects.py**: read `images/sprites/...` and
+  `images/projectiles/...` with a new `load_indexed()` (asserts P mode),
+  copy pixel indices 1:1, and take PAL0 **from the art** instead of
+  rebuilding it (warns if it differs from `tools/pal_ui.py`, which the HUD
+  balls still use). No more `load_rgba` + RGB nearest + white-pin pass.
+- **Makefile**: `ASSET_DATA` now also depends on `images/**/*.png`, so a
+  hand edit triggers the asset pipeline.
+- Colour shifts vs the old PC-art output are expected: the art is CIELAB-
+  matched to PAL0 by the importer (e.g. classic metool green now maps to
+  PAL0 green 13 instead of beige 4; near-white art no longer uses font
+  white 15). User to confirm visually in the emulator.
+- `tools/gen_gpl.py` writes `res/md_pal2.gpl` with 14/15 = placeholders so
+  painters keep them.
+
 ## Start menu + save (PARTIAL — needs the SRAM header)
 
 `src/save.{c,h}` (magic + completed-stages mask), the title now shows a

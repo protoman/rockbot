@@ -5,8 +5,8 @@ Reads (never invents values):
   build/games/RockDroid1/game_enemy_list_3_1_2.dat   6048B records (g++ probe)
   build/games/RockDroid1/map_npc_data.dat            12B records
   build/games/RockDroid1/game_projectile_list.dat    104B records
-  build/games/RockDroid1/images/sprites/enemies/*.png
-  build/games/RockDroid1/images/projectiles/projectile_normal.png
+  images/sprites/enemies/*.png                       hand art (indexed PAL0)
+  images/projectiles/projectile_normal.png           hand art (indexed PAL0)
   build/games/RockDroid1/maps_v2.dat                 terrain for the ground drop
 
 Emits:
@@ -28,9 +28,9 @@ Simplifications (per user: precompute in converter, simple runtime AI):
   - walkers are pre-dropped onto the ground (PC
     initialize_npc_position_to_ground, character.cpp:3213).
   - patrol limits precomputed from file_npc.walk_range: spawn +/- range.
-  - one shared 14-color enemy palette + white/black pins on PAL0
-    (index 0 = transparent, 15 = font white) - font/HUD and enemies share
-    the line, so VDP_drawText keeps working (idx15).
+  - art is copied 1:1 from the indexed hand art (images/, PAL0): the palette
+    is taken from the art and pixel INDICES are preserved, never re-quantized
+    (index 0 = transparent, 15 = font white stays text-only).
 
 Usage: python3 tools/convert_enemies.py
 """
@@ -41,7 +41,7 @@ from collections import Counter
 from PIL import Image
 
 # PAL0 is the shared UI/enemy palette (single source of truth)
-from pal_ui import PAL_UI_RGB, to_vdp, nearest_index
+from pal_ui import PAL_UI_RGB, to_vdp
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -226,21 +226,15 @@ def drop_to_ground(grid, x, y, box_t, box_h):
 
 # ---------------------------------------------------------------- sheets
 
-def load_rgba(path):
-    """RGBA with (75,125,125) colorkey punched to alpha 0 (mixed source modes)."""
+def load_indexed(path):
+    """Indexed hand art (images/): palette + per-pixel INDICES. The art is
+    already quantized to PAL0 by tools/import_pc_art.py, so the converter
+    copies indices 1:1 instead of rebuilding/quantizing colours (which
+    destroyed the verified output)."""
     im = Image.open(path)
-    if im.mode == "RGBA":
-        rgba = im
-    else:
-        rgba = im.convert("RGBA")
-    px = rgba.load()
-    w, h = rgba.size
-    for y in range(h):
-        for x in range(w):
-            r, g, b, a = px[x, y]
-            if a < 255 or (r, g, b) == COLORKEY:
-                px[x, y] = (0, 0, 0, 0)
-    return rgba
+    assert im.mode == "P", f"{path}: not indexed (run tools/import_pc_art.py)"
+    pal = [tuple(im.getpalette()[i * 3:i * 3 + 3]) for i in range(16)]
+    return im, pal
 
 
 # ---------------------------------------------------------------- main
@@ -266,11 +260,14 @@ def main():
     res_names = {}          # id -> resources.res SPRITE name
     sheet_imgs = {}         # id -> indexed sheet (filled after palette)
     plans = {}              # id -> dict with cells/times/meta
+    art_pal = None          # PAL0 as the hand art carries it
     for eid, d in sorted(defs.items()):
-        path = os.path.join(DATA, "images/sprites", "sprites", "enemies", d["gfx"])
-        if not os.path.exists(path):
-            path = os.path.join(DATA, "images/sprites/enemies", d["gfx"])
-        rgba = load_rgba(path)
+        path = os.path.join(IMAGES, "sprites/enemies", d["gfx"])
+        sheet, spal = load_indexed(path)
+        if art_pal is None:
+            art_pal = spal
+        elif spal != art_pal:
+            print(f"  !! {path}: palette differs from the first enemy sheet")
         fw, fh = d["fw"], d["fh"]
         cw, ch = ceil8(fw), ceil8(fh)
         assert cw <= 64 and ch <= 64, f"{d['gfx']}: cell {cw}x{ch} > 64"
@@ -293,7 +290,7 @@ def main():
         bb = max(r[1] + r[3] for r in rects)
 
         cols = max(len(stand), len(walk), len(attack), 1)
-        src = rgba.load()
+        src = sheet.load()
         cells = []
         for row_frames in (stand, walk, attack):
             row = []
@@ -312,7 +309,6 @@ def main():
             "attack_t": times(attack), "attack_ms": sum(du for _, du in attack),
             "cells": cells,
             "box": (bl, bt, br - bl, bb - bt),
-            "rgba": rgba,
             "res_name": "enemy_" + os.path.splitext(d["gfx"])[0],
         }
         res_names[eid] = plans[eid]["res_name"]
@@ -322,11 +318,11 @@ def main():
               f"stand={len(stand)}f walk={len(walk)}f bg=({d['bgx']},{d['bgy']})")
 
     # --- shot ---------------------------------------------------------------
-    shot_rgba = load_rgba(os.path.join(DATA, "images/projectiles/projectile_normal.png"))
-    semi_path = os.path.join(DATA, "images/projectiles/charged_semi.png")
-    semi_rgba = load_rgba(semi_path) if os.path.exists(semi_path) else shot_rgba
+    shot_img, _ = load_indexed(os.path.join(IMAGES, "projectiles/projectile_normal.png"))
+    semi_path = os.path.join(IMAGES, "projectiles/charged_semi.png")
+    semi_img = load_indexed(semi_path)[0] if os.path.exists(semi_path) else shot_img
     # full charge (id 10 "Charged") — art colors must join the shared pool
-    full_rgba = load_rgba(os.path.join(DATA, "images/projectiles/charged_shot.png"))
+    full_img, _ = load_indexed(os.path.join(IMAGES, "projectiles/charged_shot.png"))
     proj = open(os.path.join(DATA, "game_projectile_list.dat"), "rb").read()
     p0 = proj[0:PROJ_SZ]
     shot_speed = p0[68]
@@ -335,17 +331,15 @@ def main():
           f"max_shots={p0[67]} size={struct.unpack_from('<hh', p0, 60)}")
 
     # --- shared palette -----------------------------------------------------
-    # PAL0 comes from tools/pal_ui.py (one table for enemies, shots, objects
-    # and the HUD balls — they used to disagree, which made the HP balls
-    # render with the wrong colors).
-    palette = list(PAL_UI_RGB)
+    # PAL0 is taken from the hand art itself (all enemy/projectile sheets are
+    # imported to the same table by tools/import_pc_art.py). It must equal the
+    # tools/pal_ui.py table (HUD balls use pal_ui.png) -- warn otherwise.
+    palette = list(art_pal or PAL_UI_RGB)
+    if palette != list(PAL_UI_RGB):
+        print("  !! art PAL0 differs from tools/pal_ui.py -- HUD balls will "
+              "not match; regenerate pal_ui_data.py")
 
-    def lut(c):
-        if c == (WHITE8,) * 3:
-            return 15
-        return nearest_index(c)
-
-    print(f"PAL0 (tools/pal_ui.py): {len(palette)} entries")
+    print(f"PAL0 (from art): {len(palette)} entries")
 
     # --- write sprite sheets ------------------------------------------------
     os.makedirs(RES, exist_ok=True)
@@ -359,11 +353,7 @@ def main():
                 ox, oy = c * cw, r * ch
                 for i, px in enumerate(art):
                     x, y = i % p["fw"], i // p["fw"]
-                    if px[3] == 0:
-                        idx = 0
-                    else:
-                        idx = lut((md_round(px[0]), md_round(px[1]), md_round(px[2])))
-                    data[(oy + y) * cols * cw + ox + x] = idx
+                    data[(oy + y) * cols * cw + ox + x] = px
         out.putdata(data)
         out.save(os.path.join(RES, p["res_name"] + ".png"))
         print(f"wrote res/{p['res_name']}.png {out.size}")
@@ -372,28 +362,24 @@ def main():
     out = Image.new("P", (8, 8))
     out.putpalette([v for c in palette for v in c])
     data = [0] * 64
-    src = shot_rgba.load()
-    for y in range(shot_rgba.size[1]):
-        for x in range(shot_rgba.size[0]):
-            px = src[x, y]
-            idx = 0 if px[3] == 0 else lut((md_round(px[0]), md_round(px[1]), md_round(px[2])))
-            data[y * 8 + x] = idx
+    src = shot_img.load()
+    for y in range(shot_img.size[1]):
+        for x in range(shot_img.size[0]):
+            data[y * 8 + x] = src[x, y]
     out.putdata(data)
     out.save(os.path.join(RES, "shot.png"))
     print("wrote res/shot.png 8x8")
 
     # enemy projectile id 11 "Semi-Charged": 2 frames of 16x16 (32x16 art)
-    sw, sh = semi_rgba.size
+    sw, sh = semi_img.size
     nsemi = max(1, sw // 16)
     out = Image.new("P", (nsemi * 16, 16))
     out.putpalette([v for c in palette for v in c])
     data = [0] * (nsemi * 16 * 16)
-    src = semi_rgba.load()
+    src = semi_img.load()
     for y in range(min(sh, 16)):
         for x in range(min(sw, nsemi * 16)):
-            px = src[x, y]
-            idx = 0 if px[3] == 0 else lut((md_round(px[0]), md_round(px[1]), md_round(px[2])))
-            data[y * nsemi * 16 + x] = idx
+            data[y * nsemi * 16 + x] = src[x, y]
     out.putdata(data)
     out.save(os.path.join(RES, "enemy_shot_semi.png"))
     print(f"wrote res/enemy_shot_semi.png {out.size}")
@@ -404,18 +390,16 @@ def main():
     # width/size.width (projectilelib.cpp:66) at 100ms each
     # (PROJECTILE_DEFAULT_ANIMATION_TIME, defines.h:644).
     fw, fh = 31, 30
-    nfull = full_rgba.size[0] // fw                 # 2 frames
+    nfull = full_img.size[0] // fw                  # 2 frames
     cw, ch = ceil8(fw), ceil8(fh)                   # 32x32 SGDK cell
     out = Image.new("P", (nfull * cw, ch))
     out.putpalette([v for c in palette for v in c])
     data = [0] * (nfull * cw * ch)
-    src = full_rgba.load()
+    src = full_img.load()
     for f in range(nfull):
-        for y in range(min(full_rgba.size[1], ch)):
+        for y in range(min(full_img.size[1], ch)):
             for x in range(fw):
-                px = src[f * fw + x, y]
-                idx = 0 if px[3] == 0 else lut((md_round(px[0]), md_round(px[1]), md_round(px[2])))
-                data[y * nfull * cw + f * cw + x] = idx
+                data[y * nfull * cw + f * cw + x] = src[f * fw + x, y]
     out.putdata(data)
     out.save(os.path.join(RES, "shot_charge_full.png"))
     print(f"wrote res/shot_charge_full.png {out.size} ({nfull} frames of {fw}x{fh} in {cw}x{ch} cells)")
@@ -564,7 +548,7 @@ extern const u16 palette_ui_enemies[16];
         lines.append(f"    [{pid}] = {{ &{spr}, {spd}, {dmg}, {w}, {h} }},\n")
     lines.append("};\n")
     lines.append("const u16 palette_ui_enemies[16] = {\n    ")
-    lines.append(", ".join(f"0x{to_vdp(c):03X}" for c in PAL_UI_RGB))
+    lines.append(", ".join(f"0x{to_vdp(c):03X}" for c in palette))
     lines.append("\n};\n")
     with open(os.path.join(SRC, "stage0_enemies.c"), "w") as f:
         f.writelines(lines)

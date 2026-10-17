@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
-"""Convert the RockBot player sheet (p1.png) into an SGDK SPRITE sheet.
+"""Convert the hand-owned player sheet (images/sprites/p1.png) into an SGDK
+SPRITE sheet.
 
-The PC sheet is 928x29 = 32 frames of 29x29, laid out by raw frame index.
-The green (55,255,0) and magenta (255,0,255) pixels are palette-swap
-placeholders: classplayer.cpp:1004 replaces them at runtime with the
-weapon_colors entry. Player 0 (RockBot) uses
-  color1 = (143, 0, 119)  replaces COLORKEY1 (55, 255, 0)
-  color2 = (0, 115, 239)  replaces COLORKEY2 (255, 0, 255)
-See file/v4/file_game_v4.h:335 file_player_v3_1().
+The hand art is indexed (PAL2 = res/md_pal2.gpl) and keeps two
+palette-swap placeholders on dedicated indices:
+  index 14 = green  (55, 255, 0)   classplayer.cpp COLORKEY1
+  index 15 = magenta (255, 0, 255) classplayer.cpp COLORKEY2
+classplayer.cpp:1004 replaces them at runtime with the weapon_colors entry.
+Player 0 (RockBot): color1 = (143, 0, 119), color2 = (0, 115, 239)
+(file_game_v4.h:335). The converter swaps them BY INDEX, so the input's exact
+RGB values no longer matter (quantizing RGB first destroyed that identity).
 
-SGDK expects one animation per row, cells of equal size, frames in order.
-Frames are therefore re-ordered and padded to 32x32 (MD hardware sprite limit).
+Frames are re-ordered by animation row and padded to 32x32 (MD sprite limit).
 
 Writes res/player.png. See res/resources.res for the matching SPRITE line.
 
@@ -22,20 +23,20 @@ from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-ROCKBOT = os.path.dirname(ROOT)
-IMAGES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "images")  # hand-owned art
+IMAGES = os.path.join(ROOT, "images")
 RES = os.path.join(ROOT, "res")
 
-SRC = os.path.join(ROCKBOT, "build/games/RockDroid1/images/sprites/p1.png")
+SRC = os.path.join(IMAGES, "sprites/p1.png")
 FRAME = 29          # source frame size
 CELL = 32           # output cell size (multiple of 8, <= 32)
-COLORKEY = (75, 125, 125)
 
-# weapon_colors[0] for player 0 (RockBot), applied over the placeholders
-SWAPS = {
-    (55, 255, 0): (143, 0, 119),
-    (255, 0, 255): (0, 115, 239),
-}
+# palette-swap placeholders kept by images/sprites/p1..p4 (PAL2 indices)
+PLACEHOLDER_WEAPON1 = 14
+PLACEHOLDER_WEAPON2 = 15
+
+# weapon_colors[0] for player 0 (RockBot), the placeholders' runtime colours
+COLOR1 = (143, 0, 119)
+COLOR2 = (0, 115, 239)
 
 # animation row -> (source frame indices, per-frame time in 1/60s)
 # order and delays from classplayer.cpp:545 initFrames()
@@ -55,65 +56,65 @@ ANIMS = [
 ]
 
 MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)
-MAX_COLORS = 15
 
 
 def md_round(v):
     return min(MD_LEVELS, key=lambda x: abs(x - v))
 
 
+def nearest_idx(rgb, palette, first=1, last=13):
+    c = (md_round(rgb[0]), md_round(rgb[1]), md_round(rgb[2]))
+    best, bd = first, 1 << 30
+    for i in range(first, last + 1):
+        p = palette[i]
+        d = (p[0] - c[0]) ** 2 + (p[1] - c[1]) ** 2 + (p[2] - c[2]) ** 2
+        if d < bd:
+            bd, best = d, i
+    return best
+
+
 def main():
-    sheet = Image.open(SRC).convert("RGB")
+    sheet = Image.open(SRC)
+    if sheet.mode != "P":
+        print(f"{SRC}: not indexed -- re-run tools/import_pc_art.py first")
+        return 1
     sw, sh = sheet.size
     n = sw // FRAME
     print(f"source {SRC}: {sw}x{sh} -> {n} frames of {FRAME}x{FRAME}")
 
+    palette = [tuple(sheet.getpalette()[i * 3:i * 3 + 3]) for i in range(16)]
+    swap = {
+        PLACEHOLDER_WEAPON1: nearest_idx(COLOR1, palette),
+        PLACEHOLDER_WEAPON2: nearest_idx(COLOR2, palette),
+    }
+    assert swap[PLACEHOLDER_WEAPON1] != swap[PLACEHOLDER_WEAPON2], \
+        "weapon colours collapsed to one palette index"
+    print(f"  PAL2 indices {PLACEHOLDER_WEAPON1}/{PLACEHOLDER_WEAPON2} -> "
+          f"{swap[PLACEHOLDER_WEAPON1]}/{swap[PLACEHOLDER_WEAPON2]} "
+          f"(weapon colors)")
+
     src = sheet.load()
 
-    def frame_rgba(f):
-        out = []
-        for y in range(FRAME):
-            for x in range(FRAME):
-                out.append(src[f * FRAME + x, y])
-        return out
-
-    # palette: colorkey reserved at index 0, swapped colors collected here
-    rgbs = []
-    for _, frames, _ in ANIMS:
-        for f in frames:
-            for c in frame_rgba(f):
-                c = SWAPS.get(c, c)
-                if c != COLORKEY:
-                    rgbs.append((md_round(c[0]), md_round(c[1]), md_round(c[2])))
-    uniq = list(dict.fromkeys(rgbs))
-    if len(uniq) > MAX_COLORS:
-        print(f"  WARNING: {len(uniq)} colors, truncating to {MAX_COLORS}")
-        uniq = uniq[:MAX_COLORS]
-    palette = [(0, 0, 0)] + uniq
-    while len(palette) < 16:
-        palette.append((0, 0, 0))
-    lut = {c: i + 1 for i, c in enumerate(uniq)}
-    print(f"  palette: {len(uniq)} colors")
+    def frame_idx(f):
+        return [src[f * FRAME + x, y] for y in range(FRAME) for x in range(FRAME)]
 
     cols = max(len(a[1]) for a in ANIMS)
     rows = len(ANIMS)
     out = Image.new("P", (cols * CELL, rows * CELL))
-    out.putpalette([v for c in palette for v in c])
+    out.putpalette([v for c in palette for v in c] + [0] * (768 - 48))
     data = [0] * (cols * CELL * rows * CELL)
 
-    def put_cell(row, col, rgba):
+    def put_cell(row, col, idxs):
         ox, oy = col * CELL, row * CELL
         # art origin stays at (0,0); pad right/bottom only
         for y in range(FRAME):
             for x in range(FRAME):
-                c = rgba[y * FRAME + x]
-                c = SWAPS.get(c, c)
-                idx = 0 if c == COLORKEY else lut[(md_round(c[0]), md_round(c[1]), md_round(c[2]))]
-                data[(oy + y) * cols * CELL + ox + x] = idx
+                i = idxs[y * FRAME + x]
+                data[(oy + y) * cols * CELL + ox + x] = swap.get(i, i)
 
     for r, (name, frames, _) in enumerate(ANIMS):
         for c, f in enumerate(frames):
-            put_cell(r, c, frame_rgba(f))
+            put_cell(r, c, frame_idx(f))
         print(f"  row {r} {name}: frames {frames}")
 
     out.putdata(data)
