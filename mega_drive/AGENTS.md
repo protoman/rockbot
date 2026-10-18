@@ -109,6 +109,18 @@ flatpak run --branch=stable --arch=x86_64 --command=Fusion --file-forwarding \
 ```
 Kega Fusion 3.63x (flatpak). RetroArch + Genesis Plus GX also works but needs `--filesystem=/tmp` for ROMs under /tmp.
 
+**BlastEm** (used by `tools/emu.sh` and for quick manual runs):
+
+```bash
+make run          # builds, then: flatpak run com.retrodev.blastem -g out/rom.bin
+```
+
+`-g` is **required**: with the OpenGL renderer BlastEm freezes on startup
+(black, unresponsive, needs a kill) about half the time under Wayland + flatpak.
+Measured 6/10 freezes without `-g`, 0/15 with it. The config file's `gl off`
+option is *not* the same thing and does not help. Do not run plain
+`flatpak run com.retrodev.blastem rom.bin` — add `-g` (or use `make run`).
+
 ## Port status
 
 - Milestone 1: intro logos (`src/main.c` `showIntro()`).

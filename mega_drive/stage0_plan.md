@@ -226,7 +226,9 @@ MD has no second scolling plane over sprites →:
 - BlastEm sometimes freezes at startup with an **all-black window** (the ROM is
   fine — relaunching fixes it). `emu_shot_blank` detects it (a capture with a
   single unique colour) and `emu_start_ready` relaunches until the screen
-  draws.
+  draws. The real fix is `-g` (software rendering), now the default in
+  `EMU_ARGS`: with the OpenGL renderer it froze 6/10 starts, with `-g` 0/15.
+  `make run` uses it too.
 - **Virtual desktop**: `EMU_DESKTOP` (0-based; `1` = KDE "Desktop 2") parks the
   emulator window there so its window/keys do not collide with the user's
   session; the default `-1` leaves it on the current desktop. The session is

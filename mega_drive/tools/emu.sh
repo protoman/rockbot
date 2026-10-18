@@ -33,6 +33,10 @@ EMU_PROJ=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 EMU_ROM_DEFAULT="$EMU_PROJ/out/rom.bin"
 EMU_WORK=${EMU_WORK:-/tmp/opencode/md-emu}
 EMU_TIMEOUT=${EMU_TIMEOUT:-600}
+# Extra BlastEm args. -g (software rendering) is the default because the GL
+# renderer freezes on startup ~half the time under Wayland + flatpak
+# (measured 6/10 freezes without it, 0/15 with). See AGENTS.md "Emulator".
+EMU_ARGS=${EMU_ARGS:--g}
 # KDE virtual desktop (0-based: 1 = "Desktop 2") to park the emulator window on.
 # -1 (default) leaves it on the CURRENT desktop. Set to 1 to keep its window
 # and key input off the user's desktop.
@@ -115,10 +119,10 @@ emu_start() {
     local pre_wins; pre_wins=$(xdotool search --name 'BlastEm' 2>/dev/null | tr '\n' ' ')
 
     if [ "${EMU_TIMEOUT:-0}" -gt 0 ] 2>/dev/null; then
-        setsid timeout -k 5 "$EMU_TIMEOUT" flatpak run "$EMU_APP" "$rom" \
+        setsid timeout -k 5 "$EMU_TIMEOUT" flatpak run "$EMU_APP" ${EMU_ARGS:-} "$rom" \
             >"$EMU_WORK/emu.out" 2>"$EMU_WORK/emu.err" </dev/null &
     else
-        setsid flatpak run "$EMU_APP" "$rom" \
+        setsid flatpak run "$EMU_APP" ${EMU_ARGS:-} "$rom" \
             >"$EMU_WORK/emu.out" 2>"$EMU_WORK/emu.err" </dev/null &
     fi
 

@@ -102,6 +102,15 @@ $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA)
 .PHONY: assets
 assets: $(ASSET_STAMP)
 
+# Run the built ROM in BlastEm.
+#   -g disables OpenGL rendering and is REQUIRED here: with the GL renderer the
+#   emulator freezes on startup (black, unresponsive) roughly half the time
+#   under Wayland + flatpak. Measured 6/10 freezes without it, 0/10 with it.
+# `make run` replaces `make && flatpak run com.retrodev.blastem ./out/...`.
+.PHONY: run
+run: all
+	flatpak run com.retrodev.blastem -g out/rom.bin
+
 include $(GDK)/makefile.gen
 
 # rescomp consumes the generated res/ files: wait for the pipeline
