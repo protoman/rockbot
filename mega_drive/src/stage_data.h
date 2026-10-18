@@ -132,6 +132,14 @@ typedef struct {
     u8 scroll_lock_max;
 
     const u8 *tile3_mask;               // [map_count][mask_bytes]
+    // Colourcycle: cells drawn with PAL3-relative art (their palette line is
+    // switched at plane-write time) plus the PAL3 band the runtime rotates.
+    // cycle_n == 0 when the stage has no pool (see stage0_plan.md).
+    const u8 *pal3_mask;                // [map_count][mask_bytes]
+    u16 cycle_base;                     // first PAL3 entry of the band
+    u8 cycle_n;                         // band length (0 = no colourcycle)
+    u8 cycle_frames;                    // frames per rotation step
+    const u16 *cycle_colors;            // [cycle_n] CRAM words, rotation order
     const u8 *anim_cell_slot;           // [map_count][map_w*map_h], 0=none else slot+1
     const u8 *anim_slot_n;              // [map_count]
     u8 anim_slot_max;

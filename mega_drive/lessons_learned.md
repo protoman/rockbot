@@ -42,6 +42,16 @@ Real mistakes + fixes. Add to this on every session.
 **9. Sprite palettes**
 - Each `SpriteDefinition` carries its own palette. 3 sprites with different colors = **3 palette lines** (PAL0/PAL1/PAL2) and the matching `TILE_ATTR(PALn,...)` on each `SPR_addSprite`. Do not use one palette for all.
 
+**25. `PAL_setColor()` takes a GLOBAL CRAM index, not palette + slot**
+- `PAL_setColor(u16 index, u16 value)` / `PAL_getColor(u16 index)` index CRAM
+  0..63: the four lines are 16 entries each, so PAL3's entry 12 is **CRAM 60**
+  (`(3 << 4) + 12`).
+- Writing `PAL_setColor(12, ...)` while meaning "PAL3 entry 12" silently
+  rewrites **PAL0's** entry 12, and index 15 is PAL0's font white — the
+  diagnostic text drawn on screen went completely invisible (black on black),
+  which cost a debugging cycle. A tilemap cell's palette field is the other
+  thing: that one *is* the 2-bit line number (`TILE_ATTR_FULL`/`<< 13`).
+
 ## Runtime / drawing
 
 **10. Fully black screen = 2 combined bugs (NOT the emulator)**

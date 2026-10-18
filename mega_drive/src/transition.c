@@ -104,15 +104,27 @@ static void load_screen(Map *m, s16 cam, u16 *buf, s16 *hs, u16 *mt0_out)
 static void apply_tile3(u16 *buf, u8 map, u16 mt0)
 {
     const u8 *t3 = stage_def->tile3_mask + map * TRANS_MASK_BYTES;
+    const u8 *p3 = stage_def->pal3_mask
+                       ? stage_def->pal3_mask + map * TRANS_MASK_BYTES : NULL;
     for (u16 my = 0; my < TRANS_MROWS; my++) {
         for (u16 mx = 0; mx < TRANS_MCOLS; mx++) {
             const u16 n = my * stage_def->map_w + mt0 + mx;
-            if (!(t3[n >> 3] & (1 << (n & 7)))) continue;
             u16 *e = &buf[my * 2 * TRANS_COLS + mx * 2];
-            e[0] |= TILE_ATTR_PRIORITY_MASK;
-            e[1] |= TILE_ATTR_PRIORITY_MASK;
-            e[TRANS_COLS] |= TILE_ATTR_PRIORITY_MASK;
-            e[TRANS_COLS + 1] |= TILE_ATTR_PRIORITY_MASK;
+            if (t3[n >> 3] & (1 << (n & 7))) {
+                e[0] |= TILE_ATTR_PRIORITY_MASK;
+                e[1] |= TILE_ATTR_PRIORITY_MASK;
+                e[TRANS_COLS] |= TILE_ATTR_PRIORITY_MASK;
+                e[TRANS_COLS + 1] |= TILE_ATTR_PRIORITY_MASK;
+            }
+            // colourcycled cell: PAL3-relative art needs the PAL3 bits here
+            // too, or the incoming screen shows it with the map palette
+            if (p3 && (p3[n >> 3] & (1 << (n & 7)))) {
+                for (u16 k = 0; k < 4; k++) {
+                    u16 *c2 = &e[(k & 1) + ((k >> 1) * TRANS_COLS)];
+                    *c2 = (*c2 & ~TILE_ATTR_PALETTE_MASK) |
+                          ((u16)STAGE_PAL_CYCLE << TILE_ATTR_PALETTE_SFT);
+                }
+            }
         }
     }
 }

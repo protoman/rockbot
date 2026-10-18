@@ -146,6 +146,87 @@ def read_map(stage_n, map_n):
     return bg, (bg0_name, bg0_adjust_y, bg0_speed, bg0_auto), cells
 
 
+# ---- colourcycle ---------------------------------------------------------
+# Replaces tile-frame animation with a CRAM colour rotation where the art
+# allows it (see stage0_plan.md). A map cell can select any of the four
+# palette lines, so a cycled cell is drawn with PAL3-relative pixel values and
+# marked in a per-cell mask; the runtime switches that cell's palette bits to
+# PAL3 and rotates the band entries. The pool lives in the PAL3 entries the
+# decomposed parallax leaves free, so the map palette (PAL1) is untouched.
+# PARKED: the pilot (INFOWAY's platforms) is implemented end to end but the
+# verification did not show the cycled cells switching to PAL3 on hardware, so
+# no stage is enabled — with an empty set every stage keeps tile-frame
+# animation and the runtime paths stay inert (cycle_n = 0). Status and the
+# open questions are in stage0_plan.md.
+CYCLE_STAGES = set()               # e.g. {8} to enable the INFOWAY pilot
+CYCLE_BAND = (12, 13, 14)          # PAL3 entries that rotate, in order
+CYCLE_STABLE = 15                  # PAL3 stable black (does not rotate)
+CYCLE_FRAMES = 12                  # frames per step (200ms at 60fps)
+CYCLE_BLOCKS = {                   # INFOWAY's moving platforms
+    "move_left_platform_1.png", "move_left_platform_2.png",
+    "move_left_platform_3.png", "move_right_platform_1.png",
+    "move_right_platform_2.png", "move_right_platform_3.png",
+}
+
+
+def to_cram(c):
+    """MD CRAM word for an MD-level RGB triple (R bits 1-3, G 5-7, B 9-11)."""
+    r, g, b = (MD_LEVELS.index(v) for v in c)
+    return (r << 1) | (g << 5) | (b << 9)
+
+
+def block_colours(fn):
+    """MD-rounded colours a block's art uses, minus near-black and the
+    transparent colorkey."""
+    im = Image.open(os.path.join(DATA, "images/tilesets/anim", fn)).convert("RGBA")
+    px = im.load()
+    cols = set()
+    for f in range(max(1, im.width // TILE)):
+        for y in range(TILE):
+            for x in range(TILE):
+                r, g, b, a = px[f * TILE + x, y]
+                if a == 0 or is_key((r, g, b)):
+                    continue
+                c = (md_round(r), md_round(g), md_round(b))
+                if sum(c) > 90:
+                    cols.add(c)
+    return cols
+
+
+def cycle_band(cols):
+    """The band: the three brightest colours of the set, ordered bright ->
+    dark. That order is the rotation direction; shades outside the band are
+    folded into the nearest entry by cyc_frame0_px(), which is the colour
+    reduction colourcycle costs."""
+    band = sorted(cols, key=lambda c: -(c[0] * 299 + c[1] * 587 + c[2] * 114))
+    while len(band) < len(CYCLE_BAND):
+        band.append(band[-1] if band else (0, 0, 0))
+    return band[:len(CYCLE_BAND)]
+
+
+def cyc_frame0_px(fn, band):
+    """Frame 0 of a block as PAL3-relative pixel values: band colours -> the
+    band entries, near-black -> the stable entry, anything else -> its nearest
+    band entry, transparent -> 0."""
+    im = Image.open(os.path.join(DATA, "images/tilesets/anim", fn)).convert("RGBA")
+    px = im.load()
+    out = []
+    for y in range(TILE):
+        for x in range(TILE):
+            r, g, b, a = px[x, y]
+            if a == 0 or is_key((r, g, b)):
+                out.append(0)
+                continue
+            c = (md_round(r), md_round(g), md_round(b))
+            if sum(c) <= 90:
+                out.append(CYCLE_STABLE)
+                continue
+            best = min(range(len(band)),
+                       key=lambda i: sum((c[k] - band[i][k]) ** 2 for k in range(3)))
+            out.append(CYCLE_BAND[best])
+    return out
+
+
 def build_palette(rgbs):
     """One master palette shared by every map of the stage.
 
@@ -220,7 +301,8 @@ def collect_colors(used, ts_px):
     return rgbs
 
 
-def convert_map(map_n, ts_px, cells, used, palette, lut, frame0_px, slot_of):
+def convert_map(map_n, ts_px, cells, used, palette, lut, frame0_px, slot_of,
+                cyc=None):
     def tile_indexed(cx, cy):
         out = []
         for yy in range(TILE):
@@ -235,6 +317,10 @@ def convert_map(map_n, ts_px, cells, used, palette, lut, frame0_px, slot_of):
 
     def anim_frame0(gid):
         # marker: x < -1 (tile1 also needs y == 0) -> anim id = -x - 2
+        # Cycled blocks have no animation slot: their art is frame 0 rebuilt
+        # from PAL3-relative indices.
+        if cyc and gid in cyc:
+            return cyc[gid]
         return frame0_px[slot_of[gid]] if gid in slot_of else None
 
     tiles = [tile_indexed(cx, cy) for (cx, cy) in used]
@@ -335,12 +421,36 @@ def main():
                  for m, (cells, used) in enumerate(maps_data)]
 
     anim_blocks = read_anim_blocks()
+
+    # colourcycle pool: which blocks of this stage are drawn as a CRAM rotation
+    stage_band, cycle_gids, cyc_frame0 = [], set(), {}
+    if STAGE_INDEX in CYCLE_STAGES:
+        for cells, _ in maps_data:
+            for col in cells:
+                for (_, t1x, t1y, t3x, t3y) in col:
+                    gid = None
+                    if t1x < -1 and t1y == 0: gid = (-t1x) - 2
+                    if t3x < -1: gid = (-t3x) - 2
+                    if (gid is not None and gid < len(anim_blocks)
+                            and anim_blocks[gid][0] in CYCLE_BLOCKS):
+                        cycle_gids.add(gid)
+        cols = set()
+        for gid in sorted(cycle_gids):
+            cols |= block_colours(anim_blocks[gid][0])
+        stage_band = cycle_band(cols)
+        for gid in sorted(cycle_gids):
+            cyc_frame0[gid] = cyc_frame0_px(anim_blocks[gid][0], stage_band)
+        print(f"  colourcycle: {len(cycle_gids)} blocks, band {stage_band} at "
+              f"PAL3 {CYCLE_BAND} + stable {CYCLE_STABLE}")
+
     mask_bytes = (MAP_W * MAP_H + 7) // 8
     tile3_masks = []
+    pal3_masks = []              # per map: cells drawn with PAL3 (colourcycled)
     anim_cell_slot = []          # per map: u8 per cell, 0 = none, else slot+1
     anim_slot_gids = []          # per map: gid per compacted slot
     for cells, _ in maps_data:
         mask3 = bytearray(mask_bytes)
+        pal3 = bytearray(mask_bytes)
         cell_slot = bytearray(MAP_W * MAP_H)
         gid_to_slot, slot_gids = {}, []
         for x in range(MAP_W):
@@ -357,11 +467,17 @@ def main():
                     mask3[n >> 3] |= 1 << (n & 7)   # anim on tile3 = above player
                 if gid is None or gid >= len(anim_blocks):
                     continue
+                if gid in cycle_gids:
+                    # colourcycled: no animation slot, the cell just needs its
+                    # palette line (PAL3) instead of the map's PAL1
+                    pal3[n >> 3] |= 1 << (n & 7)
+                    continue
                 if gid not in gid_to_slot:
                     gid_to_slot[gid] = len(slot_gids)
                     slot_gids.append(gid)
                 cell_slot[n] = gid_to_slot[gid] + 1
         tile3_masks.append(mask3)
+        pal3_masks.append(pal3)
         anim_cell_slot.append(cell_slot)
         anim_slot_gids.append(slot_gids)
     anim_slot_max = max(1, max((len(g) for g in anim_slot_gids), default=0))
@@ -434,7 +550,7 @@ def main():
     for m, (cells, used) in enumerate(maps_data):
         slot_of = {g: s for s, g in enumerate(anim_slot_gids[m])}
         img, terrain = convert_map(m, ts_px, cells, used, palette, lut,
-                                   frame0_map[m], slot_of)
+                                   frame0_map[m], slot_of, cyc_frame0)
         img.save(os.path.join(RES, f"{PFX}_map{m}.png"))
         print(f"    -> res/{PFX}_map{m}.png {img.size}")
         terrains.append(terrain)
@@ -521,6 +637,15 @@ def main():
         c.append("};\n\n")
 
     emit_mask(f"{PFX}_tile3_mask", tile3_masks)
+    if stage_band:                       # only stages with a pool pay for it
+        emit_mask(f"{PFX}_pal3_mask", pal3_masks)
+
+    if stage_band:
+        c.append(f"static const u16 {PFX}_cycle_colors[{len(stage_band)}] = {{ "
+                 + ", ".join("0x%04X" % to_cram(x) for x in stage_band)
+                 + " };\n\n")
+    else:
+        c.append(f"static const u16 {PFX}_cycle_colors[1] = {{ 0 }};\n\n")
 
     c.append(f"static const u8 {PFX}_anim_cell_slot[{MAPS_PER_STAGE}]"
              f"[{MAP_W * MAP_H}] = {{\n")
@@ -597,6 +722,12 @@ def main():
     c.append(f"    .scroll_lock_n = {PFX}_scroll_lock_n, "
              f".scroll_lock = &{PFX}_scroll_lock[0][0], .scroll_lock_max = {lock_max},\n")
     c.append(f"    .tile3_mask = &{PFX}_tile3_mask[0][0],\n")
+    c.append(f"    .pal3_mask = "
+             + (f"&{PFX}_pal3_mask[0][0],\n" if stage_band else "NULL,\n"))
+    c.append(f"    .cycle_base = {CYCLE_BAND[0]}, "
+             f".cycle_n = {len(stage_band) if stage_band else 0}, "
+             f".cycle_frames = {CYCLE_FRAMES if stage_band else 0},\n")
+    c.append(f"    .cycle_colors = {PFX}_cycle_colors,\n")
     c.append(f"    .anim_cell_slot = &{PFX}_anim_cell_slot[0][0], "
              f".anim_slot_n = {PFX}_anim_slot_n, .anim_slot_max = {anim_slot_max},\n")
     c.append(f"    .anim_slots = &{PFX}_anim_slots[0][0], "

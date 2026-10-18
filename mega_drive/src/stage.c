@@ -147,8 +147,10 @@ static void stage_map_patch(Map *map, u16 *buf, u16 x, u16 y,
         u16 cx = tx >> 1, cy = ty >> 1;
         if (cx >= mw || cy >= mh) continue;
         u16 n = cy * mw + cx;
-        bool t3 = stage_def->tile3_mask[stage_current_map * STAGE_MASK_BYTES
-                                        + (n >> 3)] & (1 << (n & 7));
+        const u16 moff = stage_current_map * STAGE_MASK_BYTES + (n >> 3);
+        const u16 mbit = 1 << (n & 7);
+        bool t3 = stage_def->tile3_mask[moff] & mbit;
+        bool p3 = stage_def->pal3_mask && (stage_def->pal3_mask[moff] & mbit);
         u8 sv = cell_slot[n];
         if (sv) {
             u16 attr = (map->baseTile & TILE_ATTR_PALETTE_MASK) |
@@ -158,7 +160,95 @@ static void stage_map_patch(Map *map, u16 *buf, u16 x, u16 y,
         } else if (t3) {
             buf[i] |= TILE_ATTR_PRIORITY_MASK;
         }
+        // Colourcycled cell: its art carries PAL3 indices, so switch the
+        // palette line here (the priority bit set above is preserved).
+        if (p3)
+            buf[i] = (buf[i] & ~TILE_ATTR_PALETTE_MASK) |
+                     ((u16)STAGE_PAL_CYCLE << TILE_ATTR_PALETTE_SFT);
     }
+}
+
+// ---- colourcycle --------------------------------------------------------
+// The pool lives in the PAL3 entries the decomposed parallax leaves free, so
+// it is written after bg_load() has put the parallax palette in place.
+static void stage_cycle_palette_load(void)
+{
+    if (!stage_def->cycle_n) return;
+    const u16 cram = TILE_CYCLE_CRAM;
+    PAL_setColor(cram + TILE_CYCLE_STABLE, 0x0000);
+    for (u8 i = 0; i < stage_def->cycle_n; i++)
+        PAL_setColor(cram + stage_def->cycle_base + i,
+                     stage_def->cycle_colors[i]);
+    for (u8 i = 0; i < stage_def->cycle_n; i++)
+        PAL_setColor(cram + stage_def->cycle_base + i,
+                     stage_def->cycle_colors[i]);
+}
+
+// MAP_create() paints the whole plane with the base palette (PAL1), so the
+// cells whose art is PAL3-relative need their palette bits fixed once after
+// the load's full draw. 20x14 metatiles is the NTSC screen.
+static void stage_cycle_pal3_apply(void)
+{
+    if (!stage_def->pal3_mask || !stage_def->cycle_n) return;
+    const u8 *mask = stage_def->pal3_mask + stage_current_map * STAGE_MASK_BYTES;
+    const u16 mw = stage_def->map_w;
+    const u16 pal3 = (u16)STAGE_PAL_CYCLE << TILE_ATTR_PALETTE_SFT;
+    u16 row[40 * 2];        // 20x1 metatiles = 40 cells x 2 rows
+    for (u16 my = 0; my < 14; my++) {
+        MAP_getTilemapRect(stage_map, 0, my, 20, 1, FALSE, row);
+        bool changed = FALSE;
+        for (u16 mx = 0; mx < 20; mx++) {
+            const u16 n = my * mw + mx;
+            if (!(mask[n >> 3] & (1 << (n & 7)))) continue;
+            changed = TRUE;
+            for (u16 k = 0; k < 4; k++) {
+                u16 *e = &row[mx * 2 + (k & 1) + ((k >> 1) * 40)];
+                *e = (*e & ~TILE_ATTR_PALETTE_MASK) | pal3;
+            }
+        }
+        if (changed)
+            VDP_setTileMapDataRect(STAGE_PLANE, row, 0, my * 2, 40, 2, 40,
+                                   DMA_QUEUE);
+    }
+}
+
+static u16 cycle_timer;
+static u8 cycle_step;
+static u16 cycle_pending[STAGE_CYCLE_MAX];
+static bool cycle_dirty;
+
+// The rotation is written from the vblank callback: a *queued* CRAM DMA does
+// not land on this setup (see the PAL0 note in stage_load), and a CPU write
+// during active display would show a horizontal seam wherever the change
+// took effect.
+static void stage_cycle_vblank(void)
+{
+    if (!cycle_dirty) return;
+    cycle_dirty = FALSE;
+    for (u8 i = 0; i < stage_def->cycle_n; i++)
+        PAL_setColor(TILE_CYCLE_CRAM + stage_def->cycle_base + i,
+                     cycle_pending[i]);
+}
+
+static void stage_cycle_reset(void)
+{
+    cycle_timer = 0;
+    cycle_step = 0;
+    cycle_dirty = FALSE;
+    SYS_setVBlankCallback(stage_cycle_vblank);
+    stage_cycle_palette_load();
+}
+
+void stage_cycle_update(void)
+{
+    if (!stage_def->cycle_n || !stage_def->cycle_frames) return;
+    if (++cycle_timer < stage_def->cycle_frames) return;
+    cycle_timer = 0;
+    cycle_step = (u8)((cycle_step + 1) % stage_def->cycle_n);
+    for (u8 i = 0; i < stage_def->cycle_n; i++)
+        cycle_pending[i] =
+            stage_def->cycle_colors[(cycle_step + i) % stage_def->cycle_n];
+    cycle_dirty = TRUE;
 }
 
 static void stage_anim_reset(void)
@@ -263,6 +353,8 @@ void stage_load(u8 map_index)
     MAP_scrollToEx(stage_map, 0, 0, TRUE);   // full draw on first load
 
     bg_load(map_index);
+    stage_cycle_pal3_apply();                // PAL3 art: fix the palette bits
+    stage_cycle_reset();
 
     // enemies/shots/objects are per-map: release the old ones, spawn this map's
     shots_reset();

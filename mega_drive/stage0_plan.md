@@ -1459,6 +1459,61 @@ stage 2 = 12,10,16 / 384 / 505; stage 3 = 13,13,11 / 312 / 957; stage 6 = 1,1,2 
 stage 1 = 0,6,0 / 144 / 10; stage 8 = 6,0,0 / 144 / 19; stage 0 = 1,1,0 / 24 / 29;
 stages 4, 5, 7 = none.
 
+## Colourcycle pilot (INFOWAY): implemented, PARKED unverified (2026-10-18)
+
+The mechanism is in the tree but **disabled**: `CYCLE_STAGES` in
+`tools/convert_stage.py` is an empty set, so every stage keeps tile-frame
+animation and the runtime paths stay inert (`cycle_n == 0`). Set it to `{8}` to
+switch the pilot back on.
+
+**Implemented (all of it builds and runs, but see the open questions)**
+
+- `tools/convert_stage.py`: per-stage pool. For the cycled blocks it derives the
+  band (the three brightest colours of their art, bright -> dark = the rotation
+  order), rebuilds each cycled cell's art with **PAL3-relative** pixel values
+  (band entries 12/13/14, stable black 15, transparent 0, every other shade
+  folded into its nearest band entry — that fold is the colour reduction), emits
+  a per-cell `pal3_mask` plus the band as CRAM words, and drops those blocks
+  from the animation slots (INFOWAY: 6 slots -> 0, i.e. 144 tiles freed).
+- `src/stage.c`: the plane patch switches a masked cell's palette field to PAL3
+  (priority preserved); `stage_cycle_pal3_apply()` does the same once after the
+  load's full draw; `stage_cycle_palette_load()` writes the pool into PAL3 after
+  `bg_load()`; `stage_cycle_update()` steps the band and the actual CRAM writes
+  happen in a **vblank callback** (a queued CRAM DMA does not land here, and a
+  CPU write during active display shows a seam).
+- `src/transition.c`: the slide path sets the PAL3 bits too, so the incoming
+  screen is not drawn with the map palette.
+
+**Verified**: the converter side is correct (checked the emitted mask — 19 cells
+exactly on the platform tiles — the band `0x08CE/0x04AE/0x006E`, and the
+rendered `res/stage8_map0.png` holding pool indices 12..15 at those cells).
+
+**Not verified / open questions** (this is where the next attempt starts)
+
+1. On screen the platform cells never show the pool. A temporary vivid probe
+   (band forced to magenta/green/cyan in **both** PAL1 and PAL3) produced **no**
+   vivid pixels anywhere, so the switch to PAL3 was not taking effect (or the
+   cells on screen are not the ones the mask marks).
+2. Template-matching a captured frame against the *current* `stage8_map0.png`
+   found no camera offset with a good score (best ~0.19 at cam 2256), i.e. the
+   ROM's rendering did not match the freshly converted map art at any offset.
+   That smells like stale resource art, but clearing the rescomp cache
+   (`rm -rf out/release/_deps/res out/release/res`) and rebuilding did **not**
+   change it. **Do this control first next time**: compare a screen from a
+   *non-cycled* stage (e.g. DEEP JUNGLE with the camera at spawn) against its
+   map PNG the same way — if that also mismatches, the comparison method or the
+   PNG->ROM path is at fault, not the colourcycle code.
+3. The temp diagnostic text (`sprintf` + `VDP_drawText`) never rendered, so the
+   internal state could not be read from the screen. The game's own text draws
+   (`MISSION STARTED!`, the HUD debug overlay) work, so reuse that path instead
+   of `sprintf`, or read the plane back with `VDP_getTileMapData` and show the
+   word as sprite tiles.
+
+**Lesson (added to lessons_learned.md)**: `PAL_setColor()`/`PAL_getColor()` take
+a **global CRAM index 0..63**, not palette+slot. Writing "PAL3 entry 12" as
+`sprintf`-style `PAL_setColor(12, ...)` actually rewrites **PAL0's** entry 12 —
+and `15` is PAL0's font white, which is why the diagnostic text went invisible.
+
 ## Notes / conventions
 
 - **Stage defs and LTO**: `stage_defs[]` is marked

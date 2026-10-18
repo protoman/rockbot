@@ -165,6 +165,8 @@ static const u8 stage5_tile3_mask[3][350] = {
     },
 };
 
+static const u16 stage5_cycle_colors[1] = { 0 };
+
 static const u8 stage5_anim_cell_slot[3][2800] = {
     {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -494,6 +496,9 @@ const StageDef stage5_def = {
     .bg_tiles_n = stage5_bg_tiles_n, .bg_maps = stage5_bg_maps, .bg_map_h = stage5_bg_map_h,
     .scroll_lock_n = stage5_scroll_lock_n, .scroll_lock = &stage5_scroll_lock[0][0], .scroll_lock_max = 13,
     .tile3_mask = &stage5_tile3_mask[0][0],
+    .pal3_mask = NULL,
+    .cycle_base = 12, .cycle_n = 0, .cycle_frames = 0,
+    .cycle_colors = stage5_cycle_colors,
     .anim_cell_slot = &stage5_anim_cell_slot[0][0], .anim_slot_n = stage5_anim_slot_n, .anim_slot_max = 1,
     .anim_slots = &stage5_anim_slots[0][0], .anim_frames = &stage5_anim_frames[0][0],
     .enemy_defs = stage5_enemy_defs, .enemy_def_count = STAGE5_ENEMY_DEF_COUNT,

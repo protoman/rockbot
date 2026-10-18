@@ -26,6 +26,17 @@
 // tilesets by 16 tiles.
 #define TILE_BG_MAX_TILES 360
 
+// Colourcycle (stage0_plan.md): animated cells drawn as a CRAM rotation
+// instead of tile frames. Their art carries PAL3-relative pixel values, so the
+// runtime switches the cell's palette line to this and rotates the band in
+// PAL3. TILE_CYCLE_STABLE must match CYCLE_STABLE in tools/convert_stage.py.
+#define STAGE_PAL_CYCLE 3
+// PAL_setColor()/PAL_getColor() take a GLOBAL CRAM index (0..63): the lines are
+// 16 entries each, so PAL3's entry N is CRAM 48 + N.
+#define TILE_CYCLE_CRAM ((STAGE_PAL_CYCLE) << 4)
+#define TILE_CYCLE_STABLE 15
+#define STAGE_CYCLE_MAX 6
+
 // Animated-tile frame slots (see stage0_plan.md VRAM map): 1 slot per
 // animation, 6 frames x 4 tiles. Base sits AFTER the largest decomposed bg
 // tileset (TILE_BG_INDEX + TILE_BG_MAX_TILES) and the block must stay below
@@ -59,6 +70,10 @@ void stage_update_camera(s16 focusX, s16 focusY);
 // Animated tiles: advance frame timers, DMA new frames, rewrite visible
 // cells. Call once per frame (60fps) in the game loop.
 void stage_anim_update(void);
+
+// Advance the colourcycle band (a few CRAM writes per step, no tile DMA).
+// Call once per frame next to stage_anim_update().
+void stage_cycle_update(void);
 
 // Force a complete MAP redraw. Call after the camera jumps (respawn, map link).
 void stage_force_redraw(void);

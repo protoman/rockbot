@@ -375,6 +375,7 @@ static void runStage(u8 stage)
         stage_update_camera((bl + br) / 2, (bt + bb) / 2);
 
         stage_anim_update();
+        stage_cycle_update();
 
         enemies_update();   // patrol/contact first, shots test fresh positions
         explosion_update(); // enemy death puffs (PC death animation)
