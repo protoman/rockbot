@@ -1415,6 +1415,50 @@ Fix: `player_init()` ends with `player_sync_sprite()`. Verified in one run
 frame from the teleport pose through gameplay, i.e. exactly the top of ground
 row 9, with no vertical jump at the handover.
 
+## Colourcycle: palette budget and the reserved-slot design (proposed 2026-10-18)
+
+Goal: replace tile-frame animation with CRAM colour rotation where possible.
+Measured CRAM usage of the four lines (there are only four on the MD):
+
+| line | carries | used | room for a band |
+|---|---|---|---|
+| PAL0 | font white (15) + UI/enemies/objects/shots/HUD | 1..14 | none |
+| PAL1 | stage map art + all anim art | 15 of the 17..38 wanted (bugs.md BUG-004) | none |
+| PAL2 | player sheets (10..12 entries) + weapon colours 13/14/15 | ~15 | none |
+| PAL3 | parallax, reloaded per map | 3..15 | **yes, varies** — stage 1: 6-8, 2: 9, 3: 3, 6: 5, 8: 11; stage 0 map 0: 15 (none) |
+
+**Design (proposed, not started)**
+
+- **Cycling bands** live in reserved top entries of **PAL3**. Map cells on BG_A may
+  select PAL3, so an animated cell can be textured with the parallax line; the bg art
+  is re-quantised to <= 12 colours and the band entries stay exclusive by
+  construction. This costs nothing to the map palette (PAL1), which is the tight one.
+- **Non-cycling anim art** (shape animations) gets a few reserved entries in PAL1, and
+  the art declares *slots, not colours*: drawn with generic marker colours, with a
+  swatch tile at the end of the strip carrying the intended RGBs. The converter emits
+  a per-stage slot table (exact RGB where it fits, nearest otherwise).
+- Converter emits per stage: palettes per line, the anim slot table, and the band table
+  (base entry, length, direction, frame delay). Runtime cost per animation step becomes
+  a few CRAM writes — no VRAM DMA, no plane-cell rewrite — and the reserved anim tile
+  block shrinks, which also removes the last room-transition fade.
+
+**Block classification** (shape mask + per-step colour permutation over all 34 blocks):
+
+- exact rotation, no input needed: `waterfall_top_left`, `waterfall_top_right` (band 3)
+- needs art adjustment (pattern shift, or the mapping differs per step): `water_1`,
+  `water_2`, `water_2a`, `water_2b`, `green_water_1`, `green_water_2`, `lava1`, `lava2`,
+  `waterfall_left`, `waterfall_right`, `waterfall_middle_left`, `waterfall_middle_right`,
+  `water_border_clean`, `water_border_pipe_left`, `water_border_pipe_right`,
+  `water_border_tile`, `lightbulb_small`, `magnets`, `palmtree_005`,
+  `move_left_platform_1/2/3`, `move_right_platform_1/2/3`
+- shape changes, keep frame animation (bugs.md BUG-003): `waterfall_top`, `water_ground`,
+  `palmtree_001`..`004`, `palmtree_006`
+
+Current animation cost per stage (slots per map / tiles reserved / animated cells):
+stage 2 = 12,10,16 / 384 / 505; stage 3 = 13,13,11 / 312 / 957; stage 6 = 1,1,2 / 48 / 291;
+stage 1 = 0,6,0 / 144 / 10; stage 8 = 6,0,0 / 144 / 19; stage 0 = 1,1,0 / 24 / 29;
+stages 4, 5, 7 = none.
+
 ## Notes / conventions
 
 - **Stage defs and LTO**: `stage_defs[]` is marked

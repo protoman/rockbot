@@ -76,3 +76,69 @@ and the intro stage's boss intro is skipped (it is gated on the save mask).
   bits are not set — add `save_slot_set_stage(0, n)` for a stage you are testing.
 
 **Removal**: delete the marked block in `save_init()` and this entry.
+
+---
+
+## BUG-003 — Two anim blocks cannot use palette colourcycle (shape really changes)
+
+**Status**: open, deferred by user decision ("I will convert them to colorcycle later").
+
+**What**: `waterfall_top.png` and `water_ground.png` (PC
+`build/games/RockDroid1/images/tilesets/anim/`) are the only animated blocks whose
+**pixel shape** changes between frames, so the CRAM-rotation technique we are
+adopting for the rest of the anim set cannot reproduce them: every other block
+differs from frame to frame only by a colour permutation, these two move pixels
+around. They must either keep the tile-frame animation (current behaviour) or be
+redrawn as a repeating colour band like the rest.
+
+**Verified**: shape-mask comparison + per-step colour-permutation test over all 34
+anim blocks; these two (plus the five `palmtree_00*` blocks, which genuinely change
+shape and are not meant to be cycled) are the exceptions.
+
+**Files**: `tools/convert_stage.py` (block classification), the source PNG above.
+
+---
+
+## BUG-004 — Stage art is over the 15-colour palette budget in 8 of 9 stages
+
+**Status**: open, known deviation from the PC art (user: "I noticed some lack colors,
+like the moving platforms").
+
+**Symptom**: distinct shades in the source art merge into one palette entry, so
+e.g. the moving platforms look flat. The platform art has five shades —
+`(255,102,0) (255,231,163) (243,191,63) (219,43,0) (167,0,0)` — which collapse into
+about two orange entries.
+
+**Why**: the port puts the whole stage (all three maps **plus** every anim block) on
+ONE 15-entry master palette (`MAX_COLORS = 15`, index 0 reserved transparent;
+`tools/convert_stage.py` `build_palette`), merging the closest colours when the art
+needs more. The PC art is authored as true colour (the shared tileset `default.png`
+has 124 distinct colours), so it does not fit.
+
+Measured colours needed vs the 15 available:
+
+| stage | needed | merged away |
+|---|---|---|
+| 0 CHAOS CITY | 17 | 2 |
+| 1 DEEP JUNGLE | 38 | 23 |
+| 2 FLOWER FIELDS | 35 | 20 |
+| 3 ATLANTIDA | 31 | 16 |
+| 4 SUN-GOD REALM | 23 | 8 |
+| 5 TRICKY CASTLE | 26 | 11 |
+| 6 DARK MINE | 28 | 13 |
+| 7 CRYSTAL MAZE | 16 | 1 |
+| 8 INFOWAY | 14 | fits |
+
+Also: index 0 of the generated palette is a reserved black, so any black in the art
+takes a second entry (stage 1's palette has `(0,0,0)` at both 0 and 1). Where that
+black is only the *surrounding* empty area, marking it transparent in the source art
+reclaims the slot; where it is part of the design (the moving platform's segment
+gaps) it cannot be reclaimed.
+
+**Fix path**: the reserved-slot design being discussed for colourcycle
+(anim art drawn with generic colours, mapped to per-stage entries; cycling bands in
+the free part of PAL3) — plus a deliberate re-quantisation of the art per stage.
+See `stage0_plan.md`.
+
+**Files**: `tools/convert_stage.py`, `tools/img2tiles.py`, the source art.
+
