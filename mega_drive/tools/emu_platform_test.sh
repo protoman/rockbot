@@ -8,6 +8,8 @@
 set -u
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# Native BlastEm 1.0.0 (same as tools/emu.sh EMU_BIN); override with BLASTEM=...
+BLASTEM="${BLASTEM:-/mnt/ExtraData/programas/blastem64-1.0.0/blastem}"
 ROM="$ROOT/out/rom.bin"
 WORK=/tmp/opencode/md-debug
 LOG="$WORK/debug.log"
@@ -17,13 +19,13 @@ PIPE="$WORK/cmd.pipe"
 mkdir -p "$WORK"
 [ -f "$ROM" ] || { echo "ROM not found: $ROM (run make first)" >&2; exit 1; }
 
-for pid in $(pgrep -f 'blastem\.bin' 2>/dev/null); do kill -9 "$pid" 2>/dev/null; done
+for pid in $(pgrep -x blastem 2>/dev/null); do kill -9 "$pid" 2>/dev/null; done
 sleep 0.5
 
 rm -f "$LOG" "$LIVE" "$WORK"/shot_*.png "$PIPE"
 mkfifo "$PIPE"
 
-script -qec "timeout 240 flatpak run com.retrodev.blastem -d '$ROM'" "$LOG" \
+script -qec "timeout 240 '$BLASTEM' -d '$ROM'" "$LOG" \
     < "$PIPE" >"$LIVE" 2>&1 &
 EMU_PID=$!
 sleep 1

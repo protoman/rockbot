@@ -109,17 +109,53 @@ flatpak run --branch=stable --arch=x86_64 --command=Fusion --file-forwarding \
 ```
 Kega Fusion 3.63x (flatpak). RetroArch + Genesis Plus GX also works but needs `--filesystem=/tmp` for ROMs under /tmp.
 
-**BlastEm** (used by `tools/emu.sh` and for quick manual runs):
+**BlastEm** — the native 1.0.0 build at `/mnt/ExtraData/programas/blastem64-1.0.0/blastem`
+(`EMU_BIN` in `tools/emu.sh`, `BLASTEM` in the other harnesses; same version as
+the old flathub flatpak, without the sandbox). Used by `tools/emu.sh` and for
+quick manual runs:
 
 ```bash
-make run          # builds, then: flatpak run com.retrodev.blastem -g out/rom.bin
+make run          # builds, then: tools/emu.sh start-ready out/rom.bin
+make run EMU_ARGS=  # same, GL renderer instead of software
 ```
 
-`-g` is **required**: with the OpenGL renderer BlastEm freezes on startup
-(black, unresponsive, needs a kill) about half the time under Wayland + flatpak.
-Measured 6/10 freezes without `-g`, 0/15 with it. The config file's `gl off`
-option is *not* the same thing and does not help. Do not run plain
-`flatpak run com.retrodev.blastem rom.bin` — add `-g` (or use `make run`).
+`make run` goes through `tools/emu.sh`, which kills a previous instance and
+relaunches while the window comes up black/wedged — a bad start no longer needs
+a manual kill. It does **not** auto-timeout, so stop the emulator when done
+(`tools/emu.sh stop`).
+
+`-g` (software rendering) is the default. It was **required** for the old
+flatpak build: with the GL renderer it froze on startup (black, unresponsive,
+needs a kill) about half the time under Wayland + flatpak (measured 6/10
+freezes without `-g`, 0/15 with). The flatpak is no longer used; pass
+`EMU_ARGS=` to try the GL renderer on the native build.
+
+### BlastEm CLI reference (do not re-probe it)
+
+`blastem [OPTIONS] ROMFILE [WIDTH] [HEIGHT]` — **same options as the flatpak
+build** (same 1.0.0, only unsandboxed). The ones we use/know:
+
+| flag | meaning |
+|---|---|
+| `-g` | disable OpenGL rendering (software) — our default |
+| `-d` | enter the debugger on startup (used by `emu_test.sh`) |
+| `-r (J\|U\|E)` | force region |
+| `-m MACHINE` | force machine (`gen`, `sms`, `gg`, `32x`, …) |
+| `-f` | fullscreen |
+| `-n` | disable Z80 |
+| `-s FILE` / `-o FILE` | load savestate / lock-on cart |
+| `-l` `-y` `-e FILE` | code-address log / YM2612 WAV log / event log |
+| `-h` `-v` | print help / print version |
+
+**Never probe the binary's CLI** with `-h`, `-v`, or with no ROM argument: on
+this machine it does **not** print to the terminal, it opens an error /
+about / options **dialog on the user's desktop** and interrupts their work.
+The options above are already known — read this table instead of running them.
+
+**Launch discipline (user rule, standing)**: launching BlastEm takes over the
+user's desktop. Ask before launching. Never launch repeatedly to explore — one
+deliberate run per question, then `tools/emu.sh stop`. Prefer deriving answers
+from already-captured screenshots/assets over running the emulator again.
 
 ## Port status
 

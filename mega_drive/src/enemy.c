@@ -438,11 +438,15 @@ void enemies_reset(void)
                                TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
         e->alive = (e->spr != NULL);
         if (e->spr) {
-            // visibility is managed manually every frame in enemies_update:
+            // Visibility is managed manually every frame in enemies_update:
             // a screen_x > 1023 gets masked to 10 bits in the VDP sprite
             // table (off-right enemies reappeared on the left, sliding at
             // camera speed); AUTO_FAST masked before its test and never hid.
-            SPR_setVisibility(e->spr, VISIBLE);
+            // Spawn HIDDEN: stage_load() spawns them while the camera is
+            // still at 0, so their "screen" x is their world x (up to 3200)
+            // — VISIBLE here drew every enemy of the room wrapped onto the
+            // screen for the frame before the first enemies_update().
+            SPR_setVisibility(e->spr, HIDDEN);
             // rows: 0 = ANIM_STAND, 1 = ANIM_WALK (converter contract)
             SPR_setAnim(e->spr, d->walk_n > 0 ? 1 : 0);
             SPR_setHFlip(e->spr, e->dir < 0);
@@ -532,6 +536,23 @@ void enemies_set_visible(bool visible)
     for (u8 i = 0; i < enemy_count; i++)
         if (enemies[i].spr)
             SPR_setVisibility(enemies[i].spr, visible ? VISIBLE : HIDDEN);
+}
+
+// Room transition (see transition.c): the outgoing screen is a frozen copy of
+// what is on screen, so its enemies slide with it. Visibility is set
+// explicitly (clearing SGDK's auto modes) before the position write, which
+// would otherwise recompute it.
+void enemies_shift_y(s16 dy)
+{
+    for (u8 i = 0; i < enemy_count; i++) {
+        Enemy *e = &enemies[i];
+        if (!e->spr || !e->alive) continue;
+        s16 sx = e->x - camera.x;
+        s16 sy = e->y - camera.y + dy;
+        SPR_setVisibility(e->spr, (sx >= -40 && sx < 336 &&
+                                   sy >= -40 && sy < 248) ? VISIBLE : HIDDEN);
+        SPR_setPosition(e->spr, sx, sy);
+    }
 }
 
 // PC character::is_shielded (character.cpp:3357) for the enemy side. The port

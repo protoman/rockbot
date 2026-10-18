@@ -43,4 +43,9 @@ bool enemies_boss_died(void);
 // Hide/show every live enemy sprite (in-game menu overlay).
 void enemies_set_visible(bool visible);
 
+// Room transition: redraw every live enemy sprite shifted down by `dy`
+// screen pixels. The outgoing screen takes its enemies with it (the PC
+// copies a frozen bitmap of it), so the caller passes the screen offset.
+void enemies_shift_y(s16 dy);
+
 #endif

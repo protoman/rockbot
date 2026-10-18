@@ -130,7 +130,10 @@ void objects_reset(void)
         if (o->spr) {
             // manual visibility + manual frame advance (see objects_update)
             SPR_setAutoAnimation(o->spr, FALSE);
-            SPR_setVisibility(o->spr, VISIBLE);
+            // HIDDEN at spawn: stage_load() spawns objects while the camera is
+            // still at 0, so their "screen" x is their world x — VISIBLE here
+            // wrapped the whole room's objects onto the screen for a frame.
+            SPR_setVisibility(o->spr, HIDDEN);
         }
     }
 }
@@ -360,6 +363,23 @@ void objects_set_visible(bool visible)
     for (u8 i = 0; i < obj_count; i++)
         if (objs[i].spr)
             SPR_setVisibility(objs[i].spr, visible ? VISIBLE : HIDDEN);
+}
+
+// Room transition (see transition.c): the outgoing screen is a frozen copy of
+// what is on screen, so its objects slide with it.
+void objects_shift_y(s16 dy)
+{
+    for (u8 i = 0; i < obj_count; i++) {
+        MapObj *o = &objs[i];
+        if (!o->active || !o->spr) continue;
+        const ObjectDef *d = o->def;
+        s16 sx = o->x - camera.x;
+        s16 sy = o->y - camera.y + dy;
+        bool on_screen = (sx + d->w > 0 && sx < 320 &&
+                          sy + d->h > 0 && sy < 224);
+        SPR_setVisibility(o->spr, on_screen ? VISIBLE : HIDDEN);
+        if (on_screen) SPR_setPosition(o->spr, sx, sy);
+    }
 }
 
 void objects_update(void)

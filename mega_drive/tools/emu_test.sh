@@ -10,6 +10,8 @@
 set -u
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# Native BlastEm 1.0.0 (same as tools/emu.sh EMU_BIN); override with BLASTEM=...
+BLASTEM="${BLASTEM:-/mnt/ExtraData/programas/blastem64-1.0.0/blastem}"
 ROM="$ROOT/out/rom.bin"
 WORK=/tmp/opencode/md-debug
 LOG="$WORK/debug.log"
@@ -20,7 +22,7 @@ mkdir -p "$WORK"
 [ -f "$ROM" ] || { echo "ROM not found: $ROM (run make first)" >&2; exit 1; }
 
 # A leftover instance holds the X display and blocks the new one.
-for pid in $(pgrep -f 'blastem\.bin' 2>/dev/null); do kill -9 "$pid" 2>/dev/null; done
+for pid in $(pgrep -x blastem 2>/dev/null); do kill -9 "$pid" 2>/dev/null; done
 sleep 0.5
 
 rm -f "$LOG" "$LIVE" "$WORK"/shot_*.png "$PIPE"
@@ -30,7 +32,7 @@ mkfifo "$PIPE"
 # Sleep before opening the write end: both sides of a FIFO block until the
 # other end opens, but script must reach its open() first or the handshake
 # deadlocks under some shells.
-script -qec "timeout 120 flatpak run com.retrodev.blastem -d '$ROM'" "$LOG" \
+script -qec "timeout 120 '$BLASTEM' -d '$ROM'" "$LOG" \
     < "$PIPE" >"$LIVE" 2>&1 &
 EMU_PID=$!
 sleep 1

@@ -208,11 +208,15 @@ def main():
         palette_rgb = [(md_round(qpal[i * 3]), md_round(qpal[i * 3 + 1]),
                         md_round(qpal[i * 3 + 2])) for i in range(args.colors)]
     else:
-        palette_rgb = [(0, 0, 0)] + [c[:3] for c in colors][:args.colors]
-        if len(palette_rgb) < args.colors + 1:
-            palette_rgb = [(0, 0, 0)] + [c[:3] for c in colors]
-    # a transparent, NON-zero palette entry for index 0 (BG plane color 0)
-    palette = [(0, 0, 0)] + [c for c in palette_rgb if c != (0, 0, 0)][:args.colors]
+        palette_rgb = [c[:3] for c in colors][:args.colors]
+    # Index 0 is the blank/backdrop slot (a BG plane cannot be transparent);
+    # the art's real colours follow. Black is deliberately KEPT among them even
+    # though it duplicates the blank entry: the parallax art's dominant colour
+    # IS black (its transparent colorkey background), and filtering black out
+    # here made those pixels snap to the nearest remaining colour — the night
+    # sky rendered green (FLOWER FIELDS) / purple (CHAOS CITY) instead of
+    # black, and every screen with true black art was off the same way.
+    palette = [(0, 0, 0)] + palette_rgb[:args.colors]
     if src_pal0 is not None:
         palette[0] = src_pal0     # indexed input's own backdrop colour
 

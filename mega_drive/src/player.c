@@ -6,6 +6,7 @@
 #include "object.h"
 #include "resources.h"
 #include "player_data.h"
+#include "player_flip.h"   // generated: per-animation flip X correction
 
 // Physics, tuned for 60fps. The original normalises movement by
 // fps_movement_multiplier = 60/max_fps (shareddata.cpp:22); here fps is fixed.
@@ -250,6 +251,42 @@ static bool column_hits_solid(s16 col, s16 t, s16 b)
     return FALSE;
 }
 
+// Move the box horizontally from ix by dx and stop flush against the FIRST
+// solid column the leading edge crosses, scanning outwards from the old
+// leading edge. Clamping against the column the new edge *lands* in puts a
+// box inside a wall that is more than one tile thick: against the col-137/138
+// divider the player ended up 16px inside (x 2167 -> 2183) and was then
+// squeezed back out over several frames.
+static s16 step_x_solid(s16 ix, s16 dx, s16 t, s16 b)
+{
+    if (dx > 0) {
+        const s16 from = (ix + PLAYER_BOX_R - 1) >> 4;
+        const s16 to = (ix + dx + PLAYER_BOX_R - 1) >> 4;
+        for (s16 col = from + 1; col <= to; col++)
+            if (column_hits_solid(col, t, b)) return (col << 4) - PLAYER_BOX_R;
+    } else if (dx < 0) {
+        const s16 from = (ix + PLAYER_BOX_L) >> 4;
+        const s16 to = (ix + dx + PLAYER_BOX_L) >> 4;
+        for (s16 col = from - 1; col >= to; col--)
+            if (column_hits_solid(col, t, b)) return ((col + 1) << 4) - PLAYER_BOX_L;
+    }
+    return ix + dx;
+}
+
+// If the box overlaps a solid column, push it out through the nearer free
+// face. Used when leaving a ladder, where centring on the ladder column can
+// leave the box overlapping the divider beside it.
+static s16 unstick_x(s16 ix, s16 t, s16 b)
+{
+    const s16 lc = (ix + PLAYER_BOX_L) >> 4;
+    const s16 rc = (ix + PLAYER_BOX_R - 1) >> 4;
+    const bool ls = column_hits_solid(lc, t, b);
+    const bool rs = column_hits_solid(rc, t, b);
+    if (ls && !rs) return ((lc + 1) << 4) - PLAYER_BOX_L;
+    if (rs && !ls) return (rc << 4) - PLAYER_BOX_R;
+    return ix;                       // free, or boxed in: leave it alone
+}
+
 // PC hit_ground (character.cpp:1377-1412): feet tile vs CENTRE tile pair.
 // SOLID (not UNBLOCKED/WATER/STAIR) at the feet is ground; otherwise ground
 // when the feet tile differs from the centre tile (standing on a ledge edge,
@@ -297,6 +334,18 @@ void player_get_box(s16 *left, s16 *top, s16 *right, s16 *bottom)
     *bottom = iy + box_b;
 }
 
+// The art is 29px wide inside its 32px cell, so the hardware horizontal flip
+// mirrors it into a different place: the head/ladder pose used to jump 2px
+// when the player turned. convert_player.py measures the offset per animation
+// row; apply it while the flip is on.
+static s8 flip_dx(void)
+{
+    const bool flip = player.on_ladder ? ladder_flip : (player.facing < 0);
+    if (!flip) return 0;
+    return player_flip_dx[player_n][current_anim < PLAYER_ANIM_ROWS
+                                    ? current_anim : 0];
+}
+
 // Re-place the player sprite for the CURRENT camera. player_place() moves the
 // player but the sprite's screen position is only set in player_update(), so
 // after a map link the sprite is drawn once at its old screen position while
@@ -304,7 +353,8 @@ void player_get_box(s16 *left, s16 *top, s16 *right, s16 *bottom)
 void player_sync_sprite(void)
 {
     if (player.spr)
-        SPR_setPosition(player.spr, player.x - camera.x, player.y - camera.y);
+        SPR_setPosition(player.spr, player.x - camera.x + flip_dx(),
+                        player.y - camera.y);
 }
 
 // Reload PAL2 (player). A full-palette fade blacks it out and nothing else
@@ -536,15 +586,9 @@ void player_update(u16 pad)
                 // A box wider than one tile can overlap a side wall when
                 // centred on the ladder column (e.g. the right-edge divider
                 // at map1 col 199). The feet-row ground check would then
-                // latch on the wall and freeze the player mid-air. Shift X
-                // clear of the wall so the fall scan misses it.
-                s16 row = (iy + (box_t + box_b) / 2) >> 4;
-                s16 rc = (ix + PLAYER_BOX_R - 1) >> 4;
-                if (stage_terrain_at(stage_current_map, rc, row) == TERRAIN_SOLID)
-                    ix = (rc << 4) - PLAYER_BOX_R;
-                s16 lc = (ix + PLAYER_BOX_L) >> 4;
-                if (stage_terrain_at(stage_current_map, lc, row) == TERRAIN_SOLID)
-                    ix = ((lc + 1) << 4) - PLAYER_BOX_L;
+                // latch on the wall and freeze the player mid-air. Push X out
+                // through the nearer free face so the fall scan misses it.
+                ix = unstick_x(ix, iy + box_t, iy + box_b);
             }
         }
 
@@ -564,7 +608,7 @@ void player_update(u16 pad)
                 SPR_setHFlip(player.spr, ladder_flip);
                 SPR_setAnim(player.spr, stair_anim);
             }
-            SPR_setPosition(player.spr, ix - camera.x, iy - camera.y);
+            SPR_setPosition(player.spr, ix - camera.x + flip_dx(), iy - camera.y);
             invuln_blink();
             // JUMP press on a ladder = let go and fall in place (the press
             // is consumed so it cannot double as a ground jump).
@@ -590,17 +634,9 @@ void player_update(u16 pad)
         s16 mv = F16_toInt(player.hit_acc);
         player.hit_acc -= FIX16(mv);
         if (mv > 0) {
-            s16 nx = ix + player.hit_dir * mv;
-            s16 t = iy + box_t;
-            s16 b = iy + box_b;
-            if (player.hit_dir > 0) {
-                s16 col = (nx + PLAYER_BOX_R - 1) >> 4;
-                if (column_hits_solid(col, t, b)) nx = (col << 4) - PLAYER_BOX_R;
-            } else {
-                s16 col = (nx + PLAYER_BOX_L) >> 4;
-                if (column_hits_solid(col, t, b)) nx = ((col + 1) << 4) - PLAYER_BOX_L;
-            }
-            ix = nx;
+            // pushed away from facing: use the same first-solid-column rule as
+            // walking, or a hit next to a thick wall drives the box inside it
+            ix = step_x_solid(ix, player.hit_dir * mv, iy + box_t, iy + box_b);
         }
         player.vx = 0;
         pad &= ~(BUTTON_LEFT | BUTTON_RIGHT | JUMP_BUTTONS | SLIDE_BUTTON);
@@ -721,23 +757,10 @@ void player_update(u16 pad)
     // even when the overlap was in the far one, yanking the player up to a
     // full box-width backward ("bounce back"). See findings.md FIND-09.
     if (dx != 0) {
-        s16 nx = ix + dx;
+        s16 nx = step_x_solid(ix, dx, iy + box_t, iy + box_b);
+        if (nx == ix) player.vx = 0;      // clamped flush against a wall
         s16 t = iy + box_t;
         s16 b = iy + box_b;
-
-        if (dx > 0) {
-            s16 col = (nx + PLAYER_BOX_R - 1) >> 4;
-            if (column_hits_solid(col, t, b)) {
-                nx = (col << 4) - PLAYER_BOX_R;   // exact edge contact
-                player.vx = 0;
-            }
-        } else {
-            s16 col = (nx + PLAYER_BOX_L) >> 4;
-            if (column_hits_solid(col, t, b)) {
-                nx = ((col + 1) << 4) - PLAYER_BOX_L;
-                player.vx = 0;
-            }
-        }
         // platform bodies are solid from the side too (PC COLlISION_MODE_XY,
         // classmap.cpp:1433). Strict overlap: edge contact while standing on
         // top (b == o->y) never hits, so walking along the top stays free.
@@ -926,7 +949,7 @@ void player_update(u16 pad)
         current_anim = want;
         SPR_setAnim(player.spr, want);
     }
-    SPR_setPosition(player.spr, ix - camera.x, iy - camera.y);
+    SPR_setPosition(player.spr, ix - camera.x + flip_dx(), iy - camera.y);
 
     invuln_blink();
 }

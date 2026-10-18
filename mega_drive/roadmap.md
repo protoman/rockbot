@@ -214,6 +214,30 @@ list is positional and records 59/60 (UFO/FLYBOT) carry 0xFF in the id byte —
 stage 4 spawns one of them, so the conversion aborted. The assert now accepts
 0xFF and trusts the index.
 
+## 14. Room transition (the real scroll)  **[DONE]**
+
+Replaced the palette fade between rooms with the PC's vertical screen scroll
+(`game.cpp:1067`): `src/transition.c`, per-scanline horizontal scroll so both
+halves sit at their own camera offset, the destination screen's tiles copied
+into the free VRAM block, plus the arrival placement (clamp into the map, hang
+on the ladder when the destination is a stair), the `stage_load()` Map leak, the
+img2tiles black-palette bug (the green sky), enemy/object spawn visibility, the
+thick-wall horizontal collision, the intro logo padding and the flipped-frame
+offset. Full detail in `stage0_plan.md` -> "Room transition: the real scroll".
+
+Known fallback: stage 2 map 2 -> map 1 still fades (61/81 tiles needed, 56
+free). Verified: CHAOS CITY links, arrival state, wall clamp, intro alignment.
+Not yet: the return trip by hand, the flip on screen, the other 8 stages'
+parallax, and the fade fallback itself.
+
+## 15. Waterfall gap (stage 2 map 2, cols 133/134 row 7)
+
+Still open (handout item 2). Those two cells are static water tiles inside an
+animated column (rows 0..6 and 8..14 are anim cells; columns 135/136 are fully
+animated). The PC's data follows the same rule as our converter
+(`init_animated_tiles`), so it is a rendering difference, not a converter bug —
+compare against the PC at that spot; the anim art may span two cells.
+
 ## Execution order
 
 1. ~~**1 (shield) + 2 (hitbox)**~~ — DONE.

@@ -59,4 +59,8 @@ void objects_debug_text(u8 tile_y, s16 px, s16 py, s16 camx);
 // Hide/show every live object sprite (in-game menu overlay).
 void objects_set_visible(bool visible);
 
+// Room transition: redraw every live object sprite shifted down by `dy`
+// screen pixels (the outgoing screen takes its objects with it).
+void objects_shift_y(s16 dy);
+
 #endif

@@ -11,26 +11,28 @@
 
 // Parallax background: own palette (PAL3, reloaded on stage_load) and a
 // fixed VRAM block. VRAM layout (tiles; TILE_FONT_INDEX = 1440 = 0xC000/32
-// minus FONT_LEN 96): system 0..15, stage tilesets from TILE_USER_INDEX
-// (biggest stage-0 tileset = 127 tiles -> ends 143), bg tiles at 144
-// (bg0 = 768 tiles -> ends 911), animated-tile frames 912..935 (1 slot,
-// 24 tiles), sprite engine from TILE_SPRITE_INDEX (1440 - SPR_initEx size;
+// minus FONT_LEN 96): system 0..15, stage tileset 16..159 (the largest
+// converted map tileset is 144 tiles), bg tiles at 160, animated-tile frames
+// at 520, sprite engine from TILE_SPRITE_INDEX (1440 - SPR_initEx size;
 // 504 -> 936..1439), font 1440..1535.
 // NOTE: the in-game menu temporarily loads its panel over the bg block
-// (144..) and restores it with stage_redraw_bg().
+// (160..) and restores it with stage_redraw_bg().
 #define BG_PAL        PAL3
-#define TILE_BG_INDEX 144
-// BG tilesets are decomposed (tools/img2tiles.py); the largest so far is 346
-// tiles, so reserve 352 for them before the animated-tile block.
-#define TILE_BG_MAX_TILES 352
+#define TILE_BG_INDEX 160
+// BG tilesets are decomposed (tools/img2tiles.py); the largest is 354 tiles
+// (stage 2, after the black-background fix), so reserve 360 for them before
+// the animated-tile block. Must also leave the stage tileset's block
+// (16..159) clear — bg art used to start at 144 and overlapped the biggest
+// tilesets by 16 tiles.
+#define TILE_BG_MAX_TILES 360
 
 // Animated-tile frame slots (see stage0_plan.md VRAM map): 1 slot per
 // animation, 6 frames x 4 tiles. Base sits AFTER the largest decomposed bg
 // tileset (TILE_BG_INDEX + TILE_BG_MAX_TILES) and the block must stay below
-// the sprite pool (TILE_FONT_INDEX - 504 = 936): 496 + 18*24 = 928.
-#define TILE_ANIM_BASE   496
+// the sprite pool (TILE_FONT_INDEX - 504 = 936): 520 + 17*24 = 928.
+#define TILE_ANIM_BASE   520
 #define TILE_ANIM_STRIDE 24
-#define STAGE_ANIM_SLOT_MAX 18
+#define STAGE_ANIM_SLOT_MAX 17
 
 extern Map *stage_map;
 extern Vect2D_s16 camera;
@@ -67,6 +69,11 @@ void stage_release_map(void);
 // Direct camera set for a link arrival (PC set_scrolling), divider-safe.
 void stage_arrival_camera(s16 focusX, s16 focusY);
 
+// The camera X stage_arrival_camera() picks for `focus_x` on `map`, without
+// touching the plane. The room transition needs it before the destination
+// map is loaded, to know which screen to slide in.
+s16 stage_arrival_camera_x(u8 map, s16 focus_x);
+
 // Boss teleporter (OBJ_STAGE_BOSS_TELEPORTER, PC game::object_teleport_boss
 // game.cpp:2199 with must_return=false): reload dest_map, drop the player on
 // the ground column of dest tile dest_tx (dest_ty unused — PC ignores it),
@@ -74,8 +81,11 @@ void stage_arrival_camera(s16 focusX, s16 focusY);
 void stage_teleport_boss(u8 dest_map, u8 dest_tx, u8 dest_ty);
 
 // TRUE when the given world-space box overlaps a link origin tile of the
-// current map. Fills the destination map index and pixel position.
+// current map. Fills the destination map index and pixel position, plus the
+// transition direction (TRANS_T2B / TRANS_B2T) the room transition needs.
+#define TRANS_T2B 0   // destination lies below (PC TRANSITION_TOP_TO_BOTTOM)
+#define TRANS_B2T 1   // destination lies above (PC TRANSITION_BOTTOM_TO_TOP)
 bool stage_check_link(s16 left, s16 top, s16 right, s16 bottom,
-                      u8 *to_map, s16 *to_x, s16 *to_y);
+                      u8 *to_map, s16 *to_x, s16 *to_y, u8 *to_trans);
 
 #endif

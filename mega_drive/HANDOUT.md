@@ -11,12 +11,15 @@ cd mega_drive
 make run          # builds, then runs in BlastEm
 ```
 
-`make run` passes `-g` (software rendering). **This is required**: with the
-OpenGL renderer BlastEm freezes on startup (black, unresponsive) about half the
-time under Wayland + flatpak — measured 6/10 frozen without `-g`, 0/15 with it.
-The config file's `gl off` option is a different setting and does *not* help.
+`make run` builds and then runs `tools/emu.sh start-ready out/rom.bin`, which uses
+the **native BlastEm 1.0.0** at `/mnt/ExtraData/programas/blastem64-1.0.0/blastem`
+(the flathub flatpak is gone — its sandbox under Wayland wedged on startup). The
+harness kills a previous instance and relaunches while the window comes up black,
+so a bad start no longer needs a manual kill; there is no auto-timeout, so stop it
+with `tools/emu.sh stop`. `-g` (software rendering) is still the default — it was
+required for the flatpak; for GL on the native build use `make run EMU_ARGS=`.
 
-ROM is `out/rom.bin` (== `out/release/rom.bin`), 896 K. Kega Fusion also works.
+ROM is `out/rom.bin` (== `out/release/rom.bin`), 1.0 M. Kega Fusion also works.
 
 ## Test harness
 

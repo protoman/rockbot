@@ -40,7 +40,8 @@ BAND_RGB = (5, 29, 65)
 #   replace     list of (src_rgb, dst_rgb, tolerance) applied before quantizing
 ASSETS = {
     # intro: show_notice()
-    "upperland": dict(src="build/shared/images/upperland.png", colors=15, pad=True),
+    "upperland": dict(src="build/shared/images/upperland.png", colors=15, pad=True,
+                      frames=6),
     "boberatu":  dict(src="build/shared/images/boberatu.png",  colors=15, pad=True),
     "jmd_logo":  dict(src="build/shared/images/jmd_logo.png",  colors=15, pad=True),
     # NOTE: the title logo is no longer an IMAGE here — it is decomposed by
@@ -145,12 +146,19 @@ def convert(name, spec):
 
     if spec.get("pad"):
         w, h = im.size
-        nw, nh = (w + 7) & ~7, (h + 7) & ~7
-        if (nw, nh) != (w, h):
-            p = Image.new("P", (nw, nh))
+        # A multi-frame strip must be padded PER FRAME: padding the whole
+        # strip (570 -> 576) leaves 95px of art inside a 96px sprite cell, so
+        # each frame is drawn one pixel further off than the previous one —
+        # the intro logo slid sideways as the animation ran.
+        nf = spec.get("frames", 1)
+        fw = w // nf
+        nfw, nh = (fw + 7) & ~7, (h + 7) & ~7
+        if (nfw, nh) != (fw, h) or nf > 1:
+            p = Image.new("P", (nfw * nf, nh))
             p.putpalette(im.getpalette())
-            p.paste(0, (0, 0, nw, nh))
-            p.paste(im, (0, 0))
+            p.paste(0, (0, 0, nfw * nf, nh))
+            for f in range(nf):
+                p.paste(im.crop((f * fw, 0, (f + 1) * fw, h)), (f * nfw, 0))
             im = p
 
     os.makedirs(OUT_DIR, exist_ok=True)

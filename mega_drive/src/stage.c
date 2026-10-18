@@ -239,8 +239,22 @@ void stage_load(u8 map_index)
     PAL_setPalette(PAL0, pal_ui.data, CPU);
     VDP_loadTileSet(stage_def->tile_sets[map_index], TILE_USER_INDEX, DMA);
 
+    // Flush anything the previous map queued, then drop it: MAP_create()
+    // allocates the Map plus its unpacked metatile/block/index buffers from
+    // the heap, so without this every room change leaked ~1.5KB — repeated
+    // up/down links filled the heap until the game corrupted itself and the
+    // emulator died.
+    SYS_doVBlankProcess();
+    stage_release_map();
+
     stage_map = MAP_create(stage_def->map_defs[map_index], STAGE_PLANE,
                            TILE_ATTR_FULL(STAGE_PAL, FALSE, FALSE, FALSE, TILE_USER_INDEX));
+    if (!stage_map) {
+        // Out of heap: bail with the display restored (leaving it disabled
+        // here would black the screen silently).
+        VDP_setEnable(wasEnabled);
+        return;
+    }
     MAP_setDataPatchCallback(stage_map, stage_map_patch);
 
     camera.x = 0;
@@ -306,7 +320,7 @@ static bool link_region(s16 px, s16 py, u8 tx, u8 ty, u8 trans)
 }
 
 bool stage_check_link(s16 left, s16 top, s16 right, s16 bottom,
-                      u8 *to_map, s16 *to_x, s16 *to_y)
+                      u8 *to_map, s16 *to_x, s16 *to_y, u8 *to_trans)
 {
     // Same link may not re-fire until the player leaves its band
     // (PC set_teleporter/get_teleporter, game.cpp:802-832). Survives
@@ -347,6 +361,7 @@ bool stage_check_link(s16 left, s16 top, s16 right, s16 bottom,
             *to_map = dst_map;
             *to_x   = (s16)dst_x * stage_def->tile;
             *to_y   = (s16)dst_y * stage_def->tile;
+            *to_trans = trans;
             return TRUE;
         }
     }
@@ -422,11 +437,29 @@ void stage_release_map(void)
 // map0 (139,13) the view must not span the 137/138 divider.
 void stage_arrival_camera(s16 focusX, s16 focusY)
 {
-    camera.x = focusX - 160;
+    camera.x = stage_arrival_camera_x(stage_current_map, focusX);
     camera.y = focusY - 112;
     clamp_camera();
-    scroll_lock_span(focusX);
     stage_force_redraw();
+}
+
+// Same camera X, computed without touching the plane: used by the room
+// transition, which needs it before the destination map is loaded (so
+// column_locked() must see the destination map's scroll locks).
+s16 stage_arrival_camera_x(u8 map, s16 focus_x)
+{
+    const u8 save_map = stage_current_map;
+    const s16 save_x = camera.x;
+    const s16 save_y = camera.y;
+    stage_current_map = map;
+    camera.x = focus_x - 160;
+    clamp_camera();
+    scroll_lock_span(focus_x);
+    const s16 res = camera.x;
+    camera.x = save_x;
+    camera.y = save_y;
+    stage_current_map = save_map;
+    return res;
 }
 
 // PC get_first_lock_on_bottom (classmap.cpp:953): scanning up from the map

@@ -18,6 +18,19 @@ static u16 slot_off(u8 slot)
 void save_init(void)
 {
     SRAM_enable();
+
+    // ---- TEMPORARY TEST HACK (see bugs.md, BUG-T01) ----------------------
+    // Seed slot 1 — only when it is EMPTY, so a real save is never clobbered —
+    // with the intro stage cleared, so a test run can go
+    // TITLE -> LOAD GAME -> SLOT 1 -> STAGE SELECT instead of replaying the
+    // intro stage (and its boss intro) every time. Delete this block when the
+    // port is content-complete.
+    if (!save_slot_exists(0)) {
+        save_slot_clear(0);
+        save_slot_set_stage(0, 0);      // sets the magic too
+        save_slot_set_player(0, 0);     // ROCKBOT, so LOAD never reads junk
+    }
+    // ----------------------------------------------------------------------
 }
 
 bool save_slot_exists(u8 slot)

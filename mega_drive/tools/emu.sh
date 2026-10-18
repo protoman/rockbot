@@ -3,10 +3,14 @@
 # Reusable BlastEm controller for the Mega Drive port.
 #
 # Why this exists: ad-hoc `pkill -f blastem` matches the shell that runs it
-# (the command line contains "com.retrodev.blastem") and kills your own
-# prompt; and a launched emulator that is not detected/closed lingers. This
-# script is the one place that knows how to start, detect, control and stop
-# the emulator safely.
+# (the command line contains the emulator's path) and kills your own prompt;
+# and a launched emulator that is not detected/closed lingers. This script is
+# the one place that knows how to start, detect, control and stop the
+# emulator safely.
+#
+# Emulator: the native BlastEm 1.0.0 build (EMU_BIN below). It replaced the
+# flathub flatpak, whose sandbox + Wayland combination wedged on startup
+# (black, unresponsive) often enough to need a manual kill every few runs.
 #
 # Usage (source it in a test script, or run it directly):
 #   source tools/emu.sh
@@ -15,28 +19,27 @@
 #     emu_window              -> print the X11 window id
 #     emu_key KEY [HOLD_MS]   focus + tap a key (e.g. Right, Return, x)
 #     emu_shot NAME           screenshot the window to $EMU_WORK/NAME.png
-#     emu_stop                terminate cleanly (flatpak kill + exact-name kill)
+#     emu_stop                terminate cleanly (menu exit + exact-name kill)
 #   tools/emu.sh start|stop|status|window|shot NAME|key KEY [ms]
 #
 # Safety rules baked in:
-#   * the emulator runs as comm `blastem.bin`; we kill by that EXACT name
+#   * the emulator runs as comm `blastem`; we kill by that EXACT name
 #     (`pgrep -x`), never `pkill -f`.
-#   * `flatpak kill com.retrodev.blastem` is the primary, proper shutdown.
-#   * `emu_start` launches under `timeout` so a forgotten emulator cannot
-#     linger forever (override with EMU_TIMEOUT seconds; 0 disables).
-#   * the shell that calls stop/start is never a target.
+#   * `emu_stop` exits through BlastEm's own Esc menu first so SRAM is
+#     flushed, then kills by exact name for anything left.
+#   * a forgotten emulator is found and killed by `emu_stop` — there is no
+#     auto-timeout anymore, so stop it when you are done.
 
 set -u
 
-EMU_APP=com.retrodev.blastem
+# Native BlastEm 1.0.0 (same version as the old flatpak, but unsandboxed).
+# Override with EMU_BIN=/path/to/blastem.
+EMU_BIN=${EMU_BIN:-/mnt/ExtraData/programas/blastem64-1.0.0/blastem}
+EMU_PROC=$(basename "$EMU_BIN")
 EMU_PROJ=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 EMU_ROM_DEFAULT="$EMU_PROJ/out/rom.bin"
 EMU_WORK=${EMU_WORK:-/tmp/opencode/md-emu}
-EMU_TIMEOUT=${EMU_TIMEOUT:-600}
-# Extra BlastEm args. -g (software rendering) is the default because the GL
-# renderer freezes on startup ~half the time under Wayland + flatpak
-# (measured 6/10 freezes without it, 0/15 with). See AGENTS.md "Emulator".
-EMU_ARGS=${EMU_ARGS:--g}
+EMU_ARGS=${EMU_ARGS--g}
 # KDE virtual desktop (0-based: 1 = "Desktop 2") to park the emulator window on.
 # -1 (default) leaves it on the CURRENT desktop. Set to 1 to keep its window
 # and key input off the user's desktop.
@@ -44,7 +47,7 @@ EMU_DESKTOP=${EMU_DESKTOP:--1}
 EMU_STATE="$EMU_WORK/emu.state"
 
 # ---------------------------------------------------------------- detection
-emu_bin_pids() { pgrep -x blastem.bin 2>/dev/null; }
+emu_bin_pids() { pgrep -x "$EMU_PROC" 2>/dev/null; }
 
 emu_running() { [ -n "$(emu_bin_pids)" ]; }
 
@@ -73,7 +76,7 @@ emu_other_windows() {
 
 # Graceful quit through BlastEm's Esc menu (Resume, Load ROM, Lock On,
 # Save State, Load State, Settings, Exit). This matters for SRAM: BlastEm
-# only writes save.sram back on a normal exit; flatpak kill/SIGKILL skips it.
+# only writes save.sram back on a normal exit; SIGKILL skips it.
 emu_quit_menu() {
     local wid i
     wid=$(emu_window) || return 1
@@ -95,9 +98,7 @@ emu_quit_menu() {
 emu_stop() {
     # 1) normal exit first (flushes SRAM)
     emu_quit_menu || true
-    # 2) proper shutdown of the flatpak instance
-    timeout 10 flatpak kill "$EMU_APP" >/dev/null 2>&1 || true
-    # 3) exact-name kill for anything left (e.g. launched outside flatpak)
+    # 2) exact-name kill for anything left
     local pids
     pids=$(emu_bin_pids)
     [ -n "$pids" ] && kill $pids 2>/dev/null
@@ -112,19 +113,18 @@ emu_stop() {
 emu_start() {
     local rom=${1:-$EMU_ROM_DEFAULT}
     if [ ! -f "$rom" ]; then echo "emu: ROM not found: $rom" >&2; return 1; fi
+    if [ ! -x "$EMU_BIN" ]; then
+        echo "emu: emulator not found/executable: $EMU_BIN" >&2
+        return 1
+    fi
     emu_stop
     mkdir -p "$EMU_WORK"
 
     # windows that exist BEFORE launch -- the emulator's window is a new one
     local pre_wins; pre_wins=$(xdotool search --name 'BlastEm' 2>/dev/null | tr '\n' ' ')
 
-    if [ "${EMU_TIMEOUT:-0}" -gt 0 ] 2>/dev/null; then
-        setsid timeout -k 5 "$EMU_TIMEOUT" flatpak run "$EMU_APP" ${EMU_ARGS:-} "$rom" \
-            >"$EMU_WORK/emu.out" 2>"$EMU_WORK/emu.err" </dev/null &
-    else
-        setsid flatpak run "$EMU_APP" ${EMU_ARGS:-} "$rom" \
-            >"$EMU_WORK/emu.out" 2>"$EMU_WORK/emu.err" </dev/null &
-    fi
+    setsid "$EMU_BIN" ${EMU_ARGS:-} "$rom" \
+        >"$EMU_WORK/emu.out" 2>"$EMU_WORK/emu.err" </dev/null &
 
     # detect the actual emulator process, not just the launcher
     local i
@@ -145,11 +145,11 @@ emu_start() {
         sleep 0.25
     done
 
-    printf 'pids=%s\nwid=%s\nrom=%s\ntimeout=%s\n' \
-        "$(emu_bin_pids | tr '\n' ',')" "$wid" "$rom" "$EMU_TIMEOUT" >"$EMU_STATE"
+    printf 'pids=%s\nwid=%s\nrom=%s\n' \
+        "$(emu_bin_pids | tr '\n' ',')" "$wid" "$rom" >"$EMU_STATE"
     # park the window on the configured virtual desktop (see EMU_DESKTOP)
     [ -n "$wid" ] && emu_move_desktop "$EMU_DESKTOP"
-    echo "emu: started (pids=$(emu_bin_pids | tr '\n' ',') wid=${wid:-none} timeout=${EMU_TIMEOUT}s desktop=${EMU_DESKTOP})"
+    echo "emu: started ($EMU_BIN, pids=$(emu_bin_pids | tr '\n' ',') wid=${wid:-none} desktop=${EMU_DESKTOP})"
     [ -n "$wid" ] || { echo "emu: window not found (still running?)" >&2; return 1; }
     return 0
 }

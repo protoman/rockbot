@@ -295,7 +295,17 @@ MD has no second scolling plane over sprites →:
   = col137 lock while player pushed to the wall at 2167; walked away left
   normally).
 - **User rule (standing)**: never launch or kill BlastEm without asking —
-  the user may have their own instance running.
+  the user may have their own instance running. Extended 2026-10-18: do not
+  launch it **repeatedly** either — each launch takes over the user's desktop,
+  so one deliberate run per question, then `tools/emu.sh stop`. Also never
+  probe its CLI (`-h`, `-v`, or no ROM): it opens an error/about/options
+  **dialog on the user's desktop** instead of printing to the terminal. The
+  flags we use are documented in `AGENTS.md` ("BlastEm CLI reference").
+- Emulator since 2026-10-18: native BlastEm 1.0.0 at
+  `/mnt/ExtraData/programas/blastem64-1.0.0/blastem` (`EMU_BIN` in
+  `tools/emu.sh`), **not** the flathub flatpak — same version, unsandboxed.
+  `make run` = `tools/emu.sh start-ready out/rom.bin` (no timeout, no retry
+  count).
 
 ## Bug A + Bug B fixes (2026-10-15, user-reported)
 
@@ -1042,6 +1052,130 @@ screen keeps base 16. The alternative — one union tileset per stage shared by
 its three maps — needs a converter + resources.res change (the map PNGs would
 become index maps into a separate tileset PNG, which rescomp supports).
 
+## Room transition: the real scroll, + fixes (2026-10-18)
+
+Replaces the palette fade between rooms with the PC's vertical screen scroll
+(`game.cpp:1067`). Verified in-emulator (see the notes at the end).
+
+### The scroll — `src/transition.{c,h}` (NEW)
+
+- `transition_scroll(from_map, to_map, to_cam_x, player_x, player_y, top_to_bottom)`
+  returns FALSE when the destination screen's tiles do not fit in the free VRAM
+  block; `runStage()` then falls back to `PAL_fadeOutAll/PAL_fadeInAll`.
+- Both screens are stacked into a RAM tilemap (`trans_buf[56][42]`, 40x28
+  plane cells per screen); the visible slice is rewritten to BG_A each frame
+  while the offset moves (TRANS_STEP 8px, 28 frames ≈ 0.47s; the PC does 4px at
+  6ms/step).
+- **Tiles**: the destination screen's MAP window is read with
+  `MAP_getTilemapRect` (a temporary `Map` created for the destination
+  definition, released right after), its tileset is unpacked
+  (`unpackTileSet` into a RAM buffer) and the distinct tiles the window uses are
+  copied above the animated-tile block — the only free VRAM at that point — with
+  their plane entries rewritten to that base.
+- **Plane placement (the subtle part)**: the VDP applies ONE horizontal scroll
+  per scanline and wraps the plane at 512px. Writing only the 40 visible columns
+  with a NEGATIVE scroll (the obvious framing) made the wrap expose unwritten
+  cells — stale fragments at the left edge and the last two columns at the
+  right, i.e. the "drawing inconsistencies" mid-transition. A screen is now
+  placed with a small NON-NEGATIVE scroll: its first map cell goes to plane cell
+  0 and the scroll is `cam - first_cell*8` (≤16px), which keeps the whole 320px
+  window inside the 42 cells written (42*8 = 336 > 16+320).
+- **Two halves, two offsets**: `VDP_setScrollingMode(HSCROLL_LINE, VSCROLL_PLANE)`
+  for the duration, with the per-line table giving the outgoing half its own
+  camera offset and the incoming half the destination's; BG_B's lines are filled
+  with the parallax offset (it reads the same table in that mode). Restored to
+  `HSCROLL_PLANE` before `stage_load`, which re-scrolls both planes.
+- Sprites: the outgoing screen takes its enemies/objects with it
+  (`enemies_shift_y`/`objects_shift_y`, screen-space, visibility recomputed);
+  the player rides the incoming one (interpolated screen y).
+- Deviations kept: the destination map's palette is not loaded (PAL1 still holds
+  the current map's) and animated cells show their map-PNG frame-0 art.
+- **Known fallback**: stage 2 map 2 → map 1 fades. Map 2 runs 16 anim slots,
+  which leave only 32 free tiles (936 - (520 + 16*24)); that link's window needs
+  45/61/81 depending on the direction. Every other link fits — the tightest is
+  stage 3 map 0 → map 1 (104 free, 85 needed). Re-measured after the palette
+  fix moved the anim base (it was 56 free before).
+
+### Arrival placement (fixes "mid-air stand" + "can't go back")
+
+Links land on the mouth of a ladder and/or on the last map row, where the
+destination tile's centre is past the bottom of the map; the port used to place
+the player there and the out-of-map "solid" held him up — standing in mid-air
+with the STAND pose. Now `runStage()` clamps the arrival into the map and, when
+the destination tile is a stair, centres him on the ladder column and sets
+`player.on_ladder` so he hangs on it. That also leaves him just OUTSIDE the
+return link's band, so climbing back into it fires the return link (before he
+arrived inside it, the arrival latch held, and climbing out of the room never
+triggered anything).
+
+### Other fixes this session
+
+- **Heap leak on every room change** (`stage.c`): `stage_load()` created a new
+  `Map` without releasing the old one — `MAP_create` allocates the struct plus
+  the unpacked metatile/block/index buffers (~1.5KB). Repeated up/down links
+  filled the heap until the game corrupted itself and the emulator died. Now
+  flushed (`SYS_doVBlankProcess`, so queued transfers don't reference freed
+  memory) and released first, with a NULL guard that restores the display.
+- **Every screen with true-black art** (`tools/img2tiles.py`): the palette build
+  dropped black (it duplicates the blank entry), so black art pixels snapped to
+  the nearest remaining colour — FLOWER FIELDS' black sky rendered GREEN and
+  CHAOS CITY's PURPLE. Black is now kept as a real entry. This regenerated all
+  decomposed screens: **ROM 896K -> 1.0M**, and the parallax tileset grew
+  (stage 2 346 -> 354 tiles), so the VRAM layout moved:
+  `TILE_BG_INDEX 144 -> 160`, `TILE_BG_MAX_TILES 352 -> 360`,
+  `TILE_ANIM_BASE 496 -> 520`, `STAGE_ANIM_SLOT_MAX 18 -> 17`
+  (520 + 17*24 = 928 < 936). This also clears the old overlap where a
+  131/138/144-tile stage tileset ran into the bg block at 144 (the "artifact on
+  the right side of some tileset pillars" in Known issues).
+- **Whole room's enemies/objects flashed on screen after a transition**
+  (`enemy.c`/`object.c`): they are spawned by `stage_load()` while the camera is
+  still 0, so their "screen" x is their world x (up to 3200) and the VDP sprite
+  table masks it to 10 bits. They spawned VISIBLE, so for the frame before the
+  first `enemies_update()` every enemy of the room appeared wrapped onto the
+  screen. They now spawn HIDDEN (the next update shows the on-screen ones).
+- **Horizontal collision vs thick walls** (`player.c`): the clamp used the
+  column the leading edge *landed in*, so against the 2-tile-thick col-137/138
+  divider the box ended up 16px inside (x 2167 -> 2183) and was squeezed back out
+  over several frames. New `step_x_solid()` scans every column between the old
+  and new leading edge and clamps on the FIRST solid one (also makes a step
+  tunnel-proof); the hit-pushback path uses it too, and the ladder-release shift
+  uses `unstick_x()` (push out through the nearer free face). Verified: walking
+  into the divider peaks at x 2167 = wall face - box width.
+- **Intro logo slid during its animation** (`tools/convert_assets.py`): the pad
+  step padded the whole 570px strip to 576 instead of padding each 95px frame,
+  so 95px of art sat in a 96px sprite cell and each frame was drawn 1px further
+  off than the last. The spec now takes `frames=` and pads per frame. Verified:
+  every frame's content sits at x 0..94 of its own cell and the logo bbox is
+  identical across animation frames.
+- **Flipped player frames landed 1-3px off** (`player.c` + `tools/convert_player.py`):
+  the 29px art is not centred in its 32px cell, so the hardware horizontal flip
+  mirrors it into a different place (the ladder pose jumped 2px when turning).
+  The converter now measures the per-animation-row offset into the generated
+  `src/player_flip.h` and `flip_dx()` applies it while the flip is on.
+
+### Emulator
+
+Since 2026-10-18 the harness uses the **native BlastEm 1.0.0**
+(`/mnt/ExtraData/programas/blastem64-1.0.0/blastem`, `EMU_BIN` in
+`tools/emu.sh`) instead of the flathub flatpak: same version, unsandboxed.
+`make run` = `tools/emu.sh start-ready out/rom.bin` (no timeout, no retry
+count). See AGENTS.md ("BlastEm CLI reference", "Launch discipline") — never
+probe the CLI with `-h`/`-v`, it opens a dialog on the user's desktop.
+
+### Testing hack (temporary)
+
+`save_init()` seeds save slot 1 with the intro stage cleared, only while slot 1
+is empty, so testing skips the intro. See bugs.md BUG-T01.
+
+### Still unverified
+
+- Going back up through a link by hand (the arithmetic and the arrival state are
+  verified; the return-fire was only partially observed).
+- The flip correction on screen (the table is generated; not eyeballed).
+- The other 8 stages' parallax after the palette fix (only CHAOS CITY map 1 was
+  looked at).
+- The fade fallback path (stage 2 map 2 -> map 1).
+
 ## Known issues
 
 - Pre-stage menus (save selector, stage select) have **no cursor SFX**: menu
@@ -1128,11 +1262,15 @@ become index maps into a separate tileset PNG, which rescomp supports).
 - NO difficulty setting also for spawns: enemies/objects are kept unless
   hard-only (difficulty_level >= 2; 0=easy, 1=normal, 2=hard). Stage 0 has
   a single hard-only spawn (enemy id 47, map0) which stays skipped.
-- VRAM map (tiles): system 0..15, stage tileset 16..143, bg 144..911,
-  anim 912..935, sprite pool 936..1439 (SPR_initEx(504); TILE_SPRITE_INDEX =
-  TILE_FONT_INDEX(1440) - size — TILE_FONT_INDEX is 1440, NOT 1952 as older
-  comments claimed), font 1440..1535. The in-game menu temporarily loads its
-  38 panel tiles over the bg block and restores it (stage_redraw_bg()).
+- VRAM map (tiles) — **current layout, see `stage.h`** (the 144/496/912 numbers
+  in older notes above are stale): system 0..15, stage tileset 16..159 (largest
+  is 144 tiles), bg 160..519 (360 reserved; largest is stage 2's 354), anim
+  520..927 (17 slots x 24), sprite pool 936..1439 (SPR_initEx(504);
+  TILE_SPRITE_INDEX = TILE_FONT_INDEX(1440) - size — TILE_FONT_INDEX is 1440,
+  NOT 1952 as older comments claimed), font 1440..1535. The in-game menu
+  temporarily loads its 38 panel tiles over the bg block and restores it
+  (stage_redraw_bg()). A room transition copies the destination screen's tiles
+  into the free block above the anim slots (936 - that end).
 - Big PC images (menu, dialogs...) are decomposed to unique 8x8 tiles by
   tools/img2tiles.py + a tilemap. WATCH OUT: rescomp's TILESET resource
   deduplicates/reorders tiles by color, which breaks a hand-made tilemap —
@@ -1146,4 +1284,6 @@ become index maps into a separate tileset PNG, which rescomp supports).
 - Debug text overlay (tile pos + HP) and `dbgNum()` removed — kprintf
   debug builds are enough.
 - KNOWN (deferred by user): a small artifact on the right side of some
-  tileset pillars — likely fixed by the upcoming asset rebuild.
+  tileset pillars — **addressed 2026-10-18**: the stage tileset (up to 144
+  tiles from index 16) overlapped the bg block that started at 144; the bg
+  block now starts at 160 (see the VRAM layout note). Confirm on screen.

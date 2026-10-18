@@ -15,6 +15,7 @@
 #include "saveselect.h"
 #include "bossintro.h"
 #include "playerselect.h"
+#include "transition.h"
 #include "title_map.h"
 #include "title_tiles.h"
 
@@ -264,24 +265,60 @@ static void runStage(u8 stage)
         player_get_box(&bl, &bt, &br, &bb);
 
         u8 to_map;
+        u8 to_trans;
         s16 to_x, to_y;
-        if (stage_check_link(bl, bt, br, bb, &to_map, &to_x, &to_y)) {
-            // PC changes room with a screen scroll (game.cpp:1067); the port
-            // fades for now (see the transition notes in stage0_plan.md).
-            // Without it the map swapped in one frame and the sprite flashed
-            // at its old screen position.
-            PAL_fadeOutAll(10, FALSE);
+        if (stage_check_link(bl, bt, br, bb, &to_map, &to_x, &to_y, &to_trans)) {
+            const s16 tile = stage_def->tile;
+            const s16 dst_tx = to_x / tile;
+            // Links land on the mouth of a ladder and/or on the last map row,
+            // where the destination tile's centre sits past the bottom of the
+            // map. Standing there left the player on the out-of-map "solid"
+            // (in mid-air, STAND pose). Clamp into the map and, when the
+            // destination tile is a stair, arrive ON the ladder so he hangs
+            // instead of falling. That also leaves him just outside the return
+            // link's band, so climbing back into it fires the return link
+            // (before, he arrived inside the band, the arrival latch held and
+            // climbing out of the room never triggered anything).
+            const bool on_stair =
+                stage_terrain_at(to_map, dst_tx, to_y / tile) == TERRAIN_STAIR;
+            s16 px = to_x + tile / 2 - (PLAYER_BOX_L + PLAYER_BOX_R) / 2;
+            s16 py = to_y + tile / 2 - (PLAYER_BOX_T + PLAYER_BOX_B) / 2;
+            const s16 py_max = stage_def->map_h * tile - PLAYER_BOX_B;
+            if (py > py_max) py = py_max;
+            if (py < 0) py = 0;
+            if (on_stair)
+                px = dst_tx * tile + tile / 2
+                     - (PLAYER_BOX_L + PLAYER_BOX_R) / 2;
+            // The arrival camera must be known before the destination map is
+            // loaded, so the transition knows which screen to slide in.
+            const s16 cam_x = stage_arrival_camera_x(
+                to_map, px + (PLAYER_BOX_L + PLAYER_BOX_R) / 2);
+
+            // PC removes all projectiles before the room change
+            // (game.cpp:679 remove_all_projectiles).
+            shots_reset();
+            eshots_reset();
+
+            // PC changes room by scrolling the old screen out and the new one
+            // in vertically (game.cpp:1067). Where the destination screen's
+            // tiles do not fit in the free VRAM block the palette fade is
+            // still used (see transition.c).
+            const bool scrolled = transition_scroll(stage_current_map, to_map,
+                                                    cam_x, px, py,
+                                                    to_trans == TRANS_T2B);
+            if (!scrolled) PAL_fadeOutAll(10, FALSE);
+
             stage_load(to_map);
-            // centre the player on the destination tile
-            player_place(to_x + stage_def->tile / 2 - (PLAYER_BOX_L + PLAYER_BOX_R) / 2,
-                         to_y + stage_def->tile / 2 - (PLAYER_BOX_T + PLAYER_BOX_B) / 2);
-            player_restore_palette();   // the fade blacked out PAL2 too
+            player_place(px, py);
+            if (on_stair) player.on_ladder = TRUE;   // arrive hanging on it
+            if (!scrolled) player_restore_palette();  // fade blacked out PAL2
             player_get_box(&bl, &bt, &br, &bb);
             stage_arrival_camera((bl + br) / 2, (bt + bb) / 2);
             player_sync_sprite();   // else it flashes at the old screen spot
-            // fade back in: PAL_fadeInAll needs all 64 CRAM entries, so build
-            // them from the palettes the stage just loaded.
-            {
+
+            if (!scrolled) {
+                // fade back in: PAL_fadeInAll needs all 64 CRAM entries, so
+                // build them from the palettes the stage just loaded.
                 static u16 all[64];
                 const Palette *lines[4] = {
                     &pal_ui,

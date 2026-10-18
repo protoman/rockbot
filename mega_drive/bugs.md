@@ -51,3 +51,28 @@ band. The Mega Drive NTSC screen is **320x224**. The logo art itself is 216px ta
 Compromise: 8px band, version number drawn at tile row 0.
 
 **Fix path**: either scale the art down ~7% offline, or accept the thinner band.
+
+---
+
+## BUG-T01 — TEMPORARY TEST HACK: slot 1 always has the intro stage cleared
+
+**Status**: intentional, TEMPORARY. Remove before release.
+
+**What it does**: `save_init()` (`src/save.c`) seeds save slot 1 with stage 0
+(the intro stage, CHAOS CITY) marked complete:
+`save_slot_clear(0); save_slot_set_stage(0, 0); save_slot_set_player(0, 0);`
+It only does so when slot 1 is **empty**, so it never overwrites a real save.
+
+**Why**: testing any stage otherwise means replaying the intro stage and its boss
+intro first. With this, the title shows LOAD GAME, and
+LOAD GAME -> SLOT 1 -> STAGE SELECT reaches any converted stage in a few presses,
+and the intro stage's boss intro is skipped (it is gated on the save mask).
+
+**Caveats**:
+- Slot 1 is seeded only while empty, so a real save there is left alone — but do
+  not rely on slot 1 for save-persistence tests.
+- NEW GAME still clears the slot it picks; the hack re-applies on the next boot.
+- Other stages' boss intros still play (skippable with any button) because their
+  bits are not set — add `save_slot_set_stage(0, n)` for a stage you are testing.
+
+**Removal**: delete the marked block in `save_init()` and this entry.
