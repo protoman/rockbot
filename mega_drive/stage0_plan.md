@@ -1374,6 +1374,28 @@ Remaining routes, cheapest first:
 - **Drop rescomp `MAP`** and emit our own compressed tilemap + incremental
   plane writer. Real fix, but a rewrite of how stages are stored and scrolled.
 
+## Verification pass, 2026-10-18 (S0..S8 + both facings, one run)
+
+Temp hook in main.c: each of the nine stages' map 0 for ~1.2 s with its index
+drawn as `S0`..`S8`, then stage 0 with `player.facing` forced to +1 and -1
+(`FLIP R` / `FLIP L`). Captured from `emu_start` (no ready wait) so the pass
+landed inside the capture window. Hook reverted after the run.
+
+- **Parallax, all nine stages: OK.** S0 night city, S1 forest canopy, S2 flower
+  fields (dark teal sky + palms), S3 pipes/underwater, S4 red desert, S5 castle
+  over water, S6 jungle temple, S7 space station, S8 dark red lattice — all
+  render with correct colours. No trace of the black/green palette bug that the
+  `img2tiles.py` fix addressed.
+- **`flip_dx` on screen: OK.** FLIP R vs FLIP L differ only in 32 window px
+  (~16 screen px) around the head/face; the sprite silhouette against the
+  platform is identical in both (window x 285..316 vs the sprite box
+  ~271..329), so the mirrored frame is drawn at the same position — no
+  horizontal offset.
+- **Fade fallback: confirmed** (earlier capture): stage 2 map 2 -> map 1 returns
+  FALSE from `transition_scroll`, marker read `FADE FALLBACK`.
+- Still unverified by eye: the enemy death puff and the `MISSION STARTED!` +
+  teleport-in sequence (they show on any stage load, so the same harness works).
+
 ## Notes / conventions
 
 - **Stage defs and LTO**: `stage_defs[]` is marked
