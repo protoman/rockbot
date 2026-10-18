@@ -224,7 +224,9 @@ static bool step_axis(Enemy *e, s16 *pos, s16 dest, bool horizontal, bool can_fa
         // PC check_can_move_to_point (artificial_inteligence.cpp:2052): a
         // walker samples the tile BELOW the leading edge; a hole there stops
         // it (turn around) unless the option is HORIZONTAL_AHEAD_FALLING.
-        if (!can_fall) {
+        // FLYERS are exempt - no ground to fall off (FLEE BEE parked on a
+        // stair because its WALK action was treated as a walker).
+        if (!can_fall && !d->fly) {
             s16 fcol = (dir > 0) ? ((n + d->box_l + d->box_w) >> 4)
                                  : ((n + d->box_l - 1) >> 4);
             s16 frow = (e->y + d->box_t + d->box_h + 3) >> 4;
