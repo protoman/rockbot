@@ -88,6 +88,29 @@ static bool box_hits_solid(s16 l, s16 t, s16 r, s16 b)
 // across the whole box height is a SIDE WALL (map divider, right map edge),
 // not floor: the boss used to "land" on the divider mid-air and re-launch,
 // stair-stepping up out of the screen jump by jump.
+// PC spawn data can place a big enemy with its box already inside the floor
+// (a 36x33 boss box on a walkway whose top is above the spawn y). The gravity
+// loop only scans DOWN, so such an enemy fell through and was released — it
+// never appeared. Lift it until the box is clear, resting on the first solid
+// row it overlapped (PC collision resolution pushes the same way).
+static void snap_out_of_floor(Enemy *e)
+{
+    const EnemyDef *d = e->def;
+    s16 l = e->x + d->box_l, r = l + d->box_w;
+    s16 t = e->y + d->box_t, b = t + d->box_h;
+    s16 top_solid = -1;
+    for (s16 row = t >> 4; row <= (b - 1) >> 4; row++) {
+        for (s16 col = l >> 4; col <= (r - 1) >> 4; col++) {
+            if (stage_terrain_at(stage_current_map, col, row) == TERRAIN_SOLID) {
+                if (top_solid < 0) top_solid = row;
+                break;
+            }
+        }
+    }
+    if (top_solid < 0) return;
+    e->y = (s16)(top_solid * 16) - (d->box_t + d->box_h);
+}
+
 static bool feet_solid(const Enemy *e, s16 row)
 {
     const EnemyDef *d = e->def;
@@ -392,6 +415,7 @@ void enemies_reset(void)
         e->x_max = sp->x_max;
         e->dir = (sp->dir == 0) ? -1 : 1;
         e->vy = 0;
+        snap_out_of_floor(e);
         e->hp = d->hp;
         e->hurt_timer = 0;
         e->ai_phase = AI_FIRST;
