@@ -41,6 +41,15 @@ extern u8 stage_current_map;
 // Terrain value at a map tile (out of range: solid at the sides, sky below).
 u16 stage_terrain_at(u8 map, s16 tileX, s16 tileY);
 
+// PC projectile::check_map_collision (projectilelib.cpp:1193): every terrain
+// except UNBLOCKED and WATER stops a projectile — so ladders (STAIR), spikes,
+// doors, conveyor and the scroll-lock columns block shots too, not only SOLID
+// tiles. (The PC's projectile data has no "passes through walls" flag.)
+static inline bool terrain_blocks_projectile(u16 t)
+{
+    return t != TERRAIN_UNBLOCKED && t != TERRAIN_WATER;
+}
+
 // Load one map of the stage (0..STAGE0_MAP_COUNT-1) and reset the camera.
 void stage_load(u8 map_index);
 

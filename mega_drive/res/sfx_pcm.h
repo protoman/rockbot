@@ -8,6 +8,8 @@ extern const u8 sfx_charged_shot[6144];
 extern const u8 sfx_player_jump[2816];
 extern const u8 sfx_player_hit[4096];
 extern const u8 sfx_player_death[15360];
+extern const u8 sfx_charging1[6400];
+extern const u8 sfx_charging2[6400];
 extern const u8 sfx_npc_hit[3328];
 extern const u8 sfx_npc_killed[7424];
 extern const u8 sfx_big_explosion[17408];

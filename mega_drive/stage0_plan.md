@@ -1176,8 +1176,66 @@ is empty, so testing skips the intro. See bugs.md BUG-T01.
   looked at).
 - The fade fallback path (stage 2 map 2 -> map 1).
 
-## Known issues
+## Combat/UI features + intro sequence (2026-10-18, second pass)
 
+Six PC behaviours added, each checked against the PC source:
+
+1. **Enemy death explosion** — `src/explosion.{c,h}` (NEW). PC `classmap.cpp:2232`
+   adds `images/animations/explosion_32.png` at the dead NPC's position with an
+   (-8,-8) adjust, 80ms per frame, repeated twice, and skips it when the enemy
+   dies off screen (`position.y < RES_H`); the stage boss has its own path, and
+   sub-bosses use the 56x56 `big_boss_explosion` twice (not ported — no
+   sub-bosses). `enemy.c` spawns a puff on a regular enemy's death; the sheet is
+   copied 1:1 by `convert_enemies.py` (`images/animations/explosion_32.png` was
+   already imported as PAL0 art) → `res/explosion.png` + `SPRITE
+   explosion_sprite`. Pool of 6, 3 frames x 5 frames = 30 frames (0.5s).
+2. **Charging sound** — PC `character.cpp:631/656` loops `SFX_CHARGING1` from
+   `CHARGED_SHOT_INITIAL_TIME` (1000ms) and switches to `SFX_CHARGING2` at
+   `CHARGED_SHOT_TIME` (2200ms) while the charge is held. The MD has no looping
+   PCM, so `player.c` re-triggers the (0.47s) sample every 27 frames via a new
+   `charge_sfx_timer`; both are on XGM2 channel 4 at priority 5 so a pill/menu
+   beep still plays over them.
+3. **Save-slot icons** — PC `scenesLib::draw_save_details` (sceneslib.cpp:916)
+   draws, per occupied slot, one icon per stage/weapon (`draw_weapon_tooltip_icon`,
+   graphicslib.cpp:1357: the sheet's top half = not owned, bottom = owned) plus
+   the selected player's icon, 18px apart, 12px below the row top. New
+   `tools/convert_save_icons.py` slices `build/games/RockDroid1/images/icons.png`
+   (288x32 = 18 icons of 16x16 x 2 frames) into 13 SPRITEs (stages 0..8 +
+   players) laid out as 32x16 (frame 0 = disabled, 1 = enabled) and the save
+   selector draws them on PAL3. The PC's tanks/difficulty parts are NOT drawn
+   (the port models neither).
+4. **Stage-select eyes** — they were invisible because the face sprite was
+   added BEFORE the eyes: lower sprite index wins on the MD, so the face art
+   covered them. Eyes are now added first (same rule the cursor layers in that
+   file already documented).
+5. **Projectiles stop on every blocking tile** — both `shot.c` and `eshot.c`
+   only counted `TERRAIN_SOLID`, so shots flew through ladders, spikes, doors,
+   conveyor and scroll-lock columns. PC `projectile::check_map_collision`
+   (projectilelib.cpp:1193) stops on ANY terrain except `UNBLOCKED` and `WATER`;
+   that is now `terrain_blocks_projectile()` in `stage.h`. The player shot still
+   samples only the muzzle line (a deliberate deviation kept from the earlier
+   "large projectiles died at spawn" fix — MAGIC STAR's 56x56 art would put a
+   box-bottom sample inside the floor). The PC's projectile data has no
+   "passes through walls" flag.
+6. **Stage start: teleport-in + "MISSION STARTED!"** — PC `game::start_stage`
+   (game.cpp:244) → `show_player_teleport` (ANIM_TYPE_TELEPORT frames 0/1
+   alternating for 1500ms, then frame 2, then STAND) → `show_ready` (draws
+   `strings_ingame_ready_message` centred and blinks it 6 times, 200ms per
+   phase, redrawing the stage each phase). `runStage()` now plays exactly that
+   before its main loop. The PC reads no input in either function, so the
+   sequence is not skippable.
+
+**Verified in-emulator**: the save-slot icons (slot 1 renders its 10 icons) and
+the stage-select eyes (the face art at the eyes' box is pale skin while the
+screen shows dark eyes, i.e. the overlay draws). **NOT captured**: the death
+puff and the start sequence — my scripted navigation kept landing in the wrong
+screen (the emulator's missed-keyup bug makes blind key sequences unreliable),
+and both are visible on any stage load, so the user can confirm them in play.
+The charge sounds are inaudible in screenshots.
+
+
+
+## Known issues
 - Pre-stage menus (save selector, stage select) have **no cursor SFX**: menu
   beeps use XGM2 PCM, which loads the Z80 driver before any music is
   initialised; BlastEm's Z80 core aborts on it ("multi-byte Z80 instruction",

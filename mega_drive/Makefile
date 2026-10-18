@@ -79,6 +79,7 @@ $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA)
 	$(PYTHON) tools/convert_players.py
 	$(PYTHON) tools/convert_weapons.py
 	$(PYTHON) tools/convert_player.py
+	$(PYTHON) tools/convert_save_icons.py
 	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/boss_intro/boss_intro_bg.png \
 	    --name boss_intro_bg --crop-h 224
 	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/player_selection.png \

@@ -248,6 +248,30 @@ def read_projectile_list():
     return out
 
 
+def emit_explosion_sprite():
+    """Enemy death puff: images/animations/explosion_32.png is a PC-indexed
+    PAL0 sheet of 3 32x32 frames (PC classmap.cpp:2232 adds it at the dead
+    NPC's position with an (-8,-8) adjust, 80ms per frame, 2 repeats).
+    Copied 1:1 like the other hand art; indices 0 stay transparent."""
+    path = os.path.join(IMAGES, "animations", "explosion_32.png")
+    if not os.path.exists(path):
+        return None
+    im, _ = load_indexed(path)
+    aw, ah = im.size
+    frames = max(1, aw // 32)
+    out = Image.new("P", (frames * 32, 32))
+    out.putpalette(im.getpalette())
+    data = [0] * (frames * 32 * 32)
+    src = im.load()
+    for y in range(min(32, ah)):
+        for x in range(aw):
+            data[y * frames * 32 + x] = src[x, y]
+    out.putdata(data)
+    out.save(os.path.join(RES, "explosion.png"))
+    print(f"wrote res/explosion.png {out.size} ({frames} frames)")
+    return frames
+
+
 def emit_proj_sprite(rec, palette, save=True):
     """One SGDK SPRITE sheet for a projectile (PAL0). Handles horizontal or
     vertical frame strips (PC uses width/size.width for frames, but several
@@ -587,6 +611,7 @@ extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
         print(f'SPRITE {p["res_name"]}_sprite "{p["res_name"]}.png" '
               f'{p["cw"]}p {p["ch"]}p FAST [[{st}][{wk}][{ak}]]')
     if STAGE_INDEX == 0:
+        emit_explosion_sprite()
         for pid in sorted(proj_spr):
             name, cw, ch, frames, times = proj_spr[pid]
             tl = ",".join(str(t) for t in times)
@@ -594,6 +619,8 @@ extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
     print('SPRITE shot_sprite "shot.png" 8p 8p FAST [[1]]')
     print('SPRITE enemy_shot_semi_sprite "enemy_shot_semi.png" 16p 16p FAST [[6,6]]')
     print('SPRITE shot_charge_full_sprite "shot_charge_full.png" 32p 32p FAST [[6,6]]')
+    # Enemy death puff (PC classmap.cpp:2232 add_animation(explosion32, 80ms, 2))
+    print('SPRITE explosion_sprite "explosion.png" 32p 32p FAST [[5]]')
     print(f"shot_speed={shot_speed} shot_dmg={shot_dmg}")
     return 0
 

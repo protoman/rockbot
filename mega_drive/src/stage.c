@@ -3,6 +3,7 @@
 
 #include "resources.h"
 #include "enemy.h"
+#include "explosion.h"
 #include "object.h"
 #include "player.h"
 #include "shot.h"
@@ -266,6 +267,7 @@ void stage_load(u8 map_index)
     // enemies/shots/objects are per-map: release the old ones, spawn this map's
     shots_reset();
     eshots_reset();
+    explosion_reset();
     enemies_reset();
     objects_reset();
 

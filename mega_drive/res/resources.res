@@ -66,6 +66,8 @@ SPRITE shot_sprite "shot.png" 8p 8p FAST [[1]]
 # converter (charged_semi.png), full by charged_shot.png.
 SPRITE enemy_shot_semi_sprite "enemy_shot_semi.png" 16p 16p FAST [[6,6]]
 SPRITE shot_charge_full_sprite "shot_charge_full.png" 32p 32p FAST [[6,6]]
+# enemy death puff (PC classmap.cpp:2232 add_animation 80ms x2)
+SPRITE explosion_sprite "explosion.png" 32p 32p FAST [[5]]
 
 SPRITE enemy_rhino_sprite "enemy_rhino.png" 96p 72p FAST [[540][540][0]]
 # ---- ENEMY PROJECTILES (tools/convert_enemies.py): one SPRITE per
@@ -136,6 +138,23 @@ SPRITE ssel_face_p3_sprite "ssel_face_p3.png" 32p 32p FAST [[0]]
 SPRITE ssel_eyes_p3_sprite "ssel_eyes_p3.png" 16p 8p FAST [[0]]
 SPRITE ssel_face_p4_sprite "ssel_face_p4.png" 32p 32p FAST [[0]]
 SPRITE ssel_eyes_p4_sprite "ssel_eyes_p4.png" 16p 8p FAST [[0]]
+
+# ---- SAVE-SLOT ICONS (tools/convert_save_icons.py: PC images/icons.png,
+# 18 icons x 16x16, 2 frames = disabled/enabled). PAL3 on that screen.
+PALETTE sicon_pal "sicon_00.png"
+SPRITE sicon_00_sprite "sicon_00.png" 16p 16p FAST 0
+SPRITE sicon_01_sprite "sicon_01.png" 16p 16p FAST 0
+SPRITE sicon_02_sprite "sicon_02.png" 16p 16p FAST 0
+SPRITE sicon_03_sprite "sicon_03.png" 16p 16p FAST 0
+SPRITE sicon_04_sprite "sicon_04.png" 16p 16p FAST 0
+SPRITE sicon_05_sprite "sicon_05.png" 16p 16p FAST 0
+SPRITE sicon_06_sprite "sicon_06.png" 16p 16p FAST 0
+SPRITE sicon_07_sprite "sicon_07.png" 16p 16p FAST 0
+SPRITE sicon_08_sprite "sicon_08.png" 16p 16p FAST 0
+SPRITE sicon_14_sprite "sicon_14.png" 16p 16p FAST 0
+SPRITE sicon_15_sprite "sicon_15.png" 16p 16p FAST 0
+SPRITE sicon_16_sprite "sicon_16.png" 16p 16p FAST 0
+SPRITE sicon_17_sprite "sicon_17.png" 16p 16p FAST 0
 # ---- STAGE SELECT cursor (tools/convert_stage_select.py) ----
 # classic_style_stage_select_cursor.png, 2 frames of 48x48 split into 4
 # 24x24 quadrants x 2 frames (frame 0 = black brackets, frame 1 = yellow

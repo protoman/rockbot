@@ -5,6 +5,8 @@ WAV sfx_charged_shot "sfx/charged_shot.wav" XGM2
 WAV sfx_player_jump "sfx/player_jump.wav" XGM2
 WAV sfx_player_hit "sfx/player_hit.wav" XGM2
 WAV sfx_player_death "sfx/player_death.wav" XGM2
+WAV sfx_charging1 "sfx/charging1.wav" XGM2
+WAV sfx_charging2 "sfx/charging2.wav" XGM2
 WAV sfx_npc_hit "sfx/npc_hit.wav" XGM2
 WAV sfx_npc_killed "sfx/npc_killed.wav" XGM2
 WAV sfx_big_explosion "sfx/big_explosion.wav" XGM2

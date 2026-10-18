@@ -33,6 +33,9 @@ GAIN = 2
 SOUNDS = [
     # player
     "player_shot", "charged_shot", "player_jump", "player_hit", "player_death",
+    # charge loop (PC loops charging1 while charging, charging2 once full —
+    # the port re-triggers them every ~0.45s instead)
+    "charging1", "charging2",
     # enemies / boss
     "npc_hit", "npc_killed", "big_explosion",
     # objects

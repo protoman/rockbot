@@ -47,6 +47,8 @@
 // CHARGED_SHOT_TIME 2200ms at 60fps).
 #define CHARGE_SEMI_FRAMES 60
 #define CHARGE_FULL_FRAMES 132
+// charging*.wav are 0.47s; re-trigger while the charge applies (PC loops it).
+#define CHARGE_SFX_RETRIGGER 27
 
 // Hit pushback (PC character.cpp:194/3555): TILESIZE*1.2 = 19.2px away
 // from the facing direction at 0.5 px/f on the ground, 0.8 in the air.
@@ -76,6 +78,7 @@ static s16 box_b = PLAYER_BOX_B;
 static s16 coyote_timer;
 static s16 jump_timer;
 static s16 attack_timer;
+static u16 charge_sfx_timer;   // re-trigger countdown for the charge loop
 static u16 prev_pad;
 static u16 current_anim;
 static bool ladder_flip;    // climb pose desired (cycle/turn driven)
@@ -456,11 +459,26 @@ static void handle_fire(u16 pad, s16 ix, s16 iy)
             attack_timer = ATTACK_FRAMES;
         }
         player.charge_frames = 0;
+        charge_sfx_timer = 0;
     } else if (fire_ok && player_can_charge()) {
         if (player.charge_frames < 60000) player.charge_frames++;
         if ((player.charge_frames & 7) == 0) {
             PAL_setPalette(PLAYER_PAL,
                            flash_pal[(player.charge_frames >> 3) & 1], DMA_QUEUE);
+        }
+        // PC character.cpp:631/656 loops SFX_CHARGING1 from
+        // CHARGED_SHOT_INITIAL_TIME (1000ms) and switches to SFX_CHARGING2 at
+        // CHARGED_SHOT_TIME (2200ms). The MD has no looping PCM here, so the
+        // (0.47s) sample is re-triggered every 27 frames while it applies.
+        if (player.charge_frames >= CHARGE_SEMI_FRAMES) {
+            const SfxId id = (player.charge_frames >= CHARGE_FULL_FRAMES)
+                             ? SFX_CHARGING2 : SFX_CHARGING1;
+            if (charge_sfx_timer == 0) {
+                sfx_play(id);
+                charge_sfx_timer = CHARGE_SFX_RETRIGGER;
+            } else {
+                charge_sfx_timer--;
+            }
         }
     } else if (player.fire_prev && !fire_raw) {
         if (!player.sliding) {

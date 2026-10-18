@@ -3,6 +3,7 @@
 
 #include "eshot.h"
 #include "stage.h"
+#include "explosion.h"
 #include "player.h"
 #include "resources.h"
 
@@ -616,7 +617,14 @@ u8 enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage, s8 shot_dir)
         sfx_play(SFX_NPC_HIT);
         if (e->hp == 0) {
             sfx_play(d->is_boss ? SFX_EXPLOSION : SFX_NPC_KILLED);
-            if (d->is_boss) boss_died = TRUE;
+            if (d->is_boss) {
+                boss_died = TRUE;
+            } else {
+                // PC classmap.cpp:2232: a regular enemy's death adds the 32x32
+                // explosion puff at its position (the stage boss has its own
+                // death sequence).
+                explosion_spawn(e->x, e->y);
+            }
             if (e->spr) SPR_releaseSprite(e->spr);
             e->spr = NULL;
             e->alive = FALSE;

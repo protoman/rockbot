@@ -7,6 +7,7 @@
 #include "enemy.h"
 #include "object.h"
 #include "shot.h"
+#include "explosion.h"
 #include "eshot.h"
 #include "hud.h"
 #include "menu.h"
@@ -232,6 +233,42 @@ static void runStage(u8 stage)
 
     XGM2_play(stage_music);   // stage only — intro/title stay silent
 
+    // ---- stage start sequence (PC game::start_stage, game.cpp:244) --------
+    // show_player_teleport(): the player beams in with the TELEPORT animation
+    // (frames 0/1 alternating) for 1500ms, then frame 2, then back to STAND.
+    // show_ready(): "MISSION STARTED!" blinks 6 times over the frozen stage
+    // (200ms per phase). The PC does not read input in either function, so the
+    // sequence always plays through.
+    {
+        if (player.spr) {
+            SPR_setAnim(player.spr, ANIM_TELEPORT);
+            for (u16 i = 0; i < 90; i++) {                   // ~1500ms
+                SPR_setFrame(player.spr, (i / 15) & 1);
+                SPR_update();
+                SYS_doVBlankProcess();
+            }
+            SPR_setFrame(player.spr, 2);
+            for (u16 i = 0; i < 10; i++) {
+                SPR_update();
+                SYS_doVBlankProcess();
+            }
+            SPR_setAnim(player.spr, ANIM_STAND);
+        }
+        for (u16 phase = 0; phase < 6; phase++) {
+            // PC redraws the stage each phase so the message can blink
+            stage_force_redraw();
+            if (!(phase & 1)) drawCentered("MISSION STARTED!", 13);
+            for (u16 i = 0; i < 12; i++) {                   // 200ms
+                SPR_update();
+                SYS_doVBlankProcess();
+            }
+        }
+        // clear the message and leave the plane tidy for the first frame
+        stage_force_redraw();
+        player_sync_sprite();
+        SYS_doVBlankProcess();
+    }
+
     // NOTE: the old "clear BG_B here" block is gone — stage_load now draws
     // the parallax background on BG_B, and clearing it afterwards wiped the
     // tilemap (sky showed stale/garbage tiles).
@@ -340,6 +377,7 @@ static void runStage(u8 stage)
         stage_anim_update();
 
         enemies_update();   // patrol/contact first, shots test fresh positions
+        explosion_update(); // enemy death puffs (PC death animation)
         eshots_update();    // enemy AI projectiles -> player
         shot_update();
         hud_boss(enemies_boss_on_screen() ? (s16)enemies_boss_hp() : -1);

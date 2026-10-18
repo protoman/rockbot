@@ -33,13 +33,15 @@ static u8 count_proj(u8 proj_id)
     return n;
 }
 
-// Same rule as the player shot: the first tile of the box that is solid
-// stops the projectile (stage_terrain_at covers out-of-range as solid).
+// Same rule as the player shot: PC projectile::check_map_collision — any tile
+// except UNBLOCKED/WATER stops the projectile (stage_terrain_at covers
+// out-of-range as solid).
 static bool hits_solid(s16 l, s16 t, s16 r, s16 b)
 {
     for (s16 ty = t >> 4; ty <= (b - 1) >> 4; ty++)
         for (s16 tx = l >> 4; tx <= (r - 1) >> 4; tx++)
-            if (stage_terrain_at(stage_current_map, tx, ty) == TERRAIN_SOLID)
+            if (terrain_blocks_projectile(stage_terrain_at(stage_current_map,
+                                                           tx, ty)))
                 return TRUE;
     return FALSE;
 }

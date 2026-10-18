@@ -18,6 +18,11 @@ static const SfxDef sfx_def[SFX_COUNT] = {
     [SFX_JUMP]         = { sfx_player_jump,        sizeof(sfx_player_jump),        SOUND_PCM_CH2, 6 },
     [SFX_PLAYER_HIT]   = { sfx_player_hit,         sizeof(sfx_player_hit),         SOUND_PCM_CH2, 6 },
     [SFX_PLAYER_DEATH] = { sfx_player_death,       sizeof(sfx_player_death),       SOUND_PCM_CH2, 6 },
+    // Charge loop: channel 4 and a LOWER priority than the UI/object effects
+    // (6), so a pill or a menu beep during a charge still plays and the charge
+    // simply resumes on its next re-trigger. Channel 2 would cut the buster.
+    [SFX_CHARGING1]    = { sfx_charging1,          sizeof(sfx_charging1),          SOUND_PCM_CH4, 5 },
+    [SFX_CHARGING2]    = { sfx_charging2,          sizeof(sfx_charging2),          SOUND_PCM_CH4, 5 },
     [SFX_NPC_HIT]      = { sfx_npc_hit,            sizeof(sfx_npc_hit),            SOUND_PCM_CH3, 6 },
     [SFX_NPC_KILLED]   = { sfx_npc_killed,         sizeof(sfx_npc_killed),         SOUND_PCM_CH3, 6 },
     [SFX_EXPLOSION]    = { sfx_big_explosion,      sizeof(sfx_big_explosion),      SOUND_PCM_CH3, 6 },

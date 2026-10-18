@@ -13,6 +13,8 @@ typedef enum {
     SFX_JUMP,           // player jump
     SFX_PLAYER_HIT,     // player damaged
     SFX_PLAYER_DEATH,   // player death
+    SFX_CHARGING1,      // charge loop while charging (PC SFX_CHARGING1)
+    SFX_CHARGING2,      // charge loop once fully charged (PC SFX_CHARGING2)
     SFX_NPC_HIT,        // enemy damaged
     SFX_NPC_KILLED,     // enemy destroyed
     SFX_EXPLOSION,      // boss death

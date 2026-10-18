@@ -109,11 +109,14 @@ u8 stage_select_run(u8 player)
     // Player face + eyes (per selected player), PAL2 loaded from the face
     // sheet. PC: face at (144,104), eyes at (154,122) nudged +-2px toward
     // the cursor cell (screen y 96/114 after the 8px crop).
+    // MD sprite priority: LOWER index draws in front, so the eyes must be
+    // added BEFORE the face or the face art simply covers them (same rule the
+    // cursor layers below rely on).
     u8 pi = player & 3;
     PAL_setPalette(SSEL_PAL_PLAYER, face_def[pi]->palette->data, DMA_QUEUE);
-    face = SPR_addSprite(face_def[pi], 144, 96,
-                         TILE_ATTR(SSEL_PAL_PLAYER, FALSE, FALSE, FALSE));
     eyes = SPR_addSprite(eyes_def[pi], 154, 114,
+                         TILE_ATTR(SSEL_PAL_PLAYER, FALSE, FALSE, FALSE));
+    face = SPR_addSprite(face_def[pi], 144, 96,
                          TILE_ATTR(SSEL_PAL_PLAYER, FALSE, FALSE, FALSE));
 
     sx = 0;
