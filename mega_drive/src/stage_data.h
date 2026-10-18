@@ -23,6 +23,18 @@
                            (t) != TERRAIN_EASYBLOCK && \
                            (t) != TERRAIN_HARDBLOCK)
 
+// e_shield_types (PC defines.h:603) — which directions/poses make an enemy
+// immune to shots (character::is_shielded, character.cpp:3357).
+#define SHIELD_NO             0
+#define SHIELD_FULL           1
+#define SHIELD_FRONT          2
+#define SHIELD_STAND          3
+#define SHIELD_DISGUISE       4
+#define SHIELD_STAND_FRONT    5
+#define SHIELD_STAND_AND_WALK 6
+#define SHIELD_BACK           7
+#define SHIELD_USING_SHIELD   8
+
 // PROJECTILE_TRAJECTORIES (PC defines.h) — the ones ported so far. Anything
 // else falls back to LINEAR (the converter emits the real value; see the
 // trajectory print in tools/convert_enemies.py).
@@ -59,6 +71,7 @@ typedef struct {
     u16 box_w, box_h;
     u8 stand_n, walk_n, attack_n;
     u16 attack_ms;
+    u8 shield_type;     // e_shield_types: SHIELD_STAND etc. (character.cpp:3357)
 } EnemyDef;
 
 typedef struct {

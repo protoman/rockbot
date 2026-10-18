@@ -121,6 +121,10 @@ def read_enemy_defs(blob, ids):
             "name": cstr(b, 3, 30),
             "gfx": cstr(b, 33, 30),
             "hp": hp,
+            # e_shield_types (defines.h:603): which directions/poses are
+            # immune to shots - see character::is_shielded (character.cpp:3357).
+            # Several Helmut-type enemies are SHIELD_STAND (hide in the shell).
+            "shield_type": b[5961],
             # weakness[0] = normal weapon: (weapon_id, damage_multiplier,
             # effect) at 5964+3i; PC multiplies projectile damage by it
             # (classplayer.cpp:747). MILONGA BOT is weak to the buster (x3).
@@ -548,7 +552,7 @@ extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
             f"{shot0}, {d['walk_range']}, "
             f"{bl}, {bt}, {bw}, {bh}, "
             f"{len(p['stand'])}, {len(p['walk'])}, {len(p['attack'])}, "
-            f"{p['attack_ms']} }},  // {d['name']}\n")
+            f"{p['attack_ms']}, {d['shield_type']} }},  // {d['name']}\n")
     lines.append("};\n\n")
     lines.append(f"const EnemySpawn {PFX}_enemy_spawns[{UP}_ENEMY_SPAWN_COUNT] = {{\n")
     for (di, mp, x, y, xm, xx, dr) in spawn_out:

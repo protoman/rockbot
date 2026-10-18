@@ -24,7 +24,11 @@ void enemies_update(void);
 
 // Shot AABB against the enemy hitboxes. TRUE = one enemy was hit.
 // damage: 1 = normal, 2 = semi-charged, 3 = full-charged (piercing).
-bool enemies_try_hit(s16 left, s16 top, s16 right, s16 bottom, u8 damage);
+// Test a shot box against the enemies. `shot_dir` is the shot's travel
+// direction (1 = right, -1 = left). Returns 0 = miss, 1 = hit (damage
+// applied), 2 = blocked by a shield (the caller reflects the shot).
+u8 enemies_try_hit(s16 left, s16 top, s16 right, s16 bottom, u8 damage,
+                   s8 shot_dir);
 
 // ---- stage boss (def->is_boss) ------------------------------------------
 // Current HP for the HUD ball row; 0 when the boss is absent or dead.

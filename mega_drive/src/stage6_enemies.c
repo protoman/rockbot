@@ -2,13 +2,13 @@
 #include "resources.h"
 
 const EnemyDef stage6_enemy_defs[STAGE6_ENEMY_DEF_COUNT] = {
-    /* 0 */ { &enemy_rock_metool_sprite, 2, 1, 1, 0, 0, 0, 150, 0, 0, 18, 21, 1, 2, 6, 1200 },  // ROCK HELMUT
-    /* 1 */ { &enemy_dynamitebot_sprite, 36, 4, 4, 0, 1, 2, 320, 0, 0, 44, 40, 2, 2, 3, 600 },  // DYNAMITE BOT
-    /* 2 */ { &enemy_bat_sprite, 3, 1, 1, 1, 0, 0, 100, 0, 0, 27, 21, 1, 4, 1, 2000 },  // BAT BALL
-    /* 3 */ { &enemy_side_shooter_sprite, 4, 1, 0, 1, 0, 15, 100, 0, 0, 16, 26, 1, 1, 1, 800 },  // SIDERSHOOTER
-    /* 4 */ { &enemy_spinning_blade_sprite, 2, 1, 2, 1, 0, 0, 100, 0, 0, 21, 21, 2, 2, 0, 0 },  // NINJA BLADE HSYNC
-    /* 5 */ { &enemy_larva_sprite, 3, 1, 2, 0, 0, 0, 200, 0, 0, 36, 15, 1, 4, 0, 0 },  // LARVA
-    /* 6 */ { &enemy_mine_cart_sprite, 1, 1, 4, 0, 0, 0, 320, 0, 0, 40, 37, 2, 2, 0, 0 },  // GOLD CART
+    /* 0 */ { &enemy_rock_metool_sprite, 2, 1, 1, 0, 0, 0, 150, 0, 0, 18, 21, 1, 2, 6, 1200, 3 },  // ROCK HELMUT
+    /* 1 */ { &enemy_dynamitebot_sprite, 36, 4, 4, 0, 1, 2, 320, 0, 0, 44, 40, 2, 2, 3, 600, 0 },  // DYNAMITE BOT
+    /* 2 */ { &enemy_bat_sprite, 3, 1, 1, 1, 0, 0, 100, 0, 0, 27, 21, 1, 4, 1, 2000, 3 },  // BAT BALL
+    /* 3 */ { &enemy_side_shooter_sprite, 4, 1, 0, 1, 0, 15, 100, 0, 0, 16, 26, 1, 1, 1, 800, 0 },  // SIDERSHOOTER
+    /* 4 */ { &enemy_spinning_blade_sprite, 2, 1, 2, 1, 0, 0, 100, 0, 0, 21, 21, 2, 2, 0, 0, 0 },  // NINJA BLADE HSYNC
+    /* 5 */ { &enemy_larva_sprite, 3, 1, 2, 0, 0, 0, 200, 0, 0, 36, 15, 1, 4, 0, 0, 0 },  // LARVA
+    /* 6 */ { &enemy_mine_cart_sprite, 1, 1, 4, 0, 0, 0, 320, 0, 0, 40, 37, 2, 2, 0, 0, 0 },  // GOLD CART
 };
 
 const EnemySpawn stage6_enemy_spawns[STAGE6_ENEMY_SPAWN_COUNT] = {

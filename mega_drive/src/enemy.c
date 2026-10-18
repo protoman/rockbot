@@ -233,8 +233,12 @@ static bool step_axis(Enemy *e, s16 *pos, s16 dest, bool horizontal, bool can_fa
             u16 cur = stage_terrain_at(stage_current_map, ccol, frow);
             if ((ahead == TERRAIN_UNBLOCKED || ahead == TERRAIN_WATER)
                 && ahead != cur) {
-                e->dir = -dir;          // turn around at the cliff edge
-                return TRUE;
+                // PC check_can_move_to_point (artificial_inteligence.cpp:2052)
+                // returns "can't move" here - a walker STOPS at the edge and
+                // lets the AI decide. The port used to turn around, which
+                // fought the AI's own turn state (LARVA's states alternate
+                // walk/turn): the enemy flipped left-right in place forever.
+                return TRUE;    // action finished, no movement
             }
         }
         e->dir = dir;
@@ -528,7 +532,40 @@ void enemies_set_visible(bool visible)
             SPR_setVisibility(enemies[i].spr, visible ? VISIBLE : HIDDEN);
 }
 
-bool enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage)
+// PC character::is_shielded (character.cpp:3357) for the enemy side. The port
+// has no separate anim type: `moving` is the walk anim, !moving is STAND.
+// shot_dir is the shot's travel direction (1 = right, -1 = left), the PC's
+// projectile_direction. SHIELD_FRONT blocks shots coming at the enemy's front
+// (PC: projectile_direction != state.direction).
+static bool enemy_is_shielded(const Enemy *e, s8 shot_dir)
+{
+    // The port's displayed anim row is attack (2) while shooting, walk (1)
+    // while moving, else stand (0) — the PC's ANIM_TYPE_STAND/WALK/ATTACK.
+    bool standing = !e->moving && !e->shooting;
+    bool walking = e->moving;
+
+    switch (e->def->shield_type) {
+    case SHIELD_FULL:
+        return TRUE;
+    case SHIELD_FRONT:
+    case SHIELD_STAND_AND_WALK:
+        return shot_dir != e->dir && (standing || walking);
+    case SHIELD_STAND:
+        return standing;
+    case SHIELD_STAND_FRONT:
+        return shot_dir != e->dir && standing;
+    case SHIELD_BACK:
+        return shot_dir == e->dir;
+    default:
+        // SHIELD_NO / SHIELD_DISGUISE / SHIELD_USING_SHIELD: enemies in this
+        // port have no disguise or shield animation, so nothing to block.
+        return FALSE;
+    }
+}
+
+// Returns: 0 = miss, 1 = hit (damage applied), 2 = blocked by a shield
+// (the caller reflects the shot, PC classplayer.cpp:708).
+u8 enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage, s8 shot_dir)
 {
     for (u8 i = 0; i < enemy_count; i++) {
         Enemy *e = &enemies[i];
@@ -539,13 +576,16 @@ bool enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage)
         if (l >= el + d->box_w || r <= el || t >= et + d->box_h || b <= et)
             continue;
 
+        // shielded enemy: the shot is reflected, no damage
+        if (enemy_is_shielded(e, shot_dir)) return 2;
+
         // Boss intangible window (PC BOSS_HIT_DURATION): the shot is
         // consumed but deals no damage.
-        if (e->hurt_timer) return TRUE;
+        if (e->hurt_timer) return 1;
 
         // weakness[0].damage_multiplier (PC classplayer.cpp:747
         // damage x multiplier); 0 = immune to the normal weapon.
-        if (d->dmg_mul == 0) return TRUE;
+        if (d->dmg_mul == 0) return 1;
         u8 dmg = damage * d->dmg_mul;
 
         e->hp = (dmg >= e->hp) ? 0 : e->hp - dmg;
@@ -558,9 +598,9 @@ bool enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage)
             e->spr = NULL;
             e->alive = FALSE;
         }
-        return TRUE;
+        return 1;
     }
-    return FALSE;
+    return 0;
 }
 
 u8 enemies_boss_hp(void)

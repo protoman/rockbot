@@ -2,14 +2,14 @@
 #include "resources.h"
 
 const EnemyDef stage8_enemy_defs[STAGE8_ENEMY_DEF_COUNT] = {
-    /* 0 */ { &enemy_technobot_sprite, 36, 2, 4, 0, 1, 8, 320, 0, 2, 39, 38, 4, 4, 1, 2000 },  // TECHNO BOT
-    /* 1 */ { &enemy_roof_shooter_sprite, 5, 1, 1, 1, 0, 13, 0, 0, 0, 16, 16, 6, 6, 2, 105 },  // ROOFFER
-    /* 2 */ { &enemy_ground_shooter_sprite, 5, 1, 1, 0, 0, 12, 0, 0, 8, 16, 8, 6, 6, 2, 105 },  // GROUNDER
-    /* 3 */ { &enemy_spinner_ball_red_sprite, 3, 1, 3, 1, 0, 0, 200, 0, 0, 18, 19, 1, 6, 4, 1400 },  // SPINNASTER
-    /* 4 */ { &enemy_spinner_ball_sprite, 1, 1, 12, 1, 0, 0, 240, 2, 0, 14, 19, 6, 6, 4, 800 },  // JUMPINER
-    /* 5 */ { &enemy_side_shooter_sprite, 4, 1, 0, 1, 0, 15, 100, 0, 0, 16, 26, 1, 1, 1, 800 },  // SIDERSHOOTER
-    /* 6 */ { &enemy_android_sprite, 2, 1, 3, 0, 0, 0, 320, 0, 0, 18, 24, 1, 3, 1, 9999 },  // MOBILEDROID
-    /* 7 */ { &enemy_classic_metool_sprite, 2, 1, 1, 0, 0, 0, 150, 0, 0, 18, 21, 1, 2, 6, 1200 },  // MINE HELMUT
+    /* 0 */ { &enemy_technobot_sprite, 36, 2, 4, 0, 1, 8, 320, 0, 2, 39, 38, 4, 4, 1, 2000, 0 },  // TECHNO BOT
+    /* 1 */ { &enemy_roof_shooter_sprite, 5, 1, 1, 1, 0, 13, 0, 0, 0, 16, 16, 6, 6, 2, 105, 0 },  // ROOFFER
+    /* 2 */ { &enemy_ground_shooter_sprite, 5, 1, 1, 0, 0, 12, 0, 0, 8, 16, 8, 6, 6, 2, 105, 0 },  // GROUNDER
+    /* 3 */ { &enemy_spinner_ball_red_sprite, 3, 1, 3, 1, 0, 0, 200, 0, 0, 18, 19, 1, 6, 4, 1400, 3 },  // SPINNASTER
+    /* 4 */ { &enemy_spinner_ball_sprite, 1, 1, 12, 1, 0, 0, 240, 2, 0, 14, 19, 6, 6, 4, 800, 0 },  // JUMPINER
+    /* 5 */ { &enemy_side_shooter_sprite, 4, 1, 0, 1, 0, 15, 100, 0, 0, 16, 26, 1, 1, 1, 800, 0 },  // SIDERSHOOTER
+    /* 6 */ { &enemy_android_sprite, 2, 1, 3, 0, 0, 0, 320, 0, 0, 18, 24, 1, 3, 1, 9999, 0 },  // MOBILEDROID
+    /* 7 */ { &enemy_classic_metool_sprite, 2, 1, 1, 0, 0, 0, 150, 0, 0, 18, 21, 1, 2, 6, 1200, 3 },  // MINE HELMUT
 };
 
 const EnemySpawn stage8_enemy_spawns[STAGE8_ENEMY_SPAWN_COUNT] = {

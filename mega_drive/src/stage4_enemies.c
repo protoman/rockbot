@@ -2,14 +2,14 @@
 #include "resources.h"
 
 const EnemyDef stage4_enemy_defs[STAGE4_ENEMY_DEF_COUNT] = {
-    /* 0 */ { &enemy_rock_metool_sprite, 2, 1, 1, 0, 0, 0, 150, 0, 0, 18, 21, 1, 2, 6, 1200 },  // ROCK HELMUT
-    /* 1 */ { &enemy_mummybot_sprite, 36, 2, 3, 0, 1, 1, 320, 0, 0, 33, 33, 1, 1, 1, 2000 },  // MUMMY BOT
-    /* 2 */ { &enemy_spinner_ball_sprite, 1, 1, 12, 1, 0, 0, 240, 2, 0, 14, 19, 6, 6, 4, 800 },  // JUMPINER
-    /* 3 */ { &enemy_side_shooter_sprite, 4, 1, 0, 1, 0, 15, 100, 0, 0, 16, 26, 1, 1, 1, 800 },  // SIDERSHOOTER
-    /* 4 */ { &enemy_scorpion_sprite, 3, 1, 3, 0, 0, 0, 138, 0, 0, 21, 27, 1, 2, 1, 2000 },  // STINGRAY
-    /* 5 */ { &enemy_classic_metool_sprite, 2, 1, 1, 0, 0, 0, 150, 0, 0, 18, 21, 1, 2, 6, 1200 },  // MINE HELMUT
-    /* 6 */ { &enemy_giant_fly_sprite, 8, 2, 4, 1, 0, 0, 200, 0, 0, 58, 48, 2, 2, 0, 0 },  // UFO
-    /* 7 */ { &enemy_fly_sprite, 2, 1, 3, 1, 0, 0, 160, 0, 0, 28, 21, 4, 3, 0, 0 },  // FLYBOT
+    /* 0 */ { &enemy_rock_metool_sprite, 2, 1, 1, 0, 0, 0, 150, 0, 0, 18, 21, 1, 2, 6, 1200, 3 },  // ROCK HELMUT
+    /* 1 */ { &enemy_mummybot_sprite, 36, 2, 3, 0, 1, 1, 320, 0, 0, 33, 33, 1, 1, 1, 2000, 0 },  // MUMMY BOT
+    /* 2 */ { &enemy_spinner_ball_sprite, 1, 1, 12, 1, 0, 0, 240, 2, 0, 14, 19, 6, 6, 4, 800, 0 },  // JUMPINER
+    /* 3 */ { &enemy_side_shooter_sprite, 4, 1, 0, 1, 0, 15, 100, 0, 0, 16, 26, 1, 1, 1, 800, 0 },  // SIDERSHOOTER
+    /* 4 */ { &enemy_scorpion_sprite, 3, 1, 3, 0, 0, 0, 138, 0, 0, 21, 27, 1, 2, 1, 2000, 0 },  // STINGRAY
+    /* 5 */ { &enemy_classic_metool_sprite, 2, 1, 1, 0, 0, 0, 150, 0, 0, 18, 21, 1, 2, 6, 1200, 3 },  // MINE HELMUT
+    /* 6 */ { &enemy_giant_fly_sprite, 8, 2, 4, 1, 0, 0, 200, 0, 0, 58, 48, 2, 2, 0, 0, 0 },  // UFO
+    /* 7 */ { &enemy_fly_sprite, 2, 1, 3, 1, 0, 0, 160, 0, 0, 28, 21, 4, 3, 0, 0, 0 },  // FLYBOT
 };
 
 const EnemySpawn stage4_enemy_spawns[STAGE4_ENEMY_SPAWN_COUNT] = {

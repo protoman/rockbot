@@ -217,8 +217,16 @@ void shot_update(void)
 
         // enemy hit (shot dies on any hit; charged shots pierce: PC full
         // charge keeps flying — character.cpp:742 permanent projectiles)
-        if (enemies_try_hit(s->x, s->y, s->x + s->w - 1, s->y + s->h - 1,
-                            s->dmg)) {
+        u8 hit = enemies_try_hit(s->x, s->y, s->x + s->w - 1, s->y + s->h - 1,
+                                 s->dmg, (s->dx < 0) ? -1 : 1);
+        if (hit == 2) {
+            // Shielded enemy: the shot bounces back (PC classplayer.cpp:708
+            // calls projectile::reflect()).
+            s->dx = -s->dx;
+            s->dy = 0;
+            continue;
+        }
+        if (hit == 1) {
             if (s->dmg < 3) {
                 shot_kill(s);
                 continue;

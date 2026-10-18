@@ -2,19 +2,19 @@
 #include "resources.h"
 
 const EnemyDef stage3_enemy_defs[STAGE3_ENEMY_DEF_COUNT] = {
-    /* 0 */ { &enemy_rock_metool_sprite, 2, 1, 1, 0, 0, 0, 150, 0, 0, 18, 21, 1, 2, 6, 1200 },  // ROCK HELMUT
-    /* 1 */ { &enemy_shield_sprite, 3, 1, 3, 1, 0, 0, 320, 9, 0, 16, 26, 2, 2, 0, 0 },  // BLUE SHIELDER
-    /* 2 */ { &enemy_bat_sprite, 3, 1, 1, 1, 0, 0, 100, 0, 0, 27, 21, 1, 4, 1, 2000 },  // BAT BALL
-    /* 3 */ { &enemy_seahorsebot_sprite, 36, 2, 3, 255, 1, 5, 320, 0, 0, 29, 35, 2, 2, 1, 1200 },  // SEAHORSE BOT
-    /* 4 */ { &enemy_rock_metool_sprite, 3, 1, 4, 0, 0, 0, 100, 0, 0, 18, 21, 1, 2, 6, 1200 },  // ROCK HELMUT WALKER
-    /* 5 */ { &enemy_giant_dolphin_sprite, 30, 2, 3, 1, 0, 14, 100, 0, 0, 102, 63, 2, 2, 2, 100 },  // DOLGOLPHIN
-    /* 6 */ { &enemy_spinner_ball_red_sprite, 3, 1, 3, 1, 0, 0, 200, 0, 0, 18, 19, 1, 6, 4, 1400 },  // SPINNASTER
-    /* 7 */ { &enemy_side_shooter_sprite, 4, 1, 0, 1, 0, 15, 100, 0, 0, 16, 26, 1, 1, 1, 800 },  // SIDERSHOOTER
-    /* 8 */ { &enemy_small_fish_sprite, 1, 1, 1, 1, 0, 0, 120, 0, 0, 23, 16, 3, 3, 0, 0 },  // MECHAFISHER
-    /* 9 */ { &enemy_killer_fish_sprite, 4, 1, 2, 1, 0, 0, 200, 0, 0, 31, 31, 2, 1, 0, 0 },  // DARK FISH
-    /* 10 */ { &enemy_spiked_floor_sprite, 3, 1, 2, 0, 0, 0, 100, 0, 0, 21, 15, 2, 2, 0, 0 },  // SPIKED TANK
-    /* 11 */ { &enemy_classic_metool_sprite, 2, 1, 1, 0, 0, 0, 150, 0, 0, 18, 21, 1, 2, 6, 1200 },  // MINE HELMUT
-    /* 12 */ { &enemy_wood_shield_sprite, 4, 1, 3, 0, 0, 0, 200, 0, 0, 25, 26, 2, 2, 0, 0 },  // WOOD SHIELDER
+    /* 0 */ { &enemy_rock_metool_sprite, 2, 1, 1, 0, 0, 0, 150, 0, 0, 18, 21, 1, 2, 6, 1200, 3 },  // ROCK HELMUT
+    /* 1 */ { &enemy_shield_sprite, 3, 1, 3, 1, 0, 0, 320, 9, 0, 16, 26, 2, 2, 0, 0, 2 },  // BLUE SHIELDER
+    /* 2 */ { &enemy_bat_sprite, 3, 1, 1, 1, 0, 0, 100, 0, 0, 27, 21, 1, 4, 1, 2000, 3 },  // BAT BALL
+    /* 3 */ { &enemy_seahorsebot_sprite, 36, 2, 3, 255, 1, 5, 320, 0, 0, 29, 35, 2, 2, 1, 1200, 0 },  // SEAHORSE BOT
+    /* 4 */ { &enemy_rock_metool_sprite, 3, 1, 4, 0, 0, 0, 100, 0, 0, 18, 21, 1, 2, 6, 1200, 0 },  // ROCK HELMUT WALKER
+    /* 5 */ { &enemy_giant_dolphin_sprite, 30, 2, 3, 1, 0, 14, 100, 0, 0, 102, 63, 2, 2, 2, 100, 0 },  // DOLGOLPHIN
+    /* 6 */ { &enemy_spinner_ball_red_sprite, 3, 1, 3, 1, 0, 0, 200, 0, 0, 18, 19, 1, 6, 4, 1400, 3 },  // SPINNASTER
+    /* 7 */ { &enemy_side_shooter_sprite, 4, 1, 0, 1, 0, 15, 100, 0, 0, 16, 26, 1, 1, 1, 800, 0 },  // SIDERSHOOTER
+    /* 8 */ { &enemy_small_fish_sprite, 1, 1, 1, 1, 0, 0, 120, 0, 0, 23, 16, 3, 3, 0, 0, 0 },  // MECHAFISHER
+    /* 9 */ { &enemy_killer_fish_sprite, 4, 1, 2, 1, 0, 0, 200, 0, 0, 31, 31, 2, 1, 0, 0, 0 },  // DARK FISH
+    /* 10 */ { &enemy_spiked_floor_sprite, 3, 1, 2, 0, 0, 0, 100, 0, 0, 21, 15, 2, 2, 0, 0, 0 },  // SPIKED TANK
+    /* 11 */ { &enemy_classic_metool_sprite, 2, 1, 1, 0, 0, 0, 150, 0, 0, 18, 21, 1, 2, 6, 1200, 3 },  // MINE HELMUT
+    /* 12 */ { &enemy_wood_shield_sprite, 4, 1, 3, 0, 0, 0, 200, 0, 0, 25, 26, 2, 2, 0, 0, 2 },  // WOOD SHIELDER
 };
 
 const EnemySpawn stage3_enemy_spawns[STAGE3_ENEMY_SPAWN_COUNT] = {

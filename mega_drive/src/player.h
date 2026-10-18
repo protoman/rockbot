@@ -110,6 +110,10 @@ void player_get_box(s16 *left, s16 *top, s16 *right, s16 *bottom);
 // Used when a map link warps between maps.
 void player_place(s16 worldX, s16 worldY);
 
+// Re-place the player sprite for the current camera (after player_place +
+// stage_arrival_camera, so it does not flash at its old screen position).
+void player_sync_sprite(void);
+
 // Contact/projectile damage. Respects the invulnerability window; at hp 0
 // respawns at the stage start with full hp.
 void player_take_damage(u8 amount);

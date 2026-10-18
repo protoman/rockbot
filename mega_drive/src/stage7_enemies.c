@@ -2,16 +2,16 @@
 #include "resources.h"
 
 const EnemyDef stage7_enemy_defs[STAGE7_ENEMY_DEF_COUNT] = {
-    /* 0 */ { &enemy_shield_sprite, 3, 1, 3, 1, 0, 0, 320, 9, 0, 16, 26, 2, 2, 0, 0 },  // BLUE SHIELDER
-    /* 1 */ { &enemy_spikebot_sprite, 36, 2, 4, 0, 1, 0, 320, 0, 0, 38, 34, 2, 2, 1, 2000 },  // SPIKE BOT
-    /* 2 */ { &enemy_bat_sprite, 3, 1, 1, 1, 0, 0, 100, 0, 0, 27, 21, 1, 4, 1, 2000 },  // BAT BALL
-    /* 3 */ { &enemy_roof_shooter_sprite, 5, 1, 1, 1, 0, 13, 0, 0, 0, 16, 16, 6, 6, 2, 105 },  // ROOFFER
-    /* 4 */ { &enemy_driller_sprite, 5, 1, 4, 0, 0, 0, 200, 0, 0, 32, 22, 2, 2, 0, 0 },  // DRILLMOLE
-    /* 5 */ { &enemy_spinner_ball_sprite, 1, 1, 12, 1, 0, 0, 240, 2, 0, 14, 19, 6, 6, 4, 800 },  // JUMPINER
-    /* 6 */ { &enemy_side_shooter_sprite, 4, 1, 0, 1, 0, 15, 100, 0, 0, 16, 26, 1, 1, 1, 800 },  // SIDERSHOOTER
-    /* 7 */ { &enemy_spiked_floor_sprite, 3, 1, 2, 0, 0, 0, 100, 0, 0, 21, 15, 2, 2, 0, 0 },  // SPIKED TANK
-    /* 8 */ { &enemy_spinning_blade_sprite, 2, 1, 2, 1, 0, 0, 100, 0, 0, 21, 21, 2, 2, 0, 0 },  // NINJA BLADE HSYNC
-    /* 9 */ { &enemy_metal_metool_sprite, 2, 1, 1, 0, 0, 0, 200, 0, 0, 18, 21, 1, 2, 6, 1200 },  // DARKMINE HELMUT
+    /* 0 */ { &enemy_shield_sprite, 3, 1, 3, 1, 0, 0, 320, 9, 0, 16, 26, 2, 2, 0, 0, 2 },  // BLUE SHIELDER
+    /* 1 */ { &enemy_spikebot_sprite, 36, 2, 4, 0, 1, 0, 320, 0, 0, 38, 34, 2, 2, 1, 2000, 0 },  // SPIKE BOT
+    /* 2 */ { &enemy_bat_sprite, 3, 1, 1, 1, 0, 0, 100, 0, 0, 27, 21, 1, 4, 1, 2000, 3 },  // BAT BALL
+    /* 3 */ { &enemy_roof_shooter_sprite, 5, 1, 1, 1, 0, 13, 0, 0, 0, 16, 16, 6, 6, 2, 105, 0 },  // ROOFFER
+    /* 4 */ { &enemy_driller_sprite, 5, 1, 4, 0, 0, 0, 200, 0, 0, 32, 22, 2, 2, 0, 0, 0 },  // DRILLMOLE
+    /* 5 */ { &enemy_spinner_ball_sprite, 1, 1, 12, 1, 0, 0, 240, 2, 0, 14, 19, 6, 6, 4, 800, 0 },  // JUMPINER
+    /* 6 */ { &enemy_side_shooter_sprite, 4, 1, 0, 1, 0, 15, 100, 0, 0, 16, 26, 1, 1, 1, 800, 0 },  // SIDERSHOOTER
+    /* 7 */ { &enemy_spiked_floor_sprite, 3, 1, 2, 0, 0, 0, 100, 0, 0, 21, 15, 2, 2, 0, 0, 0 },  // SPIKED TANK
+    /* 8 */ { &enemy_spinning_blade_sprite, 2, 1, 2, 1, 0, 0, 100, 0, 0, 21, 21, 2, 2, 0, 0, 0 },  // NINJA BLADE HSYNC
+    /* 9 */ { &enemy_metal_metool_sprite, 2, 1, 1, 0, 0, 0, 200, 0, 0, 18, 21, 1, 2, 6, 1200, 3 },  // DARKMINE HELMUT
 };
 
 const EnemySpawn stage7_enemy_spawns[STAGE7_ENEMY_SPAWN_COUNT] = {

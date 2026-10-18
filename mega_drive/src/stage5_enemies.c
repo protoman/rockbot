@@ -2,14 +2,14 @@
 #include "resources.h"
 
 const EnemyDef stage5_enemy_defs[STAGE5_ENEMY_DEF_COUNT] = {
-    /* 0 */ { &enemy_bat_sprite, 3, 1, 1, 1, 0, 0, 100, 0, 0, 27, 21, 1, 4, 1, 2000 },  // BAT BALL
-    /* 1 */ { &enemy_roof_shooter_sprite, 5, 1, 1, 1, 0, 13, 0, 0, 0, 16, 16, 6, 6, 2, 105 },  // ROOFFER
-    /* 2 */ { &enemy_magebot_sprite, 36, 3, 5, 0, 1, 4, 320, 0, 0, 26, 33, 1, 2, 2, 600 },  // MAGE BOT
-    /* 3 */ { &enemy_wood_shield_sprite, 4, 1, 3, 0, 0, 0, 200, 0, 0, 25, 26, 2, 2, 0, 0 },  // WOOD SHIELDER
-    /* 4 */ { &enemy_bunny_sprite, 2, 1, 2, 0, 0, 0, 600, 0, 0, 29, 40, 1, 1, 0, 0 },  // ANGRY BUNNY
-    /* 5 */ { &enemy_top_hat_sprite, 5, 1, 0, 0, 0, 0, 0, 0, 0, 21, 13, 1, 1, 0, 0 },  // TOP HAT
-    /* 6 */ { &enemy_gambit_sprite, 6, 1, 1, 0, 0, 17, 80, 0, 0, 38, 37, 1, 1, 5, 1400 },  // GAMBIT
-    /* 7 */ { &enemy_metool_tophat_sprite, 2, 1, 2, 0, 0, 0, 160, 0, 0, 20, 24, 1, 2, 6, 1250 },  // MAGE HELMUT
+    /* 0 */ { &enemy_bat_sprite, 3, 1, 1, 1, 0, 0, 100, 0, 0, 27, 21, 1, 4, 1, 2000, 3 },  // BAT BALL
+    /* 1 */ { &enemy_roof_shooter_sprite, 5, 1, 1, 1, 0, 13, 0, 0, 0, 16, 16, 6, 6, 2, 105, 0 },  // ROOFFER
+    /* 2 */ { &enemy_magebot_sprite, 36, 3, 5, 0, 1, 4, 320, 0, 0, 26, 33, 1, 2, 2, 600, 0 },  // MAGE BOT
+    /* 3 */ { &enemy_wood_shield_sprite, 4, 1, 3, 0, 0, 0, 200, 0, 0, 25, 26, 2, 2, 0, 0, 2 },  // WOOD SHIELDER
+    /* 4 */ { &enemy_bunny_sprite, 2, 1, 2, 0, 0, 0, 600, 0, 0, 29, 40, 1, 1, 0, 0, 0 },  // ANGRY BUNNY
+    /* 5 */ { &enemy_top_hat_sprite, 5, 1, 0, 0, 0, 0, 0, 0, 0, 21, 13, 1, 1, 0, 0, 0 },  // TOP HAT
+    /* 6 */ { &enemy_gambit_sprite, 6, 1, 1, 0, 0, 17, 80, 0, 0, 38, 37, 1, 1, 5, 1400, 0 },  // GAMBIT
+    /* 7 */ { &enemy_metool_tophat_sprite, 2, 1, 2, 0, 0, 0, 160, 0, 0, 20, 24, 1, 2, 6, 1250, 3 },  // MAGE HELMUT
 };
 
 const EnemySpawn stage5_enemy_spawns[STAGE5_ENEMY_SPAWN_COUNT] = {

@@ -272,6 +272,7 @@ static void runStage(u8 stage)
                          to_y + stage_def->tile / 2 - (PLAYER_BOX_T + PLAYER_BOX_B) / 2);
             player_get_box(&bl, &bt, &br, &bb);
             stage_arrival_camera((bl + br) / 2, (bt + bb) / 2);
+            player_sync_sprite();   // else it flashes at the old screen spot
         }
 
         // camera focus = centre of the player hitbox

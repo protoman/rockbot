@@ -2,16 +2,16 @@
 #include "resources.h"
 
 const EnemyDef stage1_enemy_defs[STAGE1_ENEMY_DEF_COUNT] = {
-    /* 0 */ { &enemy_rock_metool_sprite, 2, 1, 1, 0, 0, 0, 150, 0, 0, 18, 21, 1, 2, 6, 1200 },  // ROCK HELMUT
-    /* 1 */ { &enemy_apebot_sprite, 36, 2, 4, 0, 1, 9, 320, 3, 10, 32, 29, 1, 2, 4, 1600 },  // APE BOT
-    /* 2 */ { &enemy_bee_sprite, 3, 1, 2, 1, 0, 0, 300, 0, 0, 17, 17, 2, 2, 0, 0 },  // FLEE BEE
-    /* 3 */ { &enemy_flower_metool_sprite, 2, 1, 4, 0, 0, 0, 100, 0, 0, 18, 21, 1, 2, 6, 1200 },  // FLOWER HELMUT
-    /* 4 */ { &enemy_spinner_ball_sprite, 1, 1, 12, 1, 0, 0, 240, 2, 0, 14, 19, 6, 6, 4, 800 },  // JUMPINER
-    /* 5 */ { &enemy_side_shooter_sprite, 4, 1, 0, 1, 0, 15, 100, 0, 0, 16, 26, 1, 1, 1, 800 },  // SIDERSHOOTER
-    /* 6 */ { &enemy_tamandua_sprite, 5, 1, 1, 0, 0, 0, 250, 0, 1, 33, 24, 2, 2, 0, 0 },  // TAMANDUA
-    /* 7 */ { &enemy_rhino_sprite, 20, 1, 1, 0, 0, 10, 200, 0, 0, 96, 65, 1, 1, 0, 0 },  // RHINOZER
-    /* 8 */ { &enemy_scorpion_sprite, 3, 1, 3, 0, 0, 0, 138, 0, 0, 21, 27, 1, 2, 1, 2000 },  // STINGRAY
-    /* 9 */ { &enemy_larva_sprite, 3, 1, 2, 0, 0, 0, 200, 0, 0, 36, 15, 1, 4, 0, 0 },  // LARVA
+    /* 0 */ { &enemy_rock_metool_sprite, 2, 1, 1, 0, 0, 0, 150, 0, 0, 18, 21, 1, 2, 6, 1200, 3 },  // ROCK HELMUT
+    /* 1 */ { &enemy_apebot_sprite, 36, 2, 4, 0, 1, 9, 320, 3, 10, 32, 29, 1, 2, 4, 1600, 0 },  // APE BOT
+    /* 2 */ { &enemy_bee_sprite, 3, 1, 2, 1, 0, 0, 300, 0, 0, 17, 17, 2, 2, 0, 0, 0 },  // FLEE BEE
+    /* 3 */ { &enemy_flower_metool_sprite, 2, 1, 4, 0, 0, 0, 100, 0, 0, 18, 21, 1, 2, 6, 1200, 3 },  // FLOWER HELMUT
+    /* 4 */ { &enemy_spinner_ball_sprite, 1, 1, 12, 1, 0, 0, 240, 2, 0, 14, 19, 6, 6, 4, 800, 0 },  // JUMPINER
+    /* 5 */ { &enemy_side_shooter_sprite, 4, 1, 0, 1, 0, 15, 100, 0, 0, 16, 26, 1, 1, 1, 800, 0 },  // SIDERSHOOTER
+    /* 6 */ { &enemy_tamandua_sprite, 5, 1, 1, 0, 0, 0, 250, 0, 1, 33, 24, 2, 2, 0, 0, 0 },  // TAMANDUA
+    /* 7 */ { &enemy_rhino_sprite, 20, 1, 1, 0, 0, 10, 200, 0, 0, 96, 65, 1, 1, 0, 0, 0 },  // RHINOZER
+    /* 8 */ { &enemy_scorpion_sprite, 3, 1, 3, 0, 0, 0, 138, 0, 0, 21, 27, 1, 2, 1, 2000, 0 },  // STINGRAY
+    /* 9 */ { &enemy_larva_sprite, 3, 1, 2, 0, 0, 0, 200, 0, 0, 36, 15, 1, 4, 0, 0, 0 },  // LARVA
 };
 
 const EnemySpawn stage1_enemy_spawns[STAGE1_ENEMY_SPAWN_COUNT] = {

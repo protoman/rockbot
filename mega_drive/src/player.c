@@ -297,6 +297,16 @@ void player_get_box(s16 *left, s16 *top, s16 *right, s16 *bottom)
     *bottom = iy + box_b;
 }
 
+// Re-place the player sprite for the CURRENT camera. player_place() moves the
+// player but the sprite's screen position is only set in player_update(), so
+// after a map link the sprite is drawn once at its old screen position while
+// the camera has already jumped (it flashed at the top of the screen).
+void player_sync_sprite(void)
+{
+    if (player.spr)
+        SPR_setPosition(player.spr, player.x - camera.x, player.y - camera.y);
+}
+
 void player_place(s16 px, s16 py)
 {
     player.x = px;
@@ -839,16 +849,22 @@ void player_update(u16 pad)
     }
 
     // ---- moving-platform tiles (PC check_platform_move) --------------------
+    // The belt is sampled across the FEET SPAN, not just the centre column:
+    // with the centre test the push stopped the moment the middle left the
+    // belt while the feet were still supported by its last tile, so the player
+    // parked at the edge instead of being carried into the pit beyond it.
     if (player.on_ground && !player.on_ladder) {
-        s16 fcx = (ix + (PLAYER_BOX_L + PLAYER_BOX_R) / 2) >> 4;
         s16 fcy = (iy + box_b) >> 4;
-        u16 ft = stage_terrain_at(stage_current_map, fcx, fcy);
-        if (ft == TERRAIN_MOVE_LEFT || ft == TERRAIN_MOVE_RIGHT) {
+        s16 lx = ix + PLAYER_BOX_L, rx = ix + PLAYER_BOX_R - 1;
+        for (s16 cx = lx; cx <= rx; cx += 8) {
+            u16 ft = stage_terrain_at(stage_current_map, cx >> 4, fcy);
+            if (ft != TERRAIN_MOVE_LEFT && ft != TERRAIN_MOVE_RIGHT) continue;
             s16 nx = ix + ((ft == TERRAIN_MOVE_LEFT) ? -CONVEYOR_SPEED : CONVEYOR_SPEED);
             s16 t = iy + box_t, b = iy + box_b;
             s16 col = (ft == TERRAIN_MOVE_LEFT) ? ((nx + PLAYER_BOX_L) >> 4)
                                                 : ((nx + PLAYER_BOX_R - 1) >> 4);
             if (!column_hits_solid(col, t, b)) ix = nx;
+            break;
         }
     }
 
