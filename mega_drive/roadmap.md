@@ -115,10 +115,11 @@ Spawn position verified in all 9 stages (2026-10-18, CANDYBOT): every one now
 starts with the player standing on the ground (see `stage0_plan.md`).
 
 Still untested by playing: spike damage, conveyor tiles, per-stage content
-beyond the spawn, the APE BOT / DAISIE BOT boss attack patterns (generic
-`is_boss` path, untuned), the weapons (task 5), the shield gesture, and the
-platform crush fix. The emulator harness can drive inputs but cannot judge
-feel — this needs the user at the controls.
+beyond the spawn, the **boss fight** (see the boss investigation in
+`stage0_plan.md`: the entity, art and position are verified, but the fight
+itself is not), the weapons (task 5), the shield gesture, and the platform
+crush fix. The emulator harness can drive inputs but cannot judge feel — this
+needs the user at the controls.
 
 ## 9. Per-stage music — DEFERRED (needs tooling)
 

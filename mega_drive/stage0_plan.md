@@ -980,6 +980,35 @@ button stuck; the game then spins in its "wait for release" loop and looks froze
 (that was the false alarm about the pause menu not closing — START opens and closes
 it correctly).
 
+## Boss investigation (2026-10-18, night)
+
+While playtesting I could not get a boss on screen with the warp hooks, so I dug
+in. Findings, in order:
+
+1. The boss **entity spawns and is alive** — forcing the boss HP row
+   (`hud_boss(enemies_boss_hp())`) shows a full magenta row.
+2. Its **sprite renders fine** — pinning `SPR_setPosition(e->spr, 200, 120)` for
+   `is_boss` draws MILONGA BOT correctly, and the boss intro (same
+   `SpriteDefinition`) always drew it.
+3. Its **position is correct**: pinning the sprite to
+   `(e->x - camera.x) & 255` put it at screen x 245 for a spawn at x=3136 with
+   the camera at ~2890.
+
+So why was it never visible? **Map 0 has a scroll-lock column at 179
+(x=2864)** (`stage0_scroll_lock[0] = {137,138,179,180,199}`). Walking right, the
+camera stops at ~2557 — the arena (2816..3164) is never reached that way. The
+intended route is the **boss teleporter** (object 32 at x=2832), which warps the
+player to tile (182,3) = x 2912 — past the lock — after which the camera can
+reach the map end and the boss becomes visible. My warp hook moved the *player*
+without the teleporter, so the camera stayed behind the lock and every capture
+showed the region just left of the arena.
+
+Nothing was fixed here — the boss path was fine. The one real bug found on the
+way is committed (`enemies_reset()` now lifts an enemy whose spawn box overlaps
+the floor; the gravity loop only scans down, so it used to fall through).
+
+**Still owed: a manual boss playtest** (teleporter → arena → fight).
+
 ## Known issues
 
 - Pre-stage menus (save selector, stage select) have **no cursor SFX**: menu
