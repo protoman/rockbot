@@ -1,0 +1,206 @@
+;
+; ISC-to-DMP converter
+
+
+; reversed deflemask DMP format:
+;
+;             B
+;             2
+;             1
+;             2        FMS
+;             1        feedback
+;             4        algo
+;             3        AMS
+;
+; 11 bytes per operator
+; operator order is 1,3,2,4        7 bytes + 11*4 bytes = 51 bytes
+;
+; operator data:
+; mult        8
+; TL          1C
+; atk         1F
+; dec1        10
+; sustain     2
+; release     7
+; ?           0        bit 0 is AM enable
+; RS          3
+; detune      5        value of 0...6 corresponds with -3...3 in the UI
+; dec2        13
+; ssg-eg      4        bit 3 is ssg-eg enable
+; 
+
+        const iscsize,57
+
+        sectionbss
+
+cmdptr.d:       resd
+
+blockstart.d:   resd
+blockaddr.d:    resd
+blockend.d:     resd
+
+intsamples.d:   resd
+vbsig2.d:       resd
+loopoff.d:      resd
+
+fmclk.d:        resd
+nfreqhigh.d:    resd
+nfreqlow.d:     resd
+nfraction.d:    resd
+
+stime.d:        resd
+vtime.d:        resd
+
+ym1reg.b:       resb 256
+ym2reg.b:       resb 256
+
+chipmode.b:     resb
+divarmed.b:     resb
+latchbyte.b:    resb
+
+fname:          resb 128
+
+iscbuf.b:       resb iscsize
+
+dmpbuf.b:       resb 51
+
+loopbusy.b:     resb
+loopold.b:      resb
+
+        alignd
+
+oneinst:
+instmult.b:     resb 4        ; detune, multiplier    $30
+insttl.b:       resb 4        ; total level           $40
+instar.b:       resb 4        ; ks, attack            $50
+instdec1.b:     resb 4        ; decay 1               $60  (bit 7 is AMS enable on OPN2/A)
+instdec2.b:     resb 4        ; decay 2               $70
+instsr.b:       resb 4        ; sustain, release      $80
+                              ; SSG-EG (ignored)      $90
+instalgo.d:     resd          ; feedback, algo        $B0/$B1/$B2
+                              ; L,R,AMS (4-5),PMS (0-2)   $B4/$B5/$B6  (OPN2/A)
+
+        ; register $22 has LFO frequency control on OPN2/A (bits 0-3)
+
+        sectiondata
+
+carriagertn:
+        db 13,10,0
+
+dmpdet.b:
+        db 3,2,1,0,3,4,5,6
+dmpop.b:
+        db 12,4,8,0
+
+iscext:
+        db ".isc",0
+dmpext:
+        db ".dmp",0
+
+
+        sectioncode
+
+start!
+        callex cmdptr,initplatform
+
+        beginfunc
+        localvar w.d,x.d,y.d,z.d,xx.d,ff1.d,modaddr.d,vgmp.d,bank.d,chan.d
+
+        ; check command line
+        callex w,readcmdstr,fname
+        ifunequal w,0,noerror1
+        callex ,printnt,"USAGE:"rr"ISC2DMP file"r" (reads file.isc, writes file.dmp)"r.a
+        goto programend
+noerror1:
+
+        ; open input file
+        copybytes iscext,fname.a(w),5
+        callex ff1,fileopen,fname
+        ifequal ff1.sd,-1,abortmsg
+
+        ; read to RAM
+        callex ,fileread,ff1,iscbuf.a,iscsize
+        callex ,fileclose,ff1
+
+        ; open output file
+        copybytes dmpext,fname.a(w),5
+        callex ff1,filecreate,fname
+        ifequal ff1.sd,-1,abortmsg
+
+writeoutput:
+
+        dmpbuf=$0B
+        dmpbuf(1)=$02
+        dmpbuf(2)=$01
+
+        dmpbuf(3)=iscbuf($21)        ; FMS
+        dmpbuf(4)=iscbuf($38)        ; feedback
+        dmpbuf(5)=iscbuf($30)        ; algo
+        dmpbuf(6)=1                  ; AMS
+
+        x=0
+        whileless x,4
+        y=x*11+7 > z=dmpop(x)
+
+        dmpbuf(y)=iscbuf($01+z) shr 1 and 15       ; mult
+        dmpbuf(y+1)=iscbuf($03+z) and 127          ; TL
+        dmpbuf(y+2)=iscbuf($10+z) and 31           ; atk
+        dmpbuf(y+3)=iscbuf($11+z) and 31           ; dec1
+        dmpbuf(y+4)=iscbuf($12+z) and 15           ; sustain
+        dmpbuf(y+5)=iscbuf($20+z) and 15           ; release
+
+        dmpbuf(y+6)=0        ; AM enable
+        ifequal iscbuf($22+z),0,wo30
+        dmpbuf(y+6)=1
+wo30:
+
+        dmpbuf(y+7)=0                              ; RS
+        dmpbuf(y+8)=dmpdet(iscbuf($02+z))          ; detune
+        dmpbuf(y+9)=iscbuf($13+z) and 31           ; dec2
+        dmpbuf(y+10)=0                             ; ssg-eg
+
+        x=_+1
+        wend
+
+        callex ,filewrite,ff1,dmpbuf.a,51
+        callex ,fileclose,ff1
+
+        goto programend
+
+
+abortmsg:
+        callex ,printnt,"some type of error :("r.a
+
+programend:
+        endfunc
+        end
+
+
+        ; function that copies a string from [cmdptr]
+        ; skips leading spaces, ends at space or null
+        ; returns length, terminates output with 0
+readcmdstr:
+        beginfunc straddr.d
+        localvar w.d
+
+        w=0
+
+        ; skip any extraneous spaces (and other weird characters?)
+        whileless [cmdptr].b,33
+        ifequal [cmdptr].b,0,a354
+        cmdptr=_+1
+        wend        
+
+        ; then copy the name
+        whileless w,127
+        ifless [cmdptr].b,33,a354
+        [straddr].b=[cmdptr].b > straddr=_+1 > cmdptr=_+1
+        w=_+1 
+        wend
+a354:
+        [straddr].b=0
+        endfunc w
+        returnex 4
+
+
+
