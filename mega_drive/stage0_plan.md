@@ -1015,6 +1015,33 @@ through and be released).
 frame (row 9 / sprite frame 22) — `/tmp/opencode/md-emu/sh_a.png`. The gesture,
 `player_can_shield()` and the sprite row all work.
 
+## Room transition (stairs/links) — fade now, scroll planned
+
+The PC slides the old screen out and the new one in vertically
+(`game.cpp:1067+`: it stacks both screens in a temp surface and scrolls).
+The port changed maps in a single frame, and the player sprite flashed at its
+old screen position (fixed: `player_sync_sprite()`).
+
+**Now**: a palette fade out/in around the link (`PAL_fadeOutAll` /
+`PAL_fadeInAll`). The fade blacks out all 4 lines, so `stage_load` reloads
+PAL0/PAL1/PAL3 and `player_restore_palette()` reloads PAL2.
+
+**Planned (scroll)**: build the *temporary combined tilemap* in RAM — 40x56
+entries (2 screens), 4480 bytes — and write the visible 40x28 slice to the
+plane each frame while the slide runs. Enemies/objects simply do not update
+during the transition. Only the tiles actually used by the two screens are
+needed, which keeps the extra VRAM small.
+
+Blocking detail: the two maps have **separate tilesets in the same VRAM block**
+(stage tiles are 16..143, 128 tiles; the largest per-map tileset is 179 tiles
+and the *union* of a stage's three maps is up to 193 — measured: 137/139/156/
+193/91/168/108/71/86 for stages 0..8). So the new screen's tiles must be copied
+to a spare base (the animated-tile block 496..927 has ~120 tiles of slack for
+the worst stage) and its plane entries written with that offset, while the old
+screen keeps base 16. The alternative — one union tileset per stage shared by
+its three maps — needs a converter + resources.res change (the map PNGs would
+become index maps into a separate tileset PNG, which rescomp supports).
+
 ## Known issues
 
 - Pre-stage menus (save selector, stage select) have **no cursor SFX**: menu

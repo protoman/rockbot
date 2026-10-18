@@ -307,6 +307,18 @@ void player_sync_sprite(void)
         SPR_setPosition(player.spr, player.x - camera.x, player.y - camera.y);
 }
 
+// Reload PAL2 (player). A full-palette fade blacks it out and nothing else
+// restores it.
+void player_restore_palette(void)
+{
+    PAL_setPalette(PLAYER_PAL, base_pal, DMA_QUEUE);
+}
+
+const Palette *player_palette_def(void)
+{
+    return player_defs[player_n]->palette;
+}
+
 void player_place(s16 px, s16 py)
 {
     player.x = px;

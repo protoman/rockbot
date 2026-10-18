@@ -114,6 +114,14 @@ void player_place(s16 worldX, s16 worldY);
 // stage_arrival_camera, so it does not flash at its old screen position).
 void player_sync_sprite(void);
 
+// Reload the player palette (PAL2). Needed after a full-palette fade, which
+// blacks out PAL2 as well and nothing else restores it.
+void player_restore_palette(void);
+
+// The player's current palette definition (PAL2 source), for building a
+// full-CRAM fade buffer.
+const Palette *player_palette_def(void);
+
 // Contact/projectile damage. Respects the invulnerability window; at hp 0
 // respawns at the stage start with full hp.
 void player_take_damage(u8 amount);

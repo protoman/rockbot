@@ -266,13 +266,35 @@ static void runStage(u8 stage)
         u8 to_map;
         s16 to_x, to_y;
         if (stage_check_link(bl, bt, br, bb, &to_map, &to_x, &to_y)) {
+            // PC changes room with a screen scroll (game.cpp:1067); the port
+            // fades for now (see the transition notes in stage0_plan.md).
+            // Without it the map swapped in one frame and the sprite flashed
+            // at its old screen position.
+            PAL_fadeOutAll(10, FALSE);
             stage_load(to_map);
             // centre the player on the destination tile
             player_place(to_x + stage_def->tile / 2 - (PLAYER_BOX_L + PLAYER_BOX_R) / 2,
                          to_y + stage_def->tile / 2 - (PLAYER_BOX_T + PLAYER_BOX_B) / 2);
+            player_restore_palette();   // the fade blacked out PAL2 too
             player_get_box(&bl, &bt, &br, &bb);
             stage_arrival_camera((bl + br) / 2, (bt + bb) / 2);
             player_sync_sprite();   // else it flashes at the old screen spot
+            // fade back in: PAL_fadeInAll needs all 64 CRAM entries, so build
+            // them from the palettes the stage just loaded.
+            {
+                static u16 all[64];
+                const Palette *lines[4] = {
+                    &pal_ui,
+                    stage_def->palettes[stage_current_map],
+                    player_palette_def(),
+                    stage_def->bg_pal[stage_current_map],
+                };
+                for (u8 ln = 0; ln < 4; ln++) {
+                    for (u8 i = 0; i < 16; i++)
+                        all[ln * 16 + i] = lines[ln] ? lines[ln]->data[i] : 0;
+                }
+                PAL_fadeInAll(all, 10, FALSE);
+            }
         }
 
         // camera focus = centre of the player hitbox
