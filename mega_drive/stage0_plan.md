@@ -1296,6 +1296,23 @@ The charge sounds are inaudible in screenshots.
   were wiping the stage tileset palette (PAL1) / player palette (PAL2), so
   stages and players rendered with wrong colours. Fix: each such screen calls
   `SYS_doVBlankProcess()` once right after its loads, before accepting input.
+## Build-time VRAM guard (tools/check_vram.py, 2026-10-18)
+
+Nothing verified that a stage's data still fits the fixed blocks (tileset from
+16, parallax from TILE_BG_INDEX, animated slots from TILE_ANIM_BASE, sprite pool
+up to TILE_FONT_INDEX-504), and twice it did not: the stage tileset overlapped
+the old bg block at 144 (the "tileset pillar artifact") and the palm anim tiles
+ran into the sprite pool. `tools/check_vram.py` now reads the layout from
+`src/stage.h`, the per-map tileset sizes from the packed ROM TileSets, the bg
+tile counts from the decomposed strips and the anim slots from the generated
+stage data, then fails on any overlap / overrun and lists the room transitions
+that cannot fit (they fade). Hooked into `make check-vram`, which `make run`
+depends on, so it runs after every link.
+
+Current state: **stage 2 map 2 is tight** (32 free tiles of the 936 - anim end
+budget), so its link to map 1 falls back to the fade (needs 45..81). Every
+other link fits.
+
 ## Notes / conventions
 
 - **Stage defs and LTO**: `stage_defs[]` is marked

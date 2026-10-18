@@ -103,6 +103,14 @@ $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA)
 .PHONY: assets
 assets: $(ASSET_STAMP)
 
+# Verify the tile layout still fits the fixed VRAM blocks (tileset / parallax
+# / animated slots / sprite pool) and list the room transitions that fall back
+# to the fade. The per-map tileset sizes only exist after rescomp packs them,
+# so this runs after the link.
+.PHONY: check-vram
+check-vram: all
+	$(PYTHON) tools/check_vram.py
+
 # Run the built ROM in BlastEm (native binary, see tools/emu.sh EMU_BIN).
 # This goes through tools/emu.sh instead of launching the emulator directly:
 # that kills a previous instance and relaunches while the window comes up
@@ -111,7 +119,7 @@ assets: $(ASSET_STAMP)
 #   Wayland (the GL renderer froze ~half the time); kept by default here as it
 #   is the known-good path — try `make run EMU_ARGS=` if you want GL.
 .PHONY: run
-run: all
+run: check-vram
 	bash tools/emu.sh start-ready out/rom.bin
 
 include $(GDK)/makefile.gen
