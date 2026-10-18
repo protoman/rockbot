@@ -1396,6 +1396,25 @@ landed inside the capture window. Hook reverted after the run.
 - Still unverified by eye: the enemy death puff and the `MISSION STARTED!` +
   teleport-in sequence (they show on any stage load, so the same harness works).
 
+## Fixed: stage-start teleport drew the player one tile low (2026-10-18)
+
+Reported on DEEP JUNGLE ("Ape stage"): the teleport-in beam sat one tile
+INSIDE the ground and the player snapped up when the stage actually started.
+Cause: `player_init()` sets `player.y` from `spawn_ground_y(SPAWN_X)` but
+created the sprite at the fixed `SPAWN_Y` (which is row 10) and never
+re-synced it, so the whole stage-start sequence — during which
+`player_update()` (and therefore `player_sync_sprite()`) does not run — drew
+him at row 10. The first gameplay frame then snapped him to the real row.
+
+Ground row at the spawn X, per stage: 0 -> 10 (coincidence, correct by luck),
+1 -> 9, 2/4/5 -> 12, 3/7 -> 11, 8 -> 9, 6 -> 13. So every stage except CHAOS
+CITY was affected; DEEP JUNGLE's row 9 made it exactly one tile.
+
+Fix: `player_init()` ends with `player_sync_sprite()`. Verified in one run
+(stage 1 entered directly): the player's feet are at screen y 144.5 in every
+frame from the teleport pose through gameplay, i.e. exactly the top of ground
+row 9, with no vertical jump at the handover.
+
 ## Notes / conventions
 
 - **Stage defs and LTO**: `stage_defs[]` is marked

@@ -427,6 +427,11 @@ void player_init(void)
                                TILE_ATTR(PLAYER_PAL, FALSE, FALSE, FALSE));
     PAL_setPalette(PLAYER_PAL, base_pal, DMA_QUEUE);
     SPR_setAnim(player.spr, ANIM_STAND);
+    // player.y is the ground row spawn_ground_y() found, which is only row 10
+    // (SPAWN_Y) in CHAOS CITY. Without this the sprite sat at SPAWN_Y for the
+    // whole stage-start teleport and snapped up one tile on the first
+    // player_update() (reported on DEEP JUNGLE, ground row 9).
+    player_sync_sprite();
 }
 
 // Fire (B) + charge shot, shared by the ground and ladder paths.
