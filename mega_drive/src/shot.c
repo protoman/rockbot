@@ -204,9 +204,12 @@ void shot_update(void)
             continue;
         }
 
-        // wall (test the leading edge)
+        // wall (test the leading edge, on the MUZZLE line). Using the box
+        // centre here killed any projectile taller than the gap under the
+        // muzzle: MAGIC STAR's 56x56 art put its centre inside the floor and
+        // it died on the first frame.
         s16 cx = (s->dx > 0) ? s->x + s->w - 1 : s->x;
-        s16 cy = s->y + s->h / 2;
+        s16 cy = s->y0 + 2;
         if (stage_terrain_at(stage_current_map, cx >> 4, cy >> 4) == TERRAIN_SOLID) {
             shot_kill(s);
             continue;

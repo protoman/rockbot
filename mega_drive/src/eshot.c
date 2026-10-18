@@ -191,9 +191,12 @@ void eshots_update(void)
 
         s16 l = s->x, t = s->y, r = s->x + s->w, b = s->y + s->h;
 
-        // off the camera window (2 tiles of margin) or into a wall
+        // off the camera window (2 tiles of margin) or into a wall.
+        // The wall probe is a thin band on the MUZZLE line: testing the whole
+        // box killed any projectile taller than the gap under the muzzle
+        // (MAGE BOT's MAGIC STAR is 56x56 and its box reaches into the floor).
         if (r < camera.x - 32 || l > camera.x + 352 ||
-            hits_solid(l, t, r, b)) {
+            hits_solid(l, s->y0 + 2, r, s->y0 + 3)) {
             kill(s);
             continue;
         }
