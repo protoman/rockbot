@@ -966,6 +966,15 @@ Method: a temporary hook in `main()` booted straight into stage N (index in SRAM
 word 200, low byte) with CANDYBOT forced — reverted before the commit. Normal flow
 re-checked afterwards (NEW GAME → CHAOS CITY with ROCKBOT).
 
+**Playtest — driving each stage** (`/tmp/opencode/md-emu/drive.sh`: boot, then
+walk right + jump + fire in bursts, 5 screenshots per stage): all 9 stages run —
+the camera scrolls, enemies spawn and damage the player, shots fire, the HP row
+drops. No garbage tiles, no lost player, no freeze. Shots: `d<N>_<1..5>.png`.
+
+Still NOT exercised: reaching and fighting a boss, the shield gesture, weapons
+beyond the buster (no stage beaten in the save), spike/conveyor damage in
+isolation, and the platform crush fix.
+
 Harness: `emu_keys_up` added — BlastEm occasionally misses a keyup, leaving a pad
 button stuck; the game then spins in its "wait for release" loop and looks frozen
 (that was the false alarm about the pause menu not closing — START opens and closes
