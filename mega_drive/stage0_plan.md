@@ -982,32 +982,32 @@ it correctly).
 
 ## Boss investigation (2026-10-18, night)
 
-While playtesting I could not get a boss on screen with the warp hooks, so I dug
-in. Findings, in order:
+**RESOLVED — the boss works.** The way to reach it for testing (user's method):
+do **not** warp the player. Add a temporary link near the player's spawn that
+leads to the boss arena — or a second boss-teleporter object — and walk into it,
+so the game performs the teleport itself.
 
-1. The boss **entity spawns and is alive** — forcing the boss HP row
-   (`hud_boss(enemies_boss_hp())`) shows a full magenta row.
-2. Its **sprite renders fine** — pinning `SPR_setPosition(e->spr, 200, 120)` for
-   `is_boss` draws MILONGA BOT correctly, and the boss intro (same
-   `SpriteDefinition`) always drew it.
-3. Its **position is correct**: pinning the sprite to
-   `(e->x - camera.x) & 255` put it at screen x 245 for a spawn at x=3136 with
-   the camera at ~2890.
+Why warping failed: map 0 has a scroll-lock column at 179 (x=2864)
+(`stage0_scroll_lock[0] = {137,138,179,180,199}`). Walking right the camera
+stops at ~2557, so the arena (2816..3164) is never reached that way. A link
+warp (or the real boss teleporter, object 32 at x=2832) calls
+`stage_arrival_camera()` → `scroll_lock_span()`, which places the camera *past*
+the lock, after which it can scroll to the map end.
 
-So why was it never visible? **Map 0 has a scroll-lock column at 179
-(x=2864)** (`stage0_scroll_lock[0] = {137,138,179,180,199}`). Walking right, the
-camera stops at ~2557 — the arena (2816..3164) is never reached that way. The
-intended route is the **boss teleporter** (object 32 at x=2832), which warps the
-player to tile (182,3) = x 2912 — past the lock — after which the camera can
-reach the map end and the boss becomes visible. My warp hook moved the *player*
-without the teleporter, so the camera stayed behind the lock and every capture
-showed the region just left of the arena.
+Debug link used (temporary, reverted):
+`src/stage0_data.c`: `stage0_links[]` gains `{ 0, 10, 8, 0, 182, 3 }` and
+`link_count` 2 -> 3. The band math (`link_region`, B2T/T2B) needs the link's
+tile_y chosen so the player's `py = feet - 8` falls inside it; (10,8) fires
+when walking right from the spawn.
 
-Nothing was fixed here — the boss path was fine. The one real bug found on the
-way is committed (`enemies_reset()` now lifts an enemy whose spawn box overlaps
-the floor; the gravity loop only scans down, so it used to fall through).
+**Verified in the arena**: MILONGA BOT renders, walks, fires at the player, and
+its HP row drops as shots land — 5 full balls -> 4 full + 1 empty over a
+12-shot burst (`/tmp/opencode/md-emu/bhp*.png`). The player can die to it and
+respawns at the stage start.
 
-**Still owed: a manual boss playtest** (teleporter → arena → fight).
+Also fixed on the way: `enemies_reset()` now lifts an enemy whose spawn box
+overlaps the floor (the gravity loop only scans down, so it used to fall
+through and be released).
 
 ## Known issues
 
