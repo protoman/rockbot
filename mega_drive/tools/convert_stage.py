@@ -158,7 +158,7 @@ def read_map(stage_n, map_n):
 # no stage is enabled — with an empty set every stage keeps tile-frame
 # animation and the runtime paths stay inert (cycle_n = 0). Status and the
 # open questions are in stage0_plan.md.
-CYCLE_STAGES = set()               # e.g. {8} to enable the INFOWAY pilot
+CYCLE_STAGES = {8}                 # INFOWAY pilot (see stage0_plan.md)
 CYCLE_BAND = (12, 13, 14)          # PAL3 entries that rotate, in order
 CYCLE_STABLE = 15                  # PAL3 stable black (does not rotate)
 CYCLE_FRAMES = 12                  # frames per step (200ms at 60fps)

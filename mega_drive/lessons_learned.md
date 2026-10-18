@@ -52,6 +52,16 @@ Real mistakes + fixes. Add to this on every session.
   which cost a debugging cycle. A tilemap cell's palette field is the other
   thing: that one *is* the 2-bit line number (`TILE_ATTR_FULL`/`<< 13`).
 
+**26. A failing build is invisible if you only grep the log for "error"**
+- This toolchain's messages are localised: gcc reports `Erro 1` (Portuguese), so
+  `make ... | grep -iE 'error|Error'` matched nothing while every build was in
+  fact failing. Four emulator runs then tested a *stale* ROM (it played the intro
+  logo screen), and the conclusion drawn from them — "the palette line is not
+  switching" — was wrong: the code had never been compiled.
+- Always check make's exit status (`if ! make > log 2>&1; then ... fi`, or look
+  for `Erro`) and, before launching an emulator, that `out/rom.bin` is **newer
+  than the newest source file**. Two seconds of checking beats four bad runs.
+
 ## Runtime / drawing
 
 **10. Fully black screen = 2 combined bugs (NOT the emulator)**
