@@ -1313,6 +1313,47 @@ Current state: **stage 2 map 2 is tight** (32 free tiles of the 936 - anim end
 budget), so its link to map 1 falls back to the fade (needs 45..81). Every
 other link fits.
 
+## Planned: per-stage union tileset (removes the last fade)
+
+Today each map ships its own rescomp-deduped tileset, so a room transition has
+to copy the destination screen's tiles somewhere free (32 tiles for stage 2
+map 2 — not enough, so map 2 -> map 1 fades). One tileset per STAGE used by all
+three of its maps removes the copy entirely: both screens already share the
+tile base.
+
+Measured per stage (tile unions from the earlier analysis, bg/animated counts
+from the generated data):
+
+| stage | union | bg tiles | anim slots (x24) | 16+union+bg+anim |
+|---|---|---|---|---|
+| 0 | 137 | 233 | 1 (24)  | 410 |
+| 1 | 139 | 233 | 6 (144) | 532 |
+| 2 | 156 | 354 | 16 (384)| **910** |
+| 3 | 193 | 15  | 13 (312)| 536 |
+| 5 | 168 | 123 | 0       | 307 |
+| others | 71..108 | <=113 | <=6 | < 400 |
+
+Each stage fits under the 936 sprite-pool boundary, but **a single global
+layout does not** (stage 3's 193-tile union + stage 2's 354-tile bg + stage 2's
+384-tile anim + 16 = 947 > 936). So the bases must become per-stage runtime
+values rather than `#define`s.
+
+Work required:
+1. `tools/convert_stage.py`: build the union atlas of the 3 maps' 8x8 tiles,
+   emit it as `res/stageN_tiles.png`, render the three map PNGs from that atlas
+   (rescomp resolves each MAP's blocks against the shared TILESET by art), and
+   emit ONE `TileSet` plus the stage's `bg_base` / `anim_base` (16-aligned
+   after the tileset and after the bg) in `stageN_def`.
+2. `res/resources.res`: per stage one `TILESET stageN_tiles "stageN_tiles.png"`
+   and three `MAP stageN_mapM "stageN_mapM.png" stageN_tiles FAST 0`.
+3. `src/stage_data.h` / `stage.h`: `tile_sets[]` becomes a single `tiles`
+   pointer; `TILE_BG_INDEX` / `TILE_ANIM_BASE` / `TILE_BG_MAX_TILES` become
+   `stage_def->bg_base` / `->anim_base` (touch points: `stage.c` bg + anim,
+   `menu.c` `MENU_TILE_BASE`, `transition.c` `vram_free_base`, and
+   `tools/check_vram.py`, which should then just assert the per-stage bases).
+4. `src/transition.c`: drop the destination-tile copy and the spare-base check
+   (no longer needed) — the fade fallback disappears.
+
 ## Notes / conventions
 
 - **Stage defs and LTO**: `stage_defs[]` is marked
