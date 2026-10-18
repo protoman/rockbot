@@ -1,3 +1,8 @@
+Platform up must kill player if it crunching him against the root.
+Charged shot/projectiles must flipt when shooting to the left.
+
+
+
 Still not modelled: the shield move (ROCKBOT only), and dash-vs-slide hitbox height
 
 

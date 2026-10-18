@@ -96,6 +96,9 @@ void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
         s->spr = SPR_addSprite(spr, ox - camera.x, oy - camera.y,
                                TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
         if (!s->spr) break;
+        // The projectile art faces RIGHT (the charged shot's tail is on the
+        // left), so mirror it when firing left.
+        SPR_setHFlip(s->spr, dir < 0);
         s->x = ox;
         s->y = oy;
         s->x0 = ox;
@@ -148,6 +151,7 @@ void shot_charge_fire(s16 x, s16 y, s16 dir, u8 level)
                            TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
     if (!s->spr) return;
     SPR_setAnim(s->spr, 0);
+    SPR_setHFlip(s->spr, dir < 0);   // art faces right (see shot_fire)
     s->x = x;
     s->y = y;
     s->x0 = x;

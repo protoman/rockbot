@@ -138,6 +138,17 @@ void objects_reset(void)
 static void obj_carry_player(s16 dy)
 {
     player.y += dy;
+    if (dy >= 0) return;
+    // Lifting the player into a ceiling is instant death (PC damage(999),
+    // classmap.cpp:1644). The platform's own move is already wall-checked, but
+    // the player is taller than it, so his head can enter a solid tile.
+    s16 l, t, r, b;
+    player_get_box(&l, &t, &r, &b);
+    s16 row = t >> 4;
+    if (stage_terrain_at(stage_current_map, (l + 1) >> 4, row) == TERRAIN_SOLID ||
+        stage_terrain_at(stage_current_map, (r - 1) >> 4, row) == TERRAIN_SOLID) {
+        player_crush();
+    }
 }
 
 static void obj_move(MapObj *o)

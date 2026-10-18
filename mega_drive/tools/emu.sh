@@ -33,10 +33,10 @@ EMU_PROJ=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 EMU_ROM_DEFAULT="$EMU_PROJ/out/rom.bin"
 EMU_WORK=${EMU_WORK:-/tmp/opencode/md-emu}
 EMU_TIMEOUT=${EMU_TIMEOUT:-600}
-# KDE virtual desktop (0-based: 1 = "Desktop 2") the emulator window is parked
-# on, so its window and key input do not collide with whatever the user is
-# doing. -1 disables. EMU_DESKTOP=1 by default.
-EMU_DESKTOP=${EMU_DESKTOP:-1}
+# KDE virtual desktop (0-based: 1 = "Desktop 2") to park the emulator window on.
+# -1 (default) leaves it on the CURRENT desktop. Set to 1 to keep its window
+# and key input off the user's desktop.
+EMU_DESKTOP=${EMU_DESKTOP:--1}
 EMU_STATE="$EMU_WORK/emu.state"
 
 # ---------------------------------------------------------------- detection

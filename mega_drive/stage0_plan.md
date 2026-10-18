@@ -227,12 +227,13 @@ MD has no second scolling plane over sprites →:
   fine — relaunching fixes it). `emu_shot_blank` detects it (a capture with a
   single unique colour) and `emu_start_ready` relaunches until the screen
   draws.
-- **Virtual desktop**: the emulator is parked on KDE desktop 2
-  (`EMU_DESKTOP=1`, 0-based; `-1` disables) so its window/keys do not collide
-  with the user's session. The session is **Wayland**: xdotool/wmctrl are
-  EWMH-only and report `get_num_desktops == 1` here, `kde-cli-tools`' kstart no
-  longer takes `--desktop`, so `emu_move_desktop` drives KWin directly with a
-  one-shot script over `org.kde.KWin /Scripting`
+- **Virtual desktop**: `EMU_DESKTOP` (0-based; `1` = KDE "Desktop 2") parks the
+  emulator window there so its window/keys do not collide with the user's
+  session; the default `-1` leaves it on the current desktop. The session is
+  **Wayland**: xdotool/wmctrl are EWMH-only and report
+  `get_num_desktops == 1` here, `kde-cli-tools`' kstart no longer takes
+  `--desktop`, so `emu_move_desktop` drives KWin directly with a one-shot
+  script over `org.kde.KWin /Scripting`
   (`w.desktops = [workspace.desktops[N]]`). `emu_key` restores the user's
   previous desktop after sending keys.
 - `/tmp/opencode/m5_test.sh` — stage + walk + fire + 5 screenshots.
@@ -925,6 +926,23 @@ PALETTE/MAP per map + PALETTE per bg), and the `stage_defs[]` registry.
   rock_metool), the FIRST declaration wins and both reuse it.
 - Verified in-emulator: stage 3 (ATLANTIDA) and stage 8 (TECHNO) load, render
   and scroll. The other six use the same path but are NOT played through.
+
+## Bug fixes (2026-10-17, user-reported #2)
+
+- **Charged shot / projectiles did not flip when firing left.** The projectile
+  art faces RIGHT (the charged shot's tail is on the left — see the column
+  averages of `res/shot_charge_full.png`), so `shot.c` now calls
+  `SPR_setHFlip(spr, dir < 0)` on both the normal and the charged shot.
+  Verified in-emulator: the full charge fired left shows the head left and the
+  tail trailing right.
+- **A platform lifting the player into a ceiling did not kill him.** The fly
+  platform (PC `OBJ_FLY_PLATFORM`, type 11) carries the player with
+  `obj_carry_player()`; the platform's own move is wall-checked, but the player
+  is taller than it, so his head could enter a solid tile. Now `obj_carry_player`
+  checks the head row against TERRAIN_SOLID after an upward carry and calls
+  `player_crush()` (PC `damage(999)`, classmap.cpp:1644 — instant death,
+  bypassing the invulnerability window). `player_take_damage`'s death path was
+  extracted into `player_die()` so both share it.
 
 ## Known issues
 

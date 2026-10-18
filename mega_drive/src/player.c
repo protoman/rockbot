@@ -894,6 +894,17 @@ void player_set_visible(bool visible)
     if (player.spr) SPR_setVisibility(player.spr, visible ? VISIBLE : HIDDEN);
 }
 
+// PC classPlayer::death() (classplayer.cpp:951): one life per death; running
+// out is a game over.
+static void player_die(void)
+{
+    if (lives) lives--;
+    else out_of_lives = TRUE;
+    player.hp = PLAYER_INITIAL_HP;
+    PAL_setPalette(PLAYER_PAL, base_pal, DMA_QUEUE);
+    respawn_player(FALSE);
+}
+
 void player_take_damage(u8 amount)
 {
     if (player.invuln > 0) return;
@@ -929,15 +940,16 @@ void player_take_damage(u8 amount)
         }
     }
 
-    if (player.hp == 0) {              // death: respawn at checkpoint/stage start
-        // PC classPlayer::death() (classplayer.cpp:951): one life per death;
-        // running out is a game over.
-        if (lives) lives--;
-        else out_of_lives = TRUE;
-        player.hp = PLAYER_INITIAL_HP;
-        PAL_setPalette(PLAYER_PAL, base_pal, DMA_QUEUE);
-        respawn_player(FALSE);
-    }
+    if (player.hp == 0) player_die();
+}
+
+void player_crush(void)
+{
+    // A platform pressing the player into a solid tile is instant death
+    // (PC damage(999), classmap.cpp:1644). Bypasses the invulnerability
+    // window — being crushed is not a "hit".
+    player.hp = 0;
+    player_die();
 }
 
 u8 player_lives(void) { return lives; }

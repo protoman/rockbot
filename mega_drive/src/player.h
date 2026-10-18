@@ -114,6 +114,10 @@ void player_place(s16 worldX, s16 worldY);
 // respawns at the stage start with full hp.
 void player_take_damage(u8 amount);
 
+// Instant death, ignoring invulnerability: a platform pressing the player
+// into a solid tile (PC damage(999)).
+void player_crush(void);
+
 // Record the respawn point (worldX, feet-Y worldY) when touching a
 // checkpoint object. Death and pit-falls respawn there while on that map.
 void player_set_checkpoint(s16 worldX, s16 worldY);
