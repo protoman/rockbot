@@ -95,6 +95,11 @@ u8 player_weapon_ammo(void);        // 0 = can't fire (PC classplayer.cpp:336)
 void player_use_weapon_ammo(void);  // one unit per shot
 void player_refill_weapons(void);   // PC refill_weapons(), at stage start
 
+// Lives (PC game_save.items.lifes): one per death, 5 at stage start. When they
+// run out the caller should leave the stage (PC: game over).
+u8 player_lives(void);
+bool player_out_of_lives(void);
+
 // pad = JOY_readJoypad(JOY_1)
 void player_update(u16 pad);
 

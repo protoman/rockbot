@@ -10,12 +10,16 @@
 // PAL0 (tools/pal_ui.py) so the fill colors match the enemy palette line.
 #define HUD_BALLS 5
 #define HUD_BALL_X 3
+#define HUD_WPN_X 62          // PC draw.cpp:1217 weapon row
 #define HUD_BOSS_X (320 - 55)  // PC draw.cpp:1237
 #define HUD_BALL_Y 3
 #define HUD_BALL_STEP 10
 
 static Sprite *balls[HUD_BALLS];
 static s8 last_fill[HUD_BALLS];
+static Sprite *wpn_balls[HUD_BALLS];
+static s8 wpn_last_fill[HUD_BALLS];
+static u8 wpn_shown = 0xff;    // weapon the row was built for (0xff = none)
 static Sprite *boss_balls[HUD_BALLS];
 static s8 boss_last_fill[HUD_BALLS];
 static bool boss_row_visible;
@@ -35,14 +39,49 @@ void hud_init(void)
                                  HUD_BALL_X + HUD_BALL_STEP * i, HUD_BALL_Y,
                                  TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
         last_fill[i] = -1;
+        wpn_balls[i] = SPR_addSprite(&hud_wpn_ball_sprite,
+                                     HUD_WPN_X + HUD_BALL_STEP * i, HUD_BALL_Y,
+                                     TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
+        wpn_last_fill[i] = -1;
+        if (wpn_balls[i]) SPR_setVisibility(wpn_balls[i], HIDDEN);
         boss_balls[i] = SPR_addSprite(&hud_boss_ball_sprite,
                                       HUD_BOSS_X + HUD_BALL_STEP * i, HUD_BALL_Y,
                                       TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
         boss_last_fill[i] = -1;
         if (boss_balls[i]) SPR_setVisibility(boss_balls[i], HIDDEN);
     }
+    wpn_shown = 0xff;
     boss_row_visible = FALSE;
     hud_on = TRUE;
+}
+
+// Weapon gauge (PC draw.cpp:1217: only drawn for a non-default weapon). The
+// port shows the sheet's own colour instead of the weapon's color1.
+void hud_weapon(u8 weapon, u8 ammo)
+{
+    if (!hud_on) return;
+    bool show = (weapon != 0);
+    if (show && wpn_shown != weapon) {
+        wpn_shown = weapon;
+        for (u8 i = 0; i < HUD_BALLS; i++) wpn_last_fill[i] = -1;
+    }
+    if (!show) {
+        if (wpn_shown != 0xff) {
+            wpn_shown = 0xff;
+            for (u8 i = 0; i < HUD_BALLS; i++)
+                if (wpn_balls[i]) SPR_setVisibility(wpn_balls[i], HIDDEN);
+        }
+        return;
+    }
+    s16 pct = (100 * ammo) / PLAYER_INITIAL_HP;
+    for (u8 i = 0; i < HUD_BALLS; i++) {
+        s8 fill = ball_fill(pct, i);
+        if (wpn_balls[i]) SPR_setVisibility(wpn_balls[i], VISIBLE);
+        if (fill != wpn_last_fill[i]) {
+            wpn_last_fill[i] = fill;
+            if (wpn_balls[i]) SPR_setFrame(wpn_balls[i], fill);
+        }
+    }
 }
 
 void hud_update(u8 hp)
@@ -85,6 +124,10 @@ void hud_set_visible(bool visible)
     hud_on = visible;
     for (u8 i = 0; i < HUD_BALLS; i++) {
         if (balls[i]) SPR_setVisibility(balls[i], visible ? VISIBLE : HIDDEN);
+        if (wpn_balls[i])
+            SPR_setVisibility(wpn_balls[i],
+                              (visible && wpn_shown != 0xff) ? VISIBLE
+                                                             : HIDDEN);
         if (boss_balls[i])
             SPR_setVisibility(boss_balls[i],
                               (visible && boss_row_visible) ? VISIBLE : HIDDEN);

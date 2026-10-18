@@ -233,6 +233,9 @@ def main():
     if not explicit or "hud_boss_ball" in explicit:
         ok += convert_hud_ball("boss_hp_ball.png", "hud_boss_ball.png")
         n += 1
+    if not explicit or "hud_wpn_ball" in explicit:
+        ok += convert_hud_ball("wpn_ball.png", "hud_wpn_ball.png")
+        n += 1
     print(f"{ok}/{n} converted -> {OUT_DIR}")
 
 

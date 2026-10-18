@@ -40,6 +40,42 @@ $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA)
 	$(PYTHON) tools/img2tiles.py res/stage2_bg0.png --name stage2_bg0
 	$(PYTHON) tools/img2tiles.py res/stage2_bg1.png --name stage2_bg1
 	$(PYTHON) tools/img2tiles.py res/stage2_bg2.png --name stage2_bg2
+	$(PYTHON) tools/convert_stage.py 3
+	$(PYTHON) tools/convert_enemies.py 3
+	$(PYTHON) tools/convert_objects.py 3
+	$(PYTHON) tools/img2tiles.py res/stage3_bg0.png --name stage3_bg0
+	$(PYTHON) tools/img2tiles.py res/stage3_bg1.png --name stage3_bg1
+	$(PYTHON) tools/img2tiles.py res/stage3_bg2.png --name stage3_bg2
+	$(PYTHON) tools/convert_stage.py 4
+	$(PYTHON) tools/convert_enemies.py 4
+	$(PYTHON) tools/convert_objects.py 4
+	$(PYTHON) tools/img2tiles.py res/stage4_bg0.png --name stage4_bg0
+	$(PYTHON) tools/img2tiles.py res/stage4_bg1.png --name stage4_bg1
+	$(PYTHON) tools/img2tiles.py res/stage4_bg2.png --name stage4_bg2
+	$(PYTHON) tools/convert_stage.py 5
+	$(PYTHON) tools/convert_enemies.py 5
+	$(PYTHON) tools/convert_objects.py 5
+	$(PYTHON) tools/img2tiles.py res/stage5_bg0.png --name stage5_bg0
+	$(PYTHON) tools/img2tiles.py res/stage5_bg1.png --name stage5_bg1
+	$(PYTHON) tools/img2tiles.py res/stage5_bg2.png --name stage5_bg2
+	$(PYTHON) tools/convert_stage.py 6
+	$(PYTHON) tools/convert_enemies.py 6
+	$(PYTHON) tools/convert_objects.py 6
+	$(PYTHON) tools/img2tiles.py res/stage6_bg0.png --name stage6_bg0
+	$(PYTHON) tools/img2tiles.py res/stage6_bg1.png --name stage6_bg1
+	$(PYTHON) tools/img2tiles.py res/stage6_bg2.png --name stage6_bg2
+	$(PYTHON) tools/convert_stage.py 7
+	$(PYTHON) tools/convert_enemies.py 7
+	$(PYTHON) tools/convert_objects.py 7
+	$(PYTHON) tools/img2tiles.py res/stage7_bg0.png --name stage7_bg0
+	$(PYTHON) tools/img2tiles.py res/stage7_bg1.png --name stage7_bg1
+	$(PYTHON) tools/img2tiles.py res/stage7_bg2.png --name stage7_bg2
+	$(PYTHON) tools/convert_stage.py 8
+	$(PYTHON) tools/convert_enemies.py 8
+	$(PYTHON) tools/convert_objects.py 8
+	$(PYTHON) tools/img2tiles.py res/stage8_bg0.png --name stage8_bg0
+	$(PYTHON) tools/img2tiles.py res/stage8_bg1.png --name stage8_bg1
+	$(PYTHON) tools/img2tiles.py res/stage8_bg2.png --name stage8_bg2
 	$(PYTHON) tools/convert_players.py
 	$(PYTHON) tools/convert_weapons.py
 	$(PYTHON) tools/convert_player.py

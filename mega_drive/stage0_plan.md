@@ -24,7 +24,7 @@ build + emulator run before moving on.
 | M0 | Maps, tiles, collision, walk/jump, map links, 224px (no vert scroll) | DONE (commit 171a4129 + map-height fix) |
 | M1 | Parallax backgrounds (BG_B) | DONE |
 | M2 | tile3 over-player layer | DONE (pragmatic: 13 both-cells baked, player in front) |
-| M3 | HUD | DONE minimal: text debug overlay (tile-pos + HP "H28"); no bar/score/lives yet |
+| M3 | HUD | DONE (HP balls, boss row, weapon gauge; lives in the in-game menu) |
 | M4 | Player attack + buster projectile | DONE (verified in emulator: cooldown, max 3, kill) |
 | M5 | Enemies (5 types) — spawn, patrol AI, contact damage, projectile kill | DONE (verified map0=11 / map1=10, contact dmg, kill) |
 | M6 | Objects (pills, 1UP, fall/fly platforms, checkpoint) | DONE (verified; + platform bug fixes built, emulator re-verify pending user) |
@@ -42,6 +42,7 @@ build + emulator run before moving on.
 | M15 | Player select on NEW GAME (PC select_player) + stage-select eyes follow cursor | DONE (screen + save field; eyes sprite nudges +-2px) |
 | M16 | Chosen player wired: sprite/palette/abilities + stage-select face | DONE (all abilities incl. shield; per-player hitbox height) |
 | M17 | Weapons (buster + the eight boss weapons) | DONE (table, per-weapon palette, projectile, ammo gauge, menu switch) |
+| M18 | All 9 selectable stages converted | DONE (ROM 640K -> 896K; 2 spot-checked in-emulator) |
 | M9 | Graphics toolchain: img2tiles + tiles_merge + pal_ui, build pipeline | DONE |
 | M8 | Audio (XGM2) | OUT OF SCOPE (later milestone) |
 | — | Menu, saves, stage select, doors/spikes/water/ice, animated tiles, real health bar/HUD, enemy projectiles | OUT OF SCOPE / later |
@@ -219,6 +220,21 @@ MD has no second scolling plane over sprites →:
 
 ## Test harness
 
+- `tools/emu.sh` (source it): `emu_start [rom]`, `emu_start_ready [rom] [tries]
+  [wait_s]`, `emu_stop`, `emu_status`, `emu_window`, `emu_key KEY [ms]`,
+  `emu_shot NAME`, `emu_shot_blank [NAME]`.
+- BlastEm sometimes freezes at startup with an **all-black window** (the ROM is
+  fine — relaunching fixes it). `emu_shot_blank` detects it (a capture with a
+  single unique colour) and `emu_start_ready` relaunches until the screen
+  draws.
+- **Virtual desktop**: the emulator is parked on KDE desktop 2
+  (`EMU_DESKTOP=1`, 0-based; `-1` disables) so its window/keys do not collide
+  with the user's session. The session is **Wayland**: xdotool/wmctrl are
+  EWMH-only and report `get_num_desktops == 1` here, `kde-cli-tools`' kstart no
+  longer takes `--desktop`, so `emu_move_desktop` drives KWin directly with a
+  one-shot script over `org.kde.KWin /Scripting`
+  (`w.desktops = [workspace.desktops[N]]`). `emu_key` restores the user's
+  previous desktop after sending keys.
 - `/tmp/opencode/m5_test.sh` — stage + walk + fire + 5 screenshots.
   `/tmp/opencode/m5_ladder.sh` — spawn-warp link test (temp SPAWN_X=2100).
   `/tmp/opencode/m5_base.sh` / `m5_shotvis.sh` — capture cadence checks.
@@ -230,6 +246,9 @@ MD has no second scolling plane over sprites →:
     stage reached before long input runs (xdotool input flake).
   - Keymap: `x` = pad B (fire), `c`/`z` = A/C (jump), `enter` = START,
     arrows = d-pad, `b` = plane-debug (avoid).
+  - `make` re-runs the asset pipeline when anything in `tools/*.py` or
+    `images/*.png` changes, which **regenerates** `src/*_data.c` — hand-edits
+    to generated files do not survive a build.
 
 ## Session notes (M4+M5)
 
@@ -832,10 +851,14 @@ non-classic `boss_intro/NN.png` splashes** (kept for reference only).
   weapon is owned once its stage is beaten. `save_slot_weapon_mask()` returns
   that mask (bit n) plus the always-owned buster.
 - Palette: `convert_players.py` now emits ALL 12 `weapon_colors` per player as
-  `s8 wcol[12][3][3]` (-1 = unset, because (0,0,0) is a real colour — BETABOT's
-  weapon 0 c2 is black). `rebuild_player_palette()` copies the sheet palette
-  and overrides indices 13/14/15 with the selected weapon's colours (PC
-  `change_player_color` swaps the COLORKEY1/2/3 entries).
+  **`s16`** `wcol[12][3][3]` (-1 = unset, because (0,0,0) is a real colour —
+  BETABOT's weapon 0 c2 is black). `s8` was wrong: components >127 wrapped
+  negative and were skipped as "unset", so the swap silently did nothing.
+  `rebuild_player_palette()` copies the sheet palette and overrides indices
+  13/14/15 with the selected weapon's colours (PC `change_player_color` swaps
+  the COLORKEY1/2/3 entries). `rgb9()` must emit a real CRAM word
+  `(R<<1)|(G<<5)|(B<<9)` — verified against rescomp's own
+  `player_p1_sprite_palette_data` (index 13 = 0x0608 for (143,0,119)).
 - Shot: `shot.c` takes sprite/speed/damage/size/trajectory from
   `stage_def->enemy_proj[weapon_data[weapon].proj]`. QUAKE (stationary ~1s) and
   ARC are ported; everything else falls back to LINEAR. Projectiles with no art
@@ -851,6 +874,57 @@ non-classic `boss_intro/NN.png` splashes** (kept for reference only).
   got-weapon screen, and trajectories other than LINEAR/ARC/QUAKE. Projectile 4
   (MAGIC STAR) is 56x56 — larger than the MD's 32x32 sprite limit; it is used
   by the enemy shots too, so it is not a regression.
+
+## HUD: weapon gauge + lives (M3 extension, 2026-10-17)
+
+The PC HUD is the MODERN style: `draw_enery_ball` rows at x=3 (HP), x=62
+(weapon) and RES_W-55 (boss) — `draw.cpp:1202`. There is no on-screen score;
+lives are drawn in the in-game menu (`weapon_menu_show_player`, draw.cpp:1021,
+"x[N]" next to the portrait).
+
+- Weapon gauge: `hud_weapon(weapon, ammo)` — 5 more balls at x=62, shown only
+  for a non-default weapon (PC draw.cpp:1217), fill = ammo / 28.
+  Art: `res/hud_wpn_ball.png` (PC `wpn_ball.png`, green fill). The PC tints the
+  ball with the weapon's `color1` at runtime; the port keeps the sheet colour
+  (see roadmap 11 for the dedup that would also fix the tint).
+- Lives: `player_lives()` (5 at stage start, PC `reset_lifes()` normal
+  difficulty), one per death (PC `classPlayer::death()`), and
+  `player_out_of_lives()` makes `runStage()` leave the stage (PC game over).
+  Shown in the menu as `x[N]`.
+
+## All 9 stages converted (M18, 2026-10-17)
+
+The stage select offers 9 slots (`ssel_boss_names[9]`); only 0..2 existed, so
+6 slots printed `NOT CONVERTED YET` and START did nothing.
+
+All nine are converted now — `STAGE_DEFINED_COUNT 9`, ROM 640K -> 896K:
+
+| # | stage | boss |
+|---|---|---|
+| 0 | CHAOS CITY | MILONGA BOT |
+| 1 | DEEP JUNGLE | APE BOT |
+| 2 | FLOWER FIELDS | DAISIE BOT |
+| 3 | ATLANTIDA | SEAHORSE BOT |
+| 4 | DESERT | MUMMY BOT |
+| 5 | MUMMY | MAGE BOT |
+| 6 | SPIKE | DYNAMITE BOT |
+| 7 | TECHNO | SPIKE BOT |
+| 8 | CASTLE | TECHNO BOT |
+
+Per stage: `tools/convert_stage.py N` (maps/tilesets/terrain/links/bg/anim),
+`convert_enemies.py N`, `convert_objects.py N`, the three `img2tiles` bg steps
+(Makefile asset rule), one `resources.res` block (new enemy SPRITEs + TILESET/
+PALETTE/MAP per map + PALETTE per bg), and the `stage_defs[]` registry.
+
+- **Bug fixed**: `convert_enemies.py` asserted `record[i].id == i`; the list is
+  positional and records 59/60 (UFO/FLYBOT) carry 0xFF in the id byte. Stage 4
+  spawns one of them, so its conversion aborted. The assert now accepts 0xFF.
+- New sprites are shared across stages when the art matches (the converters do
+  not rewrite unchanged PNGs), so only genuinely new enemies add SPRITE lines.
+  Where one graphic is used with different frame times by two enemies (e.g.
+  rock_metool), the FIRST declaration wins and both reuse it.
+- Verified in-emulator: stage 3 (ATLANTIDA) and stage 8 (TECHNO) load, render
+  and scroll. The other six use the same path but are NOT played through.
 
 ## Known issues
 

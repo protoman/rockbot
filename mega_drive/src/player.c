@@ -68,6 +68,8 @@ Player player;
 
 static bool air_jump_used;
 static bool air_dash_used;
+static u8 lives;            // PC game_save.items.lifes (5 = normal difficulty)
+static bool out_of_lives;
 static s16 box_t = PLAYER_BOX_T;   // hitbox offsets (see update_hitbox)
 static s16 box_b = PLAYER_BOX_B;
 static s16 coyote_timer;
@@ -166,17 +168,19 @@ static void make_flash_palettes(void)
         u8 boost = v ? 3 : 1;
         for (u8 i = 0; i < 16; i++) {
             u16 c = base[i];
-            u8 r = (c & 7) + boost;         if (r > 7) r = 7;
-            u8 g = ((c >> 4) & 7) + boost;  if (g > 7) g = 7;
-            u8 b = ((c >> 8) & 7) + boost;  if (b > 7) b = 7;
-            flash_pal[v][i] = (b << 8) | (g << 4) | r;
+            u8 r = ((c >> 1) & 7) + boost;  if (r > 7) r = 7;
+            u8 g = ((c >> 5) & 7) + boost;  if (g > 7) g = 7;
+            u8 b = ((c >> 9) & 7) + boost;  if (b > 7) b = 7;
+            flash_pal[v][i] = (u16)((r << 1) | (g << 5) | (b << 9));
         }
     }
 }
 
 static u16 rgb9(u8 r, u8 g, u8 b)
 {
-    return (u16)(((u8)(b >> 5) << 8) | ((u8)(g >> 5) << 4) | (u8)(r >> 5));
+    // MD CRAM word: 0x0BGR — R at bits 1-3, G at 5-7, B at 9-11 (white 0x0EEE).
+    return (u16)(((u8)(r >> 5) << 1) | ((u8)(g >> 5) << 5) |
+                 ((u8)(b >> 5) << 9));
 }
 
 // The player palette is the sheet's, with indices 13/14/15 replaced by the
@@ -187,7 +191,7 @@ static void rebuild_player_palette(void)
 {
     const u16 *sheet = player_defs[player_n]->palette->data;
     for (u8 i = 0; i < 16; i++) base_pal[i] = sheet[i];
-    const s8 (*wc)[3] = player_data[player_n].wcol[player.weapon];
+    const s16 (*wc)[3] = player_data[player_n].wcol[player.weapon];
     for (u8 k = 0; k < 3; k++) {
         if (wc[k][0] < 0) continue;
         base_pal[13 + k] = rgb9((u8)wc[k][0], (u8)wc[k][1], (u8)wc[k][2]);
@@ -320,6 +324,8 @@ void player_init(void)
     player.shielding = FALSE;
     player.weapon = 0;
     player_refill_weapons();      // PC refills every gauge at stage start
+    lives = 5;                    // PC reset_lifes(), normal difficulty
+    out_of_lives = FALSE;
     coyote_timer = COYOTE_FRAMES;
     jump_timer = 0;
     attack_timer = 0;
@@ -924,8 +930,16 @@ void player_take_damage(u8 amount)
     }
 
     if (player.hp == 0) {              // death: respawn at checkpoint/stage start
+        // PC classPlayer::death() (classplayer.cpp:951): one life per death;
+        // running out is a game over.
+        if (lives) lives--;
+        else out_of_lives = TRUE;
         player.hp = PLAYER_INITIAL_HP;
         PAL_setPalette(PLAYER_PAL, base_pal, DMA_QUEUE);
         respawn_player(FALSE);
     }
 }
+
+u8 player_lives(void) { return lives; }
+
+bool player_out_of_lives(void) { return out_of_lives; }

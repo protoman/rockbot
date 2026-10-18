@@ -16,7 +16,11 @@ void hud_update(u8 hp);
 // Call once per frame.
 void hud_boss(s16 hp);
 
-// Hide/show both HP rows (in-game menu overlay).
+// Weapon gauge row: 5 balls at x=62 (PC draw.cpp:1217). Hidden while the
+// default weapon is selected (weapon 0); fill = ammo / PLAYER_INITIAL_HP.
+void hud_weapon(u8 weapon, u8 ammo);
+
+// Hide/show the HP rows (in-game menu overlay).
 void hud_set_visible(bool visible);
 
 #endif

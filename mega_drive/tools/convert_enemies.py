@@ -100,7 +100,9 @@ def read_enemy_defs(blob, ids):
     defs = {}
     for eid in sorted(ids):
         b = blob[eid * NPC_SZ:(eid + 1) * NPC_SZ]
-        assert b[0] == eid, f"record {eid}: id byte {b[0]} != {eid}"
+        # The list is positional: a few late records (59/60 = UFO/FLYBOT) carry
+        # 0xFF in the id byte but are still real entries — trust the index.
+        assert b[0] == eid or b[0] == 0xFF, f"record {eid}: id byte {b[0]} != {eid}"
         stand, walk, attack = [], [], []
         for anim, out in ((ANIM_STAND, stand), (ANIM_WALK, walk),
                           (ANIM_ATTACK, attack)):

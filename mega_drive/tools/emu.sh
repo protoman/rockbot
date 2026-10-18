@@ -33,6 +33,10 @@ EMU_PROJ=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 EMU_ROM_DEFAULT="$EMU_PROJ/out/rom.bin"
 EMU_WORK=${EMU_WORK:-/tmp/opencode/md-emu}
 EMU_TIMEOUT=${EMU_TIMEOUT:-600}
+# KDE virtual desktop (0-based: 1 = "Desktop 2") the emulator window is parked
+# on, so its window and key input do not collide with whatever the user is
+# doing. -1 disables. EMU_DESKTOP=1 by default.
+EMU_DESKTOP=${EMU_DESKTOP:-1}
 EMU_STATE="$EMU_WORK/emu.state"
 
 # ---------------------------------------------------------------- detection
@@ -139,7 +143,9 @@ emu_start() {
 
     printf 'pids=%s\nwid=%s\nrom=%s\ntimeout=%s\n' \
         "$(emu_bin_pids | tr '\n' ',')" "$wid" "$rom" "$EMU_TIMEOUT" >"$EMU_STATE"
-    echo "emu: started (pids=$(emu_bin_pids | tr '\n' ',') wid=${wid:-none} timeout=${EMU_TIMEOUT}s)"
+    # park the window on the configured virtual desktop (see EMU_DESKTOP)
+    [ -n "$wid" ] && emu_move_desktop "$EMU_DESKTOP"
+    echo "emu: started (pids=$(emu_bin_pids | tr '\n' ',') wid=${wid:-none} timeout=${EMU_TIMEOUT}s desktop=${EMU_DESKTOP})"
     [ -n "$wid" ] || { echo "emu: window not found (still running?)" >&2; return 1; }
     return 0
 }
@@ -151,13 +157,21 @@ emu_focus() {
 }
 
 # Focus + tap a key, holding it HOLD_MS so the ROM polls it at 60fps.
-# Keys are sent globally (SDL ignores XSendEvent); focus is re-asserted first.
+# Keys are sent globally (SDL ignores XSendEvent); focus is re-asserted first,
+# which switches to the emulator's virtual desktop — the user's previous
+# desktop is restored afterwards so their session is not disturbed.
 emu_key() {
-    local key=$1 hold=${2:-80}
-    emu_focus || { echo "emu: no window" >&2; return 1; }
+    local key=$1 hold=${2:-80} wid prev
+    wid=$(emu_window) || { echo "emu: no window" >&2; return 1; }
+    prev=$(xdotool get_desktop 2>/dev/null)
+    timeout 3 xdotool windowactivate "$wid" 2>/dev/null
+    timeout 3 xdotool windowraise "$wid" 2>/dev/null
     timeout 3 xdotool keydown "$key" 2>/dev/null
     sleep "$(awk "BEGIN{print $hold/1000}")"
     timeout 3 xdotool keyup "$key" 2>/dev/null
+    if [ -n "$prev" ] && [ "$prev" != "${EMU_DESKTOP:--1}" ]; then
+        timeout 3 xdotool set_desktop "$prev" 2>/dev/null
+    fi
 }
 
 emu_shot() {
@@ -177,15 +191,75 @@ emu_status() {
     return 1
 }
 
+# Park the emulator window on the configured virtual desktop.
+# Wayland + KWin: xdotool/wmctrl are EWMH-only and report a single desktop
+# here (xdotool get_num_desktops == 1), and kde-cli-tools' kstart no longer
+# takes --desktop. So drive KWin directly with a one-shot script.
+emu_move_desktop() {
+    local desk=${1:-$EMU_DESKTOP} script id
+    [ "${desk:--1}" -ge 0 ] 2>/dev/null || return 0
+    command -v qdbus >/dev/null 2>&1 || return 0
+    qdbus org.kde.KWin /Scripting >/dev/null 2>&1 || return 0
+    script=$(mktemp "${TMPDIR:-/tmp}/emu_kwin_XXXXXX.js")
+    cat >"$script" <<EOF
+const wins = workspace.windowList ? workspace.windowList() : workspace.clientList();
+for (let i = 0; i < wins.length; i++) {
+    const w = wins[i];
+    const cls = (w.resourceClass || w.resourceName || "").toString().toLowerCase();
+    if (cls.indexOf("blastem") >= 0) w.desktops = [workspace.desktops[$desk]];
+}
+EOF
+    id=$(qdbus org.kde.KWin /Scripting org.kde.kwin.Scripting.loadScript "$script" 2>/dev/null)
+    if [ -n "$id" ]; then
+        qdbus org.kde.KWin /Scripting org.kde.kwin.Scripting.start >/dev/null 2>&1
+        sleep 1
+        qdbus org.kde.KWin /Scripting org.kde.kwin.Scripting.unloadScript "$script" >/dev/null 2>&1
+    fi
+    rm -f "$script"
+    return 0
+}
+
+# BlastEm sometimes freezes at startup with an all-black window (the ROM is
+# fine — relaunching fixes it). A capture with a single unique colour is a
+# wedged frame.
+emu_shot_blank() {
+    local name=${1:-.emu_probe} png n
+    png=$(emu_shot "$name") || return 0        # no window -> treat as blank
+    [ -z "$png" ] && return 0
+    n=$(timeout 10 identify -format %k "$png" 2>/dev/null)
+    [ -z "$n" ] && return 0
+    [ "$n" -le 1 ]
+}
+
+# start, wait for a drawing screen, relaunch while it stays black.
+#   emu_start_ready [rom] [tries] [wait_s]
+emu_start_ready() {
+    local rom=${1:-$EMU_ROM_DEFAULT} tries=${2:-3} wait=${3:-12} i
+    for i in $(seq 1 "$tries"); do
+        emu_start "$rom" || { sleep 2; continue; }
+        sleep "$wait"
+        if ! emu_shot_blank .emu_probe; then
+            return 0
+        fi
+        echo "emu: black screen after ${wait}s (attempt $i/$tries) - restarting" >&2
+        emu_stop
+        sleep 2
+    done
+    echo "emu: still blank after ${tries} attempts" >&2
+    return 1
+}
+
 # ---------------------------------------------------------------- dispatch
 if [ "${BASH_SOURCE[0]}" = "$0" ]; then
     case "${1:-}" in
         start)  shift; emu_start "$@" ;;
+        start-ready) shift; emu_start_ready "$@" ;;
         stop)   emu_stop ;;
         status) emu_status ;;
         window) emu_window ;;
         shot)   shift; emu_shot "$@" ;;
+        blank)  emu_shot_blank "${2:-.emu_probe}" ;;
         key)    shift; emu_key "$@" ;;
-        *) echo "usage: $0 {start [rom]|stop|status|window|shot NAME|key KEY [ms]}" >&2; exit 2 ;;
+        *) echo "usage: $0 {start [rom]|start-ready [rom] [tries] [wait]|stop|status|window|shot NAME|blank [NAME]|key KEY [ms]}" >&2; exit 2 ;;
     esac
 fi

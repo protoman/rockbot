@@ -132,7 +132,7 @@ def main():
 
 typedef struct {{
     const char *name;
-    s8 wcol[PLAYER_WEAPON_N][3][3]; // per weapon: {{c1, c2, c3}}; -1 = unset
+    s16 wcol[PLAYER_WEAPON_N][3][3]; // per weapon: {{c1, c2, c3}}; -1 = unset
     u8 max_shots, simultaneous;
     s8 dmg_mod;
     u8 flags;                 // PL_* bits

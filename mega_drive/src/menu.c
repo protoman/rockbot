@@ -102,6 +102,12 @@ bool menu_open(u16 weapon_mask)
     draw_weapon_line();
     VDP_drawText("A: LEAVE STAGE", 2, 26);
     VDP_drawText("LEFT/RIGHT: WEAPON", 2, 25);
+    // PC weapon_menu_show_player (draw.cpp:1021): lives next to the portrait
+    {
+        char buf[6] = { 'x', '[', '0', ']', 0, 0 };
+        buf[2] = (char)('0' + (player_lives() % 10));
+        VDP_drawText(buf, 5, 20);
+    }
 
     portrait = SPR_addSprite(player_definition(), 6, 141,
                              TILE_ATTR(PLAYER_PAL, FALSE, FALSE, FALSE));

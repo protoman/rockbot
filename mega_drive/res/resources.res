@@ -111,6 +111,9 @@ PALETTE pal_ui "pal_ui.png"
 SPRITE hud_hp_ball_sprite "hud_hp_ball.png" 16p 16p FAST [[0,0,0,0,0]]
 # Boss row at RES_W-55 (PC draw.cpp:1237), same frame contract
 SPRITE hud_boss_ball_sprite "hud_boss_ball.png" 16p 16p FAST [[0,0,0,0,0]]
+# Weapon gauge at x=62 (PC draw.cpp:1217); the PC tints it with the selected
+# weapon's color1 at runtime, the port keeps the sheet's own colour
+SPRITE hud_wpn_ball_sprite "hud_wpn_ball.png" 16p 16p FAST [[0,0,0,0,0]]
 
 # ---- IN-GAME MENU panel (tools/img2tiles.py: PC weapon_menu.png panel,
 # cropped 16px for the 320x224 screen, decomposed to ~46 unique tiles) ----
@@ -186,3 +189,114 @@ MAP     stage2_map2   "stage2_map2.png"  stage2_tiles2 FAST 0
 PALETTE stage2_bg0_pal "stage2_bg0_tiles.png"
 PALETTE stage2_bg1_pal "stage2_bg1_tiles.png"
 PALETTE stage2_bg2_pal "stage2_bg2_tiles.png"
+
+# ---- STAGE 3 (ATLANTIDA) ----
+SPRITE enemy_bat_sprite "enemy_bat.png" 32p 24p FAST [[48][12,12,12,12][120]]
+SPRITE enemy_seahorsebot_sprite "enemy_seahorsebot.png" 32p 40p FAST [[12,12][12,12][72]]
+SPRITE enemy_giant_dolphin_sprite "enemy_giant_dolphin.png" 104p 64p FAST [[3,3][3,3][3,3]]
+SPRITE enemy_small_fish_sprite "enemy_small_fish.png" 24p 16p FAST [[12,12,12][6,6,6][0]]
+SPRITE enemy_killer_fish_sprite "enemy_killer_fish.png" 32p 32p FAST [[6,6][6][0]]
+SPRITE enemy_spiked_floor_sprite "enemy_spiked_floor.png" 24p 16p FAST [[12,12][12,12][0]]
+SPRITE enemy_wood_shield_sprite "enemy_wood_shield.png" 32p 32p FAST [[12,12][12,12][0]]
+TILESET stage3_tiles0 "stage3_map0.png" FAST ALL
+PALETTE stage3_pal0   "stage3_map0.png"
+MAP     stage3_map0   "stage3_map0.png"  stage3_tiles0 FAST 0
+TILESET stage3_tiles1 "stage3_map1.png" FAST ALL
+PALETTE stage3_pal1   "stage3_map1.png"
+MAP     stage3_map1   "stage3_map1.png"  stage3_tiles1 FAST 0
+TILESET stage3_tiles2 "stage3_map2.png" FAST ALL
+PALETTE stage3_pal2   "stage3_map2.png"
+MAP     stage3_map2   "stage3_map2.png"  stage3_tiles2 FAST 0
+PALETTE stage3_bg0_pal "stage3_bg0_tiles.png"
+PALETTE stage3_bg1_pal "stage3_bg1_tiles.png"
+PALETTE stage3_bg2_pal "stage3_bg2_tiles.png"
+
+# ---- STAGE 4 ----
+TILESET stage4_tiles0 "stage4_map0.png" FAST ALL
+PALETTE stage4_pal0   "stage4_map0.png"
+MAP     stage4_map0   "stage4_map0.png"  stage4_tiles0 FAST 0
+TILESET stage4_tiles1 "stage4_map1.png" FAST ALL
+PALETTE stage4_pal1   "stage4_map1.png"
+MAP     stage4_map1   "stage4_map1.png"  stage4_tiles1 FAST 0
+TILESET stage4_tiles2 "stage4_map2.png" FAST ALL
+PALETTE stage4_pal2   "stage4_map2.png"
+MAP     stage4_map2   "stage4_map2.png"  stage4_tiles2 FAST 0
+PALETTE stage4_bg0_pal "stage4_bg0_tiles.png"
+PALETTE stage4_bg1_pal "stage4_bg1_tiles.png"
+PALETTE stage4_bg2_pal "stage4_bg2_tiles.png"
+
+# ---- STAGE 5 ----
+SPRITE enemy_magebot_sprite "enemy_magebot.png" 32p 40p FAST [[120][12,12][18,18]]
+SPRITE enemy_bunny_sprite "enemy_bunny.png" 32p 40p FAST [[24][6][0]]
+SPRITE enemy_top_hat_sprite "enemy_top_hat.png" 24p 16p FAST [[120][120][0]]
+SPRITE enemy_gambit_sprite "enemy_gambit.png" 40p 40p FAST [[120][120][12,12,12,12,36]]
+SPRITE enemy_metool_tophat_sprite "enemy_metool_tophat.png" 24p 24p FAST [[120][12,12][9,9,30,9,9,9]]
+TILESET stage5_tiles0 "stage5_map0.png" FAST ALL
+PALETTE stage5_pal0   "stage5_map0.png"
+MAP     stage5_map0   "stage5_map0.png"  stage5_tiles0 FAST 0
+TILESET stage5_tiles1 "stage5_map1.png" FAST ALL
+PALETTE stage5_pal1   "stage5_map1.png"
+MAP     stage5_map1   "stage5_map1.png"  stage5_tiles1 FAST 0
+TILESET stage5_tiles2 "stage5_map2.png" FAST ALL
+PALETTE stage5_pal2   "stage5_map2.png"
+MAP     stage5_map2   "stage5_map2.png"  stage5_tiles2 FAST 0
+PALETTE stage5_bg0_pal "stage5_bg0_tiles.png"
+PALETTE stage5_bg1_pal "stage5_bg1_tiles.png"
+PALETTE stage5_bg2_pal "stage5_bg2_tiles.png"
+
+# ---- STAGE 6 ----
+SPRITE enemy_dynamitebot_sprite "enemy_dynamitebot.png" 48p 40p FAST [[12,18][18,18][12,12,12]]
+SPRITE enemy_spinning_blade_sprite "enemy_spinning_blade.png" 24p 24p FAST [[15,15][9,9][0]]
+SPRITE enemy_mine_cart_sprite "enemy_mine_cart.png" 40p 40p FAST [[7,7][6,6][0]]
+TILESET stage6_tiles0 "stage6_map0.png" FAST ALL
+PALETTE stage6_pal0   "stage6_map0.png"
+MAP     stage6_map0   "stage6_map0.png"  stage6_tiles0 FAST 0
+TILESET stage6_tiles1 "stage6_map1.png" FAST ALL
+PALETTE stage6_pal1   "stage6_map1.png"
+MAP     stage6_map1   "stage6_map1.png"  stage6_tiles1 FAST 0
+TILESET stage6_tiles2 "stage6_map2.png" FAST ALL
+PALETTE stage6_pal2   "stage6_map2.png"
+MAP     stage6_map2   "stage6_map2.png"  stage6_tiles2 FAST 0
+PALETTE stage6_bg0_pal "stage6_bg0_tiles.png"
+PALETTE stage6_bg1_pal "stage6_bg1_tiles.png"
+PALETTE stage6_bg2_pal "stage6_bg2_tiles.png"
+
+# ---- STAGE 7 ----
+SPRITE enemy_spikebot_sprite "enemy_spikebot.png" 40p 40p FAST [[12,12][6,6][120]]
+SPRITE enemy_driller_sprite "enemy_driller.png" 32p 24p FAST [[6,6][6,6][0]]
+SPRITE enemy_metal_metool_sprite "enemy_metal_metool.png" 24p 24p FAST [[120][12,12][9,9,30,6,9,9]]
+TILESET stage7_tiles0 "stage7_map0.png" FAST ALL
+PALETTE stage7_pal0   "stage7_map0.png"
+MAP     stage7_map0   "stage7_map0.png"  stage7_tiles0 FAST 0
+TILESET stage7_tiles1 "stage7_map1.png" FAST ALL
+PALETTE stage7_pal1   "stage7_map1.png"
+MAP     stage7_map1   "stage7_map1.png"  stage7_tiles1 FAST 0
+TILESET stage7_tiles2 "stage7_map2.png" FAST ALL
+PALETTE stage7_pal2   "stage7_map2.png"
+MAP     stage7_map2   "stage7_map2.png"  stage7_tiles2 FAST 0
+PALETTE stage7_bg0_pal "stage7_bg0_tiles.png"
+PALETTE stage7_bg1_pal "stage7_bg1_tiles.png"
+PALETTE stage7_bg2_pal "stage7_bg2_tiles.png"
+
+# ---- STAGE 8 ----
+SPRITE enemy_technobot_sprite "enemy_technobot.png" 48p 40p FAST [[120,1,12,12][120,1,12,12][120]]
+SPRITE enemy_ground_shooter_sprite "enemy_ground_shooter.png" 16p 16p FAST [[6,6,6,6,6,6][6,6,6,6,6,6][1,6]]
+SPRITE enemy_android_sprite "enemy_android.png" 24p 24p FAST [[600][6,6,6][600]]
+TILESET stage8_tiles0 "stage8_map0.png" FAST ALL
+PALETTE stage8_pal0   "stage8_map0.png"
+MAP     stage8_map0   "stage8_map0.png"  stage8_tiles0 FAST 0
+TILESET stage8_tiles1 "stage8_map1.png" FAST ALL
+PALETTE stage8_pal1   "stage8_map1.png"
+MAP     stage8_map1   "stage8_map1.png"  stage8_tiles1 FAST 0
+TILESET stage8_tiles2 "stage8_map2.png" FAST ALL
+PALETTE stage8_pal2   "stage8_map2.png"
+MAP     stage8_map2   "stage8_map2.png"  stage8_tiles2 FAST 0
+PALETTE stage8_bg0_pal "stage8_bg0_tiles.png"
+PALETTE stage8_bg1_pal "stage8_bg1_tiles.png"
+PALETTE stage8_bg2_pal "stage8_bg2_tiles.png"
+
+
+# ---- sprites missed by the first pass (converter assert fixed) ----
+SPRITE enemy_mummybot_sprite "enemy_mummybot.png" 40p 40p FAST [[120][120][120]]
+SPRITE enemy_giant_fly_sprite "enemy_giant_fly.png" 64p 48p FAST [[9,9][6,6][0]]
+SPRITE enemy_fly_sprite "enemy_fly.png" 32p 24p FAST [[4,4,4,4][6,6,6][0]]

@@ -255,6 +255,10 @@ static void runStage(u8 stage)
         objects_update();   // platforms carry the player before his physics
         player_update(pad);
         hud_update(player.hp);
+        hud_weapon(player_weapon(), player_weapon_ammo());
+
+        // PC game over (out of lives): leave the stage, back to the title.
+        if (player_out_of_lives()) return;
 
         s16 bl, bt, br, bb;
         player_get_box(&bl, &bt, &br, &bb);
