@@ -1354,6 +1354,26 @@ Work required:
 4. `src/transition.c`: drop the destination-tile copy and the spare-base check
    (no longer needed) — the fade fallback disappears.
 
+**BLOCKED (2026-10-18, tried and reverted): rescomp cannot do step 2.**
+`MAP name "map.png" tileset_id` refuses a tileset built from a *different* image
+file — `java.lang.RuntimeException: Can't find tile [0,0] in tileset`
+(`Map.java:172`), reproduced here twice already (lessons_learned #18 and #23),
+even when the two PNGs are byte-identical. So three maps cannot share one
+union-atlas `TILESET` while each keeps its own map PNG. The converter change
+(map PNGs rendered from a union atlas, one `TILESET` + three `MAP`) was written
+and reverted; nothing of it is in the tree.
+
+Remaining routes, cheapest first:
+- **Keep the fade.** Stage 2 map 2 -> map 1 falls back; the PC fades between
+  some rooms too. Zero risk, one cosmetic difference.
+- **Runtime reuse of resident tiles.** Ship the tilesets uncompressed, have a
+  post-build script (like `check_vram.py`) map tile index -> art hash per map,
+  then remap destination tiles that are already in VRAM and only copy the
+  rest. Estimated ~36 unshared tiles for that window vs 16 free — does not
+  reliably fit, so it would still need extra space.
+- **Drop rescomp `MAP`** and emit our own compressed tilemap + incremental
+  plane writer. Real fix, but a rewrite of how stages are stored and scrolled.
+
 ## Notes / conventions
 
 - **Stage defs and LTO**: `stage_defs[]` is marked
