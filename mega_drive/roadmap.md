@@ -115,14 +115,15 @@ Spawn position verified in all 9 stages (2026-10-18, CANDYBOT): every one now
 starts with the player standing on the ground (see `stage0_plan.md`).
 
 Still untested by playing: spike damage, conveyor tiles, per-stage content
-beyond the spawn, the weapons (task 5), the shield gesture, and the platform
-crush fix. The emulator harness can drive inputs but cannot judge feel — this
-needs the user at the controls.
+beyond the spawn, the weapons (task 5) and the platform crush fix. The
+emulator harness can drive inputs but cannot judge feel — this needs the user
+at the controls.
 
-**Boss fight: verified working** (2026-10-18) — MILONGA BOT renders, walks,
-fires, and its HP row drops as shots land; the player can die to it. See the
-boss investigation in `stage0_plan.md` for how to reach an arena (add a
-temporary link near the spawn — do not warp the player).
+**Verified in-emulator (2026-10-18)**: the boss fight (MILONGA BOT renders,
+walks, fires, HP row drops as shots land) and the shield (ROCKBOT, DOWN+A
+draws the shield frame). See the boss investigation in `stage0_plan.md` for how
+to reach an arena — add a temporary link near the spawn, do not warp the
+player.
 
 ## 9. Per-stage music — DEFERRED (needs tooling)
 

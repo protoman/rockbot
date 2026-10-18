@@ -1009,6 +1009,10 @@ Also fixed on the way: `enemies_reset()` now lifts an enemy whose spawn box
 overlaps the floor (the gravity loop only scans down, so it used to fall
 through and be released).
 
+**Shield verified** (2026-10-18): with ROCKBOT, holding DOWN+A draws the shield
+frame (row 9 / sprite frame 22) — `/tmp/opencode/md-emu/sh_a.png`. The gesture,
+`player_can_shield()` and the sprite row all work.
+
 ## Known issues
 
 - Pre-stage menus (save selector, stage select) have **no cursor SFX**: menu
