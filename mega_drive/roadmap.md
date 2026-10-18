@@ -109,12 +109,16 @@ record's bg field is empty** — only `graphic_filename` is set. The one file in
 that directory (`destrin_ship.png`) is not referenced by any enemy. Nothing to
 emit.
 
-## 7. Playtest pass
+## 7. Playtest pass  **[PARTIAL]**
 
-Load-tested only, never played through: spike damage, conveyor tiles, stage 2
-content, the APE BOT / DAISIE BOT boss attack patterns (generic `is_boss`
-path, untuned), the weapons (task 5) and the shield gesture. Needs the user at
-the controls — the emulator harness can drive inputs but not judge feel.
+Spawn position verified in all 9 stages (2026-10-18, CANDYBOT): every one now
+starts with the player standing on the ground (see `stage0_plan.md`).
+
+Still untested by playing: spike damage, conveyor tiles, per-stage content
+beyond the spawn, the APE BOT / DAISIE BOT boss attack patterns (generic
+`is_boss` path, untuned), the weapons (task 5), the shield gesture, and the
+platform crush fix. The emulator harness can drive inputs but cannot judge
+feel — this needs the user at the controls.
 
 ## 9. Per-stage music — DEFERRED (needs tooling)
 

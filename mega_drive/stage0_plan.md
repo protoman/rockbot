@@ -944,6 +944,33 @@ PALETTE/MAP per map + PALETTE per bg), and the `stage_defs[]` registry.
   bypassing the invulnerability window). `player_take_damage`'s death path was
   extracted into `player_die()` so both share it.
 
+## Stage-start spawn fix + playtest (2026-10-18)
+
+**Bug (user-reported)**: the player spawned on the CEILING in SPIKE ("Dynamite")
+and was nowhere to be found in FLOWER FIELDS ("Daisie") / ATLANTIDA ("Seahorse").
+
+Cause: `spawn_ground_y()` scanned the map **top-down** for the first non-unblocked
+tile. A stage with a roof put him on the ceiling; where the first hit was inside a
+wall he was buried, fell out of the map and respawned forever.
+
+Fix: scan **bottom-up**, like the PC — `game::set_player_position_teleport_in`
+(game.cpp:291) → `classMap::get_first_lock_on_bottom` (classmap.cpp:953): find the
+first solid row that has room for the player's box above it and stand him on it.
+
+**Playtest — all 9 stages, CANDYBOT, spawn position**: 0 CHAOS CITY, 1 DEEP JUNGLE,
+2 FLOWER FIELDS, 3 ATLANTIDA, 4 DESERT, 5 MUMMY, 6 SPIKE, 7 TECHNO, 8 CASTLE all
+spawn the player standing on the ground now. Screenshots in
+`/tmp/opencode/md-emu/p*.png`.
+
+Method: a temporary hook in `main()` booted straight into stage N (index in SRAM
+word 200, low byte) with CANDYBOT forced — reverted before the commit. Normal flow
+re-checked afterwards (NEW GAME → CHAOS CITY with ROCKBOT).
+
+Harness: `emu_keys_up` added — BlastEm occasionally misses a keyup, leaving a pad
+button stuck; the game then spins in its "wait for release" loop and looks frozen
+(that was the false alarm about the pause menu not closing — START opens and closes
+it correctly).
+
 ## Known issues
 
 - Pre-stage menus (save selector, stage select) have **no cursor SFX**: menu

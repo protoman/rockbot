@@ -102,18 +102,32 @@ void player_set_checkpoint(s16 worldX, s16 worldY)
 
 // Shared respawn: checkpoint on the current map, else the stage start.
 // camera jumps via stage_arrival_camera so a divider stays at a screen edge.
-// Feet-on-ground Y for a spawn column: the stage 0 spawn Y (160 - box) is
-// CHAOS CITY's walkway; other stages have the floor a row or two off, so
-// scan down for the first ground row instead of trusting a fixed Y.
+// Ground for a spawn at screen x. PC `game::set_player_position_teleport_in`
+// (game.cpp:291) + `classMap::get_first_lock_on_bottom` (classmap.cpp:953):
+// scan from the BOTTOM up for the first solid row that has room for the player
+// above it and stand him on it. Scanning top-down put him on the CEILING in
+// stages that have a roof (SPIKE), and could bury him (ATLANTIDA/FLOWER
+// FIELDS) so he fell out and respawned forever.
 static s16 spawn_ground_y(s16 x)
 {
     s16 l = x + PLAYER_BOX_L, r = x + PLAYER_BOX_R;
-    for (s16 row = 0; row < stage_def->map_h; row++) {
-        for (s16 tx = l >> 4; tx <= (r - 1) >> 4; tx++) {
-            u16 t = stage_terrain_at(stage_current_map, tx, row);
-            if (t != TERRAIN_UNBLOCKED && t != TERRAIN_STAIR)
-                return row * stage_def->tile - box_b;
-        }
+    s16 tx0 = l >> 4, tx1 = (r - 1) >> 4;
+    for (s16 row = stage_def->map_h - 1; row >= 1; row--) {
+        bool solid = FALSE;
+        for (s16 tx = tx0; tx <= tx1 && !solid; tx++)
+            if (stage_terrain_at(stage_current_map, tx, row) == TERRAIN_SOLID)
+                solid = TRUE;
+        if (!solid) continue;
+        // the player's box must fit in the rows above this one
+        s16 top_row = (row * stage_def->tile - PLAYER_BOX_B + PLAYER_BOX_T) >> 4;
+        bool fits = TRUE;
+        for (s16 ry = top_row; ry <= row - 1 && fits; ry++)
+            for (s16 tx = tx0; tx <= tx1; tx++)
+                if (stage_terrain_at(stage_current_map, tx, ry) == TERRAIN_SOLID) {
+                    fits = FALSE;
+                    break;
+                }
+        if (fits) return row * stage_def->tile - PLAYER_BOX_B;
     }
     return SPAWN_Y;
 }

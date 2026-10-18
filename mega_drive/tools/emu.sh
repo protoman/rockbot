@@ -182,6 +182,17 @@ emu_shot() {
     timeout 8 import -window "$wid" "$EMU_WORK/$name.png" 2>/dev/null && echo "$EMU_WORK/$name.png"
 }
 
+# Release every mapped key. BlastEm can miss a keyup, which leaves a pad button
+# stuck — the game then spins in its "wait for the button to be released" loop
+# (looks like a frozen menu). Call this when input seems to be ignored.
+emu_keys_up() {
+    local k
+    emu_focus >/dev/null 2>&1
+    for k in z x c a s d Return Up Down Left Right; do
+        timeout 3 xdotool keyup "$k" 2>/dev/null
+    done
+}
+
 emu_status() {
     if emu_running; then
         echo "emu: running (pids=$(emu_bin_pids | tr '\n' ',') wid=$(emu_window))"
@@ -260,6 +271,7 @@ if [ "${BASH_SOURCE[0]}" = "$0" ]; then
         shot)   shift; emu_shot "$@" ;;
         blank)  emu_shot_blank "${2:-.emu_probe}" ;;
         key)    shift; emu_key "$@" ;;
-        *) echo "usage: $0 {start [rom]|start-ready [rom] [tries] [wait]|stop|status|window|shot NAME|blank [NAME]|key KEY [ms]}" >&2; exit 2 ;;
+        keysup) emu_keys_up ;;
+        *) echo "usage: $0 {start [rom]|start-ready [rom] [tries] [wait]|stop|status|window|shot NAME|blank [NAME]|key KEY [ms]|keysup}" >&2; exit 2 ;;
     esac
 fi
