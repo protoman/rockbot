@@ -82,6 +82,10 @@ static u8 ladder_lock;      // frames left before a released ladder can grab aga
 static bool air_dash_used;
 static u8 lives;            // PC game_save.items.lifes (5 = normal difficulty)
 static bool out_of_lives;
+// Death animation hold: the PC classic ring explosion takes ~1.6s; the port
+// hides the player and freezes the world for ~1.5s.
+#define PLAYER_DEATH_FRAMES 90
+static u16 death_timer;
 static s16 box_t = PLAYER_BOX_T;   // hitbox offsets (see update_hitbox)
 static s16 box_b = PLAYER_BOX_B;
 static s16 coyote_timer;
@@ -451,6 +455,7 @@ void player_init(void)
     player_refill_weapons();      // PC refills every gauge at stage start
     // lives/tanks/armor persist across stages (player_new_game or the save
     // slot sets them; player_init must not reset them).
+    death_timer = 0;
     coyote_timer = COYOTE_FRAMES;
     jump_timer = 0;
     attack_timer = 0;
@@ -1110,8 +1115,27 @@ static void player_die(void)
     if (lives) lives--;
     else out_of_lives = TRUE;
     player.hp = PLAYER_INITIAL_HP;
-    PAL_setPalette(PLAYER_PAL, base_pal, DMA_QUEUE);
-    respawn_player(FALSE);
+    player.vx = 0;
+    player.vy = 0;
+    player.sliding = FALSE;
+    player.hit_push = 0;
+    death_timer = PLAYER_DEATH_FRAMES;
+    player_set_visible(FALSE);
+}
+
+bool player_is_dying(void) { return death_timer != 0; }
+
+bool player_death_update(void)
+{
+    if (!death_timer) return FALSE;
+    if (--death_timer) return TRUE;
+    if (!out_of_lives) {
+        PAL_setPalette(PLAYER_PAL, base_pal, DMA_QUEUE);
+        respawn_player(TRUE);
+        player_sync_sprite();
+        player_set_visible(TRUE);
+    }
+    return FALSE;
 }
 
 void player_take_damage(u8 amount)

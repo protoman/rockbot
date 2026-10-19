@@ -39,6 +39,8 @@ bool enemies_boss_on_screen(void);
 // TRUE once the boss has died since this map's enemies_reset (PC
 // classmap.cpp:2273 -> got_weapon()).
 bool enemies_boss_died(void);
+// Centre of the boss body (for the death explosion).
+void enemies_boss_death_pos(s16 *x, s16 *y);
 
 // Hide/show every live enemy sprite (in-game menu overlay).
 void enemies_set_visible(bool visible);

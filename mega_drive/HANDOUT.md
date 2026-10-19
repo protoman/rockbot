@@ -63,9 +63,15 @@ make run EMU_ARGS=   # GL renderer instead of software
 - **Drops + progress** (2026-10-19): regular enemies drop PC-ratio pills (big/
   small energy, big/small weapon, 4.5s lifetime); a new SRAM item record
   (byte 88 + slot*12) persists lives, the three tanks and armor across stages;
-  first clears of stages 1..8 show `YOU GOT <weapon>` for 5s. Game-over screen
-  and post-stage stage-select return are still pending.
-- Last commit: enemy item drops + persistent lives/tanks/armor + got-weapon screen.
+  first clears of stages 1..8 show `YOU GOT <weapon>` for 5s.
+- **Death/clear flow** (2026-10-19): deaths freeze the world for 1.5s with
+  explosion puffs, then respawn at the checkpoint; out of lives shows GAME OVER
+  -> PRESS START (lives reset to 5, saved). Boss death plays a 2s explosion
+  ring before the clear screen. `runStage` now returns LEFT/CLEARED/GAME_OVER and
+  `playSession` sends clears/game overs to the stage select (intro stage game
+  over restarts it; stage 13's ending returns to the title). Approximations:
+  no PC ring-explosion art, no player_victory flash/pose, no fade.
+- Last commit: death/game-over/boss-death flow + post-stage stage select.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER

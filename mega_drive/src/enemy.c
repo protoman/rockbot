@@ -712,6 +712,16 @@ bool enemies_boss_on_screen(void)
     return boss_i >= 0 && enemies[boss_i].alive && boss_screen;
 }
 
+void enemies_boss_death_pos(s16 *x, s16 *y)
+{
+    *x = 0;
+    *y = 0;
+    if (boss_i < 0) return;
+    const EnemyDef *d = enemies[boss_i].def;
+    *x = enemies[boss_i].x + d->box_l + d->box_w / 2;
+    *y = enemies[boss_i].y + d->box_t + d->box_h / 2;
+}
+
 bool enemies_boss_died(void)
 {
     return boss_died;

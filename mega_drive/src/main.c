@@ -214,7 +214,16 @@ static s16 showTitle(void)
 // INTRO_STAGE = stage 0 = "CHAOS CITY" (game.cpp:439 sets currentStage).
 // Stage 0 crosses two maps through ladders: link 0 is map 0 (136,14) -> map 1
 // (198,0), the only way past the full-height wall at x=137..138.
+// runStage outcome: the caller drives the PC stage loop
+// (leave_stage -> stage select / game over -> restart intro or select).
+typedef enum {
+    RUN_LEFT = 0,        // LEAVE STAGE from the pause menu -> title
+    RUN_CLEARED,         // boss defeated, stage mask + progress saved
+    RUN_GAME_OVER,       // lives exhausted, GAME OVER shown
+} RunResult;
+
 static void showStageClear(u8 stage, bool first_clear);
+static void showGameOver(void);
 static u8 current_save_slot = 0;
 static u8 current_player = 0;      // 0..3, chosen in the player-select screen
 
@@ -241,7 +250,7 @@ static void load_progress(void)
     }
 }
 
-static void runStage(u8 stage)
+static RunResult runStage(u8 stage)
 {
     // Pick the stage's data bundle (clamped to the converted stages), then
     // load its map 0. Links/map changes stay within the current stage.
@@ -317,7 +326,53 @@ static void runStage(u8 stage)
     u16 prev_pad = JOY_readJoypad(JOY_1);  // START edge (a press held from
                                            // the title must not open the menu)
     bool stage_cleared = FALSE;
+    bool death_fx = FALSE;                 // puffs already spawned
+    bool boss_death_seq = FALSE;
+    u16 boss_death_t = 0;
+    s16 boss_death_x = 0, boss_death_y = 0;
     while (TRUE) {
+        // ---- boss death sequence (PC kill_all_enemies + ring explosion) ---
+        if (boss_death_seq) {
+            if (boss_death_t < 72 && (boss_death_t % 12) == 0)
+                explosion_spawn(boss_death_x + (s16)(boss_death_t % 24) - 12,
+                                boss_death_y + (s16)(boss_death_t % 18) - 9);
+            explosion_update();
+            SPR_update();
+            SYS_doVBlankProcess();
+            VDP_setReg(17, 0);
+            VDP_setReg(18, 0);
+            if (++boss_death_t >= 120) { stage_cleared = TRUE; break; }
+            continue;
+        }
+
+        // ---- death sequence: freeze the world while the player is gone ----
+        if (player_is_dying()) {
+            if (!death_fx) {
+                s16 dl, dt, dr, db;
+                player_get_box(&dl, &dt, &dr, &db);
+                s16 cx = (dl + dr) / 2, cy = (dt + db) / 2;
+                explosion_spawn(cx, cy);
+                explosion_spawn(cx - 12, cy);
+                explosion_spawn(cx + 12, cy);
+                death_fx = TRUE;
+            }
+            player_set_visible(FALSE);
+            if (!player_death_update()) {
+                if (player_out_of_lives()) {
+                    player_reset_lives();
+                    persist_progress();
+                    showGameOver();
+                    return RUN_GAME_OVER;
+                }
+                death_fx = FALSE;
+            }
+            SPR_update();
+            SYS_doVBlankProcess();
+            VDP_setReg(17, 0);
+            VDP_setReg(18, 0);
+            continue;
+        }
+
         u16 pad = JOY_readJoypad(JOY_1);
 
         // START opens the paused in-game menu (PC class_config.cpp:295)
@@ -326,7 +381,7 @@ static void runStage(u8 stage)
             // NOT a stage clear
             if (menu_open(save_slot_weapon_mask(current_save_slot))) {
                 persist_progress();     // PC leave_stage() saves
-                return;
+                return RUN_LEFT;
             }
             pad = JOY_readJoypad(JOY_1);
         }
@@ -337,15 +392,6 @@ static void runStage(u8 stage)
         player_check_scroll_lock(pad);
         hud_update(player.hp);
         hud_weapon(player_weapon(), player_weapon_ammo());
-
-        // PC game over (out of lives): reset_lifes() then leave the stage.
-        // The game-over screen comes with the death-sequence milestone; for
-        // now save the reset lives and return to the title.
-        if (player_out_of_lives()) {
-            player_reset_lives();
-            persist_progress();
-            return;
-        }
 
         s16 bl, bt, br, bb;
         player_get_box(&bl, &bt, &br, &bb);
@@ -445,8 +491,16 @@ static void runStage(u8 stage)
         VDP_setReg(17, 0); // see above — DMA clobbers window regs
         VDP_setReg(18, 0);
 
-        // PC classmap.cpp:2273 -> got_weapon() after the stage boss falls
-        if (enemies_boss_died()) { stage_cleared = TRUE; break; }
+        // PC classmap.cpp:2273 -> boss explosion + got_weapon() after the
+        // stage boss falls. The sequence itself runs at the top of the loop.
+        if (!boss_death_seq && enemies_boss_died()) {
+            boss_death_seq = TRUE;
+            boss_death_t = 0;
+            enemies_boss_death_pos(&boss_death_x, &boss_death_y);
+            shots_reset();
+            eshots_reset();
+            explosion_spawn(boss_death_x, boss_death_y);
+        }
     }
 
     if (stage_cleared) {
@@ -459,6 +513,41 @@ static void runStage(u8 stage)
         // castle stage (13) plays the ending for the chosen player, then the
         // title (main's loop).
         if (stage == 13) scene_play((u8)(2 + (current_player & 3)));
+        return RUN_CLEARED;
+    }
+    return RUN_LEFT;
+}
+
+// Drop the stage and leave a plain black BG_A for a text screen. The stage
+// leaves the planes scrolled to the arena camera (BG_A x~2866, BG_B
+// parallax), so reset both; a plain clear would show the tileset's tile 0.
+static void textScreenBegin(void)
+{
+    XGM2_stop();
+    SYS_doVBlankProcess();      // flush pending MAP updates
+    stage_release_map();
+    VDP_setHorizontalScroll(BG_A, 0);
+    VDP_setVerticalScroll(BG_A, 0);
+    VDP_setHorizontalScroll(BG_B, 0);
+    VDP_setVerticalScroll(BG_B, 0);
+    VDP_fillTileMapRect(BG_A,
+                        TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, TILE_FONT_INDEX),
+                        0, 0, 40, 28);
+}
+
+// PC game_over() screen (game.cpp:2160): GAME OVER + PRESS START. The caller
+// already reset the lives (PC reset_lifes in death()).
+static void showGameOver(void)
+{
+    textScreenBegin();
+    drawCentered("GAME OVER", 12);
+    drawCentered("PRESS START", 15);
+    while (TRUE) {
+        if (JOY_readJoypad(JOY_1) & BUTTON_START) break;
+        SPR_update();
+        SYS_doVBlankProcess();
+        VDP_setReg(17, 0);
+        VDP_setReg(18, 0);
     }
 }
 
@@ -468,21 +557,7 @@ static void runStage(u8 stage)
 // its last frame); the text screen and the 5s hold match.
 static void showStageClear(u8 stage, bool first_clear)
 {
-    XGM2_stop();
-    // flush pending MAP updates, then drop the map (see showTitle)
-    SYS_doVBlankProcess();
-    stage_release_map();
-    // The stage leaves the planes scrolled to the arena camera (BG_A x~2866,
-    // BG_B parallax) — text and the title after it need both planes at 0.
-    VDP_setHorizontalScroll(BG_A, 0);
-    VDP_setVerticalScroll(BG_A, 0);
-    VDP_setHorizontalScroll(BG_B, 0);
-    VDP_setVerticalScroll(BG_B, 0);
-    // A plain clear leaves the stage tileset's tile 0 (a visible pattern);
-    // fill with the font's space tile for a black backdrop.
-    VDP_fillTileMapRect(BG_A,
-                        TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, TILE_FONT_INDEX),
-                        0, 0, 40, 28);
+    textScreenBegin();
 
     // Got-weapon screen: stage 0 and the castle stages have no weapon.
     if (first_clear && stage >= 1 && stage <= 8) {
@@ -506,6 +581,26 @@ static void showStageClear(u8 stage, bool first_clear)
         SYS_doVBlankProcess();
         VDP_setReg(17, 0);
         VDP_setReg(18, 0);
+    }
+}
+
+// PC game loop after leave_stage(): the stage select drives the next stage.
+// A game over on the intro stage restarts it (sceneslib pick_stage); any
+// other game over / clear goes back to the select. The final castle stage
+// plays its ending and returns to the title.
+static void playSession(u8 stage)
+{
+    while (TRUE) {
+        RunResult r = runStage(stage);
+        if (r == RUN_LEFT) return;
+        if (r == RUN_CLEARED && stage == 13) return;
+        if (r == RUN_GAME_OVER &&
+            !(save_slot_stages(current_save_slot) & 1u)) {
+            stage = 0;              // intro still unbeaten: restart it
+            continue;
+        }
+        stage = stage_select_run(current_player,
+                                 save_slot_stages(current_save_slot));
     }
 }
 
@@ -561,7 +656,7 @@ int main(bool hardReset)
             player_new_game();          // 5 lives, empty inventory
             persist_progress();
             save_slot_set_player(current_save_slot, current_player);
-            runStage(0);
+            playSession(0);
         } else {                                 // LOAD GAME
             s16 slot = save_selector(FALSE);
             if (slot < 0) continue;
@@ -575,7 +670,7 @@ int main(bool hardReset)
                 stage = stage_select_run(current_player,
                                          save_slot_stages(current_save_slot));
             }
-            runStage(stage);
+            playSession(stage);
         }
     }
 

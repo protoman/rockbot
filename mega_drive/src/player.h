@@ -152,8 +152,14 @@ void player_restore_palette(void);
 const Palette *player_palette_def(void);
 
 // Contact/projectile damage. Respects the invulnerability window; at hp 0
-// respawns at the stage start with full hp.
+// starts the death sequence (player hidden, world frozen by the caller).
 void player_take_damage(u8 amount);
+
+// Death sequence: player_is_dying() while dead; player_death_update() ticks
+// it and respawns at the checkpoint when lives remain, returning FALSE when
+// the sequence ended (then check player_out_of_lives for game over).
+bool player_is_dying(void);
+bool player_death_update(void);
 
 // Instant death, ignoring invulnerability: a platform pressing the player
 // into a solid tile (PC damage(999)).
