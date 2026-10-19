@@ -59,8 +59,8 @@ static const u8 stage0_terrain[3][2800] = {
 };
 
 static const StageLink stage0_links[2] = {
-    { 0, 136, 13, 1, 198, 0 }, // link2
-    { 1, 1, 0, 0, 139, 13 }, // link3
+    { 0, 136, 13, 1, 198, 0, 1, 1, 0 }, // link2
+    { 1, 1, 0, 0, 139, 13, 1, 1, 0 }, // link3
 };
 
 static const StageBgInfo stage0_bg_info[3] = {

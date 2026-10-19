@@ -104,7 +104,9 @@ def read_links(n):
         frm, to, ox, oy, dx, dy, size, bidir, door, typ = struct.unpack("bbbbbbbbbb", b)
         if frm < 0 or to < 0:
             continue  # unused slot
-        links.append((i, frm & 0xFF, to & 0xFF, ox & 0xFF, oy & 0xFF, dx & 0xFF, dy & 0xFF))
+        links.append((i, frm & 0xFF, to & 0xFF, ox & 0xFF, oy & 0xFF,
+                      dx & 0xFF, dy & 0xFF, size & 0xFF,
+                      1 if bidir else 0, (typ + 256) & 0xFF))
     return links
 
 
@@ -307,7 +309,7 @@ def crop_top_row(cells, links, map_n):
     first so its tiles/links stay reachable. Link rows: 0 stays 0,
     everything else shifts up by one."""
     touches = any((frm == map_n and oy == 0) or (to == map_n and dy == 0)
-                  for (_, frm, to, ox, oy, dx, dy) in links)
+                  for (_, frm, to, ox, oy, dx, dy, _size, _bidir, _type) in links)
     if touches:
         for x in range(MAP_W):
             cells[x][1] = cells[x][0]
@@ -667,10 +669,11 @@ def main():
     c.append("};\n\n")
 
     c.append(f"static const StageLink {PFX}_links[{max(1,len(links))}] = {{\n")
-    for (i, frm, to, ox, oy, dx, dy) in links:
+    for (i, frm, to, ox, oy, dx, dy, size, bidir, typ) in links:
         oy = 0 if oy == 0 else oy - 1
         dy = 0 if dy == 0 else dy - 1
-        c.append(f"    {{ {frm}, {ox}, {oy}, {to}, {dx}, {dy} }}, // link{i}\n")
+        c.append(f"    {{ {frm}, {ox}, {oy}, {to}, {dx}, {dy}, "
+                 f"{size}, {bidir}, {typ} }}, // link{i}\n")
     c.append("};\n\n")
 
     c.append(f"static const StageBgInfo {PFX}_bg_info[{MAPS_PER_STAGE}] = {{\n")

@@ -26,6 +26,7 @@ typedef struct {
     u8 traj;
     u16 age;
     bool on;
+    bool reflected;     // PC projectile.is_reflected: no more hits
 } Shot;
 
 static Shot shots[SHOT_MAX];
@@ -112,6 +113,7 @@ void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
         s->traj = pd->traj;
         s->age = 0;
         s->on = TRUE;
+        s->reflected = FALSE;
         live++;
     }
     cooldown = SHOT_COOLDOWN;
@@ -162,6 +164,7 @@ void shot_charge_fire(s16 x, s16 y, s16 dir, u8 level)
     s->traj = TRAJ_LINEAR;
     s->age = 0;
     s->on = TRUE;
+    s->reflected = FALSE;
     cooldown = SHOT_COOLDOWN;
     sfx_play(SFX_CHARGE);
     if (w != 0) player_use_weapon_ammo();
@@ -209,6 +212,13 @@ void shot_update(void)
         // ZIGZAG / AHEAD_AND_BACK / bouncing trajectories (projectilelib.cpp).
         // LINEAR, DIAGONAL, ARC, TARGET and FOLLOW simply fly on, so player
         // shots cross walls (user-reported Techno behavior).
+        // PC execute_projectiles: once reflected the shot is harmless (it
+        // skips both enemy and object collision) and just flies away.
+        if (s->reflected) {
+            SPR_setPosition(s->spr, s->x - camera.x, s->y - camera.y);
+            continue;
+        }
+
         // destructible walls (OBJ_DESTRUCTIBLE_WALL) stop a non-charged shot
         if (objects_try_hit(s->x, s->y, s->x + s->w - 1, s->y + s->h - 1,
                             s->dmg) && s->dmg < 3) {
@@ -217,14 +227,20 @@ void shot_update(void)
         }
 
         // enemy hit (shot dies on any hit; charged shots pierce: PC full
-        // charge keeps flying — character.cpp:742 permanent projectiles)
+        // charge keeps flying — character.cpp:742 permanent projectiles).
+        // Charged shots also ignore shields: PC only reflects when
+        // projectile.vanishes_on_hit is true.
         u8 hit = enemies_try_hit(s->x, s->y, s->x + s->w - 1, s->y + s->h - 1,
-                                 s->dmg, (s->dx < 0) ? -1 : 1);
+                                 s->dmg, (s->dx < 0) ? -1 : 1, s->dmg >= 3);
         if (hit == 2) {
-            // Shielded enemy: the shot bounces back (PC classplayer.cpp:708
-            // calls projectile::reflect()).
+            // Shielded enemy: PC projectile::reflect() flips direction and
+            // turns the shot into a diagonal (up/down by Y parity), then
+            // is_reflected stops further collisions.
+            s->reflected = TRUE;
             s->dx = -s->dx;
-            s->dy = 0;
+            s16 vy = (s->dx < 0) ? -s->dx : s->dx;
+            s->dy = (s->y & 1) ? -vy : vy;
+            s->traj = (s->y & 1) ? TRAJ_DIAG_UP : TRAJ_DIAG_DOWN;
             continue;
         }
         if (hit == 1) {

@@ -329,12 +329,19 @@ static s16 unstick_x(s16 ix, s16 t, s16 b)
 // with a 9-row pit below) releases the player with feet and centre both in
 // row 3 — "above" would compare against the rung (STAIR) and freeze him in
 // mid-air, while the PC centre compare lets him fall.
-static bool ground_pair(s16 tx, s16 feet_row, s16 centre_row)
+static bool ground_pair(s16 tx, s16 feet_row, s16 centre_row, s16 middle_row)
 {
     u16 lock1 = stage_terrain_at(stage_current_map, tx, feet_row);
     if (lock1 != TERRAIN_UNBLOCKED && lock1 != TERRAIN_STAIR &&
         lock1 != TERRAIN_WATER)
         return TRUE;
+    // PC map_collision stairs special case (character.cpp:2258): while
+    // falling, a STAIR tile is floor only when the point just above the feet
+    // is NOT a stair. Comparing against the body centre instead made the
+    // player land on the bottom rung after jumping up through a stair.
+    if (lock1 == TERRAIN_STAIR)
+        return stage_terrain_at(stage_current_map, tx, middle_row) !=
+               TERRAIN_STAIR;
     return lock1 != stage_terrain_at(stage_current_map, tx, centre_row);
 }
 
@@ -945,13 +952,16 @@ void player_update(u16 pad)
             // current (unsnapped) pose keeps its real centre row; deeper
             // candidate rows use the snapped-pose centre (row - 1).
             s16 centre_now = (iy + (box_t + box_b) / 2) >> 4;
+            s16 middle_now = (iy + box_b - 1) >> 4;
             s16 top_now = (iy + box_t) >> 4;
             for (s16 row = (iy + box_b) >> 4;
                  row <= ((ny + box_b) >> 4) && !blocked; row++) {
                 s16 centre_row = (row == ((iy + box_b) >> 4))
                                      ? centre_now : row - 1;
+                s16 middle_row = (row == ((iy + box_b) >> 4))
+                                     ? middle_now : row - 1;
                 for (s16 tx = x0; tx <= x1; tx++) {
-                    if (ground_pair(tx, row, centre_row) &&
+                    if (ground_pair(tx, row, centre_row, middle_row) &&
                         support_col(tx, top_now, row)) {
                         ny = (row << 4) - box_b;
                         player.on_ground = TRUE;
@@ -998,9 +1008,10 @@ void player_update(u16 pad)
         s16 r = ix + PLAYER_BOX_R;
         s16 row = (iy + box_b) >> 4;
         s16 centre_row = (iy + (box_t + box_b) / 2) >> 4;
+        s16 middle_row = (iy + box_b - 1) >> 4;
         s16 top_row = (iy + box_t) >> 4;
         for (s16 tx = l >> 4; tx <= (r - 1) >> 4; tx++) {
-            if (ground_pair(tx, row, centre_row) &&
+            if (ground_pair(tx, row, centre_row, middle_row) &&
                 support_col(tx, top_row, row)) {
                 player.on_ground = TRUE;
                 break;

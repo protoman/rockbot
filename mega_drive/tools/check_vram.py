@@ -101,8 +101,8 @@ def read_links():
         for line in (m.group(1).splitlines() if m else []):
             line = line.split("//")[0].strip().rstrip(",")
             v = [int(x) for x in re.findall(r"-?\d+", line)]
-            if len(v) == 6:
-                ls.append(v)
+            if len(v) >= 6:
+                ls.append(v[:6])
         out[s] = ls
     return out
 

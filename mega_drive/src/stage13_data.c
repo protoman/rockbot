@@ -61,11 +61,11 @@ static const u8 stage13_terrain[3][2800] = {
 };
 
 static const StageLink stage13_links[5] = {
-    { 0, 14, 13, 1, 14, 0 }, // link0
-    { 1, 2, 13, 0, 22, 0 }, // link1
-    { 0, 36, 13, 1, 36, 0 }, // link2
-    { 1, 22, 13, 0, 42, 0 }, // link3
-    { 0, 56, 13, 1, 56, 0 }, // link4
+    { 0, 14, 13, 1, 14, 0, 2, 1, 0 }, // link0
+    { 1, 2, 13, 0, 22, 0, 2, 1, 0 }, // link1
+    { 0, 36, 13, 1, 36, 0, 2, 1, 0 }, // link2
+    { 1, 22, 13, 0, 42, 0, 2, 1, 0 }, // link3
+    { 0, 56, 13, 1, 56, 0, 2, 1, 0 }, // link4
 };
 
 static const StageBgInfo stage13_bg_info[3] = {

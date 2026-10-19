@@ -97,6 +97,19 @@ static bool column_locked(s16 tile_x)
     const u8 n = stage_def->scroll_lock_n[stage_current_map];
     for (u8 i = 0; i < n; i++)
         if (cols[i] == tile_x) return TRUE;
+
+    // PC classmap.cpp:171-191: a boss door locks the columns it occupies even
+    // when the map tiles under it are empty. The converter only sees terrain,
+    // so add the door columns here (SUN-GOD REALM sub-boss doors).
+    for (u8 i = 0; i < stage_def->object_spawn_count; i++) {
+        const ObjectSpawn *sp = &stage_def->object_spawns[i];
+        if (sp->map != stage_current_map) continue;
+        const ObjectDef *d = &stage_def->object_defs[sp->def];
+        if (d->type != 30) continue;            // OBJ_BOSS_DOOR
+        s16 x0 = sp->x >> 4;
+        s16 x1 = (sp->x + d->w - 1) >> 4;
+        if (tile_x >= x0 && tile_x <= x1) return TRUE;
+    }
     return FALSE;
 }
 
@@ -417,9 +430,13 @@ void stage_load(u8 map_index)
 #define LINK_TRANS_T2B 0
 #define LINK_TRANS_B2T 1
 
-static bool link_region(s16 px, s16 py, u8 tx, u8 ty, u8 trans)
+static bool link_region(s16 px, s16 py, u8 tx, u8 ty, u8 size, u8 trans)
 {
-    if (px < (s16)tx * stage_def->tile || px > (s16)tx * stage_def->tile + stage_def->tile)
+    // PC check_player_is_on_teleport: lim2 = temp_x*TILESIZE + size*TILESIZE
+    // (size is the band width in tiles; wide stairways use it).
+    s16 lim1 = (s16)tx * stage_def->tile;
+    s16 lim2 = lim1 + (s16)(size ? size : 1) * stage_def->tile;
+    if (px < lim1 || px > lim2)
         return FALSE;
     s16 lim3 = (s16)ty * stage_def->tile + 8;
     s16 lim4 = (s16)ty * stage_def->tile + stage_def->tile;
@@ -454,8 +471,8 @@ bool stage_check_link(s16 left, s16 top, s16 right, s16 bottom,
             tx = lk->tile_x;  ty = lk->tile_y;
             dst_map = lk->map_to;  dst_x = lk->dst_x;  dst_y = lk->dst_y;
             trans = (lk->tile_y > lk->dst_y) ? LINK_TRANS_T2B : LINK_TRANS_B2T;
-        } else if (lk->map_to == stage_current_map) {
-            // reverse: both stage 0 links are bidirectional (game.cpp:650-661)
+        } else if (lk->map_to == stage_current_map && lk->bidir) {
+            // reverse (game.cpp:650-661): only when the link is bidirectional
             tx = lk->dst_x;  ty = lk->dst_y;
             dst_map = lk->map_from;  dst_x = lk->tile_x;  dst_y = lk->tile_y;
             trans = (lk->tile_y < lk->dst_y) ? LINK_TRANS_T2B : LINK_TRANS_B2T;
@@ -463,7 +480,11 @@ bool stage_check_link(s16 left, s16 top, s16 right, s16 bottom,
             continue;
         }
 
-        hit = link_region(px, py, tx, ty, trans);
+        hit = link_region(px, py, tx, ty, lk->size, trans);
+
+        // PC only fires a top/bottom transition when the player is partly
+        // off-screen (game.cpp:801); teleporter links are exempt.
+        if (hit && lk->type < 2 && top > 0 && bottom < 220) hit = FALSE;
 
         if (link_latch == (s8)i) {
             if (!hit) link_latch = -1;   // cleared on region miss only

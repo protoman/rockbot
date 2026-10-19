@@ -21,6 +21,7 @@ typedef struct {
     u8 proj_id;
     u16 age;
     bool on;
+    bool reflected;     // PC projectile.is_reflected: harmless after shield
 } EShot;
 
 static EShot shots[ESHOT_MAX];
@@ -107,6 +108,7 @@ bool eshot_fire(s16 x, s16 y, s16 dir, u8 proj_id)
         s->traj = p->traj;
         s->age = 0;
         s->on = TRUE;
+        s->reflected = FALSE;
 
         // Trajectories that resolve at fire time (PC set_target_position).
         if (p->traj == TRAJ_TARGET_DIRECTION) {
@@ -188,13 +190,26 @@ void eshots_update(void)
             continue;
         }
 
+        // PC: a reflected projectile is harmless and keeps flying.
+        if (s->reflected) {
+            if (s->spr) SPR_setPosition(s->spr, s->x - camera.x, s->y - camera.y);
+            continue;
+        }
+
         // player collision (PC projectile vs player)
         if (pl < r && pr > l && pt < b && pb > t) {
-            // PC classnpc.cpp:532: a shielded player blocks the shot instead of
-            // taking damage. The player's shield_type is SHIELD_FRONT, but the
-            // player branch of is_shielded() (character.cpp:3357) ignores the
-            // shot direction, so any side blocks.
-            if (!player_is_shielding()) player_take_damage(s->dmg);
+            // PC classnpc.cpp:518: a shielded player reflects the shot (except
+            // bombs/lightning/slash); otherwise it damages and vanishes.
+            if (player_is_shielding() && s->traj != TRAJ_BOMB &&
+                s->traj != 22 && s->traj != 27) {
+                s->reflected = TRUE;
+                s->dx = (s16)-s->dx;
+                s16 vy = (s->dx < 0) ? -s->dx : s->dx;
+                s->dy = (s->y & 1) ? -vy : vy;
+                s->traj = (s->y & 1) ? TRAJ_DIAG_UP : TRAJ_DIAG_DOWN;
+                continue;
+            }
+            player_take_damage(s->dmg);
             kill(s);
             continue;
         }

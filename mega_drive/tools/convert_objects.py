@@ -258,7 +258,12 @@ def main():
         p = plans[s["id"]]
         d = defs[s["id"]]
         x = s["x"] * 16
-        if d["type"] in PLATFORM_TYPES:
+        if d["type"] == OBJ_BOSS_DOOR:
+            # Static door: the map top row was cropped, so its world Y moves
+            # up one tile like every non-platform object (it was sitting one
+            # tile inside the floor in SUN-GOD REALM).
+            y = max(0, s["y"] - 1) * 16
+        elif d["type"] in PLATFORM_TYPES:
             y = s["y"] * 16          # PC object.cpp:66: position.y = sy*TILESIZE
         else:
             y = max(0, s["y"] - 1) * 16

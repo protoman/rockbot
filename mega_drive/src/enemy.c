@@ -649,7 +649,8 @@ static bool enemy_is_shielded(const Enemy *e, s8 shot_dir)
 
 // Returns: 0 = miss, 1 = hit (damage applied), 2 = blocked by a shield
 // (the caller reflects the shot, PC classplayer.cpp:708).
-u8 enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage, s8 shot_dir)
+u8 enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage, s8 shot_dir,
+                   bool charged)
 {
     for (u8 i = 0; i < enemy_count; i++) {
         Enemy *e = &enemies[i];
@@ -660,8 +661,10 @@ u8 enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage, s8 shot_dir)
         if (l >= el + d->box_w || r <= el || t >= et + d->box_h || b <= et)
             continue;
 
-        // shielded enemy: the shot is reflected, no damage
-        if (enemy_is_shielded(e, shot_dir)) return 2;
+        // shielded enemy: a vanishing shot is reflected, no damage. Charged
+        // shots (vanishes_on_hit = false) pass through the shield and damage
+        // the enemy, as in PC classplayer.cpp:708.
+        if (!charged && enemy_is_shielded(e, shot_dir)) return 2;
 
         // Boss intangible window (PC BOSS_HIT_DURATION): the shot is
         // consumed but deals no damage.
