@@ -97,6 +97,7 @@ $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA)
 	$(PYTHON) tools/title64.py --name title64 --crop-h 224 \
 	    --rekey 219,36,182=255,36,182 \
 	    --rekey 219,109,73=255,146,36 \
+	    --rekey 219,182,146=182,109,73 \
 	    --part art/title.png:18,4:0:1 \
 	    --part art/sub_title.png:162,38:0:1 \
 	    --part art/title_rock_and_beta.png:148,48:1:1
