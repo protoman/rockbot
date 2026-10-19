@@ -9,7 +9,7 @@
 // Behavior mirrors PC objects/object.cpp for the types shipped in
 // stage0_objects.c:
 //   7  pill      pickup, hp+3 (cap PLAYER_INITIAL_HP)
-//   9  1UP       pickup, no-op (lives are not modelled yet — M3 HUD)
+//   9  1UP       pickup, +1 life
 //   10 fall      land -> fall 4px/frame -> blocked/off-screen -> return
 //   11 fly       land -> rise 4px/frame -> blocked/off-screen -> return
 //                (return carries the player, PC has no presence gate)
@@ -34,6 +34,7 @@ typedef struct {
     bool visible;    // disappearing blocks toggle this (collision follows it)
     u8 vis_t;        // frames in the current visible/hidden phase
     u8 hp;           // destructible wall
+    u16 duration;    // frames left before release (0 = permanent)
 } MapObj;
 
 static MapObj objs[OBJECT_MAX];
@@ -153,6 +154,7 @@ void objects_reset(void)
         o->active = TRUE;
         o->visible = TRUE;
         o->vis_t = 0;
+        o->duration = 0;
         o->spr = SPR_addSprite(d->spr, o->x - camera.x, o->y - camera.y,
                                TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
         if (o->spr) {
@@ -163,6 +165,79 @@ void objects_reset(void)
             // wrapped the whole room's objects onto the screen for a frame.
             SPR_setVisibility(o->spr, HIDDEN);
         }
+    }
+}
+
+// Enemy drop tables (PC classMap::drop_item, classmap.cpp:996). The PC picks
+// the object definition from the global object list; the port carries its own
+// definitions because a stage's list only has the types that stage spawns.
+// PC normal difficulty: >=97 big energy, >=95 big weapon, >=80 small energy,
+// >=65 small weapon, >=50 coin (no coin object in this port), else nothing.
+static const ObjectDef *drop_def(u8 type)
+{
+    static const ObjectDef defs[] = {
+        { &object_energy_pill_big_sprite,   5, 2, 6, 14, 14, 0, 0, 0 },
+        { &object_weapons_pill_big_sprite,  6, 2, 6, 14, 14, 0, 0, 0 },
+        { &object_energy_pill_small_sprite, 7, 2, 6, 10, 10, 0, 0, 0 },
+        { &object_weapons_pill_small_sprite,8, 2, 6, 10, 10, 0, 0, 0 },
+    };
+    for (u8 i = 0; i < 4; i++) {
+        if (defs[i].type == type) return &defs[i];
+    }
+    return NULL;
+}
+
+// Spawn a dropped item at a world position (enemy centre). Duration matches
+// PC object::set_duration(4500): 4.5s at 60fps.
+void objects_drop_item(s16 cx, s16 cy)
+{
+    u8 r = (u8)(random() % 100);
+    u8 type;
+    if (r >= 97)      type = 5;
+    else if (r >= 95) type = 6;
+    else if (r >= 80) type = 7;
+    else if (r >= 65) type = 8;
+    else return;
+
+    const ObjectDef *d = drop_def(type);
+    if (!d) return;
+
+    MapObj *o = NULL;
+    for (u8 i = 0; i < obj_count; i++) {
+        if (!objs[i].active) { o = &objs[i]; break; }
+    }
+    if (!o) {
+        if (obj_count >= OBJECT_MAX) return;
+        o = &objs[obj_count++];
+    }
+
+    o->def = d;
+    o->x = (s16)(cx - d->w / 2);
+    o->y = (s16)(cy - d->h / 2);
+    o->home_x = o->x;
+    o->home_y = o->y;
+    o->distance = 0;
+    o->state = OBJ_STATE_STAND;
+    o->delay = 0;
+    o->anim_t = 0;
+    o->frame = 0;
+    o->dest_x = o->dest_y = o->dest_map = 0;
+    o->started = FALSE;
+    o->active = TRUE;
+    o->visible = TRUE;
+    o->vis_t = 0;
+    o->hp = 0;
+    o->duration = 270;
+
+    s16 sx = o->x - camera.x;
+    s16 sy = o->y - camera.y;
+    o->spr = SPR_addSprite(d->spr, sx, sy,
+                           TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
+    if (o->spr) {
+        SPR_setAutoAnimation(o->spr, FALSE);
+        bool on_screen = (sx + d->w > 0 && sx < 320 &&
+                          sy + d->h > 0 && sy < 224);
+        SPR_setVisibility(o->spr, on_screen ? VISIBLE : HIDDEN);
     }
 }
 
@@ -440,6 +515,12 @@ void objects_update(void)
         MapObj *o = &objs[i];
         if (!o->active) continue;
         const ObjectDef *d = o->def;
+
+        // dropped items live for a limited time (PC object duration)
+        if (o->duration && --o->duration == 0) {
+            obj_release(o);
+            continue;
+        }
 
         // ---- platform state machine (before pickup: player box is fresh) --
         if (is_platform(d->type) && o->started)

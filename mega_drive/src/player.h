@@ -60,7 +60,7 @@ typedef struct {
     u8 weapon;
     u8 ammo[PLAYER_WEAPON_N];   // PC game_save.items.weapons[] gauge (0..28)
     // PC game_save.items.energy_tanks / weapon_tanks (stored consumables,
-    // used from the in-game menu). Not persisted in SRAM yet.
+    // used from the in-game menu), persisted per save slot.
     u8 tanks_hp;
     u8 tanks_wp;
     u8 tanks_sp;
@@ -78,7 +78,17 @@ typedef struct {
 
 extern Player player;
 
+// Stage setup: position, hp, weapons, palette, sprite. Persistent progress
+// (lives/tanks/armor) is NOT touched — see player_new_game/player_set_progress.
 void player_init(void);
+
+// NEW GAME: PC reset_lifes() defaults (5 on normal) and empty inventory.
+void player_new_game(void);
+// Restore progress from a save slot (values clamped to the PC limits).
+void player_set_progress(u8 lives, u8 tanks_hp, u8 tanks_wp, u8 tanks_sp,
+                         u8 armor);
+// Out of lives (PC game over): reset only the life counter, keep the tanks.
+void player_reset_lives(void);
 
 // Selected player 0..3 (player-select screen). Changes the sprite sheet +
 // palette used in-game (each player has different weapon colours/abilities).

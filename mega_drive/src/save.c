@@ -10,9 +10,21 @@
 #define SLOT_BASE   8
 #define SLOT_STRIDE 8
 
+// Progress record, separate from the slot record so existing saves keep
+// working: [magic u16][lives][tanks_hp][tanks_wp][tanks_sp][armor][pad...]
+// Slot i at byte 88 + i*12 (the slot records end at 47, config uses 48..55).
+#define ITEMS_BASE   88
+#define ITEMS_STRIDE 12
+#define ITEMS_MAGIC  0x4954     // 'IT'
+
 static u16 slot_off(u8 slot)
 {
     return (u16)(SLOT_BASE + slot * SLOT_STRIDE);
+}
+
+static u16 items_off(u8 slot)
+{
+    return (u16)(ITEMS_BASE + slot * ITEMS_STRIDE);
 }
 
 void save_init(void)
@@ -73,11 +85,37 @@ void save_slot_set_player(u8 slot, u8 player)
     SRAM_writeWord(slot_off(slot) + 4, player);
 }
 
+bool save_slot_read_items(u8 slot, SaveItems *out)
+{
+    if (slot >= SAVE_SLOT_COUNT || !out) return FALSE;
+    u16 off = items_off(slot);
+    if (SRAM_readWord(off) != ITEMS_MAGIC) return FALSE;
+    out->lives    = SRAM_readByte(off + 2);
+    out->tanks_hp = SRAM_readByte(off + 3);
+    out->tanks_wp = SRAM_readByte(off + 4);
+    out->tanks_sp = SRAM_readByte(off + 5);
+    out->armor    = SRAM_readByte(off + 6);
+    return TRUE;
+}
+
+void save_slot_write_items(u8 slot, const SaveItems *in)
+{
+    if (slot >= SAVE_SLOT_COUNT || !in) return;
+    u16 off = items_off(slot);
+    SRAM_writeWord(off, ITEMS_MAGIC);
+    SRAM_writeByte(off + 2, in->lives);
+    SRAM_writeByte(off + 3, in->tanks_hp);
+    SRAM_writeByte(off + 4, in->tanks_wp);
+    SRAM_writeByte(off + 5, in->tanks_sp);
+    SRAM_writeByte(off + 6, in->armor);
+}
+
 void save_slot_clear(u8 slot)
 {
     if (slot >= SAVE_SLOT_COUNT) return;
     SRAM_writeWord(slot_off(slot), 0);
     SRAM_writeWord(slot_off(slot) + 2, 0);
+    SRAM_writeWord(items_off(slot), 0);
 }
 
 bool save_exists(void)

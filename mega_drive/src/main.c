@@ -20,6 +20,7 @@
 #include "scene.h"
 #include "config.h"
 #include "dialogs.h"
+#include "weapon_data.h"
 #include "title64_map.h"
 #include "title64_tiles.h"
 #include "title64_pal.h"
@@ -213,9 +214,33 @@ static s16 showTitle(void)
 // INTRO_STAGE = stage 0 = "CHAOS CITY" (game.cpp:439 sets currentStage).
 // Stage 0 crosses two maps through ladders: link 0 is map 0 (136,14) -> map 1
 // (198,0), the only way past the full-height wall at x=137..138.
-static void showStageClear(void);
+static void showStageClear(u8 stage, bool first_clear);
 static u8 current_save_slot = 0;
 static u8 current_player = 0;      // 0..3, chosen in the player-select screen
+
+// Persistent progress for the active slot (PC game_save.items + armor).
+static void persist_progress(void)
+{
+    SaveItems it;
+    it.lives = player_lives();
+    it.tanks_hp = player.tanks_hp;
+    it.tanks_wp = player.tanks_wp;
+    it.tanks_sp = player.tanks_sp;
+    it.armor = player.armor;
+    save_slot_write_items(current_save_slot, &it);
+}
+
+static void load_progress(void)
+{
+    SaveItems it;
+    if (save_slot_read_items(current_save_slot, &it)) {
+        player_set_progress(it.lives, it.tanks_hp, it.tanks_wp,
+                            it.tanks_sp, it.armor);
+    } else {
+        player_new_game();     // saves from before the progress record
+    }
+}
+
 static void runStage(u8 stage)
 {
     // Pick the stage's data bundle (clamped to the converted stages), then
@@ -300,6 +325,7 @@ static void runStage(u8 stage)
             // LEAVE STAGE returns from runStage directly (title), it is
             // NOT a stage clear
             if (menu_open(save_slot_weapon_mask(current_save_slot))) {
+                persist_progress();     // PC leave_stage() saves
                 return;
             }
             pad = JOY_readJoypad(JOY_1);
@@ -312,8 +338,14 @@ static void runStage(u8 stage)
         hud_update(player.hp);
         hud_weapon(player_weapon(), player_weapon_ammo());
 
-        // PC game over (out of lives): leave the stage, back to the title.
-        if (player_out_of_lives()) return;
+        // PC game over (out of lives): reset_lifes() then leave the stage.
+        // The game-over screen comes with the death-sequence milestone; for
+        // now save the reset lives and return to the title.
+        if (player_out_of_lives()) {
+            player_reset_lives();
+            persist_progress();
+            return;
+        }
 
         s16 bl, bt, br, bb;
         player_get_box(&bl, &bt, &br, &bb);
@@ -418,8 +450,11 @@ static void runStage(u8 stage)
     }
 
     if (stage_cleared) {
+        bool first_clear = !(save_slot_stages(current_save_slot) &
+                             (1u << stage));
         save_slot_set_stage(current_save_slot, stage);
-        showStageClear();
+        persist_progress();     // PC leave_stage()/got_weapon() save_game()
+        showStageClear(stage, first_clear);
         // PC game_scenes_map[ENDING_PLAYER1..4] = scene list 2..5: the final
         // castle stage (13) plays the ending for the chosen player, then the
         // title (main's loop).
@@ -427,11 +462,11 @@ static void runStage(u8 stage)
     }
 }
 
-// Minimal stand-in for PC got_weapon()/player_victory() (game.cpp:1320):
-// victory flash + weapon screen come in a later milestone. Overlay on the
-// frozen stage, then return to the title (PC leave_stage -> stage select,
-// which does not exist yet).
-static void showStageClear(void)
+// PC got_weapon() (game.cpp:1320): after the boss falls, the first clear of
+// stages 1..8 shows the weapon acquired before leaving the stage. The PC
+// player_victory() flash/pose is not reproduced yet (the stage is frozen on
+// its last frame); the text screen and the 5s hold match.
+static void showStageClear(u8 stage, bool first_clear)
 {
     XGM2_stop();
     // flush pending MAP updates, then drop the map (see showTitle)
@@ -448,6 +483,21 @@ static void showStageClear(void)
     VDP_fillTileMapRect(BG_A,
                         TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, TILE_FONT_INDEX),
                         0, 0, 40, 28);
+
+    // Got-weapon screen: stage 0 and the castle stages have no weapon.
+    if (first_clear && stage >= 1 && stage <= 8) {
+        drawCentered("YOU GOT", 10);
+        drawCentered(weapon_data[stage].name, 12);
+        for (u16 i = 0; i < 300; i++) {        // PC wait 5000ms
+            if (JOY_readJoypad(JOY_1) & BUTTON_START) break;
+            SPR_update();
+            SYS_doVBlankProcess();
+            VDP_setReg(17, 0);
+            VDP_setReg(18, 0);
+        }
+        VDP_clearTextArea(0, 8, 40, 6);
+    }
+
     drawCentered("STAGE CLEAR", 12);
     drawCentered("PRESS START", 15);
     while (TRUE) {
@@ -508,6 +558,8 @@ int main(bool hardReset)
             current_save_slot = (u8)slot;
             // PC main_screen: NEW GAME -> select_player() before the stage.
             current_player = player_select_run();
+            player_new_game();          // 5 lives, empty inventory
+            persist_progress();
             save_slot_set_player(current_save_slot, current_player);
             runStage(0);
         } else {                                 // LOAD GAME
@@ -515,6 +567,7 @@ int main(bool hardReset)
             if (slot < 0) continue;
             current_save_slot = (u8)slot;
             current_player = save_slot_player(current_save_slot);
+            load_progress();
             // PC scenesLib::pick_stage (sceneslib.cpp:529): the intro stage
             // is played first; once it is beaten the stage select appears.
             u8 stage = 0;

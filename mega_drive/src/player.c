@@ -449,12 +449,8 @@ void player_init(void)
     player.shielding = FALSE;
     player.weapon = 0;
     player_refill_weapons();      // PC refills every gauge at stage start
-    lives = 5;                    // PC reset_lifes(), normal difficulty
-    out_of_lives = FALSE;
-    player.tanks_hp = 0;
-    player.tanks_wp = 0;
-    player.tanks_sp = 0;
-    player.armor = 0;
+    // lives/tanks/armor persist across stages (player_new_game or the save
+    // slot sets them; player_init must not reset them).
     coyote_timer = COYOTE_FRAMES;
     jump_timer = 0;
     attack_timer = 0;
@@ -472,6 +468,33 @@ void player_init(void)
     // whole stage-start teleport and snapped up one tile on the first
     // player_update() (reported on DEEP JUNGLE, ground row 9).
     player_sync_sprite();
+}
+
+// PC classPlayer::reset_lifes(): normal difficulty starts with 5 lives.
+void player_new_game(void)
+{
+    lives = 5;
+    out_of_lives = FALSE;
+    player.tanks_hp = 0;
+    player.tanks_wp = 0;
+    player.tanks_sp = 0;
+    player.armor = 0;
+}
+
+void player_set_progress(u8 l, u8 hp, u8 wp, u8 sp, u8 armor_pieces)
+{
+    lives = (l > 9) ? 9 : l;
+    out_of_lives = FALSE;
+    player.tanks_hp = (hp > 9) ? 9 : hp;
+    player.tanks_wp = (wp > 9) ? 9 : wp;
+    player.tanks_sp = (sp > 9) ? 9 : sp;
+    player.armor = armor_pieces & 7;
+}
+
+void player_reset_lives(void)
+{
+    lives = 5;
+    out_of_lives = FALSE;
 }
 
 // Fire (B) + charge shot, shared by the ground and ladder paths.

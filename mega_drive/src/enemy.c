@@ -4,6 +4,7 @@
 #include "eshot.h"
 #include "stage.h"
 #include "explosion.h"
+#include "object.h"
 #include "player.h"
 #include "resources.h"
 
@@ -681,7 +682,14 @@ u8 enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage, s8 shot_dir)
             } else {
                 // PC classmap.cpp:2232: a regular enemy's death adds the 32x32
                 // explosion puff at its position (the stage boss has its own
-                // death sequence).
+                // death sequence). Dead enemies also drop an item, but only
+                // while on screen (classMap::drop_item).
+                s16 cx = e->x + d->box_l + d->box_w / 2;
+                s16 cy = e->y + d->box_t + d->box_h / 2;
+                s16 sx = cx - camera.x;
+                s16 sy = cy - camera.y;
+                if (sx >= 0 && sx < 320 && sy >= 0 && sy < 224)
+                    objects_drop_item(cx, cy);
                 explosion_spawn(e->x, e->y);
             }
             if (e->spr) SPR_releaseSprite(e->spr);

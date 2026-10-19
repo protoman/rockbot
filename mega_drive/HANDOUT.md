@@ -60,7 +60,12 @@ make run EMU_ARGS=   # GL renderer instead of software
   `--part ...:0:1`, `:0:1`, `:1:1`. 17 colours, 0 folded tiles. Three `--rekey`
   lines in the Makefile brighten the pink and orange armour and warm the skin;
   the art files themselves are untouched.
-- Last commit: boss dialogs + audit follow-up (all stages data-clean).
+- **Drops + progress** (2026-10-19): regular enemies drop PC-ratio pills (big/
+  small energy, big/small weapon, 4.5s lifetime); a new SRAM item record
+  (byte 88 + slot*12) persists lives, the three tanks and armor across stages;
+  first clears of stages 1..8 show `YOU GOT <weapon>` for 5s. Game-over screen
+  and post-stage stage-select return are still pending.
+- Last commit: enemy item drops + persistent lives/tanks/armor + got-weapon screen.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
