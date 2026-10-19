@@ -6,17 +6,49 @@
 #include "ssel_data.h"   // ssel_boss_names[stage]
 #include "boss_intro_bg_tiles.h"
 #include "boss_intro_bg_map.h"
+#include "castle64_map.h"
+#include "castle64_tiles.h"
+#include "castle64_pal.h"
 
 #include <string.h>
 
 #define BOSS_INTRO_PAL       PAL1
 #define BOSS_INTRO_TILE_BASE TILE_USER_INDEX
 #define BOSS_INTRO_FRAMES    384      // 6.4s @60fps (PC wait_and_update_screen)
+#define CASTLE_FRAMES        180      // PC classic_style_castle_intro: 3000ms
 
 // PC draws the boss at y = BOSS_INTRO_BG_POS_Y - h/2 = 96 - h/2 (240px),
 // name centred at y=200; both shifted up 16 for the MD 224 crop.
 #define BOSS_INTRO_BOSS_Y    80
 #define BOSS_INTRO_NAME_ROW  23
+
+// PC stage_select::classic_style_castle_intro (stage_select.cpp:600), shown
+// before a castle #1 stage. Full-screen art through the four-line pipeline
+// (tools/title64.py), same drawing path as the title.
+static void castle_screen(void)
+{
+    VDP_loadTileData(castle64_tiles_data, TILE_USER_INDEX,
+                     CASTLE64_TILE_COUNT, DMA);
+    for (u8 L = 0; L < 4; L++)
+        PAL_setPalette((u16)(PAL0 + L), castle64_pal[L], CPU);
+    VDP_setBackgroundColor(0);
+    VDP_fillTileMapRect(BG_B,
+                        TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, TILE_FONT_INDEX),
+                        0, 0, 64, 32);
+    static u16 cells[CASTLE64_W * CASTLE64_H];
+    for (u16 i = 0; i < CASTLE64_W * CASTLE64_H; i++) {
+        u16 e = castle64_map[i];
+        cells[i] = (u16)((e & ~TILE_INDEX_MASK) |
+                         (TILE_USER_INDEX + (e & TILE_INDEX_MASK)));
+    }
+    VDP_setTileMapDataRect(BG_A, cells, 0, 0, CASTLE64_W, CASTLE64_H,
+                           CASTLE64_W, CPU);
+    for (u16 f = 0; f < CASTLE_FRAMES; f++) {
+        SYS_doVBlankProcess();
+        VDP_setReg(17, 0);
+        VDP_setReg(18, 0);
+    }
+}
 
 void boss_intro_run(u8 stage)
 {
@@ -29,6 +61,8 @@ void boss_intro_run(u8 stage)
     VDP_setHorizontalScroll(BG_B, 0);
     VDP_setVerticalScroll(BG_B, 0);
     VDP_clearPlane(BG_B, TRUE);
+
+    if (stage >= 9) castle_screen();
 
     VDP_loadTileData(boss_intro_bg_tiles_data, BOSS_INTRO_TILE_BASE,
                      BOSS_INTRO_BG_TILE_COUNT, DMA_QUEUE);

@@ -70,7 +70,7 @@ static void draw_names(void)
     }
 }
 
-u8 stage_select_run(u8 player)
+u8 stage_select_run(u8 player, u16 stage_mask)
 {
     SPR_initEx(504);
     stage_release_map();
@@ -139,7 +139,15 @@ u8 stage_select_run(u8 player)
         else if (pressed & BUTTON_DOWN) { sy = (sy + 1) % 3; moved = TRUE; }
         else if (pressed & BUTTON_UP) { sy = (sy + 2) % 3; moved = TRUE; }
         else if (pressed & (BUTTON_START | BUTTON_A | BUTTON_C)) {
-            if (!(sx == 1 && sy == 1)) {    // centre = castle, locked
+            if (sx == 1 && sy == 1) {
+                // PC can_access_castle(): every boss stage (bits 1..8) beaten.
+                if ((stage_mask & 0x01FE) == 0x01FE) {
+                    u8 st = 9;            // get_last_castle_stage(): first
+                    while (st < 13 && (stage_mask & (1u << st))) st++;
+                    SPR_end();
+                    return st;            // unbeaten castle #1 stage
+                }
+            } else {
                 u8 st = complete_stage();
                 if (stage_ready(st)) {
                     SPR_end();

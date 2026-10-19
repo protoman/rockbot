@@ -406,7 +406,7 @@ static void runStage(u8 stage)
     }
 
     if (stage_cleared) {
-        save_slot_set_stage(current_save_slot, 0);
+        save_slot_set_stage(current_save_slot, stage);
         showStageClear();
     }
 }
@@ -502,7 +502,8 @@ int main(bool hardReset)
             // is played first; once it is beaten the stage select appears.
             u8 stage = 0;
             if (save_slot_stages((u8)slot) & 1) {
-                stage = stage_select_run(current_player);
+                stage = stage_select_run(current_player,
+                                         save_slot_stages(current_save_slot));
             }
             runStage(stage);
         }
