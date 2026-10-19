@@ -60,7 +60,9 @@ make run EMU_ARGS=   # GL renderer instead of software
   `--part ...:0:1`, `:0:1`, `:1:1`. 17 colours, 0 folded tiles. Three `--rekey`
   lines in the Makefile brighten the pink and orange armour and warm the skin;
   the art files themselves are untouched.
-- Last commit: audit follow-up (all stages data-clean; see stage0_plan).
+- Last commit: boss dialogs + audit follow-up (all stages data-clean).
+- Boss dialogs are in: shown when the boss first appears (stages 0..8).
+  Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
   note (stage 3, and 13's water/ice). Armor/tanks/destructible/boss doors/
   beams/LR platform/castle teleporters and the missing AI actions are in.

@@ -19,6 +19,7 @@
 #include "transition.h"
 #include "scene.h"
 #include "config.h"
+#include "dialogs.h"
 #include "title64_map.h"
 #include "title64_tiles.h"
 #include "title64_pal.h"
@@ -287,6 +288,7 @@ static void runStage(u8 stage)
     // the parallax background on BG_B, and clearing it afterwards wiped the
     // tilemap (sky showed stale/garbage tiles).
 
+    bool boss_dialog_shown = FALSE;
     u16 prev_pad = JOY_readJoypad(JOY_1);  // START edge (a press held from
                                            // the title must not open the menu)
     bool stage_cleared = FALSE;
@@ -393,6 +395,14 @@ static void runStage(u8 stage)
         stage_cycle_update();
 
         enemies_update();   // patrol/contact first, shots test fresh positions
+        // PC map_present_boss: the stage boss's dialog appears the first time
+        // he is on screen (stages 0..8; the castle stages have no boss text).
+        if (!boss_dialog_shown && enemies_boss_on_screen()) {
+            dialog_show_boss(stage, current_player);
+            boss_dialog_shown = TRUE;
+            pad = JOY_readJoypad(JOY_1);
+            prev_pad = pad;
+        }
         explosion_update(); // enemy death puffs (PC death animation)
         eshots_update();    // enemy AI projectiles -> player
         shot_update();

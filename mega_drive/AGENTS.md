@@ -222,6 +222,7 @@ Flow in `main.c`: `showIntro()` (logos) → `scene_play(SCENE_OPENING_UNBEATEN)`
 | `src/main.c` | boot, intro logos, title, stage loop |
 | `src/scene.{c,h}` | PC scene player: clear/text/parallax/images, START aborts |
 | `src/config.{c,h}` | options screen (audio/input/extras/leave), SRAM-persisted |
+| `src/dialogs.{c,h}` | PC boss-room dialog pages (dead start-stage half skipped) |
 | `src/scenes_data.{c,h}` | generated: op lists, text, clear areas, parallax |
 | `src/stage.{c,h}` | `stage_load`, `stage_terrain(x,y)`, `stage_update_camera` |
 | `src/stage0_data.{c,h}` | generated `u8 terrain[200*15]` + `STAGE0_TERRAIN(x,y)` |

@@ -1,0 +1,99 @@
+#include "dialogs.h"
+
+#include <genesis.h>
+
+#include "dialogs_data.h"
+#include "stage.h"
+#include "player.h"
+#include "enemy.h"
+#include "hud.h"
+#include "config.h"
+
+// PC boss-room dialog (scenes/dialogs.cpp:249, called by
+// game::map_present_boss when the boss appears in the arena). The PC also
+// draws a dialog box image + the speaker's face; the port keeps the PC text
+// (verbatim) in a black box on BG_A and restores the map afterwards.
+//
+// The stage-start half of the dialog files (lines 0..29) is dead data in the
+// PC build: no code path reads it, and every stage's cutscene_pre/pos is -1.
+// Only the boss block (30..59) is displayed here.
+
+#define DLG_BLACK_TILE 935      // scratch tile below the sprite pool
+#define DLG_W 40
+#define DLG_H 6
+
+static const u32 dlg_black[8] = {
+    0x11111111, 0x11111111, 0x11111111, 0x11111111,
+    0x11111111, 0x11111111, 0x11111111, 0x11111111,
+};
+
+static void wait_button(void)
+{
+    u16 pad;
+    do {
+        SYS_doVBlankProcess();
+        pad = JOY_readJoypad(JOY_1);
+    } while (!(pad & (BUTTON_A | BUTTON_START |
+                      config_jump_mask() | config_fire_mask())));
+    // release
+    do {
+        SYS_doVBlankProcess();
+        pad = JOY_readJoypad(JOY_1);
+    } while (pad & (BUTTON_A | BUTTON_START |
+                    config_jump_mask() | config_fire_mask()));
+}
+
+// One 3-line page. The box is drawn at screen rows y0..y0+5 by writing plane
+// cells with the camera's tile offset; per-cell writes also wrap at the
+// 64-cell plane width.
+static void show_page(const char *const *lines, u8 first, u8 y0)
+{
+    const u16 base = (u16)((camera.x >> 3) & 63);
+    const u16 entry = TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE,
+                                     DLG_BLACK_TILE);
+    for (u8 row = 0; row < DLG_H; row++)
+        for (u8 col = 0; col < DLG_W; col++)
+            VDP_setTileMapXY(BG_A, entry, (u16)((base + col) & 63),
+                             (u16)(y0 + row));
+
+    for (u8 i = 0; i < 3; i++) {
+        const char *line = lines[first + i];
+        if (!line[0]) continue;
+        for (u8 c = 0; line[c]; c++) {
+            char ch[2] = { line[c], '\0' };
+            VDP_drawTextBG(BG_A, ch, (u16)((base + 1 + c) & 63),
+                           (u16)(y0 + 1 + i));
+        }
+    }
+    VDP_drawTextBG(BG_A, "A: NEXT", (u16)((base + 30) & 63),
+                   (u16)(y0 + DLG_H - 1));
+    wait_button();
+}
+
+void dialog_show_boss(u8 stage, u8 player)
+{
+    if (stage >= DIALOG_STAGES) return;
+    const char *const *d = stage_dialogs[stage];
+    const u8 boss0 = 30;                  // 30..35 boss, 36+p*6 player
+    const u8 ply0 = (u8)(36 + (player & 3) * 6);
+    if (!d[boss0][0]) return;
+
+    player_set_visible(FALSE);
+    enemies_set_visible(FALSE);
+    hud_set_visible(FALSE);
+
+    VDP_loadTileData(dlg_black, DLG_BLACK_TILE, 1, DMA);
+    // top side (all converted stages have dialog_top_side = true)
+    const u8 y0 = 1;
+    show_page(d, boss0, y0);
+    show_page(d, ply0, y0);
+    if (d[boss0 + 3][0]) show_page(d, (u8)(boss0 + 3), y0);
+    if (d[ply0 + 3][0]) show_page(d, (u8)(ply0 + 3), y0);
+
+    stage_force_redraw();     // the box overwrote map cells on BG_A
+    player_set_visible(TRUE);
+    enemies_set_visible(TRUE);
+    hud_set_visible(TRUE);
+    player_sync_sprite();
+    SYS_doVBlankProcess();
+}

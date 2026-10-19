@@ -78,6 +78,7 @@ $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA) Makefile
 	    --part res/castle_b1.png:0,56:1:1 \
 	    --part res/castle_b2.png:0,112:2:1 \
 	    --part res/castle_b3.png:0,168:3:1
+	$(PYTHON) tools/convert_dialogs.py
 	$(PYTHON) tools/convert_scenes.py
 	$(PYTHON) tools/img2tiles.py res/scene_par0_l0.png --name scene_par0_l0
 	$(PYTHON) tools/img2tiles.py res/scene_par0_l1.png --name scene_par0_l1

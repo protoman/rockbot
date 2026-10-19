@@ -1831,3 +1831,24 @@ every stage **clean** except the water/ice note:
   ground_pair fix; now sinks with reduced gravity — needs a playtest), ICE
   only in 13, no DOOR/QUICKSAND/CHECKPOINT terrain anywhere. No map uses a
   second background layer or bg auto-scroll.
+
+## Stage/boss dialogs (2026-10-19)
+
+Checked `build/games/RockDroid1/dialogs/stage_dialogs_<n>.dat` (60 lines each)
+and the PC call sites:
+
+- **Boss dialogs ARE enabled** in classic mode: `game::map_present_boss()`
+  calls `dialogs::show_boss_dialog()` when the stage boss appears in the arena
+  (game.cpp:949). Layout: boss lines 30..35 (two 3-line pages), player lines
+  36 + player*6 .. +5 (also two pages). Stages 0..8 have text; castle stages
+  9..13 have none.
+- **Stage-start dialogs are NOT enabled anywhere**: lines 0..29 exist (6
+  generic + 4 players x 6) but no PC code path reads them, and every stage's
+  `cutscene_pre`/`cutscene_pos` is -1. They are dead editor-generated data.
+
+Port: `tools/convert_dialogs.py` packs the English 14x60 table into
+`src/dialogs_data.c`; `src/dialogs.c` shows the boss pages (verbatim, no faces
+yet) when `enemies_boss_on_screen()` first becomes true in `runStage`. The
+dialog box is drawn on BG_A at the camera's tile offset (cell writes wrap at
+the 64-cell plane), player/enemies/HUD are hidden while it is up, and
+`stage_force_redraw()` restores the map afterwards.
