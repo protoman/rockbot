@@ -54,6 +54,8 @@ def main():
     ap.add_argument("--crop-h", type=int, default=224)
     ap.add_argument("--codedir", default=None)
     ap.add_argument("--preview", default=None, help="write the emitted data back as a PNG")
+    ap.add_argument("--rekey", action="append", default=[], metavar="OLD=NEW",
+                    help="remap an art colour after the MD ramp snap, e.g. 219,36,182=255,36,182")
     ap.add_argument("--brighten", action="store_true",
                     help="raise every art colour one MD level (keeps darks/outlines)")
     args = ap.parse_args()
@@ -131,11 +133,17 @@ def main():
                 px[x, y] = (0, 0, 0, 0)
             q.extend(((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)))
 
+    rekey = {}
+    for spec in args.rekey:
+        a, b = spec.split("=")
+        rekey[tuple(int(v) for v in a.split(","))] = tuple(int(v) for v in b.split(","))
+
     def cell_colour(x, y):
         r, g, b, a = px[x, y]
         if a == 0 or (r, g, b) == COLORKEY:
             return None
         c = (md_round(r), md_round(g), md_round(b))
+        c = rekey.get(c, c)
         if args.brighten:
             # One MD level up for anything not near-black: the reference art sits
             # one level above ours (measured: our orange red was 219, the

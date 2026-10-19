@@ -95,6 +95,8 @@ $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA)
 	    $(PCROOT)/build/games/RockDroid1/images/backgrounds/weapon_menu.png \
 	    --name menu --crop-top 16
 	$(PYTHON) tools/title64.py --name title64 --crop-h 224 \
+	    --rekey 219,36,182=255,36,182 \
+	    --rekey 219,109,73=255,146,36 \
 	    --part art/title.png:18,4:0:1 \
 	    --part art/sub_title.png:162,38:0:1 \
 	    --part art/title_rock_and_beta.png:148,48:1:1
