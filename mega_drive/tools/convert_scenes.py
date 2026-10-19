@@ -275,7 +275,13 @@ def emit_c(scenes, texts, clears, pars):
     c.append("const char *const scene_text[SCENE_TEXT_RECORDS]"
              "[SCENE_TEXT_LINES] = {")
     for n in range(SCENE_TEXT_RECORDS):
-        path = os.path.join(DATA, "text", f"{n}.txt")
+        # The PC reads scenes/text/<language>/<n>.txt (fio_strings.cpp); the
+        # files directly in scenes/text/ are stale leftovers from an older
+        # script and are NOT what the game shows. Use the English set, which
+        # is also the PC's fallback language.
+        path = os.path.join(DATA, "text", "en", f"{n}.txt")
+        if not os.path.exists(path):
+            path = os.path.join(DATA, "text", f"{n}.txt")
         lines = open(path, "rb").read().decode("latin1").splitlines()
         if len(lines) > SCENE_TEXT_LINES:
             sys.exit(f"text/{n}.txt has {len(lines)} lines (max "
