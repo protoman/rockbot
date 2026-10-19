@@ -159,18 +159,22 @@ from already-captured screenshots/assets over running the emulator again.
 
 ## Port status
 
-- Milestone 1: intro logos (`src/main.c` `showIntro()`).
-- Milestone 2: title screen (`showTitle()`). Menu **not** done — START skips straight to the stage.
-- Milestone 3: **intro stage CHAOS CITY** — map scroll, player walk/jump/collision.
-- Stage 0 milestone table + session notes: **`stage0_plan.md`** (single source
-  of truth). Current: M0 maps/links/collision, M1 parallax bg, M2 tile3 baked,
-  M3 text HP debug overlay, M4 attack + shots, M5 enemies (5 types),
-  M6 objects (pills/1UP/fall+fly platforms/checkpoint) DONE + platform bug
-  fixes (side collision, land-activation, carry) built; user to re-test.
-  **Next: M6b boss teleporter object (type 32) — research in stage0_plan.md
-  M7a section.** Then M7 boss. Backlog after M6 (user order): charged-shot
-  projectiles like PC, halve enemy speed, hit pushback + hit anim, menu,
-  boss, stage select.
+- All nine converted stages play: maps, parallax, enemies, objects, shots, HUD,
+  menu, save/load, stage select. Bosses and music still out (see roadmap).
+- Intro + title: the title now draws the **PC art at 59 colours over four
+  palette lines** (`tools/title64.py`, per-8x8-tile palette line). Recipe and
+  caveats in `stage0_plan.md` -> "Four palette lines per screen".
+- **Colourcycle** (CRAM rotation instead of tile-frame animation) is live in
+  stages 1, 2, 3, 6, 8: art width decides the technique (a 16 px strip = one
+  frame = rotation; wider = several frames = tile animation). Details, per-stage
+  bands and the palette-pool layout are in `stage0_plan.md` -> "Colourcycle".
+- Known colour work left: `mega_drive/images/tilesets/anim/` art is hand-owned
+  and takes precedence over the PC data; `bugs.md` BUG-001 (title, fixed),
+  BUG-003 (fixed), BUG-004 (palette budget: DEEP JUNGLE is the worst at 33
+  colours for 15 slots - the per-stage weighted errors are printed by every
+  build) and roadmap item 15 (waterfall gap, needs a reproduction).
+- Session notes and the milestone history: **`stage0_plan.md`** (single source of
+  truth).
 
 Flow in `main.c`: `showIntro()` → `showTitle()` (waits for START) → `runStage()`.
 
@@ -188,6 +192,7 @@ Flow in `main.c`: `showIntro()` → `showTitle()` (waits for START) → `runStag
 | `src/stage0_enemies.{c,h}` | generated: defs, spawns, `palette_ui_enemies` |
 | `src/stage0_objects.{c,h}` | generated: object defs, spawns |
 | `tools/convert_assets.py` | logos → indexed PNG |
+| `tools/title64.py` | full-screen image → 4-palette-line art (tiles/map/palettes as C arrays, `--preview`)
 | `tools/convert_stage.py` | stage/map data → `res/stage0_map*.png` + `src/stage0_data.*` + parallax `res/stage0_bg*.png` |
 | `tools/convert_player.py` | `p1.png` → `res/player.png` (anim rows, palette swap) |
 | `tools/convert_enemies.py` | enemy .dat/.png → `res/enemy_*.png`, `res/shot.png`, `src/stage0_enemies.*` |
