@@ -64,6 +64,35 @@ def main():
     art.paste(im.crop((0, 0, min(im.width, w), min(im.height, h))), (0, 0))
     px = art.load()
 
+    # The PC art's background is (72,126,124): a NEAR MISS of the game's
+    # colorkey (75,125,125), so an exact test treats ~65% of the image as art -
+    # which both painted the background and starved the palette the characters
+    # needed. Flood-fill from the borders with a tolerance instead, so art in a
+    # similar tone that is *enclosed* by the picture survives.
+    from collections import deque
+    bg = px[0, 0][:3]
+
+    def near_bg(c):
+        return max(abs(c[i] - bg[i]) for i in range(3)) <= 8
+
+    seen = [[False] * w for _ in range(h)]
+    q = deque()
+    for x in range(w):
+        q.extend(((x, 0), (x, h - 1)))
+    for y in range(h):
+        q.extend(((0, y), (w - 1, y)))
+    while q:
+        x, y = q.popleft()
+        if x < 0 or y < 0 or x >= w or y >= h or seen[y][x]:
+            continue
+        seen[y][x] = True
+        r, g, b, a = px[x, y]
+        if a and not (near_bg((r, g, b)) or (r, g, b) == COLORKEY):
+            continue
+        if a:
+            px[x, y] = (0, 0, 0, 0)
+        q.extend(((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)))
+
     def cell_colour(x, y):
         r, g, b, a = px[x, y]
         if a == 0 or (r, g, b) == COLORKEY:

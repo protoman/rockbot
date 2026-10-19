@@ -153,6 +153,10 @@ static s16 showTitle(void)
     // tools/title64.py), so VDP_drawText keeps working.
     PAL_setColor(0, 0x0210);
     PAL_setColor(15, 0x0EEE);   // font white: the art keeps its own white at slot 1
+    // Pixels at index 0 are transparent on a plane and show CRAM's backdrop
+    // entry, so point it at PAL0 slot 0 (the PC CONFIG_BGCOLOR) - otherwise the
+    // logo's background is black instead of the title's navy.
+    VDP_setBackgroundColor(0);
     // the plane is 64 tiles wide: wipe the whole thing first so cells the
     // 40x28 image does not cover cannot show stale stage data
     VDP_fillTileMapRect(BG_B,
