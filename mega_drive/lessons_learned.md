@@ -62,6 +62,17 @@ Real mistakes + fixes. Add to this on every session.
   for `Erro`) and, before launching an emulator, that `out/rom.bin` is **newer
   than the newest source file**. Two seconds of checking beats four bad runs.
 
+**27. A self-consistent preview cannot validate an encoding**
+- The 60-colour title tool emitted its palette as `[blank] + colours` but built
+  the tile pixels from `lines[L].index(colour)`, i.e. 0-based, so every pixel was
+  read one palette slot too low on hardware (and the first colour of each line
+  collided with transparent slot 0). Colours were wrong, shapes were fine.
+- The `--preview` check *looked* correct the whole time because it built its
+  palettes the same wrong way: the preview validated the algorithm, not the
+  encoding. Fix that worked: make the preview derive the palette exactly as the
+  emitter writes it (blank at 0, colours at 1..15) - then a mismatch shows up
+  offline. Reserve slot 0 in the *data* model, not just at write time.
+
 ## Runtime / drawing
 
 **10. Fully black screen = 2 combined bugs (NOT the emulator)**

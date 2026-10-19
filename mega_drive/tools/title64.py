@@ -172,12 +172,14 @@ def main():
 
     # ---- slot lookup per line ---------------------------------------------
     def slot_of(c, L):
+        # +1: slot 0 of every line is the blank/transparent entry, so the line's
+        # colours sit at slots 1..15 (the emission writes [blank] + colours).
         pal = lines[L]
         if not pal:
             pal.append(nearest(c, pal_art))
         if c in pal:
-            return pal.index(c)
-        return pal.index(nearest(c, pal))
+            return pal.index(c) + 1
+        return pal.index(nearest(c, pal)) + 1
 
     # ---- rebuild tiles (slot values), dedup, build the map ------------------
     blank = bytes([0] * (TILE * TILE))
@@ -253,8 +255,8 @@ def main():
                 for x in range(TILE):
                     out.append((words[y] >> (28 - (x & 7) * 4)) & 0xF)
             return out
-        pals = [[c for c in lines[L]] + [(0, 0, 0)] * (16 - len(lines[L]))
-                for L in range(4)]
+        pals = [[(0, 0, 0)] + list(lines[L]) +
+                [(0, 0, 0)] * (15 - len(lines[L])) for L in range(4)]
         out = Image.new("RGB", (w, h), (0, 0, 0))
         op = out.load()
         for ty in range(h // TILE):

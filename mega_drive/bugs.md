@@ -4,8 +4,11 @@ Things that are wrong or worse than the original. Track here, fix later.
 
 ## BUG-001 — Title screen art loses color depth
 
-**Status**: **FIXED 2026-10-19** — the title now draws the PC art at 59
-colours spread over the four palette lines (`tools/title64.py`). See the
+**Status**: **FIXED 2026-10-19** — the title draws the PC art at 59 colours
+over the four palette lines, verified on hardware: navy backdrop, bright
+yellow logotype and the characters' own hues. Two bugs had to go: the
+near-colorkey background (below) and an off-by-one palette slot
+(`lessons_learned.md` #27). See the
 update at the end of this entry for the recipe and the two traps.
 
 **Symptom**: the title logo and character art look banded/washed out compared to the
