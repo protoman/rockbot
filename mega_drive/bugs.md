@@ -51,7 +51,20 @@ lines 14/15/15/15, 399 tiles), but the first on-screen attempt rendered garbage 
 the wiring is reverted and the title still uses the hand-drawn 15-colour logo, so
 nothing is broken. Next attempt: check the plane write and the tile-base offset
 (`TITLE_TILE_BASE + (entry & TILE_INDEX_MASK)`, palette bits kept from the map
-entry), and whether BG_B needs the 64-wide fill to stay..
+entry), and whether BG_B needs the 64-wide fill to stay.
+
+**Update 2026-10-19 (probe screen)**: a TEMPV probe that loads the 60-colour
+tiles, the four palettes and the emitted map *renders the title art correctly*
+on BG_B - the data and the four-line mechanism are proven on hardware. It also
+showed that the two earlier "still garbage" results were stale ROMs: the capture
+script had a hardcoded ROM path, so both retries tested the build with the broken
+16-word tile packing. The remaining problem is only in `showTitle()`'s sequence:
+wiring the same data there black-screened the ROM from boot, so that needs a
+step-by-step comparison against the probe (the probe does: SPR_end, clear both
+planes, palettes, backdrop, tileset, map; showTitle also does a stage release,
+scroll resets, a BG_A font fill and a 64-wide BG_B fill around the same calls).
+The title is back on the hand-drawn art; `tools/title64.py` (with `--preview`)
+is committed and ready.
 
 **Files**: `tools/convert_assets.py`, `res/resources.res`
 
