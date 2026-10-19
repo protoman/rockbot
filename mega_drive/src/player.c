@@ -171,10 +171,28 @@ u8 player_max_shots(void) { return player_data[player_n].max_shots; }
 u8 player_simultaneous(void) { return player_data[player_n].simultaneous; }
 s8 player_damage_mod(void) { return player_data[player_n].dmg_mod; }
 bool player_can_charge(void) { return (player_data[player_n].flags & PL_CHARGE) != 0; }
-bool player_can_double_jump(void) { return (player_data[player_n].flags & PL_DJUMP) != 0; }
+// game_armorPieces_v301.dat special_ability[player] (read with the PC struct;
+// enum e_ARMOR_ABILITIES_*). BODY: 0 half damage, 1 extended immunity,
+// 2 spike immune, 3 no pushback. LEGS: 0 double jump, 1 air dash, 2 shoryuken.
+static const u8 armor_body_ability[4] = { 0, 2, 1, 3 };
+static const u8 armor_legs_ability[4] = { 0, 1, 1, 2 };
+
+static u8 armor_body(void) { return armor_body_ability[player_n & 3]; }
+static u8 armor_legs(void) { return armor_legs_ability[player_n & 3]; }
+static bool has_armor(u8 bit) { return (player.armor & (1u << bit)) != 0; }
+
+bool player_can_double_jump(void)
+{
+    if ((player_data[player_n].flags & PL_DJUMP) != 0) return TRUE;
+    return has_armor(2) && armor_legs() == 0;
+}
 bool player_can_slide(void) { return (player_data[player_n].flags & PL_SLIDE) != 0; }
 bool player_can_diagonal(void) { return (player_data[player_n].flags & PL_DIAG) != 0; }
-bool player_can_air_dash(void) { return (player_data[player_n].flags & PL_AIRDASH) != 0; }
+bool player_can_air_dash(void)
+{
+    if ((player_data[player_n].flags & PL_AIRDASH) != 0) return TRUE;
+    return has_armor(2) && armor_legs() == 1;
+}
 bool player_can_shield(void) { return (player_data[player_n].flags & PL_SHIELD) != 0; }
 bool player_is_shielding(void) { return player.shielding; }
 
@@ -435,6 +453,8 @@ void player_init(void)
     out_of_lives = FALSE;
     player.tanks_hp = 0;
     player.tanks_wp = 0;
+    player.tanks_sp = 0;
+    player.armor = 0;
     coyote_timer = COYOTE_FRAMES;
     jump_timer = 0;
     attack_timer = 0;
@@ -1016,7 +1036,8 @@ void player_update(u16 pad)
                 }
             }
         }
-        if (spiked) player_take_damage(SPIKE_DAMAGE);
+        if (spiked && !(has_armor(1) && armor_body() == 2))
+            player_take_damage(SPIKE_DAMAGE);
     }
 
     player.x = ix;
@@ -1081,9 +1102,12 @@ void player_take_damage(u8 amount)
     s16 dmg = (s16)amount;
     if (dmg < 1) dmg = 1;
     if (dmg + player_damage_mod() > 0) dmg += player_damage_mod();
+    if (has_armor(1) && armor_body() == 0 && dmg > 1) dmg /= 2;   // half damage
 
     player.hp = (dmg >= (s16)player.hp) ? 0 : (u8)(player.hp - dmg);
-    player.invuln = PLAYER_INVULN_FRAMES;
+    player.invuln = (has_armor(1) && armor_body() == 1)
+                        ? (u16)(PLAYER_INVULN_FRAMES * 3)   // extended immunity
+                        : PLAYER_INVULN_FRAMES;
     sfx_play((player.hp == 0) ? SFX_PLAYER_DEATH : SFX_PLAYER_HIT);
 
     // PC ANIM_TYPE_HIT replaces ANIM_TYPE_SLIDE (character.cpp:1598), so a hit
@@ -1094,7 +1118,7 @@ void player_take_damage(u8 amount)
 
     // Enter the hit state (PC character.cpp:3036): push away from facing,
     // half distance + jump cancelled when hit in the air.
-    if (player.hit_push <= 0) {
+    if (player.hit_push <= 0 && !(has_armor(1) && armor_body() == 3)) {
         player.hit_dir = (player.facing > 0) ? -1 : 1;
         player.hit_acc = 0;
         if (player.on_ground) {
@@ -1124,6 +1148,16 @@ void player_add_life(void)
     if (lives < 9) lives++;
 }
 
+void player_add_armor(u8 kind)
+{
+    if (kind < 3) player.armor |= (u8)(1u << kind);
+}
+
+void player_add_special_tank(void)
+{
+    if (player.tanks_sp < 9) player.tanks_sp++;
+}
+
 void player_add_tank(bool hp)
 {
     if (hp) { if (player.tanks_hp < 9) player.tanks_hp++; }
@@ -1133,17 +1167,36 @@ void player_add_tank(bool hp)
 bool player_use_tank(bool hp)
 {
     if (hp) {
-        if (!player.tanks_hp || player.hp >= PLAYER_INITIAL_HP) return FALSE;
-        player.tanks_hp--;
+        if (player.hp >= PLAYER_INITIAL_HP) return FALSE;
+        if (player.tanks_hp) {
+            player.tanks_hp--;
+        } else if (player.tanks_sp) {
+            // special refills HP + every weapon gauge (PC class_config)
+            player.tanks_sp--;
+            for (u8 i = 0; i < PLAYER_WEAPON_N; i++)
+                player.ammo[i] = PLAYER_INITIAL_HP;
+        } else {
+            return FALSE;
+        }
         player.hp = PLAYER_INITIAL_HP;
         return TRUE;
     }
-    if (!player.tanks_wp || player_weapon() == 0 ||
-        player_weapon_ammo() >= PLAYER_INITIAL_HP)
-        return FALSE;
-    player.tanks_wp--;
-    player.ammo[player.weapon] = PLAYER_INITIAL_HP;
-    return TRUE;
+    if (player_weapon() != 0 && player_weapon_ammo() < PLAYER_INITIAL_HP) {
+        if (player.tanks_wp) {
+            player.tanks_wp--;
+            player.ammo[player.weapon] = PLAYER_INITIAL_HP;
+            return TRUE;
+        }
+    }
+    if (player.tanks_sp && (player.hp < PLAYER_INITIAL_HP ||
+                            player_weapon() == 0 ||
+                            player_weapon_ammo() < PLAYER_INITIAL_HP)) {
+        player.tanks_sp--;
+        player.hp = PLAYER_INITIAL_HP;
+        for (u8 i = 0; i < PLAYER_WEAPON_N; i++) player.ammo[i] = PLAYER_INITIAL_HP;
+        return TRUE;
+    }
+    return FALSE;
 }
 
 bool player_out_of_lives(void) { return out_of_lives; }

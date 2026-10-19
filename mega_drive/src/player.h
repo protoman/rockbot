@@ -63,6 +63,8 @@ typedef struct {
     // used from the in-game menu). Not persisted in SRAM yet.
     u8 tanks_hp;
     u8 tanks_wp;
+    u8 tanks_sp;
+    u8 armor;       // bit0 ARMS, bit1 BODY, bit2 LEGS (PC game_save.armor_pieces)
     // charge shot (PC check_must_attack: press = normal, hold >= 1000ms
     // = semi, >= 2200ms = full, fire on release)
     u16 charge_frames;
@@ -110,7 +112,9 @@ void player_refill_weapons(void);   // PC refill_weapons(), at stage start
 u8 player_lives(void);
 void player_add_life(void);              // OBJ_LIFE pickup
 void player_add_tank(bool hp);           // OBJ_ENERGY_TANK / OBJ_WEAPON_TANK
-bool player_use_tank(bool hp);           // menu: refill HP / current gauge
+void player_add_special_tank(void);      // OBJ_SPECIAL_TANK
+bool player_use_tank(bool hp);           // menu: refill HP / current gauge (+special)
+void player_add_armor(u8 kind);          // 0 arms, 1 body, 2 legs
 bool player_out_of_lives(void);
 
 // pad = JOY_readJoypad(JOY_1)

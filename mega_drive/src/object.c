@@ -22,6 +22,7 @@ typedef struct {
     Sprite *spr;
     s16 x, y;
     s16 home_y;      // start position; RETURN climbs back to it
+    s16 home_x;      // LR platform origin
     s16 distance;    // px travelled since MOVE started
     u8 state;
     u8 delay;        // activation-delay countdown (OBJ_START_DELAY)
@@ -32,6 +33,7 @@ typedef struct {
     bool active;
     bool visible;    // disappearing blocks toggle this (collision follows it)
     u8 vis_t;        // frames in the current visible/hidden phase
+    u8 hp;           // destructible wall
 } MapObj;
 
 static MapObj objs[OBJECT_MAX];
@@ -42,20 +44,24 @@ static bool auto_anim(u8 type)
 {
     // pickups (small/big pills), 1UP, boss teleporter
     return type == 5 || type == 6 || type == 7 || type == 8 || type == 9 ||
-           type == 32;
+           type == 18 || type == 19 || type == 21 || type == 24 ||
+           type == 25 || type == 26 || type == 31 || type == 32;
 }
 
 static bool is_platform(u8 type)
 {
-    // OBJ_DISAPPEARING_BLOCK, OBJ_FALL_PLATFORM, OBJ_FLY_PLATFORM,
-    // OBJ_ACTIVE_DISAPPEARING_BLOCK
-    return type == 2 || type == 10 || type == 11 || type == 14;
+    // disappearing/active blocks, fall/fly/LR platforms, destructible wall,
+    // boss door
+    return type == 1 || type == 2 || type == 10 || type == 11 || type == 14 ||
+           type == 22 || type == 30;
 }
 
 // A disappearing block only collides while in its visible phase.
 static bool solid_now(const MapObj *o)
 {
-    return o->active && is_platform(o->def->type) && o->visible;
+    if (!o->active || !is_platform(o->def->type)) return FALSE;
+    if (o->def->type == 30) return !o->started;   // boss door until opened
+    return o->visible;
 }
 
 // PC object.cpp: DISAPPEARNING_VISIBLE_TIME / HIDDEN_TIME (1500/2000ms) at
@@ -133,6 +139,8 @@ void objects_reset(void)
         o->x = sp->x;
         o->y = sp->y;
         o->home_y = sp->y;
+        o->home_x = sp->x;
+        o->hp = (d->type == 22) ? 3 : 0;
         o->distance = 0;
         o->state = OBJ_STATE_STAND;
         o->delay = 0;
@@ -402,6 +410,27 @@ void objects_shift_y(s16 dy)
     }
 }
 
+// Player shots vs destructible walls (OBJ_DESTRUCTIBLE_WALL): the PC block
+// vanishes after enough hits (block003 art has a broken frame). Returns TRUE
+// when the shot hit something (the caller kills the shot).
+bool objects_try_hit(s16 l, s16 t, s16 r, s16 b, u8 dmg)
+{
+    for (u8 i = 0; i < obj_count; i++) {
+        MapObj *o = &objs[i];
+        if (!o->active || o->def->type != 22 || !o->visible) continue;
+        if (l >= o->x + o->def->w || r <= o->x ||
+            t >= o->y + o->def->h || b <= o->y) continue;
+        if (o->hp > dmg) {
+            o->hp -= dmg;
+        } else {
+            obj_release(o);
+            sfx_play(SFX_NPC_KILLED);
+        }
+        return TRUE;
+    }
+    return FALSE;
+}
+
 void objects_update(void)
 {
     s16 pl, pt, pr, pb;
@@ -415,6 +444,33 @@ void objects_update(void)
         // ---- platform state machine (before pickup: player box is fresh) --
         if (is_platform(d->type) && o->started)
             obj_move(o);
+
+        // OBJ_MOVING_PLATFORM_LEFTRIGHT: starts when the player stands on it,
+        // ping-pongs over +/- limit, carrying the player.
+        if (d->type == 1) {
+            if (!o->started && player_on_top(o)) o->started = TRUE;
+            if (o->started) {
+                s16 lim = d->limit ? d->limit : 64;
+                s16 dirn = (o->state == OBJ_STATE_RETURN) ? -1 : 1;
+                s16 nx = o->x + dirn * (d->speed ? d->speed : 1);
+                if (nx > o->home_x + lim) { nx = o->home_x + lim; o->state = OBJ_STATE_RETURN; }
+                else if (nx < o->home_x - lim) { nx = o->home_x - lim; o->state = OBJ_STATE_MOVE; }
+                s16 mdx = nx - o->x;
+                bool carry = player_on_top(o);
+                o->x = nx;
+                if (carry) player.x += mdx;
+            }
+        }
+
+        // Fire/lava beams (types 18/19/24/25): visible for 90 frames, hidden
+        // for 90 (PC toggles the ray state). They damage on contact.
+        if (d->type == 18 || d->type == 19 || d->type == 24 ||
+            d->type == 25) {
+            if (++o->vis_t >= 90) {
+                o->vis_t = 0;
+                o->visible = !o->visible;
+            }
+        }
 
         // ---- screen visibility -------------------------------------------
         s16 sx = o->x - camera.x;
@@ -474,6 +530,36 @@ void objects_update(void)
                 u8 hp = player.hp + 3;
                 player.hp = (hp > PLAYER_INITIAL_HP) ? PLAYER_INITIAL_HP : hp;
                 obj_release(o);
+                continue;
+            }
+            if (d->type == 15 || d->type == 16 || d->type == 17) {
+                sfx_play(SFX_ITEM);
+                player_add_armor((u8)(d->type - 15));
+                obj_release(o);
+                continue;
+            }
+            if (d->type == 23) {                    // special tank
+                sfx_play(SFX_ITEM);
+                player_add_special_tank();
+                obj_release(o);
+                continue;
+            }
+            if (d->type == 30) {                    // boss door: open on touch
+                o->started = TRUE;
+                o->frame = (u8)(d->frames - 1);
+                if (o->spr) SPR_setFrame(o->spr, o->frame);
+                continue;
+            }
+            if (d->type == 21 || d->type == 26 || d->type == 31) {
+                // Castle teleporters: same capsule trigger as the stage boss
+                // teleporter (PC object_teleport_boss).
+                if (d->type == 26 && !o->started) o->started = TRUE;
+                stage_teleport_boss(o->dest_map, o->dest_x, o->dest_y);
+                return;
+            }
+            if (d->type == 18 || d->type == 19 || d->type == 24 ||
+                d->type == 25) {
+                if (o->visible) player_take_damage(4);
                 continue;
             }
             if (d->type == 9) {                     // 1UP

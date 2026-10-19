@@ -4,6 +4,7 @@
 #include "stage.h"
 #include "stage_data.h"
 #include "enemy.h"
+#include "object.h"
 #include "player.h"
 #include "weapon_data.h"
 #include "resources.h"
@@ -208,6 +209,13 @@ void shot_update(void)
         // ZIGZAG / AHEAD_AND_BACK / bouncing trajectories (projectilelib.cpp).
         // LINEAR, DIAGONAL, ARC, TARGET and FOLLOW simply fly on, so player
         // shots cross walls (user-reported Techno behavior).
+        // destructible walls (OBJ_DESTRUCTIBLE_WALL) stop a non-charged shot
+        if (objects_try_hit(s->x, s->y, s->x + s->w - 1, s->y + s->h - 1,
+                            s->dmg) && s->dmg < 3) {
+            shot_kill(s);
+            continue;
+        }
+
         // enemy hit (shot dies on any hit; charged shots pierce: PC full
         // charge keeps flying — character.cpp:742 permanent projectiles)
         u8 hit = enemies_try_hit(s->x, s->y, s->x + s->w - 1, s->y + s->h - 1,

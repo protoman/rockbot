@@ -62,7 +62,21 @@ GRAV = 4
 
 # PC OBJECT_TYPE values (defines.h:363)
 OBJ_DISAPPEARING_BLOCK = 2
+OBJ_MOVING_LR = 1
 OBJ_ACTIVE_DISAPPEARING_BLOCK = 14
+OBJ_ARMOR_ARMS = 15
+OBJ_ARMOR_BODY = 16
+OBJ_ARMOR_LEGS = 17
+OBJ_RAY_H = 18
+OBJ_RAY_V = 19
+OBJ_BOSS_TELEPORTER = 21
+OBJ_DESTRUCTIBLE = 22
+OBJ_SPECIAL_TANK = 23
+OBJ_DEATHRAY_V = 24
+OBJ_DEATHRAY_H = 25
+OBJ_FINAL_BOSS_TELEPORTER = 26
+OBJ_BOSS_DOOR = 30
+OBJ_PLATFORM_TELEPORTER = 31
 OBJ_ENERGY_TANK = 3
 OBJ_WEAPON_TANK = 4
 OBJ_ENERGY_PILL_BIG = 5
@@ -80,9 +94,14 @@ OBJ_STAGE_BOSS_TELEPORTER = 32
 GRAVITY_TYPES = (OBJ_ENERGY_TANK, OBJ_WEAPON_TANK,
                  OBJ_ENERGY_PILL_BIG, OBJ_WEAPON_PILL_BIG,
                  OBJ_ENERGY_PILL_SMALL, OBJ_WEAPON_PILL_SMALL,
-                 OBJ_LIFE, OBJ_CHECKPOINT)
-PLATFORM_TYPES = (OBJ_DISAPPEARING_BLOCK, OBJ_ACTIVE_DISAPPEARING_BLOCK,
-                  OBJ_FALL_PLATFORM, OBJ_FLY_PLATFORM)
+                 OBJ_LIFE, OBJ_CHECKPOINT, OBJ_ARMOR_ARMS, OBJ_ARMOR_BODY,
+                 OBJ_ARMOR_LEGS, OBJ_SPECIAL_TANK)
+PLATFORM_TYPES = (OBJ_MOVING_LR, OBJ_DISAPPEARING_BLOCK,
+                  OBJ_ACTIVE_DISAPPEARING_BLOCK, OBJ_FALL_PLATFORM,
+                  OBJ_FLY_PLATFORM, OBJ_DESTRUCTIBLE, OBJ_BOSS_DOOR)
+HAZARD_TYPES = (OBJ_RAY_H, OBJ_RAY_V, OBJ_DEATHRAY_H, OBJ_DEATHRAY_V)
+TELEPORT_TYPES = (OBJ_BOSS_TELEPORTER, OBJ_FINAL_BOSS_TELEPORTER,
+                  OBJ_PLATFORM_TELEPORTER, OBJ_STAGE_BOSS_TELEPORTER)
 
 
 def cstr(b, o, n):
@@ -99,6 +118,8 @@ def read_object_defs(blob, ids):
             "gfx": cstr(b, 30, 30),
             "type": struct.unpack_from("<b", b, 60)[0],
             "speed": struct.unpack_from("<b", b, 68)[0],
+            "timer": struct.unpack_from("<i", b, 64)[0],
+            "limit": struct.unpack_from("<h", b, 70)[0],
             "w": struct.unpack_from("<b", b, 76)[0],
             "h": struct.unpack_from("<b", b, 77)[0],
             "fd": struct.unpack_from("<h", b, 78)[0],
@@ -158,8 +179,8 @@ def main():
         if s["id"] < 0 or s["id"] * OBJ_SZ >= len(blob):
             continue
         typ = struct.unpack_from("<b", blob, s["id"] * OBJ_SZ + 60)[0]
-        if typ not in GRAVITY_TYPES and \
-           typ not in PLATFORM_TYPES and typ != OBJ_STAGE_BOSS_TELEPORTER:
+        if typ not in GRAVITY_TYPES and typ not in PLATFORM_TYPES and \
+           typ not in TELEPORT_TYPES and typ not in HAZARD_TYPES:
             print(f"skip spawn id={s['id']} map={s['map']} pos=({s['x']},{s['y']}): "
                   f"unsupported type {typ}")
             continue
@@ -179,24 +200,35 @@ def main():
         if spal != pal:
             print(f"  !! {path}: palette differs from the enemy PAL0")
         fw, fh = d["w"], d["h"]
-        cw, ch = ceil8(fw), ceil8(fh)
-        assert cw <= 32 and ch <= 64, f"{d['gfx']}: cell {cw}x{ch} too large"
+        # MD sprite sheets top out at 64 wide / 80 tall in this project
+        # (giant_fly is 64x48). The beams ship 80px wide: crop the ART to the
+        # cell, keep the data size for the damage box.
+        uw, uh = min(fw, 64), min(fh, 80)
+        cw, ch = ceil8(uw), ceil8(uh)
+        assert cw <= 64 and ch <= 80, f"{d['gfx']}: cell {cw}x{ch} too large"
         pw, ph = sheet.size
-        assert pw % fw == 0 and ph == fh, \
-            f"{d['gfx']}: png {pw}x{ph} is not a {fh}-tall strip of {fw}px frames"
-        frames = pw // fw
+        # PC object art is usually a horizontal strip, but some sheets
+        # (teleporter.png, platform_up/down) stack frames vertically.
+        if pw % fw == 0 and ph % fh == 0:
+            cols, rows = pw // fw, ph // fh
+            frames = cols * rows
+        else:
+            raise AssertionError(
+                f"{d['gfx']}: png {pw}x{ph} is not a grid of {fw}x{fh} frames")
         frame_t = max(1, round(d["fd"] * 6 / 100))
         src = sheet.load()
         cells = []
         for f in range(frames):
             art = []
-            for y in range(fh):
-                for x in range(fw):
-                    art.append(src[f * fw + x, y])
+            cx, cy = f % cols, f // cols
+            for y in range(uh):
+                for x in range(uw):
+                    art.append(src[cx * fw + x, cy * fh + y])
             cells.append(art)
         plans[oid] = {
             "d": d, "cw": cw, "ch": ch, "fw": fw, "fh": fh,
             "frames": frames, "frame_t": frame_t, "cells": cells,
+            "uw": uw, "uh": uh,
             "res_name": "object_" + os.path.splitext(d["gfx"])[0],
         }
         print(f"id={oid} {d['name']} gfx={d['gfx']} type={d['type']} "
@@ -212,7 +244,7 @@ def main():
         for f, art in enumerate(p["cells"]):
             ox = f * cw
             for i, px in enumerate(art):
-                x, y = i % p["fw"], i // p["fw"]
+                x, y = i % p["uw"], i // p["uw"]
                 data[y * cols * cw + ox + x] = px
         out.putdata(data)
         out.save(os.path.join(RES, p["res_name"] + ".png"))
@@ -241,7 +273,8 @@ def main():
         spawn_out.append((def_idx, s["map"], x, y, dx, dy, dm))
         print(f"spawn def={def_idx} id={s['id']} type={d['type']} map={s['map']} "
               f"px=({x},{y}) bottom={y + d['h']}"
-              + (f" dest=({dx},{dy}) destmap={dm}" if d["type"] == OBJ_STAGE_BOSS_TELEPORTER else ""))
+              + (f" dest=({dx},{dy}) destmap={dm}"
+                 if d["type"] in TELEPORT_TYPES else ""))
 
     # --- {PFX}_objects.h/.c ------------------------------------------------
     ids_sorted = sorted(defs)
@@ -273,7 +306,9 @@ extern const ObjectSpawn {PFX}_object_spawns[{UP}_OBJECT_SPAWN_COUNT];
         lines.append(
             f"    /* {ids_sorted.index(oid)} */ {{ &{p['res_name']}_sprite, "
             f"{d['type']}, {p['frames']}, {p['frame_t']}, "
-            f"{d['w']}, {d['h']}, {d['speed']} }},  // {d['name']}\n")
+            f"{d['w']}, {d['h']}, {d['speed']}, "
+            f"{max(0, min(65535, d['timer']))}, "
+            f"{max(0, min(65535, d['limit']))} }},  // {d['name']}\n")
     lines.append("};\n\n")
     lines.append(f"const ObjectSpawn {PFX}_object_spawns[{UP}_OBJECT_SPAWN_COUNT] = {{\n")
     for (di, mp, x, y, dx, dy, dm) in spawn_out:
@@ -285,8 +320,12 @@ extern const ObjectSpawn {PFX}_object_spawns[{UP}_OBJECT_SPAWN_COUNT];
 
     # --- resources.res block -------------------------------------------------
     print("\n--- paste into res/resources.res ---")
+    seen_res = set()
     for oid in ids_sorted:
         p = plans[oid]
+        if p["res_name"] in seen_res:
+            continue
+        seen_res.add(p["res_name"])
         t = ",".join(str(p["frame_t"]) for _ in range(p["frames"]))
         print(f'SPRITE {p["res_name"]}_sprite "{p["res_name"]}.png" '
               f'{p["cw"]}p {p["ch"]}p FAST [[{t}]]')

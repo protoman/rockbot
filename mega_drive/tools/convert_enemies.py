@@ -339,6 +339,15 @@ def main():
             continue
         used_ids.append(s["id"])
 
+    # AI actions SPAWN_NPC / REPLACE_NPC / MORPH carry the spawned NPC id in
+    # extra_parameter; that enemy may not be placed on the map, so add its def
+    # (art + stats + AI table) to this stage's bundle.
+    extra_ids = set()
+    for eid in set(used_ids):
+        for (ch, act, g, delay, param) in ai_states.get(eid, []):
+            if ch > 0 and act in (13, 15, 21) and 0 <= param < len(blob) // NPC_SZ:
+                extra_ids.add(param)
+    used_ids = sorted(set(used_ids) | extra_ids)
     defs = read_enemy_defs(blob, set(used_ids))
     grids = read_terrain()
 
@@ -572,7 +581,7 @@ extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
         shot0 = d["proj0"] if d["proj0"] in proj_info else 0
         lines.append(
             f"    /* {def_idx_name[eid]} */ {{ &{p['res_name']}_sprite, "
-            f"{d['hp']}, {d['dmg_mul']}, {d['speed']}, {d['fly']}, {d['is_boss']}, "
+            f"{eid}, {d['hp']}, {d['dmg_mul']}, {d['speed']}, {d['fly']}, {d['is_boss']}, "
             f"{shot0}, {d['walk_range']}, "
             f"{bl}, {bt}, {bw}, {bh}, "
             f"{len(p['stand'])}, {len(p['walk'])}, {len(p['attack'])}, "

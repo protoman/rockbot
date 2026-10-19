@@ -428,3 +428,19 @@ SPRITE object_weapons_tank_sprite "object_weapons_tank.png" 16p 16p FAST [[18,18
 
 # ---- active disappearing blocks ----
 SPRITE object_disappearing_block_orange_sprite "object_disappearing_block_orange.png" 16p 16p FAST [[4,4,4,4,4]]
+
+# ---- remaining object types (audit) ----
+SPRITE object_armor_body_sprite "object_armor_body.png" 24p 16p FAST [[566]]
+SPRITE object_door_4_sprite "object_door_4.png" 16p 64p FAST [[1]]
+SPRITE object_door_3_sprite "object_door_3.png" 16p 48p FAST [[1]]
+SPRITE object_armor_legs_sprite "object_armor_legs.png" 24p 16p FAST [[566]]
+SPRITE object_block003_sprite "object_block003.png" 32p 32p FAST [[1]]
+SPRITE object_special_tank_sprite "object_special_tank.png" 16p 16p FAST [[566,566]]
+SPRITE object_armor_arms_sprite "object_armor_arms.png" 24p 16p FAST [[566]]
+SPRITE object_fire_ray_vertical_sprite "object_fire_ray_vertical.png" 16p 80p FAST [[566,566,566]]
+SPRITE object_fire_ray_horizontal_sprite "object_fire_ray_horizontal.png" 64p 16p FAST [[1,1,1,1]]
+SPRITE object_lava_beam_sprite "object_lava_beam.png" 48p 64p FAST [[6,6,6]]
+SPRITE object_deathray_small_horz_sprite "object_deathray_small_horz.png" 64p 16p FAST [[6,6,6,6,6,6]]
+SPRITE object_platform_sprite "object_platform.png" 16p 16p FAST [[6]]
+SPRITE object_teleporter_sprite "object_teleporter.png" 32p 64p FAST [[9,9,9,9]]
+SPRITE object_teleport_base_sprite "object_teleport_base.png" 32p 16p FAST [[4,4,4,4,4]]

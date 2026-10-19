@@ -64,16 +64,15 @@ OBJ_TYPE = {
     31: "PLATFORM_TELEPORTER", 32: "STAGE_BOSS_TELEPORTER",
 }
 OBJ_SUPPORT = {
-    1: "MISSING (LR platform)", 2: "ok (visible/hidden cycle)",
+    1: "ok (LR platform)", 2: "ok (visible/hidden cycle)",
     3: "ok (stored, menu)", 4: "ok (stored, menu)",
     5: "ok", 6: "ok", 7: "ok", 8: "ok", 9: "ok (no lives model)",
-    10: "ok", 11: "ok", 14: "ok (activated cycle)", 15: "MISSING (armor)",
-    16: "MISSING (armor)", 17: "MISSING (armor)", 18: "MISSING (beam)",
-    19: "MISSING (beam)", 21: "MISSING (castle teleporter)",
-    22: "MISSING (destructible wall)", 23: "MISSING (special tank)",
-    24: "MISSING (beam)", 25: "MISSING (beam)", 26: "MISSING (castle teleporter)",
-    29: "ok", 30: "MISSING (boss door)", 31: "MISSING (platform teleporter)",
-    32: "ok",
+    10: "ok", 11: "ok", 14: "ok (activated cycle)",
+    15: "ok (armor)", 16: "ok (armor)", 17: "ok (armor)",
+    18: "ok (beam)", 19: "ok (beam)", 21: "ok (castle teleporter)",
+    22: "ok (destructible wall)", 23: "ok (special tank)",
+    24: "ok (beam)", 25: "ok (beam)", 26: "ok (castle teleporter)",
+    29: "ok", 30: "ok (boss door)", 31: "ok (platform teleporter)", 32: "ok",
 }
 
 AI_ACTION = {
@@ -89,8 +88,9 @@ AI_ACTION = {
 }
 AI_SUPPORT = {
     0: "ok", 1: "ok", 2: "ok", 3: "ok", 5: "ok", 6: "ok (turns if move_speed)",
-    4: "MISSING", 7: "MISSING", 8: "MISSING", 9: "MISSING", 10: "MISSING",
-    11: "MISSING", 12: "MISSING", 13: "MISSING", 14: "MISSING", 15: "MISSING",
+    4: "MISSING", 7: "MISSING", 8: "MISSING", 9: "MISSING",
+    10: "ok (blink near player)", 11: "ok (dash)", 12: "ok (cling)",
+    13: "ok (spawn)", 14: "ok (instant)", 15: "MISSING",
     16: "MISSING", 17: "MISSING", 18: "MISSING", 19: "MISSING", 20: "MISSING",
     21: "MISSING", 22: "MISSING", 23: "MISSING", 24: "MISSING", 25: "MISSING",
     26: "MISSING", 27: "MISSING",

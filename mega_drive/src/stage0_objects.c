@@ -2,12 +2,12 @@
 #include "resources.h"
 
 const ObjectDef stage0_object_defs[STAGE0_OBJECT_DEF_COUNT] = {
-    /* 0 */ { &object_energy_pill_small_sprite, 7, 2, 6, 10, 10, 0 },  // Small Pill
-    /* 1 */ { &object_fall_block_sprite, 10, 2, 6, 16, 16, 4 },  // Fall Block
-    /* 2 */ { &object_1up_sprite, 9, 4, 12, 16, 16, 0 },  // 1UP
-    /* 3 */ { &object_platform_up_sprite, 11, 2, 6, 32, 16, 4 },  // Platform Flyier (large)
-    /* 4 */ { &object_checkpoint_sprite, 29, 2, 18, 32, 64, 0 },  // Checkpoint
-    /* 5 */ { &object_teleporter_stage_boss_sprite, 32, 3, 7, 32, 64, 0 },  // Stage Boss Teleporter
+    /* 0 */ { &object_energy_pill_small_sprite, 7, 2, 6, 10, 10, 0, 0, 0 },  // Small Pill
+    /* 1 */ { &object_fall_block_sprite, 10, 2, 6, 16, 16, 4, 400, 0 },  // Fall Block
+    /* 2 */ { &object_1up_sprite, 9, 4, 12, 16, 16, 0, 0, 0 },  // 1UP
+    /* 3 */ { &object_platform_up_sprite, 11, 2, 6, 32, 16, 4, 0, 200 },  // Platform Flyier (large)
+    /* 4 */ { &object_checkpoint_sprite, 29, 2, 18, 32, 64, 0, 0, 0 },  // Checkpoint
+    /* 5 */ { &object_teleporter_stage_boss_sprite, 32, 3, 7, 32, 64, 0, 0, 0 },  // Stage Boss Teleporter
 };
 
 const ObjectSpawn stage0_object_spawns[STAGE0_OBJECT_SPAWN_COUNT] = {

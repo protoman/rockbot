@@ -26,6 +26,8 @@ void objects_reset(void);
 // Platform state machines (fall/fly), pickups, checkpoint, animation.
 // Call once per frame BEFORE player_update (carry moves the player first).
 void objects_update(void);
+// Player shot vs destructible wall; TRUE = consumed.
+bool objects_try_hit(s16 l, s16 t, s16 r, s16 b, u8 dmg);
 
 // Descending-player query: first fall/fly platform whose top the box crosses
 // this frame (head ended at/above it, feet below, any horizontal touch —

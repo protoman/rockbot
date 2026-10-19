@@ -317,5 +317,19 @@ extern const SpriteDefinition object_weapons_pill_small_sprite;
 extern const SpriteDefinition object_energy_tank_sprite;
 extern const SpriteDefinition object_weapons_tank_sprite;
 extern const SpriteDefinition object_disappearing_block_orange_sprite;
+extern const SpriteDefinition object_armor_body_sprite;
+extern const SpriteDefinition object_door_4_sprite;
+extern const SpriteDefinition object_door_3_sprite;
+extern const SpriteDefinition object_armor_legs_sprite;
+extern const SpriteDefinition object_block003_sprite;
+extern const SpriteDefinition object_special_tank_sprite;
+extern const SpriteDefinition object_armor_arms_sprite;
+extern const SpriteDefinition object_fire_ray_vertical_sprite;
+extern const SpriteDefinition object_fire_ray_horizontal_sprite;
+extern const SpriteDefinition object_lava_beam_sprite;
+extern const SpriteDefinition object_deathray_small_horz_sprite;
+extern const SpriteDefinition object_platform_sprite;
+extern const SpriteDefinition object_teleporter_sprite;
+extern const SpriteDefinition object_teleport_base_sprite;
 
 #endif // _RES_RESOURCES_H_

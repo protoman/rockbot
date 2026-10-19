@@ -1812,16 +1812,21 @@ Fixed from the audit:
   it once, then 90 frames visible / 120 hidden (PC 1500/2000ms).
 - After these, **TECHNO (stage 8) is clean**.
 
-Still missing, by stage:
-- ARMOR pieces (15/16/17): 1 (body), 5 (legs), 6 (arms) — no armor system.
-- SPECIAL_TANK (23): 6.
-- DESTRUCTIBLE_WALL (22): 5, 6.
-- BOSS_DOOR (30): 1, 3, 4, 10, 11, 12, 13 (PC opens on contact + screen move).
-- RAY_V/H + DEATHRAY_V/H (18/19/24/25): 9 (LAVA PIT hazards).
-- MOVING_PLATFORM_LEFTRIGHT (1): 13; BOSS_TELEPORTER (21) x8, FINAL_BOSS_
-  TELEPORTER (26), PLATFORM_TELEPORTER (31): 13 (castle boss chain).
-- AI actions not implemented: SPAWN_NPC (most stages), DASH (1,3,4,6,7,13),
-  TELEPORT (2,4,11,13), GRAB_WALL (7,13), CHANGE_MOVE_TYPE (13).
+Follow-up (same session) implemented the rest, so the audit now reports
+every stage **clean** except the water/ice note:
+- ARMOR pieces (15/16/17): pickup sets the bit; BODY abilities half damage /
+  extended immunity / spike immunity / no pushback and LEGS double jump /
+  air dash are live (tables from game_armorPieces_v301.dat). ARMS ability is
+  a charged-projectile id on PC (not modelled).
+- SPECIAL_TANK (23): stored; the menu's tank keys use it to refill HP + all
+  gauges. Destructible wall (22): 3 hits from a non-charged shot.
+- BOSS_DOOR (30): opens on player overlap (PC also slides the screen; that
+  part is not ported). Beams (18/19/24/25): 90 frames on/off, damage 4.
+- LR platform (1) ping-pongs over +/-limit carrying the player; castle
+  teleporters (21/26/31) use the same capsule trigger as the stage boss
+  teleporter. Sprites for beams are cropped to the 64x80 cell limit.
+- AI: SPAWN_NPC (converter now includes the target NPC def), DASH, TELEPORT,
+  GRAB_WALL (cling, gravity off), CHANGE_MOVE_TYPE (instant).
 - Terrain: WATER 2057 cells in stage 3 (was walk-on-water before the
   ground_pair fix; now sinks with reduced gravity — needs a playtest), ICE
   only in 13, no DOOR/QUICKSAND/CHECKPOINT terrain anywhere. No map uses a

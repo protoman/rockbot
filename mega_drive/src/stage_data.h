@@ -60,6 +60,7 @@ typedef struct { u8 frames; u16 delay[6]; } StageAnimSlot;   // delay in frames
 
 typedef struct {
     const SpriteDefinition *spr;
+    u8 npc_id;          // PC npc id (AI SPAWN_NPC target lookup)
     u8 hp;              // shots to kill (file_npc.hp.total; boss = 36)
     u8 dmg_mul;         // weakness[0].damage_multiplier
     u8 speed;           // px/frame
@@ -100,6 +101,8 @@ typedef struct {
     u16 frame_t;        // ticks (1/60s) per frame
     u8 w, h;
     s8 speed;
+    u16 timer;          // PC file_object.timer: beam delay / block initial delay
+    u16 limit;          // PC file_object.limit: LR platform travel range
 } ObjectDef;
 
 typedef struct {

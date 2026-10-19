@@ -64,9 +64,10 @@ static void draw_weapon_line(void)
 // Stored tanks (OBJ_ENERGY_TANK / OBJ_WEAPON_TANK), PC game_save.items.
 static void draw_tank_line(void)
 {
-    char buf[28] = "TANKS  HP:0  WP:0";
-    buf[12] = (char)('0' + player.tanks_hp);
-    buf[18] = (char)('0' + player.tanks_wp);
+    char buf[28] = "TANKS HP:0 WP:0 SP:0";
+    buf[11] = (char)('0' + player.tanks_hp);
+    buf[17] = (char)('0' + player.tanks_wp);
+    buf[23] = (char)('0' + player.tanks_sp);
     VDP_drawText(buf, 5, 22);
 }
 

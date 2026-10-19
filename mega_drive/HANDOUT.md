@@ -60,7 +60,7 @@ make run EMU_ARGS=   # GL renderer instead of software
   `--part ...:0:1`, `:0:1`, `:1:1`. 17 colours, 0 folded tiles. Three `--rekey`
   lines in the Makefile brighten the pink and orange armour and warm the skin;
   the art files themselves are untouched.
-- Last commit: `fde7b63e` (ending scenes), tree clean.
+- Last commit: audit follow-up (all stages data-clean; see stage0_plan).
 
 ## Next work, in order
 

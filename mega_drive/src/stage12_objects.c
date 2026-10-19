@@ -2,16 +2,17 @@
 #include "resources.h"
 
 const ObjectDef stage12_object_defs[STAGE12_OBJECT_DEF_COUNT] = {
-    /* 0 */ { &object_energy_pill_big_sprite, 5, 2, 6, 14, 14, 0 },  // Big Pill
-    /* 1 */ { &object_energy_tank_sprite, 3, 2, 18, 16, 16, 0 },  // E-Tank
-    /* 2 */ { &object_weapons_tank_sprite, 4, 2, 18, 16, 16, 0 },  // W-Tank
-    /* 3 */ { &object_weapons_pill_big_sprite, 6, 2, 6, 14, 14, 0 },  // Weapon Pill Big
-    /* 4 */ { &object_disappearing_block_sprite, 2, 5, 4, 16, 16, 0 },  // Disappearing Block #1
-    /* 5 */ { &object_disappearing_block_green_sprite, 2, 5, 4, 16, 16, 0 },  // Disappearing Block #2
-    /* 6 */ { &object_disappearing_block_blue_sprite, 2, 5, 4, 16, 16, 0 },  // Disappearing Block #3
-    /* 7 */ { &object_disappearing_block_orange_sprite, 14, 5, 4, 16, 16, 0 },  // Active Disappearing Block
-    /* 8 */ { &object_checkpoint_sprite, 29, 2, 18, 32, 64, 0 },  // Checkpoint
-    /* 9 */ { &object_teleporter_stage_boss_sprite, 32, 3, 7, 32, 64, 0 },  // Stage Boss Teleporter
+    /* 0 */ { &object_energy_pill_big_sprite, 5, 2, 6, 14, 14, 0, 0, 0 },  // Big Pill
+    /* 1 */ { &object_energy_tank_sprite, 3, 2, 18, 16, 16, 0, 0, 0 },  // E-Tank
+    /* 2 */ { &object_weapons_tank_sprite, 4, 2, 18, 16, 16, 0, 0, 0 },  // W-Tank
+    /* 3 */ { &object_weapons_pill_big_sprite, 6, 2, 6, 14, 14, 0, 0, 0 },  // Weapon Pill Big
+    /* 4 */ { &object_disappearing_block_sprite, 2, 5, 4, 16, 16, 0, 1000, 0 },  // Disappearing Block #1
+    /* 5 */ { &object_disappearing_block_green_sprite, 2, 5, 4, 16, 16, 0, 2000, 0 },  // Disappearing Block #2
+    /* 6 */ { &object_disappearing_block_blue_sprite, 2, 5, 4, 16, 16, 0, 3000, 0 },  // Disappearing Block #3
+    /* 7 */ { &object_disappearing_block_orange_sprite, 14, 5, 4, 16, 16, 0, 500, 0 },  // Active Disappearing Block
+    /* 8 */ { &object_checkpoint_sprite, 29, 2, 18, 32, 64, 0, 0, 0 },  // Checkpoint
+    /* 9 */ { &object_door_4_sprite, 30, 1, 1, 16, 64, 0, 0, 0 },  // Door [Size4]
+    /* 10 */ { &object_teleporter_stage_boss_sprite, 32, 3, 7, 32, 64, 0, 0, 0 },  // Stage Boss Teleporter
 };
 
 const ObjectSpawn stage12_object_spawns[STAGE12_OBJECT_SPAWN_COUNT] = {
@@ -51,5 +52,6 @@ const ObjectSpawn stage12_object_spawns[STAGE12_OBJECT_SPAWN_COUNT] = {
     { 8, 2, 400, 80, 255, 255, 255 },
     { 3, 0, 2704, 144, 255, 255, 255 },
     { 0, 0, 2672, 144, 255, 255, 255 },
-    { 9, 0, 2832, 96, 182, 3, 0 },
+    { 9, 1, 608, 64, 255, 255, 255 },
+    { 10, 0, 2832, 96, 182, 3, 0 },
 };

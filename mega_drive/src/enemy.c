@@ -26,6 +26,11 @@
 #define AI_WAIT_RANGE  3
 #define AI_SHOT_AHEAD  5
 #define AI_SHOT_DIR    6
+#define AI_TELEPORT   10
+#define AI_DASH       11
+#define AI_GRAB_WALL  12
+#define AI_SPAWN_NPC  13
+#define AI_CHANGE_MOVE 14
 
 // PC WALK/FLY option parameters we see in stage 0 (defines.h:778/795)
 #define AI_WALK_TURN      1
@@ -67,6 +72,7 @@ typedef struct {
     s16 move_acc;     // 50Hz movement accumulator (PC AI step throttle)
 } Enemy;
 
+static Enemy *enemy_add(u8 def_i, s16 x, s16 y, s16 x_min, s16 x_max, u8 dir);
 static Enemy enemies[ENEMY_MAX];
 static u8 enemy_count;
 static s16 boss_i = -1;      // index of the is_boss enemy, -1 = none
@@ -350,6 +356,55 @@ static bool ai_action_run(Enemy *e)
         return e->act_t >= dur;
     }
 
+    case AI_TELEPORT:
+        // PC teleports around the player; keep it close but on the parent's
+        // patrol span so it cannot end up inside a wall far away.
+        if (e->act_t == 1) {
+            s16 nx = player.x + ((random() & 1) ? 56 : -56);
+            if (nx < e->x_min) nx = e->x_min;
+            if (nx > e->x_max) nx = e->x_max;
+            e->x = nx;
+            e->y = player.y - 16;
+            sfx_play(SFX_TELEPORT);
+        }
+        return e->act_t >= 20;
+
+    case AI_DASH: {
+        // Quick burst in the facing direction (PC dash action).
+        if (e->act_t == 1) e->dest_x = e->x + e->dir * 64;
+        e->moving = 1;
+        s16 nx = e->x + e->dir * 3;
+        s16 lead = (e->dir > 0) ? nx + d->box_l + d->box_w - 1 : nx + d->box_l;
+        if (!box_hits_solid(lead, e->y + d->box_t,
+                            lead, e->y + d->box_t + d->box_h))
+            e->x = nx;
+        return e->act_t >= 20;
+    }
+
+    case AI_GRAB_WALL:
+        // Cling in place (no gravity) for the action's duration.
+        e->jumping = 1;
+        if (e->act_t >= 30) {
+            e->jumping = 0;
+            return TRUE;
+        }
+        return FALSE;
+
+    case AI_SPAWN_NPC: {
+        if (e->act_t == 1) {
+            for (u8 i = 0; i < stage_def->enemy_def_count; i++) {
+                if (stage_def->enemy_defs[i].npc_id != (u8)st->param) continue;
+                enemy_add(i, e->x + e->dir * 24, e->y,
+                          e->x_min, e->x_max, e->dir);
+                break;
+            }
+        }
+        return TRUE;
+    }
+
+    case AI_CHANGE_MOVE:
+        return TRUE;                    // animation-only action on PC
+
     default:
         return TRUE;                                    // unsupported: skip
     }
@@ -400,6 +455,46 @@ static void ai_tick(Enemy *e)
     }
 }
 
+static Enemy *enemy_add(u8 def_i, s16 x, s16 y, s16 x_min, s16 x_max, u8 dir)
+{
+    if (enemy_count >= ENEMY_MAX) return NULL;
+    const EnemyDef *d = &stage_def->enemy_defs[def_i];
+    u8 idx = enemy_count;
+    Enemy *e = &enemies[enemy_count++];
+    e->def = d;
+    e->def_i = def_i;
+    e->x = x;
+    e->y = y;
+    e->spawn_x = x;
+    e->spawn_y = y;
+    e->x_min = x_min;
+    e->x_max = x_max;
+    e->dir = (dir == 0) ? -1 : 1;
+    e->vy = 0;
+    snap_out_of_floor(e);
+    e->hp = d->hp;
+    e->hurt_timer = 0;
+    e->ai_phase = AI_FIRST;
+    e->ai_chain = 0;
+    e->ai_wait = 0;
+    e->act_t = 0;
+    e->dest_x = x;
+    e->dest_y = y;
+    e->jumping = 0;
+    e->moving = 0;
+    e->move_acc = 0;
+    if (d->is_boss && boss_i < 0) boss_i = idx;
+    e->spr = SPR_addSprite(d->spr, e->x - camera.x, e->y - camera.y,
+                           TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
+    e->alive = (e->spr != NULL);
+    if (e->spr) {
+        SPR_setVisibility(e->spr, HIDDEN);
+        SPR_setAnim(e->spr, d->walk_n > 0 ? 1 : 0);
+        SPR_setHFlip(e->spr, e->dir < 0);
+    }
+    return e;
+}
+
 void enemies_reset(void)
 {
     for (u8 i = 0; i < enemy_count; i++) {
@@ -415,50 +510,7 @@ void enemies_reset(void)
     for (u8 i = 0; i < stage_def->enemy_spawn_count && enemy_count < ENEMY_MAX; i++) {
         const EnemySpawn *sp = &stage_def->enemy_spawns[i];
         if (sp->map != stage_current_map) continue;
-
-        const EnemyDef *d = &stage_def->enemy_defs[sp->def];
-        u8 idx = enemy_count;
-        Enemy *e = &enemies[enemy_count++];
-        e->def = d;
-        e->def_i = sp->def;
-        e->x = sp->x;
-        e->y = sp->y;
-        e->spawn_x = sp->x;
-        e->spawn_y = sp->y;
-        e->x_min = sp->x_min;
-        e->x_max = sp->x_max;
-        e->dir = (sp->dir == 0) ? -1 : 1;
-        e->vy = 0;
-        snap_out_of_floor(e);
-        e->hp = d->hp;
-        e->hurt_timer = 0;
-        e->ai_phase = AI_FIRST;
-        e->ai_chain = 0;
-        e->ai_wait = 0;
-        e->act_t = 0;
-        e->dest_x = sp->x;
-        e->dest_y = sp->y;
-        e->jumping = 0;
-        e->moving = 0;
-        e->move_acc = 0;
-        if (d->is_boss && boss_i < 0) boss_i = idx;
-        e->spr = SPR_addSprite(d->spr, e->x - camera.x, e->y - camera.y,
-                               TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
-        e->alive = (e->spr != NULL);
-        if (e->spr) {
-            // Visibility is managed manually every frame in enemies_update:
-            // a screen_x > 1023 gets masked to 10 bits in the VDP sprite
-            // table (off-right enemies reappeared on the left, sliding at
-            // camera speed); AUTO_FAST masked before its test and never hid.
-            // Spawn HIDDEN: stage_load() spawns them while the camera is
-            // still at 0, so their "screen" x is their world x (up to 3200)
-            // — VISIBLE here drew every enemy of the room wrapped onto the
-            // screen for the frame before the first enemies_update().
-            SPR_setVisibility(e->spr, HIDDEN);
-            // rows: 0 = ANIM_STAND, 1 = ANIM_WALK (converter contract)
-            SPR_setAnim(e->spr, d->walk_n > 0 ? 1 : 0);
-            SPR_setHFlip(e->spr, e->dir < 0);
-        }
+        enemy_add(sp->def, sp->x, sp->y, sp->x_min, sp->x_max, sp->dir);
     }
 }
 
