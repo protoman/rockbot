@@ -7,9 +7,15 @@
 
 // Hitbox relative to the sprite origin.
 // Source art is 29x29 (file_player_v3_1.sprite_size), padded to 32x32.
-#define PLAYER_BOX_L 6
-#define PLAYER_BOX_T 4
-#define PLAYER_BOX_R 25
+// PC player hitbox: file_player_v3_1_1.sprite_hit_area = (5,3,16,26) on the
+// 29x29 art, i.e. x 5..21 and y 3..29. The old 6..25 box was 19px wide and
+// did not fit a 1-tile ladder shaft: centring on the ladder left the box
+// overlapping both side walls, so unstick_x pinned the player ("stuck at
+// some position") and walking across a ladder top pushed him into the
+// column. Ladder centring now lands the 16px box exactly on the tile.
+#define PLAYER_BOX_L 5
+#define PLAYER_BOX_T 3
+#define PLAYER_BOX_R 21
 #define PLAYER_BOX_B 29
 
 #define PLAYER_PAL PAL2

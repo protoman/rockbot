@@ -1740,3 +1740,15 @@ Real stage count is 14, not 20: `game_properties_v301.dat` has
 - **Transitions**: `check-vram` reports `0 transition fallbacks` for all 14
   stages, so TECHNO's links scroll (the fade only triggers when the spare VRAM
   block cannot hold the destination window). Re-test on the new ROM.
+
+## Player hitbox matched to the PC (2026-10-19)
+
+`sprite_hit_area` in `player_list_v3_1_1.dat` is (5,3,16,26) on the 29x29
+art — dumped with the real C++ struct via g++, not guessed. The port used
+6,4,25,29: a **19px-wide** box. On a 1-tile (16px) ladder shaft the box
+overlapped both side walls after the x-centring, so `unstick_x` /
+`step_x_solid` pinned the player ("falling from stairs ... stuck") and the
+wider box let him drift into the ladder column when walking over it.
+Now L=5, T=3, R=21, B=29 (16x26): centring on a ladder puts the box exactly
+on the tile. The right fire origin is pinned at `ix+21` (PC
+`position.x + 29 - 8`), independent of the box width.

@@ -504,7 +504,9 @@ static void handle_fire(u16 pad, s16 ix, s16 iy)
         }
     } else if (player.fire_prev && !fire_raw) {
         if (!player.sliding) {
-            s16 sx = (player.facing > 0) ? ix + PLAYER_BOX_R - 4 : ix + PLAYER_BOX_L - 12;
+            // PC get_attack_position: right = position.x + 29 - 8 (= +21
+            // on the art), left keeps the port's validated -6 muzzle.
+            s16 sx = (player.facing > 0) ? ix + 21 : ix - 6;
             if (player.charge_frames >= CHARGE_FULL_FRAMES) {
                 shot_charge_fire(sx, iy + 8, player.facing, 2);
                 attack_timer = ATTACK_FRAMES;
