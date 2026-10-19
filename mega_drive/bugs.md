@@ -81,7 +81,9 @@ and the intro stage's boss intro is skipped (it is gated on the save mask).
 
 ## BUG-003 — Two anim blocks cannot use palette colourcycle (shape really changes)
 
-**Status**: open, deferred by user decision ("I will convert them to colorcycle later").
+**Status**: **FIXED 2026-10-19** — both were redrawn as single-frame 16x16
+three-colour bands in `mega_drive/images/tilesets/anim/` and are converted by the
+art-width rule (`roadmap.md` item 12).
 
 **What**: `waterfall_top.png` and `water_ground.png` (PC
 `build/games/RockDroid1/images/tilesets/anim/`) are the only animated blocks whose
@@ -139,6 +141,14 @@ gaps) it cannot be reclaimed.
 (anim art drawn with generic colours, mapped to per-stage entries; cycling bands in
 the free part of PAL3) — plus a deliberate re-quantisation of the art per stage.
 See `stage0_plan.md`.
+
+**Update 2026-10-19 (colourcycle landed)**: the cycled blocks' colours left PAL1
+for PAL3, so the map palette no longer has to hold them. Colours still needed for
+PAL1, before -> now: stage 0: 17 -> 16, 1: 38 -> 33, 2: 35 -> 31, 3: 31 -> **20**,
+6: 28 -> 25, 8: 14 -> **9** (fits, with room). Stages 4, 5, 7 unchanged (no
+cycled blocks). ATLANTIDA gained the most (16 fewer shades merged); DEEP JUNGLE is
+still the worst. What remains is the map art itself: it needs the deliberate
+per-stage re-quantisation. The anim side of this bug is done.
 
 **Files**: `tools/convert_stage.py`, `tools/img2tiles.py`, the source art.
 
