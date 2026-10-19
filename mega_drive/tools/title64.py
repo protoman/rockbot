@@ -216,6 +216,15 @@ def main():
                                 usage[c] = usage.get(c, 0) + 1
             if not usage:
                 continue
+            slots = sum((LINE_SLOTS - 1 if (first + i) == 0 else LINE_SLOTS)
+                        for i in range(count))
+            if len(usage) > slots:
+                print(f"  WARNING part {pi}: {len(usage)} colours for {slots} slots "
+                      f"({count} line(s)) - the rest fold. Give it another line or "
+                      f"reduce the art's colours.")
+            else:
+                print(f"  part {pi}: {len(usage)} colours in {slots} slots "
+                      f"({count} line(s)) - exact")
             pts = list(usage.items())
             pts.sort(key=lambda cw: -cw[1])
             k = min(count, len(pts))
