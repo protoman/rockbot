@@ -1546,6 +1546,17 @@ Runtime rules that made it land:
 - keep the map entry's palette bits when adding the tileset base:
   `(e & ~TILE_INDEX_MASK) | (TITLE_TILE_BASE + (e & TILE_INDEX_MASK))`.
 
+**Layered elements.** `--part FILE:X,Y:FIRST:COUNT` (repeatable) pastes an
+element at X,Y and lets only its tiles use palette lines FIRST..FIRST+COUNT-1, so
+elements cannot steal each other's slots; the per-tile line is chosen from the
+part that owns most of the tile. The title uses `art/title.png` (18,4) and
+`art/sub_title.png` (162,38) on line 0, and `art/title_rock_and_beta.png`
+(148,48) on lines 1-2 - 58 colours, and the art has exactly 58 MD-ramp colours,
+so nothing is dropped. 210 of 401 tiles still fold a shade (the characters' soft
+shading); giving them a third line barely changes that (214 -> 210), so the
+folding is a per-tile colour count, not a line budget, and it does not show in
+the preview.
+
 `--preview out.png` rebuilds the screen from exactly the emitted data, so the
 quantiser can be validated without an emulator. Quality note: for the title 281
 of 1120 tiles fold a shade because 59 colours cannot cover every tile's palette.
