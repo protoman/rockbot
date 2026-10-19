@@ -61,6 +61,15 @@ static void draw_weapon_line(void)
     }
 }
 
+// Stored tanks (OBJ_ENERGY_TANK / OBJ_WEAPON_TANK), PC game_save.items.
+static void draw_tank_line(void)
+{
+    char buf[28] = "TANKS  HP:0  WP:0";
+    buf[12] = (char)('0' + player.tanks_hp);
+    buf[18] = (char)('0' + player.tanks_wp);
+    VDP_drawText(buf, 5, 22);
+}
+
 static void stage_sprites_visible(bool visible)
 {
     player_set_visible(visible);
@@ -94,6 +103,7 @@ static void menu_draw_panel(void)
     draw_weapon_line();
     VDP_drawText("A: LEAVE STAGE", 2, 26);
     VDP_drawText("B: CONFIG", 2, 25);
+    draw_tank_line();
     // PC weapon_menu_show_player (draw.cpp:1021): lives next to the portrait
     {
         char buf[6] = { 'x', '[', '0', ']', 0, 0 };
@@ -171,6 +181,18 @@ bool menu_open(u16 weapon_mask)
                 player_set_weapon(w);
                 draw_weapon_line();
                 sfx_play(SFX_CURSOR);
+            }
+        } else if (pressed & BUTTON_UP) {
+            // use a stored HP tank (PC menu item)
+            if (player_use_tank(TRUE)) {
+                draw_tank_line();
+                sfx_play(SFX_ITEM);
+            }
+        } else if (pressed & BUTTON_DOWN) {
+            if (player_use_tank(FALSE)) {
+                draw_weapon_line();
+                draw_tank_line();
+                sfx_play(SFX_ITEM);
             }
         }
     }

@@ -47,8 +47,9 @@ static bool auto_anim(u8 type)
 
 static bool is_platform(u8 type)
 {
-    // OBJ_DISAPPEARING_BLOCK, OBJ_FALL_PLATFORM, OBJ_FLY_PLATFORM
-    return type == 2 || type == 10 || type == 11;
+    // OBJ_DISAPPEARING_BLOCK, OBJ_FALL_PLATFORM, OBJ_FLY_PLATFORM,
+    // OBJ_ACTIVE_DISAPPEARING_BLOCK
+    return type == 2 || type == 10 || type == 11 || type == 14;
 }
 
 // A disappearing block only collides while in its visible phase.
@@ -420,12 +421,26 @@ void objects_update(void)
         s16 sy = o->y - camera.y;
         bool on_screen = (sx + d->w > 0 && sx < 320 &&
                           sy + d->h > 0 && sy < 224);
-        // disappearing block: toggle the solid/visible phase (PC timings)
+        // disappearing blocks (PC timings). Type 2 cycles on its own; type
+        // 14 stays up until the player stands on it once, then cycles
+        // (OBJ_ACTIVE_DISAPPEARING_BLOCK).
         if (d->type == 2) {
             u8 lim = o->visible ? BLOCK_VISIBLE_FRAMES : BLOCK_HIDDEN_FRAMES;
             if (++o->vis_t >= lim) {
                 o->vis_t = 0;
                 o->visible = !o->visible;
+            }
+        } else if (d->type == 14) {
+            if (!o->started) {
+                if (o->visible && player_on_top(o))
+                    { o->started = TRUE; o->vis_t = 0; }
+            } else if (o->visible) {
+                if (++o->vis_t >= BLOCK_VISIBLE_FRAMES)
+                    { o->vis_t = 0; o->visible = FALSE; }
+            } else if (++o->vis_t >= BLOCK_HIDDEN_FRAMES) {
+                o->vis_t = 0;
+                o->visible = TRUE;
+                o->started = FALSE;
             }
         }
         if (o->spr) {
@@ -461,8 +476,15 @@ void objects_update(void)
                 obj_release(o);
                 continue;
             }
-            if (d->type == 9) {                     // 1UP: consume, no-op
+            if (d->type == 9) {                     // 1UP
                 sfx_play(SFX_ITEM);
+                player_add_life();
+                obj_release(o);
+                continue;
+            }
+            if (d->type == 3 || d->type == 4) {      // E-Tank / W-Tank
+                sfx_play(SFX_ITEM);
+                player_add_tank(d->type == 3);
                 obj_release(o);
                 continue;
             }

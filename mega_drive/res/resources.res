@@ -421,3 +421,10 @@ SPRITE object_disappearing_block_sprite "object_disappearing_block.png" 16p 16p 
 SPRITE object_disappearing_block_green_sprite "object_disappearing_block_green.png" 16p 16p FAST [[4,4,4,4,4]]
 SPRITE object_disappearing_block_blue_sprite "object_disappearing_block_blue.png" 16p 16p FAST [[4,4,4,4,4]]
 SPRITE object_weapons_pill_small_sprite "object_weapons_pill_small.png" 16p 16p FAST [[6,6]]
+
+# ---- tanks / pickups added by the data audit ----
+SPRITE object_energy_tank_sprite "object_energy_tank.png" 16p 16p FAST [[18,18]]
+SPRITE object_weapons_tank_sprite "object_weapons_tank.png" 16p 16p FAST [[18,18]]
+
+# ---- active disappearing blocks ----
+SPRITE object_disappearing_block_orange_sprite "object_disappearing_block_orange.png" 16p 16p FAST [[4,4,4,4,4]]

@@ -314,5 +314,8 @@ extern const SpriteDefinition object_disappearing_block_sprite;
 extern const SpriteDefinition object_disappearing_block_green_sprite;
 extern const SpriteDefinition object_disappearing_block_blue_sprite;
 extern const SpriteDefinition object_weapons_pill_small_sprite;
+extern const SpriteDefinition object_energy_tank_sprite;
+extern const SpriteDefinition object_weapons_tank_sprite;
+extern const SpriteDefinition object_disappearing_block_orange_sprite;
 
 #endif // _RES_RESOURCES_H_

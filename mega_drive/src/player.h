@@ -59,6 +59,10 @@ typedef struct {
     // palette swap on indices 13/14/15 (player_data[].wcol[])
     u8 weapon;
     u8 ammo[PLAYER_WEAPON_N];   // PC game_save.items.weapons[] gauge (0..28)
+    // PC game_save.items.energy_tanks / weapon_tanks (stored consumables,
+    // used from the in-game menu). Not persisted in SRAM yet.
+    u8 tanks_hp;
+    u8 tanks_wp;
     // charge shot (PC check_must_attack: press = normal, hold >= 1000ms
     // = semi, >= 2200ms = full, fire on release)
     u16 charge_frames;
@@ -104,6 +108,9 @@ void player_refill_weapons(void);   // PC refill_weapons(), at stage start
 // Lives (PC game_save.items.lifes): one per death, 5 at stage start. When they
 // run out the caller should leave the stage (PC: game over).
 u8 player_lives(void);
+void player_add_life(void);              // OBJ_LIFE pickup
+void player_add_tank(bool hp);           // OBJ_ENERGY_TANK / OBJ_WEAPON_TANK
+bool player_use_tank(bool hp);           // menu: refill HP / current gauge
 bool player_out_of_lives(void);
 
 // pad = JOY_readJoypad(JOY_1)

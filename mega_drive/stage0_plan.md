@@ -1795,3 +1795,34 @@ Turbo repeats the shot while fire is held (no charge); auto-charge does the
 same for the default weapon only (PC character.cpp:585 / classplayer.cpp:313).
 The options screen draws on BG_A with an opaque tile loaded at 935 (last tile
 before the sprite pool); the weapon panel is redrawn when returning.
+
+## Data audit: what the stages use vs. what the port implements (2026-10-19)
+
+`tools/audit_data.py` (read-only) walks all 14 stages and prints, per stage:
+terrain values, object ids/types, NPC ids + the AI actions their tables use,
+and the second background layer / auto-scroll flags. It applies the same
+sanitisation as the converters (12/13 dropped, garbage AI slots ignored).
+
+Fixed from the audit:
+- **E-Tank / W-Tank** (types 3/4, used in 12 stages) are converted as gravity
+  pickups and stored on the player; the in-game menu uses one with UP (HP) or
+  DOWN (current weapon gauge). Not persisted in SRAM.
+- **1UP** (type 9) now adds a life (cap 9); it was a consumed no-op.
+- **Active disappearing block** (type 14): visible until the player stands on
+  it once, then 90 frames visible / 120 hidden (PC 1500/2000ms).
+- After these, **TECHNO (stage 8) is clean**.
+
+Still missing, by stage:
+- ARMOR pieces (15/16/17): 1 (body), 5 (legs), 6 (arms) — no armor system.
+- SPECIAL_TANK (23): 6.
+- DESTRUCTIBLE_WALL (22): 5, 6.
+- BOSS_DOOR (30): 1, 3, 4, 10, 11, 12, 13 (PC opens on contact + screen move).
+- RAY_V/H + DEATHRAY_V/H (18/19/24/25): 9 (LAVA PIT hazards).
+- MOVING_PLATFORM_LEFTRIGHT (1): 13; BOSS_TELEPORTER (21) x8, FINAL_BOSS_
+  TELEPORTER (26), PLATFORM_TELEPORTER (31): 13 (castle boss chain).
+- AI actions not implemented: SPAWN_NPC (most stages), DASH (1,3,4,6,7,13),
+  TELEPORT (2,4,11,13), GRAB_WALL (7,13), CHANGE_MOVE_TYPE (13).
+- Terrain: WATER 2057 cells in stage 3 (was walk-on-water before the
+  ground_pair fix; now sinks with reduced gravity — needs a playtest), ICE
+  only in 13, no DOOR/QUICKSAND/CHECKPOINT terrain anywhere. No map uses a
+  second background layer or bg auto-scroll.

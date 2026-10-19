@@ -433,6 +433,8 @@ void player_init(void)
     player_refill_weapons();      // PC refills every gauge at stage start
     lives = 5;                    // PC reset_lifes(), normal difficulty
     out_of_lives = FALSE;
+    player.tanks_hp = 0;
+    player.tanks_wp = 0;
     coyote_timer = COYOTE_FRAMES;
     jump_timer = 0;
     attack_timer = 0;
@@ -1116,5 +1118,32 @@ void player_crush(void)
 }
 
 u8 player_lives(void) { return lives; }
+
+void player_add_life(void)
+{
+    if (lives < 9) lives++;
+}
+
+void player_add_tank(bool hp)
+{
+    if (hp) { if (player.tanks_hp < 9) player.tanks_hp++; }
+    else    { if (player.tanks_wp < 9) player.tanks_wp++; }
+}
+
+bool player_use_tank(bool hp)
+{
+    if (hp) {
+        if (!player.tanks_hp || player.hp >= PLAYER_INITIAL_HP) return FALSE;
+        player.tanks_hp--;
+        player.hp = PLAYER_INITIAL_HP;
+        return TRUE;
+    }
+    if (!player.tanks_wp || player_weapon() == 0 ||
+        player_weapon_ammo() >= PLAYER_INITIAL_HP)
+        return FALSE;
+    player.tanks_wp--;
+    player.ammo[player.weapon] = PLAYER_INITIAL_HP;
+    return TRUE;
+}
 
 bool player_out_of_lives(void) { return out_of_lives; }
