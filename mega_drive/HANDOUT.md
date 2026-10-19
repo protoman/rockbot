@@ -1,136 +1,142 @@
 # Handout — next session
 
-Briefing for whoever picks this up. **The authoritative docs are
-`stage0_plan.md` (milestones, conventions, gotchas) and `roadmap.md` (open
-work, in order)** — read those first; this file is the short version.
+Briefing for whoever picks this up. **Authoritative docs: `stage0_plan.md`
+(milestones, conventions, recipes) and `roadmap.md` (open work, in order);
+`bugs.md` for deviations and `lessons_learned.md` for traps.** This file is the
+short version.
 
 ## Build & run
 
 ```bash
 cd mega_drive
-make run          # builds, then runs in BlastEm
+make                 # assets (auto when tools/art change) + ROM -> out/rom.bin, ~896K
+make check-vram      # VRAM budget + colourcycle pool guard + transition fallbacks
+make run             # builds, then ONE BlastEm launch (tools/emu.sh start)
+make run EMU_ARGS=   # GL renderer instead of software
 ```
 
-`make run` builds and then runs `tools/emu.sh start-ready out/rom.bin`, which uses
-the **native BlastEm 1.0.0** at `/mnt/ExtraData/programas/blastem64-1.0.0/blastem`
-(the flathub flatpak is gone — its sandbox under Wayland wedged on startup). The
-harness kills a previous instance and relaunches while the window comes up black,
-so a bad start no longer needs a manual kill; there is no auto-timeout, so stop it
-with `tools/emu.sh stop`. `-g` (software rendering) is still the default — it was
-required for the flatpak; for GL on the native build use `make run EMU_ARGS=`.
+- Emulator: native BlastEm 1.0.0 (`tools/emu.sh`, `EMU_BIN`). No retry loop and
+  no readiness wait any more — the native build does not wedge.
+- **Launch discipline (user rule): never launch the emulator without saying so
+  first**, one deliberate run per question, and stop it when done
+  (`tools/emu.sh stop`). The user types while the window opens and keypresses
+  reach the emulator.
+- **Check the build really happened** before trusting a capture: `make` must
+  exit 0 (the toolchain prints `Erro` in Portuguese, so grepping for "error"
+  misses failures) and `out/rom.bin` must be newer than the newest source.
+  Capture scripts must take the ROM path as an argument — a hardcoded path cost
+  two wrong conclusions last session.
 
-ROM is `out/rom.bin` (== `out/release/rom.bin`), 1.0 M. Kega Fusion also works.
+## State at hand-off
 
-## Test harness
+- All nine converted stages play (maps, parallax, enemies, objects, shots, HUD,
+  menu, save/load, stage select). Bosses and music still out.
+- **Title** renders the layered PC art at ~58 colours over four palette lines
+  (`tools/title64.py`), verified on hardware against the user's reference.
+- **Colourcycle** (CRAM rotation instead of tile-frame animation) live in stages
+  1, 2, 3, 6, 8; art width decides the technique (16 px strip = one frame).
+- Room transitions: **no fallbacks left** (`make check-vram` reports 0).
+- Bugs: BUG-001 fixed, BUG-002 closed by design, BUG-003 fixed, BUG-004 tracked
+  (palette budget; DEEP JUNGLE is the outlier at 33 colours for 15 slots — every
+  build prints a weighted error per stage).
+- Last commit: `4c16ef5f`, tree clean.
 
-`tools/emu.sh` — source it, or use the CLI:
-`emu_start [rom]`, `emu_start_ready [rom] [tries] [wait]`, `emu_stop`,
-`emu_status`, `emu_window`, `emu_key KEY [ms]`, `emu_keys_up`, `emu_shot NAME`,
-`emu_shot_blank`. BlastEm's keymap: `z` = pad A, `x` = pad B, `c` = pad C,
-`enter` = START, arrows = d-pad. Screenshots go to `/tmp/opencode/md-emu/`.
+## Next work, in order
 
-Two things that waste time if forgotten:
-- The emulator wedges with a black screen often. `emu_start_ready` retries;
-  `emu_shot_blank` detects it. It is not the ROM.
-- BlastEm sometimes misses a keyup, leaving a pad button stuck so the game
-  spins in its "wait for release" loop (looks like a frozen menu). Call
-  `emu_keys_up`.
+### 1. Title colours — waiting on the user's art
 
-### Reaching a specific stage or boss (learned the hard way)
-
-Add a **temporary** hook at the top of `main()` that boots straight into a
-stage, with the index in SRAM (word 200 = stage, low byte; word 206 = player):
-
-```c
-    save_init();
-    { u8 tstage = (u8)(SRAM_readWord(200) & 0x0F);
-      current_player = (u8)(SRAM_readWord(206) & 0x03);
-      if (tstage <= 8) runStage(tstage); }
-```
-
-Seed it from the host (the file BlastEm actually uses):
+The user is redrawing `art/title_rock_and_beta.png` with a **15-colour palette**
+so it can live on **one palette line**. Wire it as `:1:1`:
 
 ```
-~/.var/app/com.retrodev.blastem/data/blastem/rom/save.sram
-slot 0 at byte 8: magic u16 0x5242, stages u16, player u16 (big-endian)
+--part art/title.png:18,4:0:1
+--part art/sub_title.png:162,38:0:1
+--part art/title_rock_and_beta.png:148,48:1:1   # <- was 1:3
 ```
 
-**Do not warp the player to a boss** — map 0 has a scroll-lock column at 179
-(x=2864) that stops the camera at ~2557, so the arena is never visible. Instead
-add a temporary **link** near the spawn (`src/stage0_data.c`, e.g.
-`{ 0, 10, 8, 0, 182, 3 }` + `link_count` 2→3) or a second boss teleporter, and
-walk into it: a link calls `stage_arrival_camera()` → `scroll_lock_span()`,
-which lands the camera past the lock. That is how the boss fight was verified.
+Why it matters: each 8x8 tile chooses its palette line, so colour-clustered
+lines make neighbouring tiles use different shade sets — the "square patches"
+the user reported. One line for the whole characters image removes that
+completely, at the cost of flatter shading. `title64.py` now prints per-part
+`N colours in M slots`; today it warns `part 2: 56 colours for 45 slots`.
 
-**Always revert temp hooks before committing** (and note that
-`/tmp/opencode/main.c.pre_playtest` is a hook-free copy).
+Pick the 15 colours for *recognition* (armour base+shadow, skin, hair, grey,
+black outline, white highlight), all on the MD ramp (`0 36 73 109 146 182 219
+255`). Slot 0 is transparent, so 15 visible colours = "16-colour" art.
 
-## Gotchas
+### 2. Scenes — port the intro (format mapped, nothing built yet)
 
-- `make` re-runs the asset pipeline when anything in `tools/*.py` or
-  `images/*.png` changes, **regenerating** `src/*_data.c` and
-  `src/stage*_enemies.c`. Hand-edits to generated files do not survive.
-- Deleting a `res/` PNG that `rescomp` still lists leaves a stale dependency —
-  `rm -rf out/release/_deps/res out/release/res` if make complains.
-- `stage_defs[]` needs `__attribute__((used))` or LTO drops stages 1..8.
-- MD CRAM word is `(R<<1)|(G<<5)|(B<<9)` (white `0x0EEE`).
+The PC stores a scene as a **script of operations**, one table per op type,
+assembled by name (`file/v4/file_scene_v4.h`, `sceneslib.cpp`,
+`scenes/sceneshow.cpp`). Ops carry `blocking` (parallel allowed) and
+`move_delay`. Data in `build/games/RockDroid1/scenes/`:
 
-## What was done in the last session
+| file | size | contents |
+|---|---|---|
+| `game_scenes.dat` | 16 B | scene-list head |
+| `scenes_list.dat` | 3072 B | scene records |
+| `scenes_show_image.dat` | 1404 B | image + ini/dest pos, copy area, delay |
+| `scenes_show_text.dat` | 1368 B | text file, position type, speed |
+| `scenes_show_viewpoint.dat` | 104 B | viewport pans |
+| `scenes_show_animation.dat` | 420 B | sprite animation |
+| `scenes_clear_area.dat` | 44 B | colour-fill rectangles |
+| `scenes_parallax.dat` | 552 B | parallax setup |
+| `scenes_play_music/sfx.dat` | 180/64 B | audio cues (stub: no audio yet) |
+| `scenes/text/*.txt` | — | the dialog text |
 
-All 9 selectable stages converted (was 3); weapons (buster + 8 boss weapons,
-per-weapon palette/ammo/projectiles, menu switching); shield (ROCKBOT,
-DOWN+A); enemy shield types; real HUD (weapon gauge, lives); plus fixes:
-stage-start spawn position (was spawning on the ceiling / losing the player),
-projectile flip when firing left, platform crush kill, large projectiles dying
-at spawn, enemies spawning inside the floor, walkers turning in place at
-cliffs, conveyor not carrying you into pits, the sprite flash on a room change,
-and BlastEm's startup freeze. Commits `7c689221` … `aa4abaee`.
+Plan: (a) `tools/convert_scenes.py` — tables to C, referenced art through the
+four-line pipeline, text packed into one blob; verify offline by dumping the
+intro scene's op list. (b) `src/scene.c` — player for show image (with fades),
+show text, clear area, wait, blocking/parallel; viewpoint/parallax/animation
+after. (c) wire `showIntro()` -> intro scene -> title.
 
-Verified in-emulator: spawn in all 9 stages, boss fight (MILONGA BOT renders,
-walks, fires, HP row drops), shield frame, weapons' projectiles/palettes.
+**User's decisions**: port the **intro** first, **text verbatim**, and it is
+fine to **tighten the line spacing** to fit 224 lines.
 
-## Open work, in order
+### 3. Remaining stages (11 of 20)
 
-### 1. Room transition — the real scroll (designed, not started)
+Converters are stage-parameterised (`convert_stage.py N`, enemies, objects,
+`img2tiles` for the parallax). Write a script that adds a stage end to end:
+converters, resources block, PAL3 pool budget, defs table, stage-select list.
+Validate with `check-vram` and the palette error report — no emulator needed.
+ROM is ~896K of 4MB, so ~100K per stage fits.
 
-Today a link does a palette fade (safe, no more one-frame map swap). The PC
-scrolls the old screen out and the new one in vertically
-(`game.cpp:1067+`). Design, with the measured numbers, is in
-`stage0_plan.md` → "Room transition":
+### 4. Ending
 
-- Build the temporary combined tilemap in RAM (40x56 = 4480 bytes), write the
-  visible 40x28 slice to the plane each frame while sliding. Enemies/objects
-  simply do not update during the transition.
-- Only the two screens' tiles are needed. The new screen's tiles are copied to
-  a spare VRAM base and its plane entries written with that offset; the old
-  screen keeps base 16. The animated-tile block (496..927) has ~120 tiles of
-  slack in the worst case.
-- Blocker to know: each map has its **own tileset in the same 128-tile VRAM
-  block** (stage tiles 16..143). A stage's three-map tile union is up to 193
-  tiles (137/139/156/193/91/168/108/71/86 for stages 0..8). The alternative is
-  one union tileset per stage shared by its three maps, which needs a
-  converter + `resources.res` change (map PNGs become index maps into a
-  separate tileset PNG — rescomp supports that).
+Falls out of the scene player plus a credits sequence; `ending/` art exists.
 
-### 2. Waterfall gap
+### 5. Options / config — **STOP AND ASK THE USER FIRST**
 
-Stage 2, map 2, **columns 133/134, row 7**: those two cells are *static* water
-tiles inside an animated column (rows 0..6 and 8..14 are anim cells; columns
-135/136 are fully animated). The PC's data is identical (`init_animated_tiles`
-uses the same rule as our converter), so this is a *rendering* difference, not
-a converter bug — compare with the PC at that spot; the anim art may span two
-cells.
+The user has the spec mapped and wants to hand it over. Do not start this
+without it.
 
-### 3. Still unverified (needs play)
+### 6. AI / bosses
 
-Weapons in a stage where you legitimately own one (beat a stage first), spike
-damage, the platform crush (stage 6 + a ceiling), the bosses for stages 1..8
-(only MILONGA BOT was watched), the LARVA-in-the-ground report (both FLOWER
-FIELDS LARVA spawns now sit correctly, likely already fixed).
+`EnemyAi` tables + `eshot.c` exist; the port's enemies are much simpler than the
+PC's `artificial_inteligence.cpp`. Incremental per enemy type; needs the user's
+playtesting.
 
-### 4. Roadmap leftovers
+## Tools
 
-`roadmap.md` items 11/12 (HUD ball dedup, colour cycling) — only worth it when
-VRAM/ROM pressure bites; 10 (ending) needs the castle stages + final boss
-first; 9 (music) is blocked on tooling (MOD→VGM, or NeuralNote needs a CLI
-mode and a rebuild).
+- `tools/title64.py --part FILE:X,Y:FIRST:COUNT` + `--preview out.png` — the
+  preview rebuilds the screen from exactly the emitted data; use it before any
+  emulator run.
+- `tools/check_vram.py` — tile budget, colourcycle pool guard, transition
+  fallbacks.
+- `tools/convert_stage.py N` — prints the stage's palette error.
+- `tools/emu.sh {start|stop|shot|keys_up}`.
+
+## Traps from last session (all in `lessons_learned.md`)
+
+- `PAL_setColor()` / `PAL_getColor()` take a **global CRAM index** (PAL3 entry
+  12 is CRAM 60); the tilemap's palette field is the 2-bit *line*, `<< 13`.
+- A **queued CRAM DMA does not land** here: palettes with `CPU` writes, tiles
+  with `DMA`.
+- **A preview that shares the emitter's layout bug validates itself** — derive
+  the preview from the emitted layout, not the intermediate state (#27).
+- PC art backgrounds may be a **near miss of the colorkey** — `(72,126,124)` vs
+  `(75,125,125)`; flood-fill with tolerance (`title64.py`).
+- **One palette line per 8x8 tile** is the hardware rule: split art
+  *spatially* (parts), not by colour clustering.
+- Emulator palette readback differs from the MD ramp by ±10-15 grey levels
+  (BlastEm's 3->8-bit expansion) — that is not a bug.
