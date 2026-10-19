@@ -63,20 +63,36 @@ make run EMU_ARGS=   # GL renderer instead of software
 
 ## Next work, in order
 
-### 1. Ending — next (needs the show-image art pass)
+### 1. Ending — next (show-image + portraits)
 
 PC scene lists 2..5 are the endings (Rockbot/Betabot/Candy/Kitty). They use
-`MOVE_IMAGE` ops: the 68x68 character portraits (`dr_destrin.png`,
-`rockbot.png`, `betabot.png`, `candybot.png`, `kittybot.png`) placed over a
-clear-area colour, then text pages. Those images have 1.2k–3k colours, so a
-15-colour (or four-line) reduction pass is needed before `scene.c` can show
-them. Show-image also needs the small linear move (ini -> dest at
-`move_delay`); `sceneshow.cpp:160` has the reference. No fades exist in the PC
-player — do not invent them.
+`MOVE_IMAGE` ops with 68x68 portraits over a clear-area colour, then text
+pages. `scenes_data.c` already holds their op lists/text; `scene.c` skips the
+image op.
 
-Trigger: after the final castle stage (13) is cleared, pick the ending by the
-player used (PC `game_scenes_map[ENDING_PLAYERn]` = scene list 2..5), then the
-title. Nothing reads the endings yet.
+Plane/palette scheme to implement (text must sit OVER the art):
+- BG_B = background/images, BG_A = text overlay. `clear_screen` fills BG_A
+  with the blank tile (pixels 0 = transparent) and BG_B with the black tile.
+  `text_play` keeps filling its own box with the black tile (PAL0 entry 1);
+  outside it BG_A stays transparent and the art shows through.
+- `clear_area` uses PAL1: set PAL1 entry 1 to the PC RGB and fill a BG_B
+  rect with the solid tile. (PAL0 stays text/black.)
+- Images use PAL2 and PAL3 (two concurrent max; endings never show 3:
+  scene 3's second clear-area wipes before the third). Reset the line/tile
+  allocation on CLEAR_SCREEN/CLEAR_AREA; load each image's tiles at
+  `TILE_USER_INDEX` + running offset, draw its 9x9 map into BG_B at
+  `x>>3, y>>3`.
+- Art: `dr_destrin`, `rockbot`, `rockbot_left`, `betabot`, `candybot`,
+  `kittybot` (68x68, 1.2k-3k colours) through `img2tiles.py` at 15 colours
+  into `res/scene_img_*.png` + generated tiles/map; emit a `SceneImage`
+  table from `tools/convert_scenes.py` (it currently skips those records).
+- `MOVE_IMAGE` movement: ini -> dest by speed_x/y (sceneshow.cpp:160), step
+  every `move_delay`; endings are static (ini == dest) except none, so the
+  static draw is the requirement. If movement is added, erase the old rect
+  with the clear-area tile before drawing the next (uniform background).
+- Trigger: after stage 13's stage-clear, run scene `2 + player` (PC
+  `game_scenes_map[ENDING_PLAYER1..4]`), then the title. No fades exist in the
+  PC player — do not invent them.
 
 ### 2. Scenes — intro DONE; show-image is the ending's blocker
 
