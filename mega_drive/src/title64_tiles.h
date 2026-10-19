@@ -3,7 +3,7 @@
 
 #include <genesis.h>
 
-extern const u32 title64_tiles_data[389 * 8];
-#define TITLE64_TILE_COUNT 389
+extern const u32 title64_tiles_data[395 * 8];
+#define TITLE64_TILE_COUNT 395
 
 #endif

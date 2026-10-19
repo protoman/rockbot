@@ -20,6 +20,7 @@ ASSET_DATA  := $(shell find $(PCROOT)/build/games/RockDroid1 \
 # hand-owned art: the sprite converters read images/, so a hand edit must
 # invalidate the asset stamp too
 ASSET_DATA  += $(shell find $(IMAGES) -type f -name '*.png' 2>/dev/null)
+ASSET_DATA  += $(shell find art -type f -name '*.png' 2>/dev/null)
 
 $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA)
 	$(PYTHON) tools/convert_assets.py
@@ -93,9 +94,10 @@ $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA)
 	$(PYTHON) tools/img2tiles.py \
 	    $(PCROOT)/build/games/RockDroid1/images/backgrounds/weapon_menu.png \
 	    --name menu --crop-top 16
-	$(PYTHON) tools/title64.py \
-	    $(PCROOT)/build/games/RockDroid1/images/logo.png \
-	    --name title64 --crop-h 224
+	$(PYTHON) tools/title64.py --name title64 --crop-h 224 \
+	    --part art/title.png:18,4:0:1 \
+	    --part art/sub_title.png:162,38:0:1 \
+	    --part art/title_rock_and_beta.png:148,48:1:2
 	$(PYTHON) tools/convert_sfx.py
 	$(PYTHON) tools/gen_gpl.py
 	@touch $@

@@ -46,7 +46,10 @@ def dist(a, b):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("image")
+    ap.add_argument("image", nargs="?")
+    ap.add_argument("--part", action="append", default=[], metavar="FILE:X,Y:FIRST:COUNT",
+                    help="layered element with clean alpha: pasted at X,Y, its tiles using "
+                         "palette lines FIRST..FIRST+COUNT-1 (repeatable; replaces <image>)")
     ap.add_argument("--name", default="title64")
     ap.add_argument("--crop-h", type=int, default=224)
     ap.add_argument("--codedir", default=None)
@@ -57,41 +60,74 @@ def main():
     root = os.path.dirname(here)
     code = args.codedir or os.path.join(root, "src")
 
-    im = Image.open(args.image).convert("RGBA")
-    w = (im.width + TILE - 1) // TILE * TILE
-    h = (min(args.crop_h, im.height) + TILE - 1) // TILE * TILE
-    art = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-    art.paste(im.crop((0, 0, min(im.width, w), min(im.height, h))), (0, 0))
+    parts, owner = [], None
+    if args.part:
+        # Layered elements: each is pasted at its own position and owns the
+        # palette lines it is allowed to use, so e.g. the logotype and the
+        # characters cannot steal each other's slots.
+        w = (320 + TILE - 1) // TILE * TILE
+        h = (args.crop_h + TILE - 1) // TILE * TILE
+        art = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+        owner = [[-1] * w for _ in range(h)]
+        for pi, spec in enumerate(args.part):
+            path, pos, first, count = spec.rsplit(":", 3)
+            x0, y0 = (int(v) for v in pos.split(","))
+            first, count = int(first), int(count)
+            if first < 0 or count < 1 or first + count > 4:
+                sys.exit(f"--part {spec}: palette lines must stay within 0..3")
+            pim = Image.open(path).convert("RGBA")
+            art.paste(pim, (x0, y0), pim)
+            pp = pim.load()
+            for y in range(pim.height):
+                yy = y0 + y
+                if yy < 0 or yy >= h:
+                    continue
+                for x in range(pim.width):
+                    xx = x0 + x
+                    if 0 <= xx < w and pp[x, y][3]:
+                        owner[yy][xx] = pi
+            parts.append((first, count))
+            print(f"  part {pi}: {os.path.basename(path)} {pim.size} at {x0},{y0} "
+                  f"-> lines {first}..{first + count - 1}")
+    else:
+        if not args.image:
+            sys.exit("give an image or one or more --part")
+        im = Image.open(args.image).convert("RGBA")
+        w = (im.width + TILE - 1) // TILE * TILE
+        h = (min(args.crop_h, im.height) + TILE - 1) // TILE * TILE
+        art = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+        art.paste(im.crop((0, 0, min(im.width, w), min(im.height, h))), (0, 0))
     px = art.load()
 
-    # The PC art's background is (72,126,124): a NEAR MISS of the game's
-    # colorkey (75,125,125), so an exact test treats ~65% of the image as art -
-    # which both painted the background and starved the palette the characters
-    # needed. Flood-fill from the borders with a tolerance instead, so art in a
-    # similar tone that is *enclosed* by the picture survives.
-    from collections import deque
-    bg = px[0, 0][:3]
+    # Single-image art (the PC logo) has its background painted in a NEAR MISS
+    # of the colorkey - (72,126,124) against (75,125,125) - so an exact test
+    # treats ~65% of the image as art, painting the background and starving the
+    # palette. Flood-fill it from the borders with a tolerance. Layered parts
+    # have clean alpha, so they skip this entirely.
+    if not args.part:
+        from collections import deque
+        bg = px[0, 0][:3]
 
-    def near_bg(c):
-        return max(abs(c[i] - bg[i]) for i in range(3)) <= 8
+        def near_bg(c):
+            return max(abs(c[i] - bg[i]) for i in range(3)) <= 8
 
-    seen = [[False] * w for _ in range(h)]
-    q = deque()
-    for x in range(w):
-        q.extend(((x, 0), (x, h - 1)))
-    for y in range(h):
-        q.extend(((0, y), (w - 1, y)))
-    while q:
-        x, y = q.popleft()
-        if x < 0 or y < 0 or x >= w or y >= h or seen[y][x]:
-            continue
-        seen[y][x] = True
-        r, g, b, a = px[x, y]
-        if a and not (near_bg((r, g, b)) or (r, g, b) == COLORKEY):
-            continue
-        if a:
-            px[x, y] = (0, 0, 0, 0)
-        q.extend(((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)))
+        seen = [[False] * w for _ in range(h)]
+        q = deque()
+        for x in range(w):
+            q.extend(((x, 0), (x, h - 1)))
+        for y in range(h):
+            q.extend(((0, y), (w - 1, y)))
+        while q:
+            x, y = q.popleft()
+            if x < 0 or y < 0 or x >= w or y >= h or seen[y][x]:
+                continue
+            seen[y][x] = True
+            r, g, b, a = px[x, y]
+            if a and not (near_bg((r, g, b)) or (r, g, b) == COLORKEY):
+                continue
+            if a:
+                px[x, y] = (0, 0, 0, 0)
+            q.extend(((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)))
 
     def cell_colour(x, y):
         r, g, b, a = px[x, y]
@@ -100,11 +136,25 @@ def main():
         return (md_round(r), md_round(g), md_round(b))
 
     # ---- the art as 8x8 tiles ----------------------------------------------
-    tiles = []
+    tiles, allowed = [], []
     for ty in range(h // TILE):
         for tx in range(w // TILE):
             tiles.append([cell_colour(tx * TILE + x, ty * TILE + y)
                           for y in range(TILE) for x in range(TILE)])
+            if owner is None:
+                allowed.append((0, 1, 2, 3))
+            else:
+                votes = {}
+                for y in range(TILE):
+                    for x in range(TILE):
+                        pi = owner[ty * TILE + y][tx * TILE + x]
+                        if pi >= 0:
+                            votes[pi] = votes.get(pi, 0) + 1
+                if votes:
+                    f, c = parts[max(votes, key=votes.get)]
+                    allowed.append(tuple(range(f, f + c)))
+                else:
+                    allowed.append((0, 1, 2, 3))
     art_colours = {c for t in tiles for c in t if c}
 
     # ---- 60-colour master palette ------------------------------------------
@@ -147,7 +197,7 @@ def main():
     room = lambda L: (LINE_SLOTS - 1 if L == 0 else LINE_SLOTS) - len(lines[L])
     tile_line, folded = [], 0
 
-    for cells in tiles:
+    for ti, cells in enumerate(tiles):
         cols = {c for c in cells if c}
         # a tile may itself hold more shades than one line: keep the most used
         if len(cols) > LINE_SLOTS:
@@ -155,7 +205,7 @@ def main():
             cols = set(keep)
             folded += 1
         fitting = []
-        for L in range(4):
+        for L in allowed[ti]:
             missing = [c for c in cols if c not in lines[L]]
             if len(missing) <= room(L):
                 have = len(cols) - len(missing)
@@ -165,8 +215,8 @@ def main():
             for c in sorted(missing):
                 lines[L].append(c)
         else:
-            L = max(range(4), key=lambda x: len(cols) - len([c for c in cols
-                                                             if c not in lines[x]]))
+            L = max(allowed[ti], key=lambda x: len(cols) - len([c for c in cols
+                                                                if c not in lines[x]]))
             folded += 1
         tile_line.append(L)
 
@@ -204,7 +254,8 @@ def main():
     per_line = [0, 0, 0, 0]
     for L in tile_line:
         per_line[L] += 1
-    print(f"{os.path.basename(args.image)}: {w}x{h}, {len(tile_data)} tiles, "
+    label = os.path.basename(args.image) if args.image else f"{len(parts)} parts"
+    print(f"{label}: {w}x{h}, {len(tile_data)} tiles, "
           f"{len(pal_art)} colours kept of the art's {len(art_colours)} "
           f"(slots per line {[len(l) for l in lines]}), cells per line {per_line}, "
           f"folded tiles {folded}")
