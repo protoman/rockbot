@@ -91,7 +91,11 @@ ROM's fault). Recipe for reusing this on the scenes: `stage0_plan.md` ->
 
 ## BUG-002 — Title screen top band is 8px, original was 20px
 
-**Status**: open, cosmetic.
+**Status**: **closed 2026-10-19, by design.** The title art is a single image
+whose content is 216 px tall; the MD screen is 224, so 8 px of band is what
+remains. A 20 px band would either clip the art or need it scaled/redrawn -
+and the title now shows the PC art at 60 colours, so the band is the least of
+the differences.
 
 **Symptom**: the dark-blue strip above the logo art is thinner than on PC.
 
@@ -191,6 +195,26 @@ gaps) it cannot be reclaimed.
 (anim art drawn with generic colours, mapped to per-stage entries; cycling bands in
 the free part of PAL3) — plus a deliberate re-quantisation of the art per stage.
 See `stage0_plan.md`.
+
+**Update 2026-10-19 (palette merge)**: `build_palette` no longer deletes one
+colour of the closest pair - it replaces the pair with its pixel-count weighted
+average, so rare shades fold into the dominant colour instead of dragging it off.
+It also reports a weighted error per stage, now visible in every build:
+
+| stage | colours | error |
+|---|---|---|
+| 0 CHAOS CITY | 16 | 22 |
+| 1 DEEP JUNGLE | 33 | **1946** |
+| 2 FLOWER FIELDS | 31 | 437 |
+| 3 ATLANTIDA | 20 | 299 |
+| 4 SUN-GOD REALM | 23 | 557 |
+| 5 TRICKY CASTLE | 26 | 350 |
+| 6 DARK MINE | 25 | 216 |
+| 7 CRYSTAL MAZE | 16 | 7 |
+| 8 INFOWAY | 9 | 0 |
+
+DEEP JUNGLE is the outlier and is the one worth re-quantising by hand (its art
+uses 33 MD-ramp colours for 15 slots, most of them foliage shades).
 
 **Update 2026-10-19 (colourcycle landed)**: the cycled blocks' colours left PAL1
 for PAL3, so the map palette no longer has to hold them. Colours still needed for

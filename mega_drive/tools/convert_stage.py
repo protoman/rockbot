@@ -241,34 +241,48 @@ def cyc_frame0_px(fn, band):
 def build_palette(rgbs):
     """One master palette shared by every map of the stage.
 
-    Colors beyond MAX_COLORS are merged into their nearest neighbour
-    (squared RGB distance) instead of being truncated, so no art color
-    silently collapses to palette index 1."""
-    uniq = []
+    Colours beyond MAX_COLORS are merged rather than truncated: the closest pair
+    in RGB space is replaced by its PIXEL-COUNT WEIGHTED average, so a rare
+    shade folds into the dominant colour instead of dragging it off. (The old
+    code deleted one colour of the pair outright, which pulled patches of art to
+    the wrong shade - visible as flat or off-hue areas.)
+
+    Returns (palette, lut, weighted mean squared error). The error makes the
+    price of a stage's palette measurable at conversion time.
+    """
+    weight = {}
     for c in rgbs:
-        if c not in uniq:
-            uniq.append(c)
-    while len(uniq) > MAX_COLORS:
-        bi, bj, bd = 0, 1, 1 << 30
-        for i in range(len(uniq)):
-            for j in range(i + 1, len(uniq)):
-                a, b = uniq[i], uniq[j]
-                d = (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2
+        weight[c] = weight.get(c, 0) + 1
+    art = dict(weight)                       # the art's own colours
+    while len(weight) > MAX_COLORS:
+        cols = list(weight)
+        bd, pair = 1 << 30, (cols[0], cols[0])
+        for i in range(len(cols)):
+            for j in range(i + 1, len(cols)):
+                a, b = cols[i], cols[j]
+                d = sum((a[k] - b[k]) ** 2 for k in range(3))
                 if d < bd:
-                    bd, bi, bj = d, i, j
-        del uniq[bj]
+                    bd, pair = d, (a, b)
+        a, b = pair
+        wa, wb = weight.pop(a), weight.pop(b)
+        merged = tuple(md_round((a[k] * wa + b[k] * wb) // (wa + wb))
+                       for k in range(3))
+        weight[merged] = weight.get(merged, 0) + wa + wb
+    uniq = list(weight)
     pal = [(0, 0, 0)] + uniq
     while len(pal) < 16:
         pal.append((0, 0, 0))
-    lut = {}
-    for c in set(rgbs):
+    lut, err, total = {}, 0, 0
+    for c, n in art.items():
         best, bd = 1, 1 << 30
         for i, p in enumerate(uniq):
-            d = (c[0] - p[0]) ** 2 + (c[1] - p[1]) ** 2 + (c[2] - p[2]) ** 2
+            d = sum((c[k] - p[k]) ** 2 for k in range(3))
             if d < bd:
                 bd, best = d, i + 1
         lut[c] = best
-    return pal, lut
+        err += bd * n
+        total += n
+    return pal, lut, err / max(1, total)
 
 
 def collect_map(map_n):
@@ -395,7 +409,7 @@ def convert_background(map_n, name, adjust_y, speed):
     px = bg.load()
     rgbs = [(md_round(px[x, y][0]), md_round(px[x, y][1]), md_round(px[x, y][2]))
             for y in range(bg.height) for x in range(bg.width)]
-    pal, lut = build_palette(rgbs)
+    pal, lut, _bg_err = build_palette(rgbs)
     img = Image.new("P", (BG_PLANE_W, bg.height))
     img.putpalette([v for c in pal for v in c])
     img.putdata([lut.get(c, 1) for c in rgbs])
@@ -539,8 +553,9 @@ def main():
         nf = max(1, im.width // TILE)
         all_rgbs += collect_colors([(f, 0) for f in range(nf)], im.load())
 
-    palette, lut = build_palette(all_rgbs)
-    print(f"master palette: {len(set(all_rgbs))} unique colors -> {MAX_COLORS} slots max")
+    palette, lut, pal_err = build_palette(all_rgbs)
+    print(f"master palette: {len(set(all_rgbs))} unique colors -> {MAX_COLORS} "
+          f"slots max, weighted error {pal_err:.0f}")
 
     def frame_tiles(im, frame):
         px = im.load()
