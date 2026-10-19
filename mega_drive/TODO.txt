@@ -1,7 +1,13 @@
+- android falling when walking over stairs. Stairs should be considered solid when walking above it.
+- falling from stairs still resets player to stand and stuck at some position
+- screen transitions are not working well, some are still using fade (techno)
+
+
+========================================================================================================================================================
+
 ========================================================================================================================================================
 Where you edit
 ========================================================================================================================================================
-
 - Your files: mega_drive/images/tilesets/anim/<name>.png — the port's hand-owned art.
   I'll switch convert_stage.py to read these first (3-line change), so from then on your edits drive the ROM.
 

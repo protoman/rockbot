@@ -35,6 +35,16 @@ static const SpriteDefinition *const eyes_def[4] = {
 };
 static u16 cells[SSEL_MAP_W * SSEL_MAP_H];
 static s8 sx, sy;
+static u16 sel_mask;            // beaten-stage bits for this save slot
+static bool castle_unlocked;
+
+// PC get_last_castle_stage(): the first unbeaten castle #1 stage (9..13).
+static u8 castle_next_stage(void)
+{
+    u8 st = 9;
+    while (st < 13 && (sel_mask & (1u << st))) st++;
+    return st;
+}
 
 static u8 complete_stage(void)
 {
@@ -55,7 +65,16 @@ static void draw_names(void)
     VDP_setTileMapDataRect(BG_A, &cells[BAR_ROW0 * SSEL_MAP_W], 0, BAR_ROW0,
                            SSEL_MAP_W, BAR_ROWS, SSEL_MAP_W, CPU);
     if (sx == 1 && sy == 1) {
-        return;                     // centre slot: castle/player, no name
+        if (!castle_unlocked) return;   // centre slot: player/castle icon
+        u8 st = castle_next_stage();
+        char buf[40];
+        strcpy(buf, "BOSS ");
+        strcat(buf, ssel_boss_names[st]);
+        VDP_drawText(buf, 2, BAR_ROW0 + 1);
+        strcpy(buf, "STAGE ");
+        strcat(buf, ssel_stage_names[st]);
+        VDP_drawText(buf, 2, BAR_ROW0 + 2);
+        return;
     }
     u8 st = complete_stage();
     char buf[40];
@@ -121,6 +140,9 @@ u8 stage_select_run(u8 player, u16 stage_mask)
 
     sx = 0;
     sy = 0;
+    sel_mask = stage_mask;
+    // PC can_access_castle(): intro + all 8 bosses (save bits 0..8).
+    castle_unlocked = (stage_mask & 0x01FF) == 0x01FF;
     draw_names();
     SYS_doVBlankProcess();      // flush queued DMA before input
 
@@ -140,10 +162,8 @@ u8 stage_select_run(u8 player, u16 stage_mask)
         else if (pressed & BUTTON_UP) { sy = (sy + 2) % 3; moved = TRUE; }
         else if (pressed & (BUTTON_START | BUTTON_A | BUTTON_C)) {
             if (sx == 1 && sy == 1) {
-                // PC can_access_castle(): every boss stage (bits 1..8) beaten.
-                if ((stage_mask & 0x01FE) == 0x01FE) {
-                    u8 st = 9;            // get_last_castle_stage(): first
-                    while (st < 13 && (stage_mask & (1u << st))) st++;
+                if (castle_unlocked) {
+                    u8 st = castle_next_stage();
                     SPR_end();
                     return st;            // unbeaten castle #1 stage
                 }

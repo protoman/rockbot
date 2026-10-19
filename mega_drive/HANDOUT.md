@@ -31,13 +31,16 @@ make run EMU_ARGS=   # GL renderer instead of software
 
 - All nine selectable stages play (maps, parallax, enemies, objects, shots,
   HUD, menu, save/load, stage select). Bosses and music still out.
-- **Stages 0..13 are converted** (14 of 20); 9..13 are castle #1 (LAVA PIT,
-  SPACE BASE, POWER GRID, RECYCLE FACTORY, FROZEN LAIR) and are **not
-  reachable yet** — the select is still the 3x3 boss grid. `tools/add_stage.py
-  N` now does a whole stage; the asset recipe loops over `STAGES`. VRAM bases
-  are derived per map (tileset -> bg -> anim), so FROZEN LAIR map 1's 202-tile
-  tileset fits. ROM 1.31M. FROZEN LAIR is the palette outlier (56 colours,
-  BUG-004) and the first WATER/ICE stage (minimal physics).
+- **Stages 0..13 are converted** (14 of 20) and **all reachable**: 9..13 are
+  castle #1 (LAVA PIT, SPACE BASE, POWER GRID, RECYCLE FACTORY, FROZEN LAIR).
+  The select's centre slot becomes the castle once intro + 8 bosses are
+  beaten (PC `can_access_castle`); it returns the first unbeaten castle stage,
+  and a castle #1 stage shows the castle screen before the boss intro.
+  `tools/add_stage.py N` does a whole stage; the asset recipe loops over
+  `STAGES`. VRAM bases are derived per map (tileset -> bg -> anim), so FROZEN
+  LAIR map 1's 202-tile tileset fits. ROM 1.31M. FROZEN LAIR is the palette
+  outlier (56 colours, BUG-004) and the first WATER/ICE stage (minimal
+  physics). Ending after stage 13 is not wired yet.
 - **Title** renders the layered PC art at ~58 colours over four palette lines
   (`tools/title64.py`), verified on hardware against the user's reference.
 - **Colourcycle** (CRAM rotation instead of tile-frame animation) live in stages
@@ -113,13 +116,14 @@ Next: that art pass, then the ending scenes (2..5) and the lab scene (1).
 **User's decisions**: port the **intro** first, **text verbatim**, and it is
 fine to **tighten the line spacing** to fit 224 lines.
 
-### 3. Stages — conversion pipeline done; castle flow next
+### 3. Stages — done (0..13 reachable)
 
-Stages 0..13 are converted. What is missing to *play* 9..13 is the castle
-screen: PC `castle_data_v301.dat` + `castle1_points.dat` (168 B / 24 B) place
-5 stage nodes on a castle map, reached from the select's centre slot once all
-8 bosses are beaten (`fio.can_access_castle`, `get_last_castle_stage`). The
-port's `stageselect.c` does not implement that transition yet.
+Castle flow is in: select centre unlocks when save bits 0..8 are set, shows
+the castle stage's names, returns the first unbeaten castle #1 stage, and
+`boss_intro_run()` draws `classic_style_castle.png` (four palette lines via
+`tools/title64.py` + `tools/crop_image.py` bands) for 3s before the boss
+intro. `save_slot_set_stage()` now records the *played* stage (it used to
+hardcode 0, so boss stages never set their own bit).
 
 Stages 14..19 are **placeholders** in the PC data (`Fire Bot`, `Stage [16]`,
 …), and `game_properties_v301.dat` has `use_second_castle = 0`, so they are

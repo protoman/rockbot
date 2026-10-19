@@ -220,9 +220,11 @@ The asset recipe now loops over `STAGES` instead of one block per stage, and
 the VRAM layout is derived per map (tileset -> bg -> anim) because FROZEN LAIR
 map 1 needs 202 unique 8x8 tiles (the old fixed 144-tile block overflowed).
 
-Open: the stage select is still the 3x3 boss grid, so stages 9..13 (castle
-#1) are converted but **not reachable**; the castle map/points flow
-(`castle_data_v301.dat`, `castle1_points.dat`) is not ported.
+Castle flow: after intro + 8 bosses the select centre unlocks and returns the
+first unbeaten castle #1 stage (`get_last_castle_stage`); castle stages draw
+`classic_style_castle.png` for 3s before their boss intro. `castle_data_*.dat`
+/ `castle*_points.dat` are editor-only in the PC code (nothing reads them at
+runtime), so they are not ported. Ending after stage 13 is still open.
 
 Stage 3 (ATLANTIDA) and stage 8 (TECHNO) were verified in-emulator (load,
 render, scroll); the rest use the same pipeline but are **not** played through

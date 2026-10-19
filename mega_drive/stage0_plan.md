@@ -1688,3 +1688,23 @@ Real stage count is 14, not 20: `game_properties_v301.dat` has
 - **Not reachable yet**: the select screen is the 3x3 boss grid. The castle
   map (`castle_data_v301.dat`, `castle1_points.dat`) and the centre-slot
   transition are not ported.
+
+## Castle flow + castle screen (2026-10-19)
+
+- **Reachable**: `stage_select_run(player, mask)` unlocks the centre slot when
+  `mask & 0x1FF` (intro + 8 boss bits, PC `can_access_castle`) and returns the
+  first unbeaten castle #1 stage (`get_last_castle_stage` logic, 9..13). The
+  centre's bottom bar then shows that stage's boss/stage names.
+- **Castle screen**: PC `classic_style_castle_intro` (stage_select.cpp:600,
+  3000ms) drawn by `boss_intro_run()` for stage >= 9, before the boss bg.
+  Art is 320x240/162 colours, so it goes through the four-line pipeline:
+  `tools/crop_image.py` cuts 4 horizontal 56px bands, `tools/title64.py`
+  gives each band ONE palette line. That is the title's rule (one line per
+  8x8 tile, split spatially): an unsplit 4-line run produced the "square
+  patch" mosaic. Band boundaries are visible on close look; the art is
+  otherwise coherent (59 colours of 162).
+- **Fixed**: stage clear called `save_slot_set_stage(slot, 0)` — every stage
+  set bit 0 instead of its own bit, so boss progress was never recorded.
+- **Not ported**: `castle_data_v301.dat` / `castle1_points.dat` — the PC game
+  code never reads them at runtime (only the editor), so they are not needed
+  for this flow.

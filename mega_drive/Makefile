@@ -61,8 +61,23 @@ $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA)
 	    --part art/title.png:18,4:0:1 \
 	    --part art/sub_title.png:162,38:0:1 \
 	    --part art/title_rock_and_beta.png:148,48:1:1
+	$(PYTHON) tools/crop_image.py \
+	    $(PCROOT)/build/games/RockDroid1/images/backgrounds/classic_style_castle.png \
+	    res/castle_b0.png 0 8 320 56
+	$(PYTHON) tools/crop_image.py \
+	    $(PCROOT)/build/games/RockDroid1/images/backgrounds/classic_style_castle.png \
+	    res/castle_b1.png 0 64 320 56
+	$(PYTHON) tools/crop_image.py \
+	    $(PCROOT)/build/games/RockDroid1/images/backgrounds/classic_style_castle.png \
+	    res/castle_b2.png 0 120 320 56
+	$(PYTHON) tools/crop_image.py \
+	    $(PCROOT)/build/games/RockDroid1/images/backgrounds/classic_style_castle.png \
+	    res/castle_b3.png 0 176 320 56
 	$(PYTHON) tools/title64.py --name castle64 --crop-h 224 \
-	    --part $(PCROOT)/build/games/RockDroid1/images/backgrounds/classic_style_castle.png:0,-8:0:4
+	    --part res/castle_b0.png:0,0:0:1 \
+	    --part res/castle_b1.png:0,56:1:1 \
+	    --part res/castle_b2.png:0,112:2:1 \
+	    --part res/castle_b3.png:0,168:3:1
 	$(PYTHON) tools/convert_scenes.py
 	$(PYTHON) tools/img2tiles.py res/scene_par0_l0.png --name scene_par0_l0
 	$(PYTHON) tools/img2tiles.py res/scene_par0_l1.png --name scene_par0_l1

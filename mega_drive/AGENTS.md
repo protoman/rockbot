@@ -192,8 +192,10 @@ from already-captured screenshots/assets over running the emulator again.
 
 - Stages 0..13 are converted (14 of 20). The first nine (0..8) play: maps,
   parallax, enemies, objects, shots, HUD, menu, save/load, stage select.
-  Stages 9..13 (castle #1) have data + bosses but are **not reachable yet**
-  (castle flow missing). Stages 14..19 are placeholders (`use_second_castle=0`).
+  Stages 9..13 (castle #1) are reachable: the stage-select centre slot
+  unlocks after intro + 8 bosses and returns the first unbeaten castle stage;
+  castle stages show `classic_style_castle.png` before their boss intro.
+  Stages 14..19 are placeholders (`use_second_castle=0`).
   Bosses and music still out (see roadmap).
 - Intro + title: the title now draws the **PC art at 59 colours over four
   palette lines** (`tools/title64.py`, per-8x8-tile palette line). Recipe and
