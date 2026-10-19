@@ -1610,3 +1610,35 @@ of 1120 tiles fold a shade because 59 colours cannot cover every tile's palette.
   tileset pillars — **addressed 2026-10-18**: the stage tileset (up to 144
   tiles from index 16) overlapped the bg block that started at 144; the bg
   block now starts at 160 (see the VRAM layout note). Confirm on screen.
+
+## Intro scene (2026-10-19)
+
+`main.c`: `showIntro()` (logos) → `scene_play(0)` → `showTitle()`.
+
+- **Data**: `tools/convert_scenes.py` reads `scenes/scenes_list.dat`
+  (512 B/record = name 30 + pad + 20 ops × 24) and the per-op tables, and
+  emits `src/scenes_data.{c,h}`: op lists (type, seek, delay_after), all 19
+  text records verbatim, clear areas, parallax records. Struct sizes are in
+  the tool header (they are C++ x86 layouts, not the PC editor's `.json`).
+- **Intro script** (scene 0, "Opening Unbeaten #1"): clear → text 0 → clear →
+  music 0 → parallax 0 → clear → texts 1..4. PC scene-list index comes from
+  `game_scenes.dat` byte 3 (id 1 = intro unbeaten → scene 0).
+- **Text**: SGDK 8×8 font on BG_A, packed at 8 px/line (user allowed tighter
+  spacing; PC uses 12). Vertical position mirrors PC (center y=120 → 104 on the
+  224-line screen), progressive at 2 frames/char (PC 30 ms). Lines are drawn
+  left-to-right from the *same* text files; empty rows keep their slot
+  (text/2 has one) but are skipped when drawing. START aborts the whole scene
+  (PC `_interrupt_scene`), which lands on the title.
+- **Parallax**: both layers baked to 512 px (plane width) and decomposed by
+  `img2tiles.py` into 172 + 884 tiles (VRAM 17..1072, font at 1440). Layer 0
+  (`city_bg_1`, speed 1) on BG_B, layer 1 (`city_bg_3`, speed 3) on BG_A, so
+  its colorkey sky shows the layer behind — same as the PC's alpha blit.
+  Vertical placement uses the stage rule `vsram = 16 - adjust_y`; scroll
+  speed is `speed*100 px/s` in 8.8 fixed point, wrapping at 512 px.
+  `city_bg_1` is tiled by its real 256 px period (not 384) so the wrap is
+  seamless; `city_bg_3` is cropped from 963 to 512 px (plane limit).
+- Audio ops are no-ops. Show-image / viewpoint / animation are skipped: the
+  68x68 character art has 2–3k colours and needs a reduction pass first.
+- Offline check: converter dumps the op list; `/tmp/scene_f0.png` was rebuilt
+  from the emitted maps/palettes (layering, transparency, offsets OK).
+  `make check-vram` still OK (9 stages, 0 fallbacks).

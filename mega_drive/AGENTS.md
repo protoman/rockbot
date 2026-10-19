@@ -207,13 +207,16 @@ from already-captured screenshots/assets over running the emulator again.
 - Session notes and the milestone history: **`stage0_plan.md`** (single source of
   truth).
 
-Flow in `main.c`: `showIntro()` → `showTitle()` (waits for START) → `runStage()`.
+Flow in `main.c`: `showIntro()` (logos) → `scene_play(SCENE_OPENING_UNBEATEN)`
+(PC intro scene) → `showTitle()` (waits for START) → `runStage()`.
 
 **Files**
 
 | file | role |
 |---|---|
-| `src/main.c` | boot, intro, title, stage loop |
+| `src/main.c` | boot, intro logos, title, stage loop |
+| `src/scene.{c,h}` | PC scene player: clear/text/parallax, START aborts |
+| `src/scenes_data.{c,h}` | generated: op lists, text, clear areas, parallax |
 | `src/stage.{c,h}` | `stage_load`, `stage_terrain(x,y)`, `stage_update_camera` |
 | `src/stage0_data.{c,h}` | generated `u8 terrain[200*15]` + `STAGE0_TERRAIN(x,y)` |
 | `src/player.{c,h}` | physics, AABB collision, sprite, ladder grab. `PLAYER_BOX_*`, `ANIM_*` |
@@ -230,6 +233,7 @@ Flow in `main.c`: `showIntro()` → `showTitle()` (waits for START) → `runStag
 | `tools/convert_objects.py` | object .dat/.png → `res/object_*.png`, `src/stage0_objects.*` |
 | `tools/pal_ui.py` | single source of truth for the PAL0 UI/enemy palette |
 | `tools/img2tiles.py` | image → minimal tile set + tilemap (UI screens, HUD) |
+| `tools/convert_scenes.py` | PC scene tables → `src/scenes_data.*` + `res/scene_par*.png` |
 | `tools/convert_sfx.py` | PC `sfx/*.wav` → `res/sfx/*.wav` + `res/sfx_pcm.res` (XGM2 PCM) |
 | `src/sfx.{c,h}` | sound effects (XGM2 PCM, channels 2..4) |
 | `tools/tiles_merge.py` | shared pieces across decomposed screens |

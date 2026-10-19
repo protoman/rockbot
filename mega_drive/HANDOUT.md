@@ -39,6 +39,9 @@ make run EMU_ARGS=   # GL renderer instead of software
 - Bugs: BUG-001 fixed, BUG-002 closed by design, BUG-003 fixed, BUG-004 tracked
   (palette budget; DEEP JUNGLE is the outlier at 33 colours for 15 slots — every
   build prints a weighted error per stage).
+- **Intro scene** (2026-10-19): plays the PC script 0 between the logos and the
+  title (text pages + city parallax). START skips it. Offline composite
+  verified; emulator check pending.
 - **Title finished** (2026-10-19): layered art in `art/` — `title.png` (18,4),
   `sub_title.png` (162,38), `title_rock_and_beta.png` (148,48) — wired as
   `--part ...:0:1`, `:0:1`, `:1:1`. 17 colours, 0 folded tiles. Three `--rekey`
@@ -69,7 +72,7 @@ Pick the 15 colours for *recognition* (armour base+shadow, skin, hair, grey,
 black outline, white highlight), all on the MD ramp (`0 36 73 109 146 182 219
 255`). Slot 0 is transparent, so 15 visible colours = "16-colour" art.
 
-### 2. Scenes — port the intro (format mapped, nothing built yet)
+### 2. Scenes — intro DONE, show-image/ending next
 
 The PC stores a scene as a **script of operations**, one table per op type,
 assembled by name (`file/v4/file_scene_v4.h`, `sceneslib.cpp`,
@@ -89,11 +92,14 @@ assembled by name (`file/v4/file_scene_v4.h`, `sceneslib.cpp`,
 | `scenes_play_music/sfx.dat` | 180/64 B | audio cues (stub: no audio yet) |
 | `scenes/text/*.txt` | — | the dialog text |
 
-Plan: (a) `tools/convert_scenes.py` — tables to C, referenced art through the
-four-line pipeline, text packed into one blob; verify offline by dumping the
-intro scene's op list. (b) `src/scene.c` — player for show image (with fades),
-show text, clear area, wait, blocking/parallel; viewpoint/parallax/animation
-after. (c) wire `showIntro()` -> intro scene -> title.
+Done (commit `14f24cf2`): `tools/convert_scenes.py` emits the op lists, text
+lines (verbatim, 8 px spacing) and clear areas to `src/scenes_data.*`; the
+intro's two parallax layers are baked to 512 px and decomposed by
+`img2tiles.py`. `src/scene.c` plays clear / text / clear-area / parallax and
+aborts on START. `main.c` is now `showIntro() -> scene_play(0) -> showTitle()`.
+Audio ops are stubbed; show-image / viewpoint / animation are skipped (their
+art needs the colour-reduction pass: the 68x68 characters have 2-3k colours).
+Next: that art pass, then the ending scenes (2..5) and the lab scene (1).
 
 **User's decisions**: port the **intro** first, **text verbatim**, and it is
 fine to **tighten the line spacing** to fit 224 lines.
