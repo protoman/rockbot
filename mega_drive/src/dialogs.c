@@ -8,6 +8,7 @@
 #include "enemy.h"
 #include "hud.h"
 #include "config.h"
+#include "resources.h"
 
 // PC boss-room dialog (scenes/dialogs.cpp:249, called by
 // game::map_present_boss when the boss appears in the arena). The PC also
@@ -27,16 +28,33 @@ static const u32 dlg_black[8] = {
     0x11111111, 0x11111111, 0x11111111, 0x11111111,
 };
 
+static const SpriteDefinition *const boss_face[9] = {
+    &dlg_face_0_sprite, &dlg_face_1_sprite, &dlg_face_2_sprite,
+    &dlg_face_3_sprite, &dlg_face_4_sprite, &dlg_face_5_sprite,
+    &dlg_face_6_sprite, &dlg_face_7_sprite, &dlg_face_8_sprite,
+};
+static const Palette *const boss_face_pal[9] = {
+    &dlg_face_0_pal, &dlg_face_1_pal, &dlg_face_2_pal,
+    &dlg_face_3_pal, &dlg_face_4_pal, &dlg_face_5_pal,
+    &dlg_face_6_pal, &dlg_face_7_pal, &dlg_face_8_pal,
+};
+static const SpriteDefinition *const player_face[4] = {
+    &ssel_face_p1_sprite, &ssel_face_p2_sprite,
+    &ssel_face_p3_sprite, &ssel_face_p4_sprite,
+};
+
 static void wait_button(void)
 {
     u16 pad;
     do {
+        SPR_update();
         SYS_doVBlankProcess();
         pad = JOY_readJoypad(JOY_1);
     } while (!(pad & (BUTTON_A | BUTTON_START |
                       config_jump_mask() | config_fire_mask())));
     // release
     do {
+        SPR_update();
         SYS_doVBlankProcess();
         pad = JOY_readJoypad(JOY_1);
     } while (pad & (BUTTON_A | BUTTON_START |
@@ -46,7 +64,8 @@ static void wait_button(void)
 // One 3-line page. The box is drawn at screen rows y0..y0+5 by writing plane
 // cells with the camera's tile offset; per-cell writes also wrap at the
 // 64-cell plane width.
-static void show_page(const char *const *lines, u8 first, u8 y0)
+static void show_page(const char *const *lines, u8 first, u8 y0,
+                      const SpriteDefinition *face, const Palette *face_pal)
 {
     const u16 base = (u16)((camera.x >> 3) & 63);
     const u16 entry = TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE,
@@ -56,18 +75,28 @@ static void show_page(const char *const *lines, u8 first, u8 y0)
             VDP_setTileMapXY(BG_A, entry, (u16)((base + col) & 63),
                              (u16)(y0 + row));
 
+    // Face on the left of the box (PC draw_dialog_bg: face at x+16, text at
+    // x+52 -> the port uses 32px face + 1 tile gap, text from column 6).
+    Sprite *fs = NULL;
+    if (face) {
+        PAL_setPalette(PAL2, face_pal->data, CPU);
+        fs = SPR_addSprite(face, 8, (s16)(y0 * 8 + 8),
+                           TILE_ATTR(PAL2, FALSE, FALSE, FALSE));
+    }
+
     for (u8 i = 0; i < 3; i++) {
         const char *line = lines[first + i];
         if (!line[0]) continue;
         for (u8 c = 0; line[c]; c++) {
             char ch[2] = { line[c], '\0' };
-            VDP_drawTextBG(BG_A, ch, (u16)((base + 1 + c) & 63),
+            VDP_drawTextBG(BG_A, ch, (u16)((base + 6 + c) & 63),
                            (u16)(y0 + 1 + i));
         }
     }
     VDP_drawTextBG(BG_A, "A: NEXT", (u16)((base + 30) & 63),
                    (u16)(y0 + DLG_H - 1));
     wait_button();
+    if (fs) SPR_releaseSprite(fs);
 }
 
 void dialog_show_boss(u8 stage, u8 player)
@@ -85,11 +114,16 @@ void dialog_show_boss(u8 stage, u8 player)
     VDP_loadTileData(dlg_black, DLG_BLACK_TILE, 1, DMA);
     // top side (all converted stages have dialog_top_side = true)
     const u8 y0 = 1;
-    show_page(d, boss0, y0);
-    show_page(d, ply0, y0);
-    if (d[boss0 + 3][0]) show_page(d, (u8)(boss0 + 3), y0);
-    if (d[ply0 + 3][0]) show_page(d, (u8)(ply0 + 3), y0);
+    const SpriteDefinition *bf = (stage < 9) ? boss_face[stage] : NULL;
+    const Palette *bp = (stage < 9) ? boss_face_pal[stage] : NULL;
+    const SpriteDefinition *pf = player_face[player & 3];
+    const Palette *pp = pf->palette;
+    show_page(d, boss0, y0, bf, bp);
+    show_page(d, ply0, y0, pf, pp);
+    if (d[boss0 + 3][0]) show_page(d, (u8)(boss0 + 3), y0, bf, bp);
+    if (d[ply0 + 3][0]) show_page(d, (u8)(ply0 + 3), y0, pf, pp);
 
+    player_restore_palette();  // PAL2 held the last face
     stage_force_redraw();     // the box overwrote map cells on BG_A
     player_set_visible(TRUE);
     enemies_set_visible(TRUE);

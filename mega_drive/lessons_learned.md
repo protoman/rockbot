@@ -255,3 +255,12 @@ Real mistakes + fixes. Add to this on every session.
 
 - ROM checksum: `sizebnd -checksum` did not rewrite the field (writes `0xd271`, real is `0xa980`). Modern emulators (Kega/GPGX/blastem) do not validate it, so it is cosmetic. Investigate only if an emulator starts rejecting the ROM.
 - Milestone 1 (intro logos) is running. Next: title screen + menu.
+
+**26. A `for f in res/*.png` loop that writes `res/*.png` feeds itself**
+- The scene-image step globbed `res/scene_img*.png`, then `img2tiles` wrote
+  `res/scene_imgN_tiles.png` / `_tiles_rgba.png` — the next run picked those
+  up as inputs and generated `scene_img8_tiles_tiles_...` names, 3240 C files
+  and 4572 PNGs later the linker failed with "argument list too long".
+- Fix: filter generated names in the shell loop
+  (`case "$f" in *_tiles.png|*_tiles_rgba.png) continue;; esac`) or keep
+  inputs in a separate directory from outputs.

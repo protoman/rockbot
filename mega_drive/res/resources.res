@@ -51,6 +51,25 @@ PALETTE scene_img10_pal "scene_img10_tiles.png"
 PALETTE scene_img11_pal "scene_img11_tiles.png"
 PALETTE scene_img12_pal "scene_img12_tiles.png"
 
+PALETTE dlg_face_0_pal "dlg_face_0.png"
+SPRITE dlg_face_0_sprite "dlg_face_0.png" 32p 32p FAST [[0]]
+PALETTE dlg_face_1_pal "dlg_face_1.png"
+SPRITE dlg_face_1_sprite "dlg_face_1.png" 32p 32p FAST [[0]]
+PALETTE dlg_face_2_pal "dlg_face_2.png"
+SPRITE dlg_face_2_sprite "dlg_face_2.png" 32p 32p FAST [[0]]
+PALETTE dlg_face_3_pal "dlg_face_3.png"
+SPRITE dlg_face_3_sprite "dlg_face_3.png" 32p 32p FAST [[0]]
+PALETTE dlg_face_4_pal "dlg_face_4.png"
+SPRITE dlg_face_4_sprite "dlg_face_4.png" 32p 32p FAST [[0]]
+PALETTE dlg_face_5_pal "dlg_face_5.png"
+SPRITE dlg_face_5_sprite "dlg_face_5.png" 32p 32p FAST [[0]]
+PALETTE dlg_face_6_pal "dlg_face_6.png"
+SPRITE dlg_face_6_sprite "dlg_face_6.png" 32p 32p FAST [[0]]
+PALETTE dlg_face_7_pal "dlg_face_7.png"
+SPRITE dlg_face_7_sprite "dlg_face_7.png" 32p 32p FAST [[0]]
+PALETTE dlg_face_8_pal "dlg_face_8.png"
+SPRITE dlg_face_8_sprite "dlg_face_8.png" 32p 32p FAST [[0]]
+
 # ---- MUSIC (XGM2 driver; rescomp runs xgmtool on the .vgm) ----
 XGM2 stage_music "music.vgm"
 

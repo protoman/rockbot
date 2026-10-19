@@ -16,6 +16,8 @@ Usage: python3 tools/convert_dialogs.py
 import os
 import sys
 
+from PIL import Image
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
@@ -30,7 +32,53 @@ def cstr(s):
     return '"' + s.replace("\\", "\\\\").replace('"', '\\"') + '"'
 
 
+MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)
+FACES = os.path.join(ROCKBOT, "build/games/RockDroid1/images/faces")
+RES = os.path.join(ROOT, "res")
+
+
+def snap(v):
+    return min(MD_LEVELS, key=lambda x: abs(x - v))
+
+
+def convert_faces():
+    """Boss dialog face for stages 0..8 (32x32, PC true colour) -> indexed
+    sprite PNG with an MD-ramp 15-colour palette."""
+    os.makedirs(RES, exist_ok=True)
+    for n in range(9):
+        im = Image.open(os.path.join(FACES, f"{n:02d}.png")).convert("RGB")
+        q = im.quantize(colors=15, method=Image.Quantize.MEDIANCUT)
+        pal = q.getpalette()
+        snapped = []
+        for i in range(15):
+            snapped += [snap(pal[i * 3]), snap(pal[i * 3 + 1]),
+                        snap(pal[i * 3 + 2])]
+        q.putpalette(snapped + [0] * (768 - len(snapped)))
+        # Palette index 0 is transparent on a hardware sprite: make the
+        # portrait's background colour (the corner pixel) index 0 so the box
+        # shows behind the face instead of punching a hole in it.
+        bg = im.getpixel((0, 0))
+        bg = (snap(bg[0]), snap(bg[1]), snap(bg[2]))
+        cols = [tuple(snapped[i * 3:i * 3 + 3]) for i in range(15)]
+        idx = min(range(15), key=lambda i: sum((cols[i][k] - bg[k]) ** 2
+                                              for k in range(3)))
+        if idx != 0:
+            cols[0], cols[idx] = cols[idx], cols[0]
+            flat = [v for c in cols for v in c]
+            q.putpalette(flat + [0] * (768 - len(flat)))
+            px = q.load()
+            for y in range(q.height):
+                for x in range(q.width):
+                    v = px[x, y]
+                    if v == 0: px[x, y] = idx
+                    elif v == idx: px[x, y] = 0
+        q.save(os.path.join(RES, f"dlg_face_{n}.png"))
+        used = len({tuple(snapped[i * 3:i * 3 + 3]) for i in range(15)})
+        print(f"  dlg_face_{n}.png: {im.size}, {used} colours")
+
+
 def main():
+    convert_faces()
     table = []
     for n in range(STAGES):
         path = os.path.join(DATA, f"stage_dialogs_{n}.dat")

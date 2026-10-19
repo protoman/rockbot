@@ -83,6 +83,7 @@ $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA) Makefile
 	$(PYTHON) tools/img2tiles.py res/scene_par0_l0.png --name scene_par0_l0
 	$(PYTHON) tools/img2tiles.py res/scene_par0_l1.png --name scene_par0_l1
 	@for f in res/scene_img*.png; do \
+	    case "$$f" in *_tiles.png|*_tiles_rgba.png) continue;; esac; \
 	    [ -e "$$f" ] || continue; \
 	    n=$$(basename $$f .png); \
 	    $(PYTHON) tools/img2tiles.py $$f --name $$n || exit 1; \
