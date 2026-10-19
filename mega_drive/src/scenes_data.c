@@ -114,11 +114,11 @@ const SceneClear scene_clear[1] = {
 };
 
 const SceneTextPos scene_text_pos[SCENE_TEXT_RECORDS] = {
-    { 0, 0, 0 }, // INTRO [20XX]
-    { 0, 0, 0 }, // INTRO [#1]
-    { 0, 0, 0 }, // INTRO [#2]
-    { 0, 0, 0 }, // INTRO [#3]
-    { 0, 0, 0 }, // INTRO #4
+    { 0, 0, 2 }, // INTRO [20XX]
+    { 0, 0, 2 }, // INTRO [#1]
+    { 0, 0, 2 }, // INTRO [#2]
+    { 0, 0, 2 }, // INTRO [#3]
+    { 0, 0, 2 }, // INTRO #4
     { 0, 0, 0 }, // ENDING BETABOT #2
     { 0, 0, 0 }, // ENDING BETABOT #3
     { 0, 0, 0 }, // ENDING BETABOT #4

@@ -38,7 +38,7 @@ SCENE_OBJ_OFF = 32
 SCENE_OBJ_N = 20
 TEXT_STRUCT = 72        # name[30] pad + 6 ids + x/y/transition/position
 TEXT_IDS_OFF = 32
-TEXT_POS_OFF = 56
+TEXT_POS_OFF = 56       # x, y; position_type sits at 68
 CLEAR_STRUCT = 44       # name[30] + 7 * Uint16
 PAR_STRUCT = 552        # name[30] pad + 5 ints + 10*(30 + 4*4) + 4*40
 PAR_NAME_OFF = 52
@@ -92,7 +92,10 @@ def read_texts():
     out = []
     for i, r in enumerate(read("scenes_show_text.dat", TEXT_STRUCT)):
         name = cstr(r[:30])
-        x, y, position = struct.unpack_from("<iii", r, TEXT_POS_OFF)
+        x, y = struct.unpack_from("<ii", r, TEXT_POS_OFF)
+        # transition_type is at 64, position_type at 68 (the first parse read
+        # transition by mistake: every intro text is text_position_type_centered)
+        position, = struct.unpack_from("<i", r, TEXT_POS_OFF + 12)
         out.append({"name": name, "position": position, "x": x, "y": y})
     return out
 
