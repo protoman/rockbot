@@ -61,6 +61,10 @@ make run EMU_ARGS=   # GL renderer instead of software
   lines in the Makefile brighten the pink and orange armour and warm the skin;
   the art files themselves are untouched.
 - Last commit: audit follow-up (all stages data-clean; see stage0_plan).
+- Audit (`tools/audit_data.py`): every stage reports clean except the WATER
+  note (stage 3, and 13's water/ice). Armor/tanks/destructible/boss doors/
+  beams/LR platform/castle teleporters and the missing AI actions are in.
+  Approximations are listed in stage0_plan's "Data audit" section.
 
 ## Next work, in order
 
