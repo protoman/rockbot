@@ -39,7 +39,12 @@ make run EMU_ARGS=   # GL renderer instead of software
 - Bugs: BUG-001 fixed, BUG-002 closed by design, BUG-003 fixed, BUG-004 tracked
   (palette budget; DEEP JUNGLE is the outlier at 33 colours for 15 slots — every
   build prints a weighted error per stage).
-- Last commit: `4c16ef5f`, tree clean.
+- **Title finished** (2026-10-19): layered art in `art/` — `title.png` (18,4),
+  `sub_title.png` (162,38), `title_rock_and_beta.png` (148,48) — wired as
+  `--part ...:0:1`, `:0:1`, `:1:1`. 17 colours, 0 folded tiles. Three `--rekey`
+  lines in the Makefile brighten the pink and orange armour and warm the skin;
+  the art files themselves are untouched.
+- Last commit: `f27cf0c1` (context-budget rules added to AGENTS.md), tree clean.
 
 ## Next work, in order
 
