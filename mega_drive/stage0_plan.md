@@ -1502,6 +1502,28 @@ rotate through all three states across captures (screenshots in
 3. Rates must be harmonised per stage: the water family (100-120 ms) becomes one
    band, the borders/lava family (200-300 ms) another.
 
+### Colourcycle, 2026-10-19 update: art width decides the technique
+
+The explicit block list is gone: a strip that is exactly **16 px wide holds one
+frame** and is converted to a CRAM rotation; anything wider holds several frames
+and stays on the tile-animation path. That makes the art the declaration of
+intent (to convert a block, save it as a single 16x16 frame), and it keeps the
+multi-frame blocks (water borders, magnets, palmtrees, explosion) untouched.
+
+Rules the converter now enforces on single-frame (16px) blocks used by a
+colourcycle stage:
+
+- fewer than 3 colours -> **hard error, build stops**, naming the file;
+- more than 3 colours -> reported and folded into the nearest band colour;
+- one pool per stage, so the colour set used by the most cells sets the band and
+  blocks whose colours differ stay on tile animation (reported).
+
+Result: water + the whole waterfall family + the water surface share one blue
+band in FLOWER FIELDS and ATLANTIDA (10 blocks), lava owns DARK MINE's band, the
+platforms own stages 1/8. Animation slots dropped from 10,8,14 to 6,0,6 (stage 2)
+and 11,11,9 to 3,3,1 (stage 3), and **`check_vram.py` reports 0 transition
+fallbacks** - the last fade (stage 2 map 2 -> map 1) now fits.
+
 ## Notes / conventions
 
 - **Stage defs and LTO**: `stage_defs[]` is marked

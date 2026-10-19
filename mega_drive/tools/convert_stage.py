@@ -161,20 +161,15 @@ CYCLE_STAGES = {1, 2, 3, 6, 8}
 CYCLE_BAND = (12, 13, 14)          # PAL3 entries that rotate, in order
 CYCLE_STABLE = 15                  # PAL3 stable colour for art black
 CYCLE_FRAMES = 12                  # fallback step (200ms at 60fps)
-# Blocks converted to CRAM rotation. Their art now lives in
-# mega_drive/images/tilesets/anim (hand-owned, MD-level colours). A block whose
-# art has exactly three colours rotates exactly; extra shades are folded into
-# the nearest band colour (reported at conversion time).
-CYCLE_BLOCKS = {
-    "water_1.png", "water_2.png", "water_2a.png", "water_2b.png",
-    "green_water_1.png", "green_water_2.png",
-    "lava1.png", "lava2.png",
-    "lightbulb_small.png",
-    "move_left_platform_1.png", "move_left_platform_2.png",
-    "move_left_platform_3.png",
-    "move_right_platform_1.png", "move_right_platform_2.png",
-    "move_right_platform_3.png",
-}
+# The art itself declares the technique: a strip that is exactly TILE (16px)
+# wide holds ONE frame and is drawn as a CRAM rotation; anything wider holds
+# several frames and stays on the tile-animation path. A single-frame strip
+# must therefore have exactly 3 colours (the band) - the converter fails the
+# build if it has fewer, and reports the fold if it has more.
+
+def block_is_single_frame(name):
+    """True for a one-frame strip (16px wide) -> CRAM rotation candidate."""
+    return Image.open(anim_path(name)).width == TILE
 
 
 def to_cram(c):
@@ -438,9 +433,14 @@ def main():
 
     anim_blocks = read_anim_blocks()
 
-    # colourcycle pool: which blocks of this stage are drawn as a CRAM rotation
+    # colourcycle pool: which blocks of this stage are drawn as a CRAM rotation.
+    # There is ONE pool per stage (a set of PAL3 entries), so the colour set
+    # used by the most cells sets the band; blocks whose colours differ cannot
+    # share it and stay on tile animation (reported at conversion time).
     stage_band, cycle_gids, cyc_frame0 = [], set(), {}
+    cycle_frames = CYCLE_FRAMES
     if STAGE_INDEX in CYCLE_STAGES:
+        cand, cells_of = set(), {}
         for cells, _ in maps_data:
             for col in cells:
                 for (_, t1x, t1y, t3x, t3y) in col:
@@ -448,11 +448,10 @@ def main():
                     if t1x < -1 and t1y == 0: gid = (-t1x) - 2
                     if t3x < -1: gid = (-t3x) - 2
                     if (gid is not None and gid < len(anim_blocks)
-                            and anim_blocks[gid][0] in CYCLE_BLOCKS):
-                        cycle_gids.add(gid)
-        cols = set()
-        cycle_frames = CYCLE_FRAMES
-        for gid in sorted(cycle_gids):
+                            and block_is_single_frame(anim_blocks[gid][0])):
+                        cand.add(gid)
+                        cells_of[gid] = cells_of.get(gid, 0) + 1
+        for gid in sorted(cand):
             fn = anim_blocks[gid][0]
             n = len(block_colours(fn))
             if n < 3:
@@ -464,16 +463,32 @@ def main():
             if n > 3:
                 print(f"    colourcycle: {fn} has {n} colours -> folding into "
                       f"the band (draw 3 for an exact rotation)")
-            if not cols:
-                ms = anim_blocks[gid][1][0]
-                cycle_frames = max(2, min(60, (ms * 60 + 500) // 1000))
-            cols |= block_colours(fn)
-        stage_band = cycle_band(cols)
-        for gid in sorted(cycle_gids):
-            cyc_frame0[gid] = cyc_frame0_px(anim_blocks[gid][0], stage_band)
-        print(f"  colourcycle: {len(cycle_gids)} blocks, band {stage_band} at "
-              f"PAL3 {CYCLE_BAND} + stable {CYCLE_STABLE}, "
-              f"{cycle_frames} frames/step")
+        if cand:
+            groups = {}
+            for gid in sorted(cand):
+                key = tuple(sorted(block_colours(anim_blocks[gid][0])))
+                groups.setdefault(key, []).append(gid)
+            best = max(groups.values(),
+                       key=lambda g: sum(cells_of[x] for x in g))
+            cycle_gids = set(best)
+            for g in groups.values():
+                if g is best:
+                    continue
+                for gid in g:
+                    print(f"    colourcycle: {anim_blocks[gid][0]} stays on tile "
+                          f"animation in stage {STAGE_INDEX}: its colours differ "
+                          f"from the stage band")
+            ms = anim_blocks[sorted(best)[0]][1][0]
+            cycle_frames = max(2, min(60, (ms * 60 + 500) // 1000))
+            cols = set()
+            for gid in best:
+                cols |= block_colours(anim_blocks[gid][0])
+            stage_band = cycle_band(cols)
+            for gid in sorted(cycle_gids):
+                cyc_frame0[gid] = cyc_frame0_px(anim_blocks[gid][0], stage_band)
+            print(f"  colourcycle: {len(cycle_gids)} blocks, band {stage_band} "
+                  f"at PAL3 {CYCLE_BAND} + stable {CYCLE_STABLE}, "
+                  f"{cycle_frames} frames/step")
 
     mask_bytes = (MAP_W * MAP_H + 7) // 8
     tile3_masks = []
