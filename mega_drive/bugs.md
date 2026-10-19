@@ -6,9 +6,12 @@ Things that are wrong or worse than the original. Track here, fix later.
 
 **Status**: **FIXED 2026-10-19** — the title draws the PC art at 59 colours
 over the four palette lines, verified on hardware: navy backdrop, bright
-yellow logotype and the characters' own hues. Two bugs had to go: the
+yellow logotype and the characters' own hues. Three bugs had to go: the
 near-colorkey background (below) and an off-by-one palette slot
-(`lessons_learned.md` #27). See the
+(`lessons_learned.md` #27), and the palette *selection* - lines filled in
+tile scan order let the characters' greys take the slots. The final art uses
+one palette line per part with a 15-colour characters image: 15 colours in
+15 slots, and folded tiles went from 249 to 1. See the
 update at the end of this entry for the recipe and the two traps.
 
 **Symptom**: the title logo and character art look banded/washed out compared to the
