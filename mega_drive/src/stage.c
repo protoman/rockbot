@@ -343,17 +343,19 @@ void stage_load(u8 map_index)
     // lines) instead of the C array, which did not stick: the CRAM readback
     // showed PAL0 holding another palette while PAL1 decoded exactly.
     PAL_setPalette(PAL0, pal_ui.data, CPU);
+
+    // Flush anything the previous map queued, then drop it BEFORE the tileset
+    // load. A compressed tileset allocated its unpack buffer from the heap,
+    // and with the old map still resident that allocation could fail — the
+    // library then left the PREVIOUS tileset in VRAM and the new map rendered
+    // with garbage tiles after a room transition. Stage tilesets are stored
+    // uncompressed now (res/resources.res NONE), and freeing first also gives
+    // MAP_create the largest contiguous block.
+    SYS_doVBlankProcess();
+    stage_release_map();
     VDP_loadTileSet(stage_def->tile_sets[map_index], TILE_USER_INDEX, DMA);
     stage_bg_tile_base = stage_layout_bg(map_index);
     stage_anim_tile_base = stage_layout_anim(map_index);
-
-    // Flush anything the previous map queued, then drop it: MAP_create()
-    // allocates the Map plus its unpacked metatile/block/index buffers from
-    // the heap, so without this every room change leaked ~1.5KB — repeated
-    // up/down links filled the heap until the game corrupted itself and the
-    // emulator died.
-    SYS_doVBlankProcess();
-    stage_release_map();
 
     stage_map = MAP_create(stage_def->map_defs[map_index], STAGE_PLANE,
                            TILE_ATTR_FULL(STAGE_PAL, FALSE, FALSE, FALSE, TILE_USER_INDEX));
