@@ -35,6 +35,18 @@ show visible steps.
 - Emit index `(line << 4) | slot`, keep slot 0 of every line empty for transparency.
 - Optionally: dither within a tile only, so the dedup does not explode the tile count.
 
+**Update 2026-10-19 (measured, premise corrected)**: the port does not draw the
+PC's title art — it draws a hand-drawn 15-colour redraw in
+`mega_drive/images/logo.png` (**15** raw colours, 15 after the MD 3:3:3 ramp).
+So the 15-colour limit is the art, not the pipeline: extra palette lines have
+nothing to recover from it. The PC's own art
+(`build/games/RockDroid1/images/logo.png`) has 8417 raw colours and **176** after
+the ramp, so reproducing *that* would need the 60-colour / four-line quantiser
+described above. The title is drawn from C-side tile + map arrays (not a rescomp
+IMAGE), and the tilemap's 2-bit palette field can carry the line per 8x8 tile, so
+that path needs no rescomp changes. **Decision pending**: keep the hand-drawn
+logo (close this), or port the PC art at 60 colours.
+
 **Files**: `tools/convert_assets.py`, `res/resources.res`
 
 ---
