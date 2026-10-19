@@ -240,7 +240,7 @@ static const u8 stage8_pal3_mask[3][350] = {
     },
 };
 
-static const u16 stage8_cycle_colors[3] = { 0x08CE, 0x04AE, 0x006E };
+static const u16 stage8_cycle_colors[3] = { 0x08CE, 0x04AE, 0x0024 };
 
 static const u8 stage8_anim_cell_slot[3][2800] = {
     {

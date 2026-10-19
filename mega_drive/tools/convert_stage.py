@@ -175,10 +175,18 @@ def to_cram(c):
     return (r << 1) | (g << 5) | (b << 9)
 
 
+def anim_path(name):
+    """Hand-owned anim art wins over the PC data: the port's copies live in
+    mega_drive/images/tilesets/anim and may be re-drawn (3-colour bands for the
+    colourcycle work) without touching the PC game's own images."""
+    p = os.path.join(IMAGES, "tilesets/anim", name)
+    return p if os.path.exists(p) else os.path.join(DATA, "images/tilesets/anim", name)
+
+
 def block_colours(fn):
     """MD-rounded colours a block's art uses, minus near-black and the
     transparent colorkey."""
-    im = Image.open(os.path.join(DATA, "images/tilesets/anim", fn)).convert("RGBA")
+    im = Image.open(anim_path(fn)).convert("RGBA")
     px = im.load()
     cols = set()
     for f in range(max(1, im.width // TILE)):
@@ -208,7 +216,7 @@ def cyc_frame0_px(fn, band):
     """Frame 0 of a block as PAL3-relative pixel values: band colours -> the
     band entries, near-black -> the stable entry, anything else -> its nearest
     band entry, transparent -> 0."""
-    im = Image.open(os.path.join(DATA, "images/tilesets/anim", fn)).convert("RGBA")
+    im = Image.open(anim_path(fn)).convert("RGBA")
     px = im.load()
     out = []
     for y in range(TILE):
@@ -487,7 +495,7 @@ def main():
     strips = {}
     for gid in all_gids:
         fn = anim_blocks[gid][0]
-        im = Image.open(os.path.join(DATA, "images/tilesets/anim", fn)).convert("RGBA")
+        im = Image.open(anim_path(fn)).convert("RGBA")
         strips[gid] = im
         nf = max(1, im.width // TILE)
         all_rgbs += collect_colors([(f, 0) for f in range(nf)], im.load())
