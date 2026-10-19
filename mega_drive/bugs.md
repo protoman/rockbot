@@ -4,7 +4,9 @@ Things that are wrong or worse than the original. Track here, fix later.
 
 ## BUG-001 — Title screen art loses color depth
 
-**Status**: open, accepted for now (user decision: "let's not mind the colors for now").
+**Status**: **FIXED 2026-10-19** — the title now draws the PC art at 59
+colours spread over the four palette lines (`tools/title64.py`). See the
+update at the end of this entry for the recipe and the two traps.
 
 **Symptom**: the title logo and character art look banded/washed out compared to the
 PC version. Colors that should be distinct blend together; gradients on the robots
@@ -65,6 +67,20 @@ planes, palettes, backdrop, tileset, map; showTitle also does a stage release,
 scroll resets, a BG_A font fill and a 64-wide BG_B fill around the same calls).
 The title is back on the hand-drawn art; `tools/title64.py` (with `--preview`)
 is committed and ready.
+
+**FIXED 2026-10-19**: the wiring works once three things were right -
+1. `tools/title64.py` packs **8 longs per tile** (the first version wrote 16 words
+   and emitted them as u32, 64 bytes instead of 32);
+2. the tileset goes in with **`DMA`** (immediate), and the four palettes with
+   **`CPU`** writes - queued CRAM DMA is unreliable here;
+3. `PAL0` slot 0 = the backdrop `0x0210` and slot 15 = the font's white, because
+   the font glyphs are index 15 while the art's own white sits at slot 1.
+
+Two traps that cost most of the debugging: a capture script with a **hardcoded
+ROM path** (so two "still garbage" verdicts tested an old build), and a
+keypress reaching the emulator while it opened (an all-black run that was not the
+ROM's fault). Recipe for reusing this on the scenes: `stage0_plan.md` ->
+"Four palette lines per screen".
 
 **Files**: `tools/convert_assets.py`, `res/resources.res`
 

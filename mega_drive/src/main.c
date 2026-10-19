@@ -17,8 +17,9 @@
 #include "bossintro.h"
 #include "playerselect.h"
 #include "transition.h"
-#include "title_map.h"
-#include "title_tiles.h"
+#include "title64_map.h"
+#include "title64_tiles.h"
+#include "title64_pal.h"
 
 // Layout derived from the original game, adapted from 320x240 to 320x224.
 //   show_notice()  = game.cpp:506  -> intro logos (sprites)
@@ -138,30 +139,37 @@ static s16 showTitle(void)
                         TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, TILE_FONT_INDEX),
                         0, 0, 40, 28);
 
-    VDP_loadTileData(title_tiles_data, TITLE_TILE_BASE, TITLE_TILE_COUNT, DMA_QUEUE);
-    PAL_setPalette(PAL_TITLE, title_pal.data, DMA_QUEUE);
+    // 60-colour logo (BUG-001): four palette lines, one per 8x8 tile. Tiles
+    // and palettes go in before the planes are written (probe order).
+    VDP_loadTileData(title64_tiles_data, TITLE_TILE_BASE, TITLE64_TILE_COUNT, DMA);
+    for (u8 L = 0; L < 4; L++)
+        PAL_setPalette((u16)(PAL0 + L), title64_pal[L], CPU);
     // The logo's colorkey background is the title backdrop; on MD it comes
     // from the font-space tile sheet behind it (PAL0 entry 0), which is
     // black. PC fills the title with CONFIG_BGCOLOR (5,29,65) -> RGB333
     // 0x0210. The font glyphs use entry 15, so text stays white.
-    static const u16 title_font_pal[16] = {
-        0x0210, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x0EEE
-    };
-    PAL_setPalette(PAL0, title_font_pal, DMA_QUEUE);
+    // Line 0 slot 0 is the backdrop (PC CONFIG_BGCOLOR) seen through the logo's
+    // transparent pixels; slot 15 is the font's white (emitted as such by
+    // tools/title64.py), so VDP_drawText keeps working.
+    PAL_setColor(0, 0x0210);
+    PAL_setColor(15, 0x0EEE);   // font white: the art keeps its own white at slot 1
     // the plane is 64 tiles wide: wipe the whole thing first so cells the
     // 40x28 image does not cover cannot show stale stage data
     VDP_fillTileMapRect(BG_B,
                         TILE_ATTR_FULL(PAL_TITLE, FALSE, FALSE, FALSE, TITLE_TILE_BASE),
                         0, 0, 64, 32);
-    static u16 tcell[TITLE_MAP_W * TITLE_MAP_H];
-    for (u16 i = 0; i < TITLE_MAP_W * TITLE_MAP_H; i++) {
-        tcell[i] = TILE_ATTR_FULL(PAL_TITLE, FALSE, FALSE, FALSE,
-                                  TITLE_TILE_BASE + title_map[i]);
+    static u16 tcell[TITLE64_W * TITLE64_H];
+    for (u16 i = 0; i < TITLE64_W * TITLE64_H; i++) {
+        // the palette line travels in the map entry (bits 13-14); keep it and
+        // add the tileset base
+        u16 e = title64_map[i];
+        tcell[i] = (u16)((e & ~TILE_INDEX_MASK) |
+                         (TITLE_TILE_BASE + (e & TILE_INDEX_MASK)));
     }
     // CPU: the queued variant raced with the neighbouring writes when the
     // title was re-entered (stale cells at the plane edges)
-    VDP_setTileMapDataRect(BG_B, tcell, 0, 0, TITLE_MAP_W, TITLE_MAP_H,
-                           TITLE_MAP_W, CPU);
+    VDP_setTileMapDataRect(BG_B, tcell, 0, 0, TITLE64_W, TITLE64_H,
+                           TITLE64_W, CPU);
 
     // PC draw_main: version at (8,8) -> tile (1,1), over the logo's top
     VDP_drawText(VERSION_STRING, 1, 1);

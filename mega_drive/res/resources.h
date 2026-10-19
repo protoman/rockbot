@@ -7,7 +7,6 @@ extern const u8 stage_music[2816];
 extern const SpriteDefinition upperland_sprite;
 extern const SpriteDefinition boberatu_sprite;
 extern const SpriteDefinition jmd_sprite;
-extern const Palette title_pal;
 extern const TileSet stage0_tiles0;
 extern const Palette stage0_pal0;
 extern const MapDefinition stage0_map0;

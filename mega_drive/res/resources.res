@@ -9,7 +9,6 @@ SPRITE jmd_sprite       "jmd_logo.png"   96p 32p FAST 0
 # the tiles are packed as src/title_tiles.h/.c and drawn on BG_B by main.c,
 # the text goes on BG_A. rescomp TILESET/IMAGE resources reordered/deduped
 # tiles and mis-drew the logo when the title was re-entered.
-PALETTE title_pal "title_tiles.png"
 
 # ---- STAGE 0: CHAOS CITY (game.cpp INTRO_STAGE, 3 maps) ----
 # The tileset is built from the same image as the map (as the SGDK samples do);

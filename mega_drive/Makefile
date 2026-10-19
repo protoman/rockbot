@@ -93,9 +93,9 @@ $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA)
 	$(PYTHON) tools/img2tiles.py \
 	    $(PCROOT)/build/games/RockDroid1/images/backgrounds/weapon_menu.png \
 	    --name menu --crop-top 16
-	$(PYTHON) tools/img2tiles.py \
-	    $(IMAGES)/logo.png \
-	    --name title --crop-h 224
+	$(PYTHON) tools/title64.py \
+	    $(PCROOT)/build/games/RockDroid1/images/logo.png \
+	    --name title64 --crop-h 224
 	$(PYTHON) tools/convert_sfx.py
 	$(PYTHON) tools/gen_gpl.py
 	@touch $@

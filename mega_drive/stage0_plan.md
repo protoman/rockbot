@@ -1524,6 +1524,32 @@ platforms own stages 1/8. Animation slots dropped from 10,8,14 to 6,0,6 (stage 2
 and 11,11,9 to 3,3,1 (stage 3), and **`check_vram.py` reports 0 transition
 fallbacks** - the last fade (stage 2 map 2 -> map 1) now fits.
 
+## Four palette lines per screen (title done; recipe for the scenes)
+
+`tools/title64.py` turns one full-screen image into 4-palette-line art: the
+art's colours are reduced to ~59, each 8x8 tile is assigned the line that holds
+most of its colours (fit-first, so all four lines get used), and everything is
+emitted as C arrays.
+
+- `<name>_tiles.h/.c` u32 tile data, pixel values are the **slot** inside a line
+  (8 longs per tile, high nibble = leftmost pixel);
+- `<name>_map.h/.c` u16 per cell, `(line << 13) | tile_index` - the palette field
+  travels in the map, so a tile may be reused on any line;
+- `<name>_pal.h/.c` 4 x 16 CRAM words. Line 0 slot 0 is the backdrop and slot 15
+  must be the font's white (`VDP_drawText` draws glyphs at index 15); the art's
+  own white therefore lives at another slot.
+
+Runtime rules that made it land:
+
+- write the tileset with **`DMA`** (immediate) and the palettes with **`CPU`**
+  writes; queued CRAM DMA does not reliably arrive here;
+- keep the map entry's palette bits when adding the tileset base:
+  `(e & ~TILE_INDEX_MASK) | (TITLE_TILE_BASE + (e & TILE_INDEX_MASK))`.
+
+`--preview out.png` rebuilds the screen from exactly the emitted data, so the
+quantiser can be validated without an emulator. Quality note: for the title 281
+of 1120 tiles fold a shade because 59 colours cannot cover every tile's palette.
+
 ## Notes / conventions
 
 - **Stage defs and LTO**: `stage_defs[]` is marked
