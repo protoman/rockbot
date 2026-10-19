@@ -1642,3 +1642,9 @@ of 1120 tiles fold a shade because 59 colours cannot cover every tile's palette.
 - Offline check: converter dumps the op list; `/tmp/scene_f0.png` was rebuilt
   from the emitted maps/palettes (layering, transparency, offsets OK).
   `make check-vram` still OK (9 stages, 0 fallbacks).
+- **Emulator-verified 2026-10-19** (one run, shots in `/tmp/opencode/md-emu/`):
+  logos -> centered "20XX A.D." -> city parallax -> progressive dialog ->
+  START -> title. Bug found and fixed: the text struct's `transition_type`
+  (offset 64) was read as `position_type` (offset 68); every page rendered at
+  the bottom-left. Parallax palette matches the emitted palettes (emulator
+  readback differs by the usual 3->8-bit expansion only).

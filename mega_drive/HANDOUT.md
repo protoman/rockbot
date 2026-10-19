@@ -40,8 +40,10 @@ make run EMU_ARGS=   # GL renderer instead of software
   (palette budget; DEEP JUNGLE is the outlier at 33 colours for 15 slots — every
   build prints a weighted error per stage).
 - **Intro scene** (2026-10-19): plays the PC script 0 between the logos and the
-  title (text pages + city parallax). START skips it. Offline composite
-  verified; emulator check pending.
+  title (text pages + city parallax). START skips it. Emulator-verified
+  2026-10-19: logos -> "20XX A.D." centered -> parallax city -> typed text ->
+  START -> title. `scene_text_pos.position` must be read at byte 68 (64 is
+  transition_type; reading it put every page bottom-left).
 - **Title finished** (2026-10-19): layered art in `art/` — `title.png` (18,4),
   `sub_title.png` (162,38), `title_rock_and_beta.png` (148,48) — wired as
   `--part ...:0:1`, `:0:1`, `:1:1`. 17 colours, 0 folded tiles. Three `--rekey`
