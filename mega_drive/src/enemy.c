@@ -119,7 +119,11 @@ static bool feet_solid(const Enemy *e, s16 row)
     s16 l = e->x + d->box_l + 2;
     s16 r = e->x + d->box_l + d->box_w - 3;
     for (s16 tx = l >> 4; tx <= r >> 4; tx++) {
-        if (stage_terrain_at(stage_current_map, tx, row) != TERRAIN_SOLID)
+        u16 t = stage_terrain_at(stage_current_map, tx, row);
+        // PC hit_ground (character.cpp:1399): stairs are floor for NPCs, so a
+        // walker crossing a ladder column does not fall through it.
+        if (t == TERRAIN_STAIR) return TRUE;
+        if (t != TERRAIN_SOLID)
             continue;
         // side wall? solid for the full box height (some open row = floor)
         bool wall = TRUE;
@@ -333,7 +337,10 @@ static bool ai_action_run(Enemy *e)
             if (dur < AI_SHOT_FRAMES) dur = AI_SHOT_FRAMES;
             e->shooting = 1;
         }
-        if (st->action == AI_SHOT_DIR && e->act_t == 1)
+        // PC execute_ai_action_trow_projectile: only a MOVING enemy turns to
+        // face the player. A stationary shooter keeps the editor-placed
+        // direction (the flipped_enemy bug).
+        if (st->action == AI_SHOT_DIR && d->speed && e->act_t == 1)
             e->dir = (player.x + 14 > e->x + d->box_l + d->box_w / 2) ? 1 : -1;
         if (e->act_t == 1 + (dur * 3) / 10) {
             u8 pid = (st->param >= 0) ? (u8)st->param : d->shot;

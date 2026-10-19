@@ -521,6 +521,33 @@ void stage_force_redraw(void)
     MAP_scrollToEx(stage_map, camera.x, camera.y, TRUE);
 }
 
+void stage_autoscroll(s8 dir)
+{
+    const s16 maxcam = stage_def->map_w * stage_def->tile - 320;
+    s16 target = camera.x + dir * 320;
+    if (target < 0) target = 0;
+    if (target > maxcam) target = maxcam;
+    s16 remain = target - camera.x;
+    if (!remain) return;
+
+    // Camera 8px/frame, player 1px/frame (PC: 4px + 0.5px over 76 frames at
+    // 50Hz). Same 40-frame duration, player ends 40px (2.5 tiles) past the
+    // lock, near the left/right edge of the incoming screen.
+    const s16 cam_step = (remain > 0) ? 8 : -8;
+    const s16 ply_step = (remain > 0) ? 1 : -1;
+    u8 frames = (u8)((remain > 0 ? remain : -remain) / 8);
+    for (u8 i = 0; i < frames; i++) {
+        camera.x += cam_step;
+        player.x += ply_step;
+        MAP_scrollTo(stage_map, camera.x, camera.y);
+        player_sync_sprite();
+        SPR_update();
+        SYS_doVBlankProcess();
+        VDP_setReg(17, 0);
+        VDP_setReg(18, 0);
+    }
+}
+
 void stage_restore_palette(void)
 {
     PAL_setPalette(STAGE_PAL, stage_def->palettes[stage_current_map]->data, CPU);

@@ -102,6 +102,8 @@ bool player_out_of_lives(void);
 
 // pad = JOY_readJoypad(JOY_1)
 void player_update(u16 pad);
+// Walked into a SCROLL_LOCK column? (PC process_special_map_points)
+void player_check_scroll_lock(u16 pad);
 
 // World-space hitbox, for camera focus and map-link overlap tests.
 void player_get_box(s16 *left, s16 *top, s16 *right, s16 *bottom);

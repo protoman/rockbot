@@ -204,18 +204,10 @@ void shot_update(void)
             continue;
         }
 
-        // wall: the PC stops a projectile on ANY tile except UNBLOCKED/WATER
-        // (tested on the MUZZLE line). Using the box centre here killed any
-        // projectile taller than the gap under the muzzle: MAGIC STAR's 56x56
-        // art put its centre inside the floor and it died on the first frame.
-        s16 cx = (s->dx > 0) ? s->x + s->w - 1 : s->x;
-        s16 cy = s->y0 + 2;
-        if (terrain_blocks_projectile(stage_terrain_at(stage_current_map,
-                                                       cx >> 4, cy >> 4))) {
-            shot_kill(s);
-            continue;
-        }
-
+        // No map collision: the PC only calls check_map_collision() for the
+        // ZIGZAG / AHEAD_AND_BACK / bouncing trajectories (projectilelib.cpp).
+        // LINEAR, DIAGONAL, ARC, TARGET and FOLLOW simply fly on, so player
+        // shots cross walls (user-reported Techno behavior).
         // enemy hit (shot dies on any hit; charged shots pierce: PC full
         // charge keeps flying — character.cpp:742 permanent projectiles)
         u8 hit = enemies_try_hit(s->x, s->y, s->x + s->w - 1, s->y + s->h - 1,

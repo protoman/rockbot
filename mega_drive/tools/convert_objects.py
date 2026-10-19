@@ -61,14 +61,23 @@ RES_H = 224
 GRAV = 4
 
 # PC OBJECT_TYPE values (defines.h:363)
+OBJ_DISAPPEARING_BLOCK = 2
+OBJ_ENERGY_PILL_BIG = 5
+OBJ_WEAPON_PILL_BIG = 6
 OBJ_ENERGY_PILL_SMALL = 7
+OBJ_WEAPON_PILL_SMALL = 8
 OBJ_LIFE = 9
 OBJ_FALL_PLATFORM = 10
 OBJ_FLY_PLATFORM = 11
 OBJ_CHECKPOINT = 29
 OBJ_STAGE_BOSS_TELEPORTER = 32
 
-GRAVITY_TYPES = (OBJ_ENERGY_PILL_SMALL, OBJ_LIFE, OBJ_CHECKPOINT)
+# pickups with gravity (PC object::init runs the drop loop for every type
+# except platforms/rays; these are the ones the converted stages spawn)
+GRAVITY_TYPES = (OBJ_ENERGY_PILL_BIG, OBJ_WEAPON_PILL_BIG,
+                 OBJ_ENERGY_PILL_SMALL, OBJ_WEAPON_PILL_SMALL,
+                 OBJ_LIFE, OBJ_CHECKPOINT)
+PLATFORM_TYPES = (OBJ_DISAPPEARING_BLOCK, OBJ_FALL_PLATFORM, OBJ_FLY_PLATFORM)
 
 
 def cstr(b, o, n):
@@ -145,7 +154,7 @@ def main():
             continue
         typ = struct.unpack_from("<b", blob, s["id"] * OBJ_SZ + 60)[0]
         if typ not in GRAVITY_TYPES and \
-           typ not in (OBJ_FALL_PLATFORM, OBJ_FLY_PLATFORM, OBJ_STAGE_BOSS_TELEPORTER):
+           typ not in PLATFORM_TYPES and typ != OBJ_STAGE_BOSS_TELEPORTER:
             print(f"skip spawn id={s['id']} map={s['map']} pos=({s['x']},{s['y']}): "
                   f"unsupported type {typ}")
             continue
@@ -212,7 +221,7 @@ def main():
         p = plans[s["id"]]
         d = defs[s["id"]]
         x = s["x"] * 16
-        if d["type"] in (OBJ_FALL_PLATFORM, OBJ_FLY_PLATFORM):
+        if d["type"] in PLATFORM_TYPES:
             y = s["y"] * 16          # PC object.cpp:66: position.y = sy*TILESIZE
         else:
             y = max(0, s["y"] - 1) * 16

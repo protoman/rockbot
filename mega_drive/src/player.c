@@ -77,6 +77,7 @@
 Player player;
 
 static bool air_jump_used;
+static u8 ladder_lock;      // frames left before a released ladder can grab again
 static bool air_dash_used;
 static u8 lives;            // PC game_save.items.lifes (5 = normal difficulty)
 static bool out_of_lives;
@@ -531,8 +532,22 @@ static void invuln_blink(void)
     }
 }
 
+void player_check_scroll_lock(u16 pad)
+{
+    if (player.on_ladder || player.sliding || player.hit_push > 0) return;
+    s8 dir = (pad & BUTTON_RIGHT) ? 1 : (pad & BUTTON_LEFT) ? -1 : 0;
+    if (!dir) return;
+    s16 row = (player.y + (box_t + box_b) / 2) >> 4;
+    s16 edge = (dir > 0) ? player.x + PLAYER_BOX_R + 2
+                         : player.x + PLAYER_BOX_L - 2;
+    if (stage_terrain_at(stage_current_map, edge >> 4, row) != TERRAIN_SCROLL_LOCK)
+        return;
+    stage_autoscroll(dir);
+}
+
 void player_update(u16 pad)
 {
+    if (ladder_lock) ladder_lock--;
     update_hitbox();   // box_t/box_b from the slide state so far
     s16 ix = player.x;
     s16 iy = player.y;
@@ -549,17 +564,36 @@ void player_update(u16 pad)
     // anim plays (character.cpp:218/266), which is also what lets the
     // per-frame X centring below stick (the old same-frame let-go fired
     // before player.x = ix ran, leaving the player beside the stair).
-    if (!player.on_ladder) {
-        if ((pad & BUTTON_UP) && stage_terrain_at(stage_current_map, ctx, cty) == TERRAIN_STAIR) {
-            player.on_ladder = TRUE;
-            player.on_ground = FALSE;
-            ix = (ctx << 4) + 8 - (PLAYER_BOX_L + PLAYER_BOX_R) / 2;   // centre on ladder (character.cpp:396)
-        } else if ((pad & BUTTON_DOWN) &&
-                   stage_terrain_at(stage_current_map, ctx, bb >> 4) == TERRAIN_STAIR) {
-            player.on_ladder = TRUE;
-            player.on_ground = FALSE;
-            ix = (ctx << 4) + 8 - (PLAYER_BOX_L + PLAYER_BOX_R) / 2;
+    // PC is_on_stairs (character.cpp:2428) samples TWO points (1/3 and 2/3
+    // of the body width), not just the centre column; grabbing only when the
+    // centre tile is a stair missed ladders the body was partly over.
+    s16 stair_col = -1;
+    if (!player.on_ladder && ladder_lock == 0) {
+        if (pad & BUTTON_UP) {
+            s16 sy = (iy + 14 - 2) >> 4;
+            s16 c1 = stage_terrain_at(stage_current_map, (ix + 9) >> 4, sy);
+            s16 c2 = stage_terrain_at(stage_current_map, (ix + 20) >> 4, sy);
+            if (c1 == TERRAIN_STAIR) stair_col = (ix + 9) >> 4;
+            else if (c2 == TERRAIN_STAIR) stair_col = (ix + 20) >> 4;
+            // PC up-grab: the row at the player's TOP must be free, so a
+            // ladder under a ceiling is not grabbed by accident.
+            if (stair_col >= 0) {
+                u16 top = stage_terrain_at(stage_current_map, stair_col,
+                                           iy >> 4);
+                if (top == TERRAIN_SOLID) stair_col = -1;
+            }
+        } else if (pad & BUTTON_DOWN) {
+            s16 sy = (iy + box_b) >> 4;
+            s16 c1 = stage_terrain_at(stage_current_map, (ix + 9) >> 4, sy);
+            s16 c2 = stage_terrain_at(stage_current_map, (ix + 20) >> 4, sy);
+            if (c1 == TERRAIN_STAIR) stair_col = (ix + 9) >> 4;
+            else if (c2 == TERRAIN_STAIR) stair_col = (ix + 20) >> 4;
         }
+    }
+    if (stair_col >= 0) {
+        player.on_ladder = TRUE;
+        player.on_ground = FALSE;
+        ix = (stair_col << 4) + 8 - (PLAYER_BOX_L + PLAYER_BOX_R) / 2;
     }
 
     // freshly grabbed: pose starts from the approach direction, cycle restarts
@@ -654,6 +688,7 @@ void player_update(u16 pad)
             if ((pad & JUMP_BUTTONS) && !(prev_pad & JUMP_BUTTONS)) {
                 player.on_ladder = FALSE;
                 player.vy = 0;
+                ladder_lock = 12;    // PC STAIRS_GRAB_TIMEOUT 200ms
                 prev_pad = pad;
             } else {
                 prev_pad = pad;

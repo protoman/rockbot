@@ -302,5 +302,11 @@ extern const Palette stage13_bg2_pal;
 extern const SpriteDefinition enemy_mummybot_sprite;
 extern const SpriteDefinition enemy_giant_fly_sprite;
 extern const SpriteDefinition enemy_fly_sprite;
+extern const SpriteDefinition object_energy_pill_big_sprite;
+extern const SpriteDefinition object_weapons_pill_big_sprite;
+extern const SpriteDefinition object_disappearing_block_sprite;
+extern const SpriteDefinition object_disappearing_block_green_sprite;
+extern const SpriteDefinition object_disappearing_block_blue_sprite;
+extern const SpriteDefinition object_weapons_pill_small_sprite;
 
 #endif // _RES_RESOURCES_H_

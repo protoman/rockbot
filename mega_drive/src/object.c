@@ -30,6 +30,8 @@ typedef struct {
     u8 dest_x, dest_y, dest_map;  // type 32: teleport destination (tiles)
     bool started;
     bool active;
+    bool visible;    // disappearing blocks toggle this (collision follows it)
+    u8 vis_t;        // frames in the current visible/hidden phase
 } MapObj;
 
 static MapObj objs[OBJECT_MAX];
@@ -38,13 +40,28 @@ static u8 obj_count;
 // Types that animate without player interaction (auto_start = 1 in data).
 static bool auto_anim(u8 type)
 {
-    return type == 7 || type == 9 || type == 32;  // pill, 1UP, boss teleporter
+    // pickups (small/big pills), 1UP, boss teleporter
+    return type == 5 || type == 6 || type == 7 || type == 8 || type == 9 ||
+           type == 32;
 }
 
 static bool is_platform(u8 type)
 {
-    return type == 10 || type == 11; // OBJ_FALL_PLATFORM, OBJ_FLY_PLATFORM
+    // OBJ_DISAPPEARING_BLOCK, OBJ_FALL_PLATFORM, OBJ_FLY_PLATFORM
+    return type == 2 || type == 10 || type == 11;
 }
+
+// A disappearing block only collides while in its visible phase.
+static bool solid_now(const MapObj *o)
+{
+    return o->active && is_platform(o->def->type) && o->visible;
+}
+
+// PC object.cpp: DISAPPEARNING_VISIBLE_TIME / HIDDEN_TIME (1500/2000ms) at
+// 60fps. Type 2 cycles on its own; the first phase starts visible so the
+// player never meets an invisible block at stage entry.
+#define BLOCK_VISIBLE_FRAMES 90
+#define BLOCK_HIDDEN_FRAMES 120
 
 static bool is_looping(const ObjectDef *d)
 {
@@ -125,6 +142,8 @@ void objects_reset(void)
         o->dest_map = sp->dest_map;
         o->started = FALSE;
         o->active = TRUE;
+        o->visible = TRUE;
+        o->vis_t = 0;
         o->spr = SPR_addSprite(d->spr, o->x - camera.x, o->y - camera.y,
                                TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
         if (o->spr) {
@@ -248,7 +267,7 @@ s16 objects_land_check(s16 l, s16 r, s16 head_new, s16 feet_new)
 {
     for (u8 i = 0; i < obj_count; i++) {
         MapObj *o = &objs[i];
-        if (!o->active || !is_platform(o->def->type)) continue;
+        if (!solid_now(o)) continue;
         // PC classmap.cpp:1654 — descending with the head at/above the top
         // and any horizontal touch. X is inclusive: the side clamp can leave
         // the box exactly at the face (r == o->x) and the landing must still
@@ -264,7 +283,7 @@ bool objects_stand_check(s16 l, s16 r, s16 feet)
 {
     for (u8 i = 0; i < obj_count; i++) {
         MapObj *o = &objs[i];
-        if (!o->active || !is_platform(o->def->type)) continue;
+        if (!solid_now(o)) continue;
         if (o->y == feet && l < o->x + o->def->w && r > o->x)
             return TRUE;
     }
@@ -279,7 +298,7 @@ bool objects_block_x(s16 nx, s16 t, s16 b, s16 dx, s16 *out_x)
     s16 best = 0;
     for (u8 i = 0; i < obj_count; i++) {
         MapObj *o = &objs[i];
-        if (!o->active || !is_platform(o->def->type)) continue;
+        if (!solid_now(o)) continue;
         if (l < o->x + o->def->w && r > o->x &&
             t < o->y + o->def->h && b > o->y) {
             s16 cand = (dx > 0) ? (o->x - PLAYER_BOX_R)
@@ -299,7 +318,7 @@ s16 objects_head_block(s16 l, s16 r, s16 head_new, s16 feet)
     s16 best = -1;
     for (u8 i = 0; i < obj_count; i++) {
         MapObj *o = &objs[i];
-        if (!o->active || !is_platform(o->def->type)) continue;
+        if (!solid_now(o)) continue;
         // rising into the bottom: the feet are still below the top (a jump
         // straight off the top has feet <= o->y and passes freely)
         if (feet > o->y && head_new < o->y + o->def->h &&
@@ -401,15 +420,41 @@ void objects_update(void)
         s16 sy = o->y - camera.y;
         bool on_screen = (sx + d->w > 0 && sx < 320 &&
                           sy + d->h > 0 && sy < 224);
+        // disappearing block: toggle the solid/visible phase (PC timings)
+        if (d->type == 2) {
+            u8 lim = o->visible ? BLOCK_VISIBLE_FRAMES : BLOCK_HIDDEN_FRAMES;
+            if (++o->vis_t >= lim) {
+                o->vis_t = 0;
+                o->visible = !o->visible;
+            }
+        }
         if (o->spr) {
-            SPR_setVisibility(o->spr, on_screen ? VISIBLE : HIDDEN);
+            SPR_setVisibility(o->spr,
+                              (on_screen && o->visible) ? VISIBLE : HIDDEN);
             if (on_screen) SPR_setPosition(o->spr, sx, sy);
         }
         if (!on_screen) continue;   // no pickup/anim while fully off-screen
 
         // ---- player overlap: pickup / checkpoint -------------------------
         if (pl < o->x + d->w && pr > o->x && pt < o->y + d->h && pb > o->y) {
-            if (d->type == 7) {                     // small energy pill
+            if (d->type == 5) {                     // big energy pill (+8)
+                sfx_play(SFX_PILL);
+                u8 hp = player.hp + 8;
+                player.hp = (hp > PLAYER_INITIAL_HP) ? PLAYER_INITIAL_HP : hp;
+                obj_release(o);
+                continue;
+            }
+            if (d->type == 6 || d->type == 8) {      // weapon pill big/small
+                sfx_play(SFX_PILL);
+                u8 add = (d->type == 6) ? 8 : 3;
+                u8 n = player.weapon;
+                u16 v = player.ammo[n] + add;
+                player.ammo[n] = (v > PLAYER_INITIAL_HP) ? PLAYER_INITIAL_HP
+                                                         : (u8)v;
+                obj_release(o);
+                continue;
+            }
+            if (d->type == 7) {                     // small energy pill (+3)
                 sfx_play(SFX_PILL);
                 u8 hp = player.hp + 3;
                 player.hp = (hp > PLAYER_INITIAL_HP) ? PLAYER_INITIAL_HP : hp;

@@ -406,3 +406,11 @@ PALETTE stage13_bg2_pal "stage13_bg2_tiles.png"
 SPRITE enemy_mummybot_sprite "enemy_mummybot.png" 40p 40p FAST [[120][120][120]]
 SPRITE enemy_giant_fly_sprite "enemy_giant_fly.png" 64p 48p FAST [[9,9][6,6][0]]
 SPRITE enemy_fly_sprite "enemy_fly.png" 32p 24p FAST [[4,4,4,4][6,6,6][0]]
+
+# ---- objects/pickups added with the Techno fixes ----
+SPRITE object_energy_pill_big_sprite "object_energy_pill_big.png" 16p 16p FAST [[6,6]]
+SPRITE object_weapons_pill_big_sprite "object_weapons_pill_big.png" 16p 16p FAST [[6,6]]
+SPRITE object_disappearing_block_sprite "object_disappearing_block.png" 16p 16p FAST [[4,4,4,4,4]]
+SPRITE object_disappearing_block_green_sprite "object_disappearing_block_green.png" 16p 16p FAST [[4,4,4,4,4]]
+SPRITE object_disappearing_block_blue_sprite "object_disappearing_block_blue.png" 16p 16p FAST [[4,4,4,4,4]]
+SPRITE object_weapons_pill_small_sprite "object_weapons_pill_small.png" 16p 16p FAST [[6,6]]

@@ -305,6 +305,7 @@ static void runStage(u8 stage)
 
         objects_update();   // platforms carry the player before his physics
         player_update(pad);
+        player_check_scroll_lock(pad);
         hud_update(player.hp);
         hud_weapon(player_weapon(), player_weapon_ammo());
 

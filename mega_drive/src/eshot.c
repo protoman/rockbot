@@ -33,19 +33,6 @@ static u8 count_proj(u8 proj_id)
     return n;
 }
 
-// Same rule as the player shot: PC projectile::check_map_collision — any tile
-// except UNBLOCKED/WATER stops the projectile (stage_terrain_at covers
-// out-of-range as solid).
-static bool hits_solid(s16 l, s16 t, s16 r, s16 b)
-{
-    for (s16 ty = t >> 4; ty <= (b - 1) >> 4; ty++)
-        for (s16 tx = l >> 4; tx <= (r - 1) >> 4; tx++)
-            if (terrain_blocks_projectile(stage_terrain_at(stage_current_map,
-                                                           tx, ty)))
-                return TRUE;
-    return FALSE;
-}
-
 static void kill(EShot *s)
 {
     if (s->spr) SPR_releaseSprite(s->spr);
@@ -193,12 +180,10 @@ void eshots_update(void)
 
         s16 l = s->x, t = s->y, r = s->x + s->w, b = s->y + s->h;
 
-        // off the camera window (2 tiles of margin) or into a wall.
-        // The wall probe is a thin band on the MUZZLE line: testing the whole
-        // box killed any projectile taller than the gap under the muzzle
-        // (MAGE BOT's MAGIC STAR is 56x56 and its box reaches into the floor).
-        if (r < camera.x - 32 || l > camera.x + 352 ||
-            hits_solid(l, s->y0 + 2, r, s->y0 + 3)) {
+        // Off the camera window only: the PC checks the map only for the
+        // ZIGZAG / AHEAD_AND_BACK / bouncing trajectories, so LINEAR, DIAG,
+        // ARC, FOLLOW and TARGET shots cross walls.
+        if (r < camera.x - 32 || l > camera.x + 352) {
             kill(s);
             continue;
         }

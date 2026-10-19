@@ -25,6 +25,12 @@ extern u16 stage_anim_tile_base;  // current map: first animated-frame tile
 u16 stage_layout_bg(u8 map);      // first parallax tile of `map`
 u16 stage_layout_anim(u8 map);    // first animated-frame tile of `map`
 
+// PC character::process_special_map_points -> game::horizontal_screen_move:
+// walking into a SCROLL_LOCK column slides the screen one width over ~40
+// frames and carries the player 40px past the lock, so he can continue into
+// the next section instead of being pinned at the screen edge.
+void stage_autoscroll(s8 dir);
+
 // Colourcycle (stage0_plan.md): animated cells drawn as a CRAM rotation
 // instead of tile frames. Their art carries PAL3-relative pixel values, so the
 // runtime switches the cell's palette line to this and rotates the band in
@@ -47,15 +53,6 @@ extern u8 stage_current_map;
 
 // Terrain value at a map tile (out of range: solid at the sides, sky below).
 u16 stage_terrain_at(u8 map, s16 tileX, s16 tileY);
-
-// PC projectile::check_map_collision (projectilelib.cpp:1193): every terrain
-// except UNBLOCKED and WATER stops a projectile — so ladders (STAIR), spikes,
-// doors, conveyor and the scroll-lock columns block shots too, not only SOLID
-// tiles. (The PC's projectile data has no "passes through walls" flag.)
-static inline bool terrain_blocks_projectile(u16 t)
-{
-    return t != TERRAIN_UNBLOCKED && t != TERRAIN_WATER;
-}
 
 // Load one map of the stage (0..STAGE0_MAP_COUNT-1) and reset the camera.
 void stage_load(u8 map_index);

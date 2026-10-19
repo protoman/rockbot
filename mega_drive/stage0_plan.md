@@ -1708,3 +1708,35 @@ Real stage count is 14, not 20: `game_properties_v301.dat` has
 - **Not ported**: `castle_data_v301.dat` / `castle1_points.dat` — the PC game
   code never reads them at runtime (only the editor), so they are not needed
   for this flow.
+
+## Techno bug pass (2026-10-19, user list)
+
+- **Enemies on stairs**: PC `hit_ground` treats STAIR as floor for NPCs
+  (character.cpp:1399). `feet_solid()` now returns true on a STAIR tile, so
+  the android no longer falls through ladder columns.
+- **Enemy facing**: PC `execute_ai_action_trow_projectile` turns toward the
+  player only when `move_speed > 0`. The port turned for every SHOT_DIR; a
+  stationary shooter now keeps its editor-placed direction.
+- **Projectiles cross walls**: PC only calls `check_map_collision()` for
+  ZIGZAG / AHEAD_AND_BACK / bouncing trajectories. LINEAR, DIAGONAL, ARC,
+  FOLLOWER and TARGET shots fly on. Removed the wall probe from `shot.c` and
+  `eshot.c` (the port had applied the "any tile but UNBLOCKED/WATER" rule to
+  every shot).
+- **Big HP/MP pickups**: object types 5 (big energy, +8 HP) and 6/8 (weapon
+  big/small, +8/+3 gauge) added to `convert_objects.py`'s gravity pickups and
+  to `object.c`; new sprites in `resources.res`. TECHNO's 15 object spawns now
+  include them.
+- **Disappearing blocks** (type 2): converter accepts them; `object.c` treats
+  them as platforms while visible and toggles 90/120 frames (PC 1500/2000ms).
+  Stage 8's three blocks are in the spawn table.
+- **Scroll-lock**: walking into a SCROLL_LOCK column now calls
+  `stage_autoscroll()` (PC `horizontal_screen_move`): camera slides one screen
+  in 40 frames while the player moves 40px past the lock, so the next section
+  is reachable. Previously the camera was only clamped.
+- **Stairs, player side**: grab detection now samples 1/3 and 2/3 of the body
+  like PC `is_on_stairs` (centre-tile only missed ladders the body partly
+  covered), the up-grab checks the row above the player, and a 12-frame
+  `ladder_lock` after jumping off matches PC `STAIRS_GRAB_TIMEOUT` (200ms).
+- **Transitions**: `check-vram` reports `0 transition fallbacks` for all 14
+  stages, so TECHNO's links scroll (the fade only triggers when the spare VRAM
+  block cannot hold the destination window). Re-test on the new ROM.
