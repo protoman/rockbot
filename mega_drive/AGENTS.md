@@ -101,6 +101,37 @@ SGDK is **C only**. Verified: SGDK headers have **no `extern "C"` guards**; the 
 
 Complementary: `sample/game/sonic/` (1032 l) — 2-plane parallax, HUD, entities, `XGM2`, `SYS_setVBlankCallback`, `DMA_setBufferSize`.
 
+## Context budget — keep sessions long
+
+Sessions are ending early because context is spent on things that do not need
+it. Rules, in order of impact:
+
+1. **Verify offline before running anything.** `tools/title64.py --preview`
+   rebuilds a screen from the emitted data, `check_vram.py` prints the VRAM
+   budget and the transition fallbacks, and the converters print per-stage
+   palette errors and per-part colour counts. That answers most questions
+   without an emulator. One deliberate launch only to *confirm* a result.
+2. **Never read a whole file.** Locate with `grep -n`, then `sed -n 'a,bp'` for
+   at most ~80 lines. Do not re-read what codegraph or an earlier tool result
+   already returned.
+3. **Do not look at screenshots unless numbers cannot answer it.** Prefer
+   sampling pixels and printing dominant colours (the scripts in the session
+   notes do this). When an image is unavoidable, crop the region, not the screen.
+4. **One shell call per question.** Batch the greps, sed patches and builds into
+   a single command with a compact filter (`grep -E 'erro|parts:'`), not a chain
+   of exploratory calls.
+5. **Never dump generated data.** Stage data files, tile strips and masks are
+   picked with `grep -h '<field>' -A2`, never printed whole.
+6. **Land work as you go.** Finish a unit, build it, commit it, and append one
+   line to `HANDOUT.md`. Then a session can stop anywhere without losing state,
+   and a context compaction costs nothing.
+7. **When half the context is gone, rewrite the handoff then**, not at the end —
+   writing it from a compacted summary loses the details that mattered.
+
+Compaction itself is a client setting, not something these rules can switch on;
+what they can do is keep the working set small enough that a compact or restart
+is cheap.
+
 ## Emulator (verified)
 
 ```bash
