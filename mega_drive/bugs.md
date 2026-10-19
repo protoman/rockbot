@@ -44,8 +44,14 @@ nothing to recover from it. The PC's own art
 the ramp, so reproducing *that* would need the 60-colour / four-line quantiser
 described above. The title is drawn from C-side tile + map arrays (not a rescomp
 IMAGE), and the tilemap's 2-bit palette field can carry the line per 8x8 tile, so
-that path needs no rescomp changes. **Decision pending**: keep the hand-drawn
-logo (close this), or port the PC art at 60 colours.
+that path needs no rescomp changes. **Decision (2026-10-19)**: port the PC art at 60 colours. The quantiser is
+written (`tools/title64.py`: ~60 colours over four palette lines, one line per
+8x8 tile, emitted as C tile/map/palette arrays) and emits sane data (59 colours,
+lines 14/15/15/15, 399 tiles), but the first on-screen attempt rendered garbage -
+the wiring is reverted and the title still uses the hand-drawn 15-colour logo, so
+nothing is broken. Next attempt: check the plane write and the tile-base offset
+(`TITLE_TILE_BASE + (entry & TILE_INDEX_MASK)`, palette bits kept from the map
+entry), and whether BG_B needs the 64-wide fill to stay..
 
 **Files**: `tools/convert_assets.py`, `res/resources.res`
 
