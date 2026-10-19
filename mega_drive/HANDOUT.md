@@ -40,7 +40,8 @@ make run EMU_ARGS=   # GL renderer instead of software
   `STAGES`. VRAM bases are derived per map (tileset -> bg -> anim), so FROZEN
   LAIR map 1's 202-tile tileset fits. ROM 1.31M. FROZEN LAIR is the palette
   outlier (56 colours, BUG-004) and the first WATER/ICE stage (minimal
-  physics). Ending after stage 13 is not wired yet.
+  physics). Endings 2..5 play after stage 13 (`scene_play(2+player)`); the
+  six portraits are in the build (visual pass pending).
 - **Title** renders the layered PC art at ~58 colours over four palette lines
   (`tools/title64.py`), verified on hardware against the user's reference.
 - **Colourcycle** (CRAM rotation instead of tile-frame animation) live in stages
@@ -59,7 +60,7 @@ make run EMU_ARGS=   # GL renderer instead of software
   `--part ...:0:1`, `:0:1`, `:1:1`. 17 colours, 0 folded tiles. Three `--rekey`
   lines in the Makefile brighten the pink and orange armour and warm the skin;
   the art files themselves are untouched.
-- Last commit: `ec46b490` (castle flow + saved-stage-bit fix), tree clean.
+- Last commit: `fde7b63e` (ending scenes), tree clean.
 
 ## Next work, in order
 
