@@ -29,8 +29,15 @@ make run EMU_ARGS=   # GL renderer instead of software
 
 ## State at hand-off
 
-- All nine converted stages play (maps, parallax, enemies, objects, shots, HUD,
-  menu, save/load, stage select). Bosses and music still out.
+- All nine selectable stages play (maps, parallax, enemies, objects, shots,
+  HUD, menu, save/load, stage select). Bosses and music still out.
+- **Stages 0..13 are converted** (14 of 20); 9..13 are castle #1 (LAVA PIT,
+  SPACE BASE, POWER GRID, RECYCLE FACTORY, FROZEN LAIR) and are **not
+  reachable yet** — the select is still the 3x3 boss grid. `tools/add_stage.py
+  N` now does a whole stage; the asset recipe loops over `STAGES`. VRAM bases
+  are derived per map (tileset -> bg -> anim), so FROZEN LAIR map 1's 202-tile
+  tileset fits. ROM 1.31M. FROZEN LAIR is the palette outlier (56 colours,
+  BUG-004) and the first WATER/ICE stage (minimal physics).
 - **Title** renders the layered PC art at ~58 colours over four palette lines
   (`tools/title64.py`), verified on hardware against the user's reference.
 - **Colourcycle** (CRAM rotation instead of tile-frame animation) live in stages
@@ -106,13 +113,17 @@ Next: that art pass, then the ending scenes (2..5) and the lab scene (1).
 **User's decisions**: port the **intro** first, **text verbatim**, and it is
 fine to **tighten the line spacing** to fit 224 lines.
 
-### 3. Remaining stages (11 of 20)
+### 3. Stages — conversion pipeline done; castle flow next
 
-Converters are stage-parameterised (`convert_stage.py N`, enemies, objects,
-`img2tiles` for the parallax). Write a script that adds a stage end to end:
-converters, resources block, PAL3 pool budget, defs table, stage-select list.
-Validate with `check-vram` and the palette error report — no emulator needed.
-ROM is ~896K of 4MB, so ~100K per stage fits.
+Stages 0..13 are converted. What is missing to *play* 9..13 is the castle
+screen: PC `castle_data_v301.dat` + `castle1_points.dat` (168 B / 24 B) place
+5 stage nodes on a castle map, reached from the select's centre slot once all
+8 bosses are beaten (`fio.can_access_castle`, `get_last_castle_stage`). The
+port's `stageselect.c` does not implement that transition yet.
+
+Stages 14..19 are **placeholders** in the PC data (`Fire Bot`, `Stage [16]`,
+…), and `game_properties_v301.dat` has `use_second_castle = 0`, so they are
+not part of the game. Do not convert them unless the user says otherwise.
 
 ### 4. Ending
 

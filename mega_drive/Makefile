@@ -22,61 +22,21 @@ ASSET_DATA  := $(shell find $(PCROOT)/build/games/RockDroid1 \
 ASSET_DATA  += $(shell find $(IMAGES) -type f -name '*.png' 2>/dev/null)
 ASSET_DATA  += $(shell find art -type f -name '*.png' 2>/dev/null)
 
+# Converted stages, in index order (tools/add_stage.py appends here).
+STAGES := 0 1 2 3 4 5 6 7 8 9 10 11 12 13
+
 $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA)
 	$(PYTHON) tools/convert_assets.py
-	$(PYTHON) tools/convert_stage.py 0
-	$(PYTHON) tools/convert_enemies.py 0
-	$(PYTHON) tools/convert_objects.py 0
-	$(PYTHON) tools/img2tiles.py res/stage0_bg0.png --name stage0_bg0
-	$(PYTHON) tools/img2tiles.py res/stage0_bg1.png --name stage0_bg1
-	$(PYTHON) tools/convert_stage.py 1
-	$(PYTHON) tools/convert_enemies.py 1
-	$(PYTHON) tools/convert_objects.py 1
-	$(PYTHON) tools/img2tiles.py res/stage1_bg0.png --name stage1_bg0
-	$(PYTHON) tools/img2tiles.py res/stage1_bg1.png --name stage1_bg1
-	$(PYTHON) tools/img2tiles.py res/stage1_bg2.png --name stage1_bg2
-	$(PYTHON) tools/convert_stage.py 2
-	$(PYTHON) tools/convert_enemies.py 2
-	$(PYTHON) tools/convert_objects.py 2
-	$(PYTHON) tools/img2tiles.py res/stage2_bg0.png --name stage2_bg0
-	$(PYTHON) tools/img2tiles.py res/stage2_bg1.png --name stage2_bg1
-	$(PYTHON) tools/img2tiles.py res/stage2_bg2.png --name stage2_bg2
-	$(PYTHON) tools/convert_stage.py 3
-	$(PYTHON) tools/convert_enemies.py 3
-	$(PYTHON) tools/convert_objects.py 3
-	$(PYTHON) tools/img2tiles.py res/stage3_bg0.png --name stage3_bg0
-	$(PYTHON) tools/img2tiles.py res/stage3_bg1.png --name stage3_bg1
-	$(PYTHON) tools/img2tiles.py res/stage3_bg2.png --name stage3_bg2
-	$(PYTHON) tools/convert_stage.py 4
-	$(PYTHON) tools/convert_enemies.py 4
-	$(PYTHON) tools/convert_objects.py 4
-	$(PYTHON) tools/img2tiles.py res/stage4_bg0.png --name stage4_bg0
-	$(PYTHON) tools/img2tiles.py res/stage4_bg1.png --name stage4_bg1
-	$(PYTHON) tools/img2tiles.py res/stage4_bg2.png --name stage4_bg2
-	$(PYTHON) tools/convert_stage.py 5
-	$(PYTHON) tools/convert_enemies.py 5
-	$(PYTHON) tools/convert_objects.py 5
-	$(PYTHON) tools/img2tiles.py res/stage5_bg0.png --name stage5_bg0
-	$(PYTHON) tools/img2tiles.py res/stage5_bg1.png --name stage5_bg1
-	$(PYTHON) tools/img2tiles.py res/stage5_bg2.png --name stage5_bg2
-	$(PYTHON) tools/convert_stage.py 6
-	$(PYTHON) tools/convert_enemies.py 6
-	$(PYTHON) tools/convert_objects.py 6
-	$(PYTHON) tools/img2tiles.py res/stage6_bg0.png --name stage6_bg0
-	$(PYTHON) tools/img2tiles.py res/stage6_bg1.png --name stage6_bg1
-	$(PYTHON) tools/img2tiles.py res/stage6_bg2.png --name stage6_bg2
-	$(PYTHON) tools/convert_stage.py 7
-	$(PYTHON) tools/convert_enemies.py 7
-	$(PYTHON) tools/convert_objects.py 7
-	$(PYTHON) tools/img2tiles.py res/stage7_bg0.png --name stage7_bg0
-	$(PYTHON) tools/img2tiles.py res/stage7_bg1.png --name stage7_bg1
-	$(PYTHON) tools/img2tiles.py res/stage7_bg2.png --name stage7_bg2
-	$(PYTHON) tools/convert_stage.py 8
-	$(PYTHON) tools/convert_enemies.py 8
-	$(PYTHON) tools/convert_objects.py 8
-	$(PYTHON) tools/img2tiles.py res/stage8_bg0.png --name stage8_bg0
-	$(PYTHON) tools/img2tiles.py res/stage8_bg1.png --name stage8_bg1
-	$(PYTHON) tools/img2tiles.py res/stage8_bg2.png --name stage8_bg2
+	@for s in $(STAGES); do \
+	    $(PYTHON) tools/convert_stage.py $$s || exit 1; \
+	    $(PYTHON) tools/convert_enemies.py $$s || exit 1; \
+	    $(PYTHON) tools/convert_objects.py $$s || exit 1; \
+	    for m in 0 1 2; do \
+	        if [ -f res/stage$${s}_bg$${m}.png ]; then \
+	            $(PYTHON) tools/img2tiles.py res/stage$${s}_bg$${m}.png --name stage$${s}_bg$${m} || exit 1; \
+	        fi; \
+	    done; \
+	done
 	$(PYTHON) tools/convert_players.py
 	$(PYTHON) tools/convert_weapons.py
 	$(PYTHON) tools/convert_player.py

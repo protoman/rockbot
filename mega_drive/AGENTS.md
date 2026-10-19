@@ -190,8 +190,11 @@ from already-captured screenshots/assets over running the emulator again.
 
 ## Port status
 
-- All nine converted stages play: maps, parallax, enemies, objects, shots, HUD,
-  menu, save/load, stage select. Bosses and music still out (see roadmap).
+- Stages 0..13 are converted (14 of 20). The first nine (0..8) play: maps,
+  parallax, enemies, objects, shots, HUD, menu, save/load, stage select.
+  Stages 9..13 (castle #1) have data + bosses but are **not reachable yet**
+  (castle flow missing). Stages 14..19 are placeholders (`use_second_castle=0`).
+  Bosses and music still out (see roadmap).
 - Intro + title: the title now draws the **PC art at 59 colours over four
   palette lines** (`tools/title64.py`, per-8x8-tile palette line). Recipe and
   caveats in `stage0_plan.md` -> "Four palette lines per screen".
@@ -234,6 +237,7 @@ Flow in `main.c`: `showIntro()` (logos) → `scene_play(SCENE_OPENING_UNBEATEN)`
 | `tools/pal_ui.py` | single source of truth for the PAL0 UI/enemy palette |
 | `tools/img2tiles.py` | image → minimal tile set + tilemap (UI screens, HUD) |
 | `tools/convert_scenes.py` | PC scene tables → `src/scenes_data.*` + `res/scene_par*.png` |
+| `tools/add_stage.py` | one stage end to end: converters, resources, registry, `STAGES` |
 | `tools/convert_sfx.py` | PC `sfx/*.wav` → `res/sfx/*.wav` + `res/sfx_pcm.res` (XGM2 PCM) |
 | `src/sfx.{c,h}` | sound effects (XGM2 PCM, channels 2..4) |
 | `tools/tiles_merge.py` | shared pieces across decomposed screens |

@@ -9,22 +9,21 @@
 #define STAGE_PLANE BG_A
 #define STAGE_PAL   PAL1
 
-// Parallax background: own palette (PAL3, reloaded on stage_load) and a
-// fixed VRAM block. VRAM layout (tiles; TILE_FONT_INDEX = 1440 = 0xC000/32
-// minus FONT_LEN 96): system 0..15, stage tileset 16..159 (the largest
-// converted map tileset is 144 tiles), bg tiles at 160, animated-tile frames
-// at 520, sprite engine from TILE_SPRITE_INDEX (1440 - SPR_initEx size;
-// 504 -> 936..1439), font 1440..1535.
-// NOTE: the in-game menu temporarily loads its panel over the bg block
-// (160..) and restores it with stage_redraw_bg().
+// Parallax background palette (PAL3, reloaded on stage_load).
+//
+// VRAM layout is computed PER MAP at stage_load: the stage tileset at
+// TILE_USER_INDEX, the parallax tiles right after it, the animated frames
+// after those, and the sprite pool at TILE_SPRITE_INDEX (1440 - SPR_initEx
+// size; 504 -> 936..1439), font at 1440..1535. The old fixed blocks (tileset
+// <=144, bg at 160, anim at 520) overflowed on FROZEN LAIR map 1, whose
+// rendered map uses 202 unique 8x8 tiles; deriving the bases from the actual
+// resource sizes keeps every stage inside the sprite pool.
 #define BG_PAL        PAL3
-#define TILE_BG_INDEX 160
-// BG tilesets are decomposed (tools/img2tiles.py); the largest is 354 tiles
-// (stage 2, after the black-background fix), so reserve 360 for them before
-// the animated-tile block. Must also leave the stage tileset's block
-// (16..159) clear — bg art used to start at 144 and overlapped the biggest
-// tilesets by 16 tiles.
-#define TILE_BG_MAX_TILES 360
+#define STAGE_ANIM_SLOT_MAX 17
+extern u16 stage_bg_tile_base;    // current map: first parallax tile
+extern u16 stage_anim_tile_base;  // current map: first animated-frame tile
+u16 stage_layout_bg(u8 map);      // first parallax tile of `map`
+u16 stage_layout_anim(u8 map);    // first animated-frame tile of `map`
 
 // Colourcycle (stage0_plan.md): animated cells drawn as a CRAM rotation
 // instead of tile frames. Their art carries PAL3-relative pixel values, so the
@@ -37,13 +36,10 @@
 #define TILE_CYCLE_STABLE 15
 #define STAGE_CYCLE_MAX 6
 
-// Animated-tile frame slots (see stage0_plan.md VRAM map): 1 slot per
-// animation, 6 frames x 4 tiles. Base sits AFTER the largest decomposed bg
-// tileset (TILE_BG_INDEX + TILE_BG_MAX_TILES) and the block must stay below
-// the sprite pool (TILE_FONT_INDEX - 504 = 936): 520 + 17*24 = 928.
-#define TILE_ANIM_BASE   520
+// Animated-tile frame slots: 1 slot per animation, 6 frames x 4 tiles,
+// loaded at stage_anim_tile_base + slot*stride. The block must stay below the
+// sprite pool — check_vram.py verifies the per-map sum.
 #define TILE_ANIM_STRIDE 24
-#define STAGE_ANIM_SLOT_MAX 17
 
 extern Map *stage_map;
 extern Vect2D_s16 camera;

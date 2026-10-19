@@ -44,7 +44,7 @@
 #define TRANS_ROWS 28     // plane rows (224px screen)
 #define TRANS_MROWS 14    // metatile rows = map_h
 #define TRANS_STEP 8      // pixels per frame (PC uses 4 at 6ms/step)
-#define TRANS_TILES 160   // largest converted map tileset is 144 tiles
+#define TRANS_TILES 256   // FROZEN LAIR map 1 has 202 unique 8x8 tiles
 
 // per-map tile3 bit mask stride (same as stage.c)
 #define TRANS_MASK_BYTES ((stage_def->map_w * stage_def->map_h + 7) / 8)
@@ -63,17 +63,13 @@ static u8 trans_remap[TRANS_TILES];
 static s16 trans_hs_a[TRANS_LINES];
 static s16 trans_hs_b[TRANS_LINES];
 
-// Highest VRAM tile the map that is currently loaded occupies: its tileset,
-// then the parallax tiles, then the animated slots (see the VRAM map in
-// stage.h). Everything above that is free up to the sprite pool.
+// Highest VRAM tile a map occupies: its tileset, the parallax tiles right
+// after it, then the animated slots (stage.h computes the same bases when the
+// map is loaded). Everything above that is free up to the sprite pool.
 static u16 vram_free_base(u8 map)
 {
-    u16 base = TILE_USER_INDEX + stage_def->tile_sets[map]->numTile;
-    u16 bg = TILE_BG_INDEX + stage_def->bg_tiles_n[map];
-    if (bg > base) base = bg;
-    u16 anim = TILE_ANIM_BASE + (u16)stage_def->anim_slot_n[map] * TILE_ANIM_STRIDE;
-    if (anim > base) base = anim;
-    return base;
+    return stage_layout_anim(map) +
+           (u16)stage_def->anim_slot_n[map] * TILE_ANIM_STRIDE;
 }
 
 static s16 clamp_cam_x(s16 x)

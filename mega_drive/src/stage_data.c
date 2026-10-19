@@ -9,6 +9,11 @@
 #include "stage6_data.h"
 #include "stage7_data.h"
 #include "stage8_data.h"
+#include "stage9_data.h"
+#include "stage10_data.h"
+#include "stage11_data.h"
+#include "stage12_data.h"
+#include "stage13_data.h"
 
 // Registry of converted stages. STAGE_DEFINED_COUNT / stage_defs live in
 // stage_data.h; the stage select maps its slots to these entries.
@@ -24,6 +29,11 @@ __attribute__((used)) const StageDef *const stage_defs[STAGE_DEFINED_COUNT] = {
     &stage6_def,
     &stage7_def,
     &stage8_def,
+    &stage9_def,
+    &stage10_def,
+    &stage11_def,
+    &stage12_def,
+    &stage13_def,
 };
 const StageDef *stage_def;
 

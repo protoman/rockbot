@@ -321,6 +321,86 @@ PALETTE stage8_bg0_pal "stage8_bg0_tiles.png"
 PALETTE stage8_bg1_pal "stage8_bg1_tiles.png"
 PALETTE stage8_bg2_pal "stage8_bg2_tiles.png"
 
+# ---- STAGE 9 (LAVA PIT) ----
+SPRITE enemy_spinning_drill_sprite "enemy_spinning_drill.png" 16p 24p FAST [[3,3,3][6,6,6][0]]
+SPRITE enemy_tech_circle_sprite "enemy_tech_circle.png" 64p 64p FAST [[60,6,6,6,6,6][60,6,6,6,6,6][0]]
+TILESET stage9_tiles0 "stage9_map0.png" FAST ALL
+PALETTE stage9_pal0   "stage9_map0.png"
+MAP     stage9_map0   "stage9_map0.png"  stage9_tiles0 FAST 0
+TILESET stage9_tiles1 "stage9_map1.png" FAST ALL
+PALETTE stage9_pal1   "stage9_map1.png"
+MAP     stage9_map1   "stage9_map1.png"  stage9_tiles1 FAST 0
+TILESET stage9_tiles2 "stage9_map2.png" FAST ALL
+PALETTE stage9_pal2   "stage9_map2.png"
+MAP     stage9_map2   "stage9_map2.png"  stage9_tiles2 FAST 0
+PALETTE stage9_bg0_pal "stage9_bg0_tiles.png"
+PALETTE stage9_bg1_pal "stage9_bg1_tiles.png"
+PALETTE stage9_bg2_pal "stage9_bg2_tiles.png"
+
+# ---- STAGE 10 (SPACE BASE) ----
+SPRITE enemy_giant_metool_sprite "enemy_giant_metool.png" 104p 120p FAST [[540][6][6,60]]
+TILESET stage10_tiles0 "stage10_map0.png" FAST ALL
+PALETTE stage10_pal0   "stage10_map0.png"
+MAP     stage10_map0   "stage10_map0.png"  stage10_tiles0 FAST 0
+TILESET stage10_tiles1 "stage10_map1.png" FAST ALL
+PALETTE stage10_pal1   "stage10_map1.png"
+MAP     stage10_map1   "stage10_map1.png"  stage10_tiles1 FAST 0
+TILESET stage10_tiles2 "stage10_map2.png" FAST ALL
+PALETTE stage10_pal2   "stage10_map2.png"
+MAP     stage10_map2   "stage10_map2.png"  stage10_tiles2 FAST 0
+PALETTE stage10_bg0_pal "stage10_bg0_tiles.png"
+PALETTE stage10_bg1_pal "stage10_bg1_tiles.png"
+PALETTE stage10_bg2_pal "stage10_bg2_tiles.png"
+
+# ---- STAGE 11 (POWER GRID) ----
+SPRITE enemy_tank_sprite "enemy_tank.png" 104p 80p FAST [[6,6][6,6][90]]
+TILESET stage11_tiles0 "stage11_map0.png" FAST ALL
+PALETTE stage11_pal0   "stage11_map0.png"
+MAP     stage11_map0   "stage11_map0.png"  stage11_tiles0 FAST 0
+TILESET stage11_tiles1 "stage11_map1.png" FAST ALL
+PALETTE stage11_pal1   "stage11_map1.png"
+MAP     stage11_map1   "stage11_map1.png"  stage11_tiles1 FAST 0
+TILESET stage11_tiles2 "stage11_map2.png" FAST ALL
+PALETTE stage11_pal2   "stage11_map2.png"
+MAP     stage11_map2   "stage11_map2.png"  stage11_tiles2 FAST 0
+PALETTE stage11_bg0_pal "stage11_bg0_tiles.png"
+PALETTE stage11_bg1_pal "stage11_bg1_tiles.png"
+PALETTE stage11_bg2_pal "stage11_bg2_tiles.png"
+
+# ---- STAGE 12 (RECYCLE FACTORY) ----
+SPRITE enemy_giant_bee_sprite "enemy_giant_bee.png" 112p 72p FAST [[3,3][5,5][3,3]]
+TILESET stage12_tiles0 "stage12_map0.png" FAST ALL
+PALETTE stage12_pal0   "stage12_map0.png"
+MAP     stage12_map0   "stage12_map0.png"  stage12_tiles0 FAST 0
+TILESET stage12_tiles1 "stage12_map1.png" FAST ALL
+PALETTE stage12_pal1   "stage12_map1.png"
+MAP     stage12_map1   "stage12_map1.png"  stage12_tiles1 FAST 0
+TILESET stage12_tiles2 "stage12_map2.png" FAST ALL
+PALETTE stage12_pal2   "stage12_map2.png"
+MAP     stage12_map2   "stage12_map2.png"  stage12_tiles2 FAST 0
+PALETTE stage12_bg0_pal "stage12_bg0_tiles.png"
+PALETTE stage12_bg1_pal "stage12_bg1_tiles.png"
+PALETTE stage12_bg2_pal "stage12_bg2_tiles.png"
+
+# ---- STAGE 13 (FROZEN LAIR) ----
+SPRITE enemy_destrin_tank_sprite "enemy_destrin_tank.png" 88p 96p FAST [[6,6,6][6,6,6][6]]
+SPRITE enemy_multidrill_sprite "enemy_multidrill.png" 16p 24p FAST [[6,6,6][6,6,6][0]]
+SPRITE enemy_shocker_sprite "enemy_shocker.png" 40p 40p FAST [[12,12][12,12,12][7,7,48]]
+TILESET stage13_tiles0 "stage13_map0.png" FAST ALL
+PALETTE stage13_pal0   "stage13_map0.png"
+MAP     stage13_map0   "stage13_map0.png"  stage13_tiles0 FAST 0
+TILESET stage13_tiles1 "stage13_map1.png" FAST ALL
+PALETTE stage13_pal1   "stage13_map1.png"
+MAP     stage13_map1   "stage13_map1.png"  stage13_tiles1 FAST 0
+TILESET stage13_tiles2 "stage13_map2.png" FAST ALL
+PALETTE stage13_pal2   "stage13_map2.png"
+MAP     stage13_map2   "stage13_map2.png"  stage13_tiles2 FAST 0
+PALETTE stage13_bg0_pal "stage13_bg0_tiles.png"
+PALETTE stage13_bg1_pal "stage13_bg1_tiles.png"
+PALETTE stage13_bg2_pal "stage13_bg2_tiles.png"
+
+# ---- CONVERTED STAGES END (tools/add_stage.py inserts above) ----
+
 
 # ---- sprites missed by the first pass (converter assert fixed) ----
 SPRITE enemy_mummybot_sprite "enemy_mummybot.png" 40p 40p FAST [[120][120][120]]

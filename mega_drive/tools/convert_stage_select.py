@@ -44,6 +44,7 @@ BASE_TILE = 16          # TILE_USER_INDEX: where ssel tiles are uploaded
 PAL_BG, PAL_FACE, PAL_PLAYER, PAL_CURSOR = 3, 0, 2, 1
 MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)
 
+NAME_COUNT = 14         # real stages: 0 intro, 1..8 bosses, 9..13 castle #1
 # (stage 1..8) -> (col, row) of the 3x3 grid, matching draw_faces_classic_style
 FACE_GRID = {
     1: (0, 0), 2: (1, 0), 3: (2, 0),
@@ -164,7 +165,10 @@ def main():
     print("wrote res/ssel_cursor_{tl,tr,bl,br}_{b,y}.png (single frames)")
 
     # ---- names -----------------------------------------------------------
-    names = [read_stage(i) for i in range(9)]
+    # 0..13 are the real stages (8 bosses + 5 castle #1); 14..19 are unused
+    # placeholders in the PC data. The 3x3 grid only draws 1..8, but the boss
+    # intro uses this table for the castle stages too.
+    names = [read_stage(i) for i in range(NAME_COUNT)]
     for i in (1, 2, 8):
         print(f"  stage {i}: '{names[i][0]}' boss '{names[i][1]}'")
 
@@ -180,9 +184,10 @@ def main():
 #define SSEL_MAP_W %d
 #define SSEL_MAP_H %d
 
-// Stage/boss names for stages 1..8 (index 0 unused).
-extern const char *const ssel_stage_names[9];
-extern const char *const ssel_boss_names[9];
+// Stage/boss names for stages 0..13 (index 0 = intro).
+#define SSEL_STAGE_SLOTS 14
+extern const char *const ssel_stage_names[SSEL_STAGE_SLOTS];
+extern const char *const ssel_boss_names[SSEL_STAGE_SLOTS];
 
 // Static screen: packed 4bpp tiles + a u16 tilemap (palette bits included,
 // local tile index -- add SSEL_TILE_BASE). PAL: 0 faces+font, 2 player,
@@ -215,13 +220,13 @@ extern const u16 ssel_pal_cursor[16];
     def cstr(s):
         return '"' + s.replace("\\", "\\\\").replace('"', '\\"') + '"'
 
-    c.append("const char *const ssel_stage_names[9] = {\n")
-    for i in range(9):
+    c.append(f"const char *const ssel_stage_names[{NAME_COUNT}] = {{\n")
+    for i in range(NAME_COUNT):
         c.append(f"    {cstr(names[i][0])},  /* {i} */\n" if i else
                  f"    {cstr(names[i][0])},\n")
     c.append("};\n\n")
-    c.append("const char *const ssel_boss_names[9] = {\n")
-    for i in range(9):
+    c.append(f"const char *const ssel_boss_names[{NAME_COUNT}] = {{\n")
+    for i in range(NAME_COUNT):
         c.append(f"    {cstr(names[i][1])},  /* {i} */\n" if i else
                  f"    {cstr(names[i][1])},\n")
     c.append("};\n")

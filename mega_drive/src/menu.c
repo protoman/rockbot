@@ -21,12 +21,12 @@
 // 41 unique pieces instead of a 320x240 bitmap) and overlays the texts.
 // PC 320x240 coordinates are shifted by the usual 16px top crop.
 //
-// The panel tiles load over the BACKGROUND tile block (TILE_BG_INDEX);
+// The panel tiles load over the parallax block (stage_bg_tile_base);
 // stage_redraw_bg() restores the parallax art on close. VRAM has no free
 // block left: tiles 0..1439 = stage 16..143, bg 144..911, anim 912..936,
 // sprite engine 936..1439, font 1440..1535 (TILE_FONT_INDEX is 1440, not
 // 1952 as older comments claimed).
-#define MENU_TILE_BASE TILE_BG_INDEX
+#define MENU_TILE_BASE stage_bg_tile_base
 
 static Sprite *portrait;
 static u16 cells[MENU_MAP_W * MENU_MAP_H];

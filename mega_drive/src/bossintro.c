@@ -61,7 +61,7 @@ void boss_intro_run(u8 stage)
     }
 
     // Boss name, centred (PC draw_centered_text(200, botname)).
-    if (stage < 9 && ssel_boss_names[stage][0]) {
+    if (stage < SSEL_STAGE_SLOTS && ssel_boss_names[stage][0]) {
         const char *n = ssel_boss_names[stage];
         u8 len = strlen(n);
         VDP_drawText(n, (len < 40) ? (40 - len) / 2 : 0, BOSS_INTRO_NAME_ROW);

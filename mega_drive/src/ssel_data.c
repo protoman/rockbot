@@ -236,7 +236,7 @@ const u16 ssel_pal_cursor[16] = {
     0xEEE, 0x4EE, 0x4AE, 0x222, 0x222, 0x200, 0x000, 0x222, 0x4EE, 0x4AE, 0xEEE, 0x200, 0x000, 0x000, 0x000, 0x000
 };
 
-const char *const ssel_stage_names[9] = {
+const char *const ssel_stage_names[14] = {
     "CHAOS CITY",
     "DEEP JUNGLE",  /* 1 */
     "FLOWER FIELDS",  /* 2 */
@@ -246,9 +246,14 @@ const char *const ssel_stage_names[9] = {
     "DARK MINE",  /* 6 */
     "CRYSTAL MAZE",  /* 7 */
     "INFOWAY",  /* 8 */
+    "LAVA PIT",  /* 9 */
+    "SPACE BASE",  /* 10 */
+    "POWER GRID",  /* 11 */
+    "RECYCLE FACTORY",  /* 12 */
+    "FROZEN LAIR",  /* 13 */
 };
 
-const char *const ssel_boss_names[9] = {
+const char *const ssel_boss_names[14] = {
     "MILONGA BOT",
     "APE BOT",  /* 1 */
     "DAISIE BOT",  /* 2 */
@@ -258,4 +263,9 @@ const char *const ssel_boss_names[9] = {
     "DYNAMITE BOT",  /* 6 */
     "SPIKE BOT",  /* 7 */
     "TECHNO BOT",  /* 8 */
+    "SUPER SPINNER",  /* 9 */
+    "GAS TERROR",  /* 10 */
+    "HEAVY TANK",  /* 11 */
+    "WASPER",  /* 12 */
+    "DR. DESTRIN",  /* 13 */
 };

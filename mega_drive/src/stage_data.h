@@ -161,7 +161,7 @@ typedef struct {
 } StageDef;
 
 // Defined stages, in order. The stage select maps its slots to these.
-#define STAGE_DEFINED_COUNT 9
+#define STAGE_DEFINED_COUNT 14
 extern const StageDef *const stage_defs[STAGE_DEFINED_COUNT];
 extern const StageDef *stage_def;       // currently loaded stage
 

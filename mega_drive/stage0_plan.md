@@ -1648,3 +1648,43 @@ of 1120 tiles fold a shade because 59 colours cannot cover every tile's palette.
   (offset 64) was read as `position_type` (offset 68); every page rendered at
   the bottom-left. Parallax palette matches the emitted palettes (emulator
   readback differs by the usual 3->8-bit expansion only).
+
+## Stages 9..13 + dynamic VRAM (2026-10-19)
+
+Real stage count is 14, not 20: `game_properties_v301.dat` has
+`use_second_castle = 0` and 14..19 are placeholders (`Fire Bot`,
+`Stage [16]`…), so castle #2 is not part of this game.
+
+- **Pipeline**: `tools/add_stage.py N` runs `convert_stage.py N`,
+  `convert_enemies.py N`, `convert_objects.py N`, the `img2tiles` pass for
+  each `res/stageN_bgM.png`, then inserts the `res/resources.res` block
+  (SPRITE lines parsed from the converters, de-duplicated against symbols
+  already declared; TILESET/PALETTE/MAP for the 3 maps; bg palettes),
+  registers the include + `&stageN_def` in `src/stage_data.c`, bumps
+  `STAGE_DEFINED_COUNT`, and appends N to `STAGES` in the Makefile. The asset
+  recipe now loops over `STAGES` (one block instead of 9 repeated ones).
+  Idempotent: re-running skips existing blocks/entries.
+- **VRAM layout is per map now** (`stage_layout_bg/anim` in stage.c): stage
+  tileset at 16, parallax right after it, animated frames after that, sprite
+  pool at 936. The old fixed layout (tileset <=144, bg at 160, anim at 520)
+  overflowed on FROZEN LAIR map 1, whose rendered map has **202** unique 8x8
+  tiles (76 unique 16x16 tiles expand to 230, rescomp dedups to 202).
+  `check_vram.py` derives the same sum per stage/map; it reports
+  `OK (14 stages, 0 transition fallbacks)` and no longer reserves a global
+  360-tile bg block. `transition.c` computes the free block the same way and
+  its unpack buffer grew to 256 tiles.
+- **Water/ice (FROZEN LAIR)**: first stage to use them. `ground_pair` no longer
+  treats WATER as ground (previously the player could stand on it); in water
+  gravity is 0.09 and max fall 2 (PC jump acceleration *0.3); on ICE accel
+  drops to 0.15 and decel to 0.03 (PC starts its inertia object on ice).
+  DOOR still has no cells anywhere.
+- **Palette**: LAVA PIT 14 colours (exact), RECYCLE FACTORY 12 (exact), SPACE
+  BASE 20 (err 164), POWER GRID 26 (err 245), FROZEN LAIR **56 (err 2324)** —
+  the new BUG-004 outlier.
+- **Offline validation**: `make` exit 0, ROM 1.31M, `check-vram` green; the
+  generic spawn scan (bottom-up first solid row at x=144 with clearance) lands
+  on SOLID in all 15 new maps. Boss-intro names now come from
+  `ssel_data.c` slots 0..13 (`SSEL_STAGE_SLOTS`).
+- **Not reachable yet**: the select screen is the 3x3 boss grid. The castle
+  map (`castle_data_v301.dat`, `castle1_points.dat`) and the centre-slot
+  transition are not ported.

@@ -19,6 +19,21 @@ u8 stage_current_map;
 static u8 anim_frame[STAGE_ANIM_SLOT_MAX];
 static u16 anim_timer[STAGE_ANIM_SLOT_MAX];
 
+u16 stage_bg_tile_base;
+u16 stage_anim_tile_base;
+
+// Per-map VRAM layout (see stage.h): tileset, then parallax, then anim frames.
+u16 stage_layout_bg(u8 map)
+{
+    return TILE_USER_INDEX + stage_def->tile_sets[map]->numTile;
+}
+
+u16 stage_layout_anim(u8 map)
+{
+    return stage_layout_bg(map) +
+           (stage_def->bg_pal[map] ? stage_def->bg_tiles_n[map] : 0);
+}
+
 u16 stage_terrain_at(u8 map, s16 tileX, s16 tileY)
 {
     if (map >= stage_def->map_count) return TERRAIN_SOLID;
@@ -36,18 +51,18 @@ static void bg_upload_tiles_maps(u8 map_index)
 {
     if (!stage_def->bg_pal[map_index]) return;
     PAL_setPalette(BG_PAL, stage_def->bg_pal[map_index]->data, CPU);
-    VDP_loadTileData(stage_def->bg_tiles[map_index], TILE_BG_INDEX,
+    VDP_loadTileData(stage_def->bg_tiles[map_index], stage_bg_tile_base,
                      stage_def->bg_tiles_n[map_index], DMA);
 
     const u16 *m = stage_def->bg_maps[map_index];
     u16 row[64];
     const u16 sky = TILE_ATTR_FULL(BG_PAL, FALSE, FALSE, FALSE,
-                                   TILE_BG_INDEX + m[0]);
+                                   stage_bg_tile_base + m[0]);
     for (u16 y = 0; y < 32; y++) {
         for (u16 x = 0; x < 64; x++) {
             row[x] = (y < stage_def->bg_map_h[map_index])
                          ? TILE_ATTR_FULL(BG_PAL, FALSE, FALSE, FALSE,
-                                          TILE_BG_INDEX + m[y * 64 + x])
+                                          stage_bg_tile_base + m[y * 64 + x])
                          : sky;
         }
         VDP_setTileMapData(VDP_BG_B, row, y * 64, 64, 2, CPU);
@@ -135,7 +150,7 @@ static void scroll_lock_span(s16 focus_x)
 // ---- animated tiles + above-player tile3 ------------------------------
 // Animations are compacted PER MAP (only the visible map needs VRAM): the
 // converter emits one slot list per map plus a per-cell slot map (0 = none,
-// else slot+1). stage_load loads the current map's slots at TILE_ANIM_BASE.
+// else slot+1). stage_load loads the current map's slots at stage_anim_tile_base.
 static void stage_map_patch(Map *map, u16 *buf, u16 x, u16 y,
                             MapUpdateType type, u16 size)
 {
@@ -156,7 +171,7 @@ static void stage_map_patch(Map *map, u16 *buf, u16 x, u16 y,
             u16 attr = (map->baseTile & TILE_ATTR_PALETTE_MASK) |
                        (t3 ? TILE_ATTR_PRIORITY_MASK : 0);
             u16 quad = (tx & 1) | ((ty & 1) << 1);
-            buf[i] = attr | (TILE_ANIM_BASE + anim_frame[sv - 1] * 4 + quad);
+            buf[i] = attr | (stage_anim_tile_base + anim_frame[sv - 1] * 4 + quad);
         } else if (t3) {
             buf[i] |= TILE_ATTR_PRIORITY_MASK;
         }
@@ -259,7 +274,7 @@ static void stage_anim_reset(void)
         anim_frame[s] = 0;
         anim_timer[s] = stage_def->anim_slots[idx].delay[0];
         VDP_loadTileData((const u32 *)stage_def->anim_frames[idx][0],
-                         TILE_ANIM_BASE + s * TILE_ANIM_STRIDE, 4, DMA_QUEUE);
+                         stage_anim_tile_base + s * TILE_ANIM_STRIDE, 4, DMA_QUEUE);
     }
 }
 
@@ -274,7 +289,7 @@ void stage_anim_update(void)
         anim_frame[s]++;
         if (anim_frame[s] >= slot->frames) anim_frame[s] = 0;
         anim_timer[s] = slot->delay[anim_frame[s]];
-        u16 base = TILE_ANIM_BASE + s * TILE_ANIM_STRIDE + anim_frame[s] * 4;
+        u16 base = stage_anim_tile_base + s * TILE_ANIM_STRIDE + anim_frame[s] * 4;
         VDP_loadTileData((const u32 *)stage_def->anim_frames[idx][anim_frame[s]],
                          base, 4, DMA_QUEUE);
 
@@ -329,6 +344,8 @@ void stage_load(u8 map_index)
     // showed PAL0 holding another palette while PAL1 decoded exactly.
     PAL_setPalette(PAL0, pal_ui.data, CPU);
     VDP_loadTileSet(stage_def->tile_sets[map_index], TILE_USER_INDEX, DMA);
+    stage_bg_tile_base = stage_layout_bg(map_index);
+    stage_anim_tile_base = stage_layout_anim(map_index);
 
     // Flush anything the previous map queued, then drop it: MAP_create()
     // allocates the Map plus its unpacked metatile/block/index buffers from

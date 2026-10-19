@@ -9,9 +9,10 @@
 #define SSEL_MAP_W 40
 #define SSEL_MAP_H 28
 
-// Stage/boss names for stages 1..8 (index 0 unused).
-extern const char *const ssel_stage_names[9];
-extern const char *const ssel_boss_names[9];
+// Stage/boss names for stages 0..13 (index 0 = intro).
+#define SSEL_STAGE_SLOTS 14
+extern const char *const ssel_stage_names[SSEL_STAGE_SLOTS];
+extern const char *const ssel_boss_names[SSEL_STAGE_SLOTS];
 
 // Static screen: packed 4bpp tiles + a u16 tilemap (palette bits included,
 // local tile index -- add SSEL_TILE_BASE). PAL: 0 faces+font, 2 player,

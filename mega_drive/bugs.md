@@ -158,7 +158,7 @@ shape and are not meant to be cycled) are the exceptions.
 
 ---
 
-## BUG-004 — Stage art is over the 15-colour palette budget in 8 of 9 stages
+## BUG-004 — Stage art is over the 15-colour palette budget (FROZEN LAIR now the worst)
 
 **Status**: open, known deviation from the PC art (user: "I noticed some lack colors,
 like the moving platforms").
@@ -187,6 +187,11 @@ Measured colours needed vs the 15 available:
 | 6 DARK MINE | 28 | 13 |
 | 7 CRYSTAL MAZE | 16 | 1 |
 | 8 INFOWAY | 14 | fits |
+| 9 LAVA PIT | 14 | fits |
+| 10 SPACE BASE | 20 | 5 |
+| 11 POWER GRID | 26 | 11 |
+| 12 RECYCLE FACTORY | 12 | fits |
+| 13 FROZEN LAIR | 56 | 41 (weighted error 2324) |
 
 Also: index 0 of the generated palette is a reserved black, so any black in the art
 takes a second entry (stage 1's palette has `(0,0,0)` at both 0 and 1). Where that
@@ -198,6 +203,12 @@ gaps) it cannot be reclaimed.
 (anim art drawn with generic colours, mapped to per-stage entries; cycling bands in
 the free part of PAL3) — plus a deliberate re-quantisation of the art per stage.
 See `stage0_plan.md`.
+
+**Update 2026-10-19 (stages 9..13)**: FROZEN LAIR is the new outlier — 56
+distinct colours for 15 slots (weighted error 2324, vs DEEP JUNGLE's 1946).
+LAVA PIT (14) and RECYCLE FACTORY (12) fit exactly; SPACE BASE 164 / POWER
+GRID 245 are between. FROZEN LAIR needs its own palette strategy (per-map
+palette or a deliberate art re-quantisation) before it can look right.
 
 **Update 2026-10-19 (palette merge)**: `build_palette` no longer deletes one
 colour of the closest pair - it replaces the pair with its pixel-count weighted

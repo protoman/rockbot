@@ -17,6 +17,13 @@
 #define JUMP_VEL   FIX16(5.3)  // ~56px arc, about 3.5 tiles
 #define MAX_FALL   FIX16(6)
 #define CLIMB_SPEED FIX16(1.5)
+// FROZEN LAIR: ice has almost no friction (PC character.cpp:330 starts the
+// inertia object when the feet tile is ICE), water uses the PC's reduced
+// jump gravity (character/movement/jump.cpp:32, acceleration*0.3 in water).
+#define ICE_ACCEL  FIX16(0.15)
+#define ICE_DECEL  FIX16(0.03)
+#define WATER_GRAVITY FIX16(0.09)
+#define WATER_MAX_FALL FIX16(2)
 
 #define COYOTE_FRAMES    6
 #define JUMP_BUFFER_FRAMES 6
@@ -301,7 +308,8 @@ static s16 unstick_x(s16 ix, s16 t, s16 b)
 static bool ground_pair(s16 tx, s16 feet_row, s16 centre_row)
 {
     u16 lock1 = stage_terrain_at(stage_current_map, tx, feet_row);
-    if (lock1 != TERRAIN_UNBLOCKED && lock1 != TERRAIN_STAIR)
+    if (lock1 != TERRAIN_UNBLOCKED && lock1 != TERRAIN_STAIR &&
+        lock1 != TERRAIN_WATER)
         return TRUE;
     return lock1 != stage_terrain_at(stage_current_map, tx, centre_row);
 }
@@ -318,6 +326,14 @@ static bool support_col(s16 tx, s16 top_row, s16 feet_row)
         if (stage_terrain_at(stage_current_map, tx, r) != TERRAIN_SOLID)
             return TRUE;                // some open row: a real floor column
     return FALSE;                       // solid for the full height: a wall
+}
+
+// Feet tile terrain (centre column) — ice friction and water gravity.
+static u16 terrain_under_feet(void)
+{
+    s16 cx = (player.x + (PLAYER_BOX_L + PLAYER_BOX_R) / 2) >> 4;
+    s16 cy = (player.y + box_b) >> 4;
+    return stage_terrain_at(stage_current_map, cx, cy);
 }
 
 // Moving-platform tiles carry the player (PC check_platform_move, ~2.5px/frame
@@ -710,6 +726,9 @@ void player_update(u16 pad)
     update_hitbox();
 
     // ---- horizontal --------------------------------------------------------
+    const bool on_ice = player.on_ground && terrain_under_feet() == TERRAIN_ICE;
+    const fix16 accel = on_ice ? ICE_ACCEL : ACCEL;
+    const fix16 decel = on_ice ? ICE_DECEL : DECEL;
     if (player.sliding) {
         // PC lets left/right turn the character even mid-slide
         // (character.cpp:266 includes ANIM_TYPE_SLIDE) — the slide follows.
@@ -721,17 +740,17 @@ void player_update(u16 pad)
         player.vx = (player.facing < 0) ? -MOVE_SPEED : MOVE_SPEED;
     } else if (pad & BUTTON_RIGHT) {
         player.facing = 1;
-        player.vx += ACCEL;
+        player.vx += accel;
         if (player.vx > MOVE_SPEED) player.vx = MOVE_SPEED;
     } else if (pad & BUTTON_LEFT) {
         player.facing = -1;
-        player.vx -= ACCEL;
+        player.vx -= accel;
         if (player.vx < -MOVE_SPEED) player.vx = -MOVE_SPEED;
     } else if (player.vx > 0) {
-        player.vx -= DECEL;
+        player.vx -= decel;
         if (player.vx < 0) player.vx = 0;
     } else if (player.vx < 0) {
-        player.vx += DECEL;
+        player.vx += decel;
         if (player.vx > 0) player.vx = 0;
     }
 
@@ -767,8 +786,11 @@ void player_update(u16 pad)
     // PC skips gravity while the dash runs (character.cpp:1201: an air-dash
     // player stays in ANIM_TYPE_SLIDE, so the dash is a flat 5-tile move).
     if (!player.on_ground && !player.sliding) {
-        if (player.vy < MAX_FALL) player.vy += GRAVITY;
-        if (player.vy > MAX_FALL) player.vy = MAX_FALL;
+        const bool water = terrain_under_feet() == TERRAIN_WATER;
+        const fix16 grav = water ? WATER_GRAVITY : GRAVITY;
+        const fix16 maxf = water ? WATER_MAX_FALL : MAX_FALL;
+        if (player.vy < maxf) player.vy += grav;
+        if (player.vy > maxf) player.vy = maxf;
     }
 
     s16 dx = F16_toInt(player.vx);

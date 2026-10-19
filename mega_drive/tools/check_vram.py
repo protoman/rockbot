@@ -25,7 +25,10 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SGDK = os.environ.get("GDK", "")
-STAGES = 9
+# Number of converted stages, straight from the registry (single source of
+# truth); this used to be hardcoded to 9 and silently skipped new stages.
+_h = open(os.path.join(ROOT, "src/stage_data.h")).read()
+STAGES = int(re.search(r"#define STAGE_DEFINED_COUNT (\d+)", _h).group(1))
 MAPS = 3
 ANIM_STRIDE = 24
 
@@ -43,10 +46,6 @@ def read_layout():
     return {
         # SGDK's TILE_USER_INDEX (vdp.h: TILE_SYSTEM_INDEX + TILE_SYSTEM_LENGTH).
         "user": 16,
-        "bg": num("TILE_BG_INDEX"),
-        "bg_max": num("TILE_BG_MAX_TILES"),
-        "anim": num("TILE_ANIM_BASE"),
-        "anim_slots": num("STAGE_ANIM_SLOT_MAX"),
         "stride": num("TILE_ANIM_STRIDE"),
     }
 
@@ -172,35 +171,32 @@ def main():
     links = read_links()
     sprite_base = 1440 - 504          # TILE_FONT_INDEX - SPR_inItEx(504)
 
+    def layout_end(s, m):
+        """First free tile after tileset + bg + anim (runtime derives the same
+        bases in stage_load; see src/stage.h)."""
+        return (L["user"] + ts.get(s, {}).get(m, 0) + bg[s][m]
+                + anim[s][m] * L["stride"])
+
     bad, tight, fallback = [], [], []
     for s in range(STAGES):
         for m in range(MAPS):
-            tiles_end = L["user"] + ts.get(s, {}).get(m, 0)
-            bg_start, bg_end = L["bg"], L["bg"] + bg[s][m]
-            anim_start = L["anim"]
-            anim_end = anim_start + anim[s][m] * L["stride"]
-
-            # tileset must not reach into the bg block, nor bg into the anim block
-            if tiles_end > bg_start:
-                bad.append(f"stage{s} map{m}: tileset ends at {tiles_end}, bg starts at {bg_start}")
-            if bg[s][m] > L["bg_max"]:
-                bad.append(f"stage{s} map{m}: {bg[s][m]} bg tiles > TILE_BG_MAX_TILES {L['bg_max']}")
-            if bg_end > anim_start:
-                bad.append(f"stage{s} map{m}: bg ends at {bg_end}, anim starts at {anim_start}")
+            anim_end = layout_end(s, m)
             if anim_end > sprite_base:
-                bad.append(f"stage{s} map{m}: anim ends at {anim_end}, sprite pool starts at {sprite_base}")
+                bad.append(f"stage{s} map{m}: tileset+bg+anim end at {anim_end}, "
+                           f"sprite pool starts at {sprite_base}")
             free = sprite_base - anim_end
             if free < 100:
                 tight.append(f"stage{s} map{m}: only {free} tiles free for a room transition")
-            # room-transition fallbacks: destination window must fit in `free`
+            # room-transition fallbacks: the destination window must fit in the
+            # free block above the map that is currently loaded (`f`)
             for (mf, tx, ty, mt, dx, dy) in links[s]:
                 for (f, t, dxx) in ((mf, mt, dx), (mt, mf, tx)):
                     need = window_tiles(s, t, dxx * 16 - 152)
-                    if need > sprite_base - (L["anim"] + anim[s][f] * L["stride"]):
+                    room = sprite_base - layout_end(s, f)
+                    if need > room:
                         fallback.append(
                             f"stage{s} map{f}->map{t} needs {need} tiles, has "
-                            f"{sprite_base - (L['anim'] + anim[s][f] * L['stride'])}"
-                            " -> falls back to the fade")
+                            f"{room} -> falls back to the fade")
 
     bad += check_cycle_pool()
 
