@@ -1773,3 +1773,25 @@ on the tile. The right fire origin is pinned at `ix+21` (PC
   current_player)` (PC `game_scenes_map[ENDING_PLAYER1..4]`), then the title.
 - ROM stays 1.31M, `check-vram` green. Visual pass pending (portrait palette
   quality at 15 colours, text over art).
+
+## Options screen (2026-10-19, user spec)
+
+`src/config.c` + `src/config.h`, opened with **B** from the in-game weapon
+menu (PC BTN_R; A stays LEAVE STAGE, C/START resume). Simplified exactly as
+the user asked:
+
+- AUDIO: SOUND ON/OFF. XGM2 exposes no music/SFX volume level (only fades),
+  so the PC volume rows are not shown rather than faking them.
+- INPUT: TURBO MODE, AUTO-CHARGE, CONFIG BUTTONS (A/B/C per action, with a
+  swap so two actions never share a button). The PC analog/digital
+  directional row and selected-joystick row are gone.
+- No platform (PC/Android/...), language, performance or quit-game entries.
+- EXTRAS: MUSIC TEST (the single stage track) and SFX TEST (all 14 effects).
+- LEAVE STAGE: returns through the in-game menu.
+
+Storage: SRAM bytes 48..55 (after the 5 save slots), magic 'OP'. Sound off
+gates `sfx_play` and stops XGM2; re-enabling restarts the stage track.
+Turbo repeats the shot while fire is held (no charge); auto-charge does the
+same for the default weapon only (PC character.cpp:585 / classplayer.cpp:313).
+The options screen draws on BG_A with an opaque tile loaded at 935 (last tile
+before the sprite pool); the weapon panel is redrawn when returning.

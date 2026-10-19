@@ -7,6 +7,7 @@
 #include "resources.h"
 #include "player_data.h"
 #include "player_flip.h"   // generated: per-animation flip X correction
+#include "config.h"
 
 // Physics, tuned for 60fps. The original normalises movement by
 // fps_movement_multiplier = 60/max_fps (shareddata.cpp:22); here fps is fixed.
@@ -28,16 +29,16 @@
 #define COYOTE_FRAMES    6
 #define JUMP_BUFFER_FRAMES 6
 
-#define JUMP_BUTTONS BUTTON_C
+#define JUMP_BUTTONS config_jump_mask()
 
 // B fires (fire frame shows for the whole cooldown; ANIM_ATTACK row).
-#define FIRE_BUTTON  BUTTON_B
+#define FIRE_BUTTON  config_fire_mask()
 #define ATTACK_FRAMES 12
 
 // Slide = A on the ground (PC dash button; classplayer move() turns the
 // character from input even on stairs — same here for the climb pose).
 // Max distance = 5 tiles (character.cpp:1662 slide_distance > TILESIZE*5).
-#define SLIDE_BUTTON   BUTTON_A
+#define SLIDE_BUTTON   config_dash_mask()
 #define SLIDE_MAX_DIST 80
 
 // PC character.cpp:24 SLIDE_Y_ADJUST — a SLIDING player with can_slide
@@ -48,7 +49,7 @@
 // Shield (PC BTN_SHIELD, classplayer.cpp:916) — ROCKBOT only. A 3-button pad
 // has no free button (A=dash, B=fire, C=jump), so the gesture is DOWN+A held
 // while not running; the PC requires no direction/jump for the shield anyway.
-#define SHIELD_MASK (BUTTON_DOWN | BUTTON_A)
+#define SHIELD_MASK (BUTTON_DOWN | config_dash_mask())
 
 // Charge shot (defines.h:665 CHARGED_SHOT_INITIAL_TIME 1000ms,
 // CHARGED_SHOT_TIME 2200ms at 60fps).
@@ -465,7 +466,22 @@ static void handle_fire(u16 pad, s16 ix, s16 iy)
         return;
     }
 
+    // PC turbo_mode / auto_charge_mode: no charging, repeat the shot while
+    // the button is held (auto-charge applies to the default weapon only,
+    // character.cpp:585 / classplayer.cpp:313).
     bool fire_raw = (pad & FIRE_BUTTON) != 0;
+    if (config.turbo || (config.autocharge && player_weapon() == 0)) {
+        if (fire_raw && !player.sliding && attack_timer == 0) {
+            s16 sx = (player.facing > 0) ? ix + PLAYER_BOX_R
+                                         : ix + PLAYER_BOX_L - 8;
+            shot_fire(sx, iy + 10, player.facing, 0);
+            attack_timer = ATTACK_FRAMES;
+        }
+        player.charge_frames = 0;
+        player.fire_prev = fire_raw;
+        if (attack_timer > 0) attack_timer--;
+        return;
+    }
     bool fire_ok = fire_raw && !player.sliding;
     if (fire_ok && !player.fire_prev) {
         if (attack_timer == 0) {

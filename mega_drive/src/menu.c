@@ -12,6 +12,7 @@
 #include "menu_map.h"
 #include "menu_tiles.h"
 #include "weapon_data.h"
+#include "config.h"
 
 // PC class_config::execute_ingame_menu (class_config.cpp:290) with the
 // panel from draw::draw_in_game_menu (draw.cpp:855): full-screen
@@ -70,6 +71,37 @@ static void stage_sprites_visible(bool visible)
     hud_set_visible(visible);
 }
 
+// Draw (or redraw) the PC weapon panel + its texts on BG_A. The tiles and
+// palette must already be loaded. Called again after the options screen,
+// which uses the plane for its own text.
+static void menu_draw_panel(void)
+{
+    VDP_setHorizontalScroll(BG_A, 0);
+    VDP_setVerticalScroll(BG_A, 0);
+    for (u16 i = 0; i < MENU_MAP_W * MENU_MAP_H; i++) {
+        cells[i] = TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE,
+                                  MENU_TILE_BASE + menu_map[i]);
+    }
+    // CPU transfer: a queued DMA would flush at the next vblank and wipe
+    // the texts drawn right after it.
+    VDP_setTileMapDataRect(BG_A, cells, 0, 0, MENU_MAP_W, MENU_MAP_H,
+                           MENU_MAP_W, CPU);
+
+    // texts PC draws over the panel (menu_map.h names from img2tiles.py)
+    VDP_drawText("GAME MENU", 2, 0);
+    VDP_drawText("CONFIG [B]", 28, 0);
+    VDP_drawText(">", 3, 5);
+    draw_weapon_line();
+    VDP_drawText("A: LEAVE STAGE", 2, 26);
+    VDP_drawText("B: CONFIG", 2, 25);
+    // PC weapon_menu_show_player (draw.cpp:1021): lives next to the portrait
+    {
+        char buf[6] = { 'x', '[', '0', ']', 0, 0 };
+        buf[2] = (char)('0' + (player_lives() % 10));
+        VDP_drawText(buf, 5, 20);
+    }
+}
+
 bool menu_open(u16 weapon_mask)
 {
     owned = weapon_mask;
@@ -82,32 +114,9 @@ bool menu_open(u16 weapon_mask)
     // DMA_QUEUE: a CPU CRAM write during active display corrupts on
     // accurate emulators (see debugging.md / the SGDK boot notes)
     PAL_setPalette(PAL1, menu_pal.data, DMA_QUEUE);
-    VDP_setHorizontalScroll(BG_A, 0);
-    VDP_setVerticalScroll(BG_A, 0);
-    for (u16 i = 0; i < MENU_MAP_W * MENU_MAP_H; i++) {
-        cells[i] = TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE,
-                                  MENU_TILE_BASE + menu_map[i]);
-    }
-    // CPU transfer: a queued DMA would flush at the next vblank and wipe
-    // the texts drawn right after it.
-    VDP_setTileMapDataRect(BG_A, cells, 0, 0, MENU_MAP_W, MENU_MAP_H,
-                           MENU_MAP_W, CPU);
 
     stage_sprites_visible(FALSE);
-
-    // texts PC draws over the panel (menu_map.h names from img2tiles.py)
-    VDP_drawText("GAME MENU", 2, 0);
-    VDP_drawText("CONFIG [C]", 28, 0);
-    VDP_drawText(">", 3, 5);
-    draw_weapon_line();
-    VDP_drawText("A: LEAVE STAGE", 2, 26);
-    VDP_drawText("LEFT/RIGHT: WEAPON", 2, 25);
-    // PC weapon_menu_show_player (draw.cpp:1021): lives next to the portrait
-    {
-        char buf[6] = { 'x', '[', '0', ']', 0, 0 };
-        buf[2] = (char)('0' + (player_lives() % 10));
-        VDP_drawText(buf, 5, 20);
-    }
+    menu_draw_panel();
 
     portrait = SPR_addSprite(player_definition(), 6, 141,
                              TILE_ATTR(PLAYER_PAL, FALSE, FALSE, FALSE));
@@ -133,6 +142,19 @@ bool menu_open(u16 weapon_mask)
         pad = JOY_readJoypad(JOY_1);
         if (pad & (BUTTON_START | BUTTON_C)) break;   // resume (PC START/JUMP)
         if (pad & BUTTON_A) { leave = TRUE; break; }  // PC BTN_DASH
+        if (pad & BUTTON_B) {                         // options (PC BTN_R)
+            if (portrait) {
+                SPR_releaseSprite(portrait);
+                portrait = NULL;
+            }
+            bool cfg_leave = config_run(true);
+            if (cfg_leave) { leave = TRUE; break; }
+            portrait = SPR_addSprite(player_definition(), 6, 141,
+                                     TILE_ATTR(PLAYER_PAL, FALSE, FALSE, FALSE));
+            if (portrait) SPR_setAnim(portrait, ANIM_ATTACK);
+            menu_draw_panel();
+            continue;
+        }
         // weapon switching (PC find_next_weapon / the weapon grid)
         u16 pressed = pad & ~prev;
         prev = pad;

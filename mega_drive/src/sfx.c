@@ -32,9 +32,16 @@ static const SfxDef sfx_def[SFX_COUNT] = {
     [SFX_CURSOR]       = { sfx_cursor,             sizeof(sfx_cursor),             SOUND_PCM_CH4, 6 },
 };
 
+static bool sfx_enabled = TRUE;
+
+void sfx_set_enabled(bool enabled)
+{
+    sfx_enabled = enabled;
+}
+
 void sfx_play(SfxId id)
 {
-    if (id >= SFX_COUNT) return;
+    if (!sfx_enabled || id >= SFX_COUNT) return;
     const SfxDef *d = &sfx_def[id];
     if (!d->data) return;
     XGM2_playPCMEx(d->data, d->len, d->ch, d->prio, FALSE, FALSE);

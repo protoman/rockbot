@@ -18,6 +18,7 @@
 #include "playerselect.h"
 #include "transition.h"
 #include "scene.h"
+#include "config.h"
 #include "title64_map.h"
 #include "title64_tiles.h"
 #include "title64_pal.h"
@@ -244,7 +245,7 @@ static void runStage(u8 stage)
     player_init();
     hud_init();
 
-    XGM2_play(stage_music);   // stage only — intro/title stay silent
+    if (config_is_sound_on()) XGM2_play(stage_music);   // stage only
 
     // ---- stage start sequence (PC game::start_stage, game.cpp:244) --------
     // show_player_teleport(): the player beams in with the TELEPORT animation
@@ -482,6 +483,7 @@ int main(bool hardReset)
     // corrupts it on accurate emulators (white screen). See debugging.md.
 
     save_init();
+    config_init();
     stage_set_data(0);   // valid stage_def before anything reads it
 
     showIntro();

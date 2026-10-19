@@ -28,5 +28,6 @@ typedef enum {
 // Fire-and-forget; ignored if a same-or-higher priority effect is playing on
 // that channel, and a no-op for effects without a sample.
 void sfx_play(SfxId id);
+void sfx_set_enabled(bool enabled);   // options screen SOUND: ON/OFF
 
 #endif

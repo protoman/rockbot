@@ -151,10 +151,12 @@ not part of the game. Do not convert them unless the user says otherwise.
 
 Falls out of the scene player plus a credits sequence; `ending/` art exists.
 
-### 5. Options / config — **STOP AND ASK THE USER FIRST**
+### 5. Options / config — DONE (2026-10-19)
 
-The user has the spec mapped and wants to hand it over. Do not start this
-without it.
+Implemented in `src/config.c` with the user's simplifications: AUDIO
+(SOUND ON/OFF), INPUT (TURBO, AUTO-CHARGE, BUTTONS — no analog/joystick),
+EXTRAS (music/sfx test), LEAVE STAGE; no platform/language/performance/quit.
+Opened with B from the in-game menu; stored in SRAM bytes 48..55.
 
 ### 6. AI / bosses
 
