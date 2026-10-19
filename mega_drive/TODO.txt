@@ -6,12 +6,13 @@ Where you edit
   I'll switch convert_stage.py to read these first (3-line change), so from then on your edits drive the ROM.
 
 - Cycling candidates (draw these):
-  water_1,
-  water_2,
-  water_2a,
-  water_2b,
-  green_water_1,
-  green_water_2,
+  OK - water_1,
+  OK - water_2,
+  OK - water_2a,
+  OK - water_2b,
+  OK - green_water_1,
+  OK - green_water_2,
+
   waterfall_left
     right
     middle_left
@@ -22,12 +23,15 @@ Where you edit
   water_border_pipe_left
     right,
   water_border_tile,
-  lava1,
-  lava2,
-  lightbulb_small,
+
+  OK - lava1,
+  OK - lava2,
+  OK - lightbulb_small,
+
   magnets,
   palmtree_005,
-  move_left
+
+  OK - move_left
     right_platform
       1
       2

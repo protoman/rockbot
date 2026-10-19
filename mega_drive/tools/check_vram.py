@@ -124,6 +124,40 @@ def window_tiles(stage, map_n, camx, map_w=200):
     return len(seen)
 
 
+def check_cycle_pool():
+    """The colourcycle pool lives in PAL3 entries the parallax must leave free.
+
+    Reads the pool definition from tools/convert_stage.py and checks, for every
+    stage that has colourcycle enabled, that the decomposed parallax art does
+    not use those palette indices. Returns a list of problems.
+    """
+    import re
+    from PIL import Image
+    src = open(os.path.join(ROOT, "tools/convert_stage.py")).read()
+    stages = re.search(r"^CYCLE_STAGES = \{([^}]*)\}", src, re.M)
+    band = re.search(r"^CYCLE_BAND = \(([^)]*)\)", src, re.M)
+    stable = re.search(r"^CYCLE_STABLE = (\d+)", src, re.M)
+    if not (stages and band and stable):
+        return []
+    on = [int(x) for x in re.findall(r"\d+", stages.group(1))]
+    pool = [int(x) for x in re.findall(r"\d+", band.group(1))] + [int(stable.group(1))]
+    problems = []
+    for st in on:
+        for m in range(MAPS):
+            p = os.path.join(ROOT, "res", f"stage{st}_bg{m}_tiles.png")
+            if not os.path.exists(p):
+                continue
+            im = Image.open(p).convert("P")
+            px = im.load()
+            used = {px[x, y] for y in range(im.size[1]) for x in range(im.size[0])}
+            clash = sorted(set(pool) & used)
+            if clash:
+                problems.append(f"stage{st} bg{m}: parallax uses colourcycle "
+                                f"palette entries {clash} (pool is {pool})")
+    print(f"check_vram: colourcycle pool {pool} free in stages {on}")
+    return problems
+
+
 def main():
     rom = os.path.join(ROOT, "out/release/rom.bin")
     sym = os.path.join(ROOT, "out/release/symbol.txt")
@@ -167,6 +201,8 @@ def main():
                             f"stage{s} map{f}->map{t} needs {need} tiles, has "
                             f"{sprite_base - (L['anim'] + anim[s][f] * L['stride'])}"
                             " -> falls back to the fade")
+
+    bad += check_cycle_pool()
 
     for msg in sorted(set(bad)):
         print(f"VRAM OVERFLOW: {msg}")

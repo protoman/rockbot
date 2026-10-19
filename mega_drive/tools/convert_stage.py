@@ -153,19 +153,27 @@ def read_map(stage_n, map_n):
 # marked in a per-cell mask; the runtime switches that cell's palette bits to
 # PAL3 and rotates the band entries. The pool lives in the PAL3 entries the
 # decomposed parallax leaves free, so the map palette (PAL1) is untouched.
-# PARKED: the pilot (INFOWAY's platforms) is implemented end to end but the
-# verification did not show the cycled cells switching to PAL3 on hardware, so
-# no stage is enabled — with an empty set every stage keeps tile-frame
-# animation and the runtime paths stay inert (cycle_n = 0). Status and the
-# open questions are in stage0_plan.md.
-CYCLE_STAGES = {8}                 # INFOWAY pilot (see stage0_plan.md)
+# Colourcycle stages: the pool (band 12/13/14 + stable black 15) must sit in
+# the PAL3 entries the decomposed parallax leaves free — measured: stage 1 uses
+# 1..8, stage 2 1..9, stage 3 1..3, stage 6 1..5, stage 8 1..11, stage 0 map 0
+# uses 1..15 (no room, so its lightbulb stays tile-animated).
+CYCLE_STAGES = {1, 2, 3, 6, 8}
 CYCLE_BAND = (12, 13, 14)          # PAL3 entries that rotate, in order
-CYCLE_STABLE = 15                  # PAL3 stable black (does not rotate)
-CYCLE_FRAMES = 12                  # frames per step (200ms at 60fps)
-CYCLE_BLOCKS = {                   # INFOWAY's moving platforms
+CYCLE_STABLE = 15                  # PAL3 stable colour for art black
+CYCLE_FRAMES = 12                  # fallback step (200ms at 60fps)
+# Blocks converted to CRAM rotation. Their art now lives in
+# mega_drive/images/tilesets/anim (hand-owned, MD-level colours). A block whose
+# art has exactly three colours rotates exactly; extra shades are folded into
+# the nearest band colour (reported at conversion time).
+CYCLE_BLOCKS = {
+    "water_1.png", "water_2.png", "water_2a.png", "water_2b.png",
+    "green_water_1.png", "green_water_2.png",
+    "lava1.png", "lava2.png",
+    "lightbulb_small.png",
     "move_left_platform_1.png", "move_left_platform_2.png",
-    "move_left_platform_3.png", "move_right_platform_1.png",
-    "move_right_platform_2.png", "move_right_platform_3.png",
+    "move_left_platform_3.png",
+    "move_right_platform_1.png", "move_right_platform_2.png",
+    "move_right_platform_3.png",
 }
 
 
@@ -443,13 +451,23 @@ def main():
                             and anim_blocks[gid][0] in CYCLE_BLOCKS):
                         cycle_gids.add(gid)
         cols = set()
+        cycle_frames = CYCLE_FRAMES
         for gid in sorted(cycle_gids):
-            cols |= block_colours(anim_blocks[gid][0])
+            fn = anim_blocks[gid][0]
+            n = len(block_colours(fn))
+            if n > 3:
+                print(f"    colourcycle: {fn} has {n} colours -> folding into "
+                      f"the band (draw 3 for an exact rotation)")
+            if not cols:
+                ms = anim_blocks[gid][1][0]
+                cycle_frames = max(2, min(60, (ms * 60 + 500) // 1000))
+            cols |= block_colours(fn)
         stage_band = cycle_band(cols)
         for gid in sorted(cycle_gids):
             cyc_frame0[gid] = cyc_frame0_px(anim_blocks[gid][0], stage_band)
         print(f"  colourcycle: {len(cycle_gids)} blocks, band {stage_band} at "
-              f"PAL3 {CYCLE_BAND} + stable {CYCLE_STABLE}")
+              f"PAL3 {CYCLE_BAND} + stable {CYCLE_STABLE}, "
+              f"{cycle_frames} frames/step")
 
     mask_bytes = (MAP_W * MAP_H + 7) // 8
     tile3_masks = []
@@ -734,7 +752,7 @@ def main():
              + (f"&{PFX}_pal3_mask[0][0],\n" if stage_band else "NULL,\n"))
     c.append(f"    .cycle_base = {CYCLE_BAND[0]}, "
              f".cycle_n = {len(stage_band) if stage_band else 0}, "
-             f".cycle_frames = {CYCLE_FRAMES if stage_band else 0},\n")
+             f".cycle_frames = {cycle_frames if stage_band else 0},\n")
     c.append(f"    .cycle_colors = {PFX}_cycle_colors,\n")
     c.append(f"    .anim_cell_slot = &{PFX}_anim_cell_slot[0][0], "
              f".anim_slot_n = {PFX}_anim_slot_n, .anim_slot_max = {anim_slot_max},\n")
