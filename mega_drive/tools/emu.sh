@@ -246,22 +246,11 @@ emu_shot_blank() {
     [ "$n" -le 1 ]
 }
 
-# start, wait for a drawing screen, relaunch while it stays black.
-#   emu_start_ready [rom] [tries] [wait_s]
+# start the emulator. The native BlastEm build no longer wedges on startup, so
+# there is no retry loop and no readiness wait any more (the old flatpak build
+# needed both). Kept as a separate name because the test scripts call it.
 emu_start_ready() {
-    local rom=${1:-$EMU_ROM_DEFAULT} tries=${2:-3} wait=${3:-12} i
-    for i in $(seq 1 "$tries"); do
-        emu_start "$rom" || { sleep 2; continue; }
-        sleep "$wait"
-        if ! emu_shot_blank .emu_probe; then
-            return 0
-        fi
-        echo "emu: black screen after ${wait}s (attempt $i/$tries) - restarting" >&2
-        emu_stop
-        sleep 2
-    done
-    echo "emu: still blank after ${tries} attempts" >&2
-    return 1
+    emu_start "$@"
 }
 
 # ---------------------------------------------------------------- dispatch

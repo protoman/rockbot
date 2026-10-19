@@ -120,7 +120,7 @@ check-vram: all
 #   is the known-good path — try `make run EMU_ARGS=` if you want GL.
 .PHONY: run
 run: check-vram
-	bash tools/emu.sh start-ready out/rom.bin
+	bash tools/emu.sh start out/rom.bin
 
 include $(GDK)/makefile.gen
 

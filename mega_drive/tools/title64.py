@@ -50,6 +50,7 @@ def main():
     ap.add_argument("--name", default="title64")
     ap.add_argument("--crop-h", type=int, default=224)
     ap.add_argument("--codedir", default=None)
+    ap.add_argument("--preview", default=None, help="write the emitted data back as a PNG")
     args = ap.parse_args()
 
     here = os.path.dirname(os.path.abspath(__file__))
@@ -160,11 +161,12 @@ def main():
             seen[key] = len(tile_data)
             words = []
             for y in range(TILE):
-                for k in (0, 4):
-                    word = 0
-                    for p in range(4):
-                        word = (word << 4) | idx[y * TILE + k + p]
-                    words.append(word)
+                # one longword per row: 8 pixels, high nibble leftmost
+                hi = lo = 0
+                for p in range(4):
+                    hi = (hi << 4) | idx[y * TILE + p]
+                    lo = (lo << 4) | idx[y * TILE + 4 + p]
+                words.append((hi << 16) | lo)
             tile_data.append(words)
         map_entries.append((L << 13) | seen[key])
 
@@ -211,6 +213,32 @@ def main():
             f.write("    { " + ", ".join("0x%04X" % v for v in row) + " },\n")
         f.write("};\n")
     print(f"  wrote src/{args.name}_{{tiles,map,pal}}.{{h,c}}")
+
+    if args.preview:
+        # Rebuild the screen from exactly what was emitted (tiles + map + the
+        # four palettes). If this looks right, the data is right and any problem
+        # on hardware is in the draw path.
+        def slots_of(words):
+            out = []
+            for y in range(TILE):
+                for x in range(TILE):
+                    out.append((words[y] >> (28 - (x & 7) * 4)) & 0xF)
+            return out
+        pals = [[c for c in lines[L]] + [(0, 0, 0)] * (16 - len(lines[L]))
+                for L in range(4)]
+        out = Image.new("RGB", (w, h), (0, 0, 0))
+        op = out.load()
+        for ty in range(h // TILE):
+            for tx in range(w // TILE):
+                e = map_entries[ty * (w // TILE) + tx]
+                L, t = (e >> 13) & 3, e & 0x7FF
+                slots = slots_of(tile_data[t])
+                for y in range(TILE):
+                    for x in range(TILE):
+                        sv = slots[y * TILE + x]
+                        op[tx * TILE + x, ty * TILE + y] = pals[L][sv]
+        out.save(args.preview)
+        print(f"  preview written to {args.preview}")
     return 0
 
 
