@@ -4,6 +4,18 @@
 #include "scene_par0_l0_map.h"
 #include "scene_par0_l1_tiles.h"
 #include "scene_par0_l1_map.h"
+#include "scene_img6_tiles.h"
+#include "scene_img6_map.h"
+#include "scene_img8_tiles.h"
+#include "scene_img8_map.h"
+#include "scene_img9_tiles.h"
+#include "scene_img9_map.h"
+#include "scene_img10_tiles.h"
+#include "scene_img10_map.h"
+#include "scene_img11_tiles.h"
+#include "scene_img11_map.h"
+#include "scene_img12_tiles.h"
+#include "scene_img12_map.h"
 
 // Opening Unbeaten #1
 static const SceneOp scene0_ops[] = {
@@ -111,6 +123,22 @@ const SceneParallax scene_parallax[1] = {
 
 const SceneClear scene_clear[1] = {
     { 20, 20, 280, 80, 0x210 }, // INTRO Lab BG EYES
+};
+
+const SceneImage scene_images[13] = {
+    { 0, 0, -64, 0, 0, 0, 0, 0, 60, NULL, 0, NULL, 0, 0, NULL },
+    { 10, 10, 10, 10, 0, 0, 0, 0, 100, NULL, 0, NULL, 0, 0, NULL },
+    { 214, 82, 214, 82, 0, 0, 0, 0, 100, NULL, 0, NULL, 0, 0, NULL },
+    { 214, 82, 214, 82, 0, 0, 0, 0, 100, NULL, 0, NULL, 0, 0, NULL },
+    { -188, 10, 117, 10, 0, 0, 0, 0, 5, NULL, 0, NULL, 0, 0, NULL },
+    { 0, 0, 124, 86, 0, 0, 0, 0, 100, NULL, 0, NULL, 0, 0, NULL },
+    { 40, 33, 40, 33, 0, 0, 0, 0, 100, scene_img6_tiles_data, SCENE_IMG6_TILE_COUNT, scene_img6_map, SCENE_IMG6_MAP_W, SCENE_IMG6_MAP_H, &scene_img6_pal },
+    { 220, 33, 220, 33, 0, 0, 0, 0, 100, NULL, 0, NULL, 0, 0, NULL },
+    { 220, 33, 220, 33, 0, 0, 0, 0, 100, scene_img8_tiles_data, SCENE_IMG8_TILE_COUNT, scene_img8_map, SCENE_IMG8_MAP_W, SCENE_IMG8_MAP_H, &scene_img8_pal },
+    { 220, 33, 220, 33, 0, 0, 0, 0, 100, scene_img9_tiles_data, SCENE_IMG9_TILE_COUNT, scene_img9_map, SCENE_IMG9_MAP_W, SCENE_IMG9_MAP_H, &scene_img9_pal },
+    { 40, 33, 40, 33, 0, 0, 0, 0, 100, scene_img10_tiles_data, SCENE_IMG10_TILE_COUNT, scene_img10_map, SCENE_IMG10_MAP_W, SCENE_IMG10_MAP_H, &scene_img10_pal },
+    { 40, 33, 40, 33, 0, 0, 0, 0, 100, scene_img11_tiles_data, SCENE_IMG11_TILE_COUNT, scene_img11_map, SCENE_IMG11_MAP_W, SCENE_IMG11_MAP_H, &scene_img11_pal },
+    { 40, 33, 40, 33, 0, 0, 0, 0, 100, scene_img12_tiles_data, SCENE_IMG12_TILE_COUNT, scene_img12_map, SCENE_IMG12_MAP_W, SCENE_IMG12_MAP_H, &scene_img12_pal },
 };
 
 const SceneTextPos scene_text_pos[SCENE_TEXT_RECORDS] = {

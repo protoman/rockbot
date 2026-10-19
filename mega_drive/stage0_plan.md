@@ -1752,3 +1752,24 @@ wider box let him drift into the ladder column when walking over it.
 Now L=5, T=3, R=21, B=29 (16x26): centring on a ladder puts the box exactly
 on the tile. The right fire origin is pinned at `ix+21` (PC
 `position.x + 29 - 8`), independent of the box width.
+
+## Ending scenes (2026-10-19)
+
+- `convert_scenes.py` now parses `scenes_show_image.dat` and emits a
+  `SceneImage` table (13 records). The six portraits used by endings 2..5
+  (record ids 6/8/9/10/11/12: betabot, dr_destrin, rockbot_left, rockbot,
+  candybot, kittybot) are copied to `res/scene_img<id>.png` and decomposed by
+  `img2tiles.py` (68x68 -> 9x9 cells, 68..78 unique tiles each, 16-colour
+  quantisation). Other image records have NULL art (lab scene not ported).
+- `scene.c` plane scheme: BG_B = art/background, BG_A = text overlay filled
+  with the blank tile (transparent); text boxes stay solid black (PAL0).
+  `clear_area` uses PAL1 (colour in entry 1, PAL_setColor global CRAM index),
+  images use PAL2 then PAL3 (two concurrent; `clear_area` resets the
+  allocation), tiles load from TILE_USER_INDEX+1 (tile 16 is the black tile).
+- `MOVE_IMAGE`: static draw is exact (`ini == dest` in every ending record);
+  linear movement (longer axis 1px, `move_delay` per step) erases the old rect
+  with the clear-area tile. START aborts (same as the intro).
+- Trigger in `runStage`: after stage 13's STAGE CLEAR, `scene_play(2 +
+  current_player)` (PC `game_scenes_map[ENDING_PLAYER1..4]`), then the title.
+- ROM stays 1.31M, `check-vram` green. Visual pass pending (portrait palette
+  quality at 15 colours, text over art).

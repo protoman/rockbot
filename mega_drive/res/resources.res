@@ -44,6 +44,13 @@ PALETTE stage0_bg1_pal "stage0_bg1_tiles.png"
 PALETTE scene_par0_l0_pal "scene_par0_l0_tiles.png"
 PALETTE scene_par0_l1_pal "scene_par0_l1_tiles.png"
 
+PALETTE scene_img6_pal "scene_img6_tiles.png"
+PALETTE scene_img8_pal "scene_img8_tiles.png"
+PALETTE scene_img9_pal "scene_img9_tiles.png"
+PALETTE scene_img10_pal "scene_img10_tiles.png"
+PALETTE scene_img11_pal "scene_img11_tiles.png"
+PALETTE scene_img12_pal "scene_img12_tiles.png"
+
 # ---- MUSIC (XGM2 driver; rescomp runs xgmtool on the .vgm) ----
 XGM2 stage_music "music.vgm"
 

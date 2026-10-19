@@ -25,7 +25,7 @@ ASSET_DATA  += $(shell find art -type f -name '*.png' 2>/dev/null)
 # Converted stages, in index order (tools/add_stage.py appends here).
 STAGES := 0 1 2 3 4 5 6 7 8 9 10 11 12 13
 
-$(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA)
+$(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA) Makefile
 	$(PYTHON) tools/convert_assets.py
 	@for s in $(STAGES); do \
 	    $(PYTHON) tools/convert_stage.py $$s || exit 1; \
@@ -81,6 +81,11 @@ $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA)
 	$(PYTHON) tools/convert_scenes.py
 	$(PYTHON) tools/img2tiles.py res/scene_par0_l0.png --name scene_par0_l0
 	$(PYTHON) tools/img2tiles.py res/scene_par0_l1.png --name scene_par0_l1
+	@for f in res/scene_img*.png; do \
+	    [ -e "$$f" ] || continue; \
+	    n=$$(basename $$f .png); \
+	    $(PYTHON) tools/img2tiles.py $$f --name $$n || exit 1; \
+	done
 	$(PYTHON) tools/convert_sfx.py
 	$(PYTHON) tools/gen_gpl.py
 	@touch $@

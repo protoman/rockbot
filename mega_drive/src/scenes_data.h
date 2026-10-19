@@ -40,9 +40,21 @@ typedef struct {
 typedef struct { s16 x, y, w, h; u16 color; } SceneClear;
 typedef struct { s16 x, y; u8 position; } SceneTextPos;
 
+// MOVE_IMAGE record: art pointers are NULL when that image was not
+// converted (lab scene / unused records).
+typedef struct {
+    s16 x, y, dest_x, dest_y;
+    s16 copy_x, copy_y, copy_w, copy_h;
+    u16 move_delay;
+    const u32 *tiles; u16 tiles_n;
+    const u16 *map; u8 map_w, map_h;
+    const Palette *pal;
+} SceneImage;
+
 extern const SceneDef scene_defs[6];
 extern const SceneParallax scene_parallax[1];
 extern const SceneClear scene_clear[1];
+extern const SceneImage scene_images[13];
 extern const SceneTextPos scene_text_pos[SCENE_TEXT_RECORDS];
 extern const char *const scene_text[SCENE_TEXT_RECORDS][SCENE_TEXT_LINES];
 

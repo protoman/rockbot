@@ -63,14 +63,21 @@ make run EMU_ARGS=   # GL renderer instead of software
 
 ## Next work, in order
 
-### 1. Ending — next (show-image + portraits)
+### 1. Ending — IMPLEMENTED (needs a visual pass)
 
 PC scene lists 2..5 are the endings (Rockbot/Betabot/Candy/Kitty). They use
 `MOVE_IMAGE` ops with 68x68 portraits over a clear-area colour, then text
 pages. `scenes_data.c` already holds their op lists/text; `scene.c` skips the
 image op.
 
-Plane/palette scheme to implement (text must sit OVER the art):
+Done (commit pending): `tools/convert_scenes.py` bakes the six ending
+portraits (ids 6/8/9/10/11/12) to `res/scene_img*.png`, img2tiles decomposes
+them, and `scenes_data.c` now has the `SceneImage` table. `scene.c` draws them
+on BG_B (PAL2/PAL3), uses PAL1 for `clear_area` and keeps the text overlay on
+BG_A (blank outside the box). Stage 13's clear plays `scene_play(2+player)`
+before returning to the title. Lab-scene art (records 1-4/7) and animated
+image movement are still unported. The rest of this section is the design it
+was built from:
 - BG_B = background/images, BG_A = text overlay. `clear_screen` fills BG_A
   with the blank tile (pixels 0 = transparent) and BG_B with the black tile.
   `text_play` keeps filling its own box with the black tile (PAL0 entry 1);

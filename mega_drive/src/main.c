@@ -409,6 +409,10 @@ static void runStage(u8 stage)
     if (stage_cleared) {
         save_slot_set_stage(current_save_slot, stage);
         showStageClear();
+        // PC game_scenes_map[ENDING_PLAYER1..4] = scene list 2..5: the final
+        // castle stage (13) plays the ending for the chosen player, then the
+        // title (main's loop).
+        if (stage == 13) scene_play((u8)(2 + (current_player & 3)));
     }
 }
 

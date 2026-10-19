@@ -5,9 +5,10 @@
 
 // PC scene player (scenes/sceneshow.cpp) for the intro.
 //
-// Planes: the last parallax layer sits on BG_A (above), the one behind it on
-// BG_B. Text is drawn on BG_A over a solid black tile, so it covers whatever
-// was on screen (the intro clears the screen before every text page anyway).
+// Planes: BG_B carries the background / scene images, BG_A is the text
+// overlay. Outside a text box BG_A is filled with the blank tile (pixels 0 =
+// transparent), so the art below shows through; text boxes are solid black.
+// The intro's parallax uses BG_A for its front layer and BG_B for the back.
 //
 // VRAM: the scene runs before any stage is loaded, so the whole user tile
 // area is free. Tile 16 is a solid black tile, the layers start at 17.
@@ -21,7 +22,15 @@
 
 #define SCENE_BG_PAL0 PAL1
 #define SCENE_BG_PAL1 PAL2
+#define SCENE_IMG_PAL0 PAL2
+#define SCENE_IMG_PAL1 PAL3
 #define SCREEN_TILE_W 40
+
+// Image/background allocation, reset by CLEAR_SCREEN and CLEAR_AREA.
+static u16 scene_tile_next;
+static u8 scene_img_line;
+static bool scene_bg_set;
+static u16 scene_bg_entry;
 
 // 8x8 tile filled with palette index 1 (index 0 would be transparent and let
 // the other plane show through).
@@ -46,15 +55,21 @@ static bool wait_ms(u16 ms)
 
 static void clear_screen(void)
 {
-    const u16 entry = TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE,
+    const u16 black = TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE,
                                      SCENE_BLACK_TILE);
+    // BG_A: blank tile (all pixels 0 -> transparent, shows BG_B)
+    const u16 blank = TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, 0);
     VDP_setHorizontalScroll(BG_A, 0);
     VDP_setHorizontalScroll(BG_B, 0);
     VDP_setVerticalScroll(BG_A, 0);
     VDP_setVerticalScroll(BG_B, 0);
-    VDP_fillTileMapRect(BG_A, entry, 0, 0, 64, 32);
-    VDP_fillTileMapRect(BG_B, entry, 0, 0, 64, 32);
+    VDP_fillTileMapRect(BG_A, blank, 0, 0, 64, 32);
+    VDP_fillTileMapRect(BG_B, black, 0, 0, 64, 32);
     VDP_setBackgroundColor(0);
+    scene_tile_next = TILE_USER_INDEX + 1;   // tile 16 = black
+    scene_img_line = 0;
+    scene_bg_entry = black;
+    scene_bg_set = FALSE;
 }
 
 // Fill one plane with a layer's 64x32 map (rows past the art reuse its first
@@ -174,16 +189,89 @@ static bool text_play(u8 rec)
     return TRUE;
 }
 
+// MOVE_IMAGE (PC sceneShow::show_image): draw the portrait on BG_B. The art
+// is a fully opaque 68x68 square (background pre-painted in the clear-area
+// colour), so only the 9x9 map is written; padding cells (tile 0) keep the
+// background tile.
+static bool show_image(u8 rec)
+{
+    const SceneImage *im = &scene_images[rec];
+    if (!im->tiles || !im->map_w || !im->map_h) return TRUE;
+
+    u16 line = (scene_img_line == 0) ? SCENE_IMG_PAL0 : SCENE_IMG_PAL1;
+    PAL_setPalette(line, im->pal->data, CPU);   // CRAM DMA does not land here
+    VDP_loadTileData(im->tiles, scene_tile_next, im->tiles_n, DMA);
+    u16 base = scene_tile_next;
+    scene_tile_next += im->tiles_n;
+    if (scene_img_line < 2) scene_img_line++;
+
+    const u16 bg = scene_bg_entry;
+    static u16 cells[16 * 16];   // portraits are 9x9 cells
+    s16 x = im->x, y = im->y;
+    for (;;) {
+        u16 n = 0;
+        for (u8 cy = 0; cy < im->map_h; cy++) {
+            for (u8 cx = 0; cx < im->map_w; cx++) {
+                u16 t = im->map[cy * im->map_w + cx];
+                cells[n++] = t ? TILE_ATTR_FULL(line, FALSE, FALSE, FALSE,
+                                                base + t) : bg;
+            }
+        }
+        VDP_setTileMapDataRect(BG_B, cells, (u16)(x >> 3), (u16)(y >> 3),
+                               im->map_w, im->map_h, im->map_w, CPU);
+
+        if (im->dest_x == im->x && im->dest_y == im->y) break;   // static
+        if (!wait_ms(im->move_delay)) return FALSE;              // START aborts
+
+        // Move one step toward the destination (PC sceneShow::show_image:
+        // the longer axis advances 1px, the other axis by the ratio) and
+        // erase the previous rect with the background tile. Endings are all
+        // static, so this path exists for the lab scene / future scenes.
+        s16 dx = im->dest_x - x, dy = im->dest_y - y;
+        s16 ax = (dx < 0) ? -dx : dx, ay = (dy < 0) ? -dy : dy;
+        if (!ax && !ay) break;
+        s16 sx8 = 0, sy8 = 0;
+        if (ax >= ay) {
+            sx8 = (dx > 0) ? 256 : -256;
+            sy8 = ax ? (dy * 256) / ax : 0;
+        } else {
+            sy8 = (dy > 0) ? 256 : -256;
+            sx8 = ay ? (dx * 256) / ay : 0;
+        }
+        s16 nx = x + (sx8 / 256), ny = y + (sy8 / 256);
+        if (nx == x && ny == y) {
+            // sub-pixel step: force one pixel on the major axis
+            if (ax >= ay) nx = x + ((dx > 0) ? 1 : -1);
+            else ny = y + ((dy > 0) ? 1 : -1);
+        }
+        u16 oldx = (u16)(x >> 3), oldy = (u16)(y >> 3);
+        for (u8 cy = 0; cy < im->map_h; cy++)
+            for (u8 cx = 0; cx < im->map_w; cx++)
+                VDP_setTileMapXY(BG_B, bg, oldx + cx, oldy + cy);
+        x = nx;
+        y = ny;
+    }
+    return TRUE;
+}
+
 static void clear_area_play(u8 rec)
 {
     const SceneClear *c = &scene_clear[rec];
-    // The solid tile uses palette index 1; repoint it at the fill colour
-    // (PAL_setColor takes the global CRAM index: PAL1 entry 1 = 16 + 1).
+    // Fill colour lives on PAL1 entry 1 (PAL_setColor takes the global CRAM
+    // index: PAL1 entry 1 = 16 + 1). Text stays on PAL0.
     PAL_setColor((SCENE_BG_PAL0 << 4) + 1, c->color);
-    VDP_fillTileMapRect(BG_A,
-                        TILE_ATTR_FULL(SCENE_BG_PAL0, FALSE, FALSE, FALSE,
-                                       SCENE_BLACK_TILE),
+    const u16 fill = TILE_ATTR_FULL(SCENE_BG_PAL0, FALSE, FALSE, FALSE,
+                                    SCENE_BLACK_TILE);
+    VDP_fillTileMapRect(BG_B, fill,
                         c->x >> 3, (c->y - 16) >> 3, c->w >> 3, c->h >> 3);
+    // BG_A stays transparent over the fill
+    VDP_fillTileMapRect(BG_A,
+                        TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, 0),
+                        c->x >> 3, (c->y - 16) >> 3, c->w >> 3, c->h >> 3);
+    scene_bg_entry = fill;
+    scene_bg_set = TRUE;
+    scene_tile_next = TILE_USER_INDEX + 1;
+    scene_img_line = 0;
 }
 
 void scene_play(u8 index)
@@ -212,6 +300,9 @@ void scene_play(u8 index)
                 break;
             case SCENE_SHOW_TEXT:
                 if (!text_play(op->seek)) return;
+                break;
+            case SCENE_MOVE_IMAGE:
+                if (!show_image(op->seek)) return;
                 break;
             case SCENE_PARALLAX:
                 if (!parallax_play(&scene_parallax[op->seek])) return;
