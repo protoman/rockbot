@@ -455,6 +455,12 @@ def main():
         for gid in sorted(cycle_gids):
             fn = anim_blocks[gid][0]
             n = len(block_colours(fn))
+            if n < 3:
+                sys.exit(
+                    f"ERROR: {fn} has only {n} colour(s). A colourcycled block "
+                    f"needs exactly 3 rotating colours (transparent, plus black "
+                    f"if the art needs a non-rotating outline, are free). "
+                    f"Fix the art in images/tilesets/anim/{fn}.")
             if n > 3:
                 print(f"    colourcycle: {fn} has {n} colours -> folding into "
                       f"the band (draw 3 for an exact rotation)")

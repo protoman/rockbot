@@ -236,7 +236,7 @@ static const u8 stage1_pal3_mask[3][350] = {
     },
 };
 
-static const u16 stage1_cycle_colors[3] = { 0x08CE, 0x04AE, 0x006E };
+static const u16 stage1_cycle_colors[3] = { 0x006E, 0x002E, 0x0006 };
 
 static const u8 stage1_anim_cell_slot[3][2800] = {
     {
