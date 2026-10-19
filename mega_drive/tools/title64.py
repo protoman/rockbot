@@ -54,6 +54,8 @@ def main():
     ap.add_argument("--crop-h", type=int, default=224)
     ap.add_argument("--codedir", default=None)
     ap.add_argument("--preview", default=None, help="write the emitted data back as a PNG")
+    ap.add_argument("--brighten", action="store_true",
+                    help="raise every art colour one MD level (keeps darks/outlines)")
     args = ap.parse_args()
 
     here = os.path.dirname(os.path.abspath(__file__))
@@ -133,7 +135,14 @@ def main():
         r, g, b, a = px[x, y]
         if a == 0 or (r, g, b) == COLORKEY:
             return None
-        return (md_round(r), md_round(g), md_round(b))
+        c = (md_round(r), md_round(g), md_round(b))
+        if args.brighten:
+            # One MD level up for anything not near-black: the reference art sits
+            # one level above ours (measured: our orange red was 219, the
+            # reference's 255). Darks and outlines stay put.
+            c = tuple(MD_LEVELS[min(7, MD_LEVELS.index(v) + 1)] if v >= 73 else v
+                      for v in c)
+        return c
 
     # ---- the art as 8x8 tiles ----------------------------------------------
     tiles, allowed = [], []
