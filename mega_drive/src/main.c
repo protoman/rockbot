@@ -17,6 +17,7 @@
 #include "bossintro.h"
 #include "playerselect.h"
 #include "transition.h"
+#include "scene.h"
 #include "title64_map.h"
 #include "title64_tiles.h"
 #include "title64_pal.h"
@@ -479,6 +480,8 @@ int main(bool hardReset)
     stage_set_data(0);   // valid stage_def before anything reads it
 
     showIntro();
+    // PC game_scenes_show_unbeaten_intro(): scene list 0 (scenes_data.c)
+    scene_play(SCENE_OPENING_UNBEATEN);
     while (TRUE) {
         s16 action = showTitle();
         if (action == 0) {                       // NEW GAME

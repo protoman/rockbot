@@ -18,6 +18,8 @@ extern const Palette stage0_pal2;
 extern const MapDefinition stage0_map2;
 extern const Palette stage0_bg0_pal;
 extern const Palette stage0_bg1_pal;
+extern const Palette scene_par0_l0_pal;
+extern const Palette scene_par0_l1_pal;
 extern const SpriteDefinition player_p1_sprite;
 extern const SpriteDefinition player_p2_sprite;
 extern const SpriteDefinition player_p3_sprite;

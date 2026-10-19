@@ -36,6 +36,14 @@ MAP     stage0_map2   "stage0_map2.png"  stage0_tiles2 FAST 0
 PALETTE stage0_bg0_pal "stage0_bg0_tiles.png"
 PALETTE stage0_bg1_pal "stage0_bg1_tiles.png"
 
+# ---- SCENES (tools/convert_scenes.py + img2tiles.py) ----
+# The intro's parallax layers: art baked to 512px (plane width) and decomposed
+# into unique tiles + tilemap by img2tiles, like the stage backgrounds. Only
+# the palettes go through rescomp; the tiles/map load from src/*_tiles.h and
+# src/*_map.h (rescomp reorders TILESET tiles).
+PALETTE scene_par0_l0_pal "scene_par0_l0_tiles.png"
+PALETTE scene_par0_l1_pal "scene_par0_l1_tiles.png"
+
 # ---- MUSIC (XGM2 driver; rescomp runs xgmtool on the .vgm) ----
 XGM2 stage_music "music.vgm"
 

@@ -101,6 +101,9 @@ $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA)
 	    --part art/title.png:18,4:0:1 \
 	    --part art/sub_title.png:162,38:0:1 \
 	    --part art/title_rock_and_beta.png:148,48:1:1
+	$(PYTHON) tools/convert_scenes.py
+	$(PYTHON) tools/img2tiles.py res/scene_par0_l0.png --name scene_par0_l0
+	$(PYTHON) tools/img2tiles.py res/scene_par0_l1.png --name scene_par0_l1
 	$(PYTHON) tools/convert_sfx.py
 	$(PYTHON) tools/gen_gpl.py
 	@touch $@
