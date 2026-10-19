@@ -59,32 +59,26 @@ make run EMU_ARGS=   # GL renderer instead of software
   `--part ...:0:1`, `:0:1`, `:1:1`. 17 colours, 0 folded tiles. Three `--rekey`
   lines in the Makefile brighten the pink and orange armour and warm the skin;
   the art files themselves are untouched.
-- Last commit: `f27cf0c1` (context-budget rules added to AGENTS.md), tree clean.
+- Last commit: `ec46b490` (castle flow + saved-stage-bit fix), tree clean.
 
 ## Next work, in order
 
-### 1. Title colours — waiting on the user's art
+### 1. Ending — next (needs the show-image art pass)
 
-The user is redrawing `art/title_rock_and_beta.png` with a **15-colour palette**
-so it can live on **one palette line**. Wire it as `:1:1`:
+PC scene lists 2..5 are the endings (Rockbot/Betabot/Candy/Kitty). They use
+`MOVE_IMAGE` ops: the 68x68 character portraits (`dr_destrin.png`,
+`rockbot.png`, `betabot.png`, `candybot.png`, `kittybot.png`) placed over a
+clear-area colour, then text pages. Those images have 1.2k–3k colours, so a
+15-colour (or four-line) reduction pass is needed before `scene.c` can show
+them. Show-image also needs the small linear move (ini -> dest at
+`move_delay`); `sceneshow.cpp:160` has the reference. No fades exist in the PC
+player — do not invent them.
 
-```
---part art/title.png:18,4:0:1
---part art/sub_title.png:162,38:0:1
---part art/title_rock_and_beta.png:148,48:1:1   # <- was 1:3
-```
+Trigger: after the final castle stage (13) is cleared, pick the ending by the
+player used (PC `game_scenes_map[ENDING_PLAYERn]` = scene list 2..5), then the
+title. Nothing reads the endings yet.
 
-Why it matters: each 8x8 tile chooses its palette line, so colour-clustered
-lines make neighbouring tiles use different shade sets — the "square patches"
-the user reported. One line for the whole characters image removes that
-completely, at the cost of flatter shading. `title64.py` now prints per-part
-`N colours in M slots`; today it warns `part 2: 56 colours for 45 slots`.
-
-Pick the 15 colours for *recognition* (armour base+shadow, skin, hair, grey,
-black outline, white highlight), all on the MD ramp (`0 36 73 109 146 182 219
-255`). Slot 0 is transparent, so 15 visible colours = "16-colour" art.
-
-### 2. Scenes — intro DONE, show-image/ending next
+### 2. Scenes — intro DONE; show-image is the ending's blocker
 
 The PC stores a scene as a **script of operations**, one table per op type,
 assembled by name (`file/v4/file_scene_v4.h`, `sceneslib.cpp`,
