@@ -79,7 +79,7 @@ static void show_page(const char *const *lines, u8 first, u8 y0,
     // x+52 -> the port uses 32px face + 1 tile gap, text from column 6).
     Sprite *fs = NULL;
     if (face) {
-        PAL_setPalette(PAL2, face_pal->data, CPU);
+        PAL_setPalette(PAL2, face_pal->data, DMA_QUEUE);
         fs = SPR_addSprite(face, 8, (s16)(y0 * 8 + 8),
                            TILE_ATTR(PAL2, FALSE, FALSE, FALSE));
     }
