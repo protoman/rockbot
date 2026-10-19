@@ -194,7 +194,50 @@ def main():
     # line that already has most of them. Only when no line can fit does the tile
     # fold its extra shades into the closest slots.
     lines = [[WHITE], [], [], []]
-    room = lambda L: (LINE_SLOTS - 1 if L == 0 else LINE_SLOTS) - len(lines[L])
+
+    def cap_of(L):
+        return (LINE_SLOTS - 1 if L == 0 else LINE_SLOTS) - len(lines[L])
+
+    if owner is not None:
+        # Layered mode: decide each part's palettes UP FRONT from its own pixel
+        # counts, clustered so a line holds a coherent family of shades. Filling
+        # the lines in tile scan order let frequent greys crowd out the shades
+        # that identify the art (the pink armour came out grey).
+        for pi, (first, count) in enumerate(parts):
+            usage = {}
+            for ty in range(h // TILE):
+                for tx in range(w // TILE):
+                    for y in range(TILE):
+                        for x in range(TILE):
+                            if owner[ty * TILE + y][tx * TILE + x] != pi:
+                                continue
+                            c = cell_colour(tx * TILE + x, ty * TILE + y)
+                            if c:
+                                usage[c] = usage.get(c, 0) + 1
+            if not usage:
+                continue
+            pts = list(usage.items())
+            pts.sort(key=lambda cw: -cw[1])
+            k = min(count, len(pts))
+            cent = [pts[i * len(pts) // k][0] for i in range(k)]
+            for _ in range(8):
+                groups = [[] for _ in range(k)]
+                for c, wt in pts:
+                    groups[min(range(k), key=lambda i: dist(c, cent[i]))].append((c, wt))
+                for i, g in enumerate(groups):
+                    if not g:
+                        continue
+                    tw = sum(w for _, w in g)
+                    cent[i] = tuple(md_round(sum(c[j] * w for c, w in g) // tw)
+                                    for j in range(3))
+            for i, g in enumerate(groups):
+                L = first + i
+                for c, _w in sorted(g, key=lambda cw: -cw[1])[:cap_of(L) if False else
+                                   (LINE_SLOTS - 1 if L == 0 else LINE_SLOTS)]:
+                    if c not in lines[L]:
+                        lines[L].append(c)
+
+    room = lambda L: cap_of(L)
     tile_line, folded = [], 0
 
     for ti, cells in enumerate(tiles):
