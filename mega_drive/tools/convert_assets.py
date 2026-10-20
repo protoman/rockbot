@@ -221,7 +221,18 @@ def convert_hud_ball(src_name="hp_ball.png", out_name="hud_hp_ball.png"):
                     idx = 0
                 else:
                     c = (md_round(p[0]), md_round(p[1]), md_round(p[2]))
-                    idx = 15 if c == (219, 219, 219) else nearest_index(c)
+                    if out_name == "hud_wpn_ball.png":
+                        # The weapon row is drawn with PAL2 (the player's
+                        # weapon palette): black outline -> index 7, white
+                        # highlight -> 10, green fill -> 13 (weapon color 1).
+                        if c == (0, 0, 0):
+                            idx = 7
+                        elif c == (219, 219, 219):
+                            idx = 10
+                        else:
+                            idx = 13
+                    else:
+                        idx = 15 if c == (219, 219, 219) else nearest_index(c)
                 data[y * n * 16 + f * 16 + x] = idx
     out.putdata(data)
     os.makedirs(OUT_DIR, exist_ok=True)

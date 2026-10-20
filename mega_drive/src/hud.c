@@ -39,9 +39,11 @@ void hud_init(void)
                                  HUD_BALL_X + HUD_BALL_STEP * i, HUD_BALL_Y,
                                  TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
         last_fill[i] = -1;
+        // PAL2 is the player palette; its 13/14/15 entries are the current
+        // weapon colors (tools/convert_assets maps the green fill to 13).
         wpn_balls[i] = SPR_addSprite(&hud_wpn_ball_sprite,
                                      HUD_WPN_X + HUD_BALL_STEP * i, HUD_BALL_Y,
-                                     TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
+                                     TILE_ATTR(PAL2, FALSE, FALSE, FALSE));
         wpn_last_fill[i] = -1;
         if (wpn_balls[i]) SPR_setVisibility(wpn_balls[i], HIDDEN);
         boss_balls[i] = SPR_addSprite(&hud_boss_ball_sprite,
