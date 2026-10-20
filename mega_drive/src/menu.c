@@ -79,11 +79,26 @@ static void icons_create(void)
     }
 }
 
+static void draw_bar(u8 value, u8 max, u16 col, u16 row)
+{
+    char buf[24];
+    u8 n = 12;
+    if (max == 0) max = 1;
+    u8 filled = (u8)(((u16)value * n) / max);
+    if (filled > n) filled = n;
+    buf[0] = '[';
+    for (u8 i = 0; i < n; i++) buf[1 + i] = (i < filled) ? '#' : '-';
+    buf[1 + n] = ']';
+    buf[2 + n] = 0;
+    VDP_drawText(buf, col, row);
+}
+
 // Weapon name + gauge, drawn over the panel's first weapon slot (PC x25/y60).
 static void draw_weapon_line(void)
 {
     u8 w = player_weapon();
     VDP_drawText("                    ", 5, 3);
+    VDP_drawText("                   ", 5, 4);
     VDP_drawText(weapon_data[w].name, 5, 3);
     if (w != 0) {
         u8 a = player_weapon_ammo();
@@ -91,16 +106,19 @@ static void draw_weapon_line(void)
         buf[2] = (char)('0' + (a % 10));
         if (a >= 10) buf[1] = (char)('0' + ((a / 10) % 10));
         VDP_drawText(buf, 27, 3);
+        draw_bar(a, PLAYER_INITIAL_HP, 5, 4);
+    } else {
+        VDP_drawText("AMMO [############]", 5, 4);
     }
 }
 
 // Stored tanks (OBJ_ENERGY_TANK / OBJ_WEAPON_TANK), PC game_save.items.
 static void draw_tank_line(void)
 {
-    char buf[28] = "TANKS HP:0 WP:0 SP:0";
-    buf[11] = (char)('0' + player.tanks_hp);
-    buf[17] = (char)('0' + player.tanks_wp);
-    buf[23] = (char)('0' + player.tanks_sp);
+    char buf[40] = "ITEMS  E-TANK:0  W-TANK:0  S-TANK:0";
+    buf[14] = (char)('0' + player.tanks_hp);
+    buf[24] = (char)('0' + player.tanks_wp);
+    buf[34] = (char)('0' + player.tanks_sp);
     VDP_drawText(buf, 5, 22);
 }
 

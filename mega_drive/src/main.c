@@ -192,7 +192,7 @@ static s16 showTitle(void)
     static const char *const items[4] = {
         "NEW GAME", "LOAD GAME", "CONFIG", "ABOUT",
     };
-    s16 sel = 0;
+    s16 sel = can_load ? 1 : 0;         // default to LOAD when a save exists
     u16 prev = JOY_readJoypad(JOY_1);    // don't pick on a held button
     while (TRUE) {
         for (u8 i = 0; i < 4; i++) {
