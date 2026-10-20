@@ -129,6 +129,7 @@ bool player_use_tank(bool hp);           // menu: refill HP / current gauge (+sp
 void player_add_armor(u8 kind);          // 0 arms, 1 body, 2 legs
 u8 player_armor_ability(u8 kind);        // per-player special ability value
 u8 player_armor_shot_id(void);           // ARMS charged projectile, 0xFF = none
+u16 player_weapon_color(u8 weapon);      // PC weapon_colors[weapon].color1, MD CRAM
 bool player_can_shoryuken(void);         // LEGS SHORYUKEN ability
 bool player_is_shoryuken(void);          // attack hitbox active
 bool player_out_of_lives(void);

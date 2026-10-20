@@ -270,6 +270,14 @@ static void rebuild_player_palette(void)
     make_flash_palettes();
 }
 
+u16 player_weapon_color(u8 weapon)
+{
+    if (weapon >= PLAYER_WEAPON_N) return 0x0EEE;
+    const s16 (*c)[3] = player_data[player_n & 3].wcol[weapon];
+    if (c[0][0] < 0) return 0x0EEE;      // unset: white
+    return rgb9((u8)c[0][0], (u8)c[0][1], (u8)c[0][2]);
+}
+
 u8 player_weapon(void) { return player.weapon; }
 
 u8 player_weapon_ammo(void) { return player.ammo[player.weapon]; }

@@ -29,6 +29,7 @@
 // 1952 as older comments claimed).
 #define MENU_TILE_BASE stage_bg_tile_base
 #define MENU_BAR_TILE  (MENU_TILE_BASE + MENU_TILE_COUNT)
+#define MENU_BAR_TILES 11
 
 static Sprite *portrait;
 static u16 cells[MENU_MAP_W * MENU_MAP_H];
@@ -107,24 +108,34 @@ static void menu_restore_strip(u16 col, u16 row, u16 count)
         VDP_setTileMapXY(BG_A, e, col + i, row);
 }
 
-static const u32 menu_bar_white[8] = {
-    0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-    0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
-};
+// One tile per weapon so each bar can use a different PAL0 index. Palette
+// entries 1..11 are filled with the selected player's weapon colors; the
+// font itself only uses indices 0 and 15.
+static u32 menu_bar_tiles[MENU_BAR_TILES][8];
+
+static void make_bar_tiles(void)
+{
+    for (u8 w = 0; w < MENU_BAR_TILES; w++) {
+        const u32 row = 0x11111111u * (u32)(w + 1);
+        for (u8 y = 0; y < 8; y++) menu_bar_tiles[w][y] = row;
+    }
+}
 
 // The old ASCII gauge used the font palette and disappeared against the
 // panel. Draw a plain white tile strip instead; it is intentionally simple
 // until the PC menu art is matched exactly.
-static void draw_white_bar(u8 value, u8 max, u16 col, u16 row, u8 n)
+static void draw_weapon_bar(u8 value, u8 max, u16 col, u16 row,
+                           u8 n, u8 weapon)
 {
     if (max == 0) max = 1;
     u8 filled = (u8)(((u16)value * n) / max);
     if (filled > n) filled = n;
     menu_restore_strip(col, row, n);
+    const s16 tile = (s16)(MENU_BAR_TILE + ((weapon < MENU_BAR_TILES)
+                                            ? weapon : 0));
     for (u8 i = 0; i < filled; i++) {
         VDP_setTileMapXY(BG_A,
-                         TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE,
-                                        MENU_BAR_TILE),
+                         TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, tile),
                          (u16)(col + i), row);
     }
 }
@@ -140,7 +151,7 @@ static void draw_grid_bars(void)
         u16 x = (u16)(3 + col * 10);
         u16 y = (u16)(7 + row * 3);
         u8 value = (w == 0) ? PLAYER_INITIAL_HP : player.ammo[w];
-        draw_white_bar(value, PLAYER_INITIAL_HP, x, y, 6);
+        draw_weapon_bar(value, PLAYER_INITIAL_HP, x, y, 6, w);
     }
 }
 
@@ -228,10 +239,20 @@ bool menu_open(u16 weapon_mask)
     // tiles come from the generated 4bpp array (not a rescomp TILESET,
     // which dedups/reorders and would break the tilemap indices)
     VDP_loadTileData(menu_tiles_data, MENU_TILE_BASE, MENU_TILE_COUNT, DMA_QUEUE);
-    VDP_loadTileData(menu_bar_white, MENU_BAR_TILE, 1, DMA_QUEUE);
+    make_bar_tiles();
+    for (u8 w = 0; w < MENU_BAR_TILES; w++)
+        VDP_loadTileData(menu_bar_tiles[w], (u16)(MENU_BAR_TILE + w), 1,
+                         DMA_QUEUE);
     // Keep the font on the UI palette; a stage palette line here can leave
     // the menu text nearly invisible.
-    PAL_setPalette(PAL0, pal_ui.data, DMA_QUEUE);
+    // Build one PAL0 palette containing the UI colours, the dark text
+    // background and the selected player's weapon colours in entries 1..11.
+    static u16 menu_pal0[16];
+    for (u8 i = 0; i < 16; i++) menu_pal0[i] = pal_ui.data[i];
+    menu_pal0[0] = menu_pal.data[3];
+    for (u8 w = 0; w < MENU_BAR_TILES; w++)
+        menu_pal0[1 + w] = player_weapon_color(w);
+    PAL_setPalette(PAL0, menu_pal0, DMA_QUEUE);
     // DMA_QUEUE: a CPU CRAM write during active display corrupts on
     // accurate emulators (see debugging.md / the SGDK boot notes)
     PAL_setPalette(PAL1, menu_pal.data, DMA_QUEUE);
@@ -324,6 +345,7 @@ bool menu_open(u16 weapon_mask)
     icons_release();
 
     PAL_setColor(0, old_backdrop);
+    PAL_setPalette(PAL0, pal_ui.data, DMA_QUEUE);
 
     if (leave) {
         // The stage is over: do NOT restore it (a map redraw would leave the
