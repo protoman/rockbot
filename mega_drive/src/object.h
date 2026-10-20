@@ -25,7 +25,7 @@ void objects_reset(void);
 
 // Enemy death drop (PC classMap::drop_item): random pill at a world position,
 // timed out after 4.5s like the PC object duration.
-void objects_drop_item(s16 cx, s16 cy);
+void objects_drop_item(s16 cx, s16 cy, bool subboss);
 
 // Selected item weapon (PC add_coil_object / add_jet_object): COIL FROG
 // (type 13, super-jump spring) or JET EAGLE (type 12, flying platform).

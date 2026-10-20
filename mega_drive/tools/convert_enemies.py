@@ -141,6 +141,8 @@ def read_enemy_defs(blob, ids):
             "bgx": struct.unpack_from("<h", b, 6022)[0],
             "bgy": struct.unpack_from("<h", b, 6024)[0],
             "is_boss": is_boss,
+            "is_sub_boss": b[6027],
+            "respawn_delay": struct.unpack_from("<i", b, 6028)[0],
             "stand": stand,
             "walk": walk,
             "attack": attack,
@@ -584,6 +586,7 @@ extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
         lines.append(
             f"    /* {def_idx_name[eid]} */ {{ &{p['res_name']}_sprite, "
             f"{eid}, {d['hp']}, {d['dmg_mul']}, {d['speed']}, {d['fly']}, {d['is_boss']}, "
+            f"{d['is_sub_boss']}, {max(0, d['respawn_delay'])}, "
             f"{shot0}, {d['walk_range']}, "
             f"{bl}, {bt}, {bw}, {bh}, "
             f"{len(p['stand'])}, {len(p['walk'])}, {len(p['attack'])}, "

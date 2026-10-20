@@ -43,6 +43,9 @@ bool enemies_boss_died(void);
 void enemies_boss_death_pos(s16 *x, s16 *y);
 // Nearest live on-screen enemy centre (DESERT STORM FOLLOW shots).
 bool enemies_nearest(s16 x, s16 y, s16 *tx, s16 *ty);
+// PC classMap::subboss_alive_on_left: boss/sub-boss alive in the screen-wide
+// band left of a boss door.
+bool enemies_subboss_alive_left(s16 tile_x);
 
 // Hide/show every live enemy sprite (in-game menu overlay).
 void enemies_set_visible(bool visible);

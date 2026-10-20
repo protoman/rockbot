@@ -2,11 +2,11 @@
 #include "resources.h"
 
 const EnemyDef stage12_enemy_defs[STAGE12_ENEMY_DEF_COUNT] = {
-    /* 0 */ { &enemy_bee_sprite, 4, 3, 1, 2, 1, 0, 0, 300, 0, 0, 17, 17, 2, 2, 0, 0, 0, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // FLEE BEE
-    /* 1 */ { &enemy_spinner_ball_red_sprite, 21, 3, 1, 3, 1, 0, 0, 200, 0, 0, 18, 19, 1, 6, 4, 1400, 3, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // SPINNASTER
-    /* 2 */ { &enemy_giant_bee_sprite, 31, 5, 2, 2, 1, 0, 18, 20, 0, 0, 109, 65, 2, 2, 2, 100, 0, { 2, 0, 0, 4, 1, 1, 0, 0, 0 } },  // WASPER
-    /* 3 */ { &enemy_metal_metool_sprite, 46, 2, 1, 1, 0, 0, 0, 200, 0, 0, 18, 21, 1, 2, 6, 1200, 3, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // DARKMINE HELMUT
-    /* 4 */ { &enemy_wood_shield_sprite, 47, 4, 1, 3, 0, 0, 0, 200, 0, 0, 25, 26, 2, 2, 0, 0, 2, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // WOOD SHIELDER
+    /* 0 */ { &enemy_bee_sprite, 4, 3, 1, 2, 1, 0, 0, 0, 0, 300, 0, 0, 17, 17, 2, 2, 0, 0, 0, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // FLEE BEE
+    /* 1 */ { &enemy_spinner_ball_red_sprite, 21, 3, 1, 3, 1, 0, 0, 0, 0, 200, 0, 0, 18, 19, 1, 6, 4, 1400, 3, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // SPINNASTER
+    /* 2 */ { &enemy_giant_bee_sprite, 31, 5, 2, 2, 1, 0, 1, 0, 18, 20, 0, 0, 109, 65, 2, 2, 2, 100, 0, { 2, 0, 0, 4, 1, 1, 0, 0, 0 } },  // WASPER
+    /* 3 */ { &enemy_metal_metool_sprite, 46, 2, 1, 1, 0, 0, 0, 0, 0, 200, 0, 0, 18, 21, 1, 2, 6, 1200, 3, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // DARKMINE HELMUT
+    /* 4 */ { &enemy_wood_shield_sprite, 47, 4, 1, 3, 0, 0, 0, 0, 0, 200, 0, 0, 25, 26, 2, 2, 0, 0, 2, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // WOOD SHIELDER
 };
 
 const EnemySpawn stage12_enemy_spawns[STAGE12_ENEMY_SPAWN_COUNT] = {

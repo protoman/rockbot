@@ -27,16 +27,23 @@
 #define AI_WAIT_RANGE  3
 #define AI_SHOT_AHEAD  5
 #define AI_SHOT_DIR    6
+#define AI_SHOT_INVERT 7
+#define AI_AIR_WALK    8
+#define AI_FALL        9
 #define AI_TELEPORT   10
 #define AI_DASH       11
 #define AI_GRAB_WALL  12
 #define AI_SPAWN_NPC  13
 #define AI_CHANGE_MOVE 14
+#define AI_JUMP_ATTACK_UP 18
 
 // PC WALK/FLY option parameters we see in stage 0 (defines.h:778/795)
 #define AI_WALK_TURN      1
 #define AI_WALK_FALLING   7   // HORIZONTAL_AHEAD_FALLING: may walk off ledges
 #define AI_WALK_TO_PLAYER 2
+#define AI_WALK_TO_SAVED  3
+#define AI_WALK_RANDOM    5
+#define AI_WALK_OPPOSITE  6
 #define AI_WALK_TURN_PLYR 4
 #define AI_FLY_TURN       1
 #define AI_FLY_UP         2
@@ -71,6 +78,7 @@ typedef struct {
     u8 moving;        // walk anim while the action moves the enemy
     u8 shooting;      // attack anim while a SHOT action runs
     s16 move_acc;     // 50Hz movement accumulator (PC AI step throttle)
+    u16 respawn_t;    // PC respawn_delay countdown (frames)
 } Enemy;
 
 static Enemy *enemy_add(u8 def_i, s16 x, s16 y, s16 x_min, s16 x_max, u8 dir);
@@ -181,6 +189,17 @@ static void ai_action_init(Enemy *e)
         } else if (st->param == AI_WALK_TO_PLAYER) {
             e->dest_x = player.x;
             e->dir = sign16(e->dest_x - e->x);
+        } else if (st->param == AI_WALK_TO_SAVED) {
+            e->dest_x = e->spawn_x;
+            e->dir = sign16(e->dest_x - e->x);
+        } else if (st->param == AI_WALK_OPPOSITE) {
+            // PC TO_OPPOSITE_DIRECTION: move away from screen centre by
+            // walk_range (artificial_inteligence.cpp:1097).
+            e->dir = ((e->x - camera.x) > 160) ? -1 : 1;
+            e->dest_x = e->x + e->dir * (s16)d->range;
+        } else if (st->param == AI_WALK_RANDOM) {
+            e->dir = (random() & 1) ? 1 : -1;
+            e->dest_x = e->x + e->dir * (s16)d->range;
         } else {
             e->dest_x = e->x + e->dir * half;
             if (e->dest_x < e->x_min) e->dest_x = e->x_min;
@@ -357,6 +376,77 @@ static bool ai_action_run(Enemy *e)
         return e->act_t >= dur;
     }
 
+    case AI_SHOT_INVERT: {
+        // PC SHOT_PROJECTILE_INVERT_DIRECTION: same attack animation, fires
+        // opposite to the current facing.
+        u16 dur = AI_SHOT_FRAMES;
+        if (d->attack_n) {
+            dur = (u16)(((u32)d->attack_ms * 6) / 100);
+            if (dur < AI_SHOT_FRAMES) dur = AI_SHOT_FRAMES;
+            e->shooting = 1;
+        }
+        if (e->act_t == 1 + (dur * 3) / 10) {
+            u8 pid = (st->param >= 0) ? (u8)st->param : d->shot;
+            eshot_fire(e->x + d->box_l + d->box_w / 2,
+                       e->y + d->box_t + d->box_h / 2, -e->dir, pid);
+        }
+        return e->act_t >= dur;
+    }
+
+    case AI_AIR_WALK:
+        e->moving = 1;
+        if (st->param == 0) e->dir = -1;
+        else if (st->param == 1) e->dir = 1;
+        else e->dir = (player.x > e->x) ? 1 : -1;
+        e->x += e->dir * (s16)d->speed;
+        return on_ground(e, d);
+
+    case AI_FALL:
+        e->jumping = 1;                    // suppress gravity while descending
+        e->y += (s16)d->speed;
+        if (feet_solid(e, (e->y + d->box_t + d->box_h) >> 4)) {
+            e->jumping = 0;
+            return TRUE;
+        }
+        return e->y > (stage_def->map_h * stage_def->tile) + 32;
+
+    case AI_JUMP_ATTACK_UP: {
+        if (!e->jumping) {
+            if (!on_ground(e, d)) return FALSE;
+            e->vy = ENEMY_JUMP_VY;
+            e->jumping = 1;
+            e->moving = 1;
+            return FALSE;
+        }
+        s16 lead = (e->dir > 0) ? e->x + d->box_l + d->box_w - 1
+                                : e->x + d->box_l;
+        if (!box_hits_solid(lead, e->y + d->box_t,
+                            lead, e->y + d->box_t + d->box_h))
+            e->x += e->dir * (s16)d->speed;
+        if (e->act_t == 8 && st->param >= 0) {
+            eshot_fire(e->x + d->box_l + d->box_w / 2,
+                       e->y + d->box_t + d->box_h / 2, e->dir, (u8)st->param);
+        }
+        e->vy += ENEMY_GRAVITY;
+        s16 dy = F16_toInt(e->vy);
+        s16 bottom = d->box_t + d->box_h;
+        s16 ny = e->y + dy;
+        if (dy > 0) {
+            for (s16 row = (e->y + bottom) >> 4; row <= ((ny + bottom) >> 4);
+                 row++) {
+                if (feet_solid(e, row)) {
+                    ny = (row << 4) - bottom;
+                    e->vy = 0;
+                    e->jumping = 0;
+                    e->moving = 0;
+                    return TRUE;
+                }
+            }
+        }
+        e->y = ny;
+        return FALSE;
+    }
+
     case AI_TELEPORT:
         // PC teleports around the player; keep it close but on the parent's
         // patrol span so it cannot end up inside a wall far away.
@@ -484,6 +574,7 @@ static Enemy *enemy_add(u8 def_i, s16 x, s16 y, s16 x_min, s16 x_max, u8 dir)
     e->jumping = 0;
     e->moving = 0;
     e->move_acc = 0;
+    e->respawn_t = 0;
     if (d->is_boss && boss_i < 0) boss_i = idx;
     e->spr = SPR_addSprite(d->spr, e->x - camera.x, e->y - camera.y,
                            TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
@@ -522,7 +613,27 @@ void enemies_update(void)
 
     for (u8 i = 0; i < enemy_count; i++) {
         Enemy *e = &enemies[i];
-        if (!e->alive) continue;
+        if (!e->alive) {
+            if (e->respawn_t && --e->respawn_t == 0) {
+                const EnemyDef *rd = e->def;
+                e->x = e->spawn_x;
+                e->y = e->spawn_y;
+                e->hp = rd->hp;
+                e->hurt_timer = 0;
+                e->ai_phase = AI_FIRST;
+                e->ai_chain = 0;
+                e->ai_wait = 0;
+                e->act_t = 0;
+                e->jumping = 0;
+                e->moving = 0;
+                e->shooting = 0;
+                e->move_acc = 0;
+                e->vy = 0;
+                e->alive = (e->spr != NULL);
+                if (e->spr) SPR_setVisibility(e->spr, VISIBLE);
+            }
+            continue;
+        }
         const EnemyDef *d = e->def;
 
         if (e->hurt_timer) e->hurt_timer--;
@@ -694,12 +805,20 @@ u8 enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage, s8 shot_dir,
                 s16 sx = cx - camera.x;
                 s16 sy = cy - camera.y;
                 if (sx >= 0 && sx < 320 && sy >= 0 && sy < 224)
-                    objects_drop_item(cx, cy);
+                    objects_drop_item(cx, cy, d->is_sub_boss != 0);
                 explosion_spawn(e->x, e->y);
             }
-            if (e->spr) SPR_releaseSprite(e->spr);
-            e->spr = NULL;
-            e->alive = FALSE;
+            if (d->respawn_delay && !d->is_boss && !d->is_sub_boss) {
+                // PC classnpc auto_respawn: keep the sprite hidden and revive
+                // at the spawn point after respawn_delay (ms -> 60fps).
+                if (e->spr) SPR_setVisibility(e->spr, HIDDEN);
+                e->respawn_t = (u16)(((u32)d->respawn_delay * 6) / 100);
+                e->alive = FALSE;
+            } else {
+                if (e->spr) SPR_releaseSprite(e->spr);
+                e->spr = NULL;
+                e->alive = FALSE;
+            }
         }
         return 1;
     }
@@ -749,6 +868,20 @@ bool enemies_nearest(s16 x, s16 y, s16 *tx, s16 *ty)
         }
     }
     return found;
+}
+
+bool enemies_subboss_alive_left(s16 tile_x)
+{
+    for (u8 i = 0; i < enemy_count; i++) {
+        Enemy *e = &enemies[i];
+        if (!e->alive) continue;
+        const EnemyDef *d = e->def;
+        if (!d->is_boss && !d->is_sub_boss) continue;
+        s16 ex = e->x;
+        if (ex >= (s16)((tile_x - 20) * 16) && ex <= (s16)(tile_x * 16))
+            return TRUE;
+    }
+    return FALSE;
 }
 
 bool enemies_boss_died(void)

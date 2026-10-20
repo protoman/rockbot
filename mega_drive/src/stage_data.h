@@ -78,6 +78,8 @@ typedef struct {
     u8 speed;           // px/frame
     u8 fly;             // 1 = no gravity
     u8 is_boss;
+    u8 is_sub_boss;     // PC file_npc.is_sub_boss (doors wait for it)
+    u16 respawn_delay;  // PC respawn_delay in ms (0 = none)
     u8 shot;            // default projectile id
     u16 range;          // AI walk/wait distance
     s16 box_l, box_t;

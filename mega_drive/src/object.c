@@ -5,6 +5,7 @@
 #include "player.h"
 #include "resources.h"
 #include "dialogs.h"
+#include "enemy.h"
 
 // Map objects (pills, 1UP, fall/fly platforms, checkpoint, boss teleporter).
 // Behavior mirrors PC objects/object.cpp for the types shipped in
@@ -193,11 +194,12 @@ static const ObjectDef *drop_def(u8 type)
 
 // Spawn a dropped item at a world position (enemy centre). Duration matches
 // PC object::set_duration(4500): 4.5s at 60fps.
-void objects_drop_item(s16 cx, s16 cy)
+void objects_drop_item(s16 cx, s16 cy, bool subboss)
 {
     u8 r = (u8)(random() % 100);
     u8 type;
-    if (r >= 97)      type = 5;
+    if (subboss)      type = 5;     // PC: sub-boss always big energy
+    else if (r >= 97) type = 5;
     else if (r >= 95) type = 6;
     else if (r >= 80) type = 7;
     else if (r >= 65) type = 8;
@@ -718,6 +720,9 @@ void objects_update(void)
                 continue;
             }
             if (d->type == 30) {                    // boss door: open on touch
+                // PC classmap.cpp:1611: a door stays shut while a boss or
+                // sub-boss is alive on the left side of it.
+                if (enemies_subboss_alive_left(o->x >> 4)) continue;
                 o->started = TRUE;
                 o->frame = (u8)(d->frames - 1);
                 if (o->spr) SPR_setFrame(o->spr, o->frame);
