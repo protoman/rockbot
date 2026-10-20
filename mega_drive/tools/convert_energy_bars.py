@@ -32,7 +32,9 @@ def main():
     if src.size != (8, 51):
         raise SystemExit("energy_bar_vertical: expected 8x51, got %s" % (src.size,))
     for name, mapping in BAR_VARIANTS.items():
-        out = Image.new("P", (8, 56))
+        # SGDK/rescomp reads frames left-to-right; keep the 7 chunks in a
+        # horizontal 56x8 strip, not stacked vertically.
+        out = Image.new("P", (56, 8))
         # Give the used indices real colours so rescomp keeps the indexed
         # image mapping; the runtime sprite still selects PAL2/PAL0.
         pal = [0] * 48
@@ -45,10 +47,12 @@ def main():
         pal[13 * 3:13 * 3 + 3] = [139, 0, 115]
         pal[14 * 3:14 * 3 + 3] = [0, 113, 238]
         out.putpalette(pal)
-        for y in range(56):
-            for x in range(8):
-                rgb = src.getpixel((x, y)) if y < 51 else (0, 0, 0)
-                out.putpixel((x, y), mapping.get(rgb, 0))
+        for f in range(7):
+            for y in range(8):
+                sy = f * 8 + y
+                for x in range(8):
+                    rgb = src.getpixel((x, sy)) if sy < 51 else (0, 0, 0)
+                    out.putpixel((f * 8 + x, y), mapping.get(rgb, 0))
         path = os.path.join(RES, name + ".png")
         out.save(path)
         print("wrote", path)
