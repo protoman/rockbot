@@ -50,6 +50,15 @@ void stage_autoscroll(s8 dir);
 extern Map *stage_map;
 extern Vect2D_s16 camera;
 extern u8 stage_current_map;
+// Optional camera X for the next stage_load()'s first full draw. The room
+// transition already knows the destination camera; starting the new map at 0
+// and fixing it afterwards shows one frame of the map's left edge (the flash
+// seen right after a Mummy stair). -1 = normal start at 0.
+extern s16 stage_pending_camera_x;
+// TRUE for the stage_load() immediately following a room transition: the
+// transition already shows the destination, so keep the display enabled to
+// avoid a black/one-frame flash while the real map is rebuilt.
+extern bool stage_load_in_place;
 
 // Terrain value at a map tile (out of range: solid at the sides, sky below).
 u16 stage_terrain_at(u8 map, s16 tileX, s16 tileY);
@@ -85,6 +94,9 @@ void stage_release_map(void);
 
 // Direct camera set for a link arrival (PC set_scrolling), divider-safe.
 void stage_arrival_camera(s16 focusX, s16 focusY);
+// Same, but with the camera X the transition already computed, so the first
+// frame after stage_load uses exactly the same scroll (no one-frame shift).
+void stage_arrival_camera_at(s16 cam_x, s16 focusY);
 
 // The camera X stage_arrival_camera() picks for `focus_x` on `map`, without
 // touching the plane. The room transition needs it before the destination

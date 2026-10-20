@@ -28,4 +28,10 @@
 bool transition_scroll(u8 from_map, u8 to_map, s16 to_cam_x,
                        s16 player_x, s16 player_y, bool top_to_bottom);
 
+// Diagnostic: why the last transition fell back to the fade.
+// 1 same map, 2 no VRAM, 3 MAP_create, 4 unpack, 5 >256 tiles, 6 no room.
+extern u8 transition_fail_code;
+extern u8 transition_fail_map;
+extern u16 transition_fail_free_kb;
+
 #endif

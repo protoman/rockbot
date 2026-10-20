@@ -346,16 +346,33 @@ static RunResult runStage(u8 stage)
             }
             SPR_setAnim(player.spr, ANIM_STAND);
         }
-        for (u16 phase = 0; phase < 6; phase++) {
-            // PC redraws the stage each phase so the message can blink
+        // Three blinks, each with a full second of readable on-screen time
+        // (the PC's 200ms flashes were too short on the MD).
+        for (u16 blink = 0; blink < 3; blink++) {
             stage_force_redraw();
-            if (!(phase & 1)) drawCentered("MISSION STARTED!", 13);
-            for (u16 i = 0; i < 12; i++) {                   // 200ms
+            // stage_force_redraw queues the map rewrite; flush it before
+            // drawing the text or the first vblank painted over the message.
+            SYS_doVBlankProcess();
+            drawCentered("MISSION STARTED!", 13);
+            for (u16 i = 0; i < 30; i++) {                   // 500ms on
+                SPR_update();
+                SYS_doVBlankProcess();
+            }
+            stage_force_redraw();
+            SYS_doVBlankProcess();
+            for (u16 i = 0; i < 8; i++) {                    // 133ms off
                 SPR_update();
                 SYS_doVBlankProcess();
             }
         }
-        // clear the message and leave the plane tidy for the first frame
+        // Hold the final message for one more second, then clear the plane.
+        stage_force_redraw();
+        SYS_doVBlankProcess();
+        drawCentered("MISSION STARTED!", 13);
+        for (u16 i = 0; i < 30; i++) {
+            SPR_update();
+            SYS_doVBlankProcess();
+        }
         stage_force_redraw();
         player_sync_sprite();
         SYS_doVBlankProcess();
@@ -483,12 +500,17 @@ static RunResult runStage(u8 stage)
                                                     to_trans == TRANS_T2B);
             if (!scrolled) PAL_fadeOutAll(10, FALSE);
 
+            // Show the destination at its arrival camera on the first drawn
+            // frame; otherwise stage_load displays screen 0 first and the
+            // correction to the stair position flashes for a frame.
+            stage_pending_camera_x = cam_x;
+            stage_load_in_place = scrolled;
             stage_load(to_map);
             player_place(px, py);
             if (on_stair) player.on_ladder = TRUE;   // arrive hanging on it
             if (!scrolled) player_restore_palette();  // fade blacked out PAL2
             player_get_box(&bl, &bt, &br, &bb);
-            stage_arrival_camera((bl + br) / 2, (bt + bb) / 2);
+            stage_arrival_camera_at(cam_x, (bt + bb) / 2);
             player_sync_sprite();   // else it flashes at the old screen spot
 
             if (!scrolled) {
@@ -671,9 +693,11 @@ int main(bool hardReset)
     SPR_initEx(504); // see runStage() — sprite VRAM 936..1439
 
     // The default DMA queue (80 entries) overflows during stage_load's force
-    // map redraw, silently dropping queued tileset/palette transfers — the
-    // map then renders stale title-screen tiles. Give the queue room.
-    DMA_setMaxQueueSize(500);
+    // map redraw / animated-frame upload (up to 17 slots x 6 frames), silently
+    // dropping queued tileset/palette transfers. 192 entries covers that and
+    // costs 3 KB instead of the old 8 KB, leaving the heap room for the
+    // destination MAP allocated by a room transition (Mummy stairs).
+    DMA_setMaxQueueSize(192);
     DMA_setMaxTransferSize(0); // unlimited DMA transfer per frame
 
     // Force known scroll/window state. SGDK's boot only writes the first

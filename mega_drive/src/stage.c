@@ -13,6 +13,8 @@
 Map *stage_map;
 Vect2D_s16 camera;
 u8 stage_current_map;
+s16 stage_pending_camera_x = -1;
+bool stage_load_in_place;
 
 #define STAGE_MASK_BYTES ((stage_def->map_w * stage_def->map_h + 7) / 8)
 
@@ -340,22 +342,26 @@ void stage_load(u8 map_index)
     stage_current_map = map_index;
 
     bool wasEnabled = VDP_isEnable();
-    VDP_setEnable(FALSE);
-
-    VDP_clearPlane(BG_A, TRUE);
-    VDP_clearPlane(BG_B, TRUE);
+    const bool in_place = stage_load_in_place;
+    stage_load_in_place = FALSE;
+    if (!in_place) {
+        VDP_setEnable(FALSE);
+        VDP_clearPlane(BG_A, TRUE);
+        VDP_clearPlane(BG_B, TRUE);
+    }
 
     // Load tileset and palettes. CRAM writes are only reliable with the
     // display disabled (or during vblank): PAL1/PAL3 use CPU writes here
     // and work; PAL0 used a queued DMA that does not land in this window
     // (the CRAM readback showed the enemies/objects/HUD line still holding
     // another, one-step-darker palette).
-    PAL_setPalette(STAGE_PAL, stage_def->palettes[map_index]->data, CPU);
+    PAL_setPalette(STAGE_PAL, stage_def->palettes[map_index]->data,
+                   in_place ? DMA_QUEUE : CPU);
     // PAL0 = shared font + enemy/object/HUD palette. Loaded from the
     // rescomp PALETTE resource (same mechanism as the working PAL1/PAL3
     // lines) instead of the C array, which did not stick: the CRAM readback
     // showed PAL0 holding another palette while PAL1 decoded exactly.
-    PAL_setPalette(PAL0, pal_ui.data, CPU);
+    PAL_setPalette(PAL0, pal_ui.data, in_place ? DMA_QUEUE : CPU);
 
     // Flush anything the previous map queued, then drop it BEFORE the tileset
     // load. A compressed tileset allocated its unpack buffer from the heap,
@@ -364,7 +370,19 @@ void stage_load(u8 map_index)
     // with garbage tiles after a room transition. Stage tilesets are stored
     // uncompressed now (res/resources.res NONE), and freeing first also gives
     // MAP_create the largest contiguous block.
-    SYS_doVBlankProcess();
+    // In-place: keep the transition's last frame displayed. Do not flush the
+    // queued palette/tileset now; they flush together at the end, after the
+    // real map tilemap is written (otherwise T2B shows one white frame).
+    if (!in_place) {
+        SYS_doVBlankProcess();
+    } else {
+        // Flush the queued palette while the transition's last frame is still
+        // shown, then load the base tileset synchronously. MAP_scrollToEx
+        // below writes tilemap entries that reference these base tiles; if the
+        // tileset is only queued, that first real-map frame shows blank/white
+        // tiles (the T2B stair flash).
+        SYS_doVBlankProcess();
+    }
     stage_release_map();
     VDP_loadTileSet(stage_def->tile_sets[map_index], TILE_USER_INDEX, DMA);
     stage_bg_tile_base = stage_layout_bg(map_index);
@@ -380,9 +398,10 @@ void stage_load(u8 map_index)
     }
     MAP_setDataPatchCallback(stage_map, stage_map_patch);
 
-    camera.x = 0;
+    camera.x = (stage_pending_camera_x >= 0) ? stage_pending_camera_x : 0;
     camera.y = 0;
-    MAP_scrollToEx(stage_map, 0, 0, TRUE);   // full draw on first load
+    stage_pending_camera_x = -1;
+    MAP_scrollToEx(stage_map, camera.x, camera.y, TRUE);   // full draw on first load
 
     bg_load(map_index);
     stage_cycle_pal3_apply();                // PAL3 art: fix the palette bits
@@ -400,7 +419,7 @@ void stage_load(u8 map_index)
 
     // Flush any pending transfers and restore display
     SYS_doVBlankProcess();
-    VDP_setEnable(wasEnabled);
+    if (!in_place) VDP_setEnable(wasEnabled);
 
 
     // BG vertical scroll (PC draws the bg at screen y = adjust_y, classmap
@@ -599,7 +618,13 @@ void stage_release_map(void)
 // map0 (139,13) the view must not span the 137/138 divider.
 void stage_arrival_camera(s16 focusX, s16 focusY)
 {
-    camera.x = stage_arrival_camera_x(stage_current_map, focusX);
+    stage_arrival_camera_at(stage_arrival_camera_x(stage_current_map, focusX),
+                            focusY);
+}
+
+void stage_arrival_camera_at(s16 cam_x, s16 focusY)
+{
+    camera.x = cam_x;
     camera.y = focusY - 112;
     clamp_camera();
     stage_force_redraw();

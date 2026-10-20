@@ -91,7 +91,11 @@ static void load_screen(Map *m, s16 cam, u16 *buf, s16 *hs, u16 *mt0_out)
     if (mt0 > (u16)(stage_def->map_w - TRANS_MCOLS))
         mt0 = stage_def->map_w - TRANS_MCOLS;
     MAP_getTilemapRect(m, mt0, 0, TRANS_MCOLS, TRANS_MROWS, FALSE, buf);
-    *hs = (s16)((u16)cam - mt0 * 16);
+    // VDP scroll is the negated source X (MAP_scrollToEx does -camera.x):
+    // screen pixel 0 displays plane pixel (0 - scroll). The window starts at
+    // map pixel mt0*16, so the scroll must be mt0*16 - cam, NOT cam - mt0*16.
+    // The old positive value shifted both halves by up to 30px (1-2 tiles).
+    *hs = (s16)((s16)(mt0 * 16) - cam);
     *mt0_out = mt0;
 }
 
@@ -125,13 +129,18 @@ static void apply_tile3(u16 *buf, u8 map, u16 mt0)
     }
 }
 
+u8 transition_fail_code;
+u8 transition_fail_map;
+u16 transition_fail_free_kb;
+
 bool transition_scroll(u8 from_map, u8 to_map, s16 to_cam_x,
                        s16 player_x, s16 player_y, bool top_to_bottom)
 {
-    if (from_map == to_map) return FALSE;
+    transition_fail_code = 0;
+    if (from_map == to_map) { transition_fail_code = 1; return FALSE; }
 
     const u16 spare = vram_free_base(from_map);
-    if (spare >= TILE_SPRITE_INDEX) return FALSE;
+    if (spare >= TILE_SPRITE_INDEX) { transition_fail_code = 2; return FALSE; }
 
     const s16 dcam = clamp_cam_x(to_cam_x);
 
@@ -142,7 +151,12 @@ bool transition_scroll(u8 from_map, u8 to_map, s16 to_cam_x,
     Map *dm = MAP_create(stage_def->map_defs[to_map], STAGE_PLANE,
                          TILE_ATTR_FULL(STAGE_PAL, FALSE, FALSE, FALSE,
                                         TILE_USER_INDEX));
-    if (!dm) return FALSE;
+    if (!dm) {
+        transition_fail_code = 3;
+        transition_fail_map = to_map;
+        transition_fail_free_kb = (u16)(MEM_getFree() / 1024);
+        return FALSE;
+    }
     u16 nmt0;
     s16 new_hs;
     load_screen(dm, dcam, newbuf, &new_hs, &nmt0);
@@ -153,8 +167,8 @@ bool transition_scroll(u8 from_map, u8 to_map, s16 to_cam_x,
     ts.compression = COMPRESSION_NONE;
     ts.numTile = 0;
     ts.tiles = trans_tiles;
-    if (!unpackTileSet(stage_def->tile_sets[to_map], &ts)) return FALSE;
-    if (ts.numTile > TRANS_TILES) return FALSE;
+    if (!unpackTileSet(stage_def->tile_sets[to_map], &ts)) { transition_fail_code = 4; return FALSE; }
+    if (ts.numTile > TRANS_TILES) { transition_fail_code = 5; return FALSE; }
 
     memset(trans_remap, 0xFF, ts.numTile);
 
@@ -170,7 +184,7 @@ bool transition_scroll(u8 from_map, u8 to_map, s16 to_cam_x,
                     u16 local = (*e & TILE_INDEX_MASK) - TILE_USER_INDEX;
                     if (local >= ts.numTile) continue;
                     if (trans_remap[local] == 0xFF) {
-                        if (spare + used >= TILE_SPRITE_INDEX) return FALSE;
+                        if (spare + used >= TILE_SPRITE_INDEX) { transition_fail_code = 6; return FALSE; }
                         trans_remap[local] = (u8)used;
                         VDP_loadTileData(&trans_tiles[local * 8], spare + used,
                                          1, DMA_QUEUE);
@@ -220,8 +234,15 @@ bool transition_scroll(u8 from_map, u8 to_map, s16 to_cam_x,
         // The tilemap slice boundary and the scroll split are the same line.
         {
             const s16 split = (s16)(span - off);
-            const s16 top_hs = top_to_bottom ? old_hs : new_hs;
-            const s16 bot_hs = top_to_bottom ? new_hs : old_hs;
+            // The stacked tilemap always has the outgoing screen above the
+            // incoming one, in BOTH directions: T2B grows the incoming slice
+            // from the bottom, B2T grows it from the top. So the top half of
+            // the scanlines keeps the old offset and the bottom half the new
+            // one, regardless of the slide direction. (The old conditional
+            // swapped them for B2T, shifting the incoming screen horizontally
+            // by up to 15px during the Mummy-stair transitions.)
+            const s16 top_hs = old_hs;
+            const s16 bot_hs = new_hs;
             for (u16 y = 0; y < TRANS_LINES; y++)
                 trans_hs_a[y] = (y < (u16)split) ? top_hs : bot_hs;
             VDP_setHorizontalScrollLine(STAGE_PLANE, 0, trans_hs_a,
