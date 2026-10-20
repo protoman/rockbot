@@ -218,7 +218,10 @@ make run EMU_ARGS=   # GL renderer instead of software
 - **Weapon bar colours** (2026-10-20): each in-game menu bar now uses
   `player_data[].wcol[weapon].color1` quantised to MD 3:3:3, via PAL0 entries
   1..11. The white fallback remains for unset colours.
-- Last commit: colour weapon menu bars from player weapon palettes.
+- **Menu text/bar layout** (2026-10-20): PAL0 slot 1 is kept black (the
+  font's background pixel), bar colours moved to slots 2..12; bars now sit on
+  the icon row (5 + row*3).
+- Last commit: keep font palette slot 1 black and align menu bars.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
