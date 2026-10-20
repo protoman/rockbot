@@ -76,15 +76,17 @@ static bool wait_frames(u16 n)
 static void layer_upload(u16 plane, const u16 *map, u16 w, u16 h,
                          u16 base, u16 pal, u16 row)
 {
-    static u16 cells[64 * 20];
+    // One row at a time: this buffer used to be 64x20 (2.5 KB of BSS), which
+    // shrank the heap enough that MAP_create could fail on some stages (black
+    // screen, then a crash in stage_update_camera).
+    static u16 cells[64];
     for (u16 y = 0; y < h; y++) {
         for (u16 x = 0; x < 64; x++) {
             u16 idx = map[y * w + (x % w)];
-            cells[y * 64 + x] = TILE_ATTR_FULL(pal, FALSE, FALSE, FALSE,
-                                               base + idx);
+            cells[x] = TILE_ATTR_FULL(pal, FALSE, FALSE, FALSE, base + idx);
         }
+        VDP_setTileMapDataRect(plane, cells, 0, row + y, 64, 1, 64, CPU);
     }
-    VDP_setTileMapDataRect(plane, cells, 0, row, 64, h, 64, CPU);
 }
 
 static void walking_parade(void)

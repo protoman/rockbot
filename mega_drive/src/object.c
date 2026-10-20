@@ -680,7 +680,16 @@ void objects_update(void)
         if (!on_screen) continue;   // no pickup/anim while fully off-screen
 
         // ---- player overlap: pickup / checkpoint -------------------------
-        if (pl < o->x + d->w && pr > o->x && pt < o->y + d->h && pb > o->y) {
+        // The boss door is solid, so collision clamps the player flush against
+        // its side (pr == o->x). A strict overlap test never fired there and
+        // the door stayed shut while the player pushed it. Treat contact as
+        // overlap for the door; all other objects keep the strict test.
+        bool touch = (pl < o->x + d->w && pr > o->x &&
+                      pt < o->y + d->h && pb > o->y);
+        if (!touch && d->type == 30)
+            touch = (pr >= o->x && pl <= o->x + d->w &&
+                     pt < o->y + d->h && pb > o->y);
+        if (touch) {
             if (d->type == 5) {                     // big energy pill (+8)
                 sfx_play(SFX_PILL);
                 u8 hp = player.hp + 8;
