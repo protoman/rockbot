@@ -4,6 +4,7 @@
 #include "ssel_data.h"
 #include "stage.h"
 #include "stage_data.h"   // STAGE_DEFINED_COUNT
+#include "sfx.h"
 
 #include <string.h>
 
@@ -164,18 +165,21 @@ u8 stage_select_run(u8 player, u16 stage_mask)
             if (sx == 1 && sy == 1) {
                 if (castle_unlocked) {
                     u8 st = castle_next_stage();
+                    sfx_play(SFX_STAGE_SELECTED);
                     SPR_end();
                     return st;            // unbeaten castle #1 stage
                 }
             } else {
                 u8 st = complete_stage();
                 if (stage_ready(st)) {
+                    sfx_play(SFX_STAGE_SELECTED);
                     SPR_end();
                     return st;
                 }
             }
         }
         if (moved) {
+            sfx_play(SFX_CURSOR);
             draw_names();
         }
 

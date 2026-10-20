@@ -31,6 +31,9 @@ static const SfxDef sfx_def[SFX_COUNT] = {
     [SFX_TELEPORT]     = { sfx_teleporter_activated, sizeof(sfx_teleporter_activated), SOUND_PCM_CH4, 6 },
     [SFX_WATER_ENTER]  = { sfx_water_enter,        sizeof(sfx_water_enter),        SOUND_PCM_CH4, 5 },
     [SFX_WATER_LEAVE]  = { sfx_water_leave,        sizeof(sfx_water_leave),        SOUND_PCM_CH4, 5 },
+    [SFX_DOOR_OPEN]    = { sfx_door_open,          sizeof(sfx_door_open),          SOUND_PCM_CH4, 6 },
+    [SFX_GOT_WEAPON]   = { sfx_got_weapon,         sizeof(sfx_got_weapon),         SOUND_PCM_CH4, 6 },
+    [SFX_STAGE_SELECTED] = { sfx_stage_selected,   sizeof(sfx_stage_selected),     SOUND_PCM_CH4, 6 },
     [SFX_CURSOR]       = { sfx_cursor,             sizeof(sfx_cursor),             SOUND_PCM_CH4, 6 },
 };
 

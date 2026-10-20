@@ -15,4 +15,7 @@ WAV sfx_got_item "sfx/got_item.wav" XGM2
 WAV sfx_teleporter_activated "sfx/teleporter_activated.wav" XGM2
 WAV sfx_water_enter "sfx/water_enter.wav" XGM2
 WAV sfx_water_leave "sfx/water_leave.wav" XGM2
+WAV sfx_door_open "sfx/door_open.wav" XGM2
+WAV sfx_got_weapon "sfx/got_weapon.wav" XGM2
+WAV sfx_stage_selected "sfx/stage_selected.wav" XGM2
 WAV sfx_cursor "sfx/cursor.wav" XGM2

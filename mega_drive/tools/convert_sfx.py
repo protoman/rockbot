@@ -42,6 +42,7 @@ SOUNDS = [
     "got_energy_pill", "got_item", "teleporter_activated",
     # player enters/leaves water
     "water_enter", "water_leave",
+    "door_open", "got_weapon", "stage_selected",
     # UI
     "cursor",
 ]

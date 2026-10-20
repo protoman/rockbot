@@ -18,6 +18,9 @@ extern const u8 sfx_got_item[4864];
 extern const u8 sfx_teleporter_activated[18688];
 extern const u8 sfx_water_enter[5376];
 extern const u8 sfx_water_leave[6656];
+extern const u8 sfx_door_open[16128];
+extern const u8 sfx_got_weapon[86272];
+extern const u8 sfx_stage_selected[86784];
 extern const u8 sfx_cursor[2560];
 
 #endif // _RES_SFX_PCM_H_

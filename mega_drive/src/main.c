@@ -17,6 +17,7 @@
 #include "bossintro.h"
 #include "playerselect.h"
 #include "transition.h"
+#include "sfx.h"
 #include "scene.h"
 #include "ending.h"
 #include "config.h"
@@ -643,6 +644,7 @@ static void showStageClear(u8 stage, bool first_clear)
 
     // Got-weapon screen: stage 0 and the castle stages have no weapon.
     if (first_clear && stage >= 1 && stage <= 8) {
+        sfx_play(SFX_GOT_WEAPON);
         drawCentered("YOU GOT", 10);
         drawCentered(weapon_data[stage].name, 12);
         for (u16 i = 0; i < 300; i++) {        // PC wait 5000ms

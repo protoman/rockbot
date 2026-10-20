@@ -23,6 +23,9 @@ typedef enum {
     SFX_TELEPORT,       // boss teleporter
     SFX_WATER_ENTER,    // player enters water
     SFX_WATER_LEAVE,    // player leaves water
+    SFX_DOOR_OPEN,      // boss door
+    SFX_GOT_WEAPON,     // weapon acquisition screen
+    SFX_STAGE_SELECTED, // stage select confirm
     SFX_CURSOR,         // menu open/cursor
     SFX_COUNT
 } SfxId;

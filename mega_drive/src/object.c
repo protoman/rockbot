@@ -772,6 +772,7 @@ void objects_update(void)
                 o->started = TRUE;
                 o->frame = (u8)(d->frames - 1);
                 if (o->spr) SPR_setFrame(o->spr, o->frame);
+                sfx_play(SFX_DOOR_OPEN);
                 continue;
             }
             if (d->type == 21 || d->type == 26 || d->type == 31) {
