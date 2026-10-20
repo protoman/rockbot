@@ -73,6 +73,13 @@ make run EMU_ARGS=   # GL renderer instead of software
   pickups show the CANOTUS dialog; SHORYUKEN (UP+DASH) is implemented. The
   save selector no longer draws "SLOT N" text over the icons (PC has no slot
   labels). Exact item-platform motion still needs playtesting.
+- **Projectiles + weaknesses** (2026-10-19): player FOLLOW / CENTERED /
+  ZIGZAG / BOMB / FREEZE / LASER trajectories implemented (SONAR bounces on
+  solid tiles, DESERT STORM homes, MAGIC STAR tracks the player then flies,
+  TIMED BOMB/DYNAMITE fuse + burst); enemy SIN / BOMB / FREEZE / CENTERED /
+  ZIGZAG / FALL_BOMB no longer fall back to straight. Every enemy now carries
+  the PC `weakness[9]` multipliers, and shots use the selected weapon's
+  entry. Bomb bursts still use the small explosion puff, not the PC 56px art.
 - **Map/stair fixes** (2026-10-19): links now carry the PC band width
   (`file_link.size`), reverse direction (`bidirecional`) and type, so the wide
   stairways in DEEP JUNGLE and SUN-GOD REALM trigger; door columns are added
@@ -88,8 +95,7 @@ make run EMU_ARGS=   # GL renderer instead of software
   `playSession` sends clears/game overs to the stage select (intro stage game
   over restarts it; stage 13's ending returns to the title). Approximations:
   no PC ring-explosion art, no player_victory flash/pose, no fade.
-- Last commit: weapon grid, COIL/JET items, ARMS charged shots, armor dialog
-  and SHORYUKEN.
+- Last commit: projectile trajectories + per-weapon enemy weaknesses.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER

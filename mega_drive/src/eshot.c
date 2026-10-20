@@ -4,6 +4,7 @@
 #include "player.h"
 #include "resources.h"
 #include "stage_data.h"
+#include "explosion.h"
 
 // PROJECTILE_TRAJECTORIES (PC defines.h) live in stage_data.h (shared with the
 // player shots in shot.c).
@@ -19,6 +20,9 @@ typedef struct {
     u8 dmg, w, h;
     u8 traj;
     u8 proj_id;
+    s8 dir;
+    u8 status;
+    u16 effect_t;
     u16 age;
     bool on;
     bool reflected;     // PC projectile.is_reflected: harmless after shield
@@ -106,6 +110,9 @@ bool eshot_fire(s16 x, s16 y, s16 dir, u8 proj_id)
         s->h = p->h;
         s->proj_id = proj_id;
         s->traj = p->traj;
+        s->dir = (s8)dir;
+        s->status = 0;
+        s->effect_t = 0;
         s->age = 0;
         s->on = TRUE;
         s->reflected = FALSE;
@@ -137,6 +144,17 @@ void eshots_set_visible(bool visible)
         if (shots[i].spr)
             SPR_setVisibility(shots[i].spr, visible ? VISIBLE : HIDDEN);
 }
+
+static bool eshot_solid(s16 x, s16 y)
+{
+    return stage_terrain_at(stage_current_map, x >> 4, y >> 4) == TERRAIN_SOLID;
+}
+
+// 32-step sine, amplitude 48 (PC trajectory SIN uses 3 tiles).
+static const s8 sin48[32] = {
+    0, 9, 18, 27, 34, 41, 45, 47, 48, 47, 45, 41, 34, 27, 18, 9,
+    0, -9, -18, -27, -34, -41, -45, -47, -48, -47, -45, -41, -34, -27, -18, -9,
+};
 
 void eshots_update(void)
 {
@@ -173,6 +191,49 @@ void eshots_update(void)
             // PC shakes the screen and the projectile stays put (no shake
             // ported yet); it expires after ~1s.
             if (s->age > QUAKE_LIFE) { kill(s); continue; }
+            break;
+        case TRAJ_SIN:
+            s->x += s->dx;
+            s->y = (s16)(s->y0 + sin48[(s->age >> 1) & 31]);
+            break;
+        case TRAJ_BOMB:
+        case TRAJ_FREEZE:
+            // BOMB/FREEZE: stationary fuse, then a puff and disappear.
+            if (s->age > 60) {
+                explosion_spawn(s->x, s->y);
+                kill(s);
+                continue;
+            }
+            break;
+        case TRAJ_CENTERED:
+            if (s->age < 30) {
+                s->x = s->x0;
+                s->y = s->y0;
+            } else {
+                s->x += s->dx;
+                s->y += s->dy;
+            }
+            break;
+        case TRAJ_ZIGZAG:
+            s->x += s->dx;
+            s->y += s->dy;
+            if (eshot_solid((s->dx > 0) ? s->x + s->w : s->x,
+                            s->y + s->h / 2) && s->status < 4) {
+                s->dx = (s16)-s->dx;
+                s16 vy = (s->dy < 0) ? -s->dy : s->dy;
+                if (vy == 0) vy = (s16)s->speed;
+                s->dy = (s->status & 1) ? -vy : vy;
+                s->status++;
+            }
+            break;
+        case TRAJ_FALL_BOMB:
+            s->y += s->speed;
+            if (eshot_solid(s->x + s->w / 2, s->y + s->h) ||
+                s->y > 240) {
+                explosion_spawn(s->x, s->y);
+                kill(s);
+                continue;
+            }
             break;
         default:                    // LINEAR / DIAG_UP / DIAG_DOWN / fallback
             s->x += s->dx;

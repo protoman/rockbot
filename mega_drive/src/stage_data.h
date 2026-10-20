@@ -40,7 +40,13 @@
 // trajectory print in tools/convert_enemies.py).
 #define TRAJ_LINEAR            0
 #define TRAJ_ARC               1
+#define TRAJ_SIN                2
 #define TRAJ_BOMB               5
+#define TRAJ_FREEZE             8
+#define TRAJ_CENTERED          11
+#define TRAJ_ZIGZAG            12
+#define TRAJ_FALL_BOMB         16
+#define TRAJ_LASER             17
 #define TRAJ_QUAKE             4
 #define TRAJ_FOLLOW            6
 #define TRAJ_PROGRESSIVE       7
@@ -79,6 +85,7 @@ typedef struct {
     u8 stand_n, walk_n, attack_n;
     u16 attack_ms;
     u8 shield_type;     // e_shield_types: SHIELD_STAND etc. (character.cpp:3357)
+    u8 weak[9];         // PC weakness[weapon].damage_multiplier (0 = immune)
 } EnemyDef;
 
 typedef struct {

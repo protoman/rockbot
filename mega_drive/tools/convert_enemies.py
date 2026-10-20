@@ -125,10 +125,12 @@ def read_enemy_defs(blob, ids):
             # immune to shots - see character::is_shielded (character.cpp:3357).
             # Several Helmut-type enemies are SHIELD_STAND (hide in the shell).
             "shield_type": b[5961],
-            # weakness[0] = normal weapon: (weapon_id, damage_multiplier,
-            # effect) at 5964+3i; PC multiplies projectile damage by it
-            # (classplayer.cpp:747). MILONGA BOT is weak to the buster (x3).
+            # weakness[i] = weapon i: (weapon_id, damage_multiplier, effect)
+            # at 5964+3i; PC multiplies projectile damage by it
+            # (classplayer.cpp:747). Index 0 is the buster. MILONGA BOT is
+            # weak to the buster (x3).
             "dmg_mul": b[5965],
+            "weak": [b[5965 + 3 * i] for i in range(9)],
             "speed": b[69],
             "proj0": b[1],
             "walk_range": struct.unpack_from("<h", b, 70)[0],
@@ -585,7 +587,9 @@ extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
             f"{shot0}, {d['walk_range']}, "
             f"{bl}, {bt}, {bw}, {bh}, "
             f"{len(p['stand'])}, {len(p['walk'])}, {len(p['attack'])}, "
-            f"{p['attack_ms']}, {d['shield_type']} }},  // {d['name']}\n")
+            f"{p['attack_ms']}, {d['shield_type']}, "
+            f"{{ {', '.join(str(x & 0xFF) for x in d['weak'])} }} }},"
+            f"  // {d['name']}\n")
     lines.append("};\n\n")
     lines.append(f"const EnemySpawn {PFX}_enemy_spawns[{UP}_ENEMY_SPAWN_COUNT] = {{\n")
     for (di, mp, x, y, xm, xx, dr) in spawn_out:

@@ -650,7 +650,7 @@ static bool enemy_is_shielded(const Enemy *e, s8 shot_dir)
 // Returns: 0 = miss, 1 = hit (damage applied), 2 = blocked by a shield
 // (the caller reflects the shot, PC classplayer.cpp:708).
 u8 enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage, s8 shot_dir,
-                   bool charged)
+                   bool charged, u8 weapon)
 {
     for (u8 i = 0; i < enemy_count; i++) {
         Enemy *e = &enemies[i];
@@ -670,10 +670,12 @@ u8 enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage, s8 shot_dir,
         // consumed but deals no damage.
         if (e->hurt_timer) return 1;
 
-        // weakness[0].damage_multiplier (PC classplayer.cpp:747
-        // damage x multiplier); 0 = immune to the normal weapon.
-        if (d->dmg_mul == 0) return 1;
-        u8 dmg = damage * d->dmg_mul;
+        // PC classplayer.cpp:747 uses weakness[weapon].damage_multiplier;
+        // 0 = immune to that weapon. Item weapons (9/10) have no weakness
+        // slot and use the buster's entry.
+        u8 mul = d->weak[(weapon < 9) ? weapon : 0];
+        if (mul == 0) return 1;
+        u8 dmg = damage * mul;
 
         e->hp = (dmg >= e->hp) ? 0 : e->hp - dmg;
         if (d->is_boss) e->hurt_timer = BOSS_HURT_FRAMES;
@@ -723,6 +725,30 @@ void enemies_boss_death_pos(s16 *x, s16 *y)
     const EnemyDef *d = enemies[boss_i].def;
     *x = enemies[boss_i].x + d->box_l + d->box_w / 2;
     *y = enemies[boss_i].y + d->box_t + d->box_h / 2;
+}
+
+bool enemies_nearest(s16 x, s16 y, s16 *tx, s16 *ty)
+{
+    s32 best = 0x7FFFFFFF;
+    bool found = FALSE;
+    for (u8 i = 0; i < enemy_count; i++) {
+        Enemy *e = &enemies[i];
+        if (!e->alive) continue;
+        const EnemyDef *d = e->def;
+        s16 ex = e->x + d->box_l + d->box_w / 2;
+        s16 ey = e->y + d->box_t + d->box_h / 2;
+        s16 sx = ex - camera.x;
+        if (sx < -40 || sx > 360) continue;
+        s32 dx = ex - x, dy = ey - y;
+        s32 dist = dx * dx + dy * dy;
+        if (dist < best) {
+            best = dist;
+            *tx = ex;
+            *ty = ey;
+            found = TRUE;
+        }
+    }
+    return found;
 }
 
 bool enemies_boss_died(void)

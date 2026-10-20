@@ -6,6 +6,7 @@
 #include "enemy.h"
 #include "object.h"
 #include "player.h"
+#include "explosion.h"
 #include "weapon_data.h"
 #include "resources.h"
 
@@ -25,6 +26,9 @@ typedef struct {
     u8 w, h;    // collision box (from the projectile table)
     u8 traj;
     u16 age;
+    u16 effect_t;
+    s8 dir;
+    u8 status;
     bool on;
     bool reflected;     // PC projectile.is_reflected: no more hits
 } Shot;
@@ -122,6 +126,9 @@ void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
         s->h = pd->h ? pd->h : 8;
         s->traj = pd->traj;
         s->age = 0;
+        s->effect_t = 0;
+        s->dir = (s8)dir;
+        s->status = 0;
         s->on = TRUE;
         s->reflected = FALSE;
         live++;
@@ -192,6 +199,9 @@ void shot_charge_fire(s16 x, s16 y, s16 dir, u8 level)
     s->dx = (dir < 0) ? -(s16)speed : (s16)speed;
     s->dy = 0;
     s->age = 0;
+    s->effect_t = 0;
+    s->dir = (s8)dir;
+    s->status = 0;
     s->on = TRUE;
     s->reflected = FALSE;
     cooldown = SHOT_COOLDOWN;
@@ -205,6 +215,11 @@ void shots_set_visible(bool visible)
     for (u8 i = 0; i < SHOT_MAX; i++)
         if (shots[i].spr)
             SPR_setVisibility(shots[i].spr, visible ? VISIBLE : HIDDEN);
+}
+
+static bool shot_solid(s16 x, s16 y)
+{
+    return stage_terrain_at(stage_current_map, x >> 4, y >> 4) == TERRAIN_SOLID;
 }
 
 void shot_update(void)
@@ -224,6 +239,68 @@ void shot_update(void)
         case TRAJ_ARC:
             s->x += s->dx;
             s->y = s->y0 - arc_offset(s->x - s->x0);
+            break;
+        case TRAJ_CENTERED:
+            // MAGIC STAR: held around the player, then released as linear.
+            if (s->age < 30) {
+                s16 l, t, r, b;
+                player_get_box(&l, &t, &r, &b);
+                s->x = (s16)((l + r) / 2 - s->w / 2);
+                s->y = (s16)((t + b) / 2 - s->h / 2);
+            } else {
+                s->x += s->dx;
+                s->y += s->dy;
+            }
+            break;
+        case TRAJ_FOLLOW: {
+            // DESERT STORM homes on the nearest live enemy (PC target pos).
+            s16 tx, ty;
+            if (enemies_nearest(s->x, s->y, &tx, &ty)) {
+                s16 sp = (s->dx < 0) ? -s->dx : s->dx;
+                if (sp == 0) sp = 2;
+                if (tx > s->x) s->x += sp;
+                else if (tx < s->x) s->x -= sp;
+                if (ty > s->y) s->y += sp;
+                else if (ty < s->y) s->y -= sp;
+            } else {
+                s->x += s->dx;
+                s->y += s->dy;
+            }
+            break;
+        }
+        case TRAJ_ZIGZAG:
+            s->x += s->dx;
+            s->y += s->dy;
+            if (shot_solid((s->dx > 0) ? s->x + s->w : s->x, s->y + s->h / 2)) {
+                s->dx = -s->dx;
+                s->dir = -s->dir;
+                s16 vy = (s->dy < 0) ? -s->dy : s->dy;
+                if (vy == 0) vy = 2;
+                s->dy = (s->status & 1) ? -vy : vy;
+                s->status++;
+            }
+            break;
+        case TRAJ_BOMB:
+        case TRAJ_FREEZE:
+            // TIMED BOMB / DYNAMITE: stationary fuse, then explosion.
+            if (s->age > 60) {
+                explosion_spawn(s->x, s->y);
+                enemies_try_hit(s->x - 20, s->y - 20, s->x + 20, s->y + 20,
+                                s->dmg, 0, TRUE, player_weapon());
+                shot_kill(s);
+                continue;
+            }
+            break;
+        case TRAJ_LASER:
+            // HADOUKEN/LASER: bounce off solid walls a few times.
+            s->x += s->dx;
+            s->y += s->dy;
+            if (shot_solid((s->dx > 0) ? s->x + s->w : s->x, s->y + s->h / 2)
+                && s->status < 4) {
+                s->dx = -s->dx;
+                s->dir = -s->dir;
+                s->status++;
+            }
             break;
         default:                    // LINEAR / DIAG_* / not ported -> straight
             s->x += s->dx;
@@ -248,6 +325,11 @@ void shot_update(void)
             SPR_setPosition(s->spr, s->x - camera.x, s->y - camera.y);
             continue;
         }
+        // Bomb/freeze fuses do not collide before they explode.
+        if (s->traj == TRAJ_BOMB || s->traj == TRAJ_FREEZE) {
+            SPR_setPosition(s->spr, s->x - camera.x, s->y - camera.y);
+            continue;
+        }
 
         // destructible walls (OBJ_DESTRUCTIBLE_WALL) stop a non-charged shot
         if (objects_try_hit(s->x, s->y, s->x + s->w - 1, s->y + s->h - 1,
@@ -261,7 +343,8 @@ void shot_update(void)
         // Charged shots also ignore shields: PC only reflects when
         // projectile.vanishes_on_hit is true.
         u8 hit = enemies_try_hit(s->x, s->y, s->x + s->w - 1, s->y + s->h - 1,
-                                 s->dmg, (s->dx < 0) ? -1 : 1, s->dmg >= 3);
+                                 s->dmg, (s->dx < 0) ? -1 : 1, s->dmg >= 3,
+                                 player_weapon());
         if (hit == 2) {
             // Shielded enemy: PC projectile::reflect() flips direction and
             // turns the shot into a diagonal (up/down by Y parity), then

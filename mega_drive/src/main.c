@@ -478,7 +478,7 @@ static RunResult runStage(u8 stage)
         if (player_is_shoryuken()) {
             s16 sl, st, sr, sb;
             player_get_box(&sl, &st, &sr, &sb);
-            enemies_try_hit(sl, st, sr, sb, 9, player.facing, TRUE);
+            enemies_try_hit(sl, st, sr, sb, 9, player.facing, TRUE, 0);
         }
         // PC map_present_boss: the stage boss's dialog appears the first time
         // he is on screen (stages 0..8; the castle stages have no boss text).
