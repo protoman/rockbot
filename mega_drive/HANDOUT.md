@@ -105,7 +105,15 @@ make run EMU_ARGS=   # GL renderer instead of software
   `playSession` sends clears/game overs to the stage select (intro stage game
   over restarts it; stage 13's ending returns to the title). Approximations:
   no PC ring-explosion art, no player_victory flash/pose, no fade.
-- Last commit: title CONFIG/ABOUT, game_finished player unlock.
+- **Ending parade + credits** (2026-10-19): after the stage-13 scene the
+  port plays the PC walking parade (the three `player_walking_layer*.png`
+  pieces on two planes, the two front layers split by `HSCROLL_LINE` so they
+  move at different speeds and the player sprite walks off-screen), then a
+  boss parade (one boss sprite + stage/boss name per defined stage) and the
+  scrolling `game_credits.txt`. START skips each part. The PC's full normal-
+  enemy line is approximated by the bosses; the walking art is 15-colour
+  decomposed (see `HANDOUT` ending notes).
+- Last commit: ending walking parade, boss parade and credits scroll.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
@@ -198,9 +206,13 @@ Stages 14..19 are **placeholders** in the PC data (`Fire Bot`, `Stage [16]`,
 …), and `game_properties_v301.dat` has `use_second_castle = 0`, so they are
 not part of the game. Do not convert them unless the user says otherwise.
 
-### 4. Ending
+### 4. Ending — DONE (visual pass pending)
 
-Falls out of the scene player plus a credits sequence; `ending/` art exists.
+Scene lists 2..5, the three-layer walking parade, boss parade and credits are
+in (`src/ending.c`). The PC full normal-enemy line is approximated by the
+stage bosses. `game_finished` is set before the ending and unlocks players 3/4.
+Known approximation: the walking layers are pinned to the MD crop/tile grid
+(row 8 / row 15) and use a 320px repeat instead of the PC's exact layer offsets.
 
 ### 5. Options / config — DONE (2026-10-19)
 

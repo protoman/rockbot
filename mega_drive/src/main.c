@@ -18,6 +18,7 @@
 #include "playerselect.h"
 #include "transition.h"
 #include "scene.h"
+#include "ending.h"
 #include "config.h"
 #include "dialogs.h"
 #include "weapon_data.h"
@@ -571,6 +572,7 @@ static RunResult runStage(u8 stage)
             config.game_finished = 1;
             config_save();
             scene_play((u8)(2 + (current_player & 3)));
+            ending_run();
         }
         return RUN_CLEARED;
     }

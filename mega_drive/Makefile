@@ -40,6 +40,7 @@ $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA) Makefile
 	$(PYTHON) tools/convert_players.py
 	$(PYTHON) tools/convert_weapons.py
 	$(PYTHON) tools/convert_menu_icons.py
+	$(PYTHON) tools/convert_credits.py
 	$(PYTHON) tools/convert_player.py
 	$(PYTHON) tools/convert_save_icons.py
 	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/boss_intro/boss_intro_bg.png \
@@ -51,6 +52,9 @@ $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA) Makefile
 	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/player_select_p3.png --name psel_p3
 	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/player_select_p4.png --name psel_p4
 	$(PYTHON) tools/convert_stage_select.py
+	$(PYTHON) tools/img2tiles.py $(PCROOT)/build/games/RockDroid1/images/ending/player_walking_layer1.png --name end_l1 --colors 15
+	$(PYTHON) tools/img2tiles.py $(PCROOT)/build/games/RockDroid1/images/ending/player_walking_layer2.png --name end_l2 --colors 15
+	$(PYTHON) tools/img2tiles.py $(PCROOT)/build/games/RockDroid1/images/ending/player_walking_layer3.png --name end_l3 --colors 15
 	$(PYTHON) tools/convert_save_selector.py
 	$(PYTHON) tools/img2tiles.py \
 	    $(PCROOT)/build/games/RockDroid1/images/backgrounds/weapon_menu.png \

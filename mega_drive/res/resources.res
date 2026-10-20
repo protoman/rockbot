@@ -69,6 +69,9 @@ PALETTE dlg_face_7_pal "dlg_face_7.png"
 SPRITE dlg_face_7_sprite "dlg_face_7.png" 32p 32p FAST [[0]]
 PALETTE dlg_face_8_pal "dlg_face_8.png"
 SPRITE dlg_face_8_sprite "dlg_face_8.png" 32p 32p FAST [[0]]
+PALETTE end_l1_pal "end_l1_tiles.png"
+PALETTE end_l2_pal "end_l2_tiles.png"
+PALETTE end_l3_pal "end_l3_tiles.png"
 PALETTE menu_icons_pal "menu_icons.png"
 SPRITE menu_icon_sprite "menu_icons.png" 8p 8p FAST [[0,0,0,0,0,0,0,0,0,0,0]]
 PALETTE dlg_face_armor_pal "dlg_face_armor.png"
