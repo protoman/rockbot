@@ -146,7 +146,10 @@ make run EMU_ARGS=   # GL renderer instead of software
 - **Door / weapon / stage-select SFX** (2026-10-20): boss doors, the
   first-clear weapon screen and stage-select movement/confirm now use the PC
   samples.
-- Last commit: door, weapon and stage-select SFX.
+- **HUD weapon colour** (2026-10-20): the weapon gauge row is drawn with the
+  player palette (PAL2); its green fill is mapped to palette index 13, so it
+  follows the selected weapon/player colour instead of staying green.
+- Last commit: HUD weapon row follows weapon colours.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
