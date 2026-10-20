@@ -125,7 +125,13 @@ make run EMU_ARGS=   # GL renderer instead of software
   zig-zag/laser projectiles flip their sprite when they reverse. ABOUT now has
   the PC site/bugs/Twitter/Facebook links, and EXTRAS has a CREDITS entry that
   runs the same scroll as the ending.
-- Last commit: freeze effect, screen shake, ABOUT links and credits entry.
+- **Transition/heap** (2026-10-20): DMA queue 500 -> 192 freed enough heap
+  for the destination `MAP_create` (the Mummy stair fade was an out-of-memory
+  fallback, fail code 3); the transition hscroll sign was fixed, stage_load
+  starts at the exact arrival camera, and the post-load arrival redraw is
+  skipped (it was the one-frame dark/orange flash). Normal display-off stage
+  load remains for transitions.
+- Last commit: post-transition redraw/flash fix.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
