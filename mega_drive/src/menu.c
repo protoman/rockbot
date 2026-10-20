@@ -30,6 +30,7 @@
 #define MENU_TILE_BASE stage_bg_tile_base
 #define MENU_BAR_TILE  (MENU_TILE_BASE + MENU_TILE_COUNT)
 #define MENU_BAR_TILES 11
+#define MENU_GRAY_BAR_TILE (MENU_BAR_TILE + MENU_BAR_TILES)
 
 static Sprite *portrait;
 static u16 cells[MENU_MAP_W * MENU_MAP_H];
@@ -67,16 +68,27 @@ static u8 find_next_weapon(u8 cur, s8 dir)
 // y = 60+row*20; icon at x-10, y+1). Icons are the PC 8x8 icons_small art,
 // converted to one shared 15-colour sprite palette.
 static Sprite *wicon[WEAPON_SWITCH_N];
+static Sprite *wicon_gray[WEAPON_SWITCH_N];
 static Sprite *selected_icon;
 
 static void icons_release(void)
 {
     for (u8 w = 0; w < WEAPON_SWITCH_N; w++) {
         if (wicon[w]) { SPR_releaseSprite(wicon[w]); wicon[w] = NULL; }
+        if (wicon_gray[w]) { SPR_releaseSprite(wicon_gray[w]); wicon_gray[w] = NULL; }
     }
     if (selected_icon) {
         SPR_releaseSprite(selected_icon);
         selected_icon = NULL;
+    }
+}
+
+static void menu_icons_select(void)
+{
+    for (u8 w = 0; w < WEAPON_SWITCH_N; w++) {
+        bool sel = (w == player_weapon());
+        if (wicon[w]) SPR_setVisibility(wicon[w], sel ? VISIBLE : HIDDEN);
+        if (wicon_gray[w]) SPR_setVisibility(wicon_gray[w], sel ? HIDDEN : VISIBLE);
     }
 }
 
@@ -92,11 +104,21 @@ static void icons_create(void)
         s16 y = (s16)(45 + row * 20);
         Sprite *sp = SPR_addSprite(&menu_icon_sprite, x, y,
                                    TILE_ATTR(PAL3, FALSE, FALSE, FALSE));
-        if (!sp) break;
-        SPR_setAutoAnimation(sp, FALSE);
-        SPR_setFrame(sp, w);
-        wicon[w] = sp;
+        Sprite *gr = SPR_addSprite(&menu_icon_gray_sprite, x, y,
+                                   TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
+        if (!sp && !gr) break;
+        if (sp) {
+            SPR_setAutoAnimation(sp, FALSE);
+            SPR_setFrame(sp, w);
+            wicon[w] = sp;
+        }
+        if (gr) {
+            SPR_setAutoAnimation(gr, FALSE);
+            SPR_setFrame(gr, w);
+            wicon_gray[w] = gr;
+        }
     }
+    menu_icons_select();
     // Selected-weapon indicator at the bottom of the panel: icon + name.
     selected_icon = SPR_addSprite(&menu_icon_sprite, 96, 152,
                                   TILE_ATTR(PAL3, FALSE, FALSE, FALSE));
@@ -125,7 +147,7 @@ static void menu_restore_strip(u16 col, u16 row, u16 count)
 // One tile per weapon so each bar can use a different PAL0 index. Palette
 // entries 1..11 are filled with the selected player's weapon colors; the
 // font itself only uses indices 0 and 15.
-static u32 menu_bar_tiles[MENU_BAR_TILES][8];
+static u32 menu_bar_tiles[MENU_BAR_TILES + 1][8];
 
 static void make_bar_tiles(void)
 {
@@ -140,20 +162,26 @@ static void make_bar_tiles(void)
         }
         for (u8 y = 0; y < 8; y++) menu_bar_tiles[w][y] = row;
     }
+    // Last tile: grey unselected bars use PAL0 index 13.
+    u32 grey = 0;
+    for (u8 x = 0; x < 8; x++)
+        grey |= (u32)((x & 1) ? 13 : 1) << (28 - x * 4);
+    for (u8 y = 0; y < 8; y++) menu_bar_tiles[MENU_BAR_TILES][y] = grey;
 }
 
 // The old ASCII gauge used the font palette and disappeared against the
 // panel. Draw a plain white tile strip instead; it is intentionally simple
 // until the PC menu art is matched exactly.
 static void draw_weapon_bar(u8 value, u8 max, u16 col, u16 row,
-                           u8 n, u8 weapon)
+                           u8 n, u8 weapon, bool selected)
 {
     if (max == 0) max = 1;
     u8 filled = (u8)(((u16)value * n) / max);
     if (filled > n) filled = n;
     menu_restore_strip(col, row, n);
-    const s16 tile = (s16)(MENU_BAR_TILE + ((weapon < MENU_BAR_TILES)
-                                            ? weapon : 0));
+    const s16 tile = selected
+        ? (s16)(MENU_BAR_TILE + ((weapon < MENU_BAR_TILES) ? weapon : 0))
+        : (s16)MENU_GRAY_BAR_TILE;
     for (u8 i = 0; i < filled; i++) {
         VDP_setTileMapXY(BG_A,
                          TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, tile),
@@ -172,9 +200,11 @@ static void draw_grid_bars(void)
         u16 x = (u16)(3 + col * 10);
         // PC bar y=60+row*20; after the 16px crop it shares the icon line
         // (icon y=45+row*20). Tile-row granularity: rows 5/8/11.
-        u16 y = (u16)(5 + row * 3);
+        static const u8 bar_row[3] = { 5, 8, 10 };
+        u16 y = bar_row[row];
         u8 value = (w == 0) ? PLAYER_INITIAL_HP : player.ammo[w];
-        draw_weapon_bar(value, PLAYER_INITIAL_HP, x, y, 6, w);
+        draw_weapon_bar(value, PLAYER_INITIAL_HP, x, y, 6, w,
+                        w == player_weapon());
     }
 }
 
@@ -186,7 +216,11 @@ static void draw_weapon_line(void)
     menu_restore_strip(13, 20, 27);
     VDP_drawText("WEAPON/ITEM:", 13, 19);
     VDP_drawText(weapon_data[w].name, 13, 20);
-    if (selected_icon) SPR_setFrame(selected_icon, w);
+    if (selected_icon) {
+        SPR_setFrame(selected_icon, w);
+        SPR_setVisibility(selected_icon, VISIBLE);
+    }
+    menu_icons_select();
     if (w != 0) {
         u8 a = player_weapon_ammo();
         char buf[4] = { '[', ' ', ' ', 0 };
@@ -264,7 +298,7 @@ bool menu_open(u16 weapon_mask)
     // which dedups/reorders and would break the tilemap indices)
     VDP_loadTileData(menu_tiles_data, MENU_TILE_BASE, MENU_TILE_COUNT, DMA_QUEUE);
     make_bar_tiles();
-    for (u8 w = 0; w < MENU_BAR_TILES; w++)
+    for (u8 w = 0; w < MENU_BAR_TILES + 1; w++)
         VDP_loadTileData(menu_bar_tiles[w], (u16)(MENU_BAR_TILE + w), 1,
                          DMA_QUEUE);
     // Keep the font on the UI palette; a stage palette line here can leave
@@ -276,6 +310,7 @@ bool menu_open(u16 weapon_mask)
     menu_pal0[0] = menu_pal.data[3];
     for (u8 w = 0; w < MENU_BAR_TILES; w++)
         menu_pal0[2 + w] = player_weapon_color(w);
+    menu_pal0[13] = pal_ui.data[8];       // grey for unselected icons/bars
     PAL_setPalette(PAL0, menu_pal0, DMA_QUEUE);
     // DMA_QUEUE: a CPU CRAM write during active display corrupts on
     // accurate emulators (see debugging.md / the SGDK boot notes)
@@ -285,9 +320,9 @@ bool menu_open(u16 weapon_mask)
     // box over the blue panel. Borrow the panel's dark background while the
     // menu is open and restore the old CRAM0 on close.
     const u16 old_backdrop = PAL_getColor(0);
-    PAL_setColor(0, menu_pal.data[3]);
 
     stage_sprites_visible(FALSE);
+    SYS_doVBlankProcess();     // apply PAL0/PAL1 before drawing text
     menu_draw_panel();
 
     portrait = SPR_addSprite(player_definition(), 6, 141,

@@ -78,6 +78,7 @@ extern const Palette end_l2_pal;
 extern const Palette end_l3_pal;
 extern const Palette menu_icons_pal;
 extern const SpriteDefinition menu_icon_sprite;
+extern const SpriteDefinition menu_icon_gray_sprite;
 extern const SpriteDefinition hud_icon_sprite;
 extern const SpriteDefinition hud_bar_hp_top_sprite;
 extern const SpriteDefinition hud_bar_hp_mid_sprite;

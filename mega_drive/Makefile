@@ -47,6 +47,7 @@ $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA) $(MUSIC_TOOL) Makefile
 	$(PYTHON) tools/convert_players.py
 	$(PYTHON) tools/convert_weapons.py
 	$(PYTHON) tools/convert_menu_icons.py
+	$(PYTHON) tools/convert_menu_icons_gray.py
 	$(PYTHON) tools/convert_hud_icons.py
 	$(PYTHON) tools/convert_credits.py
 	$(PYTHON) tools/convert_player.py
