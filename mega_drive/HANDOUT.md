@@ -141,7 +141,9 @@ make run EMU_ARGS=   # GL renderer instead of software
   gap; Daisie palms also use their frame-0 animated cells from the start.
 - **Water SFX** (2026-10-20): entering/leaving water plays the PC
   `water_enter` / `water_leave` samples; both are also in the EXTRAS SFX test.
-- Last commit: water enter/leave sound effects.
+- **More SFX** (2026-10-20): door opening, got-weapon and stage-select
+  confirmation now use the PC samples; all are in the EXTRAS SFX test.
+- Last commit: door, weapon and stage-select SFX.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
