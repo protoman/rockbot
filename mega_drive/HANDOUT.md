@@ -184,7 +184,11 @@ make run EMU_ARGS=   # GL renderer instead of software
   row because the hitbox bottom is exclusive. Standing/landing on a SPIKE
   tile (the lava pool at the start of DARK MINE) did nothing. The scan now
   includes `bottom >> 4`.
-- Last commit: damage player when standing on lava/spike tiles.
+- **GOLD CART wall hop** (2026-10-20): the PC runs a walker's
+  `always_move_ahead` self-loop and jumps once when the next tile is blocked
+  with open space above. DARK MINE's GOLD CART now does that instead of
+  stopping at low walls.
+- Last commit: gold cart hops low walls ahead.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
