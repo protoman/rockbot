@@ -446,7 +446,6 @@ static RunResult runStage(u8 stage)
             pad = JOY_readJoypad(JOY_1);
         }
         prev_pad = pad;
-
         objects_update();   // platforms carry the player before his physics
         player_update(pad);
         player_check_scroll_lock(pad);
@@ -504,7 +503,11 @@ static RunResult runStage(u8 stage)
             // frame; otherwise stage_load displays screen 0 first and the
             // correction to the stair position flashes for a frame.
             stage_pending_camera_x = cam_x;
-            stage_load_in_place = scrolled;
+            // Keep the normal "display off while rebuilding" path: the
+            // in-place path let MAP_scrollToEx write base tile indices before
+            // the tileset/palette were fully live, showing the dark/orange
+            // intermediate frames on the downward Mummy stair.
+            stage_load_in_place = FALSE;
             stage_load(to_map);
             player_place(px, py);
             if (on_stair) player.on_ladder = TRUE;   // arrive hanging on it

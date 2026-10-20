@@ -624,10 +624,14 @@ void stage_arrival_camera(s16 focusX, s16 focusY)
 
 void stage_arrival_camera_at(s16 cam_x, s16 focusY)
 {
+    const s16 old_x = camera.x;
     camera.x = cam_x;
     camera.y = focusY - 112;
     clamp_camera();
-    stage_force_redraw();
+    // After stage_load, its first draw already used this exact camera. A
+    // second full redraw here happens with the display enabled and is the
+    // one-frame tilemap/TILESET flash seen after the Mummy stair.
+    if (camera.x != old_x) stage_force_redraw();
 }
 
 // Same camera X, computed without touching the plane: used by the room
