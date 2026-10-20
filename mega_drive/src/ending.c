@@ -5,6 +5,7 @@
 
 #include "resources.h"
 #include "player.h"
+#include "music.h"
 #include "stage_data.h"
 #include "ssel_data.h"
 #include "credits_data.h"
@@ -91,6 +92,7 @@ static void layer_upload(u16 plane, const u16 *map, u16 w, u16 h,
 
 static void walking_parade(void)
 {
+    music_play(MUSIC_END_ANIMATION);
     SPR_end();
     SPR_initEx(504);
 
@@ -162,6 +164,7 @@ static void walking_parade(void)
 // stage, name under it, START skips.
 static void boss_parade(void)
 {
+    music_play(MUSIC_ENEMY_PARADE);
     black_screen();
     PAL_setPalette(PAL0, pal_ui.data, CPU);
 
@@ -203,6 +206,7 @@ static void boss_parade(void)
 
 static void credits_scroll(void)
 {
+    music_play(MUSIC_END_CREDITS);
     black_screen();
     PAL_setPalette(PAL0, pal_ui.data, CPU);
 

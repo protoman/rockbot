@@ -30,7 +30,7 @@ make run EMU_ARGS=   # GL renderer instead of software
 ## State at hand-off
 
 - All nine selectable stages play (maps, parallax, enemies, objects, shots,
-  HUD, menu, save/load, stage select). Bosses and music still out.
+  HUD, menu, save/load, stage select). Bosses are in progress; music is integrated (see below).
 - **Stages 0..13 are converted** (14 of 20) and **all reachable**: 9..13 are
   castle #1 (LAVA PIT, SPACE BASE, POWER GRID, RECYCLE FACTORY, FROZEN LAIR).
   The select's centre slot becomes the castle once intro + 8 bosses are
@@ -38,7 +38,7 @@ make run EMU_ARGS=   # GL renderer instead of software
   and a castle #1 stage shows the castle screen before the boss intro.
   `tools/add_stage.py N` does a whole stage; the asset recipe loops over
   `STAGES`. VRAM bases are derived per map (tileset -> bg -> anim), so FROZEN
-  LAIR map 1's 202-tile tileset fits. ROM 1.31M. FROZEN LAIR is the palette
+  LAIR map 1's 202-tile tileset fits. ROM 1.84M (the music blobs are ~240K). FROZEN LAIR is the palette
   outlier (56 colours, BUG-004) and the first WATER/ICE stage (minimal
   physics). Endings 2..5 play after stage 13 (`scene_play(2+player)`); the
   six portraits are in the build (visual pass pending).
@@ -180,6 +180,12 @@ make run EMU_ARGS=   # GL renderer instead of software
   tables and corrupts the Z80 command jump table. BlastEm then died with
   "multi-byte Z80 instruction at 4001" on the first menu beep. UI/objects
   now use `SOUND_PCM_CH3` (PCM2).
+- **Music** (2026-10-20): `tools/convert_music.py` converts every PC
+  MOD/S3M source to VGM; rescomp packs them as XGM2 resources (30 tracks,
+  ~240K ROM). `src/music.c` maps title/intro/select/boss/final/clear/game-over/
+  ending tracks and all 14 stage themes. The castle intro uses
+  `rockbot_stage_start.mod` in place of the PC MP3. SFX still use the same
+  XGM2 driver on PCM2/3.
 - **Lava/spike contact** (2026-10-20): the damage scan skipped the feet
   row because the hitbox bottom is exclusive. Standing/landing on a SPIKE
   tile (the lava pool at the start of DARK MINE) did nothing. The scan now

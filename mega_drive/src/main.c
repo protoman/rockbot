@@ -18,6 +18,7 @@
 #include "playerselect.h"
 #include "transition.h"
 #include "sfx.h"
+#include "music.h"
 #include "scene.h"
 #include "ending.h"
 #include "config.h"
@@ -130,6 +131,7 @@ static s16 showTitle(void)
     // then drop the map so nothing repaints them afterwards.
     SYS_doVBlankProcess();
     stage_release_map();
+    music_play(MUSIC_OPENING);
 
     // The title can be reached from the stage (in-game menu -> leave stage),
     // which leaves both planes scrolled to the camera/parallax; the logo and
@@ -324,7 +326,7 @@ static RunResult runStage(u8 stage)
     player_init();
     hud_init();
 
-    if (config_is_sound_on()) XGM2_play(stage_music);   // stage only
+    music_play_stage(stage);
 
     // ---- stage start sequence (PC game::start_stage, game.cpp:244) --------
     // show_player_teleport(): the player beams in with the TELEPORT animation
@@ -384,6 +386,7 @@ static RunResult runStage(u8 stage)
     // tilemap (sky showed stale/garbage tiles).
 
     bool boss_dialog_shown = FALSE;
+    bool boss_music_started = FALSE;
     u16 prev_pad = JOY_readJoypad(JOY_1);  // START edge (a press held from
                                            // the title must not open the menu)
     bool stage_cleared = FALSE;
@@ -557,6 +560,10 @@ static RunResult runStage(u8 stage)
             pad = JOY_readJoypad(JOY_1);
             prev_pad = pad;
         }
+        if (!boss_music_started && enemies_boss_on_screen()) {
+            music_play((stage == 13) ? MUSIC_FINAL_BOSS : MUSIC_BOSS);
+            boss_music_started = TRUE;
+        }
         explosion_update(); // enemy death puffs (PC death animation)
         eshots_update();    // enemy AI projectiles -> player
         shot_update();
@@ -593,6 +600,7 @@ static RunResult runStage(u8 stage)
             // 3/4 in the selection screen.
             config.game_finished = 1;
             config_save();
+            music_play(MUSIC_END_ANIMATION);
             scene_play((u8)(2 + (current_player & 3)));
             ending_run();
         }
@@ -606,7 +614,7 @@ static RunResult runStage(u8 stage)
 // parallax), so reset both; a plain clear would show the tileset's tile 0.
 static void textScreenBegin(void)
 {
-    XGM2_stop();
+    music_stop();
     SYS_doVBlankProcess();      // flush pending MAP updates
     stage_release_map();
     VDP_setHorizontalScroll(BG_A, 0);
@@ -623,6 +631,7 @@ static void textScreenBegin(void)
 static void showGameOver(void)
 {
     textScreenBegin();
+    music_play(MUSIC_GAME_OVER);
     drawCentered("GAME OVER", 12);
     drawCentered("PRESS START", 15);
     while (TRUE) {
@@ -641,6 +650,8 @@ static void showGameOver(void)
 static void showStageClear(u8 stage, bool first_clear)
 {
     textScreenBegin();
+    music_play((first_clear && stage >= 1 && stage <= 8)
+               ? MUSIC_GOT_WEAPON : MUSIC_STAGE_COMPLETE);
 
     // Got-weapon screen: stage 0 and the castle stages have no weapon.
     if (first_clear && stage >= 1 && stage <= 8) {
@@ -729,6 +740,7 @@ int main(bool hardReset)
 
     showIntro();
     // PC game_scenes_show_unbeaten_intro(): scene list 0 (scenes_data.c)
+    music_play(MUSIC_INTRO_SCENE);
     scene_play(SCENE_OPENING_UNBEATEN);
     while (TRUE) {
         s16 action = showTitle();

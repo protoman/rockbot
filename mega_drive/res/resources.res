@@ -77,8 +77,37 @@ SPRITE menu_icon_sprite "menu_icons.png" 8p 8p FAST [[0,0,0,0,0,0,0,0,0,0,0]]
 PALETTE dlg_face_armor_pal "dlg_face_armor.png"
 SPRITE dlg_face_armor_sprite "dlg_face_armor.png" 32p 32p FAST [[0]]
 
-# ---- MUSIC (XGM2 driver; rescomp runs xgmtool on the .vgm) ----
-XGM2 stage_music "music.vgm"
+# ---- MUSIC (tools/convert_music.py -> VGM -> XGM2) ----
+XGM2 mus_opening "music/mus_opening.vgm"
+XGM2 mus_intro_scene "music/mus_intro_scene.vgm"
+XGM2 mus_selector "music/mus_selector.vgm"
+XGM2 mus_selector_alt "music/mus_selector_alt.vgm"
+XGM2 mus_boss_intro "music/mus_boss_intro.vgm"
+XGM2 mus_castle_intro "music/mus_castle_intro.vgm"
+XGM2 mus_castle_intro_alt "music/mus_castle_intro_alt.vgm"
+XGM2 mus_boss "music/mus_boss.vgm"
+XGM2 mus_final_boss "music/mus_final_boss.vgm"
+XGM2 mus_got_weapon "music/mus_got_weapon.vgm"
+XGM2 mus_game_over "music/mus_game_over.vgm"
+XGM2 mus_stage_complete "music/mus_stage_complete.vgm"
+XGM2 mus_enemy_parade "music/mus_enemy_parade.vgm"
+XGM2 mus_end_animation "music/mus_end_animation.vgm"
+XGM2 mus_end_credits "music/mus_end_credits.vgm"
+XGM2 mus_transporters "music/mus_transporters.vgm"
+XGM2 mus_stage0 "music/mus_stage0.vgm"
+XGM2 mus_stage1 "music/mus_stage1.vgm"
+XGM2 mus_stage2 "music/mus_stage2.vgm"
+XGM2 mus_stage3 "music/mus_stage3.vgm"
+XGM2 mus_stage4 "music/mus_stage4.vgm"
+XGM2 mus_stage5 "music/mus_stage5.vgm"
+XGM2 mus_stage6 "music/mus_stage6.vgm"
+XGM2 mus_stage7 "music/mus_stage7.vgm"
+XGM2 mus_stage8 "music/mus_stage8.vgm"
+XGM2 mus_stage9 "music/mus_stage9.vgm"
+XGM2 mus_stage10 "music/mus_stage10.vgm"
+XGM2 mus_stage11 "music/mus_stage11.vgm"
+XGM2 mus_stage12 "music/mus_stage12.vgm"
+XGM2 mus_stage13 "music/mus_stage13.vgm"
 
 # ---- PLAYER (RockBot) ----
 # 4 cols x 7 anim rows, 32x32 cells. Green/magenta placeholders already swapped

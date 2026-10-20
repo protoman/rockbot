@@ -1,8 +1,8 @@
 #include "config.h"
+#include "music.h"
 
 #include <genesis.h>
 
-#include "resources.h"   // stage_music
 #include "sfx.h"
 #include "ending.h"
 
@@ -73,9 +73,9 @@ static void apply_sound(void)
 {
     sfx_set_enabled(config.sound != 0);
     if (config.sound) {
-        XGM2_play(stage_music);
+        music_resume();
     } else {
-        XGM2_stop();
+        music_stop();
     }
 }
 
@@ -233,8 +233,7 @@ static void music_test(void)
             SYS_doVBlankProcess();
         if (pad & BUTTON_B) return;
         if (config.sound) {
-            XGM2_stop();
-            XGM2_play(stage_music);
+            music_play(MUSIC_STAGE0);
         }
     }
 }

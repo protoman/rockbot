@@ -1,5 +1,7 @@
 #include "stageselect.h"
 
+#include "music.h"
+
 #include "resources.h"
 #include "ssel_data.h"
 #include "stage.h"
@@ -94,6 +96,7 @@ u8 stage_select_run(u8 player, u16 stage_mask)
 {
     SPR_initEx(504);
     stage_release_map();
+    music_play(MUSIC_SELECTOR);
 
     VDP_setHorizontalScroll(BG_A, 0);
     VDP_setVerticalScroll(BG_A, 0);

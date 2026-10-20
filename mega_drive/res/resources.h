@@ -3,7 +3,36 @@
 #ifndef _RES_RESOURCES_H_
 #define _RES_RESOURCES_H_
 
-extern const u8 stage_music[2816];
+extern const u8 mus_opening[22528];
+extern const u8 mus_intro_scene[2816];
+extern const u8 mus_selector[5376];
+extern const u8 mus_selector_alt[4352];
+extern const u8 mus_boss_intro[1280];
+extern const u8 mus_castle_intro[1536];
+extern const u8 mus_castle_intro_alt[1280];
+extern const u8 mus_boss[8192];
+extern const u8 mus_final_boss[2560];
+extern const u8 mus_got_weapon[1280];
+extern const u8 mus_game_over[1280];
+extern const u8 mus_stage_complete[1280];
+extern const u8 mus_enemy_parade[5632];
+extern const u8 mus_end_animation[2304];
+extern const u8 mus_end_credits[12288];
+extern const u8 mus_transporters[4608];
+extern const u8 mus_stage0[11776];
+extern const u8 mus_stage1[8704];
+extern const u8 mus_stage2[12800];
+extern const u8 mus_stage3[10752];
+extern const u8 mus_stage4[12800];
+extern const u8 mus_stage5[7680];
+extern const u8 mus_stage6[12544];
+extern const u8 mus_stage7[9216];
+extern const u8 mus_stage8[12032];
+extern const u8 mus_stage9[11008];
+extern const u8 mus_stage10[20480];
+extern const u8 mus_stage11[17664];
+extern const u8 mus_stage12[14336];
+extern const u8 mus_stage13[4608];
 extern const SpriteDefinition upperland_sprite;
 extern const SpriteDefinition boberatu_sprite;
 extern const SpriteDefinition jmd_sprite;

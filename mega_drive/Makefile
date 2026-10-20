@@ -21,11 +21,18 @@ ASSET_DATA  := $(shell find $(PCROOT)/build/games/RockDroid1 \
 # invalidate the asset stamp too
 ASSET_DATA  += $(shell find $(IMAGES) -type f -name '*.png' 2>/dev/null)
 ASSET_DATA  += $(shell find art -type f -name '*.png' 2>/dev/null)
+# PC music sources: the MOD/S3M files are converted to VGM before rescomp
+# turns them into XGM2 resources. The binary is a prerequisite so a rebuilt
+# converter invalidates the asset stamp as well.
+MUSIC_DIR   := $(PCROOT)/build/games/RockDroid1/music
+MUSIC_DATA  := $(wildcard $(MUSIC_DIR)/*.mod $(MUSIC_DIR)/*.s3m)
+MUSIC_TOOL  := tools/mod2vgm/build/mod2vgm
+ASSET_DATA  += $(MUSIC_DATA)
 
 # Converted stages, in index order (tools/add_stage.py appends here).
 STAGES := 0 1 2 3 4 5 6 7 8 9 10 11 12 13
 
-$(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA) Makefile
+$(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA) $(MUSIC_TOOL) Makefile
 	$(PYTHON) tools/convert_assets.py
 	@for s in $(STAGES); do \
 	    $(PYTHON) tools/convert_stage.py $$s || exit 1; \
@@ -94,6 +101,7 @@ $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA) Makefile
 	    $(PYTHON) tools/img2tiles.py $$f --name $$n || exit 1; \
 	done
 	$(PYTHON) tools/convert_sfx.py
+	$(PYTHON) tools/convert_music.py
 	$(PYTHON) tools/gen_gpl.py
 	@touch $@
 

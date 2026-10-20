@@ -1,5 +1,7 @@
 #include "bossintro.h"
 
+#include "music.h"
+
 #include "resources.h"
 #include "stage_data.h"
 #include "stage.h"
@@ -43,6 +45,7 @@ static void castle_screen(void)
     }
     VDP_setTileMapDataRect(BG_A, cells, 0, 0, CASTLE64_W, CASTLE64_H,
                            CASTLE64_W, CPU);
+    music_play(MUSIC_CASTLE_INTRO);
     for (u16 f = 0; f < CASTLE_FRAMES; f++) {
         SYS_doVBlankProcess();
         VDP_setReg(17, 0);
@@ -64,6 +67,7 @@ void boss_intro_run(u8 stage)
 
     if (stage >= 9) castle_screen();
 
+    music_play(MUSIC_BOSS_INTRO);
     VDP_loadTileData(boss_intro_bg_tiles_data, BOSS_INTRO_TILE_BASE,
                      BOSS_INTRO_BG_TILE_COUNT, DMA_QUEUE);
     PAL_setPalette(BOSS_INTRO_PAL, boss_intro_bg_pal.data, DMA_QUEUE);
