@@ -238,7 +238,11 @@ make run EMU_ARGS=   # GL renderer instead of software
 - **HUD icons / menu indicator** (2026-10-20): the classic HUD now has the
   small weapon icon under the HP/weapon bars (PAL0-converted icons), and the
   in-game menu shows the selected weapon icon + name at the bottom.
-- Last commit: HUD weapon icons and selected-weapon menu indicator.
+- **JET EAGLE / menu fill** (2026-10-20): JET EAGLE checks its own and the
+  rider's next box against terrain and disappears on contact, so it cannot
+  carry the player into walls. Menu text now sits on classic tile 16 (flat
+  dark fill); tile 4 was a border pattern and caused striped text.
+- Last commit: flat menu text background and JET wall destruction.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
