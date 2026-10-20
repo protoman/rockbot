@@ -33,9 +33,17 @@ def main():
         raise SystemExit("energy_bar_vertical: expected 8x51, got %s" % (src.size,))
     for name, mapping in BAR_VARIANTS.items():
         out = Image.new("P", (8, 56))
+        # Give the used indices real colours so rescomp keeps the indexed
+        # image mapping; the runtime sprite still selects PAL2/PAL0.
         pal = [0] * 48
-        # Palette entries are only used through the sprite palette line; RGB
-        # values here are placeholders for the rescomp resource.
+        pal[1 * 3:1 * 3 + 3] = [0, 0, 0]
+        pal[2 * 3:2 * 3 + 3] = [255, 255, 255]
+        pal[3 * 3:3 * 3 + 3] = [146, 219, 255]
+        pal[8 * 3:8 * 3 + 3] = [139, 0, 115]
+        pal[9 * 3:9 * 3 + 3] = [0, 113, 238]
+        pal[12 * 3:12 * 3 + 3] = [0, 0, 0]
+        pal[13 * 3:13 * 3 + 3] = [139, 0, 115]
+        pal[14 * 3:14 * 3 + 3] = [0, 113, 238]
         out.putpalette(pal)
         for y in range(56):
             for x in range(8):
