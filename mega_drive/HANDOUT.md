@@ -154,7 +154,11 @@ make run EMU_ARGS=   # GL renderer instead of software
   matches PC passability (only UNBLOCKED/WATER/SPIKE are passable, so boxes
   stop on stairs) and excludes all active-platform/block types. The
   overlapping-tile rule is restricted to two animated tiles (waterfall).
-- Last commit: ladder-bottom links, object stair collision and overlap scope.
+- **Block timers / lava** (2026-10-20): disappearing-block #1/#2/#3 now use
+  their PC `obj_timer` as the initial hidden delay (1000/2000/3000 ms), so
+  they no longer toggle in sync; active blocks use their own visible timer.
+  Spike/lava terrain damage is now lethal (PC 188), not 4.
+- Last commit: per-block delays and lethal lava spikes.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
