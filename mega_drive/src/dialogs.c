@@ -46,19 +46,19 @@ static const SpriteDefinition *const player_face[4] = {
 static void wait_button(void)
 {
     u16 pad;
+    // Ignore buttons already held when the dialog opens (in particular the
+    // fire button used to collect the item/armor). Only a fresh JUMP press
+    // advances the page, as in the PC dialog.
     do {
         SPR_update();
         SYS_doVBlankProcess();
         pad = JOY_readJoypad(JOY_1);
-    } while (!(pad & (BUTTON_A | BUTTON_START |
-                      config_jump_mask() | config_fire_mask())));
-    // release
+    } while (pad & config_jump_mask());
     do {
         SPR_update();
         SYS_doVBlankProcess();
         pad = JOY_readJoypad(JOY_1);
-    } while (pad & (BUTTON_A | BUTTON_START |
-                    config_jump_mask() | config_fire_mask()));
+    } while (!(pad & config_jump_mask()));
 }
 
 // One 3-line page. The box is drawn at screen rows y0..y0+5 by writing plane
@@ -93,7 +93,7 @@ static void show_page(const char *const *lines, u8 first, u8 y0,
                            (u16)(y0 + 1 + i));
         }
     }
-    VDP_drawTextBG(BG_A, "A: NEXT", (u16)((base + 30) & 63),
+    VDP_drawTextBG(BG_A, "JUMP: NEXT", (u16)((base + 30) & 63),
                    (u16)(y0 + DLG_H - 1));
     wait_button();
     if (fs) SPR_releaseSprite(fs);

@@ -194,7 +194,10 @@ make run EMU_ARGS=   # GL renderer instead of software
   `always_move_ahead` self-loop and jumps once when the next tile is blocked
   with open space above. DARK MINE's GOLD CART now does that instead of
   stopping at low walls.
-- Last commit: gold cart hops low walls ahead.
+- **Dialog advance** (2026-10-20): armor/boss pages now wait for a fresh
+  JUMP press. Previously a held fire button counted as the advance press and
+  releasing it closed the page.
+- Last commit: advance dialogs only on a fresh jump press.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
