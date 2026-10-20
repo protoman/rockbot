@@ -449,6 +449,58 @@ def main():
 
     anim_blocks = read_anim_blocks()
 
+    # A map cell has only one tile on the MD (PC can draw tile1 and tile3 on
+    # top of each other). When both layers have art, keep the one with fewer
+    # transparent pixels: the more opaque tile is the one that actually fills
+    # the cell. This is what fixes Daisie's one-tile waterfall gap (the
+    # half-transparent waterfall_top was winning over the opaque water tile).
+    def tile_opacity(tx, ty):
+        if tx < 0 or ty < 0:
+            return -1
+        opaque = 0
+        for yy in range(TILE):
+            for xx in range(TILE):
+                r, g, b, a = ts_px[tx * TILE + xx, ty * TILE + yy]
+                if a != 0 and not is_key((r, g, b)):
+                    opaque += 1
+        return opaque
+
+    def gid_opacity(gid):
+        im = Image.open(anim_path(anim_blocks[gid][0])).convert("RGBA")
+        px = im.load()
+        opaque = 0
+        for yy in range(TILE):
+            for xx in range(TILE):
+                r, g, b, a = px[xx, yy]
+                if a != 0 and not is_key((r, g, b)):
+                    opaque += 1
+        return opaque
+
+    def resolve_layers(cells):
+        for col in cells:
+            for i, (locked, t1x, t1y, t3x, t3y) in enumerate(col):
+                p1 = None
+                p3 = None
+                if t1x >= 0 and t1y >= 0:
+                    p1 = tile_opacity(t1x, t1y)
+                elif t1x < -1 and t1y == 0:
+                    gid = (-t1x) - 2
+                    if gid < len(anim_blocks):
+                        p1 = gid_opacity(gid)
+                if t3x >= 0 and t3y >= 0:
+                    p3 = tile_opacity(t3x, t3y)
+                elif t3x < -1:
+                    gid = (-t3x) - 2
+                    if gid < len(anim_blocks):
+                        p3 = gid_opacity(gid)
+                # Default: keep the foreground (t3). If tile1 is clearly more
+                # opaque, use it instead.
+                if p1 is not None and p3 is not None and p1 > p3:
+                    col[i] = (locked, t1x, t1y, -1, -1)
+
+    for cells, _ in maps_data:
+        resolve_layers(cells)
+
     # colourcycle pool: which blocks of this stage are drawn as a CRAM rotation.
     # There is ONE pool per stage (a set of PAL3 entries), so the colour set
     # used by the most cells sets the band; blocks whose colours differ cannot
