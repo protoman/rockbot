@@ -394,7 +394,7 @@ static u16 terrain_under_feet(void)
 // (PC character::damage_spikes; PC value 188 would be instant death with the
 // port's HP 28, so 4 = 2x contact damage).
 #define CONVEYOR_SPEED 1
-#define SPIKE_DAMAGE   4
+#define SPIKE_DAMAGE   188
 
 void player_get_box(s16 *left, s16 *top, s16 *right, s16 *bottom)
 {

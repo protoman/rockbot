@@ -98,6 +98,15 @@ static bool solid_now(const MapObj *o)
 #define BLOCK_VISIBLE_FRAMES 90
 #define BLOCK_HIDDEN_FRAMES 120
 
+// PC object obj_timer is milliseconds. Disappearing-block #1/#2/#3 use
+// 1000/2000/3000ms as the initial hidden delay; the port used to start every
+// block visible at once, so they could not be crossed in sequence.
+static u8 obj_ms_frames(u16 ms)
+{
+    u16 f = (u16)(((u32)ms * 6) / 100);
+    return (f > 255) ? 255 : (u8)f;
+}
+
 static bool is_looping(const ObjectDef *d)
 {
     // checkpoint frames are states (inactive/activated), so it must not
@@ -188,6 +197,10 @@ void objects_reset(void)
         o->active = TRUE;
         o->visible = TRUE;
         o->vis_t = 0;
+        if (d->type == 2 && d->timer) {
+            o->visible = FALSE;
+            o->vis_t = obj_ms_frames(d->timer);
+        }
         o->duration = 0;
         o->spr = SPR_addSprite(d->spr, o->x - camera.x, o->y - camera.y,
                                TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
@@ -683,17 +696,23 @@ void objects_update(void)
         // 14 stays up until the player stands on it once, then cycles
         // (OBJ_ACTIVE_DISAPPEARING_BLOCK).
         if (d->type == 2) {
-            u8 lim = o->visible ? BLOCK_VISIBLE_FRAMES : BLOCK_HIDDEN_FRAMES;
-            if (++o->vis_t >= lim) {
-                o->vis_t = 0;
-                o->visible = !o->visible;
+            if (!o->visible && o->vis_t) {
+                if (--o->vis_t == 0) o->visible = TRUE;
+            } else {
+                u8 lim = o->visible ? BLOCK_VISIBLE_FRAMES : BLOCK_HIDDEN_FRAMES;
+                if (++o->vis_t >= lim) {
+                    o->vis_t = 0;
+                    o->visible = !o->visible;
+                }
             }
         } else if (d->type == 14) {
+            u8 visible_lim = d->timer ? obj_ms_frames(d->timer)
+                                      : BLOCK_VISIBLE_FRAMES;
             if (!o->started) {
                 if (o->visible && player_on_top(o))
                     { o->started = TRUE; o->vis_t = 0; }
             } else if (o->visible) {
-                if (++o->vis_t >= BLOCK_VISIBLE_FRAMES)
+                if (++o->vis_t >= visible_lim)
                     { o->vis_t = 0; o->visible = FALSE; }
             } else if (++o->vis_t >= BLOCK_HIDDEN_FRAMES) {
                 o->vis_t = 0;
