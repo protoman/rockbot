@@ -476,10 +476,11 @@ static bool link_region(s16 px, s16 py, u8 tx, u8 ty, u8 size, u8 trans)
         lim3 -= 27;     // PC lim3 -= 27.2 truncated (only ty=0 bands fire)
     }
     // Links on the last map row: the player is clamped or standing on the
-    // bottom edge, so he can never satisfy py < lim4. Accept anything at or
-    // below the band start (this is the bottom-of-ladder teleporter case).
+    // bottom edge, so he can never satisfy py < lim4. Fire as soon as the
+    // feet enter the link row (py = bottom - 8), which is where a ladder
+    // releases him. The PC's T2B band shift would put lim3 below the map.
     if (ty >= (u8)(stage_def->map_h - 1))
-        return py >= lim3;
+        return py >= (s16)ty * stage_def->tile - 8;
     return py > lim3 && py < lim4;
 }
 
