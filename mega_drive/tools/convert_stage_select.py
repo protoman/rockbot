@@ -100,6 +100,11 @@ def main():
         paste(face, FACE_PC_X + col * FACE_DX,
               FACE_PC_Y + row * FACE_DY - CROP_TOP, PAL_FACE)
 
+    # Centre image shown instead of the player face once the castle is
+    # unlocked (PC stage_select_castle.png, the Dr Destrin mark).
+    castle, _ = load_p("faces/stage_select_castle.png")
+    castle.save(os.path.join(RES, "ssel_castle.png"))
+
     # player face with its eyes baked in (the PC nudges them a couple of
     # pixels with the cursor; we keep them centred -- see the plan notes)
     # Player face + eyes are SPRITES, one pair per player, chosen at runtime

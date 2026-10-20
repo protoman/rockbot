@@ -129,6 +129,7 @@ u8 stage_select_run(u8 player, u16 stage_mask)
         cur[i] = SPR_addSprite(qblack[i], 0, 0,
                                TILE_ATTR(SSEL_PAL_CURSOR, FALSE, FALSE, FALSE));
     }
+    castle_unlocked = (stage_mask & 0x01FF) == 0x01FF;
     // Player face + eyes (per selected player), PAL2 loaded from the face
     // sheet. PC: face at (144,104), eyes at (154,122) nudged +-2px toward
     // the cursor cell (screen y 96/114 after the 8px crop).
@@ -136,17 +137,25 @@ u8 stage_select_run(u8 player, u16 stage_mask)
     // added BEFORE the face or the face art simply covers them (same rule the
     // cursor layers below rely on).
     u8 pi = player & 3;
-    PAL_setPalette(SSEL_PAL_PLAYER, face_def[pi]->palette->data, DMA_QUEUE);
-    eyes = SPR_addSprite(eyes_def[pi], 154, 114,
-                         TILE_ATTR(SSEL_PAL_PLAYER, FALSE, FALSE, FALSE));
-    face = SPR_addSprite(face_def[pi], 144, 96,
-                         TILE_ATTR(SSEL_PAL_PLAYER, FALSE, FALSE, FALSE));
+    if (castle_unlocked) {
+        // PC pick_stage_classic_style: once the castle is accessible, the
+        // centre slot shows stage_select_castle.png instead of the player.
+        PAL_setPalette(SSEL_PAL_PLAYER, ssel_castle_sprite.palette->data,
+                       DMA_QUEUE);
+        eyes = NULL;
+        face = SPR_addSprite(&ssel_castle_sprite, 144, 96,
+                             TILE_ATTR(SSEL_PAL_PLAYER, FALSE, FALSE, FALSE));
+    } else {
+        PAL_setPalette(SSEL_PAL_PLAYER, face_def[pi]->palette->data, DMA_QUEUE);
+        eyes = SPR_addSprite(eyes_def[pi], 154, 114,
+                             TILE_ATTR(SSEL_PAL_PLAYER, FALSE, FALSE, FALSE));
+        face = SPR_addSprite(face_def[pi], 144, 96,
+                             TILE_ATTR(SSEL_PAL_PLAYER, FALSE, FALSE, FALSE));
+    }
 
     sx = 1;                 // default to the centre slot
     sy = 1;
     sel_mask = stage_mask;
-    // PC can_access_castle(): intro + all 8 bosses (save bits 0..8).
-    castle_unlocked = (stage_mask & 0x01FF) == 0x01FF;
     draw_names();
     SYS_doVBlankProcess();      // flush queued DMA before input
 

@@ -64,7 +64,7 @@ $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA) $(MUSIC_TOOL) Makefile
 	$(PYTHON) tools/img2tiles.py $(PCROOT)/build/games/RockDroid1/images/ending/player_walking_layer3.png --name end_l3 --colors 15
 	$(PYTHON) tools/convert_save_selector.py
 	$(PYTHON) tools/img2tiles.py \
-	    $(PCROOT)/build/games/RockDroid1/images/backgrounds/weapon_menu.png \
+	    $(PCROOT)/build/games/RockDroid1/images/backgrounds/classic_style_weapon_menu.png \
 	    --name menu --crop-top 16
 	$(PYTHON) tools/title64.py --name title64 --crop-h 224 \
 	    --rekey 219,36,182=255,36,182 \
@@ -101,6 +101,7 @@ $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA) $(MUSIC_TOOL) Makefile
 	    $(PYTHON) tools/img2tiles.py $$f --name $$n || exit 1; \
 	done
 	$(PYTHON) tools/convert_sfx.py
+	$(PYTHON) tools/convert_energy_bars.py
 	$(PYTHON) tools/convert_music.py
 	$(PYTHON) tools/gen_gpl.py
 	@touch $@

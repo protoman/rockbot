@@ -74,6 +74,10 @@ PALETTE end_l2_pal "end_l2_tiles.png"
 PALETTE end_l3_pal "end_l3_tiles.png"
 PALETTE menu_icons_pal "menu_icons.png"
 SPRITE menu_icon_sprite "menu_icons.png" 8p 8p FAST [[0,0,0,0,0,0,0,0,0,0,0]]
+# Classic vertical HUD bars (tools/convert_energy_bars.py)
+SPRITE hud_bar_hp_sprite "hud_bar_hp.png" 8p 8p FAST [[0,1,2,3,4,5,6]]
+SPRITE hud_bar_wpn_sprite "hud_bar_wpn.png" 8p 8p FAST [[0,1,2,3,4,5,6]]
+SPRITE hud_bar_boss_sprite "hud_bar_boss.png" 8p 8p FAST [[0,1,2,3,4,5,6]]
 PALETTE dlg_face_armor_pal "dlg_face_armor.png"
 SPRITE dlg_face_armor_sprite "dlg_face_armor.png" 32p 32p FAST [[0]]
 
@@ -211,6 +215,7 @@ SPRITE ssel_eyes_p2_sprite "ssel_eyes_p2.png" 16p 8p FAST [[0]]
 SPRITE ssel_face_p3_sprite "ssel_face_p3.png" 32p 32p FAST [[0]]
 SPRITE ssel_eyes_p3_sprite "ssel_eyes_p3.png" 16p 8p FAST [[0]]
 SPRITE ssel_face_p4_sprite "ssel_face_p4.png" 32p 32p FAST [[0]]
+SPRITE ssel_castle_sprite "ssel_castle.png" 32p 32p FAST [[0]]
 SPRITE ssel_eyes_p4_sprite "ssel_eyes_p4.png" 16p 8p FAST [[0]]
 
 # ---- SAVE-SLOT ICONS (tools/convert_save_icons.py: PC images/icons.png,

@@ -4,134 +4,98 @@
 #include "player.h"
 #include "resources.h"
 
-// Player + boss HP as energy balls (PC draw::draw_enery_ball, draw.cpp:1272):
-// 5 sprites of 16x16 at the top-left (3,3) and the boss row at RES_W-55.
-// The sheets come from tools/convert_assets.py quantized with the shared
-// PAL0 (tools/pal_ui.py) so the fill colors match the enemy palette line.
-#define HUD_BALLS 5
-#define HUD_BALL_X 3
-#define HUD_WPN_X 62          // PC draw.cpp:1217 weapon row
-#define HUD_BOSS_X (320 - 55)  // PC draw.cpp:1237
-#define HUD_BALL_Y 3
-#define HUD_BALL_STEP 10
+// Classic HUD: vertical energy bars instead of the modern 5-ball rows.
+// art/energy_bar_vertical.png is emitted by tools/convert_energy_bars.py as
+// seven 8x8 frames; they are stacked and revealed from the bottom upward.
+#define HUD_CHUNKS 7
+#define HUD_BAR_HP_X   1
+#define HUD_BAR_WPN_X  10
+#define HUD_BAR_BOSS_X (320 - 15)
+#define HUD_BAR_Y      2
 
-static Sprite *balls[HUD_BALLS];
-static s8 last_fill[HUD_BALLS];
-static Sprite *wpn_balls[HUD_BALLS];
-static s8 wpn_last_fill[HUD_BALLS];
-static u8 wpn_shown = 0xff;    // weapon the row was built for (0xff = none)
-static Sprite *boss_balls[HUD_BALLS];
-static s8 boss_last_fill[HUD_BALLS];
-static bool boss_row_visible;
+static Sprite *hp_chunks[HUD_CHUNKS];
+static Sprite *wpn_chunks[HUD_CHUNKS];
+static Sprite *boss_chunks[HUD_CHUNKS];
+static bool hp_on, wpn_on, boss_on;
 static bool hud_on = TRUE;
 
-// Ball frame for a hp percentage: 4 x 5% slices per ball (PC fill steps).
-static s8 ball_fill(s16 pct, u8 n)
+static void set_bar(Sprite *const *chunks, bool show, s16 pct)
 {
-    s16 t = pct - 20 * n;   // slice per ball: 20% (4 x 5%)
-    return (t >= 20) ? 0 : (t >= 15) ? 1 : (t >= 10) ? 2 : (t >= 5) ? 3 : 4;
+    s16 fill = (pct * 50) / 100;       // bar art is 51 px, use 0..50
+    if (fill < 0) fill = 0;
+    if (fill > 50) fill = 50;
+    for (u8 i = 0; i < HUD_CHUNKS; i++) {
+        if (!chunks[i]) continue;
+        // i = 0 is the top chunk. Show the bottom `fill` pixels.
+        bool visible = show && (fill > (s16)((HUD_CHUNKS - 1 - i) * 8));
+        SPR_setVisibility(chunks[i], visible ? VISIBLE : HIDDEN);
+    }
+}
+
+static Sprite *add_bar_chunk(const SpriteDefinition *def, s16 x, s16 y,
+                             u16 pal)
+{
+    return SPR_addSprite(def, x, y, TILE_ATTR(pal, FALSE, FALSE, FALSE));
 }
 
 void hud_init(void)
 {
-    for (u8 i = 0; i < HUD_BALLS; i++) {
-        balls[i] = SPR_addSprite(&hud_hp_ball_sprite,
-                                 HUD_BALL_X + HUD_BALL_STEP * i, HUD_BALL_Y,
-                                 TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
-        last_fill[i] = -1;
-        // PAL2 is the player palette; its 13/14/15 entries are the current
-        // weapon colors (tools/convert_assets maps the green fill to 13).
-        wpn_balls[i] = SPR_addSprite(&hud_wpn_ball_sprite,
-                                     HUD_WPN_X + HUD_BALL_STEP * i, HUD_BALL_Y,
-                                     TILE_ATTR(PAL2, FALSE, FALSE, FALSE));
-        wpn_last_fill[i] = -1;
-        if (wpn_balls[i]) SPR_setVisibility(wpn_balls[i], HIDDEN);
-        boss_balls[i] = SPR_addSprite(&hud_boss_ball_sprite,
-                                      HUD_BOSS_X + HUD_BALL_STEP * i, HUD_BALL_Y,
-                                      TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
-        boss_last_fill[i] = -1;
-        if (boss_balls[i]) SPR_setVisibility(boss_balls[i], HIDDEN);
+    for (u8 i = 0; i < HUD_CHUNKS; i++) {
+        hp_chunks[i] = add_bar_chunk(&hud_bar_hp_sprite,
+                                     HUD_BAR_HP_X, HUD_BAR_Y + i * 8, PAL2);
+        wpn_chunks[i] = add_bar_chunk(&hud_bar_wpn_sprite,
+                                      HUD_BAR_WPN_X, HUD_BAR_Y + i * 8, PAL2);
+        boss_chunks[i] = add_bar_chunk(&hud_bar_boss_sprite,
+                                       HUD_BAR_BOSS_X, HUD_BAR_Y + i * 8, PAL0);
+        if (hp_chunks[i]) {
+            SPR_setFrame(hp_chunks[i], i);
+            SPR_setDepth(hp_chunks[i], SPR_MIN_DEPTH);
+        }
+        if (wpn_chunks[i]) {
+            SPR_setFrame(wpn_chunks[i], i);
+            SPR_setDepth(wpn_chunks[i], SPR_MIN_DEPTH);
+        }
+        if (boss_chunks[i]) {
+            SPR_setFrame(boss_chunks[i], i);
+            SPR_setDepth(boss_chunks[i], SPR_MIN_DEPTH);
+        }
     }
-    wpn_shown = 0xff;
-    boss_row_visible = FALSE;
+    hp_on = wpn_on = boss_on = FALSE;
     hud_on = TRUE;
 }
 
-// Weapon gauge (PC draw.cpp:1217: only drawn for a non-default weapon). The
-// port shows the sheet's own colour instead of the weapon's color1.
 void hud_weapon(u8 weapon, u8 ammo)
 {
     if (!hud_on) return;
     bool show = (weapon != 0);
-    if (show && wpn_shown != weapon) {
-        wpn_shown = weapon;
-        for (u8 i = 0; i < HUD_BALLS; i++) wpn_last_fill[i] = -1;
-    }
-    if (!show) {
-        if (wpn_shown != 0xff) {
-            wpn_shown = 0xff;
-            for (u8 i = 0; i < HUD_BALLS; i++)
-                if (wpn_balls[i]) SPR_setVisibility(wpn_balls[i], HIDDEN);
-        }
-        return;
-    }
     s16 pct = (100 * ammo) / PLAYER_INITIAL_HP;
-    for (u8 i = 0; i < HUD_BALLS; i++) {
-        s8 fill = ball_fill(pct, i);
-        if (wpn_balls[i]) SPR_setVisibility(wpn_balls[i], VISIBLE);
-        if (fill != wpn_last_fill[i]) {
-            wpn_last_fill[i] = fill;
-            if (wpn_balls[i]) SPR_setFrame(wpn_balls[i], fill);
-        }
-    }
+    set_bar(wpn_chunks, show, pct);
+    wpn_on = show;
 }
 
 void hud_update(u8 hp)
 {
     if (!hud_on) return;
     s16 pct = (100 * hp) / PLAYER_INITIAL_HP;
-    for (u8 i = 0; i < HUD_BALLS; i++) {
-        s8 fill = ball_fill(pct, i);
-        if (fill != last_fill[i]) {
-            last_fill[i] = fill;
-            if (balls[i]) SPR_setFrame(balls[i], fill);
-        }
-    }
+    set_bar(hp_chunks, TRUE, pct);
+    hp_on = TRUE;
 }
 
 void hud_boss(s16 hp)
 {
     if (!hud_on) return;
     bool show = (hp > 0);
-    if (show != boss_row_visible) {
-        boss_row_visible = show;
-        for (u8 i = 0; i < HUD_BALLS; i++) {
-            if (boss_balls[i]) SPR_setVisibility(boss_balls[i], show ? VISIBLE : HIDDEN);
-            boss_last_fill[i] = -1;   // force a frame refresh on re-show
-        }
-    }
-    if (!show) return;
-    s16 pct = (100 * hp) / BOSS_INITIAL_HP;
-    for (u8 i = 0; i < HUD_BALLS; i++) {
-        s8 fill = ball_fill(pct, i);
-        if (fill != boss_last_fill[i]) {
-            boss_last_fill[i] = fill;
-            if (boss_balls[i]) SPR_setFrame(boss_balls[i], fill);
-        }
-    }
+    s16 pct = show ? (100 * hp) / BOSS_INITIAL_HP : 0;
+    set_bar(boss_chunks, show, pct);
+    boss_on = show;
 }
 
 void hud_set_visible(bool visible)
 {
     hud_on = visible;
-    for (u8 i = 0; i < HUD_BALLS; i++) {
-        if (balls[i]) SPR_setVisibility(balls[i], visible ? VISIBLE : HIDDEN);
-        if (wpn_balls[i])
-            SPR_setVisibility(wpn_balls[i],
-                              (visible && wpn_shown != 0xff) ? VISIBLE
-                                                             : HIDDEN);
-        if (boss_balls[i])
-            SPR_setVisibility(boss_balls[i],
-                              (visible && boss_row_visible) ? VISIBLE : HIDDEN);
+    for (u8 i = 0; i < HUD_CHUNKS; i++) {
+        if (hp_chunks[i]) SPR_setVisibility(hp_chunks[i], visible && hp_on ? VISIBLE : HIDDEN);
+        if (wpn_chunks[i]) SPR_setVisibility(wpn_chunks[i], visible && wpn_on ? VISIBLE : HIDDEN);
+        if (boss_chunks[i]) SPR_setVisibility(boss_chunks[i], visible && boss_on ? VISIBLE : HIDDEN);
     }
 }
