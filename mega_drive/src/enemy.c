@@ -595,7 +595,7 @@ static Enemy *enemy_add(u8 def_i, s16 x, s16 y, s16 x_min, s16 x_max, u8 dir)
     e->frozen = 0;
     e->dropping = 0;
     e->drop_done = (d->is_boss == 0);
-    e->drop_target = y;
+    e->drop_target = e->y;
     if (d->is_boss && boss_i < 0) boss_i = idx;
     e->spr = SPR_addSprite(d->spr, e->x - camera.x, e->y - camera.y,
                            TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
