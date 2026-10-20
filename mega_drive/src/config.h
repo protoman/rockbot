@@ -7,7 +7,7 @@
 // AUDIO, INPUT, EXTRAS and LEAVE STAGE. No platform/language/performance/
 // quit-game entries; the PC analog/digital + joystick input rows are gone.
 //
-// Persisted in SRAM right after the 5 save slots (byte 48).
+// Persisted in SRAM right after the 5 save slots (bytes 48..56).
 typedef struct {
     u8 sound;       // 1 = SFX+music on
     u8 turbo;       // hold fire = repeat shot (PC turbo_mode)

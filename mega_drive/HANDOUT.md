@@ -113,6 +113,8 @@ make run EMU_ARGS=   # GL renderer instead of software
   scrolling `game_credits.txt`. START skips each part. The PC's full normal-
   enemy line is approximated by the bosses; the walking art is 15-colour
   decomposed (see `HANDOUT` ending notes).
+- **Water jump** (2026-10-19): jumping while the feet tile is WATER now uses
+  the PC 0.9x initial speed with the 0.3x gravity already in place.
 - **Status/feedback** (2026-10-19): DYNAMITE now arms the PC 3.5s freeze
   (weak enemies stop AI and are hidden, enemy shots clear) and the projectile
   lives as long as the effect; QUAKE shots shake both planes by the PC +/-2 px;

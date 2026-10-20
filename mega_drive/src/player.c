@@ -922,7 +922,10 @@ void player_update(u16 pad)
     if (player.sliding && !player.on_ground) jump_timer = 0;
     if (coyote_timer > 0 && jump_timer > 0) {
         sfx_play(SFX_JUMP);
-        player.vy = -JUMP_VEL;
+        // PC classjump::start: water uses 0.9x the initial speed and 0.3x
+        // gravity (jump.cpp:32).
+        player.vy = (terrain_under_feet() == TERRAIN_WATER)
+                    ? -FIX16(4.77) : -JUMP_VEL;
         player.on_ground = FALSE;
         coyote_timer = 0;
         jump_timer = 0;
