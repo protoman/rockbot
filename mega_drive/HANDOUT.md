@@ -221,7 +221,14 @@ make run EMU_ARGS=   # GL renderer instead of software
 - **Menu text/bar layout** (2026-10-20): PAL0 slot 1 is kept black (the
   font's background pixel), bar colours moved to slots 2..12; bars now sit on
   the icon row (5 + row*3).
-- Last commit: keep font palette slot 1 black and align menu bars.
+- **Classic UI pass** (2026-10-20): HUD HP/weapon/boss rows are now vertical
+  bars from `art/energy_bar_vertical.png` (HP uses weapon-0 colours in PAL2
+  8/9, weapon uses 13/14, boss uses PAL0), and HUD sprites are forced above
+  the player with `SPR_MIN_DEPTH`. The in-game menu uses the PC
+  `classic_style_weapon_menu.png` panel. Stage select now swaps the centre
+  player face for `stage_select_castle.png` (Dr Destrin mark) once all eight
+  bosses are beaten.
+- Last commit: classic HUD bars, classic menu art and castle select logo.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
