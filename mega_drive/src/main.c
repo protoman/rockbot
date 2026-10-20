@@ -306,6 +306,10 @@ static RunResult runStage(u8 stage)
     // stage is beaten (game_save.stages[stage] != 0).
     if (!(save_slot_stages(current_save_slot) & (1u << stage))) {
         boss_intro_run(stage);
+    } else {
+        // Skip the intro and make sure its jingle did not carry over from a
+        // previous replay/selection.
+        music_stop();
     }
 
     player_set_number(current_player);
