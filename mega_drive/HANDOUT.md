@@ -197,7 +197,10 @@ make run EMU_ARGS=   # GL renderer instead of software
 - **Dialog advance** (2026-10-20): armor/boss pages now wait for a fresh
   JUMP press. Previously a held fire button counted as the advance press and
   releasing it closed the page.
-- Last commit: advance dialogs only on a fresh jump press.
+- **Top ladder links** (2026-10-20): a top-row STAIR link now fires only
+  while the player is still on the ladder. Stepping off at the top no longer
+  falls into the PC's oversized bottom/top link band and teleports him down.
+- Last commit: top ladder links only fire while still on the ladder.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
