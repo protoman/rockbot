@@ -281,6 +281,38 @@ void stage_cycle_update(void)
     cycle_dirty = TRUE;
 }
 
+// Rewrite the visible map cells of animated slot `s` to use `base` (the
+// current frame's four tiles). The converted map initially points at the
+// static art in the tileset, so this must also run for frame 0; otherwise
+// Daisie's palm trees all show the same tile until the first animation tick.
+static void stage_anim_apply_cells(u8 s, u16 base)
+{
+    const u8 *cell_slot = stage_def->anim_cell_slot
+                          + stage_current_map * stage_def->map_w * stage_def->map_h;
+    u16 pal = STAGE_PAL << TILE_ATTR_PALETTE_SFT;
+    s16 cx0 = camera.x >> 4, cy0 = camera.y >> 4;
+    for (s16 cy = cy0; cy <= cy0 + 14; cy++) {
+        if (cy < 0 || cy >= stage_def->map_h) continue;
+        for (s16 cx = cx0; cx <= cx0 + 20; cx++) {
+            if (cx < 0 || cx >= stage_def->map_w) continue;
+            u16 n2 = cy * stage_def->map_w + cx;
+            if (cell_slot[n2] != s + 1) continue;
+            s16 sx = cx * stage_def->tile - camera.x;
+            s16 sy = cy * stage_def->tile - camera.y;
+            if (sx < -stage_def->tile || sx >= 320 ||
+                sy < -stage_def->tile || sy >= 224) continue;
+            bool t3 = stage_def->tile3_mask[stage_current_map * STAGE_MASK_BYTES
+                                            + (n2 >> 3)] & (1 << (n2 & 7));
+            u16 a = pal | (t3 ? TILE_ATTR_PRIORITY_MASK : 0);
+            u16 tx = cx * 2, ty = cy * 2;
+            VDP_setTileMapXY(STAGE_PLANE, a | (base + 0), tx,     ty);
+            VDP_setTileMapXY(STAGE_PLANE, a | (base + 1), tx + 1, ty);
+            VDP_setTileMapXY(STAGE_PLANE, a | (base + 2), tx,     ty + 1);
+            VDP_setTileMapXY(STAGE_PLANE, a | (base + 3), tx + 1, ty + 1);
+        }
+    }
+}
+
 static void stage_anim_reset(void)
 {
     u8 n = stage_def->anim_slot_n[stage_current_map];
@@ -288,8 +320,10 @@ static void stage_anim_reset(void)
         u16 idx = stage_current_map * stage_def->anim_slot_max + s;
         anim_frame[s] = 0;
         anim_timer[s] = stage_def->anim_slots[idx].delay[0];
+        u16 base = stage_anim_tile_base + s * TILE_ANIM_STRIDE;
         VDP_loadTileData((const u32 *)stage_def->anim_frames[idx][0],
-                         stage_anim_tile_base + s * TILE_ANIM_STRIDE, 4, DMA_QUEUE);
+                         base, 4, DMA_QUEUE);
+        stage_anim_apply_cells(s, base);
     }
 }
 
@@ -308,31 +342,7 @@ void stage_anim_update(void)
         VDP_loadTileData((const u32 *)stage_def->anim_frames[idx][anim_frame[s]],
                          base, 4, DMA_QUEUE);
 
-        // rewrite the visible cells of this slot
-        const u8 *cell_slot = stage_def->anim_cell_slot
-                              + stage_current_map * stage_def->map_w * stage_def->map_h;
-        u16 pal = STAGE_PAL << TILE_ATTR_PALETTE_SFT;
-        s16 cx0 = camera.x >> 4, cy0 = camera.y >> 4;
-        for (s16 cy = cy0; cy <= cy0 + 14; cy++) {
-            if (cy < 0 || cy >= stage_def->map_h) continue;
-            for (s16 cx = cx0; cx <= cx0 + 20; cx++) {
-                if (cx < 0 || cx >= stage_def->map_w) continue;
-                u16 n2 = cy * stage_def->map_w + cx;
-                if (cell_slot[n2] != s + 1) continue;
-                s16 sx = cx * stage_def->tile - camera.x;
-                s16 sy = cy * stage_def->tile - camera.y;
-                if (sx < -stage_def->tile || sx >= 320 ||
-                    sy < -stage_def->tile || sy >= 224) continue;
-                bool t3 = stage_def->tile3_mask[stage_current_map * STAGE_MASK_BYTES
-                                                + (n2 >> 3)] & (1 << (n2 & 7));
-                u16 a = pal | (t3 ? TILE_ATTR_PRIORITY_MASK : 0);
-                u16 tx = cx * 2, ty = cy * 2;
-                VDP_setTileMapXY(STAGE_PLANE, a | (base + 0), tx,     ty);
-                VDP_setTileMapXY(STAGE_PLANE, a | (base + 1), tx + 1, ty);
-                VDP_setTileMapXY(STAGE_PLANE, a | (base + 2), tx,     ty + 1);
-                VDP_setTileMapXY(STAGE_PLANE, a | (base + 3), tx + 1, ty + 1);
-            }
-        }
+        stage_anim_apply_cells(s, base);
     }
 }
 

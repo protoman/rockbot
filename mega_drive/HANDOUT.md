@@ -131,7 +131,11 @@ make run EMU_ARGS=   # GL renderer instead of software
   starts at the exact arrival camera, and the post-load arrival redraw is
   skipped (it was the one-frame dark/orange flash). Normal display-off stage
   load remains for transitions.
-- Last commit: post-transition redraw/flash fix.
+- **Animation/objects** (2026-10-20): animated cells are rewritten to frame 0
+  during stage_load, so Daisie's palms no longer freeze on one tile until the
+  first animation tick; map objects now use PC `object::gravity()` (all types
+  except the PC exclusion list) while on screen.
+- Last commit: animation frame-0 cells and object gravity.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER

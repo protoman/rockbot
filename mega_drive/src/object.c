@@ -62,6 +62,27 @@ static bool is_platform(u8 type)
            type == 14 || type == 22 || type == 30;
 }
 
+// PC object::gravity() (objects/object.cpp:228): every object type not in
+// this exclusion list falls at GRAVITY_SPEED while on screen. The list is the
+// PC enum order: fixed/moving platforms, fly items, rays, track/death/damaging
+// platforms, crushers, timed bombs, expanding spikes and the walker.
+#define OBJ_GRAVITY_SPEED 4
+static bool object_has_gravity(u8 type)
+{
+    switch (type) {
+    case 0:  case 1:  case 2:                 // up/down, left/right, block
+    case 10: case 11: case 12:                // fall/fly platforms, fly item
+    case 18: case 19: case 20:                // rays, track platform
+    case 24: case 25:                         // death rays
+    case 27:                                  // damaging platform
+    case 33: case 34: case 35:                // crusher, loop/down platforms
+    case 42: case 43: case 44: case 45:       // jump-shoot, timed bomb, spike, walker
+        return FALSE;
+    default:
+        return TRUE;
+    }
+}
+
 // A disappearing block only collides while in its visible phase.
 static bool solid_now(const MapObj *o)
 {
@@ -678,6 +699,22 @@ void objects_update(void)
             if (on_screen) SPR_setPosition(o->spr, sx, sy);
         }
         if (!on_screen) continue;   // no pickup/anim while fully off-screen
+
+        // ---- gravity (PC object::gravity) -------------------------------
+        if (object_has_gravity(d->type)) {
+            for (u8 step = OBJ_GRAVITY_SPEED; step > 0; step--) {
+                if (platform_can_move(o, (s16)step)) {
+                    bool carry = player_on_top(o);
+                    o->y += step;
+                    if (carry) player.y += step;
+                    break;
+                }
+            }
+            if (o->y > stage_def->map_h * stage_def->tile + 32) {
+                obj_release(o);
+                continue;
+            }
+        }
 
         // ---- player overlap: pickup / checkpoint -------------------------
         // The boss door is solid, so collision clamps the player flush against
