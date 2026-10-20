@@ -517,6 +517,15 @@ bool stage_check_link(s16 left, s16 top, s16 right, s16 bottom,
 
         hit = link_region(px, py, tx, ty, lk->size, trans);
 
+        // A stair tile on the top row is the mouth of a ladder: the link is
+        // only valid while the player is still climbing/hanging on it. Once
+        // he steps off at the top, the PC band (lim3 -= 27) still covers the
+        // floor below, which used to teleport him back down.
+        if (hit && ty == 0 &&
+            stage_terrain_at(stage_current_map, tx, ty) == TERRAIN_STAIR &&
+            !player.on_ladder)
+            hit = FALSE;
+
         // PC only fires a top/bottom transition when the player is partly
         // off-screen (game.cpp:801); teleporter links are exempt. A player
         // hanging on the ladder at the bottom/top is explicitly allowed:
