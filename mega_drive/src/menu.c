@@ -114,8 +114,10 @@ static void menu_restore_strip(u16 col, u16 row, u16 count)
     // Solid panel colour behind every text row. The font's background pixel
     // is index 0, so a strip of the panel's flat tile keeps glyphs readable
     // even when the underlying panel has bars/patterns.
+    // Tile 16 is the classic panel's flat dark fill (tile 4 is a border
+    // pattern and produced the striped text backgrounds).
     const u16 e = TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE,
-                                 MENU_TILE_BASE + 4);
+                                 MENU_TILE_BASE + 16);
     for (u16 i = 0; i < count && col + i < MENU_MAP_W; i++)
         VDP_setTileMapXY(BG_A, e, col + i, row);
 }

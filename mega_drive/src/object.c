@@ -363,6 +363,21 @@ static void obj_carry_player(s16 dy)
     }
 }
 
+// TRUE when an axis-aligned box touches a terrain cell a moving object may
+// not enter. JET EAGLE must disappear on the first contact (PC object collision).
+static bool terrain_box_blocked(s16 x, s16 y, s16 w, s16 h)
+{
+    for (s16 ty = y >> 4; ty <= (y + h - 1) >> 4; ty++) {
+        for (s16 tx = x >> 4; tx <= (x + w - 1) >> 4; tx++) {
+            const u16 t = stage_terrain_at(stage_current_map, tx, ty);
+            if (t != TERRAIN_UNBLOCKED && t != TERRAIN_WATER &&
+                t != TERRAIN_SPIKE)
+                return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 static void obj_move(MapObj *o)
 {
     const ObjectDef *d = o->def;
@@ -655,7 +670,20 @@ void objects_update(void)
         if (d->type == 12 && o->started) {
             s16 dx = (s16)d->speed * o->dir;
             bool carry = player_on_top(o);
-            o->x += dx;
+            s16 nx = o->x + dx;
+            bool blocked = terrain_box_blocked(nx, o->y, d->w, d->h);
+            if (!blocked && carry) {
+                s16 l, t, r, b;
+                player_get_box(&l, &t, &r, &b);
+                blocked = terrain_box_blocked(l + dx, t, r - l, b - t);
+            }
+            if (blocked) {
+                // PC JET EAGLE is destroyed on any wall/terrain contact; do
+                // not drag the rider into the block.
+                obj_release(o);
+                continue;
+            }
+            o->x = nx;
             if (carry) player.x += dx;
             if (++o->drain >= 15) {          // PC consumes 1 unit/240ms
                 o->drain = 0;
