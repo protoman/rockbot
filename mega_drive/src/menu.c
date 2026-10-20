@@ -311,10 +311,14 @@ bool menu_open(u16 weapon_mask)
     for (u8 w = 0; w < MENU_BAR_TILES; w++)
         menu_pal0[2 + w] = player_weapon_color(w);
     menu_pal0[13] = pal_ui.data[8];       // grey for unselected icons/bars
-    PAL_setPalette(PAL0, menu_pal0, DMA_QUEUE);
-    // DMA_QUEUE: a CPU CRAM write during active display corrupts on
-    // accurate emulators (see debugging.md / the SGDK boot notes)
-    PAL_setPalette(PAL1, menu_pal.data, DMA_QUEUE);
+    // Write CRAM with the display disabled: the queued variants were racing
+    // with the panel/tile DMA and left the font palette at the stage colours
+    // (the orange glyph backgrounds).
+    VDP_setEnable(FALSE);
+    PAL_setPalette(PAL0, menu_pal0, CPU);
+    PAL_setPalette(PAL1, menu_pal.data, CPU);
+    PAL_setPalette(PAL3, menu_icons_pal.data, CPU);
+    VDP_setEnable(TRUE);
     // The font's background pixels are the global backdrop colour. The stage
     // leaves CRAM0 orange/whatever, which made every text glyph a coloured
     // box over the blue panel. Borrow the panel's dark background while the
