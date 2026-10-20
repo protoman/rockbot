@@ -1132,7 +1132,10 @@ void player_update(u16 pad)
         s16 l = ix + PLAYER_BOX_L, r = ix + PLAYER_BOX_R;
         s16 t = iy + box_t, b = iy + box_b;
         bool spiked = FALSE;
-        for (s16 ty = t >> 4; ty <= (b - 1) >> 4 && !spiked; ty++) {
+        // Include the feet row: standing on a spike/lava tile means the
+        // hitbox bottom is exactly at that tile's top boundary, so the
+        // exclusive (b - 1) test skipped the tile the player stands on.
+        for (s16 ty = t >> 4; ty <= b >> 4 && !spiked; ty++) {
             for (s16 tx = l >> 4; tx <= (r - 1) >> 4; tx++) {
                 if (stage_terrain_at(stage_current_map, tx, ty) == TERRAIN_SPIKE) {
                     spiked = TRUE;
