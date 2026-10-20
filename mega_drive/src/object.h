@@ -66,6 +66,11 @@ s16 objects_head_block(s16 l, s16 r, s16 head_new, s16 feet);
 // "A<state><started>:<y> ..." for up to 3 platforms.
 void objects_debug_text(u8 tile_y, s16 px, s16 py, s16 camx);
 
+// TRUE while a boss door (type 30) still occupies the given tile column and
+// has not been opened. The camera lock uses this live state instead of the
+// static spawn list, so opening the door releases the scroll.
+bool objects_boss_door_locked(s16 tile_x);
+
 // Hide/show every live object sprite (in-game menu overlay).
 void objects_set_visible(bool visible);
 

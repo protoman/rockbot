@@ -30,6 +30,7 @@ typedef struct {
     s8 dir;
     u8 status;
     bool on;
+    bool pierce;        // full charged shot: PC vanishes_on_hit=false
     bool reflected;     // PC projectile.is_reflected: no more hits
 } Shot;
 
@@ -94,6 +95,16 @@ void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
     if (!pd->spr || !pd->speed) pd = &stage_def->enemy_proj[0];
     const SpriteDefinition *spr = pd->spr ? pd->spr : &shot_sprite;
 
+    // DYNAMITE FLASH is an instant screen-wide freeze, not a travelling
+    // projectile: arm the effect and consume the shot without spawning one.
+    if (pd->traj == TRAJ_FREEZE) {
+        enemies_freeze(w);
+        cooldown = SHOT_COOLDOWN;
+        sfx_play(SFX_SHOT);
+        if (w != 0) player_use_weapon_ammo();
+        return;
+    }
+
     u8 live = 0;
     for (u8 i = 0; i < SHOT_MAX; i++) if (shots[i].on) live++;
     if (live >= player_max_shots()) return;      // PC player.max_shots
@@ -131,6 +142,7 @@ void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
         s->dir = (s8)dir;
         s->status = 0;
         s->on = TRUE;
+        s->pierce = FALSE;
         s->reflected = FALSE;
         live++;
     }
@@ -204,6 +216,9 @@ void shot_charge_fire(s16 x, s16 y, s16 dir, u8 level)
     s->dir = (s8)dir;
     s->status = 0;
     s->on = TRUE;
+    // Only the full charged projectile is permanent on hit; normal weapon
+    // projectiles (including damage-3 Desert Storm) vanish on contact.
+    s->pierce = (level >= 2);
     s->reflected = FALSE;
     cooldown = SHOT_COOLDOWN;
     sfx_play(SFX_CHARGE);
@@ -283,12 +298,11 @@ void shot_update(void)
             s->x += s->dx;
             s->y += s->dy;
             if (shot_solid((s->dx > 0) ? s->x + s->w : s->x, s->y + s->h / 2)) {
+                // PC TRAJECTORY_ZIGZAG (SONAR WAVE): linear until a wall,
+                // then reverse X only. It must not gain a vertical component.
                 s->dx = -s->dx;
                 s->dir = -s->dir;
                 SPR_setHFlip(s->spr, s->dir < 0);
-                s16 vy = (s->dy < 0) ? -s->dy : s->dy;
-                if (vy == 0) vy = 2;
-                s->dy = (s->status & 1) ? -vy : vy;
                 s->status++;
             }
             break;
@@ -350,17 +364,16 @@ void shot_update(void)
 
         // destructible walls (OBJ_DESTRUCTIBLE_WALL) stop a non-charged shot
         if (objects_try_hit(s->x, s->y, s->x + s->w - 1, s->y + s->h - 1,
-                            s->dmg) && s->dmg < 3) {
+                            s->dmg) && !s->pierce) {
             shot_kill(s);
             continue;
         }
 
-        // enemy hit (shot dies on any hit; charged shots pierce: PC full
-        // charge keeps flying — character.cpp:742 permanent projectiles).
-        // Charged shots also ignore shields: PC only reflects when
-        // projectile.vanishes_on_hit is true.
+        // enemy hit (shot dies on any hit; full charged shots pierce:
+        // PC character.cpp:742 permanent projectiles). Charged shots also
+        // ignore shields: PC only reflects when vanishes_on_hit is true.
         u8 hit = enemies_try_hit(s->x, s->y, s->x + s->w - 1, s->y + s->h - 1,
-                                 s->dmg, (s->dx < 0) ? -1 : 1, s->dmg >= 3,
+                                 s->dmg, (s->dx < 0) ? -1 : 1, s->pierce,
                                  player_weapon());
         if (hit == 2) {
             // Shielded enemy: PC projectile::reflect() flips direction and
@@ -374,7 +387,7 @@ void shot_update(void)
             continue;
         }
         if (hit == 1) {
-            if (s->dmg < 3) {
+            if (!s->pierce) {
                 shot_kill(s);
                 continue;
             }

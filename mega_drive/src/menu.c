@@ -40,11 +40,24 @@ static u16 owned;            // owned weapons, bit n (PC has_weapon)
 // walk the linear weapon list (the grid is displayed for reference).
 static u8 find_next_weapon(u8 cur, s8 dir)
 {
-    for (u8 i = 1; i <= WEAPON_SWITCH_N; i++) {
-        s8 w = (s8)(cur + dir * (s8)i);
-        if (w < 0) w += WEAPON_SWITCH_N;
-        if (w >= WEAPON_SWITCH_N) w -= WEAPON_SWITCH_N;
-        if (owned & (1u << (u8)w)) return (u8)w;
+    // Matrix layout: four columns; LEFT/RIGHT stay in the row, UP/DOWN stay
+    // in the column. Skip empty slots but do not jump to another column/row.
+    const u8 row = (u8)(cur / 4);
+    const u8 col = (u8)(cur % 4);
+    if (dir == -4 || dir == 4) {
+        s8 r = (s8)row + ((dir > 0) ? 1 : -1);
+        while (r >= 0 && r < 3) {
+            u8 w = (u8)(r * 4 + col);
+            if (w < WEAPON_SWITCH_N && (owned & (1u << w))) return w;
+            r += (dir > 0) ? 1 : -1;
+        }
+    } else {
+        s8 c = (s8)col + ((dir > 0) ? 1 : -1);
+        while (c >= 0 && c < 4) {
+            u8 w = (u8)(row * 4 + c);
+            if (w < WEAPON_SWITCH_N && (owned & (1u << w))) return w;
+            c += (dir > 0) ? 1 : -1;
+        }
     }
     return cur;
 }
@@ -85,11 +98,13 @@ static void icons_create(void)
 // previous weapon/tank text (it left ghost characters behind).
 static void menu_restore_strip(u16 col, u16 row, u16 count)
 {
-    for (u16 i = 0; i < count && col + i < MENU_MAP_W; i++) {
-        u16 e = TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE,
-                               MENU_TILE_BASE + menu_map[row * MENU_MAP_W + col + i]);
+    // Solid panel colour behind every text row. The font's background pixel
+    // is index 0, so a strip of the panel's flat tile keeps glyphs readable
+    // even when the underlying panel has bars/patterns.
+    const u16 e = TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE,
+                                 MENU_TILE_BASE + 4);
+    for (u16 i = 0; i < count && col + i < MENU_MAP_W; i++)
         VDP_setTileMapXY(BG_A, e, col + i, row);
-    }
 }
 
 static const u32 menu_bar_white[8] = {
@@ -100,9 +115,8 @@ static const u32 menu_bar_white[8] = {
 // The old ASCII gauge used the font palette and disappeared against the
 // panel. Draw a plain white tile strip instead; it is intentionally simple
 // until the PC menu art is matched exactly.
-static void draw_bar(u8 value, u8 max, u16 col, u16 row)
+static void draw_white_bar(u8 value, u8 max, u16 col, u16 row, u8 n)
 {
-    const u8 n = 12;
     if (max == 0) max = 1;
     u8 filled = (u8)(((u16)value * n) / max);
     if (filled > n) filled = n;
@@ -115,23 +129,35 @@ static void draw_bar(u8 value, u8 max, u16 col, u16 row)
     }
 }
 
-// Weapon name + gauge, drawn over the panel's first weapon slot (PC x25/y60).
+// Bars belong under the PC grid icons (x=25+col*76, y=60+row*20), not on the
+// selected-weapon text line.
+static void draw_grid_bars(void)
+{
+    for (u8 w = 0; w < WEAPON_SWITCH_N; w++) {
+        if (!(owned & (1u << w))) continue;
+        u8 row = (u8)(w / 4);
+        u8 col = (u8)(w % 4);
+        u16 x = (u16)(3 + col * 10);
+        u16 y = (u16)(7 + row * 3);
+        u8 value = (w == 0) ? PLAYER_INITIAL_HP : player.ammo[w];
+        draw_white_bar(value, PLAYER_INITIAL_HP, x, y, 6);
+    }
+}
+
+// Selected weapon name, at the PC lower-left position (draw.cpp:984).
 static void draw_weapon_line(void)
 {
     u8 w = player_weapon();
-    menu_restore_strip(5, 3, 20);
-    menu_restore_strip(5, 4, 20);
-    VDP_drawText(weapon_data[w].name, 5, 3);
+    menu_restore_strip(13, 19, 27);
+    menu_restore_strip(13, 20, 27);
+    VDP_drawText("WEAPON/ITEM:", 13, 19);
+    VDP_drawText(weapon_data[w].name, 13, 20);
     if (w != 0) {
         u8 a = player_weapon_ammo();
-        char buf[4] = { ' ', ' ', ' ', 0 };
+        char buf[4] = { '[', ' ', ' ', 0 };
         buf[2] = (char)('0' + (a % 10));
         if (a >= 10) buf[1] = (char)('0' + ((a / 10) % 10));
-        VDP_drawText(buf, 27, 3);
-        draw_bar(a, PLAYER_INITIAL_HP, 5, 4);
-    } else {
-        VDP_drawText("AMMO", 5, 4);
-        draw_bar(1, 1, 11, 4);
+        VDP_drawText(buf, 31, 20);
     }
 }
 
@@ -173,17 +199,22 @@ static void menu_draw_panel(void)
                            MENU_MAP_W, CPU);
 
     // texts PC draws over the panel (menu_map.h names from img2tiles.py)
+    menu_restore_strip(0, 0, 40);
     VDP_drawText("GAME MENU", 2, 0);
     VDP_drawText("CONFIG [B]", 28, 0);
     draw_weapon_line();
     icons_create();
-    VDP_drawText("A: LEAVE STAGE", 2, 26);
+    draw_grid_bars();
+    menu_restore_strip(2, 25, 20);
     VDP_drawText("B: CONFIG", 2, 25);
+    menu_restore_strip(2, 26, 20);
+    VDP_drawText("A: LEAVE STAGE", 2, 26);
     draw_tank_line();
     // PC weapon_menu_show_player (draw.cpp:1021): lives next to the portrait
     {
         char buf[6] = { 'x', '[', '0', ']', 0, 0 };
         buf[2] = (char)('0' + (player_lives() % 10));
+        menu_restore_strip(5, 20, 5);
         VDP_drawText(buf, 5, 20);
     }
 }
@@ -269,16 +300,19 @@ bool menu_open(u16 weapon_mask)
                 sfx_play(SFX_CURSOR);
             }
         } else if (pressed & BUTTON_UP) {
-            // use a stored HP tank (PC menu item)
-            if (player_use_tank(TRUE)) {
-                draw_tank_line();
-                sfx_play(SFX_ITEM);
+            // PC matrix navigation: up/down move one row (4 columns).
+            u8 w = find_next_weapon(player_weapon(), -4);
+            if (w != player_weapon()) {
+                player_set_weapon(w);
+                draw_weapon_line();
+                sfx_play(SFX_CURSOR);
             }
         } else if (pressed & BUTTON_DOWN) {
-            if (player_use_tank(FALSE)) {
+            u8 w = find_next_weapon(player_weapon(), 4);
+            if (w != player_weapon()) {
+                player_set_weapon(w);
                 draw_weapon_line();
-                draw_tank_line();
-                sfx_play(SFX_ITEM);
+                sfx_play(SFX_CURSOR);
             }
         }
     }

@@ -101,17 +101,9 @@ static bool column_locked(s16 tile_x)
         if (cols[i] == tile_x) return TRUE;
 
     // PC classmap.cpp:171-191: a boss door locks the columns it occupies even
-    // when the map tiles under it are empty. The converter only sees terrain,
-    // so add the door columns here (SUN-GOD REALM sub-boss doors).
-    for (u8 i = 0; i < stage_def->object_spawn_count; i++) {
-        const ObjectSpawn *sp = &stage_def->object_spawns[i];
-        if (sp->map != stage_current_map) continue;
-        const ObjectDef *d = &stage_def->object_defs[sp->def];
-        if (d->type != 30) continue;            // OBJ_BOSS_DOOR
-        s16 x0 = sp->x >> 4;
-        s16 x1 = (sp->x + d->w - 1) >> 4;
-        if (tile_x >= x0 && tile_x <= x1) return TRUE;
-    }
+    // when the map tiles under it are empty. Use the live door state: once it
+    // has opened, those columns must no longer hold the camera back.
+    if (objects_boss_door_locked(tile_x)) return TRUE;
     return FALSE;
 }
 

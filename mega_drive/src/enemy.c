@@ -732,11 +732,21 @@ void enemies_update(void)
         // PC classnpc::execute: a weak enemy skips its AI and is not drawn
         // while freeze_weapon_effect is active.
         if (freeze_on && d->weak[freeze_wpn]) {
+            // Freeze means exactly that: keep the enemy visible but skip its
+            // AI/animation/gravity. Hiding it made DYNAMITE FLASH look like
+            // every enemy had vanished.
             if (!e->frozen) {
                 e->frozen = 1;
                 e->moving = 0;
                 e->shooting = 0;
-                if (e->spr) SPR_setVisibility(e->spr, HIDDEN);
+            }
+            if (e->spr) {
+                const s16 fx = e->x - camera.x;
+                const s16 fy = e->y - camera.y;
+                SPR_setVisibility(e->spr,
+                    (fx > -40 && fx < 336 && fy > -40 && fy < 248)
+                    ? VISIBLE : HIDDEN);
+                SPR_setPosition(e->spr, fx, fy);
             }
             continue;
         }

@@ -576,6 +576,18 @@ void objects_debug_text(u8 tile_y, s16 px, s16 py, s16 camx)
     VDP_drawText(buf, 0, tile_y + 1);
 }
 
+bool objects_boss_door_locked(s16 tile_x)
+{
+    for (u8 i = 0; i < obj_count; i++) {
+        const MapObj *o = &objs[i];
+        if (o->def->type != 30 || o->started) continue;
+        const s16 x0 = o->x >> 4;
+        const s16 x1 = (o->x + o->def->w - 1) >> 4;
+        if (tile_x >= x0 && tile_x <= x1) return TRUE;
+    }
+    return FALSE;
+}
+
 void objects_set_visible(bool visible)
 {
     for (u8 i = 0; i < obj_count; i++)
