@@ -2,8 +2,10 @@
 """Build the classic vertical HUD bars from art/energy_bar_vertical.png.
 
 The source art is 8x51: black gaps plus purple/blue columns.  It is emitted as
-three indexed 8x56 strips (7 x 8px frames) so the sprite engine can stack the
-segments and reveal them from the bottom up.
+three 8-pixel-tall slices (24+24+8) for the sprite engine; each slice has 51
+horizontal frames, one per 1% step (0..50 px filled).  The unfilled part of
+each frame is solid black, so the HUD shows a proper empty bar instead of
+transparent gaps.
 
 Palette indices are chosen from free entries in the player palette (PAL2):
   8/9   HP bar, weapon 0 colour1/colour2
@@ -19,43 +21,45 @@ ROOT = os.path.dirname(HERE)
 ART = os.path.join(ROOT, "art", "energy_bar_vertical.png")
 RES = os.path.join(ROOT, "res")
 
-# source RGB -> palette index
-BAR_VARIANTS = {
+VARIANTS = {
     "hud_bar_hp":  {(139, 0, 115): 8,  (0, 113, 238): 9,  (0, 0, 0): 12},
     "hud_bar_wpn": {(139, 0, 115): 13, (0, 113, 238): 14, (0, 0, 0): 12},
     "hud_bar_boss": {(139, 0, 115): 2, (0, 113, 238): 3,  (0, 0, 0): 1},
 }
+# (name suffix, source start row, height)
+PARTS = (("top", 0, 24), ("mid", 24, 24), ("bot", 48, 8))
+FRAMES = 51
 
 
 def main():
     src = Image.open(ART).convert("RGB")
     if src.size != (8, 51):
         raise SystemExit("energy_bar_vertical: expected 8x51, got %s" % (src.size,))
-    for name, mapping in BAR_VARIANTS.items():
-        # SGDK/rescomp reads frames left-to-right; keep the 7 chunks in a
-        # horizontal 56x8 strip, not stacked vertically.
-        out = Image.new("P", (56, 8))
-        # Give the used indices real colours so rescomp keeps the indexed
-        # image mapping; the runtime sprite still selects PAL2/PAL0.
-        pal = [0] * 48
-        pal[1 * 3:1 * 3 + 3] = [0, 0, 0]
-        pal[2 * 3:2 * 3 + 3] = [255, 255, 255]
-        pal[3 * 3:3 * 3 + 3] = [146, 219, 255]
-        pal[8 * 3:8 * 3 + 3] = [139, 0, 115]
-        pal[9 * 3:9 * 3 + 3] = [0, 113, 238]
-        pal[12 * 3:12 * 3 + 3] = [0, 0, 0]
-        pal[13 * 3:13 * 3 + 3] = [139, 0, 115]
-        pal[14 * 3:14 * 3 + 3] = [0, 113, 238]
-        out.putpalette(pal)
-        for f in range(7):
-            for y in range(8):
-                sy = f * 8 + y
-                for x in range(8):
-                    rgb = src.getpixel((x, sy)) if sy < 51 else (0, 0, 0)
-                    out.putpixel((f * 8 + x, y), mapping.get(rgb, 0))
-        path = os.path.join(RES, name + ".png")
-        out.save(path)
-        print("wrote", path)
+    for name, mapping in VARIANTS.items():
+        for suffix, start, height in PARTS:
+            out = Image.new("P", (8 * FRAMES, height))
+            pal = [0] * 48
+            pal[1 * 3:1 * 3 + 3] = [0, 0, 0]
+            pal[2 * 3:2 * 3 + 3] = [255, 255, 255]
+            pal[3 * 3:3 * 3 + 3] = [146, 219, 255]
+            pal[8 * 3:8 * 3 + 3] = [139, 0, 115]
+            pal[9 * 3:9 * 3 + 3] = [0, 113, 238]
+            pal[12 * 3:12 * 3 + 3] = [0, 0, 0]
+            pal[13 * 3:13 * 3 + 3] = [139, 0, 115]
+            pal[14 * 3:14 * 3 + 3] = [0, 113, 238]
+            out.putpalette(pal)
+            for f in range(FRAMES):
+                for y in range(height):
+                    sy = start + y
+                    for x in range(8):
+                        if sy >= 51 or sy < (51 - f):
+                            idx = mapping[(0, 0, 0)]
+                        else:
+                            idx = mapping.get(src.getpixel((x, sy)), mapping[(0, 0, 0)])
+                        out.putpixel((f * 8 + x, y), idx)
+            path = os.path.join(RES, "%s_%s.png" % (name, suffix))
+            out.save(path)
+            print("wrote", path)
 
 
 if __name__ == "__main__":
