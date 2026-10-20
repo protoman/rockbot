@@ -228,7 +228,11 @@ make run EMU_ARGS=   # GL renderer instead of software
   `classic_style_weapon_menu.png` panel. Stage select now swaps the centre
   player face for `stage_select_castle.png` (Dr Destrin mark) once all eight
   bosses are beaten.
-- Last commit: classic HUD bars, classic menu art and castle select logo.
+- **HUD bar crash** (2026-10-20): the 7 HUD bar chunks were emitted as a
+  vertical strip and rescomp only saw one frame; `SPR_setFrame()` then
+  corrupted the sprite frame pointer. They are now a horizontal 56x8 strip
+  with one animation of 7 frames.
+- Last commit: emit HUD bars as a horizontal frame strip.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
