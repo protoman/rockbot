@@ -69,6 +69,8 @@ PALETTE dlg_face_7_pal "dlg_face_7.png"
 SPRITE dlg_face_7_sprite "dlg_face_7.png" 32p 32p FAST [[0]]
 PALETTE dlg_face_8_pal "dlg_face_8.png"
 SPRITE dlg_face_8_sprite "dlg_face_8.png" 32p 32p FAST [[0]]
+PALETTE dlg_face_armor_pal "dlg_face_armor.png"
+SPRITE dlg_face_armor_sprite "dlg_face_armor.png" 32p 32p FAST [[0]]
 
 # ---- MUSIC (XGM2 driver; rescomp runs xgmtool on the .vgm) ----
 XGM2 stage_music "music.vgm"
@@ -125,6 +127,9 @@ SPRITE proj_16_sprite "proj_16.png" 16p 16p FAST [[6,6]]
 SPRITE proj_17_sprite "proj_17.png" 24p 16p FAST [[6,6]]
 SPRITE proj_18_sprite "proj_18.png" 16p 16p FAST [[6,6,6,6,6,6,6]]
 SPRITE proj_19_sprite "proj_19.png" 24p 24p FAST [[6,6,6,6]]
+SPRITE proj_20_sprite "proj_20.png" 32p 32p FAST [[6,6]]
+SPRITE proj_21_sprite "proj_21.png" 24p 24p FAST [[6,6]]
+SPRITE proj_22_sprite "proj_22.png" 32p 32p FAST [[6,6,6]]
 
 # ---- STAGE 0 OBJECTS (tools/convert_objects.py) ----
 # Single anim row; shared PAL0 (palette_ui_enemies). Checkpoint cell is
@@ -132,6 +137,8 @@ SPRITE proj_19_sprite "proj_19.png" 24p 24p FAST [[6,6,6,6]]
 SPRITE object_energy_pill_small_sprite "object_energy_pill_small.png" 16p 16p FAST [[6,6]]
 SPRITE object_fall_block_sprite "object_fall_block.png" 16p 16p FAST [[6,6]]
 SPRITE object_1up_sprite "object_1up.png" 16p 16p FAST [[12,12,12,12]]
+SPRITE object_item_jump_sprite "object_item_jump.png" 32p 24p FAST [[2,2,2,2,2]]
+SPRITE object_item_jet_sprite "object_item_jet.png" 40p 16p FAST [[18,18,18,18]]
 SPRITE object_platform_up_sprite "object_platform_up.png" 32p 16p FAST [[6,6]]
 SPRITE object_checkpoint_sprite "object_checkpoint.png" 32p 64p FAST [[18,18]]
 SPRITE object_teleporter_stage_boss_sprite "object_teleporter_stage_boss.png" 32p 64p FAST [[7,7,7]]

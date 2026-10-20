@@ -72,4 +72,7 @@ const EnemyProj stage11_enemy_proj[STAGE11_ENEMY_PROJ_MAX] = {
     [17] = { &proj_17_sprite, 2, 3, 23, 12, 0, 1 },
     [18] = { &proj_18_sprite, 2, 2, 16, 14, 13, 1 },
     [19] = { &proj_19_sprite, 1, 3, 18, 18, 16, 1 },
+    [20] = { &proj_20_sprite, 3, 5, 29, 32, 0, 0 },
+    [21] = { &proj_21_sprite, 2, 3, 24, 20, 17, 1 },
+    [22] = { &proj_22_sprite, 2, 6, 32, 27, 0, 1 },
 };

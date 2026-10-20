@@ -64,6 +64,12 @@ make run EMU_ARGS=   # GL renderer instead of software
   small energy, big/small weapon, 4.5s lifetime); a new SRAM item record
   (byte 88 + slot*12) persists lives, the three tanks and armor across stages;
   first clears of stages 1..8 show `YOU GOT <weapon>` for 5s.
+- **Items + armor** (2026-10-19): menu has the PC 2x6 weapon grid
+  (abbreviated names); COIL FROG and JET EAGLE are selectable (stage 1 / 6),
+  with item physics and ammo drain; ARMS armor swaps the full-charge shot for
+  the per-player projectile (SUPER SHOT / SEMI / LASER / HADOUKEN); armor
+  pickups show the CANOTUS dialog; SHORYUKEN (UP+DASH) is implemented. PC
+  per-weapon icons and the exact item-platform motion still need playtesting.
 - **Map/stair fixes** (2026-10-19): links now carry the PC band width
   (`file_link.size`), reverse direction (`bidirecional`) and type, so the wide
   stairways in DEEP JUNGLE and SUN-GOD REALM trigger; door columns are added
@@ -79,8 +85,8 @@ make run EMU_ARGS=   # GL renderer instead of software
   `playSession` sends clears/game overs to the stage select (intro stage game
   over restarts it; stage 13's ending returns to the title). Approximations:
   no PC ring-explosion art, no player_victory flash/pose, no fade.
-- Last commit: wide stair links, door scroll-lock/position, stair fall and
-  shot-reflection fixes.
+- Last commit: weapon grid, COIL/JET items, ARMS charged shots, armor dialog
+  and SHORYUKEN.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER

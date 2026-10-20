@@ -99,6 +99,52 @@ static void show_page(const char *const *lines, u8 first, u8 y0,
     if (fs) SPR_releaseSprite(fs);
 }
 
+static const char *armor_shot_name(u8 id)
+{
+    switch (id) {
+    case 11: return "SEMI-CHARGED";
+    case 20: return "SUPER SHOT";
+    case 21: return "LASER SHOT";
+    case 22: return "HADOUKEN";
+    default: return "SHOT";
+    }
+}
+
+void dialog_show_armor(u8 kind)
+{
+    const u8 ability = player_armor_ability(kind);
+    const char *lines[3];
+    char shoot[40];
+
+    if (kind == 0) {
+        lines[0] = "IMPROVED ARMS ALLOWS YOU TO";
+        lines[1] = "GIVE YOU THE ABILITY TO";
+        strcpy(shoot, "SHOOT ");
+        strcat(shoot, armor_shot_name(ability));
+        strcat(shoot, ".");
+        lines[2] = shoot;
+    } else if (kind == 1) {
+        lines[0] = "THIS FORTIFIED BODY WILL";
+        lines[1] = "GIVE YOU THE ABILITY TO";
+        if (ability == 0)      lines[2] = "BE INTANGIBLE MORE TIME";
+        else if (ability == 1) lines[2] = "TAKE HALF DAMAGE";
+        else if (ability == 2) lines[2] = "AVOID PUSH-BACK ON HIT";
+        else                   lines[2] = "RESIST SPIKES";
+    } else {
+        lines[0] = "THOSE LIGHTER LEGS";
+        lines[1] = "GIVE YOU THE ABILITY TO";
+        if (ability == 0)      lines[2] = "DASH IN MIDDLE-AIR.";
+        else if (ability == 1) lines[2] = "EXECUTE DOUBLE JUMP";
+        else                   lines[2] = "SHOURUYKEN (UP+DASH)";
+    }
+
+    show_page(lines, 0, 1, &dlg_face_armor_sprite, &dlg_face_armor_pal);
+    player_restore_palette();
+    stage_force_redraw();
+    player_sync_sprite();
+    SYS_doVBlankProcess();
+}
+
 void dialog_show_boss(u8 stage, u8 player)
 {
     if (stage >= DIALOG_STAGES) return;

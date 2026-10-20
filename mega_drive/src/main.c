@@ -473,6 +473,13 @@ static RunResult runStage(u8 stage)
         stage_cycle_update();
 
         enemies_update();   // patrol/contact first, shots test fresh positions
+        // SHORYUKEN (LEGS armor): PC collision_player_special_attack(..., 9)
+        // damages enemies the rising player passes through.
+        if (player_is_shoryuken()) {
+            s16 sl, st, sr, sb;
+            player_get_box(&sl, &st, &sr, &sb);
+            enemies_try_hit(sl, st, sr, sb, 9, player.facing, TRUE);
+        }
         // PC map_present_boss: the stage boss's dialog appears the first time
         // he is on screen (stages 0..8; the castle stages have no boss text).
         if (!boss_dialog_shown && enemies_boss_on_screen()) {

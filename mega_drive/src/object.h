@@ -27,6 +27,10 @@ void objects_reset(void);
 // timed out after 4.5s like the PC object duration.
 void objects_drop_item(s16 cx, s16 cy);
 
+// Selected item weapon (PC add_coil_object / add_jet_object): COIL FROG
+// (type 13, super-jump spring) or JET EAGLE (type 12, flying platform).
+bool objects_spawn_weapon_item(bool jet);
+
 // Platform state machines (fall/fly), pickups, checkpoint, animation.
 // Call once per frame BEFORE player_update (carry moves the player first).
 void objects_update(void);

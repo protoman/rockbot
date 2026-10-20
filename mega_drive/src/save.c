@@ -59,9 +59,16 @@ u16 save_slot_stages(u8 slot)
 
 u16 save_slot_weapon_mask(u8 slot)
 {
-    // PC dataUtil::has_weapon() (data/datautil.cpp:23): weapon n is owned when
-    // stage n has been beaten; the buster (0) is always available.
-    return (u16)(save_slot_stages(slot) | 1u);
+    // PC dataUtil::has_weapon() (data/datautil.cpp:23): weapons 1..8 need the
+    // matching stage; COIL (9) needs APE (stage 1) and JET (10) needs TECHNO
+    // (stage 6). Castle bits 9..13 do not unlock weapons.
+    u16 stages = save_slot_stages(slot);
+    u16 mask = 1u;
+    for (u8 n = 1; n <= 8; n++)
+        if (stages & (1u << n)) mask |= (u16)(1u << n);
+    if (stages & (1u << 1)) mask |= 1u << 9;    // COIL FROG
+    if (stages & (1u << 6)) mask |= 1u << 10;   // JET EAGLE
+    return mask;
 }
 
 void save_slot_set_stage(u8 slot, u8 stage)

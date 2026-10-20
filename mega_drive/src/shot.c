@@ -74,6 +74,16 @@ void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
     u8 w = player_weapon();
     if (w != 0 && player_weapon_ammo() == 0) return;
 
+    // PC WEAPON_ITEM_COIL / WEAPON_ITEM_JET: no projectile, spawn an item.
+    // COIL consumes one unit when placed; JET drains while being ridden.
+    if (w == 9 || w == 10) {
+        if (!objects_spawn_weapon_item(w == 10)) return;
+        if (w == 9) player_use_weapon_ammo();
+        sfx_play(SFX_SHOT);
+        cooldown = SHOT_COOLDOWN;
+        return;
+    }
+
     const EnemyProj *pd = &stage_def->enemy_proj[weapon_data[w].proj];
     // Some ids have no art in the port (e.g. 7 SPIKED CHAIN is skipped by the
     // converter) — fall back to the buster so the weapon still shoots.
@@ -141,10 +151,30 @@ void shot_charge_fire(s16 x, s16 y, s16 dir, u8 level)
     // full charge = projectile 10 (charged_shot, 31x30, dmg 3, speed 3) —
     // both LINEAR with max_shots 1 (game_projectile_list.dat records 10/11).
     const SpriteDefinition *spr;
+    u8 speed = SHOT_CHARGE_SPEED;
+    u8 cost = 1;
+    s->traj = TRAJ_LINEAR;
     if (level >= 2) {
-        spr = &shot_charge_full_sprite;
-        s->w = 31; s->h = 30;
-        s->dmg = 3;
+        // PC update_armor_properties(): ARMS armor replaces the full-charge
+        // projectile (super shot / laser / hadouken). Projectile table ids
+        // 20..22 are emitted by convert_enemies.py for every stage.
+        u8 aid = player_armor_shot_id();
+        const EnemyProj *ap = NULL;
+        if (aid != 0xFF && aid < stage_def->enemy_proj_max)
+            ap = &stage_def->enemy_proj[aid];
+        if (ap && ap->spr) {
+            spr = ap->spr;
+            s->w = ap->w ? ap->w : 16;
+            s->h = ap->h ? ap->h : 16;
+            s->dmg = ap->dmg ? ap->dmg : 3;
+            s->traj = ap->traj;
+            speed = ap->speed ? ap->speed : SHOT_CHARGE_SPEED;
+            cost = (s->traj == TRAJ_QUAKE) ? 4 : 1;
+        } else {
+            spr = &shot_charge_full_sprite;
+            s->w = 31; s->h = 30;
+            s->dmg = 3;
+        }
     } else {
         spr = &enemy_shot_semi_sprite;
         s->w = 16; s->h = 16;
@@ -159,15 +189,15 @@ void shot_charge_fire(s16 x, s16 y, s16 dir, u8 level)
     s->y = y;
     s->x0 = x;
     s->y0 = y;
-    s->dx = (dir < 0) ? -SHOT_CHARGE_SPEED : SHOT_CHARGE_SPEED;
+    s->dx = (dir < 0) ? -(s16)speed : (s16)speed;
     s->dy = 0;
-    s->traj = TRAJ_LINEAR;
     s->age = 0;
     s->on = TRUE;
     s->reflected = FALSE;
     cooldown = SHOT_COOLDOWN;
     sfx_play(SFX_CHARGE);
-    if (w != 0) player_use_weapon_ammo();
+    if (w != 0)
+        for (u8 i = 0; i < cost; i++) player_use_weapon_ammo();
 }
 
 void shots_set_visible(bool visible)

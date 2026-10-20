@@ -6,6 +6,7 @@
 #include "object.h"
 #include "resources.h"
 #include "player_data.h"
+#include "weapon_data.h"
 #include "player_flip.h"   // generated: per-animation flip X correction
 #include "config.h"
 
@@ -16,6 +17,7 @@
 #define DECEL      FIX16(0.28)
 #define GRAVITY    FIX16(0.25)
 #define JUMP_VEL   FIX16(5.3)  // ~56px arc, about 3.5 tiles
+#define SUPER_JUMP_VEL FIX16(7.4) // PC classjump bigjump: 5.675 * 1.40
 #define MAX_FALL   FIX16(6)
 #define CLIMB_SPEED FIX16(1.5)
 // FROZEN LAIR: ice has almost no friction (PC character.cpp:330 starts the
@@ -86,6 +88,7 @@ static bool out_of_lives;
 // hides the player and freezes the world for ~1.5s.
 #define PLAYER_DEATH_FRAMES 90
 static u16 death_timer;
+static bool shoryuken_active;
 static s16 box_t = PLAYER_BOX_T;   // hitbox offsets (see update_hitbox)
 static s16 box_b = PLAYER_BOX_B;
 static s16 coyote_timer;
@@ -180,10 +183,24 @@ bool player_can_charge(void) { return (player_data[player_n].flags & PL_CHARGE) 
 // 2 spike immune, 3 no pushback. LEGS: 0 double jump, 1 air dash, 2 shoryuken.
 static const u8 armor_body_ability[4] = { 0, 2, 1, 3 };
 static const u8 armor_legs_ability[4] = { 0, 1, 1, 2 };
+static const u8 armor_arms_ability[4] = { 20, 11, 21, 22 };  // projectile ids
 
 static u8 armor_body(void) { return armor_body_ability[player_n & 3]; }
 static u8 armor_legs(void) { return armor_legs_ability[player_n & 3]; }
+static u8 armor_arms(void) { return armor_arms_ability[player_n & 3]; }
 static bool has_armor(u8 bit) { return (player.armor & (1u << bit)) != 0; }
+
+u8 player_number(void) { return player_n; }
+u8 player_armor_ability(u8 kind)
+{
+    if (kind == 0) return armor_arms();
+    if (kind == 1) return armor_body();
+    return armor_legs();
+}
+u8 player_armor_shot_id(void)
+{
+    return has_armor(0) ? armor_arms() : 0xFF;
+}
 
 bool player_can_double_jump(void)
 {
@@ -196,6 +213,10 @@ bool player_can_air_dash(void)
 {
     if ((player_data[player_n].flags & PL_AIRDASH) != 0) return TRUE;
     return has_armor(2) && armor_legs() == 1;
+}
+bool player_can_shoryuken(void)
+{
+    return has_armor(2) && armor_legs() == 2;
 }
 bool player_can_shield(void) { return (player_data[player_n].flags & PL_SHIELD) != 0; }
 bool player_is_shielding(void) { return player.shielding; }
@@ -266,7 +287,7 @@ void player_refill_weapons(void)
 
 void player_set_weapon(u8 n)
 {
-    player.weapon = (n < PLAYER_WEAPON_N) ? n : 0;
+    player.weapon = (n < WEAPON_SWITCH_N) ? n : 0;
     rebuild_player_palette();
     PAL_setPalette(PLAYER_PAL, base_pal, DMA_QUEUE);
 }
@@ -463,6 +484,7 @@ void player_init(void)
     // lives/tanks/armor persist across stages (player_new_game or the save
     // slot sets them; player_init must not reset them).
     death_timer = 0;
+    shoryuken_active = FALSE;
     coyote_timer = COYOTE_FRAMES;
     jump_timer = 0;
     attack_timer = 0;
@@ -806,6 +828,28 @@ void player_update(u16 pad)
                  JUMP_BUTTONS | FIRE_BUTTON | SLIDE_BUTTON);
     }
 
+    // ---- SHORYUKEN (LEGS armor, PC classPlayer::shouryuken) -----------------
+    // Up + dash while standing: 1.4x jump, no horizontal control, damages
+    // enemies along the path (main.c applies the hit box each frame).
+    if (shoryuken_active && player.on_ground) shoryuken_active = FALSE;
+    if (!shoryuken_active && player_can_shoryuken() && player.on_ground &&
+        !player.shielding && (pad & BUTTON_UP) && (pad & SLIDE_BUTTON)) {
+        shoryuken_active = TRUE;
+        player.on_ground = FALSE;
+        player.sliding = FALSE;
+        player.vx = 0;
+        player.vy = -SUPER_JUMP_VEL;
+        jump_timer = 0;
+        pad &= ~(BUTTON_LEFT | BUTTON_RIGHT | BUTTON_UP | BUTTON_DOWN |
+                 JUMP_BUTTONS | SLIDE_BUTTON | FIRE_BUTTON);
+        sfx_play(SFX_JUMP);
+    }
+    if (shoryuken_active) {
+        player.vx = 0;
+        pad &= ~(BUTTON_LEFT | BUTTON_RIGHT | BUTTON_UP | BUTTON_DOWN |
+                 JUMP_BUTTONS | SLIDE_BUTTON | FIRE_BUTTON);
+    }
+
     // ---- slide / dash (start) ----------------------------------------------
     // Needs a FRESH press: the PC only starts a slide after the dash button
     // was released again (_dash_button_released, character.cpp:1668), so a
@@ -1094,7 +1138,8 @@ void player_update(u16 pad)
 
     // ---- animation + screen position ----------------------------------------
     u16 want;
-    if (player.hit_push > 0)    want = ANIM_HIT;
+    if (shoryuken_active)       want = ANIM_SPECIAL;
+    else if (player.hit_push > 0)    want = ANIM_HIT;
     else if (player.shielding)  want = ANIM_SHIELD;
     else if (player.sliding)    want = ANIM_SLIDE;   // ground slide + air dash
     else if (!player.on_ground) want = ANIM_JUMP;
@@ -1135,6 +1180,7 @@ static void player_die(void)
 }
 
 bool player_is_dying(void) { return death_timer != 0; }
+bool player_is_shoryuken(void) { return shoryuken_active; }
 
 bool player_death_update(void)
 {
@@ -1197,6 +1243,15 @@ void player_crush(void)
     // window — being crushed is not a "hit".
     player.hp = 0;
     player_die();
+}
+
+void player_super_jump(void)
+{
+    player.on_ground = FALSE;
+    player.on_ladder = FALSE;
+    player.sliding = FALSE;
+    player.vy = -SUPER_JUMP_VEL;
+    jump_timer = 0;
 }
 
 u8 player_lives(void) { return lives; }

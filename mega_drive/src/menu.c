@@ -34,16 +34,39 @@ static u16 cells[MENU_MAP_W * MENU_MAP_H];
 static u16 owned;            // owned weapons, bit n (PC has_weapon)
 
 // PC find_next_weapon (class_config.cpp:419): the next owned weapon in `dir`,
-// wrapping; only 0..WEAPON_PLAYER_N-1 are switchable (items are not modelled).
+// wrapping. 0..10 = buster, the eight bosses, COIL and JET. The PC moves four
+// grid cells vertically; the port uses the same 2x6 layout but LEFT/RIGHT
+// walk the linear weapon list (the grid is displayed for reference).
 static u8 find_next_weapon(u8 cur, s8 dir)
 {
-    for (u8 i = 1; i <= WEAPON_PLAYER_N; i++) {
+    for (u8 i = 1; i <= WEAPON_SWITCH_N; i++) {
         s8 w = (s8)(cur + dir * (s8)i);
-        if (w < 0) w += WEAPON_PLAYER_N;
-        if (w >= WEAPON_PLAYER_N) w -= WEAPON_PLAYER_N;
+        if (w < 0) w += WEAPON_SWITCH_N;
+        if (w >= WEAPON_SWITCH_N) w -= WEAPON_SWITCH_N;
         if (owned & (1u << (u8)w)) return (u8)w;
     }
     return cur;
+}
+
+// PC 2x6 weapon grid (generate_weapons_matrix): column 0 = buster + stages
+// 1..5, column 1 = stages 6..9 then COIL/JET. The MD has no per-weapon icon
+// strip, so use short names; the selected slot gets a '>'.
+static void draw_weapon_grid(void)
+{
+    for (u8 w = 0; w < WEAPON_SWITCH_N; w++) {
+        if (!(owned & (1u << w))) continue;
+        u8 row = (w <= 5) ? w : (u8)(w - 5);
+        u8 x = (w <= 5) ? 3 : 12;
+        u8 y = (u8)(6 + row * 2);
+        char buf[10];
+        u8 i = 0;
+        const char *n = weapon_data[w].name;
+        while (i < 8 && n[i]) { buf[i] = n[i]; i++; }
+        buf[i] = 0;
+        VDP_drawText(buf, x + 1, y);
+        if (player_weapon() == w) VDP_drawText(">", x, y);
+        else VDP_drawText(" ", x, y);
+    }
 }
 
 // Weapon name + gauge, drawn over the panel's first weapon slot (PC x25/y60).
@@ -102,6 +125,7 @@ static void menu_draw_panel(void)
     VDP_drawText("CONFIG [B]", 28, 0);
     VDP_drawText(">", 3, 5);
     draw_weapon_line();
+    draw_weapon_grid();
     VDP_drawText("A: LEAVE STAGE", 2, 26);
     VDP_drawText("B: CONFIG", 2, 25);
     draw_tank_line();
@@ -174,6 +198,7 @@ bool menu_open(u16 weapon_mask)
             if (w != player_weapon()) {
                 player_set_weapon(w);
                 draw_weapon_line();
+                draw_weapon_grid();
                 sfx_play(SFX_CURSOR);
             }
         } else if (pressed & BUTTON_LEFT) {
@@ -181,6 +206,7 @@ bool menu_open(u16 weapon_mask)
             if (w != player_weapon()) {
                 player_set_weapon(w);
                 draw_weapon_line();
+                draw_weapon_grid();
                 sfx_play(SFX_CURSOR);
             }
         } else if (pressed & BUTTON_UP) {

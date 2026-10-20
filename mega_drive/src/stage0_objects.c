@@ -6,14 +6,16 @@ const ObjectDef stage0_object_defs[STAGE0_OBJECT_DEF_COUNT] = {
     /* 1 */ { &object_fall_block_sprite, 10, 2, 6, 16, 16, 4, 400, 0 },  // Fall Block
     /* 2 */ { &object_1up_sprite, 9, 4, 12, 16, 16, 0, 0, 0 },  // 1UP
     /* 3 */ { &object_platform_up_sprite, 11, 2, 6, 32, 16, 4, 0, 200 },  // Platform Flyier (large)
-    /* 4 */ { &object_checkpoint_sprite, 29, 2, 18, 32, 64, 0, 0, 0 },  // Checkpoint
-    /* 5 */ { &object_teleporter_stage_boss_sprite, 32, 3, 7, 32, 64, 0, 0, 0 },  // Stage Boss Teleporter
+    /* 4 */ { &object_item_jump_sprite, 13, 5, 2, 28, 18, 2, 2000, 2000 },  // COIL FROG
+    /* 5 */ { &object_item_jet_sprite, 12, 4, 18, 37, 9, 0, 0, 0 },  // JET EAGLE
+    /* 6 */ { &object_checkpoint_sprite, 29, 2, 18, 32, 64, 0, 0, 0 },  // Checkpoint
+    /* 7 */ { &object_teleporter_stage_boss_sprite, 32, 3, 7, 32, 64, 0, 0, 0 },  // Stage Boss Teleporter
 };
 
 const ObjectSpawn stage0_object_spawns[STAGE0_OBJECT_SPAWN_COUNT] = {
     { 1, 1, 2000, 208, 255, 255, 255 },
     { 1, 1, 2144, 208, 255, 255, 255 },
-    { 4, 1, 3056, 128, 255, 255, 255 },
+    { 6, 1, 3056, 128, 255, 255, 255 },
     { 1, 1, 768, 64, 255, 255, 255 },
     { 1, 1, 848, 96, 255, 255, 255 },
     { 1, 1, 896, 96, 255, 255, 255 },
@@ -41,12 +43,12 @@ const ObjectSpawn stage0_object_spawns[STAGE0_OBJECT_SPAWN_COUNT] = {
     { 0, 1, 2736, 116, 255, 255, 255 },
     { 0, 1, 224, 100, 255, 255, 255 },
     { 0, 1, 240, 100, 255, 255, 255 },
-    { 4, 0, 2608, 128, 255, 255, 255 },
+    { 6, 0, 2608, 128, 255, 255, 255 },
     { 0, 0, 2576, 180, 255, 255, 255 },
     { 0, 0, 2560, 180, 255, 255, 255 },
     { 0, 0, 2544, 180, 255, 255, 255 },
     { 0, 0, 2656, 180, 255, 255, 255 },
     { 0, 0, 2672, 180, 255, 255, 255 },
     { 0, 0, 2688, 180, 255, 255, 255 },
-    { 5, 0, 2832, 128, 182, 3, 0 },
+    { 7, 0, 2832, 128, 182, 3, 0 },
 };

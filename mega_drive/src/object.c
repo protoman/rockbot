@@ -4,6 +4,7 @@
 #include "stage.h"
 #include "player.h"
 #include "resources.h"
+#include "dialogs.h"
 
 // Map objects (pills, 1UP, fall/fly platforms, checkpoint, boss teleporter).
 // Behavior mirrors PC objects/object.cpp for the types shipped in
@@ -35,6 +36,8 @@ typedef struct {
     u8 vis_t;        // frames in the current visible/hidden phase
     u8 hp;           // destructible wall
     u16 duration;    // frames left before release (0 = permanent)
+    s8 dir;          // COIL/JET facing
+    u8 drain;        // JET ammo drain counter
 } MapObj;
 
 static MapObj objs[OBJECT_MAX];
@@ -43,8 +46,9 @@ static u8 obj_count;
 // Types that animate without player interaction (auto_start = 1 in data).
 static bool auto_anim(u8 type)
 {
-    // pickups (small/big pills), 1UP, boss teleporter
+    // pickups (small/big pills), 1UP, boss teleporter, COIL/JET items
     return type == 5 || type == 6 || type == 7 || type == 8 || type == 9 ||
+           type == 12 || type == 13 ||
            type == 18 || type == 19 || type == 21 || type == 24 ||
            type == 25 || type == 26 || type == 31 || type == 32;
 }
@@ -52,9 +56,9 @@ static bool auto_anim(u8 type)
 static bool is_platform(u8 type)
 {
     // disappearing/active blocks, fall/fly/LR platforms, destructible wall,
-    // boss door
-    return type == 1 || type == 2 || type == 10 || type == 11 || type == 14 ||
-           type == 22 || type == 30;
+    // boss door, JET EAGLE. COIL (13) is a trigger, not a platform.
+    return type == 1 || type == 2 || type == 10 || type == 11 || type == 12 ||
+           type == 14 || type == 22 || type == 30;
 }
 
 // A disappearing block only collides while in its visible phase.
@@ -241,6 +245,63 @@ void objects_drop_item(s16 cx, s16 cy)
     }
 }
 
+// Player item weapons (PC player_items 16/17: COIL FROG type 13, JET EAGLE
+// type 12). Art is emitted once by convert_objects.py stage 0.
+static const ObjectDef coil_def =
+    { &object_item_jump_sprite, 13, 5, 2, 28, 18, 0, 0, 0 };
+static const ObjectDef jet_def =
+    { &object_item_jet_sprite, 12, 4, 18, 37, 9, 2, 0, 0 };
+
+bool objects_spawn_weapon_item(bool jet)
+{
+    // PC classMap::have_player_object(): only one item platform at a time.
+    for (u8 i = 0; i < obj_count; i++) {
+        if (objs[i].active &&
+            (objs[i].def->type == 12 || objs[i].def->type == 13))
+            return FALSE;
+    }
+
+    MapObj *o = NULL;
+    for (u8 i = 0; i < obj_count; i++) {
+        if (!objs[i].active) { o = &objs[i]; break; }
+    }
+    if (!o) {
+        if (obj_count >= OBJECT_MAX) return FALSE;
+        o = &objs[obj_count++];
+    }
+
+    const ObjectDef *d = jet ? &jet_def : &coil_def;
+    s16 l, t, r, b;
+    player_get_box(&l, &t, &r, &b);
+    o->def = d;
+    o->dir = (player.facing < 0) ? -1 : 1;
+    o->x = (o->dir > 0) ? (s16)(r + 2) : (s16)(l - 2 - d->w);
+    o->y = jet ? (s16)(player.y + 16) : (s16)(b - d->h);
+    o->home_x = o->x;
+    o->home_y = o->y;
+    o->distance = 0;
+    o->state = OBJ_STATE_STAND;
+    o->delay = 0;
+    o->anim_t = 0;
+    o->frame = 0;
+    o->dest_x = o->dest_y = o->dest_map = 0;
+    o->started = FALSE;
+    o->active = TRUE;
+    o->visible = TRUE;
+    o->vis_t = 0;
+    o->hp = 0;
+    o->duration = jet ? 270 : 150;   // PC 4500ms / 2500ms
+    o->drain = 0;
+    o->spr = SPR_addSprite(d->spr, o->x - camera.x, o->y - camera.y,
+                           TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
+    if (o->spr) {
+        SPR_setAutoAnimation(o->spr, FALSE);
+        SPR_setHFlip(o->spr, o->dir < 0);
+        SPR_setVisibility(o->spr, VISIBLE);
+    }
+    return TRUE;
+}
+
 static void obj_carry_player(s16 dy)
 {
     player.y += dy;
@@ -351,6 +412,15 @@ s16 objects_land_check(s16 l, s16 r, s16 head_new, s16 feet_new)
 {
     for (u8 i = 0; i < obj_count; i++) {
         MapObj *o = &objs[i];
+        if (o->active && o->def->type == 13) {   // COIL FROG: spring trigger
+            if (head_new <= o->y && feet_new > o->y &&
+                l <= o->x + o->def->w && r >= o->x) {
+                player_super_jump();
+                obj_release(o);
+                return -1;
+            }
+            continue;
+        }
         if (!solid_now(o)) continue;
         // PC classmap.cpp:1654 — descending with the head at/above the top
         // and any horizontal touch. X is inclusive: the side clamp can leave
@@ -516,10 +586,30 @@ void objects_update(void)
         if (!o->active) continue;
         const ObjectDef *d = o->def;
 
-        // dropped items live for a limited time (PC object duration)
-        if (o->duration && --o->duration == 0) {
+        // Dropped items live for a limited time (PC object duration); an
+        // active JET EAGLE stays until its ammo runs out (PC object.cpp:875).
+        bool jet_riding = (d->type == 12 && o->started);
+        if (o->duration && !jet_riding && --o->duration == 0) {
             obj_release(o);
             continue;
+        }
+
+        // ---- JET EAGLE: horizontal flight carrying the player ---------------
+        if (d->type == 12 && o->started) {
+            s16 dx = (s16)d->speed * o->dir;
+            bool carry = player_on_top(o);
+            o->x += dx;
+            if (carry) player.x += dx;
+            if (++o->drain >= 15) {          // PC consumes 1 unit/240ms
+                o->drain = 0;
+                if (player_weapon() == 10) {
+                    player_use_weapon_ammo();
+                    if (player_weapon_ammo() == 0) {
+                        obj_release(o);
+                        continue;
+                    }
+                }
+            }
         }
 
         // ---- platform state machine (before pickup: player box is fresh) --
@@ -615,8 +705,10 @@ void objects_update(void)
             }
             if (d->type == 15 || d->type == 16 || d->type == 17) {
                 sfx_play(SFX_ITEM);
-                player_add_armor((u8)(d->type - 15));
+                u8 kind = (u8)(d->type - 15);
+                player_add_armor(kind);
                 obj_release(o);
+                dialog_show_armor(kind);
                 continue;
             }
             if (d->type == 23) {                    // special tank

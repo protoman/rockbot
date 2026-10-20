@@ -35,6 +35,7 @@
 #define ANIM_SLIDE    7
 #define ANIM_STAIRS_ATTACK 8
 #define ANIM_SHIELD   9
+#define ANIM_SPECIAL  10   // SHORYUKEN (PC ANIM_TYPE_SPECIAL_ATTACK, frame 29)
 
 typedef struct {
     Sprite *spr;
@@ -93,6 +94,7 @@ void player_reset_lives(void);
 // Selected player 0..3 (player-select screen). Changes the sprite sheet +
 // palette used in-game (each player has different weapon colours/abilities).
 void player_set_number(u8 n);
+u8 player_number(void);
 const SpriteDefinition *player_definition(void);
 
 // Per-player abilities (from player_list_v3_1_1.dat, src/player_data.c):
@@ -117,14 +119,18 @@ u8 player_weapon_ammo(void);        // 0 = can't fire (PC classplayer.cpp:336)
 void player_use_weapon_ammo(void);  // one unit per shot
 void player_refill_weapons(void);   // PC refill_weapons(), at stage start
 
-// Lives (PC game_save.items.lifes): one per death, 5 at stage start. When they
-// run out the caller should leave the stage (PC: game over).
+// Lives (PC game_save.items.lifes): one per death, persisted across stages in
+// the save slot. When they run out the caller shows GAME OVER.
 u8 player_lives(void);
 void player_add_life(void);              // OBJ_LIFE pickup
 void player_add_tank(bool hp);           // OBJ_ENERGY_TANK / OBJ_WEAPON_TANK
 void player_add_special_tank(void);      // OBJ_SPECIAL_TANK
 bool player_use_tank(bool hp);           // menu: refill HP / current gauge (+special)
 void player_add_armor(u8 kind);          // 0 arms, 1 body, 2 legs
+u8 player_armor_ability(u8 kind);        // per-player special ability value
+u8 player_armor_shot_id(void);           // ARMS charged projectile, 0xFF = none
+bool player_can_shoryuken(void);         // LEGS SHORYUKEN ability
+bool player_is_shoryuken(void);          // attack hitbox active
 bool player_out_of_lives(void);
 
 // pad = JOY_readJoypad(JOY_1)
@@ -164,6 +170,9 @@ bool player_death_update(void);
 // Instant death, ignoring invulnerability: a platform pressing the player
 // into a solid tile (PC damage(999)).
 void player_crush(void);
+
+// COIL FROG spring (PC obj_jump.start(true): 1.4x jump speed).
+void player_super_jump(void);
 
 // Record the respawn point (worldX, feet-Y worldY) when touching a
 // checkpoint object. Death and pit-falls respawn there while on that map.

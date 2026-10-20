@@ -76,6 +76,33 @@ def convert_faces():
         used = len({tuple(snapped[i * 3:i * 3 + 3]) for i in range(15)})
         print(f"  dlg_face_{n}.png: {im.size}, {used} colours")
 
+    # CANOTUS face for the "got armor" pages (PC showGotArmorDialog).
+    im = Image.open(os.path.join(FACES, "canotus_face.png")).convert("RGB")
+    q = im.quantize(colors=15, method=Image.Quantize.MEDIANCUT)
+    pal = q.getpalette()
+    snapped = []
+    for i in range(15):
+        snapped += [snap(pal[i * 3]), snap(pal[i * 3 + 1]),
+                    snap(pal[i * 3 + 2])]
+    q.putpalette(snapped + [0] * (768 - len(snapped)))
+    bg = im.getpixel((0, 0))
+    bg = (snap(bg[0]), snap(bg[1]), snap(bg[2]))
+    cols = [tuple(snapped[i * 3:i * 3 + 3]) for i in range(15)]
+    idx = min(range(15), key=lambda i: sum((cols[i][k] - bg[k]) ** 2
+                                          for k in range(3)))
+    if idx != 0:
+        cols[0], cols[idx] = cols[idx], cols[0]
+        flat = [v for c in cols for v in c]
+        q.putpalette(flat + [0] * (768 - len(flat)))
+        px = q.load()
+        for y in range(q.height):
+            for x in range(q.width):
+                v = px[x, y]
+                if v == 0: px[x, y] = idx
+                elif v == idx: px[x, y] = 0
+    q.save(os.path.join(RES, "dlg_face_armor.png"))
+    print(f"  dlg_face_armor.png: {im.size}")
+
 
 def main():
     convert_faces()

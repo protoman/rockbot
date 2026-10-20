@@ -9,4 +9,8 @@
 // appears in the arena.
 void dialog_show_boss(u8 stage, u8 player);
 
+// PC dialogs::showGotArmorDialog (scenes/dialogs.cpp:184): CANOTUS explains
+// the arms/body/legs ability. `kind` 0 arms, 1 body, 2 legs.
+void dialog_show_armor(u8 kind);
+
 #endif

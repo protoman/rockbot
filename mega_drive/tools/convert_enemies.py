@@ -64,7 +64,7 @@ TILE_STRUCT = 5
 
 NPC_SZ = 6048
 PROJ_SZ = 104
-PROJ_MAX = 20          # ids 0..19 are the ones enemies reference
+PROJ_MAX = 23          # 0..19 enemy shots; 20..22 armor charged shots
 MAP_NPC_SZ = 12
 AI_SZ = 528            # file_artificial_inteligence (name30+pad + 20x20 + 6x16)
 AI_STATES = 20
