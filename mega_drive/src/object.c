@@ -73,6 +73,7 @@ static bool object_has_gravity(u8 type)
     case 0:  case 1:  case 2:                 // up/down, left/right, block
     case 10: case 11: case 12:                // fall/fly platforms, fly item
     case 18: case 19: case 20:                // rays, track platform
+    case 22:                                  // destructible wall/box stays put
     case 24: case 25:                         // death rays
     case 14: case 27: case 28:                // active block/opening/damaging
     case 38: case 39: case 40: case 41:       // active diagonal/ahead/up

@@ -19,7 +19,7 @@
 // PC build: no code path reads it, and every stage's cutscene_pre/pos is -1.
 // Only the boss block (30..59) is displayed here.
 
-#define DLG_BLACK_TILE 935      // scratch tile below the sprite pool
+#define DLG_BLACK_TILE 15       // system blank tile (935 is inside the anim slots)
 #define DLG_W 40
 #define DLG_H 6
 
