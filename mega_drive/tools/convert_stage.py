@@ -493,9 +493,12 @@ def main():
                     gid = (-t3x) - 2
                     if gid < len(anim_blocks):
                         p3 = gid_opacity(gid)
-                # Default: keep the foreground (t3). If tile1 is clearly more
-                # opaque, use it instead.
-                if p1 is not None and p3 is not None and p1 > p3:
+                # Only the two-animated-tile overlap needs this rule (Daisie's
+                # waterfall); static/static and static/animated overlaps are
+                # meaningful foreground art and must keep their normal order.
+                a1 = (t1x < -1 and t1y == 0)
+                a3 = (t3x < -1)
+                if a1 and a3 and p1 is not None and p3 is not None and p1 > p3:
                     col[i] = (locked, t1x, t1y, -1, -1)
 
     for cells, _ in maps_data:
