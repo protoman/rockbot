@@ -354,6 +354,13 @@ static s16 unstick_x(s16 ix, s16 t, s16 b)
 static bool ground_pair(s16 tx, s16 feet_row, s16 centre_row, s16 middle_row)
 {
     u16 lock1 = stage_terrain_at(stage_current_map, tx, feet_row);
+    // While dropping off a ladder, the ladder-rest rule (UNBLOCKED feet over
+    // a STAIR centre) would report floor immediately and stop the fall.
+    // Ignore the rung for the short PC drop lock; solid floors still catch.
+    if (ladder_lock && (lock1 == TERRAIN_STAIR ||
+        (lock1 == TERRAIN_UNBLOCKED &&
+         stage_terrain_at(stage_current_map, tx, centre_row) == TERRAIN_STAIR)))
+        return FALSE;
     if (lock1 != TERRAIN_UNBLOCKED && lock1 != TERRAIN_STAIR &&
         lock1 != TERRAIN_WATER)
         return TRUE;

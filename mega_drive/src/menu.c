@@ -28,6 +28,7 @@
 // sprite engine 936..1439, font 1440..1535 (TILE_FONT_INDEX is 1440, not
 // 1952 as older comments claimed).
 #define MENU_TILE_BASE stage_bg_tile_base
+#define MENU_BAR_TILE  (MENU_TILE_BASE + MENU_TILE_COUNT)
 
 static Sprite *portrait;
 static u16 cells[MENU_MAP_W * MENU_MAP_H];
@@ -91,18 +92,27 @@ static void menu_restore_strip(u16 col, u16 row, u16 count)
     }
 }
 
+static const u32 menu_bar_white[8] = {
+    0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+    0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
+};
+
+// The old ASCII gauge used the font palette and disappeared against the
+// panel. Draw a plain white tile strip instead; it is intentionally simple
+// until the PC menu art is matched exactly.
 static void draw_bar(u8 value, u8 max, u16 col, u16 row)
 {
-    char buf[24];
-    u8 n = 12;
+    const u8 n = 12;
     if (max == 0) max = 1;
     u8 filled = (u8)(((u16)value * n) / max);
     if (filled > n) filled = n;
-    buf[0] = '[';
-    for (u8 i = 0; i < n; i++) buf[1 + i] = (i < filled) ? '#' : '-';
-    buf[1 + n] = ']';
-    buf[2 + n] = 0;
-    VDP_drawText(buf, col, row);
+    menu_restore_strip(col, row, n);
+    for (u8 i = 0; i < filled; i++) {
+        VDP_setTileMapXY(BG_A,
+                         TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE,
+                                        MENU_BAR_TILE),
+                         (u16)(col + i), row);
+    }
 }
 
 // Weapon name + gauge, drawn over the panel's first weapon slot (PC x25/y60).
@@ -120,7 +130,8 @@ static void draw_weapon_line(void)
         VDP_drawText(buf, 27, 3);
         draw_bar(a, PLAYER_INITIAL_HP, 5, 4);
     } else {
-        VDP_drawText("AMMO [############]", 5, 4);
+        VDP_drawText("AMMO", 5, 4);
+        draw_bar(1, 1, 11, 4);
     }
 }
 
@@ -186,6 +197,10 @@ bool menu_open(u16 weapon_mask)
     // tiles come from the generated 4bpp array (not a rescomp TILESET,
     // which dedups/reorders and would break the tilemap indices)
     VDP_loadTileData(menu_tiles_data, MENU_TILE_BASE, MENU_TILE_COUNT, DMA_QUEUE);
+    VDP_loadTileData(menu_bar_white, MENU_BAR_TILE, 1, DMA_QUEUE);
+    // Keep the font on the UI palette; a stage palette line here can leave
+    // the menu text nearly invisible.
+    PAL_setPalette(PAL0, pal_ui.data, DMA_QUEUE);
     // DMA_QUEUE: a CPU CRAM write during active display corrupts on
     // accurate emulators (see debugging.md / the SGDK boot notes)
     PAL_setPalette(PAL1, menu_pal.data, DMA_QUEUE);
