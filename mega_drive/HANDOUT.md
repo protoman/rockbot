@@ -168,7 +168,10 @@ make run EMU_ARGS=   # GL renderer instead of software
   15 (tile 935 overlapped an animated slot and was overwritten); the
   overlapping-tile opacity rule is stage-2-only so Dynamite's map strips are
   untouched.
-- Last commit: dialog background tile and stage6 overlap scope.
+- **Ladder bottom links** (2026-10-20): a link on the last map row now fires
+  as soon as the feet enter that row. The old PC-style T2B band began below
+  the map, so dropping/jumping off a bottom ladder never teleported.
+- Last commit: bottom ladder links fire on entry.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
