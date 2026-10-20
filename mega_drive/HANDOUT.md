@@ -135,7 +135,11 @@ make run EMU_ARGS=   # GL renderer instead of software
   during stage_load, so Daisie's palms no longer freeze on one tile until the
   first animation tick; map objects now use PC `object::gravity()` (all types
   except the PC exclusion list) while on screen.
-- Last commit: animation frame-0 cells and object gravity.
+- **Overlapping map tiles** (2026-10-20): when PC tile1 and tile3 both
+  cover one cell, the converter now keeps the tile with fewer transparent
+  pixels (the one that fills the cell). This fixes Daisie's one-tile waterfall
+  gap; Daisie palms also use their frame-0 animated cells from the start.
+- Last commit: opaque-layer selection for overlapping map tiles.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
