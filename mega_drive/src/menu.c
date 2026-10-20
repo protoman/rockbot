@@ -116,9 +116,14 @@ static u32 menu_bar_tiles[MENU_BAR_TILES][8];
 static void make_bar_tiles(void)
 {
     for (u8 w = 0; w < MENU_BAR_TILES; w++) {
-        // Index 1 is the default font's background pixel; keep it black for
-        // readable text and use 2..12 for the bars.
-        const u32 row = 0x11111111u * (u32)(w + 2);
+        // Classic bar texture: alternate the weapon colour and black, like
+        // the horizontal PC bar art. Index 1 is black and is also the font's
+        // background pixel; slots 2..12 hold the weapon colours.
+        u32 row = 0;
+        for (u8 x = 0; x < 8; x++) {
+            const u8 idx = (x & 1) ? (u8)(w + 2) : 1;
+            row |= (u32)idx << (28 - x * 4);
+        }
         for (u8 y = 0; y < 8; y++) menu_bar_tiles[w][y] = row;
     }
 }
