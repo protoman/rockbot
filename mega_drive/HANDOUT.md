@@ -143,6 +143,9 @@ make run EMU_ARGS=   # GL renderer instead of software
   `water_enter` / `water_leave` samples; both are also in the EXTRAS SFX test.
 - **More SFX** (2026-10-20): door opening, got-weapon and stage-select
   confirmation now use the PC samples; all are in the EXTRAS SFX test.
+- **Door / weapon / stage-select SFX** (2026-10-20): boss doors, the
+  first-clear weapon screen and stage-select movement/confirm now use the PC
+  samples.
 - Last commit: door, weapon and stage-select SFX.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
