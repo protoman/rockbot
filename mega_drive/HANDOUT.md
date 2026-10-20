@@ -113,6 +113,10 @@ make run EMU_ARGS=   # GL renderer instead of software
   scrolling `game_credits.txt`. START skips each part. The PC's full normal-
   enemy line is approximated by the bosses; the walking art is 15-colour
   decomposed (see `HANDOUT` ending notes).
+- **Boss presentation** (2026-10-19): the stage boss now drops in from 160px
+  above its spawn when it first reaches the screen; the boss dialog and HP row
+  wait for the drop to finish and shots cannot damage it mid-drop. The PC
+  white blink and intro-sprite animation are still approximated by the drop.
 - **Water jump** (2026-10-19): jumping while the feet tile is WATER now uses
   the PC 0.9x initial speed with the 0.3x gravity already in place.
 - **Status/feedback** (2026-10-19): DYNAMITE now arms the PC 3.5s freeze

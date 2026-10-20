@@ -93,6 +93,9 @@ typedef struct {
     s16 move_acc;     // 50Hz movement accumulator (PC AI step throttle)
     u16 respawn_t;    // PC respawn_delay countdown (frames)
     u8 frozen;        // hidden by the DYNAMITE freeze effect
+    u8 dropping;      // PC map_present_boss drop from the top
+    u8 drop_done;
+    s16 drop_target;
 } Enemy;
 
 static Enemy *enemy_add(u8 def_i, s16 x, s16 y, s16 x_min, s16 x_max, u8 dir);
@@ -590,6 +593,9 @@ static Enemy *enemy_add(u8 def_i, s16 x, s16 y, s16 x_min, s16 x_max, u8 dir)
     e->move_acc = 0;
     e->respawn_t = 0;
     e->frozen = 0;
+    e->dropping = 0;
+    e->drop_done = (d->is_boss == 0);
+    e->drop_target = y;
     if (d->is_boss && boss_i < 0) boss_i = idx;
     e->spr = SPR_addSprite(d->spr, e->x - camera.x, e->y - camera.y,
                            TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
@@ -669,6 +675,36 @@ void enemies_update(void)
         if (e->frozen) {
             e->frozen = 0;
             if (e->spr) SPR_setVisibility(e->spr, VISIBLE);
+        }
+
+        // PC map_present_boss: when the stage boss first reaches the screen,
+        // blink and drop him from the top (the dialog waits for drop_done).
+        if (d->is_boss) {
+            s16 bsx = e->x - camera.x;
+            if (!e->drop_done && !e->dropping &&
+                bsx >= -40 && bsx < 336) {
+                e->dropping = 1;
+                e->y = e->drop_target - 160;
+                e->vy = 0;
+            }
+            if (e->dropping) {
+                e->y += 6;
+                if (e->y >= e->drop_target) {
+                    e->y = e->drop_target;
+                    e->dropping = 0;
+                    e->drop_done = 1;
+                }
+                if (e->spr) {
+                    s16 dsx = e->x - camera.x;
+                    s16 dsy = e->y - camera.y;
+                    SPR_setVisibility(e->spr,
+                        (dsx >= -40 && dsx < 336 && dsy >= -40 && dsy < 248)
+                        ? VISIBLE : HIDDEN);
+                    SPR_setPosition(e->spr, dsx, dsy);
+                }
+                boss_screen = FALSE;
+                continue;
+            }
         }
 
         if (e->hurt_timer) e->hurt_timer--;
@@ -802,6 +838,7 @@ u8 enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage, s8 shot_dir,
         Enemy *e = &enemies[i];
         if (!e->alive) continue;
         const EnemyDef *d = e->def;
+        if (d->is_boss && e->dropping) return 1;
         s16 el = e->x + d->box_l;
         s16 et = e->y + d->box_t;
         if (l >= el + d->box_w || r <= el || t >= et + d->box_h || b <= et)
@@ -868,7 +905,8 @@ u8 enemies_boss_hp(void)
 
 bool enemies_boss_on_screen(void)
 {
-    return boss_i >= 0 && enemies[boss_i].alive && boss_screen;
+    return boss_i >= 0 && enemies[boss_i].alive && boss_screen &&
+           enemies[boss_i].drop_done;
 }
 
 void enemies_boss_death_pos(s16 *x, s16 *y)
