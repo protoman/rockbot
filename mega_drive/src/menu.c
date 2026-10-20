@@ -116,7 +116,9 @@ static u32 menu_bar_tiles[MENU_BAR_TILES][8];
 static void make_bar_tiles(void)
 {
     for (u8 w = 0; w < MENU_BAR_TILES; w++) {
-        const u32 row = 0x11111111u * (u32)(w + 1);
+        // Index 1 is the default font's background pixel; keep it black for
+        // readable text and use 2..12 for the bars.
+        const u32 row = 0x11111111u * (u32)(w + 2);
         for (u8 y = 0; y < 8; y++) menu_bar_tiles[w][y] = row;
     }
 }
@@ -149,7 +151,9 @@ static void draw_grid_bars(void)
         u8 row = (u8)(w / 4);
         u8 col = (u8)(w % 4);
         u16 x = (u16)(3 + col * 10);
-        u16 y = (u16)(7 + row * 3);
+        // PC bar y=60+row*20; after the 16px crop it shares the icon line
+        // (icon y=45+row*20). Tile-row granularity: rows 5/8/11.
+        u16 y = (u16)(5 + row * 3);
         u8 value = (w == 0) ? PLAYER_INITIAL_HP : player.ammo[w];
         draw_weapon_bar(value, PLAYER_INITIAL_HP, x, y, 6, w);
     }
@@ -251,7 +255,7 @@ bool menu_open(u16 weapon_mask)
     for (u8 i = 0; i < 16; i++) menu_pal0[i] = pal_ui.data[i];
     menu_pal0[0] = menu_pal.data[3];
     for (u8 w = 0; w < MENU_BAR_TILES; w++)
-        menu_pal0[1 + w] = player_weapon_color(w);
+        menu_pal0[2 + w] = player_weapon_color(w);
     PAL_setPalette(PAL0, menu_pal0, DMA_QUEUE);
     // DMA_QUEUE: a CPU CRAM write during active display corrupts on
     // accurate emulators (see debugging.md / the SGDK boot notes)
