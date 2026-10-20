@@ -512,8 +512,13 @@ bool stage_check_link(s16 left, s16 top, s16 right, s16 bottom,
         hit = link_region(px, py, tx, ty, lk->size, trans);
 
         // PC only fires a top/bottom transition when the player is partly
-        // off-screen (game.cpp:801); teleporter links are exempt.
-        if (hit && lk->type < 2 && top > 0 && bottom < 220) hit = FALSE;
+        // off-screen (game.cpp:801); teleporter links are exempt. A player
+        // hanging on the ladder at the bottom/top is explicitly allowed:
+        // the port clamps his feet flush with the map edge, so the old test
+        // (bottom < 220) suppressed the bottom teleporter link entirely.
+        const bool bottom_link = (ty >= (u8)(stage_def->map_h - 1));
+        if (hit && lk->type < 2 && !player.on_ladder && !bottom_link &&
+            top > 0 && bottom < 220) hit = FALSE;
 
         if (link_latch == (s8)i) {
             if (!hit) link_latch = -1;   // cleared on region miss only

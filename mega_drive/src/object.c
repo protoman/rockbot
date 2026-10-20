@@ -74,7 +74,8 @@ static bool object_has_gravity(u8 type)
     case 10: case 11: case 12:                // fall/fly platforms, fly item
     case 18: case 19: case 20:                // rays, track platform
     case 24: case 25:                         // death rays
-    case 27:                                  // damaging platform
+    case 14: case 27: case 28:                // active block/opening/damaging
+    case 38: case 39: case 40: case 41:       // active diagonal/ahead/up
     case 33: case 34: case 35:                // crusher, loop/down platforms
     case 42: case 43: case 44: case 45:       // jump-shoot, timed bomb, spike, walker
         return FALSE;
@@ -118,8 +119,15 @@ static bool platform_can_move(const MapObj *o, s16 dy)
         return TRUE;                 // falling out of the screen is allowed
     if (row < 0)
         return TRUE;                 // rising out of the top; off-screen then returns
-    return stage_terrain_at(stage_current_map, c1, row) != TERRAIN_SOLID &&
-           stage_terrain_at(stage_current_map, c2, row) != TERRAIN_SOLID;
+    // PC object::test_change_position treats only UNBLOCKED, WATER and SPIKE
+    // as passable. STAIR (ladders), doors and hard blocks stop a falling box;
+    // the old `!= SOLID` let boxes fall through the ladder column.
+    const u16 t1 = stage_terrain_at(stage_current_map, c1, row);
+    const u16 t2 = stage_terrain_at(stage_current_map, c2, row);
+    return (t1 == TERRAIN_UNBLOCKED || t1 == TERRAIN_WATER ||
+            t1 == TERRAIN_SPIKE) &&
+           (t2 == TERRAIN_UNBLOCKED || t2 == TERRAIN_WATER ||
+            t2 == TERRAIN_SPIKE);
 }
 
 // TRUE when the player rests exactly on this platform's top edge.
