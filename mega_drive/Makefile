@@ -39,6 +39,7 @@ $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA) Makefile
 	done
 	$(PYTHON) tools/convert_players.py
 	$(PYTHON) tools/convert_weapons.py
+	$(PYTHON) tools/convert_menu_icons.py
 	$(PYTHON) tools/convert_player.py
 	$(PYTHON) tools/convert_save_icons.py
 	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/boss_intro/boss_intro_bg.png \

@@ -48,24 +48,34 @@ static u8 find_next_weapon(u8 cur, s8 dir)
     return cur;
 }
 
-// PC 2x6 weapon grid (generate_weapons_matrix): column 0 = buster + stages
-// 1..5, column 1 = stages 6..9 then COIL/JET. The MD has no per-weapon icon
-// strip, so use short names; the selected slot gets a '>'.
-static void draw_weapon_grid(void)
+// PC 4-column weapon grid (draw_game_menu_weapon_bar: x = 25+col*76,
+// y = 60+row*20; icon at x-10, y+1). Icons are the PC 8x8 icons_small art,
+// converted to one shared 15-colour sprite palette.
+static Sprite *wicon[WEAPON_SWITCH_N];
+
+static void icons_release(void)
 {
     for (u8 w = 0; w < WEAPON_SWITCH_N; w++) {
+        if (wicon[w]) { SPR_releaseSprite(wicon[w]); wicon[w] = NULL; }
+    }
+}
+
+static void icons_create(void)
+{
+    icons_release();
+    PAL_setPalette(PAL3, menu_icons_pal.data, DMA_QUEUE);
+    for (u8 w = 0; w < WEAPON_SWITCH_N; w++) {
         if (!(owned & (1u << w))) continue;
-        u8 row = (w <= 5) ? w : (u8)(w - 5);
-        u8 x = (w <= 5) ? 3 : 12;
-        u8 y = (u8)(6 + row * 2);
-        char buf[10];
-        u8 i = 0;
-        const char *n = weapon_data[w].name;
-        while (i < 8 && n[i]) { buf[i] = n[i]; i++; }
-        buf[i] = 0;
-        VDP_drawText(buf, x + 1, y);
-        if (player_weapon() == w) VDP_drawText(">", x, y);
-        else VDP_drawText(" ", x, y);
+        u8 row = (u8)(w / 4);
+        u8 col = (u8)(w % 4);
+        s16 x = (s16)(15 + col * 76);
+        s16 y = (s16)(45 + row * 20);
+        Sprite *sp = SPR_addSprite(&menu_icon_sprite, x, y,
+                                   TILE_ATTR(PAL3, FALSE, FALSE, FALSE));
+        if (!sp) break;
+        SPR_setAutoAnimation(sp, FALSE);
+        SPR_setFrame(sp, w);
+        wicon[w] = sp;
     }
 }
 
@@ -73,14 +83,14 @@ static void draw_weapon_grid(void)
 static void draw_weapon_line(void)
 {
     u8 w = player_weapon();
-    VDP_drawText("                    ", 5, 5);
-    VDP_drawText(weapon_data[w].name, 5, 5);
+    VDP_drawText("                    ", 5, 3);
+    VDP_drawText(weapon_data[w].name, 5, 3);
     if (w != 0) {
         u8 a = player_weapon_ammo();
         char buf[4] = { ' ', ' ', ' ', 0 };
         buf[2] = (char)('0' + (a % 10));
         if (a >= 10) buf[1] = (char)('0' + ((a / 10) % 10));
-        VDP_drawText(buf, 27, 5);
+        VDP_drawText(buf, 27, 3);
     }
 }
 
@@ -123,9 +133,8 @@ static void menu_draw_panel(void)
     // texts PC draws over the panel (menu_map.h names from img2tiles.py)
     VDP_drawText("GAME MENU", 2, 0);
     VDP_drawText("CONFIG [B]", 28, 0);
-    VDP_drawText(">", 3, 5);
     draw_weapon_line();
-    draw_weapon_grid();
+    icons_create();
     VDP_drawText("A: LEAVE STAGE", 2, 26);
     VDP_drawText("B: CONFIG", 2, 25);
     draw_tank_line();
@@ -198,7 +207,6 @@ bool menu_open(u16 weapon_mask)
             if (w != player_weapon()) {
                 player_set_weapon(w);
                 draw_weapon_line();
-                draw_weapon_grid();
                 sfx_play(SFX_CURSOR);
             }
         } else if (pressed & BUTTON_LEFT) {
@@ -206,7 +214,6 @@ bool menu_open(u16 weapon_mask)
             if (w != player_weapon()) {
                 player_set_weapon(w);
                 draw_weapon_line();
-                draw_weapon_grid();
                 sfx_play(SFX_CURSOR);
             }
         } else if (pressed & BUTTON_UP) {
@@ -228,6 +235,7 @@ bool menu_open(u16 weapon_mask)
         SPR_releaseSprite(portrait);
         portrait = NULL;
     }
+    icons_release();
 
     if (leave) {
         // The stage is over: do NOT restore it (a map redraw would leave the

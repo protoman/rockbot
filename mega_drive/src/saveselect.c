@@ -90,17 +90,13 @@ static void draw_rows(void)
 
 static void draw_labels(void)
 {
-    char buf[24];
+    // PC draw_save_details draws no slot-number text: the row is icons only
+    // (and "NO SAVE" for an empty slot). The old "SLOT N" label sat on top of
+    // the icon sprites.
     for (u8 s = 0; s < SAVE_SLOT_COUNT; s++) {
-        u16 ty = ROW0 + s * SAVE_ROW_H + 2;
-        buf[0] = 'S'; buf[1] = 'L'; buf[2] = 'O'; buf[3] = 'T';
-        buf[4] = ' '; buf[5] = (char)('1' + s); buf[6] = 0;
-        VDP_drawText(buf, 2, ty);
-        // An occupied slot shows its icons (sprites, icons_draw) instead of
-        // the old "N CLEARED" text; empty slots keep the PC's "NO SAVE".
         if (!save_slot_exists(s)) {
-            strcpy(buf, "NO SAVE");
-            VDP_drawText(buf, 13, ty);
+            u16 ty = ROW0 + s * SAVE_ROW_H + 2;
+            VDP_drawText("NO SAVE", 2, ty);
         }
     }
 }

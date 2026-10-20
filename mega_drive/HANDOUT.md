@@ -64,12 +64,14 @@ make run EMU_ARGS=   # GL renderer instead of software
   small energy, big/small weapon, 4.5s lifetime); a new SRAM item record
   (byte 88 + slot*12) persists lives, the three tanks and armor across stages;
   first clears of stages 1..8 show `YOU GOT <weapon>` for 5s.
-- **Items + armor** (2026-10-19): menu has the PC 2x6 weapon grid
-  (abbreviated names); COIL FROG and JET EAGLE are selectable (stage 1 / 6),
-  with item physics and ammo drain; ARMS armor swaps the full-charge shot for
+- **Items + armor** (2026-10-19): menu has the PC 4-column weapon grid using
+  the original 8x8 icon art (`menu_icons.png`, shared 15-colour palette);
+  COIL FROG and JET EAGLE are selectable (stage 1 / 6), with item physics and
+  ammo drain; ARMS armor swaps the full-charge shot for
   the per-player projectile (SUPER SHOT / SEMI / LASER / HADOUKEN); armor
-  pickups show the CANOTUS dialog; SHORYUKEN (UP+DASH) is implemented. PC
-  per-weapon icons and the exact item-platform motion still need playtesting.
+  pickups show the CANOTUS dialog; SHORYUKEN (UP+DASH) is implemented. The
+  save selector no longer draws "SLOT N" text over the icons (PC has no slot
+  labels). Exact item-platform motion still needs playtesting.
 - **Map/stair fixes** (2026-10-19): links now carry the PC band width
   (`file_link.size`), reverse direction (`bidirecional`) and type, so the wide
   stairways in DEEP JUNGLE and SUN-GOD REALM trigger; door columns are added

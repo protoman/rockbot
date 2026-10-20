@@ -44,6 +44,8 @@ extern const Palette dlg_face_7_pal;
 extern const SpriteDefinition dlg_face_7_sprite;
 extern const Palette dlg_face_8_pal;
 extern const SpriteDefinition dlg_face_8_sprite;
+extern const Palette menu_icons_pal;
+extern const SpriteDefinition menu_icon_sprite;
 extern const Palette dlg_face_armor_pal;
 extern const SpriteDefinition dlg_face_armor_sprite;
 extern const SpriteDefinition player_p1_sprite;
