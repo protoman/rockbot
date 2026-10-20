@@ -200,7 +200,11 @@ make run EMU_ARGS=   # GL renderer instead of software
 - **Top ladder links** (2026-10-20): a top-row STAIR link now fires only
   while the player is still on the ladder. Stepping off at the top no longer
   falls into the PC's oversized bottom/top link band and teleports him down.
-- Last commit: top ladder links only fire while still on the ladder.
+- **Ladder drop / menu bars** (2026-10-20): the ladder-rest ground pair is
+  disabled during the 12-frame drop lock, so jumping off a ladder actually
+  falls. The weapon menu gauge is now a solid white tile strip and the font
+  uses PAL0 (UI) explicitly.
+- Last commit: let go of ladders while falling and simplify menu bars.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
