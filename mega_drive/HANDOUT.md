@@ -212,7 +212,10 @@ make run EMU_ARGS=   # GL renderer instead of software
   moves a full grid row, bars are white tiles under the icons.
 - **Replay music** (2026-10-20): when a beaten stage skips the boss intro,
   its old boss-intro jingle is stopped explicitly before the stage theme.
-- Last commit: stop stale boss-intro music when replaying a beaten stage.
+- **Stair fall** (2026-10-20): `ground_pair` no longer treats UNBLOCKED
+  feet over a STAIR centre as floor. That latch was stopping every ladder
+  drop as soon as the feet left the stair row.
+- Last commit: never treat a stair centre as floor under falling feet.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
