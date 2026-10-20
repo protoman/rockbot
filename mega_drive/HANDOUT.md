@@ -164,7 +164,11 @@ make run EMU_ARGS=   # GL renderer instead of software
 - **Menu/select follow-up** (2026-10-20): stage select defaults to the centre
   slot; the weapon menu borrows the panel's dark backdrop for CRAM0 while
   open, so font background pixels no longer create coloured text boxes.
-- Last commit: centre stage select and menu text backdrop.
+- **Dialog/background + stage6** (2026-10-20): dialog boxes use system tile
+  15 (tile 935 overlapped an animated slot and was overwritten); the
+  overlapping-tile opacity rule is stage-2-only so Dynamite's map strips are
+  untouched.
+- Last commit: dialog background tile and stage6 overlap scope.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
