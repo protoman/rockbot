@@ -15,6 +15,7 @@ typedef struct {
     u8 b_jump;      // 0=A 1=B 2=C
     u8 b_fire;
     u8 b_dash;
+    u8 game_finished; // PC game_config.game_finished: unlocks players 3/4
 } Config;
 
 extern Config config;

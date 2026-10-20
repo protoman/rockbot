@@ -184,21 +184,27 @@ static s16 showTitle(void)
     VDP_drawText(COPYRIGHT_STRING, 5, 25);
     drawCentered(SITE_STRING, 27);
 
-    // PC start menu (draw_main): NEW GAME / LOAD GAME. LOAD only appears
+    // PC main menu: NEW GAME / LOAD GAME / CONFIG / ABOUT. LOAD only appears
     // when the SRAM holds at least one save slot.
     bool can_load = save_exists();
+    static const char *const items[4] = {
+        "NEW GAME", "LOAD GAME", "CONFIG", "ABOUT",
+    };
     s16 sel = 0;
     u16 prev = JOY_readJoypad(JOY_1);    // don't pick on a held button
     while (TRUE) {
-        VDP_drawText("NEW GAME", 14, 18);
-        if (can_load) {
-            VDP_drawText("LOAD GAME", 14, 20);
-            VDP_drawText(sel ? " " : ">", 12, 18);
-            VDP_drawText(sel ? ">" : " ", 12, 20);
+        for (u8 i = 0; i < 4; i++) {
+            bool shown = (i != 1) || can_load;
+            VDP_drawText(shown ? items[i] : "         ", 14, 18 + i * 2);
+            VDP_drawText((shown && sel == i) ? ">" : " ", 12, 18 + i * 2);
         }
         u16 pad = JOY_readJoypad(JOY_1);
-        if (can_load && (pad & BUTTON_DOWN) && !(prev & BUTTON_DOWN)) sel = 1;
-        if ((pad & BUTTON_UP) && !(prev & BUTTON_UP)) sel = 0;
+        if ((pad & BUTTON_DOWN) && !(prev & BUTTON_DOWN)) {
+            do { sel = (s16)((sel + 1) & 3); } while (sel == 1 && !can_load);
+        }
+        if ((pad & BUTTON_UP) && !(prev & BUTTON_UP)) {
+            do { sel = (s16)((sel + 3) & 3); } while (sel == 1 && !can_load);
+        }
         if ((pad & BUTTON_START) && !(prev & BUTTON_START)) break;
         prev = pad;
         SPR_update();
@@ -206,9 +212,49 @@ static s16 showTitle(void)
         VDP_setReg(17, 0);
         VDP_setReg(18, 0);
     }
-    VDP_drawText("          ", 12, 18);
-    VDP_drawText("          ", 12, 20);
+    for (u8 i = 0; i < 4; i++)
+        VDP_drawText("          ", 12, 18 + i * 2);
     return sel;
+}
+
+// PC ABOUT/credits entry. Compact one-screen version (full credits scrolling
+// is part of the ending/credits milestone).
+static void showAbout(void)
+{
+    static const char *const lines[] = {
+        "ROCKBOT",
+        "",
+        "MAIN PROGRAMMER: IURI FIEDORUK",
+        "CONCEPT ART: ARISMEIRE K.S. FIEDORUK",
+        "             IURI FIEDORUK / BOBERATU",
+        "             NELSON ROSENBERG",
+        "PIXEL ART: BOBERATU + OPEN GAME ART",
+        "MUSIC: SIMONE \"JMD\" BERNACCHIA",
+        "SFX: BFXR.NET / IURI FIEDORUK",
+        "FONT: KAPEL BY JETI",
+        "ENGINE: SGDK / MARSDEV",
+        "",
+        "PRESS START",
+    };
+    VDP_fillTileMapRect(BG_A,
+                        TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, TILE_FONT_INDEX),
+                        0, 0, 40, 28);
+    VDP_fillTileMapRect(BG_B,
+                        TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, TILE_FONT_INDEX),
+                        0, 0, 40, 28);
+    for (u8 i = 0; i < sizeof(lines) / sizeof(lines[0]); i++)
+        drawCentered(lines[i], (u8)(2 + i));
+    u16 prev = JOY_readJoypad(JOY_1);
+    while (TRUE) {
+        u16 pad = JOY_readJoypad(JOY_1);
+        if ((pad & (BUTTON_START | BUTTON_A | BUTTON_C)) &&
+            !(prev & (BUTTON_START | BUTTON_A | BUTTON_C))) break;
+        prev = pad;
+        SPR_update();
+        SYS_doVBlankProcess();
+        VDP_setReg(17, 0);
+        VDP_setReg(18, 0);
+    }
 }
 
 // INTRO_STAGE = stage 0 = "CHAOS CITY" (game.cpp:439 sets currentStage).
@@ -519,7 +565,13 @@ static RunResult runStage(u8 stage)
         // PC game_scenes_map[ENDING_PLAYER1..4] = scene list 2..5: the final
         // castle stage (13) plays the ending for the chosen player, then the
         // title (main's loop).
-        if (stage == 13) scene_play((u8)(2 + (current_player & 3)));
+        if (stage == 13) {
+            // PC game::show_ending: game_config.game_finished unlocks players
+            // 3/4 in the selection screen.
+            config.game_finished = 1;
+            config_save();
+            scene_play((u8)(2 + (current_player & 3)));
+        }
         return RUN_CLEARED;
     }
     return RUN_LEFT;
@@ -664,6 +716,10 @@ int main(bool hardReset)
             persist_progress();
             save_slot_set_player(current_save_slot, current_player);
             playSession(0);
+        } else if (action == 2) {                // CONFIG
+            config_run(FALSE);
+        } else if (action == 3) {                // ABOUT
+            showAbout();
         } else {                                 // LOAD GAME
             s16 slot = save_selector(FALSE);
             if (slot < 0) continue;

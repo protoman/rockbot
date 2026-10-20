@@ -73,6 +73,10 @@ make run EMU_ARGS=   # GL renderer instead of software
   pickups show the CANOTUS dialog; SHORYUKEN (UP+DASH) is implemented. The
   save selector no longer draws "SLOT N" text over the icons (PC has no slot
   labels). Exact item-platform motion still needs playtesting.
+- **Title/config** (2026-10-19): title menu has NEW / LOAD / CONFIG / ABOUT;
+  CONFIG reuses the options screen; ABOUT shows a compact credits page.
+  CONFIG now persists `game_finished`; only two players are selectable until
+  the stage-13 ending plays, then all four (PC select_player).
 - **AI + sub-bosses** (2026-10-19): AI actions 7 (invert shot), 8 (air walk),
   9 (fall to ground) and 18 (jump-attack) added; walk options 3 (saved point),
   5 (random direction) and 6 (opposite/away from screen centre) supported.
@@ -101,7 +105,7 @@ make run EMU_ARGS=   # GL renderer instead of software
   `playSession` sends clears/game overs to the stage select (intro stage game
   over restarts it; stage 13's ending returns to the title). Approximations:
   no PC ring-explosion art, no player_victory flash/pose, no fade.
-- Last commit: missing AI actions, enemy respawn and sub-boss/door rules.
+- Last commit: title CONFIG/ABOUT, game_finished player unlock.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER

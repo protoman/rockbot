@@ -26,6 +26,7 @@ void config_init(void)
         config.b_jump = 2;     // C
         config.b_fire = 1;     // B
         config.b_dash = 0;     // A
+        config.game_finished = 0;
         config_save();
         sfx_set_enabled(1);
         return;
@@ -36,6 +37,7 @@ void config_init(void)
     config.b_jump = SRAM_readByte(CFG_OFF + 5) & 3;
     config.b_fire = SRAM_readByte(CFG_OFF + 6) & 3;
     config.b_dash = SRAM_readByte(CFG_OFF + 7) & 3;
+    config.game_finished = SRAM_readByte(CFG_OFF + 8);
     if (config.b_jump > 2) config.b_jump = 2;
     if (config.b_fire > 2) config.b_fire = 1;
     if (config.b_dash > 2) config.b_dash = 0;
@@ -51,6 +53,7 @@ void config_save(void)
     SRAM_writeByte(CFG_OFF + 5, config.b_jump);
     SRAM_writeByte(CFG_OFF + 6, config.b_fire);
     SRAM_writeByte(CFG_OFF + 7, config.b_dash);
+    SRAM_writeByte(CFG_OFF + 8, config.game_finished);
 }
 
 bool config_is_sound_on(void) { return config.sound != 0; }

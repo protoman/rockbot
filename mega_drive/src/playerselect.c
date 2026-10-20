@@ -2,6 +2,7 @@
 
 #include "resources.h"
 #include "stage.h"
+#include "config.h"
 #include "psel_bg_tiles.h"
 #include "psel_bg_map.h"
 #include "player_data.h"
@@ -103,6 +104,8 @@ u8 player_select_run(void)
     VDP_setReg(17, 0);
     VDP_setReg(18, 0);
 
+    // PC select_player: only two players until game_finished.
+    const u8 max = config.game_finished ? PSEL_MAX : 2;
     u16 prev = JOY_readJoypad(JOY_1);
     while (TRUE) {
         u16 pad = JOY_readJoypad(JOY_1);
@@ -110,11 +113,11 @@ u8 player_select_run(void)
         prev = pad;
 
         if (pressed & BUTTON_RIGHT) {
-            sel = (sel + 1) % PSEL_MAX;
+            sel = (u8)((sel + 1) % max);
             draw_portrait();
             draw_name();
         } else if (pressed & BUTTON_LEFT) {
-            sel = (sel + PSEL_MAX - 1) % PSEL_MAX;
+            sel = (u8)((sel + max - 1) % max);
             draw_portrait();
             draw_name();
         } else if (pressed & (BUTTON_START | BUTTON_A | BUTTON_C)) {
