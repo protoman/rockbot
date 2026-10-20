@@ -67,11 +67,16 @@ static u8 find_next_weapon(u8 cur, s8 dir)
 // y = 60+row*20; icon at x-10, y+1). Icons are the PC 8x8 icons_small art,
 // converted to one shared 15-colour sprite palette.
 static Sprite *wicon[WEAPON_SWITCH_N];
+static Sprite *selected_icon;
 
 static void icons_release(void)
 {
     for (u8 w = 0; w < WEAPON_SWITCH_N; w++) {
         if (wicon[w]) { SPR_releaseSprite(wicon[w]); wicon[w] = NULL; }
+    }
+    if (selected_icon) {
+        SPR_releaseSprite(selected_icon);
+        selected_icon = NULL;
     }
 }
 
@@ -91,6 +96,13 @@ static void icons_create(void)
         SPR_setAutoAnimation(sp, FALSE);
         SPR_setFrame(sp, w);
         wicon[w] = sp;
+    }
+    // Selected-weapon indicator at the bottom of the panel: icon + name.
+    selected_icon = SPR_addSprite(&menu_icon_sprite, 96, 152,
+                                  TILE_ATTR(PAL3, FALSE, FALSE, FALSE));
+    if (selected_icon) {
+        SPR_setAutoAnimation(selected_icon, FALSE);
+        SPR_setFrame(selected_icon, player_weapon());
     }
 }
 
@@ -172,6 +184,7 @@ static void draw_weapon_line(void)
     menu_restore_strip(13, 20, 27);
     VDP_drawText("WEAPON/ITEM:", 13, 19);
     VDP_drawText(weapon_data[w].name, 13, 20);
+    if (selected_icon) SPR_setFrame(selected_icon, w);
     if (w != 0) {
         u8 a = player_weapon_ammo();
         char buf[4] = { '[', ' ', ' ', 0 };

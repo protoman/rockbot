@@ -18,6 +18,8 @@ static const u16 part_y[HUD_PARTS] = { 0, 24, 48 };
 static Sprite *hp_parts[HUD_PARTS];
 static Sprite *wpn_parts[HUD_PARTS];
 static Sprite *boss_parts[HUD_PARTS];
+static Sprite *hp_icon;
+static Sprite *wpn_icon;
 static bool hp_on, wpn_on, boss_on;
 static bool hud_on = TRUE;
 
@@ -60,6 +62,18 @@ void hud_init(void)
         if (wpn_parts[i]) SPR_setFrame(wpn_parts[i], 0);
         if (boss_parts[i]) SPR_setFrame(boss_parts[i], 0);
     }
+    hp_icon = SPR_addSprite(&hud_icon_sprite, HUD_BAR_HP_X, HUD_BAR_Y + 56,
+                             TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
+    wpn_icon = SPR_addSprite(&hud_icon_sprite, HUD_BAR_WPN_X, HUD_BAR_Y + 56,
+                             TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
+    if (hp_icon) {
+        SPR_setFrame(hp_icon, 0);
+        SPR_setDepth(hp_icon, SPR_MIN_DEPTH);
+    }
+    if (wpn_icon) {
+        SPR_setFrame(wpn_icon, 0);
+        SPR_setDepth(wpn_icon, SPR_MIN_DEPTH);
+    }
     hp_on = wpn_on = boss_on = FALSE;
     hud_on = TRUE;
 }
@@ -71,6 +85,10 @@ void hud_weapon(u8 weapon, u8 ammo)
     s16 pct = (100 * ammo) / PLAYER_INITIAL_HP;
     set_bar(wpn_parts, show, pct);
     wpn_on = show;
+    if (wpn_icon) {
+        SPR_setVisibility(wpn_icon, show ? VISIBLE : HIDDEN);
+        SPR_setFrame(wpn_icon, weapon);
+    }
 }
 
 void hud_update(u8 hp)
@@ -97,5 +115,7 @@ void hud_set_visible(bool visible)
         if (hp_parts[i]) SPR_setVisibility(hp_parts[i], visible && hp_on ? VISIBLE : HIDDEN);
         if (wpn_parts[i]) SPR_setVisibility(wpn_parts[i], visible && wpn_on ? VISIBLE : HIDDEN);
         if (boss_parts[i]) SPR_setVisibility(boss_parts[i], visible && boss_on ? VISIBLE : HIDDEN);
+        if (hp_icon) SPR_setVisibility(hp_icon, visible && hp_on ? VISIBLE : HIDDEN);
+        if (wpn_icon) SPR_setVisibility(wpn_icon, visible && wpn_on ? VISIBLE : HIDDEN);
     }
 }

@@ -74,6 +74,7 @@ PALETTE end_l2_pal "end_l2_tiles.png"
 PALETTE end_l3_pal "end_l3_tiles.png"
 PALETTE menu_icons_pal "menu_icons.png"
 SPRITE menu_icon_sprite "menu_icons.png" 8p 8p FAST [[0,0,0,0,0,0,0,0,0,0,0]]
+SPRITE hud_icon_sprite "hud_icon.png" 8p 8p FAST [[0,0,0,0,0,0,0,0,0,0,0]]
 # Classic vertical HUD bars: 51 one-percent frames per 24/24/8px slice
 SPRITE hud_bar_hp_top_sprite "hud_bar_hp_top.png" 8p 24p FAST [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
 SPRITE hud_bar_hp_mid_sprite "hud_bar_hp_mid.png" 8p 24p FAST [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
