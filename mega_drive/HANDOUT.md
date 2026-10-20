@@ -245,7 +245,10 @@ make run EMU_ARGS=   # GL renderer instead of software
 - **Menu fonts/grey icons** (2026-10-20): text rows use the classic panel's
   flat tile 16; PAL0/PAL1 are flushed before drawing. Unselected weapon icons
   and bars use a grey palette/tile; rows 0/2 share the same tile-row offset.
-- Last commit: grey unselected menu icons/bars and align rows.
+- **Menu palette flush** (2026-10-20): PAL0/PAL1/PAL3 are written with the
+  display disabled instead of racing the tile DMA; this is the remaining font
+  background fix.
+- Last commit: load menu palettes with display disabled.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
