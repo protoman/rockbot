@@ -204,7 +204,13 @@ make run EMU_ARGS=   # GL renderer instead of software
   disabled during the 12-frame drop lock, so jumping off a ladder actually
   falls. The weapon menu gauge is now a solid white tile strip and the font
   uses PAL0 (UI) explicitly.
-- Last commit: let go of ladders while falling and simplify menu bars.
+- **Boss door / shots / menu grid** (2026-10-20): boss-door columns no
+  longer stay camera-locked after the door opens; SONAR WAVE reverses X only
+  on a wall; normal damage-3 weapon shots (DESERT STORM) are consumed on hit
+  instead of inheriting the full-charge pierce; DYNAMITE FLASH is an instant
+  freeze with no projectile and frozen enemies stay visible; menu up/down
+  moves a full grid row, bars are white tiles under the icons.
+- Last commit: boss door scroll, sonar/desert shots and menu grid.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
