@@ -175,7 +175,12 @@ make run EMU_ARGS=   # GL renderer instead of software
   row and there is no teleporter link, stepping off is clamped to that row
   instead of dropping out of the map and respawning. Ladders ending over a
   real pit still fall.
-- Last commit: stop ladder descent on the bottom rung without a link.
+- **SFX channel fix** (2026-10-20): XGM2 has only PCM0..PCM2; UI/object
+  sounds were sent to `SOUND_PCM_CH4` (enum 3), which writes past the PCM
+  tables and corrupts the Z80 command jump table. BlastEm then died with
+  "multi-byte Z80 instruction at 4001" on the first menu beep. UI/objects
+  now use `SOUND_PCM_CH3` (PCM2).
+- Last commit: use a valid XGM2 PCM channel for UI/object sfx.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
