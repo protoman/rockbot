@@ -113,7 +113,13 @@ make run EMU_ARGS=   # GL renderer instead of software
   scrolling `game_credits.txt`. START skips each part. The PC's full normal-
   enemy line is approximated by the bosses; the walking art is 15-colour
   decomposed (see `HANDOUT` ending notes).
-- Last commit: ending walking parade, boss parade and credits scroll.
+- **Status/feedback** (2026-10-19): DYNAMITE now arms the PC 3.5s freeze
+  (weak enemies stop AI and are hidden, enemy shots clear) and the projectile
+  lives as long as the effect; QUAKE shots shake both planes by the PC +/-2 px;
+  zig-zag/laser projectiles flip their sprite when they reverse. ABOUT now has
+  the PC site/bugs/Twitter/Facebook links, and EXTRAS has a CREDITS entry that
+  runs the same scroll as the ending.
+- Last commit: freeze effect, screen shake, ABOUT links and credits entry.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER

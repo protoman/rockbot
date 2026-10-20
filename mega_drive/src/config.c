@@ -4,6 +4,7 @@
 
 #include "resources.h"   // stage_music
 #include "sfx.h"
+#include "ending.h"
 
 // SRAM: 5 save slots occupy bytes 8..47; options live at byte 48.
 #define CFG_OFF   48
@@ -263,12 +264,13 @@ static void sfx_test(void)
 static void extras_menu(void)
 {
     u8 sel = 0;
-    const char *items[2] = { "MUSIC TEST", "SFX TEST" };
+    const char *items[3] = { "MUSIC TEST", "SFX TEST", "CREDITS" };
     for (;;) {
-        s8 r = menu_list("EXTRAS", items, 2, &sel);
+        s8 r = menu_list("EXTRAS", items, 3, &sel);
         if (r < 0) return;
         if (r == 0) music_test();
-        else sfx_test();
+        else if (r == 1) sfx_test();
+        else ending_credits_run();
     }
 }
 

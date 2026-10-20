@@ -56,6 +56,19 @@
 #define AI_RUN   1
 #define AI_WAIT  2
 
+// PC projectile TRAJECTORY_FREEZE: global freeze_weapon_effect for 3500ms.
+// Only enemies whose weakness for the freeze weapon is non-zero are frozen.
+#define FREEZE_FRAMES 210
+static u16 freeze_t;
+static u8 freeze_wpn;
+
+void enemies_freeze(u8 weapon)
+{
+    freeze_t = FREEZE_FRAMES;
+    freeze_wpn = (weapon < 9) ? weapon : 0;
+    eshots_reset();              // PC classnpc::execute clean_projectiles
+}
+
 typedef struct {
     const EnemyDef *def;
     Sprite *spr;
@@ -79,6 +92,7 @@ typedef struct {
     u8 shooting;      // attack anim while a SHOT action runs
     s16 move_acc;     // 50Hz movement accumulator (PC AI step throttle)
     u16 respawn_t;    // PC respawn_delay countdown (frames)
+    u8 frozen;        // hidden by the DYNAMITE freeze effect
 } Enemy;
 
 static Enemy *enemy_add(u8 def_i, s16 x, s16 y, s16 x_min, s16 x_max, u8 dir);
@@ -575,6 +589,7 @@ static Enemy *enemy_add(u8 def_i, s16 x, s16 y, s16 x_min, s16 x_max, u8 dir)
     e->moving = 0;
     e->move_acc = 0;
     e->respawn_t = 0;
+    e->frozen = 0;
     if (d->is_boss && boss_i < 0) boss_i = idx;
     e->spr = SPR_addSprite(d->spr, e->x - camera.x, e->y - camera.y,
                            TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
@@ -611,6 +626,9 @@ void enemies_update(void)
     s16 pl, pt, pr, pb;
     player_get_box(&pl, &pt, &pr, &pb);
 
+    if (freeze_t) freeze_t--;
+    const bool freeze_on = (freeze_t != 0);
+
     for (u8 i = 0; i < enemy_count; i++) {
         Enemy *e = &enemies[i];
         if (!e->alive) {
@@ -629,12 +647,29 @@ void enemies_update(void)
                 e->shooting = 0;
                 e->move_acc = 0;
                 e->vy = 0;
+                e->frozen = 0;
                 e->alive = (e->spr != NULL);
                 if (e->spr) SPR_setVisibility(e->spr, VISIBLE);
             }
             continue;
         }
         const EnemyDef *d = e->def;
+
+        // PC classnpc::execute: a weak enemy skips its AI and is not drawn
+        // while freeze_weapon_effect is active.
+        if (freeze_on && d->weak[freeze_wpn]) {
+            if (!e->frozen) {
+                e->frozen = 1;
+                e->moving = 0;
+                e->shooting = 0;
+                if (e->spr) SPR_setVisibility(e->spr, HIDDEN);
+            }
+            continue;
+        }
+        if (e->frozen) {
+            e->frozen = 0;
+            if (e->spr) SPR_setVisibility(e->spr, VISIBLE);
+        }
 
         if (e->hurt_timer) e->hurt_timer--;
 

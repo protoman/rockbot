@@ -27,6 +27,8 @@ void enemies_update(void);
 // Test a shot box against the enemies. `shot_dir` is the shot's travel
 // direction (1 = right, -1 = left). Returns 0 = miss, 1 = hit (damage
 // applied), 2 = blocked by a shield (the caller reflects the shot).
+void enemies_freeze(u8 weapon);
+
 u8 enemies_try_hit(s16 left, s16 top, s16 right, s16 bottom, u8 damage,
                    s8 shot_dir, bool charged, u8 weapon);
 

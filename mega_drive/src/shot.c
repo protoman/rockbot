@@ -125,6 +125,7 @@ void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
         s->w = pd->w ? pd->w : 8;
         s->h = pd->h ? pd->h : 8;
         s->traj = pd->traj;
+        if (s->traj == TRAJ_FREEZE) enemies_freeze(w);
         s->age = 0;
         s->effect_t = 0;
         s->dir = (s8)dir;
@@ -222,6 +223,16 @@ static bool shot_solid(s16 x, s16 y)
     return stage_terrain_at(stage_current_map, x >> 4, y >> 4) == TERRAIN_SOLID;
 }
 
+s16 shot_shake_x(void)
+{
+    for (u8 i = 0; i < SHOT_MAX; i++) {
+        Shot *s = &shots[i];
+        if (s->on && s->traj == TRAJ_QUAKE)
+            return ((s->age / 12) & 1) ? -2 : 2;   // QUAKE_SCREEN_MOVE
+    }
+    return 0;
+}
+
 void shot_update(void)
 {
     if (cooldown) cooldown--;
@@ -274,6 +285,7 @@ void shot_update(void)
             if (shot_solid((s->dx > 0) ? s->x + s->w : s->x, s->y + s->h / 2)) {
                 s->dx = -s->dx;
                 s->dir = -s->dir;
+                SPR_setHFlip(s->spr, s->dir < 0);
                 s16 vy = (s->dy < 0) ? -s->dy : s->dy;
                 if (vy == 0) vy = 2;
                 s->dy = (s->status & 1) ? -vy : vy;
@@ -281,8 +293,7 @@ void shot_update(void)
             }
             break;
         case TRAJ_BOMB:
-        case TRAJ_FREEZE:
-            // TIMED BOMB / DYNAMITE: stationary fuse, then explosion.
+            // TIMED BOMB: stationary fuse, then explosion.
             if (s->age > 60) {
                 explosion_spawn(s->x, s->y);
                 enemies_try_hit(s->x - 20, s->y - 20, s->x + 20, s->y + 20,
@@ -290,6 +301,11 @@ void shot_update(void)
                 shot_kill(s);
                 continue;
             }
+            break;
+        case TRAJ_FREEZE:
+            // DYNAMITE: enemies_freeze() armed the 3.5s PC effect at spawn;
+            // the projectile itself just sits there and expires with it.
+            if (s->age > 210) { shot_kill(s); continue; }
             break;
         case TRAJ_LASER:
             // HADOUKEN/LASER: bounce off solid walls a few times.
@@ -299,6 +315,7 @@ void shot_update(void)
                 && s->status < 4) {
                 s->dx = -s->dx;
                 s->dir = -s->dir;
+                SPR_setHFlip(s->spr, s->dir < 0);
                 s->status++;
             }
             break;

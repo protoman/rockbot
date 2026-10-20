@@ -229,3 +229,12 @@ void ending_run(void)
     SPR_end();
     black_screen();
 }
+
+void ending_credits_run(void)
+{
+    SPR_end();
+    SPR_initEx(504);
+    credits_scroll();
+    SPR_end();
+    black_screen();
+}

@@ -509,6 +509,7 @@ void stage_update_camera(s16 focusX, s16 focusY)
     const s16 dzx = 12; // horizontal deadzone
     const s16 dzy = 8;  // vertical deadzone
     const s16 prev_x = camera.x;
+    const s16 shake = shot_shake_x();   // PC QUAKE screen adjust
 
     if (focusX > camera.x + cx + dzx)       camera.x = focusX - cx - dzx;
     else if (focusX < camera.x + cx - dzx)  camera.x = focusX - cx + dzx;
@@ -518,7 +519,7 @@ void stage_update_camera(s16 focusX, s16 focusY)
 
     clamp_camera();
     scroll_lock_camera(prev_x);
-    MAP_scrollTo(stage_map, camera.x, camera.y);
+    MAP_scrollTo(stage_map, camera.x + shake, camera.y);
 
     // Parallax: horizontal scroll derived DIRECTLY from camera.x at
     // speed/10, wrapped into (-512, 0]. PC accumulates camera_dx per frame
@@ -527,7 +528,7 @@ void stage_update_camera(s16 focusX, s16 focusY)
     // accumulated version moved the bg a few px on its own).
     const StageBgInfo *info = &stage_def->bg_info[stage_current_map];
     if (info->present && info->speed) {
-        s32 scroll = -((s32)camera.x * info->speed) / 10;
+        s32 scroll = -((s32)(camera.x + shake) * info->speed) / 10;
         scroll %= 512;
         if (scroll > 0) scroll -= 512;
         VDP_setHorizontalScroll(BG_B, (s16)scroll);

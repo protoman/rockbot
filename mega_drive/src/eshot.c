@@ -220,6 +220,8 @@ void eshots_update(void)
             if (eshot_solid((s->dx > 0) ? s->x + s->w : s->x,
                             s->y + s->h / 2) && s->status < 4) {
                 s->dx = (s16)-s->dx;
+                s->dir = (s8)-s->dir;
+                SPR_setHFlip(s->spr, s->dir < 0);
                 s16 vy = (s->dy < 0) ? -s->dy : s->dy;
                 if (vy == 0) vy = (s16)s->speed;
                 s->dy = (s->status & 1) ? -vy : vy;

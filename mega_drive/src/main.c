@@ -222,29 +222,25 @@ static s16 showTitle(void)
 // is part of the ending/credits milestone).
 static void showAbout(void)
 {
-    static const char *const lines[] = {
-        "ROCKBOT",
-        "",
-        "MAIN PROGRAMMER: IURI FIEDORUK",
-        "CONCEPT ART: ARISMEIRE K.S. FIEDORUK",
-        "             IURI FIEDORUK / BOBERATU",
-        "             NELSON ROSENBERG",
-        "PIXEL ART: BOBERATU + OPEN GAME ART",
-        "MUSIC: SIMONE \"JMD\" BERNACCHIA",
-        "SFX: BFXR.NET / IURI FIEDORUK",
-        "FONT: KAPEL BY JETI",
-        "ENGINE: SGDK / MARSDEV",
-        "",
-        "PRESS START",
-    };
+    // PC draw::show_about (graphic/draw.cpp:609): site, bugs mail, Twitter
+    // and Facebook, then "press start".
     VDP_fillTileMapRect(BG_A,
                         TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, TILE_FONT_INDEX),
                         0, 0, 40, 28);
     VDP_fillTileMapRect(BG_B,
                         TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, TILE_FONT_INDEX),
                         0, 0, 40, 28);
-    for (u8 i = 0; i < sizeof(lines) / sizeof(lines[0]); i++)
-        drawCentered(lines[i], (u8)(2 + i));
+    drawCentered("ROCKBOT", 2);
+    drawCentered("HOMEBREW GAMES TEAM", 3);
+    drawCentered("SITE:", 7);
+    drawCentered("HTTP://ROCKDOT.UPPERLAND.NET", 8);
+    drawCentered("BUGS:", 11);
+    drawCentered("BUGS@UPPERLAND.NET", 12);
+    drawCentered("TWITTER:", 15);
+    drawCentered("@ROCKBOTGAME", 16);
+    drawCentered("FACEBOOK:", 19);
+    drawCentered("FACEBOOK.COM/ROCKBOTGAME", 20);
+    drawCentered("PRESS START", 24);
     u16 prev = JOY_readJoypad(JOY_1);
     while (TRUE) {
         u16 pad = JOY_readJoypad(JOY_1);

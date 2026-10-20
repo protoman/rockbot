@@ -5,4 +5,7 @@
 // (three parallax layers), boss parade and the game credits.
 void ending_run(void);
 
+// Credits-only screen, used by the title ABOUT/EXTRAS menu (PC show_credits).
+void ending_credits_run(void);
+
 #endif
