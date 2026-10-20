@@ -149,7 +149,12 @@ make run EMU_ARGS=   # GL renderer instead of software
 - **HUD weapon colour** (2026-10-20): the weapon gauge row is drawn with the
   player palette (PAL2); its green fill is mapped to palette index 13, so it
   follows the selected weapon/player colour instead of staying green.
-- Last commit: HUD weapon row follows weapon colours.
+- **Ladder/object fixes** (2026-10-20): bottom-of-map links now fire while
+  the player is on a ladder or standing at the bottom edge; object gravity
+  matches PC passability (only UNBLOCKED/WATER/SPIKE are passable, so boxes
+  stop on stairs) and excludes all active-platform/block types. The
+  overlapping-tile rule is restricted to two animated tiles (waterfall).
+- Last commit: ladder-bottom links, object stair collision and overlap scope.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
