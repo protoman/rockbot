@@ -65,7 +65,8 @@ make run EMU_ARGS=   # GL renderer instead of software
   (byte 88 + slot*12) persists lives, the three tanks and armor across stages;
   first clears of stages 1..8 show `YOU GOT <weapon>` for 5s.
 - **Items + armor** (2026-10-19): menu has the PC 4-column weapon grid using
-  the original 8x8 icon art (`menu_icons.png`, shared 15-colour palette);
+  the original 8x8 icon art (`menu_icons.png`, shared 15-colour palette;
+  hand-owned source is `images/menu_icons.png` and overrides the converter);
   COIL FROG and JET EAGLE are selectable (stage 1 / 6), with item physics and
   ammo drain; ARMS armor swaps the full-charge shot for
   the per-player projectile (SUPER SHOT / SEMI / LASER / HADOUKEN); armor
