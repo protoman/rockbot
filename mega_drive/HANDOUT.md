@@ -161,7 +161,10 @@ make run EMU_ARGS=   # GL renderer instead of software
 - **Menu polish** (2026-10-20): title defaults to LOAD when a save exists;
   the weapon menu shows a gauge bar, tank counts (E/W/S) and restores the
   panel before redrawing text so old glyphs no longer show through.
-- Last commit: menu gauges/tanks and text-background clearing.
+- **Menu/select follow-up** (2026-10-20): stage select defaults to the centre
+  slot; the weapon menu borrows the panel's dark backdrop for CRAM0 while
+  open, so font background pixels no longer create coloured text boxes.
+- Last commit: centre stage select and menu text backdrop.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
