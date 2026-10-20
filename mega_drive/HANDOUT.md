@@ -215,7 +215,10 @@ make run EMU_ARGS=   # GL renderer instead of software
 - **Stair fall** (2026-10-20): `ground_pair` no longer treats UNBLOCKED
   feet over a STAIR centre as floor. That latch was stopping every ladder
   drop as soon as the feet left the stair row.
-- Last commit: never treat a stair centre as floor under falling feet.
+- **Weapon bar colours** (2026-10-20): each in-game menu bar now uses
+  `player_data[].wcol[weapon].color1` quantised to MD 3:3:3, via PAL0 entries
+  1..11. The white fallback remains for unset colours.
+- Last commit: colour weapon menu bars from player weapon palettes.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
