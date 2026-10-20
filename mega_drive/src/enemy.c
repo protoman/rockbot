@@ -96,6 +96,8 @@ typedef struct {
     u8 dropping;      // PC map_present_boss drop from the top
     u8 drop_done;
     s16 drop_target;
+    u8 always_ahead;  // PC always_move_ahead (AI state loops on itself)
+    u8 auto_jump;     // stepping over a low wall (GOLD CART)
 } Enemy;
 
 static Enemy *enemy_add(u8 def_i, s16 x, s16 y, s16 x_min, s16 x_max, u8 dir);
@@ -303,6 +305,53 @@ static bool step_axis(Enemy *e, s16 *pos, s16 dest, bool horizontal, bool can_fa
     return *pos == dest;
 }
 
+// PC check_can_move_to_point always_move_ahead branch: a walker facing a
+// blocked tile with open space directly above it hops once.
+static bool ai_wall_ahead(const Enemy *e)
+{
+    const EnemyDef *d = e->def;
+    s16 lead = (e->dir > 0) ? e->x + d->box_l + d->box_w - 1
+                            : e->x + d->box_l;
+    s16 col = (lead + e->dir) >> 4;
+    s16 foot = (e->y + d->box_t + d->box_h - 2) >> 4;
+    u16 ahead = stage_terrain_at(stage_current_map, col, foot);
+    u16 above = stage_terrain_at(stage_current_map, col, foot - 1);
+    return ahead != TERRAIN_UNBLOCKED && ahead != TERRAIN_WATER &&
+           (above == TERRAIN_UNBLOCKED || above == TERRAIN_WATER);
+}
+
+// Horizontal arc used by the automatic wall hop (same physics as AI_JUMP).
+// Returns TRUE on landing so the walk action can continue.
+static bool ai_auto_jump(Enemy *e)
+{
+    const EnemyDef *d = e->def;
+    s16 lead = (e->dir > 0) ? e->x + d->box_l + d->box_w - 1
+                            : e->x + d->box_l;
+    if (!box_hits_solid(lead, e->y + d->box_t,
+                        lead, e->y + d->box_t + d->box_h))
+        e->x += e->dir * (s16)d->speed;
+
+    e->vy += ENEMY_GRAVITY;
+    s16 dy = F16_toInt(e->vy);
+    s16 bottom = d->box_t + d->box_h;
+    s16 ny = e->y + dy;
+    if (dy > 0) {
+        for (s16 row = (e->y + bottom) >> 4; row <= ((ny + bottom) >> 4);
+             row++) {
+            if (feet_solid(e, row)) {
+                e->y = (row << 4) - bottom;
+                e->vy = 0;
+                e->jumping = 0;
+                e->auto_jump = 0;
+                e->moving = 0;
+                return TRUE;
+            }
+        }
+    }
+    e->y = ny;
+    return FALSE;
+}
+
 // Run one frame of the current action. TRUE = action finished.
 static bool ai_action_run(Enemy *e)
 {
@@ -313,6 +362,18 @@ static bool ai_action_run(Enemy *e)
     case AI_WALK:
         if (st->param == AI_WALK_TURN || st->param == AI_WALK_TURN_PLYR)
             return TRUE;                                // instant (PC anim)
+        if (e->auto_jump) {
+            ai_auto_jump(e);
+            return FALSE;               // continue walking after landing
+        }
+        if (e->always_ahead && !d->fly && on_ground(e, d) &&
+            ai_wall_ahead(e)) {
+            e->jumping = 1;
+            e->auto_jump = 1;
+            e->vy = ENEMY_JUMP_VY;
+            e->moving = 1;
+            return FALSE;
+        }
         e->moving = 1;
         return step_axis(e, &e->x, e->dest_x, TRUE,
                              st->param == AI_WALK_FALLING);
@@ -539,6 +600,9 @@ static void ai_pick(Enemy *e, bool initial)
 
     e->act_t = 0;
     ai_action_init(e);
+    // PC always_move_ahead(): a state whose go_to points back to itself
+    // keeps walking; while doing so a low wall ahead triggers a one-shot jump.
+    e->always_ahead = (tbl[e->ai_chain].go_to == e->ai_chain + 1);
     e->ai_phase = AI_RUN;
 }
 
@@ -596,6 +660,8 @@ static Enemy *enemy_add(u8 def_i, s16 x, s16 y, s16 x_min, s16 x_max, u8 dir)
     e->dropping = 0;
     e->drop_done = (d->is_boss == 0);
     e->drop_target = e->y;
+    e->always_ahead = 0;
+    e->auto_jump = 0;
     if (d->is_boss && boss_i < 0) boss_i = idx;
     e->spr = SPR_addSprite(d->spr, e->x - camera.x, e->y - camera.y,
                            TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
@@ -654,6 +720,8 @@ void enemies_update(void)
                 e->move_acc = 0;
                 e->vy = 0;
                 e->frozen = 0;
+                e->always_ahead = 0;
+                e->auto_jump = 0;
                 e->alive = (e->spr != NULL);
                 if (e->spr) SPR_setVisibility(e->spr, VISIBLE);
             }
