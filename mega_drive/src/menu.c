@@ -79,6 +79,18 @@ static void icons_create(void)
     }
 }
 
+// Restore a strip of the panel before drawing text over it. VDP_drawText's
+// space glyph is transparent, so "                    " does not erase the
+// previous weapon/tank text (it left ghost characters behind).
+static void menu_restore_strip(u16 col, u16 row, u16 count)
+{
+    for (u16 i = 0; i < count && col + i < MENU_MAP_W; i++) {
+        u16 e = TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE,
+                               MENU_TILE_BASE + menu_map[row * MENU_MAP_W + col + i]);
+        VDP_setTileMapXY(BG_A, e, col + i, row);
+    }
+}
+
 static void draw_bar(u8 value, u8 max, u16 col, u16 row)
 {
     char buf[24];
@@ -97,8 +109,8 @@ static void draw_bar(u8 value, u8 max, u16 col, u16 row)
 static void draw_weapon_line(void)
 {
     u8 w = player_weapon();
-    VDP_drawText("                    ", 5, 3);
-    VDP_drawText("                   ", 5, 4);
+    menu_restore_strip(5, 3, 20);
+    menu_restore_strip(5, 4, 20);
     VDP_drawText(weapon_data[w].name, 5, 3);
     if (w != 0) {
         u8 a = player_weapon_ammo();
@@ -115,6 +127,7 @@ static void draw_weapon_line(void)
 // Stored tanks (OBJ_ENERGY_TANK / OBJ_WEAPON_TANK), PC game_save.items.
 static void draw_tank_line(void)
 {
+    menu_restore_strip(5, 22, 35);
     char buf[40] = "ITEMS  E-TANK:0  W-TANK:0  S-TANK:0";
     buf[14] = (char)('0' + player.tanks_hp);
     buf[24] = (char)('0' + player.tanks_wp);
