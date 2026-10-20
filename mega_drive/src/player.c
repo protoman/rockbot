@@ -97,6 +97,7 @@ static s16 attack_timer;
 static u16 charge_sfx_timer;   // re-trigger countdown for the charge loop
 static u16 prev_pad;
 static u16 current_anim;
+static bool in_water;       // previous water state (enter/leave SFX)
 static bool ladder_flip;    // climb pose desired (cycle/turn driven)
 static bool ladder_shown;   // last pose baked into the sprite VRAM
 static s16 climb_flip_dist;
@@ -491,6 +492,7 @@ void player_init(void)
     prev_pad = 0;
     current_anim = ANIM_STAND;
     ladder_flip = FALSE;
+    in_water = FALSE;
     rebuild_player_palette();
 
     player.spr = SPR_addSprite(player_defs[player_n], SPAWN_X - camera.x, SPAWN_Y - camera.y,
@@ -646,6 +648,13 @@ void player_update(u16 pad)
 {
     if (ladder_lock) ladder_lock--;
     update_hitbox();   // box_t/box_b from the slide state so far
+    {
+        bool water_now = terrain_under_feet() == TERRAIN_WATER;
+        if (water_now != in_water) {
+            sfx_play(water_now ? SFX_WATER_ENTER : SFX_WATER_LEAVE);
+            in_water = water_now;
+        }
+    }
     s16 ix = player.x;
     s16 iy = player.y;
     s16 bl = ix + PLAYER_BOX_L;

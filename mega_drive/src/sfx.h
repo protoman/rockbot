@@ -21,6 +21,8 @@ typedef enum {
     SFX_PILL,           // small energy pill
     SFX_ITEM,           // 1UP
     SFX_TELEPORT,       // boss teleporter
+    SFX_WATER_ENTER,    // player enters water
+    SFX_WATER_LEAVE,    // player leaves water
     SFX_CURSOR,         // menu open/cursor
     SFX_COUNT
 } SfxId;

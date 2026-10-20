@@ -15,7 +15,8 @@ Config config;
 static const char *const sfx_names[SFX_COUNT] = {
     "SHOT", "CHARGED SHOT", "JUMP", "PLAYER HIT", "PLAYER DEATH",
     "CHARGING 1", "CHARGING 2", "ENEMY HIT", "ENEMY KILLED", "EXPLOSION",
-    "ENERGY PILL", "ITEM", "TELEPORT", "CURSOR",
+    "ENERGY PILL", "ITEM", "TELEPORT", "WATER ENTER", "WATER LEAVE",
+    "CURSOR",
 };
 
 void config_init(void)

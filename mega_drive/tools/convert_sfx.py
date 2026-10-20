@@ -40,6 +40,8 @@ SOUNDS = [
     "npc_hit", "npc_killed", "big_explosion",
     # objects
     "got_energy_pill", "got_item", "teleporter_activated",
+    # player enters/leaves water
+    "water_enter", "water_leave",
     # UI
     "cursor",
 ]

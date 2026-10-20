@@ -29,6 +29,8 @@ static const SfxDef sfx_def[SFX_COUNT] = {
     [SFX_PILL]         = { sfx_got_energy_pill,    sizeof(sfx_got_energy_pill),    SOUND_PCM_CH4, 6 },
     [SFX_ITEM]         = { sfx_got_item,           sizeof(sfx_got_item),           SOUND_PCM_CH4, 6 },
     [SFX_TELEPORT]     = { sfx_teleporter_activated, sizeof(sfx_teleporter_activated), SOUND_PCM_CH4, 6 },
+    [SFX_WATER_ENTER]  = { sfx_water_enter,        sizeof(sfx_water_enter),        SOUND_PCM_CH4, 5 },
+    [SFX_WATER_LEAVE]  = { sfx_water_leave,        sizeof(sfx_water_leave),        SOUND_PCM_CH4, 5 },
     [SFX_CURSOR]       = { sfx_cursor,             sizeof(sfx_cursor),             SOUND_PCM_CH4, 6 },
 };
 

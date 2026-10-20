@@ -16,6 +16,8 @@ extern const u8 sfx_big_explosion[17408];
 extern const u8 sfx_got_energy_pill[8192];
 extern const u8 sfx_got_item[4864];
 extern const u8 sfx_teleporter_activated[18688];
+extern const u8 sfx_water_enter[5376];
+extern const u8 sfx_water_leave[6656];
 extern const u8 sfx_cursor[2560];
 
 #endif // _RES_SFX_PCM_H_

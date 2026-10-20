@@ -13,4 +13,6 @@ WAV sfx_big_explosion "sfx/big_explosion.wav" XGM2
 WAV sfx_got_energy_pill "sfx/got_energy_pill.wav" XGM2
 WAV sfx_got_item "sfx/got_item.wav" XGM2
 WAV sfx_teleporter_activated "sfx/teleporter_activated.wav" XGM2
+WAV sfx_water_enter "sfx/water_enter.wav" XGM2
+WAV sfx_water_leave "sfx/water_leave.wav" XGM2
 WAV sfx_cursor "sfx/cursor.wav" XGM2
