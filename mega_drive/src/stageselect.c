@@ -139,8 +139,8 @@ u8 stage_select_run(u8 player, u16 stage_mask)
     face = SPR_addSprite(face_def[pi], 144, 96,
                          TILE_ATTR(SSEL_PAL_PLAYER, FALSE, FALSE, FALSE));
 
-    sx = 0;
-    sy = 0;
+    sx = 1;                 // default to the centre slot
+    sy = 1;
     sel_mask = stage_mask;
     // PC can_access_castle(): intro + all 8 bosses (save bits 0..8).
     castle_unlocked = (stage_mask & 0x01FF) == 0x01FF;

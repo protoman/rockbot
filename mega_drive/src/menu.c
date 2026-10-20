@@ -189,6 +189,12 @@ bool menu_open(u16 weapon_mask)
     // DMA_QUEUE: a CPU CRAM write during active display corrupts on
     // accurate emulators (see debugging.md / the SGDK boot notes)
     PAL_setPalette(PAL1, menu_pal.data, DMA_QUEUE);
+    // The font's background pixels are the global backdrop colour. The stage
+    // leaves CRAM0 orange/whatever, which made every text glyph a coloured
+    // box over the blue panel. Borrow the panel's dark background while the
+    // menu is open and restore the old CRAM0 on close.
+    const u16 old_backdrop = PAL_getColor(0);
+    PAL_setColor(0, menu_pal.data[3]);
 
     stage_sprites_visible(FALSE);
     menu_draw_panel();
@@ -267,6 +273,8 @@ bool menu_open(u16 weapon_mask)
         portrait = NULL;
     }
     icons_release();
+
+    PAL_setColor(0, old_backdrop);
 
     if (leave) {
         // The stage is over: do NOT restore it (a map redraw would leave the
