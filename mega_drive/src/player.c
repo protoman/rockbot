@@ -751,6 +751,15 @@ void player_update(u16 pad)
                 // open space (map1 col 1). With iy = ny both rows are off
                 // the stair, the pair sees no ground and he falls.
                 iy = ny;
+                // A ladder whose last rung is the map's last row has no
+                // floor below it. Stepping off must leave him standing on
+                // that bottom rung, not below the map. Ladders ending above
+                // a real pit still fall normally.
+                {
+                    const s16 floor_y = stage_def->map_h * stage_def->tile
+                                        - box_b;
+                    if (iy > floor_y) iy = floor_y;
+                }
                 player.on_ladder = FALSE;                       // walked off the ladder
             } else {
                 iy = ny;
