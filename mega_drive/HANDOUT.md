@@ -242,7 +242,10 @@ make run EMU_ARGS=   # GL renderer instead of software
   rider's next box against terrain and disappears on contact, so it cannot
   carry the player into walls. Menu text now sits on classic tile 16 (flat
   dark fill); tile 4 was a border pattern and caused striped text.
-- Last commit: flat menu text background and JET wall destruction.
+- **Menu fonts/grey icons** (2026-10-20): text rows use the classic panel's
+  flat tile 16; PAL0/PAL1 are flushed before drawing. Unselected weapon icons
+  and bars use a grey palette/tile; rows 0/2 share the same tile-row offset.
+- Last commit: grey unselected menu icons/bars and align rows.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
