@@ -266,6 +266,7 @@ static void menu_draw_panel(void)
     // the texts drawn right after it.
     VDP_setTileMapDataRect(BG_A, cells, 0, 0, MENU_MAP_W, MENU_MAP_H,
                            MENU_MAP_W, CPU);
+    VDP_setTextPalette(PAL0);
 
     // texts PC draws over the panel (menu_map.h names from img2tiles.py)
     menu_restore_strip(0, 0, 40);
@@ -301,10 +302,9 @@ bool menu_open(u16 weapon_mask)
     for (u8 w = 0; w < MENU_BAR_TILES + 1; w++)
         VDP_loadTileData(menu_bar_tiles[w], (u16)(MENU_BAR_TILE + w), 1,
                          DMA_QUEUE);
-    // Keep the font on the UI palette; a stage palette line here can leave
-    // the menu text nearly invisible.
-    // Build one PAL0 palette containing the UI colours, the dark text
-    // background and the selected player's weapon colours in entries 1..11.
+    // Build one PAL0 palette with the UI colours and the selected player's
+    // weapon colours in entries 1..11. The text uses PAL0: the font glyph is
+    // colour 15 (light) and its background pixel is 0 (transparent).
     static u16 menu_pal0[16];
     for (u8 i = 0; i < 16; i++) menu_pal0[i] = pal_ui.data[i];
     menu_pal0[0] = menu_pal.data[3];
@@ -312,18 +312,23 @@ bool menu_open(u16 weapon_mask)
         menu_pal0[2 + w] = player_weapon_color(w);
     menu_pal0[13] = pal_ui.data[8];       // grey for unselected icons/bars
     // Write CRAM with the display disabled: the queued variants were racing
-    // with the panel/tile DMA and left the font palette at the stage colours
-    // (the orange glyph backgrounds).
+    // with the panel/tile DMA and left the font palette at the stage colours.
+    const u16 old_backdrop = PAL_getColor(0);
+    const u8 old_bg_index = VDP_getBackgroundColor();
     VDP_setEnable(FALSE);
     PAL_setPalette(PAL0, menu_pal0, CPU);
     PAL_setPalette(PAL1, menu_pal.data, CPU);
     PAL_setPalette(PAL3, menu_icons_pal.data, CPU);
     VDP_setEnable(TRUE);
-    // The font's background pixels are the global backdrop colour. The stage
-    // leaves CRAM0 orange/whatever, which made every text glyph a coloured
-    // box over the blue panel. Borrow the panel's dark background while the
-    // menu is open and restore the old CRAM0 on close.
-    const u16 old_backdrop = PAL_getColor(0);
+
+    // The font has transparent background pixels. BG_A holds the panel, but
+    // its transparent pixels would otherwise reveal the stage parallax on
+    // BG_B as coloured stripes behind every glyph. Blank BG_B and point the
+    // backdrop at black while the menu is open; stage_redraw_bg() rebuilds
+    // the parallax on close.
+    VDP_setBackgroundColor(0);
+    PAL_setColor(0, 0x0000);
+    VDP_clearPlane(BG_B, TRUE);
 
     stage_sprites_visible(FALSE);
     SYS_doVBlankProcess();     // apply PAL0/PAL1 before drawing text
@@ -408,6 +413,7 @@ bool menu_open(u16 weapon_mask)
     icons_release();
 
     PAL_setColor(0, old_backdrop);
+    VDP_setBackgroundColor(old_bg_index);
     PAL_setPalette(PAL0, pal_ui.data, DMA_QUEUE);
 
     if (leave) {
