@@ -158,7 +158,10 @@ make run EMU_ARGS=   # GL renderer instead of software
   their PC `obj_timer` as the initial hidden delay (1000/2000/3000 ms), so
   they no longer toggle in sync; active blocks use their own visible timer.
   Spike/lava terrain damage is now lethal (PC 188), not 4.
-- Last commit: per-block delays and lethal lava spikes.
+- **Menu polish** (2026-10-20): title defaults to LOAD when a save exists;
+  the weapon menu shows a gauge bar, tank counts (E/W/S) and restores the
+  panel before redrawing text so old glyphs no longer show through.
+- Last commit: menu gauges/tanks and text-background clearing.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
