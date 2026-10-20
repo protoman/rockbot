@@ -180,7 +180,11 @@ make run EMU_ARGS=   # GL renderer instead of software
   tables and corrupts the Z80 command jump table. BlastEm then died with
   "multi-byte Z80 instruction at 4001" on the first menu beep. UI/objects
   now use `SOUND_PCM_CH3` (PCM2).
-- Last commit: use a valid XGM2 PCM channel for UI/object sfx.
+- **Lava/spike contact** (2026-10-20): the damage scan skipped the feet
+  row because the hitbox bottom is exclusive. Standing/landing on a SPIKE
+  tile (the lava pool at the start of DARK MINE) did nothing. The scan now
+  includes `bottom >> 4`.
+- Last commit: damage player when standing on lava/spike tiles.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
