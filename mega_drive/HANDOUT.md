@@ -171,7 +171,11 @@ make run EMU_ARGS=   # GL renderer instead of software
 - **Ladder bottom links** (2026-10-20): a link on the last map row now fires
   as soon as the feet enter that row. The old PC-style T2B band began below
   the map, so dropping/jumping off a bottom ladder never teleported.
-- Last commit: bottom ladder links fire on entry.
+- **Ladder bottom rung** (2026-10-20): if the last rung is the map's last
+  row and there is no teleporter link, stepping off is clamped to that row
+  instead of dropping out of the map and respawning. Ladders ending over a
+  real pit still fall.
+- Last commit: stop ladder descent on the bottom rung without a link.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
