@@ -232,7 +232,10 @@ make run EMU_ARGS=   # GL renderer instead of software
   vertical strip and rescomp only saw one frame; `SPR_setFrame()` then
   corrupted the sprite frame pointer. They are now a horizontal 56x8 strip
   with one animation of 7 frames.
-- Last commit: emit HUD bars as a horizontal frame strip.
+- **HUD 1% bars** (2026-10-20): each classic bar is three stacked sprites
+  (24+24+8 px) with 51 frames. The frame index is the fill height in pixels,
+  so the gauge updates every percent and the unfilled part is solid black.
+- Last commit: 1% HUD bar frames with black empty background.
 - Boss dialogs are in: shown when the boss first appears (stages 0..8).
   Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
 - Audit (`tools/audit_data.py`): every stage reports clean except the WATER
