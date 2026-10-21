@@ -623,6 +623,14 @@ void stage_redraw_bg(void)
     bg_load(stage_current_map);
 }
 
+// Reload the current map's animated tile frames. An overlay (the weapon
+// menu) can overwrite the animation block with its own tiles; the BG reload
+// does not cover it, so callers must restore it after the overlay closes.
+void stage_redraw_anim(void)
+{
+    stage_anim_reset();
+}
+
 // Drop the stage map: its engine keeps deferred plane updates that flush on
 // the next vblank and repaint BG_A (with the new tile contents) after an
 // overlay/title took over the screen. stage_load() creates a fresh map.

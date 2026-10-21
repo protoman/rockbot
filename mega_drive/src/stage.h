@@ -87,6 +87,7 @@ void stage_restore_palette(void);
 // Re-draw the parallax background plane (image, palette, scroll) after an
 // overlay borrowed the background tile block.
 void stage_redraw_bg(void);
+void stage_redraw_anim(void);
 
 // Release the stage map (its deferred vblank updates would repaint the
 // planes after a full-screen overlay or the title took over).

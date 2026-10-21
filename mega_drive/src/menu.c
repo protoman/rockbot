@@ -100,8 +100,12 @@ static void icons_create(void)
         if (!(owned & (1u << w))) continue;
         u8 row = (u8)(w / 4);
         u8 col = (u8)(w % 4);
-        s16 x = (s16)(15 + col * 76);
-        s16 y = (s16)(45 + row * 20);
+        // Keep the icons on the same 80x24 pixel grid as the BG tile bars:
+        // the panel draws the bars in 8px tiles, so a PC-style 76x20 grid
+        // drifts 4px per column (bar ends up far right of its icon) and the
+        // 20px rows cannot line up with 8px tile rows either.
+        s16 x = (s16)(14 + col * 80);
+        s16 y = (s16)(41 + row * 24);
         Sprite *sp = SPR_addSprite(&menu_icon_sprite, x, y,
                                    TILE_ATTR(PAL3, FALSE, FALSE, FALSE));
         Sprite *gr = SPR_addSprite(&menu_icon_gray_sprite, x, y,
@@ -199,8 +203,9 @@ static void draw_grid_bars(void)
         u8 col = (u8)(w % 4);
         u16 x = (u16)(3 + col * 10);
         // PC bar y=60+row*20; after the 16px crop it shares the icon line
-        // (icon y=45+row*20). Tile-row granularity: rows 5/8/11.
-        static const u8 bar_row[3] = { 5, 8, 10 };
+        // (icon y=41+row*24). Tile-row granularity: rows 5/8/11 keep the
+        // grid evenly spaced around the PC 44/64/84 positions.
+        static const u8 bar_row[3] = { 5, 8, 11 };
         u16 y = bar_row[row];
         u8 value = (w == 0) ? PLAYER_INITIAL_HP : player.ammo[w];
         draw_weapon_bar(value, PLAYER_INITIAL_HP, x, y, 6, w,
@@ -313,7 +318,14 @@ bool menu_open(u16 weapon_mask)
     menu_pal0[13] = pal_ui.data[8];       // grey for unselected icons/bars
     // Write CRAM with the display disabled: the queued variants were racing
     // with the panel/tile DMA and left the font palette at the stage colours.
-    const u16 old_backdrop = PAL_getColor(0);
+    // PAL0 drives the UI/font and PAL3 the icons; both also belong to the
+    // stage (enemy/object and parallax palettes), so keep the full lines.
+    u16 old_pal0[16], old_pal1[16], old_pal3[16];
+    for (u8 i = 0; i < 16; i++) {
+        old_pal0[i] = PAL_getColor(i);
+        old_pal1[i] = PAL_getColor((PAL1 << 4) + i);
+        old_pal3[i] = PAL_getColor((PAL3 << 4) + i);
+    }
     const u8 old_bg_index = VDP_getBackgroundColor();
     VDP_setEnable(FALSE);
     PAL_setPalette(PAL0, menu_pal0, CPU);
@@ -412,9 +424,10 @@ bool menu_open(u16 weapon_mask)
     }
     icons_release();
 
-    PAL_setColor(0, old_backdrop);
     VDP_setBackgroundColor(old_bg_index);
-    PAL_setPalette(PAL0, pal_ui.data, DMA_QUEUE);
+    PAL_setPalette(PAL0, old_pal0, CPU);
+    PAL_setPalette(PAL1, old_pal1, CPU);
+    PAL_setPalette(PAL3, old_pal3, CPU);
 
     if (leave) {
         // The stage is over: do NOT restore it (a map redraw would leave the
@@ -428,6 +441,7 @@ bool menu_open(u16 weapon_mask)
     stage_sprites_visible(TRUE);
     stage_restore_palette();
     stage_redraw_bg();      // the panel overwrote the parallax tiles
+    stage_redraw_anim();    // ...and possibly the animated-tile block
     stage_force_redraw();
     return FALSE;
 }
