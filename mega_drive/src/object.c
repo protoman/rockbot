@@ -867,9 +867,24 @@ void objects_update(void)
                 // PC classmap.cpp:1611: a door stays shut while a boss or
                 // sub-boss is alive on the left side of it.
                 if (enemies_subboss_alive_left(o->x >> 4)) continue;
+                // PC object.cpp:1189: opening -> OPENED -> horizontal_screen
+                // move to reveal the boss room -> CLOSING (shuts behind the
+                // player). The converted door art has a single frame, so the
+                // open/close animation collapses to the scroll itself.
                 o->started = TRUE;
                 o->frame = (u8)(d->frames - 1);
                 if (o->spr) SPR_setFrame(o->spr, o->frame);
+                sfx_play(SFX_DOOR_OPEN);
+                {
+                    // The player keeps his screen position: carry him with
+                    // the scroll (PC horizontal_screen_move moves both).
+                    s16 dx = stage_horizontal_screen_move(1);
+                    player.x += dx;
+                    player_sync_sprite();
+                }
+                o->started = FALSE;      // closed again: one-way
+                o->frame = 0;
+                if (o->spr) SPR_setFrame(o->spr, 0);
                 sfx_play(SFX_DOOR_OPEN);
                 continue;
             }

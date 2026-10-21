@@ -80,6 +80,10 @@ void stage_cycle_update(void);
 // Force a complete MAP redraw. Call after the camera jumps (respawn, map link).
 void stage_force_redraw(void);
 
+// PC horizontal_screen_move: scroll the view one screen sideways (boss door).
+// Returns the applied delta so the caller can carry the player with it.
+s16 stage_horizontal_screen_move(s16 dir);
+
 // Re-load the stage tileset palette (PAL1) after a full-screen overlay
 // (in-game menu) borrowed the palette line.
 void stage_restore_palette(void);

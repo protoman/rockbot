@@ -621,6 +621,31 @@ void stage_update_camera(s16 focusX, s16 focusY)
     }
 }
 
+// PC game::horizontal_screen_move (game.cpp, called when a boss door has
+// finished opening): shift the view by one screen with a short scroll. The
+// door then closes behind the player, so it is one-way.
+s16 stage_horizontal_screen_move(s16 dir)
+{
+    const s16 start = camera.x;
+    const s16 max = stage_def->map_w * stage_def->tile - 320;
+    const StageBgInfo *info = &stage_def->bg_info[stage_current_map];
+    for (u8 i = 0; i < 20; i++) {
+        camera.x += dir * 16;
+        if (camera.x < 0) camera.x = 0;
+        if (camera.x > max) camera.x = max;
+        MAP_scrollTo(stage_map, camera.x, camera.y);
+        if (info->present && info->speed) {
+            s32 scroll = -((s32)camera.x * info->speed) / 10;
+            scroll %= 512;
+            if (scroll > 0) scroll -= 512;
+            VDP_setHorizontalScroll(BG_B, (s16)scroll);
+        }
+        SPR_update();
+        SYS_doVBlankProcess();
+    }
+    return (s16)(camera.x - start);
+}
+
 // Force a complete MAP redraw. Needed whenever the camera jumps a large
 // distance in one frame (respawn, map link): the incremental scroll used by
 // MAP_scrollTo only loads the newly exposed edge, so a jump leaves stale
