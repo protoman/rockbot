@@ -99,3 +99,9 @@ build/packages/switch-build.log
 build_switch/
 rockbot.nro
 rockbot.nacp
+# Mega Drive (SGDK) build output
+mega_drive/out/
+mega_drive/screenshots/
+
+# Python bytecode caches
+__pycache__/

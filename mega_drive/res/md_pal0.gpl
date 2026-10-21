@@ -1,0 +1,20 @@
+GIMP Palette
+Name: MD PAL0 enemies/objects/shots/HUD
+Columns: 4
+#
+  0   0   0	0  transparent/backdrop
+  0   0   0	1  art black
+255 255 255	2  art white
+146 219 255	3
+182 182 146	4
+255 146  73	5
+146   0 255	6
+255 109   0	7
+109 109 109	8
+  0 146 146	9
+255  36   0	10
+219  36   0	11
+ 36  36 109	12
+  0 109  36	13
+ 73  36   0	14
+219 219 219	15  font white (text only)
