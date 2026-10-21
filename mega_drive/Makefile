@@ -36,9 +36,12 @@ ASSET_DATA  += $(MUSIC_DATA)
 # Converted stages, in index order (tools/add_stage.py appends here).
 STAGES := 0 1 2 3 4 5 6 7 8 9 10 11 12 13
 
-# Stage editor (Qt5): the PC editor copied into editor/, pointed at data/.
+# Stage editor (Qt5/Qt6, CMake): the PC editor copied into editor/, pointed at
+# data/. Build files stay in editor/build/, the binary lands in editor/editor
+# where tools/editor.sh expects it.
 editor:
-	cd editor && /usr/lib/qt5/bin/qmake Rockbot_Editor.pro -o Makefile && $(MAKE) -j4
+	cmake -S editor -B editor/build -DCMAKE_BUILD_TYPE=Release
+	cmake --build editor/build -j4
 
 $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA) $(MUSIC_TOOL) Makefile
 	$(PYTHON) tools/convert_assets.py
