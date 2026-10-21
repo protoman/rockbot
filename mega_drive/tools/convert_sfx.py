@@ -24,7 +24,7 @@ import wave
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
-DATA = os.path.join(ROCKBOT, "build/games/RockDroid1/sfx")
+DATA = os.path.join(ROOT, "data/games/RockDroid1/sfx")
 RES = os.path.join(ROOT, "res")
 GAIN = 2
 

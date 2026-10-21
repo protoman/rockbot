@@ -203,6 +203,20 @@ user's desktop. Ask before launching. Never launch repeatedly to explore — one
 deliberate run per question, then `tools/emu.sh stop`. Prefer deriving answers
 from already-captured screenshots/assets over running the emulator again.
 
+## Editable stage data (source of truth)
+
+- `data/games/RockDroid1/` is a **copy** of the PC game data and is what every
+  converter reads (`tools/*.py` use `ROOT/data/games/RockDroid1`). The parent
+  `rockbot/build/games/RockDroid1` is never read again, so edits made here
+  survive every `make assets`.
+- `data/fonts` and `data/shared` are symlinks to the parent's read-only shared
+  art (the editor wants them next to `games/`).
+- Editor: the PC Qt editor copied into `editor/` (Qt5, `qmake`), pointed at
+  this tree with `ROCKBOT_EDITOR_PATH`. Build `make editor`, run
+  `tools/editor.sh` (or `ROCKBOT_EDITOR_PATH=$PWD/data editor/editor`).
+- After editing maps/enemies/objects: `make` (or `make assets`) regenerates
+  `src/stageN_*` from the edited data, then the ROM.
+
 ## Port status
 
 - Feature-by-feature comparison with the PC game (boot, loop, player, enemies,

@@ -34,7 +34,7 @@ from pal_ui_data import PAL_UI_RGB
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
-DATA = os.path.join(ROCKBOT, "build/games/RockDroid1")
+DATA = os.path.join(ROOT, "data/games/RockDroid1")
 IMAGES = os.path.join(ROOT, "images")
 RES = os.path.join(ROOT, "res")
 SRC = os.path.join(ROOT, "src")

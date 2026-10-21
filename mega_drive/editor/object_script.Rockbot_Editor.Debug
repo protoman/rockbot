@@ -1,0 +1,15 @@
+INPUT(
+./debug\main.o
+./debug\mainwindow.o
+./debug\editorarea.o
+./debug\editortilepallete.o
+./debug\mediator.o
+./debug\addwizard.o
+./debug\npcpreviewarea.o
+./debug\moc_mainwindow.o
+./debug\moc_editorarea.o
+./debug\moc_editortilepallete.o
+./debug\moc_addwizard.o
+./debug\moc_npcpreviewarea.o
+./debug\qrc_icons.o
+);

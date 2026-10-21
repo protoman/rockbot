@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TabText</class>
+ <widget class="QDialog" name="TabText">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>649</width>
+    <height>668</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout_2">
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <item row="3" column="1">
+        <layout class="QGridLayout" name="gridLayout">
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="name_lineEdit"/>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_11">
+           <property name="text">
+            <string>Position type:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>Select Entry:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QComboBox" name="positionType">
+           <item>
+            <property name="text">
+             <string>Dialog Bottom</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Dialog Top</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Centered</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Center X</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Center Y</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>User Defined</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QSpinBox" name="textY_spinBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="maximum">
+            <number>999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>Draw Type:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Position Y</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="select_comboBox"/>
+         </item>
+         <item row="4" column="1">
+          <widget class="QSpinBox" name="textX_spinBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="maximum">
+            <number>999</number>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>Position X</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_12">
+           <property name="text">
+            <string>Name:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QComboBox" name="transitionType_comboBox">
+           <item>
+            <property name="text">
+             <string>Progressive</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Instant</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="4" column="1">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="1">
+        <widget class="QPushButton" name="AddButton">
+         <property name="text">
+          <string>Add New Entry</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="3" column="2">
+        <layout class="QGridLayout" name="gridLayout_5">
+         <property name="bottomMargin">
+          <number>20</number>
+         </property>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Line 2:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLineEdit" name="lineEdit4">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="maxLength">
+            <number>30</number>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>Line 5:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="lineEdit2">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="maxLength">
+            <number>30</number>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QLineEdit" name="lineEdit6">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="maxLength">
+            <number>30</number>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="label_10">
+           <property name="text">
+            <string>Line 6:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="lineEdit5">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="maxLength">
+            <number>30</number>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="lineEdit3">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="maxLength">
+            <number>30</number>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_7">
+           <property name="text">
+            <string>Line 3:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="lineEdit1">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="maxLength">
+            <number>30</number>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>Line 4:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Line 1: </string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_13">
+           <property name="text">
+            <string>Language:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="languageComboBox"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="TextPreviewArea" name="widget" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>320</width>
+         <height>240</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>320</width>
+         <height>240</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+  <zorder></zorder>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TextPreviewArea</class>
+   <extends>QWidget</extends>
+   <header>scenes/textpreviewarea.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>AddButton</tabstop>
+  <tabstop>select_comboBox</tabstop>
+  <tabstop>name_lineEdit</tabstop>
+  <tabstop>positionType</tabstop>
+  <tabstop>textX_spinBox</tabstop>
+  <tabstop>textY_spinBox</tabstop>
+  <tabstop>transitionType_comboBox</tabstop>
+  <tabstop>languageComboBox</tabstop>
+  <tabstop>lineEdit1</tabstop>
+  <tabstop>lineEdit2</tabstop>
+  <tabstop>lineEdit3</tabstop>
+  <tabstop>lineEdit4</tabstop>
+  <tabstop>lineEdit5</tabstop>
+  <tabstop>lineEdit6</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

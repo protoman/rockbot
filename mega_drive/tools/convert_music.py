@@ -18,7 +18,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
-MUSIC_SRC = os.path.join(ROCKBOT, "build/games/RockDroid1/music")
+MUSIC_SRC = os.path.join(ROOT, "data/games/RockDroid1/music")
 RES = os.path.join(ROOT, "res/music")
 TOOL = os.path.join(HERE, "mod2vgm/build/mod2vgm")
 

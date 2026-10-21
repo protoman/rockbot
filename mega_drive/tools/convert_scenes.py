@@ -27,8 +27,8 @@ from PIL import Image
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
-DATA = os.path.join(ROCKBOT, "build/games/RockDroid1/scenes")
-IMAGES = os.path.join(ROCKBOT, "build/games/RockDroid1/images/scenes")
+DATA = os.path.join(ROOT, "data/games/RockDroid1/scenes")
+IMAGES = os.path.join(ROOT, "data/games/RockDroid1/images/scenes")
 RES = os.path.join(ROOT, "res")
 SRC = os.path.join(ROOT, "src")
 

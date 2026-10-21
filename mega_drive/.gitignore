@@ -1,0 +1,9 @@
+# Qt editor build artifacts (sources are tracked, outputs are not)
+editor/Makefile
+editor/.qmake.stash
+editor/editor
+editor/*.o
+editor/moc_*.cpp
+editor/moc_*.h
+editor/ui_*.h
+editor/qrc_*.cpp

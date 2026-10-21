@@ -1,0 +1,468 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>artificial_inteligence_tab</class>
+ <widget class="QWidget" name="artificial_inteligence_tab">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>742</width>
+    <height>512</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="3" column="1">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QComboBox" name="ai_selector"/>
+   </item>
+   <item row="1" column="1">
+    <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <layout class="QGridLayout" name="gridLayout_2">
+     <property name="topMargin">
+      <number>6</number>
+     </property>
+     <item row="1" column="2">
+      <widget class="QComboBox" name="action1"/>
+     </item>
+     <item row="3" column="2">
+      <widget class="QComboBox" name="action3"/>
+     </item>
+     <item row="3" column="1">
+      <widget class="QSpinBox" name="chance3">
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>20</number>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>#5:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QSpinBox" name="chance2">
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>15</number>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2">
+      <widget class="QComboBox" name="action4"/>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="label_15">
+       <property name="text">
+        <string>Action</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>#7:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="4">
+      <widget class="QLabel" name="label_16">
+       <property name="text">
+        <string>Next Action</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="4">
+      <widget class="QComboBox" name="next2"/>
+     </item>
+     <item row="1" column="4">
+      <widget class="QComboBox" name="next1"/>
+     </item>
+     <item row="3" column="5">
+      <widget class="QSpinBox" name="delay3">
+       <property name="maximum">
+        <number>9999</number>
+       </property>
+       <property name="value">
+        <number>200</number>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_8">
+       <property name="text">
+        <string>#2:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="5">
+      <widget class="QSpinBox" name="delay1">
+       <property name="maximum">
+        <number>9999</number>
+       </property>
+       <property name="value">
+        <number>200</number>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="4">
+      <widget class="QComboBox" name="next3"/>
+     </item>
+     <item row="3" column="3">
+      <widget class="QComboBox" name="parameter3"/>
+     </item>
+     <item row="2" column="3">
+      <widget class="QComboBox" name="parameter2"/>
+     </item>
+     <item row="0" column="3">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Extra Parameter</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="5">
+      <widget class="QSpinBox" name="delay4">
+       <property name="maximum">
+        <number>9999</number>
+       </property>
+       <property name="value">
+        <number>200</number>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QComboBox" name="action2"/>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_10">
+       <property name="text">
+        <string>#3:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_12">
+       <property name="text">
+        <string>#4:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="4">
+      <widget class="QComboBox" name="next4"/>
+     </item>
+     <item row="4" column="3">
+      <widget class="QComboBox" name="parameter4"/>
+     </item>
+     <item row="0" column="5">
+      <widget class="QLabel" name="label_17">
+       <property name="text">
+        <string>Next Action Delay</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>% Chance</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>#1:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="label_9">
+       <property name="text">
+        <string>#8:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QSpinBox" name="chance5">
+       <property name="maximum">
+        <number>100</number>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="1">
+      <widget class="QSpinBox" name="chance6">
+       <property name="maximum">
+        <number>100</number>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="QSpinBox" name="chance7">
+       <property name="maximum">
+        <number>100</number>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1">
+      <widget class="QSpinBox" name="chance8">
+       <property name="maximum">
+        <number>100</number>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2">
+      <widget class="QComboBox" name="action5"/>
+     </item>
+     <item row="6" column="2">
+      <widget class="QComboBox" name="action6"/>
+     </item>
+     <item row="2" column="5">
+      <widget class="QSpinBox" name="delay2">
+       <property name="maximum">
+        <number>9999</number>
+       </property>
+       <property name="value">
+        <number>200</number>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_14">
+       <property name="text">
+        <string>Action Number</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="3">
+      <widget class="QComboBox" name="parameter1"/>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>#6:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QSpinBox" name="chance1">
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>35</number>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QSpinBox" name="chance4">
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="value">
+        <number>30</number>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="4">
+      <widget class="QComboBox" name="next8"/>
+     </item>
+     <item row="5" column="5">
+      <widget class="QSpinBox" name="delay5">
+       <property name="maximum">
+        <number>9999</number>
+       </property>
+       <property name="value">
+        <number>200</number>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="5">
+      <widget class="QSpinBox" name="delay6">
+       <property name="maximum">
+        <number>9999</number>
+       </property>
+       <property name="value">
+        <number>200</number>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="5">
+      <widget class="QSpinBox" name="delay7">
+       <property name="maximum">
+        <number>9999</number>
+       </property>
+       <property name="value">
+        <number>200</number>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="5">
+      <widget class="QSpinBox" name="delay8">
+       <property name="maximum">
+        <number>9999</number>
+       </property>
+       <property name="value">
+        <number>200</number>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="2">
+      <widget class="QComboBox" name="action7"/>
+     </item>
+     <item row="8" column="2">
+      <widget class="QComboBox" name="action8"/>
+     </item>
+     <item row="5" column="3">
+      <widget class="QComboBox" name="parameter5"/>
+     </item>
+     <item row="5" column="4">
+      <widget class="QComboBox" name="next5"/>
+     </item>
+     <item row="6" column="3">
+      <widget class="QComboBox" name="parameter6"/>
+     </item>
+     <item row="7" column="3">
+      <widget class="QComboBox" name="parameter7"/>
+     </item>
+     <item row="8" column="3">
+      <widget class="QComboBox" name="parameter8"/>
+     </item>
+     <item row="6" column="4">
+      <widget class="QComboBox" name="next6"/>
+     </item>
+     <item row="7" column="4">
+      <widget class="QComboBox" name="next7"/>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="1">
+    <layout class="QGridLayout" name="gridLayout_5">
+     <property name="bottomMargin">
+      <number>10</number>
+     </property>
+     <item row="0" column="1">
+      <widget class="QLabel" name="label_11">
+       <property name="text">
+        <string>Action</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="label_18">
+       <property name="text">
+        <string>Extra Parameter</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_19">
+       <property name="text">
+        <string>Enemy Reaction Type</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="3">
+      <widget class="QComboBox" name="reactionGotoNextComboBox"/>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="aiReactionAction_comboBox"/>
+     </item>
+     <item row="1" column="2">
+      <widget class="QComboBox" name="aiReactionParam_comboBox"/>
+     </item>
+     <item row="1" column="0">
+      <widget class="QComboBox" name="aiReactionType_comboBox">
+       <item>
+        <property name="text">
+         <string>Player is on Range Distance</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>NPC was damaged</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>NPC was killed</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Player is on same Y coord</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Player is Close (1/4 range)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Player is on same X coord</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Next Action</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="4">
+      <widget class="QSpinBox" name="reactionGotoDelaySpinBox">
+       <property name="maximum">
+        <number>9999</number>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="4">
+      <widget class="QLabel" name="label_13">
+       <property name="text">
+        <string>Next Action Delay</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="7" column="1">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

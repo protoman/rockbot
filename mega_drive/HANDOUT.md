@@ -411,6 +411,18 @@ Deliberately **not** ported (user decision 2026-10-21): difficulty select,
 cheats menu, static tile3 foreground art, rain/lightning overlays, save copy,
 language/platform/performance options. See `pc_features_vs_md.md` §11.
 
+## Editable game data + stage editor (2026-10-21)
+
+`data/games/RockDroid1/` is now the master copy of the game data (12 MB copy of
+the PC `build/games/RockDroid1`); all converters read it and never touch the
+parent tree again, so map/enemy/object edits are not overwritten by a rebuild.
+The PC Qt editor was copied to `editor/` (Qt5) with two changes: its `.pro` and
+includes point at `../../file|aux_tools` (the parent's shared sources) and
+`main.cpp` accepts `ROCKBOT_EDITOR_PATH` for the data root. Build with
+`make editor`, launch with `tools/editor.sh`. Verified headlessly
+(`QT_QPA_PLATFORM=offscreen`) that it loads `data/games/RockDroid1` without
+crashing; a missing font no longer aborts it.
+
 ## Tools
 
 - `tools/title64.py --part FILE:X,Y:FIRST:COUNT` + `--preview out.png` — the

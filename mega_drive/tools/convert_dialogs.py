@@ -21,7 +21,7 @@ from PIL import Image
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
-DATA = os.path.join(ROCKBOT, "build/games/RockDroid1/dialogs")
+DATA = os.path.join(ROOT, "data/games/RockDroid1/dialogs")
 SRC = os.path.join(ROOT, "src")
 
 STAGES = 14
@@ -33,7 +33,7 @@ def cstr(s):
 
 
 MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)
-FACES = os.path.join(ROCKBOT, "build/games/RockDroid1/images/faces")
+FACES = os.path.join(ROOT, "data/games/RockDroid1/images/faces")
 RES = os.path.join(ROOT, "res")
 
 

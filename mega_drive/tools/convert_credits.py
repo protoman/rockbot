@@ -5,7 +5,7 @@ import os
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
-SRC = os.path.join(ROCKBOT, "build/games/RockDroid1/game_credits.txt")
+SRC = os.path.join(ROOT, "data/games/RockDroid1/game_credits.txt")
 OUT = os.path.join(ROOT, "src")
 
 

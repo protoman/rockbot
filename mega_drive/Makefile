@@ -10,10 +10,14 @@ export GDK ?= /opt/toolchains/mars/m68k-elf
 # Force a full regeneration with `make assets` after touching res/.
 PYTHON   ?= /home/iuri/python3/bin/python3
 PCROOT   := ..
+# Editable game data: a COPY of the PC build/games/RockDroid1 that the editor
+# (editor/, tools/editor.sh) edits and every converter reads. The parent
+# rockbot/build/games copy is never used again, so map edits survive a rebuild.
+GAMEDATA := data/games/RockDroid1
 IMAGES   := images
 ASSET_STAMP := res/.assets.stamp
 ASSET_TOOLS := $(wildcard tools/*.py)
-ASSET_DATA  := $(shell find $(PCROOT)/build/games/RockDroid1 \
+ASSET_DATA  := $(shell find $(GAMEDATA) \
                             $(PCROOT)/build/shared/images \
                             -type f \( -name '*.png' -o -name '*.dat' \) \
                             2>/dev/null)
@@ -24,13 +28,17 @@ ASSET_DATA  += $(shell find art -type f -name '*.png' 2>/dev/null)
 # PC music sources: the MOD/S3M files are converted to VGM before rescomp
 # turns them into XGM2 resources. The binary is a prerequisite so a rebuilt
 # converter invalidates the asset stamp as well.
-MUSIC_DIR   := $(PCROOT)/build/games/RockDroid1/music
+MUSIC_DIR   := $(GAMEDATA)/music
 MUSIC_DATA  := $(wildcard $(MUSIC_DIR)/*.mod $(MUSIC_DIR)/*.s3m)
 MUSIC_TOOL  := tools/mod2vgm/build/mod2vgm
 ASSET_DATA  += $(MUSIC_DATA)
 
 # Converted stages, in index order (tools/add_stage.py appends here).
 STAGES := 0 1 2 3 4 5 6 7 8 9 10 11 12 13
+
+# Stage editor (Qt5): the PC editor copied into editor/, pointed at data/.
+editor:
+	cd editor && /usr/lib/qt5/bin/qmake Rockbot_Editor.pro -o Makefile && $(MAKE) -j4
 
 $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA) $(MUSIC_TOOL) Makefile
 	$(PYTHON) tools/convert_assets.py

@@ -24,7 +24,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
-DATA = os.path.join(ROCKBOT, "build/games/RockDroid1")
+DATA = os.path.join(ROOT, "data/games/RockDroid1")
 SRC = os.path.join(ROOT, "src")
 
 REC = 33

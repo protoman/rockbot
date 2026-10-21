@@ -1,0 +1,108 @@
+<RCC>
+    <qresource prefix="/toolbar_icons">
+        <file alias="New">filenew.png</file>
+        <file alias="Open">fileopen.png</file>
+        <file alias="Save">filesave.png</file>
+        <file alias="Edit">kontact_notes.png</file>
+        <file alias="Add Npc">kopeteavailable.png</file>
+        <file alias="Fill">red.png</file>
+        <file alias="Zoom In">zoom-in-24.png</file>
+        <file alias="Zoom Out">zoom-out-24.png</file>
+        <file alias="Unlock">document-decrypt.png</file>
+        <file alias="Lock">document-encrypt.png</file>
+        <file>archive-insert.png</file>
+        <file>archive-remove.png</file>
+        <file>color-picker.png</file>
+        <file>configure.png</file>
+        <file>dialog-ok-apply.png</file>
+        <file>document-new.png</file>
+        <file>document-open.png</file>
+        <file>document-save.png</file>
+        <file>draw-brush.png</file>
+        <file>draw-eraser.png</file>
+        <file>draw-freehand.png</file>
+        <file>draw-text.png</file>
+        <file>edit-copy.png</file>
+        <file>edit-cut.png</file>
+        <file>edit-delete.png</file>
+        <file>fill-color.png</file>
+        <file>im-user.png</file>
+        <file>list-add.png</file>
+        <file>list-remove.png</file>
+        <file>zoom-in.png</file>
+        <file>zoom-out.png</file>
+        <file>audio-volume-high.png</file>
+        <file>blend.png</file>
+        <file>code-class.png</file>
+        <file>connect_established.png</file>
+        <file>connect_no.png</file>
+        <file>dialog-cancel.png</file>
+        <file>dialog-warning.png</file>
+        <file>document-encrypted.png</file>
+        <file>edit-bomb.png</file>
+        <file>face-devilish.png</file>
+        <file>fork.png</file>
+        <file>format-list-ordered.png</file>
+        <file>games-config-background.png</file>
+        <file>games-difficult.png</file>
+        <file>im-ban-user.png</file>
+        <file>im-kick-user.png</file>
+        <file>insert-image.png</file>
+        <file>mail-attachment.png</file>
+        <file>media-playlist-shuffle.png</file>
+        <file>mixer-lfe.png</file>
+        <file>openterm.png</file>
+        <file>opinion-agree.png</file>
+        <file>opinion-disagree.png</file>
+        <file>system-reboot.png</file>
+        <file>task-recurring.png</file>
+        <file>tools-wizard.png</file>
+        <file>trash-empty.png</file>
+        <file>view-pim-notes.png</file>
+        <file>format-stroke-color.png</file>
+        <file>icons.qrc</file>
+        <file>media-playback-start.png</file>
+        <file>quickopen.png</file>
+        <file>run-build.png</file>
+        <file>stairs.png</file>
+        <file>arrow-down.png</file>
+        <file>arrow-left.png</file>
+        <file>arrow-right.png</file>
+        <file>arrow-up.png</file>
+        <file>draw-star.png</file>
+        <file>flag-black.png</file>
+        <file>flag-blue.png</file>
+        <file>flag-green.png</file>
+        <file>flag-red.png</file>
+        <file>flag-yellow.png</file>
+        <file>object-order-lower.png</file>
+        <file>office-chart-pie.png</file>
+        <file>system-switch-user.png</file>
+        <file>tools-report-bug.png</file>
+        <file>preferences-desktop-accessibility.png</file>
+        <file>4a6b77ae99a98d0d3a0a68a6b5491305.png</file>
+        <file>boss-48.png</file>
+        <file>sub-boss-icon.png</file>
+        <file>King-icon.png</file>
+        <file>Knight-icon.png</file>
+        <file>Wizard-icon.png</file>
+        <file>Manager-icon.png</file>
+        <file>draw-circle.png</file>
+        <file>draw-cross.png</file>
+        <file>draw-donut.png</file>
+        <file>draw-polygon.png</file>
+        <file>draw-rectangle.png</file>
+        <file>draw-square-inverted-corners.png</file>
+        <file>edit-paste.png</file>
+        <file>draw-triangle.png</file>
+        <file>edit-redo.png</file>
+        <file>edit-undo.png</file>
+        <file>games-highscores.png</file>
+        <file>input-gaming.png</file>
+        <file>input-keyboard.png</file>
+        <file>insert-text.png</file>
+        <file>speaker.png</file>
+        <file>face-angry.png</file>
+        <file>face-normal.png</file>
+    </qresource>
+</RCC>
