@@ -139,6 +139,22 @@ public:
     void load_shared_graphics();
     void preload();
     void updateScreen();
+
+    /**
+     * @brief Mark the frame as needing redraw. Cheap and non-blocking.
+     * Multiple subsystems can call this; the actual present will be
+     * performed once by flush_redraw().
+     */
+    void request_redraw();
+
+    /**
+     * @brief Perform the actual redraw if one was requested or if force==true.
+     * Calls updateScreen() internally and increments internal counters for
+     * diagnostics.
+     * @param force Force an immediate present even if no redraw was requested.
+     */
+    void flush_redraw(bool force = false);
+
     void loadTileset(std::string file);
     void placeTile(struct st_position, struct st_position, struct graphicsLib_gSurface*);
     void place_easymode_block_tile(st_position destiny, graphicsLib_gSurface &surface);
@@ -363,6 +379,11 @@ private:
 
 
 private:
+    // Deferred-draw state
+    bool redraw_requested = false;           // whether a redraw was requested this frame
+    unsigned long present_counter = 0;       // number of actual presents performed
+    unsigned long request_counter = 0;       // number of request_redraw calls
+
     static bool sdl_initialized;
 };
 

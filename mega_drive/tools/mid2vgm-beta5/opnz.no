@@ -1,0 +1,1309 @@
+;
+; VGM player for DUALOPN, OPLx, ESFM
+
+; 2026/Jan -
+; better performance
+; fixed memory corruption bug
+; fixed sticking notes on exit due to wrong chipmode?
+; faster decompress
+
+; now detects whether a file is ESFM before initializing ESFM regs
+
+        const opnbase1,$310
+        const opnbase2,$312
+
+        const oplbase1,$388
+        const oplbase2,$38A
+
+; command line switch:
+; /c01234567 - remap ym2151 channels
+
+; key controls:
+; l - return to file list (if any)
+; z - volume up
+; x - volume down
+; others - exit
+
+; YM2149 (YM2203 SSG part) registers:
+;
+; $00-$01 = channel A period (LSB first, 12 bits)
+; $02-$03 = channel B period (LSB first, 12 bits)
+; $04-$05 = channel C period (LSB first, 12 bits)
+; $06 = noise period (5 bits)
+; $07    bit 7 = port B input/output select (0=input, 1=output)
+;        bit 6 = port A input/output select
+;        bit 5 = channel C noise disable (0=enabled)
+;        bit 4 = channel B noise disable
+;        bit 3 = channel A noise disable
+;        bit 2 = channel C tone disable
+;        bit 1 = channel B tone disable
+;        bit 0 = channel A tone disable
+; $08 = channel A amplitude (bit 4 = envelope enable) (0 is minimum volume, 15 is max)
+; $09 = channel B amplitude (bit 4 = envelope enable)
+; $0A = channel C amplitude (bit 4 = envelope enable)
+; $0B-$0C = envelope period (LSB first, 16 bits)
+; $0D = envelope waveform
+; $0E = port A
+; $0F = port B
+
+;        const timerticks,38             ; number of 4648Hz PIT high byte ticks
+;        const tickduration,368          ; equals this many 44100 cycles
+        const timerticks,26             ; number of 4648Hz PIT high byte ticks
+        const tickduration,245          ; equals this many 44100 cycles
+
+        sectionbss
+
+cmdptr.d:       resd
+dbghand.d:      resd
+
+blockstart.d:   resd
+blockaddr.d:    resd
+blockend.d:     resd
+
+intsamples.d:   resd
+vbsig2.d:       resd
+loopoff.d:      resd
+
+fmclk.d:        resd
+nfreqhigh.d:    resd
+nfreqlow.d:     resd
+nfraction.d:    resd
+
+chipmode.b:     resb
+divarmed.b:     resb
+latchbyte.b:    resb
+
+psgperl.b:      resb 4
+psgperh.b:      resb 4
+
+fname:          resb 128
+
+playvol.b:      resb
+
+opmnote.b:      resb 8
+opmfrac.b:      resb 8
+
+        ; gzip stuff
+
+        alignd
+
+lcounts.w:      resw 16
+lcodes.w:       resw 16
+dcounts.w:      resw 16
+dcodes.w:       resw 16
+gusyms.w:       resw 316
+
+gubuf:          resb 512
+;gubyte.b:       resb
+
+clengths.b:     resb 19
+ccodes.b:       resb 19
+
+llengths.b:     resb 286
+
+        ; filelist stuff
+
+filelist.b:     resb 1280
+
+        alignd
+
+numfiles.d:     resd
+
+fbuf.b:         resb 512
+
+
+vgmbuf.b:       resd 60000
+                resd 60000
+
+
+        sectiondata
+
+crlf:
+        db 13,10,0
+fileindex:
+        db "a.  ",0
+
+psgvoltab.b:
+;        db 15,14,14,13,12,12,11,10,   10,9,8,8,7,6,6,0
+;        db 14,13,13,12,11,11,10,9,   9,8,7,7,6,5,5,0
+        db 13,12,12,11,10,10,9,8,   8,7,6,6,5,4,4,0
+
+        ; 0,-2,-4,-6,-8,-10,-12,-14,   -16,-18,-20,-22,-24,-26,-28,-30
+
+        ; 0,-3,-6,-9,-12,-15,-18,-21,  -24,-27,-30,-33,-36,-39,-42,-45
+
+ltable.b:
+        db 0,1,2,3,4,5,6,7,8,10,12,14,16,20,24,28,32
+        db 40,48,56,64,80,96,112,128,160,192,224,255
+ccorder.b:
+        db 16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15
+
+        alignw
+
+dtable.w:
+        dw 1,2,3,4,5,7,9,13,17,25
+        dw 33,49,65,97,129,193,257,385,513,769
+        dw 1025,1537,2049,3073,4097,6145,8193,12289,16385,24577
+
+notetable.b:
+        db 0,1,2,2,3,4,5,5,6,7,8,8,9,10,11,11
+
+opmtable.b:
+        db 0,0              ; $00, $08
+        db 0,0              ; $10, $18
+        db $B0,1            ; $20, $28
+        db 2,0              ; $30, $38
+        db $30,$30          ; $40, $48
+        db $30,$30          ; $50, $58
+        db $40,$40          ; $60, $68
+        db $40,$40          ; $70, $78
+        db $50,$50          ; $80, $88
+        db $50,$50          ; $90, $98
+        db $60,$60          ; $A0, $A8
+        db $60,$60          ; $B0, $B8
+        db $70,$70          ; $C0, $C8
+        db $70,$70          ; $D0, $D8
+        db $80,$80          ; $E0, $E8
+        db $80,$80          ; $F0, $F8
+
+        alignw
+
+opmfreq.w:
+        incbin "opmfreq2.bin"
+
+chanmap.b:
+        db 0,1,2,3,4,5,6,7
+
+
+        sectioncode
+
+start!
+        callex cmdptr,initplatform
+
+        beginfunc
+        localvar w.d,x.d,y.d,z.d,xx.d,ff1.d,modaddr.d,vgmp.d,chan.d,opnum.d
+        localvar fbytes.d,rbytes.d,ff2.d,stime.d,vtime.d
+        localvar nexttime.b,thistime.b
+
+        ; check command line
+ss03:
+        callex w,readcmdstr,fname
+        ifunequal w,0,ss05
+
+        ; load file list
+dofilelist:
+        callex ff2,fileopen,"playlist.txt".a
+        ifunequal ff2.sd,-1,ss06
+        callex ,printnt,"no file specified, couldn't open PLAYLIST.TXT"r.a
+        end
+ss06:
+
+        fbytes=0 > rbytes=1
+        w=0
+        whileless w,20
+        x=0 > y=0
+        whileless x,63
+        ifnotless fbytes and 511,rbytes,fl01
+        gosub getbyte
+        ifequal z,10,fl01
+        ifequal z,0,fl03
+        ifequal z,13,fl03
+        ifequal z,".".b,fl05
+        ifunequal z,32,fl04
+fl05:
+        y=_+1 > ifunequal y,1,fl03
+        z=".".b
+fl04:
+        filelist(w shl 6+x)=z
+        x=_+1
+fl03:
+        wend
+fl01:
+        whileless x,64 > filelist(w shl 6+x)=0 > x=_+1 > wend
+        ifnotless fbytes and 511,rbytes,fl02
+        w=_+1
+        wend
+fl02:
+        numfiles=w
+        callex ,fileclose,ff2
+
+        w=0
+        whileless w,numfiles
+        fileindex.b=w+$61
+        callex ,printnt,fileindex.a
+        callex ,printnt,filelist.a(w shl 6)
+        callex ,printnt,crlf
+        w=_+1
+        wend
+        callex ,printnt,"x.  exit"r.a
+
+        callex x,waitkey
+        ifless x,$61,programend
+        ifgreater x,$75,programend
+        copybytes filelist.a(x-$61 shl 6),fname,64
+        goto ss04
+
+getbyte:
+        ifunequal fbytes and 511,0,gb01
+        callex rbytes,fileread,ff2,fbuf.a,512
+gb01:
+        z=fbuf.b(fbytes and 511) > fbytes=_+1
+        return
+
+ss05:
+        ; check for command line switch
+        ifunequal fname.w,"/c".w,ss04
+        x=0
+        whilegreater w,2
+        chanmap(x)=fname.b(x+2) and 7 > x=_+1
+        w=_-1
+        wend
+        goto ss03
+
+ss04:
+        ; open files
+        callex ff1,fileopen,fname
+        ifequal ff1.sd,-1,abortmsg
+
+        callex ,fileread,ff1,vgmbuf.a,2
+        callex ,fileseek,ff1,0
+
+        ifunequal vgmbuf.w,$8B1F,uncompressed
+
+        callex ,printnt,"decompressing VGZ..."r.a
+
+        callex x,gunzip,ff1,vgmbuf.a,480000
+        callex ,fileclose,ff1
+        
+        goto playersetup
+
+uncompressed:
+
+        ; read to RAM
+        callex x,fileread,ff1,vgmbuf.a,480000        ; can fit about this much in conventional memory
+        callex ,fileclose,ff1
+
+        callex ,printnt,"loaded file"r.a
+
+playersetup:
+        vgmbuf.b(x)=$66         ; add a loop command at the end
+
+        ; init timer stuff
+        asm
+        cli
+        mov al,$34 > out $43,al
+        mov al,0 > out $40,al
+        mov al,0 > out $40,al
+        sti
+        endasm
+
+        playvol=6
+
+        psgperl=0 > psgperh=0
+        psgperl(1)=0 > psgperh(1)=0
+        psgperl(2)=0 > psgperh(2)=0
+
+        ; process VGM header
+
+        ; chipmode 0 = single YM2203
+        ;          1 = dual YM2203
+        ;          2 = YM2612 + SN76489
+        ;          3 = YM2151
+        ;          4 = YM2608
+        ;          8 = opl3
+        ;         10 = opl2
+
+        chipmode=2 > fmclk=3579545
+        divarmed=0
+
+        modaddr=vgmbuf.a
+        ifunequal [modaddr].d,"Vgm ".d,abortmsg
+
+        callex ,printnt,"found vgm header"r.a
+
+        modaddr=_+28
+        loadlittle loopoff,[modaddr].d > loopoff=_+modaddr        ; loop offset
+
+        modaddr=_+16 > loadlittle x,[modaddr].d               ; is there a YM2612 clock?
+        ifequal x,0,s103
+        fmclk=x and $FFFFFF shr 1        ; chipmode is already 2
+s103:
+
+        modaddr=_+4 > loadlittle x,[modaddr].d                ; is there a YM2151 clock?
+        ifequal x,0,s102
+        fmclk=x and $FFFFFF > chipmode=3
+s102:
+
+        modaddr=_+4 > loadlittle x,[modaddr].d                ; remaining VGM header size
+        ifunequal x,0,s105 > x=$0C
+s105:
+        vgmp=modaddr+x                                        ; beginning of data
+;        ifless x,20,s101
+        ifless x,20,s206
+
+        modaddr=_+16 > loadlittle x,[modaddr].d               ; is there a YM2203 clock?
+        ifequal x,0,s101
+        fmclk=x and $FFFFFF > chipmode=0
+        ifequal x and $40000000,0,s101
+        chipmode=1                        ; two OPN
+s101:
+
+        modaddr=_+4 > loadlittle x,[modaddr].d               ; is there a YM2608 clock?
+        ifequal x,0,s106
+        fmclk=x and $FFFFFF shr 1 > chipmode=4
+s106:
+
+        modaddr=_+8 > loadlittle x,[modaddr].d              ; is there a YM3812 clock?
+        ifequal x,0,s207
+        fmclk=x and $FFFFFF shr 1 > chipmode=10
+s207:
+        modaddr=_+12 > loadlittle x,[modaddr].d              ; is there a YMF262 clock?
+        ifequal x,0,s206
+        fmclk=x and $FFFFFF shr 1 > chipmode=8
+s206:
+
+        stime=0
+        vtime=0
+
+        ifgreater loopoff,vgmp,s100 > loopoff=vgmp
+s100:
+
+        callex ,printnt,"chipmode: ".a
+        callex ,printhex8,chipmode
+
+        gosub silenceaudio
+
+        callex ,printnt," "r"begin playback..."r.a
+
+        ; detect ESFM file
+        ifunequal chipmode,8,not_es
+        ifunequal [vgmp].d,$CF80055F,not_es
+        callex ,printnt,"detected ESFM file"r.a
+        callex ,oplset,oplbase2,$05,$80         ; enable ESFM
+        x=0
+        whileless x,$240                ; initialize ESFM regs to known state
+        callex ,esfmset,x+1,$3F
+        callex ,esfmset,x+3,$FF
+        x=_+8
+        wend
+        x=0
+        whileless x,20
+        callex ,esfmset,$240+x,0
+        x=_+1
+        wend
+not_es:
+
+        ; ++++++  start playing stuff  ++++++
+dovgm:
+;        ssgupdate=0
+
+;        stime=_+735
+        stime=_+tickduration
+        goto v110
+v134:
+        vtime=_+1
+v133:
+        vtime=w and 15+_
+v110:
+        ifless stime,vtime,vgmdone
+
+        ; read bytes from VGM data
+v100:
+;        w=[vgmp].b > vgmp=_+1
+;        ifequal w shr 4,8,v133             ; DAC writes (there can be a lot of these)
+;
+;        ifequal w,$CF,esfmwrite
+;
+;        ifequal w,$54,write2151
+;
+;        ifequal w,$52,ymwrite              ; YM-2612
+;        ifequal w,$53,ymwrite2             ;
+;        ifequal w,$56,ymwrite              ; YM-2608
+;        ifequal w,$57,ymwrite3             ;
+;
+;        ifequal w,$55,ymwrite              ; YM-2203
+;        ifequal w,$A5,ymwrite2             ; 2nd YM-2203
+;
+;        ifequal w,$5E,oplwrite             ; YMF262
+;        ifequal w,$5F,oplwrite2            ;
+;
+;        ifequal w,$5A,oplslowwrite         ; YM-3812
+;        ifequal w,$AA,oplslowwrite2        ; 2nd YM-3812
+;
+;        ifequal w,$50,sn76
+
+        ; need moar speed...
+        asm
+        mov bx,[vgmp].h > shl bx > cs mov ds,[bx].w > mov si,[vgmp].w
+        mov al,[si].b > mov ah,0 > cwd
+        add [vgmp].w,1 > adc [vgmp].h,dx
+        mov [w].w,ax
+
+        mov bl,$F0 > and bl,al > cmp bl,$80 > sje v133    ; DAC writes
+        cmp bl,$70 > sje v134                             ; short delays
+
+        cmp al,$CF > sje farjump1
+        cmp al,$54 > sje farjump2
+        cmp al,$52 > sje farjump3
+        cmp al,$53 > sje farjump4
+        cmp al,$56 > sje farjump3
+        cmp al,$57 > sje farjump4b
+        cmp al,$55 > sje farjump3
+        cmp al,$A5 > sje farjump4
+        cmp al,$5E > sje farjump5
+        cmp al,$5F > sje farjump6
+        cmp al,$5A > sje farjump7
+        cmp al,$AA > sje farjump8
+        cmp al,$50 > sje farjump9
+
+        sjmp otherstuff
+
+farjump1:       jmp esfmwrite
+farjump2:       jmp write2151
+farjump3:       jmp ymwrite
+farjump4:       jmp ymwrite2
+farjump4b:      jmp ymwrite3
+farjump5:       jmp oplwrite
+farjump6:       jmp oplwrite2
+farjump7:       jmp oplslowwrite
+farjump8:       jmp oplslowwrite2
+farjump9:       jmp sn76
+
+otherstuff:
+        mov [w].h,dx
+        endasm
+
+;        ifequal w,$4F,skip01                ; game gear stereo (?)
+
+        ifless w,$30,v100
+        ifless w,$51,skip01
+        ifless w,$60,skip02
+
+        ifunequal w,$61,v103
+        x=[vgmp].b > vgmp=_+1 > x=[vgmp].b shl 8+_ > vgmp=_+1
+        vtime=_+x > goto v110
+v103:
+        ifunequal w,$62,v104 > vtime=_+735 > goto v110
+v104:
+        ifunequal w,$63,v105 > vtime=_+882 > goto v110
+v105:
+        ifunequal w,$66,v106        ; end of data, time to loop
+        vgmp=loopoff > goto v100
+v106:
+        ifunequal w,$67,v126        ; data block (skip)
+        vgmp=_+2
+        x=[vgmp].b > vgmp=_+1
+        x=[vgmp].b shl 8+_ > vgmp=_+1
+        x=[vgmp].b shl 16+_ > vgmp=_+2
+        blockaddr=vgmp > blockstart=blockaddr
+        vgmp=blockstart+x > blockend=vgmp
+        goto v100
+v126:
+        ifunequal w,$68,v129        ; PCM RAM write (skip)
+        vgmp=_+11 > goto v100
+v129:
+
+        x=w shr 4
+
+;        ifunequal x,$07,v107 > vtime=w and 15+_+1 > goto v110
+v107:
+
+        ; unimplemented PCM stuff
+        ifequal w,$90,skip04
+        ifequal w,$91,skip04
+        ifequal w,$92,skip05
+        ifequal w,$93,skip10
+        ifequal w,$94,skip01
+        ifequal w,$95,skip04
+
+        ; other unknown data
+        ifequal x,$0A,skip02
+        ifequal x,$0B,skip02
+        ifequal x,$0C,skip03
+        ifequal x,$0D,skip03
+        ifequal x,$0E,skip04
+        ifequal x,$0F,skip04
+
+        callex ,printnt,"vgm parsing error"r.a
+        goto programend
+
+skip10:
+        vgmp=_+5
+skip05:
+        vgmp=_+1
+skip04:
+        vgmp=_+1
+skip03:
+        vgmp=_+1
+skip02:
+        vgmp=_+1
+skip01:
+        vgmp=_+1
+        goto v100
+
+
+write2151:
+        x=[vgmp].b > vgmp=_+1
+        y=[vgmp].b > vgmp=_+1
+
+        ifunequal x,8,wr03            ; key-on
+        chan=chanmap(y and 7) > xx=chan and 4 > chan=_ and 3
+        ifequal chan,3,v100           ; drop channels 3,7
+        x=y shl 1 and $F0+chan
+        ifunequal xx,0,wr04
+        callex ,opn1set,opnbase1,$28,x
+        goto v100
+wr04:
+        callex ,opn1set,opnbase2,$28,x
+        goto v100
+wr03:
+
+        chan=chanmap(x and 7) > xx=chan and 4 > chan=_ and 3
+        ifequal chan,3,v100           ; drop channels 3,7
+        opnum=x shr 3 and 3
+        z=opmtable(x shr 3)
+        ifequal z,0,v100
+
+        ifless z,$20,wr01             ; remapped registers
+        x=opnum shl 2+chan+z
+        ifunequal xx,0,wr02
+        callex ,opn1set,opnbase1,x,y
+        goto v100
+wr02:
+        callex ,opn1set,opnbase2,x,y
+        goto v100
+wr01:
+        ; other stuff
+
+        ifunequal z,1,wr07            ; save octave and note
+        opmnote(xx+chan)=y
+        goto wr08
+wr07:
+        y=_ and $FC
+        opmfrac(xx+chan)=y            ; save fraction
+        goto wr09
+wr08:
+
+        ; convert note
+        y=opmfrac(xx+chan)
+wr09:
+        x=opmnote(xx+chan)
+        z=opmfreq(notetable(x and 15) shl 8+y shr 1)
+
+        y=x shr 1 and 56
+        y=z shr 8+_
+        x=chan+$A4
+
+        ifunequal xx,0,wr06
+        callex ,opn1set,opnbase1,x,y
+        callex ,opn1set,opnbase1,x-4,z
+        goto v100
+wr06:
+        callex ,opn1set,opnbase2,x,y
+        callex ,opn1set,opnbase2,x-4,z
+        goto v100
+wr05:
+
+        goto v100
+
+
+sn76:
+        y=[vgmp].b > vgmp=_+1
+
+        ifequal y and $80,0,databyte
+        latchbyte=y and $70
+        ifunequal y and $10,0,snsetvol
+        psgperl(y shr 5 and 3)=y and 15
+        goto setpsgper
+
+databyte:
+        ifunequal latchbyte and $10,0,snsetvol
+        psgperh(latchbyte shr 5 and 3)=y and 63
+
+setpsgper:
+        x=latchbyte shr 5 and 3
+        ifequal x,3,v100
+        y=psgperh(x) shl 4+psgperl(x)*8777 shr 13
+        x=_ shl 1
+        callex ,opn1set,opnbase1,x,y
+        callex ,opn1set,opnbase2,x,y
+        x=_+1
+        callex ,opn1set,opnbase1,x,y shr 8
+        callex ,opn1set,opnbase2,x,y shr 8
+
+        goto v100
+
+snsetvol:
+        x=latchbyte shr 5 and 3+8
+        ifequal x,11,v100
+        y=psgvoltab(y and 15)
+        callex ,opn1set,opnbase1,x,y
+        callex ,opn1set,opnbase2,x,y
+        callex ,opn1set,opnbase1,7,$F8
+        callex ,opn1set,opnbase2,7,$F8
+        goto v100
+
+
+armdivider:
+        divarmed=1 > goto v100
+setdivider3:
+        x=fmclk shr 7 > goto v159                ; * 2/256
+setdivider2:
+        x=fmclk shr 1+fmclk shr 7                ; * 3/256
+v159:
+        ifequal divarmed,0,v100
+;        nfreqlow=406421875/x
+;        nfreqhigh=nfreqlow shl 1-1
+;        nfraction=x*169 shr 12
+        goto v100        
+
+ymwrite3:               ; for YM2608 part 2
+        x=[vgmp].b > vgmp=_+1
+        y=[vgmp].b > vgmp=_+1
+        ifless x,$30,v100
+        callex ,opn1set,opnbase2,x,y
+        goto v100
+
+ymwrite2:
+        x=[vgmp].b > vgmp=_+1
+        y=[vgmp].b > vgmp=_+1
+
+        ifequal x and -4,$2C,v100
+
+        callex ,opn1set,opnbase2,x,y
+
+        goto v100
+
+ymwrite:
+        x=[vgmp].b > vgmp=_+1
+        y=[vgmp].b > vgmp=_+1
+
+        ifequal x and -4,$2C,v100
+
+        ifequal chipmode,0,v233
+        ifequal chipmode,1,v234
+        ifunequal x,$28,v234            ; key on/off
+        chan=y and 7
+        ifless chan,3,v234
+        y=_-4
+        callex ,opn1set,opnbase2,x,y
+        goto v100
+v234:
+        callex ,opn1set,opnbase1,x,y
+        goto v100
+v233:
+
+        ; single OPN with some fake (SSG) stereo
+
+        ifequal x,8,fs01
+        callex ,opn1set,opnbase1,x,y
+
+        ifequal x,9,fs02
+        ifequal x,10,fs02
+fs01:
+        callex ,opn1set,opnbase2,x,y
+fs02:
+
+        goto v100
+
+oplslowwrite2:
+        z=oplbase2
+        goto s209
+oplslowwrite:
+        z=oplbase1
+s209:
+        x=[vgmp].b > vgmp=_+1
+        y=[vgmp].b > vgmp=_+1
+        ifunequal x and $F0,$C0,s210
+        y=_ or $30                      ; set R/L bits so OPL3 works too
+s210:
+        callex ,oplset,z,x,y
+        goto v100
+
+
+oplwrite2:
+        z=oplbase2
+        goto s208
+oplwrite:
+        z=oplbase1
+s208:
+        x=[vgmp].b > vgmp=_+1
+        y=[vgmp].b > vgmp=_+1
+
+        asm
+        mov dx,[z].w
+        mov al,[x].b
+        out dx,al
+        inc dx
+    in al,$80
+        mov al,[y].b
+        out dx,al
+    in al,$80
+
+        endasm
+        goto v100
+
+
+esfmwrite:
+;        x=[vgmp].b > vgmp=_+1
+;        y=[vgmp].b > vgmp=_+1
+;        z=[vgmp].b > vgmp=_+1
+
+        asm
+        mov bx,[vgmp].h > shl bx > cs mov ax,[bx].w > mov si,[vgmp].w
+        inc ax > mov ds,ax      ; move the segment ahead 1
+        sub si,16               ; move the offset back 16
+                                ; now I can access 3 consecutive bytes
+                                ; without segment overflow
+        lodsb
+        mov dx,$38A
+        out dx,al       ; low byte of index
+
+        lodsb
+        inc dx
+        out dx,al       ; high byte of index
+
+        add [vgmp].w,3 > adc [vgmp].h,0
+
+    in al,$80
+        lodsb
+        mov dx,$389
+        out dx,al       ; data
+    in al,$80
+
+        endasm
+        goto v100
+
+vgmdone:
+        ; synchronize with timer or something
+        asm
+        mov bl,[nexttime]
+        cli
+btime01:
+        in al,$40 > xor dx,dx
+        in al,$40
+
+        cmp bl,[thistime] > sja btime03
+        ; nexttime is less than thistime  (they shouldn't ever be equal)
+        cmp al,[thistime] > sja skiptimer        ; timer wrapped and we are late?
+        cmp al,bl > sjbe skiptimer               ; we are late or just in time
+        sjmp btime01                             ; we are early
+btime03:
+        ; nexttime is greater than thistime (ie. it wrapped)
+        cmp al,bl > sja btime01                  ; we are early
+        cmp al,[thistime] > sjbe btime01         ; we are early
+skiptimer:
+        sti
+        mov [thistime],al
+        sub al,timerticks > mov [nexttime],al
+        endasm
+
+        asm
+        mov ax,$B00                ; check stdin status (keypress)
+        int $21
+        cmp al,0
+        sjne checkkey
+        endasm
+        goto dovgm
+
+checkkey:
+        asm
+        mov ah,6                   ; console input
+        mov dl,255
+        int $21
+
+        mov ah,0
+        mov [x].w,ax
+        xor dx,dx
+        mov [x].h,dx
+        endasm
+
+        ifunequal x,$7A,ki01       ; 'z' key = volume up
+        ifequal playvol,0,ki02
+        playvol=_-1
+        goto ki04
+ki01:
+        ifunequal x,$78,ki03       ; 'x' key = volume down
+        ifequal playvol,15,ki02
+        playvol=_+1
+ki04:
+        y=playvol*17
+        asm
+        mov dx,$224
+        mov al,$28                 ; use $28 for SB Pro compatible, $38 for ESS
+        out dx,al
+        mov al,[y].b
+        inc dx
+        out dx,al
+
+        dec dx
+        mov al,$26                 ; use $26 for SB Pro compatible, $36 for ESS
+        out dx,al
+        mov al,[y].b
+        inc dx
+        out dx,al
+        endasm
+ki02:
+        callex ,printel,crlf.a,1
+        callex ,printnt,"volume adj: ".a
+        callex ,printhex8,playvol
+;        callex ,printnt,crlf.a
+        goto dovgm
+ki03:
+        ifunequal x,$6C,ki05       ; 'l' key = return to file list
+        gosub silenceaudio
+        goto dofilelist
+ki05:
+
+        gosub silenceaudio
+        goto programend            ; quit...
+
+
+silenceaudio:
+        ifless chipmode,8,silenceopn
+
+silenceopl3:
+        callex ,oplset,oplbase2,$04,0       ; clear 4-op mode
+
+        x=$40
+        whileless x,$60
+        callex ,oplset,oplbase1,x,$3F       ; set minimum level
+        callex ,oplset,oplbase2,x,$3F
+        x=_+1
+        wend
+
+        x=$80
+        whileless x,$A0
+        callex ,oplset,oplbase1,x,$FF
+        callex ,oplset,oplbase2,x,$FF
+        x=_+1
+        wend
+
+        x=$B0
+        whileless x,$B9
+        callex ,oplset,oplbase1,x,0
+        callex ,oplset,oplbase2,x,0
+        x=_+1
+        wend
+
+        return
+
+silenceopn:
+        x=0
+        whileless x,14                ; reset SSG
+        callex ,opn1set,opnbase1,x,0
+        callex ,opn1set,opnbase2,x,0
+        x=_+1
+        wend
+
+        callex ,opn1set,opnbase1,$2D,0
+        callex ,opn1set,opnbase2,$2D,0
+
+        x=$40
+        whileless x,$4F                ; turn down OPN volume
+        callex ,opn1set,opnbase1,x,$7F
+        callex ,opn1set,opnbase2,x,$7F
+        x=_+1
+        wend
+
+        x=$90
+        whileless x,$9F                ; clear ssg eg
+        callex ,opn1set,opnbase1,x,0
+        callex ,opn1set,opnbase2,x,0
+        x=_+1
+        wend
+
+        callex ,opn1set,opnbase1,$28,0   ; all key-off
+        callex ,opn1set,opnbase2,$28,0
+        callex ,opn1set,opnbase1,$28,1
+        callex ,opn1set,opnbase2,$28,1
+        callex ,opn1set,opnbase1,$28,2
+        callex ,opn1set,opnbase2,$28,2
+
+        callex ,opn1set,opnbase1,$27,0   ; clear channel 3 special mode
+        callex ,opn1set,opnbase2,$27,0
+
+        return
+
+abortmsg:
+        callex ,printnt,"some type of error :("r.a
+
+programend:
+        endfunc
+        end
+
+
+esfmset:
+        beginfunc opdata.d,opreg.d
+        asm
+        mov ax,[opreg].w
+        mov dx,$38A
+        out dx,al       ; low byte of index
+        xchg al,ah
+        inc dx
+        out dx,al       ; high byte of index
+    in al,$80
+        mov al,[opdata].b
+        mov dx,$389
+        out dx,al
+    in al,$80
+        endasm
+        endfunc
+        returnex 8
+
+opn1set:
+        beginfunc opdata.d,opreg.d,chipbase.d
+        asm
+        mov dx,[chipbase].w
+;    in al,$80
+opnbusy:
+        in al,dx
+        and al,$80 > sjnz opnbusy
+;    in al,$80
+        mov al,[opreg].b
+        out dx,al
+    in al,$80
+opnbusy2:
+        in al,dx
+        and al,$80 > sjnz opnbusy2
+        inc dx
+;    in al,$80
+        mov al,[opdata].b
+        out dx,al
+
+        endasm
+        endfunc
+        returnex 12
+
+oplset:         ; slow version for OPL2
+        beginfunc opdata.d,opreg.d,chipbase.d
+        asm
+        mov dx,[chipbase].w
+        mov al,[opreg].b
+        out dx,al
+        inc dx
+    in al,$80
+    in al,$80
+    in al,$80
+        mov al,[opdata].b
+        out dx,al
+    in al,$80           ; I forget how many of these I actually need
+    in al,$80
+    in al,$80
+    in al,$80
+    in al,$80
+    in al,$80
+        endasm
+        endfunc
+        returnex 12
+
+
+        ; routine for decompressing an open gzip file into memory
+gunzip:
+        beginfunc strmaxsize.d,straddr.d,fhandle.d
+        localvar w.d,x.d,y.d,z.d,xx.d,yy.d,strbegin.d,gubytes.d,lbits.d,c.d,lastblk.d
+        localvar numll.d,numdist.d,numcl.d,f0.d,lastcode.d,xresult.d
+        localvar gubyte.b,gubits.b
+
+        strbegin=straddr > strmaxsize=_+straddr
+        xresult=1
+        gubytes=0 > gubits=0
+
+        ; gzip file starts with:
+        ; $1F $8B (ID)
+        ; $08 (compression method)
+        ; $00 (header flags, can indicate presence of extra header junk)
+        ; $00000000 (timestamp)
+        ; $00 (compression flags)
+        ; $00 (OS ID)
+
+        ; ends with CRC-32 and length (low 32 bits) of uncompressed data
+
+        callex w,fileread,fhandle,gubuf.a,10               ; read gzip header
+
+startinflate:
+
+        gosub gureadhbit > lastblk=xx and 1                ; BFINAL
+        c=2 > gosub gureadlbits                            ; BTYPE
+
+        ifequal xx,2,gu05
+guerror:
+        callex ,printnt,"gzip decode error"r.a
+        callex ,printhexr,xx
+        end
+gu05:
+        ; begin decoding compressed block
+
+        c=5 > gosub gureadlbits > numll=xx+257             ; number of literal/length codes (257-286)
+        c=5 > gosub gureadlbits > numdist=xx+1             ; number of distance codes       (1-32)
+        c=4 > gosub gureadlbits > numcl=xx+4               ; number of code length codes    (4-19)
+
+        ; build huffman table so we can build huffman tables
+
+        y=0 > whileless y,19 > clengths(y)=0 > y=_+1 > wend
+
+        y=0
+        whileless y,numcl
+        c=3 > gosub gureadlbits
+        clengths(ccorder(y))=xx                ; length used to encode each code length code (really)
+        y=_+1
+        wend
+        z=0 > y=1
+        whileless y,8
+        x=0
+        whileless x,19
+        ifunequal clengths(x),y,gu06
+        ccodes(x)=z > z=_+1                    ; code length codes
+gu06:
+        x=_+1
+        wend
+        z=_ shl 1
+        y=_+1
+        wend
+
+        ; decode and build the literal/length table
+
+        lastcode=0
+
+        f0=numll > gosub gubuildtable
+
+        y=2 > x=0 > z=0                        ; x is an index of a code/symbol pair, shifted left 1
+                                               ; y is a code length, in bits, shifted left 1
+                                               ; z is a code
+        whileless y,32
+        lcounts(y)=0
+        w=0
+        whileless w,286
+        ifunequal llengths(w) shl 1,y,gu14
+        lcounts(y)=_+1                         ; number of codes at this length
+        lcodes(y)=z > z=_+1                    ; highest (numerically) code at this length
+        gusyms(x)=w > x=_+2                    ; symbol that each code translates to
+gu14:
+        w=_+1
+        wend
+        y=_+2 > z=_ shl 1
+        wend
+
+        ; decode and build the distance table
+
+        f0=numdist > gosub gubuildtable
+
+        y=2 > x=572 > z=0                      ; distance symbols go after literal/length symbols in gusyms
+        whileless y,32
+        dcounts(y)=0
+        w=0
+        whileless w,30
+        ifunequal llengths(w) shl 1,y,gu15
+        dcounts(y)=_+1
+        dcodes(y)=z > z=_+1
+        gusyms(x)=w > x=_+2
+gu15:
+        w=_+1
+        wend
+        y=_+2 > z=_ shl 1
+        wend
+
+        ; now decode some actual data
+
+gu307:
+        ifequal xresult,0,gu01                   ; EOF reached?
+
+        xx=0 > y=2 > x=-1
+        whileless y,32                           ; quickly match incoming bits to code in literal/length table
+        gosub gureadhbit
+        ifequal lcounts(y),0,gu17
+        x=lcounts(y)+_
+        ifless lcodes(y),xx,gu17
+        x=_+xx-lcodes(y) > goto gu18
+gu17:
+        y=_+2
+        wend
+        xx=$DEAD > goto guerror
+gu18:
+        w=gusyms(x shl 1)
+        ifequal w,256,gu19                       ; end-of-block?
+        ifgreater w,256,gu16
+        [straddr].b=w > straddr=_+1              ; literal
+        ifequal straddr,strmaxsize,gu01          ; check for buffer overrun
+        goto gu307
+gu16:
+        ; copy
+        xx=0
+        ifequal w,285,gu20
+        c=w-261 sar 2 > gosub gureadlbits        ; read extra bits for copy length (if any)
+                                                 ; c can become negative here! gureadlbits should treat as 0
+gu20:
+        yy=ltable(w-257)+3+xx                    ; copy length
+
+        xx=0 > y=2 > x=-1
+        whileless y,32                           ; quickly match incoming bits to code in distance table
+        gosub gureadhbit
+        ifequal dcounts(y),0,gu21
+        x=dcounts(y)+_
+        ifless dcodes(y),xx,gu21
+        x=_+xx-dcodes(y) > goto gu22
+gu21:
+        y=_+2
+        wend
+        xx=$DEAD > goto guerror
+gu22:
+        w=gusyms(x shl 1+572)
+        c=w-2 sar 1 > gosub gureadlbits          ; read extra bits for distance (if any)
+                                                 ; c can become negative here! gureadlbits should treat as 0
+        xx=dtable(w shl 1)+_                     ; distance
+
+        y=0
+        whileless y,yy
+        [straddr].b=ea.b(straddr-xx) > straddr=_+1
+        ifequal straddr,strmaxsize,gu01          ; check for buffer overrun
+        y=_+1
+        wend
+        goto gu307
+
+gu19:
+        ifequal lastblk,0,startinflate
+        goto gu01                                ; DONE
+
+
+gubuildtable:
+        y=0 > whileless y,286 > llengths(y)=0 > y=_+1 > wend
+
+        y=0
+        whileless y,f0
+        xx=0 > yy=1
+        whileless yy,16
+        gosub gureadhbit
+        w=0
+        whileless w,19
+        ifunequal clengths(w),yy,gu07
+        ifequal ccodes(w),xx,gu08
+gu07:
+        w=_+1
+        wend
+        yy=_+1
+        wend
+        xx=$BEEF > goto guerror
+gu08:
+        ifunequal w,16,gu10
+        c=2 > gosub gureadlbits > xx=_+3
+        countdown xx
+        llengths(y)=lastcode > y=_+1
+        nextcount
+        goto gu13
+gu10:
+        ifunequal w,17,gu11
+        c=3 > gosub gureadlbits > xx=_+3
+        countdown xx
+        llengths(y)=0 > y=_+1
+        nextcount
+        goto gu13
+gu11:
+        ifunequal w,18,gu12
+        c=7 > gosub gureadlbits > xx=_+11
+        countdown xx
+        llengths(y)=0 > y=_+1
+        nextcount
+        goto gu13
+gu12:
+        llengths(y)=w > y=_+1 > lastcode=w
+gu13:
+        wend
+        return
+
+gugetbyte:
+        ifunequal gubytes and 511,0,gu02
+        callex xresult,fileread,fhandle,gubuf.a,512
+gu02:
+        gubyte=gubuf.b(gubytes and 511) > gubytes=_+1
+        gubits=8
+        return
+
+;gugetbigend:
+;        gosub gugetbyte > x=gubyte
+;        gosub gugetbyte > x=x shl 8+gubyte
+;        gosub gugetbyte > x=x shl 8+gubyte
+;        gosub gugetbyte > x=x shl 8+gubyte
+;        return
+
+gureadhbit:
+        ifunequal gubits,0,gu03
+        gosub gugetbyte
+gu03:
+;        xx=gubyte and 1+_+_
+;        gubyte=_ shr 1 > gubits=_-1
+
+        asm
+        shr [gubyte].b
+        rcl [xx].w > rcl [xx].h
+        dec [gubits].b
+        endasm
+
+        return
+
+gureadlbits:
+        xx=0 > lbits=0
+        whilegreater c.sd,0
+        c=_-1
+        ifunequal gubits,0,gu04
+        gosub gugetbyte
+gu04:
+        xx=gubyte and 1 shl lbits+_ > lbits=_+1
+        gubyte=_ shr 1 > gubits=_-1
+        wend
+        return
+
+gu01:
+        x=straddr-strbegin
+        endfunc x
+        returnex 12
+
+
+waitkey:
+        asm
+        mov ax,$B00
+        int $21
+        cmp al,0
+        sje waitkey
+
+        mov ah,6                   ; console input
+        mov dl,255
+        int $21
+
+        xor dx,dx
+        mov ah,0
+        ; return keycode in al/ax
+
+        endasm
+        return
+
+
+        ; function that copies a string from [cmdptr]
+        ; skips leading spaces, ends at space or null
+        ; returns length, terminates output with 0
+readcmdstr:
+        beginfunc straddr.d
+        localvar w.d
+
+        w=0
+
+        ; skip any extraneous spaces (and other weird characters?)
+        whileless [cmdptr].b,33
+        ifequal [cmdptr].b,0,a354
+        cmdptr=_+1
+        wend        
+
+        ; then copy the name
+        whileless w,127
+        ifless [cmdptr].b,33,a354
+        [straddr].b=[cmdptr].b > straddr=_+1 > cmdptr=_+1
+        w=_+1 
+        wend
+a354:
+        [straddr].b=0
+        endfunc w
+        returnex 4
+
+
+
+
+

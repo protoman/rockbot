@@ -1,0 +1,190 @@
+========================================================================================================================================================
+Where you edit
+========================================================================================================================================================
+
+- Your files: mega_drive/images/tilesets/anim/<name>.png — the port's hand-owned art.
+  I'll switch convert_stage.py to read these first (3-line change), so from then on your edits drive the ROM.
+
+- Cycling candidates (draw these):
+  OK - water_1,
+  OK - water_2,
+  OK - water_2a,
+  OK - water_2b,
+  OK - green_water_1,
+  OK - green_water_2,
+
+  waterfall_left
+    right
+    middle_left
+    middle_right,
+  waterfall_top_left
+    right,
+  water_border_clean,
+  water_border_pipe_left
+    right,
+  water_border_tile,
+
+  OK - lava1,
+  OK - lava2,
+  OK - lightbulb_small,
+
+  magnets,
+  palmtree_005,
+
+  OK - move_left
+    right_platform
+      1
+      2
+      3
+
+- Leave alone (shape really changes, BUG-003): palmtree_001-004, palmtree_006, waterfall_top, water_ground — unless you redraw them as a band, then they join the list.
+What to draw
+  1. 3 shades + black, transparent where the background shows through. Keep interior black opaque — on the moving platform that black is the gaps between its segments, and making it transparent would show the sky through them.
+  2. Strip = N frames × 16 px wide, 16 tall, with N a multiple of 3 (3 frames is enough; 6 if you want more steps).
+  3. Frame k+1 = frame k with the three shades advanced one step, always the same direction. Draw one frame, make the rest by rotating the shades — that is the whole technique. It also means the shades must form a repeating band in the art; the motion appears because the band rotates.
+  4. Don't chase exact RGBs: keep the three shades clearly ordered lightest → darkest, that order is my rotation direction.
+
+========================================================================================================================================================
+Palette: you don't pick one, and no swatch tile needed
+========================================================================================================================================================
+The converter takes the three brightest colours of the art as the band, in luminosity order, folds anything else into the nearest one,
+and places those three in the free PAL3 entries of each stage. Free entries I measured per stage: 1 → 7–9, 2 → 6, 3 → 12, 6 → 10, 8 → 4, 0 → none (its lightbulb stays on tile frames).
+So: draw in true colour, no palette list, no per-stage decisions. The extra-tile swatch stays in reserve for the one case it actually solves — when you want a colour the art doesn't contain, or a rotation order that isn't light→dark. I'll add that parser only when we hit such a block.
+Per-stage hue variation (green water in the jungle, blue in the cave) is free too: the art stays identical, I just write different RGBs into the pool.
+
+========================================================================================================================================================
+What you tell me, per family
+========================================================================================================================================================
+- block name(s), and "reverse" if the automatic rotation direction looks backwards in motion (one flag in my table).
+- If a stage has no room for two bands (FLOWER FIELDS has 6 free = one band + black), the rate is shared across that stage — you already accepted that, so I'll take ~110 ms (the water family's) unless you say otherwise.
+
+========================================================================================================================================================
+Suggested order
+========================================================================================================================================================
+Start with one file as a template: water_1.png (ATLANTIDA, the laggiest stage — 957 animated cells — with 12 free PAL3 entries). Once that one looks right in the ROM, do the rest of the water/waterfall family, then lava1/2 (DARK MINE), then the platforms (their dark reds currently fold into the darkest shade, which is why they look flat), and last the borders — water_border_pipe_left/right use 12–13 colours and need the biggest simplification.
+
+========================================================================================================================================================
+What I'll do in parallel
+========================================================================================================================================================
+- Point the converter at your images/tilesets/anim/.
+- Generalise the pool to two bands per stage (different rates) plus a per-block table (band, direction, rate).
+- Wire the first redrawn family in as soon as water_1.png lands, so you can check the motion before doing the other 24.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Platform up must kill player if it crunching him against the root.
+Charged shot/projectiles must flipt when shooting to the left.
+
+
+
+Still not modelled: the shield move (ROCKBOT only), and dash-vs-slide hitbox height
+
+
+Resume the RockBot → Sega Mega Drive port in mega_drive/.
+Read mega_drive/AGENTS.md and mega_drive/stage0_plan.md first — they're the single source of truth (map, constraints, milestone state, decisions).
+
+Immediate task (in flight, finish this first) — make the sprite converters index-preserving, so hand-edited art under mega_drive/images/ flows into the build:
+- Background: images/ is the new hand-owned art tree (mirrors build/games/RockDroid1/images → 350 files, plus build/shared/images → images/shared), all P-mode indexed, index 0 = transparent slot, native sizes kept (240p), colours matched in CIELAB, palette per group = res/md_*.gpl, manifest in images/PALETTES.md. Importer: tools/import_pc_art.py (manual only — running it again overwrites images/).
+
+- I tried pointing convert_enemies/objects/player/stage/assets at images/ — it broke all sprite colours and was reverted; they read the PC art again now (verified good: res/player.png = PAL2 exactly, res/enemy_*.png + res/shot.png = PAL0 exactly).
+
+- Why it broke: those converters colour-key transparency and rebuild the palette from the sheet's unique RGB colours; the player converter keys the weapon swap on exact placeholders green (55,255,0) and magenta (255,0,255). Quantizing the art first destroys that identity.
+
+- Fix: (1) re-import sprites/p1..p4.png with a palette that keeps the two placeholders as their own indices (e.g. 14/15); make convert_player.py copy indices and swap weapon colour by index, not RGB. (2) For enemies/objects: trust input indices and take the palette from the art (PAL0) instead of rebuilding it. img2tiles.py's keep_pal path (used by the title) is the correct pattern to copy.
+
+Then the task list, in the user's order:
+1. Stage select screen (PC art already imported: images/backgrounds/classic_style_stage_select_*). Blocked by: converters are stage-0 hardcoded — needs multi-stage parameterisation first.
+
+2. Save/load — src/save.{c,h} + the title's NEW GAME/CONTINUE menu exist, but SRAM does not persist: the ROM header declares no SRAM (confirmed: no SRAM field in the project's out/release/sega.s). Needs the header's SRAM/device bytes.
+
+3. Data-driven projectiles — src/eshot.{c,h} supports LINEAR only; game_projectile_list.dat has ARC/TARGET_DIRECTION etc. Research the data first.
+
+4. Convert the Ape Bot and Daisie Bot stages (biggest — generalise tools/convert_stage.py).
+Working rules: decide and act on auto-pilot, but ask before anything that needs a permission I don't have (touching the SDK dir or outside the project triggers prompts — that kills the flow); work only inside project paths; don't commit unless asked; record decisions and progress in stage0_plan.md as you go.
+Emulator notes: Kega Fusion (flatpak run --command=Fusion com.carpeludum.KegaFusion @@ out/rom.bin @@) is for play tests but its window can't be grabbed with import; BlastEm + the harness at /tmp/opencode/harness.sh is what gives scripted screenshots — and it sometimes wedges (black window, debug-console timeouts); restart it if so. Last user-confirmed state: bugs fixed, palette/colour work verified, art workflow half-done (see above).
+
+
+########################################################################################################
+
+Here are some bugs I found:
+========================================================================================================
+Background color is now purple instead of black as it should.
+========================================================================================================
+The game start screen has black bars on top and bottom.
+========================================================================================================
+There is a part in the room 2 that has two small fall platforms.
+When I step in the first one, the second if the one activated and that falls.
+After that, there are several together, and the same issue happens, the wrong one is activated.
+========================================================================================================
+The checkpoint object must change animation when activated
+========================================================================================================
+The enemy_classic_metool should change the sprite when shooting at the player as in the PC version
+========================================================================================================
+
+After that, let's implement new stuff:
+# stage select screen
+# saving and loading (add the load game menu in the start screen like the PC game)
+# projectiles (check the original game data) for different attacks of enemies and player weapons
+# convert Ape and Daisie bot stages.
+
+You are now on auto-pilot. You can launch emulator at will to test bugs and features.
+Do not ask me quiestions, take a decision, take note of it, and I will review it tomorrow.
+Have fun and good night!
+
+
+########################################################################################################
+
+- boss
+- stage select
+
+- sound effects (use conversor from zacane)
+- save and load
+- special weapons
+
+
+- no need for quit game menu
+
+- settings should be simplified
+    # Audio: keep
+    # Input: remove Directional analog/digital and selected joystick.
+    # No PC, android or other
+    # No language
+    # No Performance
+    # extras: keep
+    # lave stage: keep
+    # quit game> remove
+
+
+Findings and fix plan are written.
+
+  5 root causes found, 3 are palette:
+
+   #                           │ Bug                                                             │ Impact
+  ─────────────────────────────┼─────────────────────────────────────────────────────────────────┼────────────────────────────────────────────
+   FIND-01                     │ STAGE_PAL = PAL0 = same as font → stage overwrites font palette │ HUD/debug text invisible
+   FIND-02                     │ Debug solid tile uses PAL0 attr but dbg_pal is in PAL3          │ Debug block wrong color
+   FIND-03                     │ PAL2 never initialized in game loop                             │ Stale intro garbage colors
+   FIND-04                     │ Player palette index 1 = (0,0,0) duplicate                      │ Low — black outlines work but waste a slot
+   FIND-05                     │ Each map generates its own palette independently                │ Color flash on map transition
+
+  Highest priority fix: stage.h → STAGE_PAL PAL1, player.h → PLAYER_PAL PAL2. That resolves the PAL0 conflict in one edit, no asset rebuild
+  needed.

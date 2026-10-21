@@ -1,0 +1,31 @@
+1.0.6:
+    - main window now cannot be maximized
+    - fixed CH3 Special Mode keyOn/keyOff behavior with tracker exported VGM
+    files (issues #0000036 and #0000038)
+    - YM2612 registers are now reset when needed (issues #0000027, #0000036 and #0000037)
+    - RYMCast now runs under OSX starting from version 10.8 and above (issue
+    #0000035)
+
+1.0.5:
+    - fixed a regression with some VGM files
+
+1.0.4:
+    - added executable icon for Windows build
+    - added default LFO enable/speed/PMSxMW settings for .repatch files
+    - added keyboard shortcuts for mutes and solos (F1 to F10, +SHIFT for solos)
+    - added support for VGM streaming commands (0x90...0x95), Deflemask exported VGM files now play correctly (issue #0000022 & #0000023)
+    - aborting an audio export now works correctly and immediately (files are also deleted now) (issue #0000025)
+    - temporary .repatch or .dmp files are now deleted on exit (issue #0000026)
+    - time bar now supports cursor dragging from anywhere (issue #0000020)
+    - on macOS, drag'n'drop of a VGM file to the app icon (Finder or Dock) is now supported (issue #0000018)
+    - fixed time bar graphical glitch when seeking
+    - fixed keyOn/keyOff problem with VGM files exported with VGM Music Maker
+    - stop button should reset paused state (issue #0000015)
+    - fixed issue where pressing stop on an empty RYMCast causes it to crash (issue #0000019)
+    - fixed audio scopes bounds
+    - fixed memory leak when exiting after loading a VGM (not VGZ) file
+    - various GUI refinements
+    - various bugfixes
+
+1.0.3:
+    First public beta

@@ -1,0 +1,1216 @@
+;
+; OPLL-VGM to MIDI converter!
+
+        const songloops,2
+        const maxtracks,12               ; enough for 6 + 5 (rhythm mode) + 1 extra for MIDI track 9/10 ?
+        const trackmem,32768
+
+;        const micros,12500               ; microseconds per beat (for MIDI output)
+;        const ticks,16                   ; ticks per beat
+;        const vgmticks,4                 ; ticks per VGM unit
+;        const vgmunit,138                ; samples (44100Hz) per unit
+
+        const micros,400000              ; microseconds per beat (for MIDI output)
+        const ticks,192                  ; ticks per beat
+        const vgmticks,8                 ; ticks per VGM unit
+        const vgmunit,735                ; samples (44100Hz) per unit
+
+; OPLL registers:
+;
+; user-defined instrument settings:
+;   $00 (modulator) and $01 (carrier)
+;        bit 7 = tremolo
+;        bit 6 = vibrato
+;        bit 5 = EG type  (0=decay immediately, 1=sustain)
+;        bit 4 = rate key scale
+;        bits 3-0 = multiplier
+;
+;   $02  bits 7-6 = modulator level key scale
+;        bits 5-0 = modulator level (attenuation in .75dB steps)
+;
+;   $03  bits 7-6 = carrier level key scale
+;        bit 4 = carrier waveform (1=half sine)
+;        bit 3 = modulator waveform
+;        bits 2-0 = feedback
+;
+;   $04 (modulator) and $05 (carrier)
+;        bits 7-4 = attack
+;        bits 3-0 = decay
+;
+;   $06 (modulator) and $07 (carrier)
+;        bits 7-4 = sustain level
+;        bits 3-0 = release
+;
+; other settings:
+;
+; $0E      bit 5 = rhythm mode enable
+;          bits 4-0 = bass, snare, tom, cymbal, hi-hat
+; $10-$18 = frequency low byte
+; $20-$28  bit 5 = sustain pedal (overrides the release rate to "5" ?)
+;          bit 4 = key on/off
+;          bits 3-1 = "block"
+;          bit 0 = frequency highest bit
+; $30-$38  bits 7-4 = instrument
+;          bits 3-0 = volume  (3dB per step) (attenuation??)
+;
+; in rhythm mode only:  (key-on bits in $26,$27,$28 must be 0)
+;
+; $36      bits 3-0 = bass volume
+; $37      bits 7-4 = hi-hat volume
+;          bits 3-0 = snare volume
+; $38      bits 7-4 = tom volume
+;          bits 3-0 = cymbal volume
+
+; obligatory rhythm mode data:
+; reg $16 = $20
+; reg $17 = $50
+; reg $18 = $C0
+; reg $26 = $05
+; reg $27 = $05
+; reg $28 = $01
+
+; instruments:
+;        0 = user-defined                1 = violin
+;        2 = guitar                      3 = piano
+;        4 = flute                       5 = clarinet
+;        6 = oboe                        7 = trumpet
+;        8 = organ                       9 = horn
+;       10 = synthesizer                11 = harpsichord
+;       12 = vibraphone                 13 = synth bass
+;       14 = acoustic bass              15 = electric guitar
+
+
+        sectionbss
+
+cmdptr.d:       resd
+dbghand.d:      resd
+
+blockstart.d:   resd
+blockaddr.d:    resd
+blockend.d:     resd
+
+intsamples.d:   resd
+vbsig2.d:       resd
+loopoff.d:      resd
+
+fmclk.d:        resd
+nfreqhigh.d:    resd
+nfreqlow.d:     resd
+nfraction.d:    resd
+
+stime.d:        resd
+vtime.d:        resd
+
+ym1reg.b:       resb 256
+ym2reg.b:       resb 256
+
+chipmode.b:     resb
+divarmed.b:     resb
+latchbyte.b:    resb
+
+psgperl.b:      resb 4
+psgperh.b:      resb 4
+
+fname:          resb 256
+outname:        resb 256
+
+loopbusy.b:     resb
+loopold.b:      resb
+
+playvol.b:      resb
+
+opmnote.b:      resb 8
+opmfrac.b:      resb 8
+
+numchan.b:      resb
+bypass.b:       resb
+songloop.b:     resb
+
+drumkey.b:      resb 5
+drumvol.b:      resb 5
+
+tuning.b:       resb
+
+        alignw
+
+notebound.w:    resw 12
+
+        alignd
+
+sparep.d:       resd                ; pointer to temporary percussion track data buffer
+
+        ; gzip stuff
+
+        alignd
+
+lcounts.w:      resw 16
+lcodes.w:       resw 16
+dcounts.w:      resw 16
+dcodes.w:       resw 16
+gusyms.w:       resw 316
+
+gubuf:          resb 512
+gubyte.b:       resb
+
+clengths.b:     resb 19
+ccodes.b:       resb 19
+
+llengths.b:     resb 286
+
+        ; more non-gzip-related stuff
+
+chankey.b:      resb maxtracks        ; some state data associated with YM channels
+chanvol.b:      resb maxtracks
+chaninst.b:     resb maxtracks
+channote.b:     resb maxtracks
+chanpan.b:      resb maxtracks
+chanvelocity.b: resb maxtracks
+
+miditrack.sb:   resb maxtracks        ; MIDI track associated with a MIDI channel
+midichan.sb:    resb maxtracks        ; MIDI channel associated with a YM channel
+
+        alignd
+
+trackp.d:       resd maxtracks
+tracktime.d:    resd maxtracks
+
+trackdat:       resb maxtracks*trackmem
+
+sparetrack:     resb trackmem
+
+vgmbuf.b:       resd 60000
+                resd 60000
+
+
+        sectiondata
+
+usagemsg:
+        db "opll2mid by DamageX",13,10,13,10
+        db "USAGE:",13,10
+        db "OPLL2MID [options] file.vgm [outfile]",13,10
+        db "  -t1 = tuning (0~7) (default is 3) (adjust in case of wrong notes)",13,10
+        db "(writes MOUT.MID)"
+crlf:
+        db 13,10,0
+
+opllinst.b:
+        db 80,40,24,0,73,71,68,56
+        db 19,60,2,6,11,33,32,26
+opllinstvol.b:
+        db 100,100,100,100,100,100,100,100
+        db 100,100,100,100,100,100,100,100
+
+opllvol.b:                ; needs to convert from OPLL 4-bit value to MIDI volume (0-127)
+        db 127,107,89,75,63,53,45,37
+        db 31,26,22,18,15,13,11,9
+
+drumbits.b:
+        db 16,1,8,4,2
+druminst.b:
+        db 36,42,38,47,49
+;        db 36,38,47,49,42
+
+        alignw
+
+realnotes.w:
+        dw 2616        ; C
+        dw 2772
+        dw 2937
+        dw 3111
+        dw 3296
+        dw 3492
+        dw 3700
+        dw 3920
+        dw 4153
+        dw 4400
+        dw 4662
+        dw 4939
+        dw 5233        ; C
+
+        alignd
+
+        ; track header, which is "MTrk" followed by big-end DWORD for length
+mtrk:
+        db "MTrk"
+        db 0,0,0,0
+
+        ; file header
+midheader:
+        db "MThd"
+        db 0,0,0,6
+        db 0,1,0
+numtrack.b:
+        db 0          ; this gets increased as tracks are allocated
+        db 0,ticks    ; big-end WORD: ticks per beat
+
+        ; first track header
+        db "MTrk"
+        db 0,0,0
+track1l.b:
+        db $25
+track1start:
+        db 0,$FF,3,21,"converted  from  .VGM"
+;        db 0,$FF,$58,4,3,2,$18,8         ; time signature  (do I need it?)
+;        db 0,$FF,$59,2,3,0               ; key signature  (do I need it?)
+
+deftempo.b:
+        db 0,$FF,$51,3
+        db 0,0,0             ; set tempo  (3 bytes: microseconds per beat, big-endian) (gets set in the code)
+
+        db 0,$FF,$2F,0                   ; end of track
+track1end:
+
+
+        ; gzip stuff
+
+ltable.b:
+        db 0,1,2,3,4,5,6,7,8,10,12,14,16,20,24,28,32
+        db 40,48,56,64,80,96,112,128,160,192,224,255
+ccorder.b:
+        db 16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15
+
+        alignw
+
+dtable.w:
+        dw 1,2,3,4,5,7,9,13,17,25
+        dw 33,49,65,97,129,193,257,385,513,769
+        dw 1025,1537,2049,3073,4097,6145,8193,12289,16385,24577
+
+
+        sectioncode
+
+start!
+        callex cmdptr,initplatform
+
+        beginfunc
+        localvar w.d,x.d,y.d,z.d,xx.d,vgmp.d,chan.d,opnum.d
+        localvar fbytes.d,rbytes.d,ff1.d,ff2.d,curtime.d
+
+        tuning=3
+
+        ; check command line
+ss03:
+        callex w,readcmdstr,fname
+        ifunequal w,0,ss05
+        callex ,printnt,usagemsg
+        end
+ss05:
+        ; check for command line switch
+        ifunequal fname.w,"-t".w,ss04
+        tuning=fname.b(2) and 7 > goto ss03
+ss04:
+
+        ; open files
+        callex ff1,fileopen,fname
+        ifequal ff1.sd,-1,abortmsg
+
+        callex ,fileread,ff1,vgmbuf.a,2
+        callex ,fileseek,ff1,0
+
+        ifunequal vgmbuf.w,$8B1F,uncompressed
+
+        callex ,printnt,"decompressing VGZ..."r.a
+
+        callex x,gunzip,ff1,vgmbuf.a,480000
+        callex ,fileclose,ff1
+        
+        goto playersetup
+
+uncompressed:
+
+        ; read to RAM
+        callex ,fileread,ff1,vgmbuf.a,480000        ; can fit about this much in conventional memory
+        callex ,fileclose,ff1
+
+        callex ,printnt,"loaded file"r.a
+
+playersetup:
+
+        ; build note boundary table
+        tuning=_+1
+        w=0
+        whileless w,12
+        x=realnotes(w shl 1) > z=realnotes(w+1 shl 1)
+        y=z-x*tuning/10
+        notebound(w shl 1)=x+y/10
+        w=_+1
+        wend
+
+        ; check whether output filename was specified
+        callex w,readcmdstr,outname
+        ifgreater w,1,a229
+        copybytes "mout.mid".a,outname,9
+a229:
+
+        ; process VGM header
+
+        ; chipmode 0 = invalid
+        ;          1 = YM2413
+
+        chipmode=0
+        divarmed=0
+
+        ifunequal vgmbuf.d,"Vgm ".d,abortmsg
+
+        callex ,printnt,"found vgm header"r.a
+
+        loadlittle x,vgmbuf.d($1C)
+        loopoff=vgmbuf.a($1C)+x
+
+        loadlittle x,vgmbuf.d($10) > ifequal x,0,o100                ; is there a YM2413 clock?
+        chipmode=1 > fmclk=x and $FFFFFF
+o100:
+;        loadlittle x,vgmbuf.d($2C) > ifequal x,0,o101                ; is there a YM2612 clock?
+;        chipmode=0 > fmclk=x and $FFFFFF shr 1
+;o101:
+;        loadlittle x,vgmbuf.d($30) > ifequal x,0,o102                ; is there a YM2151 clock?
+;        chipmode=0 > fmclk=x and $FFFFFF
+;o102:
+
+        loadlittle x,vgmbuf.d($34)
+        ifequal x,0,s105 > x=$0C
+s105:
+        vgmp=vgmbuf.a($34)+x                                        ; beginning of data
+        ifless x,20,s101
+
+;        loadlittle x,vgmbuf.d($44) > ifequal x,0,o103                ; is there a YM2203 clock?
+;        chipmode=0 > fmclk=x and $FFFFFF
+;o103:
+;        loadlittle x,vgmbuf.d($48) > ifequal x,0,o104                ; is there a YM2608 clock?
+;        chipmode=0 > fmclk=x and $FFFFFF shr 1
+;o104:
+;        loadlittle x,vgmbuf.d($50) > ifequal x,0,o105                ; is there a YM3812 clock?
+;        chipmode=0 > fmclk=x and $FFFFFF
+;o105:
+;        loadlittle x,vgmbuf.d($5C) > ifequal x,0,o106                ; is there a YMF262 clock?
+;        chipmode=0 > fmclk=x and $FFFFFF
+;o106:
+
+s101:
+
+        stime=0
+        vtime=0
+
+        ifgreater loopoff,vgmp,s100 > loopoff=vgmp
+s100:
+
+        callex ,printnt,"chipmode: ".a
+        callex ,printhex8,chipmode
+        callex ,printnt,crlf.a
+
+
+        ; init some MIDI exporting related stuff
+        track1l=track1end-track1start
+
+        numtrack=0
+        numchan=0
+        songloop=0
+
+        w=0
+        whileless w,maxtracks
+        trackp(w shl 2)=trackmem*w+trackdat.a          ; init trackp
+        tracktime(w shl 2)=0                           ; init track timers
+        channote(w)=255                                ; init note numbers (to none/keyoff)
+        chanpan(w)=-1
+        midichan(w)=-1
+        miditrack(w)=-1
+        chanvol(w)=0
+        chankey(w)=0
+        chaninst(w)=0
+        w=_+1
+        wend
+
+        w=0
+        whileless w,5
+        drumkey(w)=0
+        drumvol(w)=0
+        w=_+1
+        wend
+
+        deftempo(4)=micros shr 16 and $FF
+        deftempo(5)=micros shr 8 and $FF
+        deftempo(6)=micros and $FF
+
+
+        ; ++++++  start converting  ++++++
+dovgm:
+        stime=_+vgmunit
+        sparep=sparetrack.a
+        goto v110
+v133:
+        vtime=w and 15+_
+v110:
+        ifless stime,vtime,vgmdone
+
+        ; read bytes from VGM data
+v100:
+        w=[vgmp].b > vgmp=_+1
+        ifequal w shr 4,8,v133             ; DAC writes (there can be a lot of these)
+
+        ifequal w,$54,write2151
+
+        ifequal w,$51,write2413
+
+        ifequal w,$52,ymwrite              ; YM-2612
+        ifequal w,$53,ymwrite2             ;
+        ifequal w,$56,ymwrite              ; YM-2608
+        ifequal w,$57,ymwrite2             ;
+
+        ifequal w,$55,ymwrite              ; YM-2203
+        ifequal w,$A5,ymwrite2             ; 2nd YM-2203
+
+        ifequal w,$5E,oplwrite             ; YMF262
+        ifequal w,$5F,oplwrite2            ;
+
+        ifequal w,$5A,oplwrite             ; YM-3812
+        ifequal w,$AA,oplwrite2            ; 2nd YM-3812
+
+        ifequal w,$50,sn76
+
+;        ifequal w,$4F,skip01                ; game gear stereo (?)
+
+        ifless w,$30,v100
+        ifless w,$51,skip01
+        ifless w,$60,skip02
+
+        ifunequal w,$61,v103
+        x=[vgmp].b > vgmp=_+1 > x=[vgmp].b shl 8+_ > vgmp=_+1
+        vtime=_+x > goto v110
+v103:
+        ifunequal w,$62,v104 > vtime=_+735 > goto v110
+v104:
+        ifunequal w,$63,v105 > vtime=_+882 > goto v110
+v105:
+        ifunequal w,$66,v106        ; end of data, time to loop
+        songloop=_+1
+        ifequal songloop,songloops,midifinish
+        vgmp=loopoff > goto v100
+v106:
+        ifunequal w,$67,v126        ; data block (skip)
+        vgmp=_+2
+        x=[vgmp].b > vgmp=_+1
+        x=[vgmp].b shl 8+_ > vgmp=_+1
+        x=[vgmp].b shl 16+_ > vgmp=_+2
+        blockaddr=vgmp > blockstart=blockaddr
+        vgmp=blockstart+x > blockend=vgmp
+        goto v100
+v126:
+        ifunequal w,$68,v129        ; PCM RAM write (skip)
+        vgmp=_+11 > goto v100
+v129:
+
+        x=w shr 4
+
+        ifunequal x,$07,v107 > vtime=w and 15+_+1 > goto v110
+v107:
+
+        ; unimplemented PCM stuff
+        ifequal w,$90,skip04
+        ifequal w,$91,skip04
+        ifequal w,$92,skip05
+        ifequal w,$93,skip10
+        ifequal w,$94,skip01
+        ifequal w,$95,skip04
+
+        ; other unknown data
+        ifequal x,$0A,skip02
+        ifequal x,$0B,skip02
+        ifequal x,$0C,skip03
+        ifequal x,$0D,skip03
+        ifequal x,$0E,skip04
+        ifequal x,$0F,skip04
+
+        callex ,printnt,"vgm parsing error"r.a
+        goto programend
+
+skip10:
+        vgmp=_+5
+skip05:
+        vgmp=_+1
+skip04:
+        vgmp=_+1
+skip03:
+        vgmp=_+1
+skip02:
+        vgmp=_+1
+skip01:
+        vgmp=_+1
+        goto v100
+
+
+write2413:
+        x=[vgmp].b > vgmp=_+1
+        y=[vgmp].b > vgmp=_+1
+
+        ifunequal x,$0E,wl01                   ; rhythm mode and keys register
+;        ifequal ym1reg($0E) xor y and $20,0,wl11
+;        callex ,printnt,"rhythm mode: ".a
+;        callex ,printhex8,y
+;        callex ,printnt,crlf
+;wl11:
+        ifunequal y and $20,0,wl10             ; is rhythm mode enabled?
+        y=0        ; no, key all of them off
+wl10:
+        ; things that were keyed on and need to be keyed off
+        w=0
+        whileless w,5
+        ifequal drumkey(w),0,vd04
+        ifunequal drumbits(w) and y,0,vd04
+        callex ,addevent,99,curtime+1,$80,druminst(w)
+        drumkey(w)=0
+vd04:
+        w=_+1
+        wend
+        ; concatenate volume nibbles: bass, hihat, snare, tom, cymbal
+        z=ym1reg($36) shl 8+ym1reg($37) shl 8+ym1reg($38)
+        ; things that were keyed off and need to be keyed on
+        w=0
+        whileless w,5
+        ifunequal drumkey(w),0,vd05
+        ifequal drumbits(w) and y,0,vd05
+        callex ,addevent,99,curtime+3,$90,opllvol(z shr 16 and 15) shl 8+druminst(w)
+        drumkey(w)=1
+vd05:
+        z=_ shl 4
+        w=_+1
+        wend
+wl01:
+
+        ym1reg(x)=y
+
+        ifunequal x shr 4,2,wl02       ; the registers that contain key-on bits
+        chan=x and 15
+        chankey(chan)=_ or $10         ; flag the access
+wl02:
+
+        goto v100
+
+
+write2151:
+        x=[vgmp].b > vgmp=_+1
+        y=[vgmp].b > vgmp=_+1
+
+;        ifunequal x,8,wr03            ; key-on
+;        chan=y and 7
+;        ...
+;        goto v100
+wr03:
+
+        ym1reg(x)=y
+        goto v100
+
+
+        ; convert note
+
+;        x=opmnote(xx+chan)
+;        y=opmfrac(xx+chan) and $FC
+;        z=opmfreq(notetable(x and 15) shl 8+y shr 1)
+;
+;        y=x shr 1 and 56
+;        y=z shr 8+_
+
+sn76:
+        y=[vgmp].b > vgmp=_+1
+
+;        ifequal y and $80,0,databyte
+;        latchbyte=y and $70
+;        ifunequal y and $10,0,snsetvol
+;        psgperl(y shr 5 and 3)=y and 15
+;        goto setpsgper
+;
+;databyte:
+;        ifunequal latchbyte and $10,0,snsetvol
+;        psgperh(latchbyte shr 5 and 3)=y and 63
+;
+;setpsgper:
+;        x=latchbyte shr 5 and 3
+;        ifequal x,3,v100
+;        y=psgperh(x) shl 4+psgperl(x)*8777 shr 13
+;        x=_ shl 1
+;        callex ,opn1set,opnbase1,x,y
+;        callex ,opn1set,opnbase2,x,y
+;        x=_+1
+;        callex ,opn1set,opnbase1,x,y shr 8
+;        callex ,opn1set,opnbase2,x,y shr 8
+
+        goto v100
+
+
+armdivider:
+        divarmed=1 > goto v100
+setdivider3:
+        x=fmclk shr 7 > goto v159                ; * 2/256
+setdivider2:
+        x=fmclk shr 1+fmclk shr 7                ; * 3/256
+v159:
+        ifequal divarmed,0,v100
+;        nfreqlow=406421875/x
+;        nfreqhigh=nfreqlow shl 1-1
+;        nfraction=x*169 shr 12
+        goto v100        
+
+ymwrite2:
+        x=[vgmp].b > vgmp=_+1
+        y=[vgmp].b > vgmp=_+1
+
+        ; check whether there is a key-on / key-off, etc.
+
+        ym2reg(x)=y
+        goto v100
+
+ymwrite:
+        x=[vgmp].b > vgmp=_+1
+        y=[vgmp].b > vgmp=_+1
+
+;        ifequal chipmode,2,v132
+;        ifequal x,$2D,armdivider
+;        ifequal x,$2E,setdivider3
+;        ifequal x,$2F,setdivider2
+v132:
+
+        ; check whether there is a key-on / key-off, etc.
+
+        ym1reg(x)=y
+        goto v100
+
+
+oplwrite2:
+        x=[vgmp].b > vgmp=_+1
+        y=[vgmp].b > vgmp=_+1
+
+        ym2reg(x)=y
+        goto v100
+
+oplwrite:
+        x=[vgmp].b > vgmp=_+1
+        y=[vgmp].b > vgmp=_+1
+
+        ym1reg(x)=y
+        goto v100
+
+
+vgmdone:
+        ; after a minimum time period worth of register writes has been collected,
+        ; decide what events to send out
+        chan=0
+        whileless chan,9
+
+        callex xx,calculatenote,chan
+
+        ; key WAS off, now IS off                                                 - don't need a note-off
+        ; key WAS off, now IS on                                                  - don't need a note-off
+        ; key WAS on, now IS off                                                  - need a note-off
+        ; key WAS on, now IS on                                                   - don't need a note-off
+        ; key WAS on, now IS on, but may have been off at some point in between   - need a note-off
+        ; key WAS on, now IS on, but pitch has changed                            - need a note-off
+
+        x=ym1reg($20+chan) and $10
+        ifequal chankey(chan) and 1,0,vd01
+        ifequal x,0,vd02
+        ifunequal chankey(chan) and $10,0,vd02
+        ifequal channote(chan),xx,vd01
+vd02:
+        chankey(chan)=0
+        callex ,addevent,chan,curtime+1,$80,channote(chan)
+vd01:
+
+        z=opllinst(ym1reg($30+chan) shr 4)
+        ifequal chaninst(chan),z,wl04                        ; did instrument change?
+        callex ,addevent,chan,curtime+2,$C0,z
+        chaninst(chan)=z
+        chanvelocity(chan)=100
+wl04:
+        z=opllvol(ym1reg($30+chan) and 15)
+        ifequal chanvol(chan),z,wl05                         ; did volume change?
+        callex ,addevent,chan,curtime+2,$B0,z shl 8+$07
+        chanvol(chan)=z
+wl05:
+
+        ifunequal chankey(chan),0,wl03
+        ifequal x,0,wl03
+        chankey(chan)=1
+        callex ,addevent,chan,curtime+3,$90,chanvelocity(chan) shl 8+xx
+        channote(chan)=xx
+wl03:
+        chankey(chan)=_ and 1
+
+        chan=_+1
+        wend
+
+        w=curtime
+        curtime=_+vgmticks
+
+        ; did we accumulate any percussion data?
+        ifequal sparep,sparetrack.a,a323
+        ; copy the events over in the correct order
+        whileless w,curtime
+
+        y=sparetrack.a
+        whileless y,sparep
+        x=[y].d > y=_+4
+        ifunequal x,w,a325
+        bypass=1
+        callex ,addevent2,99,w,[y].d shr 16 or 9,[y].d and $FFFF
+a325:
+        y=_+4
+        wend
+
+        w=_+1
+        wend
+a323:
+
+        goto dovgm
+
+
+midifinish:
+        callex ff2,filecreate,outname.a
+
+        ; write header and track data
+        xx=numtrack
+        numtrack=_+1        ; increase this to account for the 'control' track inside the header
+        callex ,filewrite,ff2,midheader.a,track1l+22
+        x=0
+        whileless x,xx
+        y=trackmem*x+trackdat.a
+        z=trackp(x shl 2)
+        [z].b=15 > z=_+1
+        [z].b=$FF > z=_+1        ; end the track
+        [z].b=$2F > z=_+1        ;
+        [z].b=0 > z=_+1
+        z=_-y
+        mtrk.b(4)=z shr 24
+        mtrk.b(5)=z shr 16
+        mtrk.b(6)=z shr 8
+        mtrk.b(7)=z
+        callex ,filewrite,ff2,mtrk.a,8        ; write track header
+        callex ,filewrite,ff2,y,z             ; write track data
+        x=_+1
+        wend
+
+        callex ,fileclose,ff2
+
+        callex ,printnt,"done."r.a
+        goto programend
+
+abortmsg:
+        callex ,printnt,"some type of error :("r.a
+
+programend:
+        endfunc
+        end
+
+
+calculatenote:
+        beginfunc chan.d
+        localvar w.d,x.d,y.d,z.d,freq.d,oct.d
+
+        ifunequal chipmode,1,cn01
+        oct=ym1reg($20+chan) shr 1 and 7
+        freq=ym1reg($20+chan) shl 8+ym1reg($10+chan) and 511
+        x=fmclk/72                ; OPLL sampling rate
+        y=freq*x shr 15
+cn03:
+;        w=0 > ifless y,269,cn02
+;        w=1 > ifless y,285,cn02
+;        w=2 > ifless y,302,cn02
+;        w=3 > ifless y,320,cn02
+;        w=4 > ifless y,339,cn02
+;        w=5 > ifless y,360,cn02
+;        w=6 > ifless y,381,cn02
+;        w=7 > ifless y,404,cn02
+;        w=8 > ifless y,428,cn02
+;        w=9 > ifless y,453,cn02
+;        w=10 > ifless y,480,cn02
+;        w=11 > ifless y,508,cn02
+
+        w=0
+        whileless w,12
+        ifgreater notebound(w shl 1),y,cn02
+        w=_+1
+        wend
+
+        oct=_+1
+        y=_ shr 1 > goto cn03
+cn02:
+        z=oct+1*12+w
+cn01:
+
+        endfunc z
+        returnex 4
+
+
+addevent:
+        bypass=0
+addevent2:
+        beginfunc dat.d,event.d,eventtime.d,xmchan.d
+        localvar x.d,y.d,z.d,xx.d,track.d,chan.d
+
+        chan=9 > ifequal xmchan,99,ae11
+        
+        chan=midichan(xmchan)
+        ifunequal chan.sd,-1,ae11           ; XM channel associated with a MIDI channel yet?
+        ifgreater numchan,15,ae07           ; ran out of channels?
+        chan=numchan > numchan=_+1          ; add a new channel
+        ifunequal numchan,9,ae12
+        numchan=_+1                         ; skip channel 9/10
+ae12:
+        midichan(xmchan)=chan
+ae11:
+
+        track=miditrack(chan)
+        ifunequal track.sd,-1,ae10          ; MIDI channel associated with a MIDI track yet?
+        track=numtrack > numtrack=_+1       ; add a new track
+        miditrack(chan)=track
+;        callex ,addevent,xmchan,0,$B0,$6407        ; recursion for the win?
+ae10:
+        z=trackp(track shl 2)
+ae13:
+
+        ifunequal chan,9,ae23               ; filling percusion special buffer
+        ifunequal bypass,0,ae23
+        [sparep].d=eventtime > sparep=_+4
+        [sparep].d=event shl 16+dat > sparep=_+4
+        goto ae07
+ae23:
+
+        x=eventtime-tracktime(track shl 2)
+        ifequal x,0,ae01
+        ifnotless x.sd,0,ae02
+        x=0 > goto ae01                ; shouldn't happen...
+ae02:
+        tracktime(track shl 2)=eventtime       ; update track timer
+ae01:
+
+        y=0 > xx=x shr 7
+        whileunequal xx,0 > xx=_ shr 7 > y=_+7 > wend        ; how many bytes needed for delta?
+        whilegreater y,0
+        [z].b=x shr y or $80 > z=_+1
+        y=_-7
+        wend
+        [z].b=x and 127 > z=_+1                ; time delta final byte
+
+        event=_ or chan                        ; put the channel number in low nibble
+
+        [z].b=event > z=_+1
+        [z].b=dat > z=_+1
+
+        y=event shr 4
+        ifequal y,$08,ae06                     ; note-off events have another byte
+        ifequal y,$09,ae06                     ; note-on events have another byte
+        ifunequal y,$0B,ae05                   ; 'controller' events have another byte
+ae06:
+        [z].b=dat shr 8 > z=_+1
+ae05:
+
+        ifunequal event,$FF,ae03
+;        ifunequal dat,$51,ae04                 ; MIDI tempo change
+;        [z].b=3 > z=_+1
+;        [z].b=micros shr 16 and $FF > z=_+1
+;        [z].b=micros shr 8 and $FF > z=_+1
+;        [z].b=micros and $FF > z=_+1
+;ae04:
+        ifunequal dat,$2F,ae08                 ; end of track
+        [z].b=0 > z=_+1
+ae08:
+
+ae03:
+
+        trackp(track shl 2)=z
+        ifgreater track+1*trackmem+trackdat.a,z,ae07
+        callex ,printnt,"trackdat overflow!"r.a
+ae07:
+        endfunc
+        returnex $10
+
+
+        ; routine for decompressing an open gzip file into memory
+gunzip:
+        beginfunc strmaxsize.d,straddr.d,fhandle.d
+        localvar w.d,x.d,y.d,z.d,xx.d,yy.d,strbegin.d,gubytes.d,gubits.d,lbits.d,c.d,lastblk.d
+        localvar numll.d,numdist.d,numcl.d,f0.d,lastcode.d,xresult.d
+
+        strbegin=straddr > strmaxsize=_+straddr
+        xresult=1
+        gubytes=0 > gubits=0
+
+        ; gzip file starts with:
+        ; $1F $8B (ID)
+        ; $08 (compression method)
+        ; $00 (header flags, can indicate presence of extra header junk)
+        ; $00000000 (timestamp)
+        ; $00 (compression flags)
+        ; $00 (OS ID)
+
+        ; ends with CRC-32 and length (low 32 bits) of uncompressed data
+
+        callex w,fileread,fhandle,gubuf.a,10               ; read gzip header
+
+startinflate:
+
+        gosub gureadhbit > lastblk=xx and 1                ; BFINAL
+        c=2 > gosub gureadlbits                            ; BTYPE
+
+        ifequal xx,2,gu05
+guerror:
+        callex ,printnt,"gzip decode error"r.a
+        callex ,printhexr,xx
+        end
+gu05:
+        ; begin decoding compressed block
+
+        c=5 > gosub gureadlbits > numll=xx+257             ; number of literal/length codes (257-286)
+        c=5 > gosub gureadlbits > numdist=xx+1             ; number of distance codes       (1-32)
+        c=4 > gosub gureadlbits > numcl=xx+4               ; number of code length codes    (4-19)
+
+        ; build huffman table so we can build huffman tables
+
+        y=0 > whileless y,19 > clengths(y)=0 > y=_+1 > wend
+
+        y=0
+        whileless y,numcl
+        c=3 > gosub gureadlbits
+        clengths(ccorder(y))=xx                ; length used to encode each code length code (really)
+        y=_+1
+        wend
+        z=0 > y=1
+        whileless y,8
+        x=0
+        whileless x,19
+        ifunequal clengths(x),y,gu06
+        ccodes(x)=z > z=_+1                    ; code length codes
+gu06:
+        x=_+1
+        wend
+        z=_ shl 1
+        y=_+1
+        wend
+
+        ; decode and build the literal/length table
+
+        lastcode=0
+
+        f0=numll > gosub gubuildtable
+
+        y=2 > x=0 > z=0                        ; x is an index of a code/symbol pair, shifted left 1
+                                               ; y is a code length, in bits, shifted left 1
+                                               ; z is a code
+        whileless y,32
+        lcounts(y)=0
+        w=0
+        whileless w,286
+        ifunequal llengths(w) shl 1,y,gu14
+        lcounts(y)=_+1                         ; number of codes at this length
+        lcodes(y)=z > z=_+1                    ; highest (numerically) code at this length
+        gusyms(x)=w > x=_+2                    ; symbol that each code translates to
+gu14:
+        w=_+1
+        wend
+        y=_+2 > z=_ shl 1
+        wend
+
+        ; decode and build the distance table
+
+        f0=numdist > gosub gubuildtable
+
+        y=2 > x=572 > z=0                      ; distance symbols go after literal/length symbols in gusyms
+        whileless y,32
+        dcounts(y)=0
+        w=0
+        whileless w,30
+        ifunequal llengths(w) shl 1,y,gu15
+        dcounts(y)=_+1
+        dcodes(y)=z > z=_+1
+        gusyms(x)=w > x=_+2
+gu15:
+        w=_+1
+        wend
+        y=_+2 > z=_ shl 1
+        wend
+
+        ; now decode some actual data
+
+gu307:
+        ifequal xresult,0,gu01                   ; EOF reached?
+
+        xx=0 > y=2 > x=-1
+        whileless y,32                           ; quickly match incoming bits to code in literal/length table
+        gosub gureadhbit
+        ifequal lcounts(y),0,gu17
+        x=lcounts(y)+_
+        ifless lcodes(y),xx,gu17
+        x=_+xx-lcodes(y) > goto gu18
+gu17:
+        y=_+2
+        wend
+        xx=$DEAD > goto guerror
+gu18:
+        w=gusyms(x shl 1)
+        ifequal w,256,gu19                       ; end-of-block?
+        ifgreater w,256,gu16
+        [straddr].b=w > straddr=_+1              ; literal
+        ifequal straddr,strmaxsize,gu01          ; check for buffer overrun
+        goto gu307
+gu16:
+        ; copy
+        xx=0
+        ifequal w,285,gu20
+        c=w-261 sar 2 > gosub gureadlbits        ; read extra bits for copy length (if any)
+                                                 ; c can become negative here! gureadlbits should treat as 0
+gu20:
+        yy=ltable(w-257)+3+xx                    ; copy length
+
+        xx=0 > y=2 > x=-1
+        whileless y,32                           ; quickly match incoming bits to code in distance table
+        gosub gureadhbit
+        ifequal dcounts(y),0,gu21
+        x=dcounts(y)+_
+        ifless dcodes(y),xx,gu21
+        x=_+xx-dcodes(y) > goto gu22
+gu21:
+        y=_+2
+        wend
+        xx=$DEAD > goto guerror
+gu22:
+        w=gusyms(x shl 1+572)
+        c=w-2 sar 1 > gosub gureadlbits          ; read extra bits for distance (if any)
+                                                 ; c can become negative here! gureadlbits should treat as 0
+        xx=dtable(w shl 1)+_                     ; distance
+
+        y=0
+        whileless y,yy
+        [straddr].b=ea.b(straddr-xx) > straddr=_+1
+        ifequal straddr,strmaxsize,gu01          ; check for buffer overrun
+        y=_+1
+        wend
+        goto gu307
+
+gu19:
+        ifequal lastblk,0,startinflate
+        goto gu01                                ; DONE
+
+
+gubuildtable:
+        y=0 > whileless y,286 > llengths(y)=0 > y=_+1 > wend
+
+        y=0
+        whileless y,f0
+        xx=0 > yy=1
+        whileless yy,16
+        gosub gureadhbit
+        w=0
+        whileless w,19
+        ifunequal clengths(w),yy,gu07
+        ifequal ccodes(w),xx,gu08
+gu07:
+        w=_+1
+        wend
+        yy=_+1
+        wend
+        xx=$BEEF > goto guerror
+gu08:
+        ifunequal w,16,gu10
+        c=2 > gosub gureadlbits > xx=_+3
+        countdown xx
+        llengths(y)=lastcode > y=_+1
+        nextcount
+        goto gu13
+gu10:
+        ifunequal w,17,gu11
+        c=3 > gosub gureadlbits > xx=_+3
+        countdown xx
+        llengths(y)=0 > y=_+1
+        nextcount
+        goto gu13
+gu11:
+        ifunequal w,18,gu12
+        c=7 > gosub gureadlbits > xx=_+11
+        countdown xx
+        llengths(y)=0 > y=_+1
+        nextcount
+        goto gu13
+gu12:
+        llengths(y)=w > y=_+1 > lastcode=w
+gu13:
+        wend
+        return
+
+gugetbyte:
+        ifunequal gubytes and 511,0,gu02
+        callex xresult,fileread,fhandle,gubuf.a,512
+gu02:
+        gubyte=gubuf.b(gubytes and 511) > gubytes=_+1
+        gubits=8
+        return
+
+;gugetbigend:
+;        gosub gugetbyte > x=gubyte
+;        gosub gugetbyte > x=x shl 8+gubyte
+;        gosub gugetbyte > x=x shl 8+gubyte
+;        gosub gugetbyte > x=x shl 8+gubyte
+;        return
+
+gureadhbit:
+        ifunequal gubits,0,gu03
+        gosub gugetbyte
+gu03:
+        xx=gubyte and 1+_+_
+        gubyte=_ shr 1 > gubits=_-1
+        return
+
+gureadlbits:
+        xx=0 > lbits=0
+        whilegreater c.sd,0
+        c=_-1
+        ifunequal gubits,0,gu04
+        gosub gugetbyte
+gu04:
+        xx=gubyte and 1 shl lbits+_ > lbits=_+1
+        gubyte=_ shr 1 > gubits=_-1
+        wend
+        return
+
+gu01:
+        x=straddr-strbegin
+        endfunc x
+        returnex 12
+
+
+        ; function that copies a string from [cmdptr]
+        ; skips leading spaces, ends at space or null
+        ; returns length, terminates output with 0
+readcmdstr:
+        beginfunc straddr.d
+        localvar w.d,x.d,quoted.d
+
+        w=0 > quoted=0
+
+        ; skip any extraneous spaces (and other weird characters?)
+        whileless [cmdptr].b,33
+        ifequal [cmdptr].b,0,a354
+        cmdptr=_+1
+        wend        
+
+        ; then copy the name
+        ; allow spaces between quotes, but remove the quotes (for Windows LFNs)
+        whileless w,255        ; this can be as big as the target string (accounting for null terminator)
+a357:
+        x=[cmdptr].b        ; > cmdptr=_+1
+        ifequal x,0,a354
+     cmdptr=_+1
+        ifunequal quoted,0,a355
+        ifless x,33,a354
+a355:
+        ifunequal x,34,a356
+        ifunequal quoted,0,a354
+        quoted=1 > goto a357
+a356:
+        [straddr].b=x > straddr=_+1
+        w=_+1 
+        wend
+
+a354:
+        [straddr].b=0
+        endfunc w
+        returnex 4
+
+

@@ -1,0 +1,3009 @@
+; .MID to .VGM converter by DamageX beta 5
+
+; ------------------  questions/ideas  --------------------
+
+; PC98 player??
+
+; configurable pitch-bend magnitude might be good  (to fix some MIDs and also for XM2MID)
+
+; maybe put in controllers $40...$43 ?
+
+; for controller $40 (sustain pedal) I could maintain a status bit for each MIDI channel,
+; ymprogchange would check this and cut the release values when it is active.
+; when the controller itself changes state, I'd rerun ymprogchange for each note playing from that channel?
+
+; things that could still be added:
+; -add keyscale control to ISCM and make that usable
+; -OPN2/OPNA/OPM LFO = DONE (for vibrato at least)
+
+; --------------------  information  ----------------------
+
+; X68 SSF2 Chun Li has an interesting FM patch?
+
+; LRKO algo now prefers same instrument when channels keyed-off at the same time
+; (resulting in a suprisingly significant shrinkage of VGM data)
+
+; made 'square wave' instrument a prefered candidate for SSG channel selection
+
+; OPL3 and ESFM now leave the sustain bit always OFF (seems to work fine)
+; (original idea was to leave it on if decay2 was 0, but leaving it off is even better)
+
+; replaying the same note just to update the velocity is not an official feature?
+; but if not, having two note-ons without a note-off in between makes no sense anyway
+
+; OPN2/A LFO: write 8 to $22 to enable  (low 3 bits are speed)
+;   AMS is bits 4-5, PMS is bits 02 in registers $B4-$B6 (next to pan bits)
+;   AM also needs to be enabled per-operator with bit 7 in registers $60-$6E (decay1)
+; OPM LFO: write LFO freq to $18  (it uses all 8 bits!?)
+;   $19 = depth. bit 7 clear for AM depth, bit 7 set for FM depth (?)
+;   write 2 to $1B to set LFO waveform to triangle
+;   PMS is bits 4-6, AMS is bits 0-1 in registers $38-$3F
+;   as on OPNx, AM also needs to be enabled per-operator with bit 7 in registers $A0-$BF (decay1)
+
+; lowest note on SN76489 is A-3  (midi note 69?)
+
+; has pitch bends:
+; warc009, mm2crash, mm3top2, mm5gyro, wforest, wzeal3, ys2_16_8
+
+; even registers that need to be 0 will now be written at least once
+
+; haven't seen a single MIDI file that used aftertouch...
+
+; OPLx stuff:
+;
+; $20 - channel 0 modulator        ; $28 - channel 3 modulator        ; $30 - channel 6 modulator
+; $21 - channel 1 modulator        ; $29 - channel 4 modulator        ; $31 - channel 7 modulator
+; $22 - channel 2 modulator        ; $2A - channel 5 modulator        ; $32 - channel 8 modulator
+; $23 - channel 0 carrier          ; $2B - channel 3 carrier          ; $33 - channel 6 carrier
+; $24 - channel 1 carrier          ; $2C - channel 4 carrier          ; $34 - channel 7 carrier
+; $25 - channel 2 carrier          ; $2D - channel 5 carrier          ; $35 - channel 8 carrier
+;
+; per op registers:
+;  $2x-3x        bit 7=tremolo, bit 6=vibrato, bit 5=sustain, bit 4=KS enable, bits 3-0=multiplier
+;  $4x-5x        bits 7-6=key scale level, bits 5-0=total level
+;  $6x-7x        bits 7-4=attack, bits 3-0=decay
+;  $8x-9x        bits 7-4=sustain level, bits 3-0=release
+;  $Ex-Fx        bits 2-0=waveform
+; per channel registers:
+;  $Ax           frequency LSB
+;  $Bx           bit 5=key-on, bits 4-2=block, bits 1-0=frequency high bits 
+;  $Cx           bit 5=right, bit 4=left, bits 3-1=feedback, bit 0=FM (0) or AM (1)
+;
+;  $BD           bit 7=trem depth, bit 6=vibr depth, bit 5=perc enable, bits 4-0=drums key-on:
+;        base, snare, tom, cymbal, hi-hat
+;
+; algorithms that OPL3 can do in OPL3 4-op mode:        0,4,6,7
+; algorithms that OPL2 can do by pairing channels:      4,6,7
+
+; testinst uses 1-based numbering
+
+; operator register order for OPN is 1-3-2-4
+;   number 1 has feedback
+;     2 and 4 are carriers in algo #4  (4 is the output for algos 0..3)
+;       key-on reg uses bits 7-4 for ops 4,3,2,1
+; operator register order for OPM is M1,M2,C1,C2
+;   M1 has feedback
+;     C1 and C2 are carriers in algo #4  (C2 is the output for algos 0..3)
+;       key-on reg uses bits 6-3 for ops C2,C1,M2,M1???
+; operator register order for ISC is 0,1,2,3
+;   3 has feedback
+;     0 and 2 are carriers in algo #4  (0 is the output for algos 0..3)
+
+; MM2TITLE actually does not have a portamento
+; mm1guts sounds weird. (It's just like that)
+; mm2end sounds like tracks are out of sync??  (THEY ARE LIKE THAT IN SEKAIJU)
+
+; note number 72 is officially supposed to be C4
+
+; note on with velocity of 0 is same as note off
+
+; general midi percussion:
+; Note played on channel 10 always produce percussion sounds regardless of any program change event on
+; channel 10. Each note number is interpreted as a separate instrument.
+; (channel "10" is actually 9, because they like to renumber things to be 1-indexed)
+; PERCUSSION note-on doesn't require a subsequent note-off
+
+; OPNA rhythm sounds:
+;
+; register $10  (key on/off)
+;        bit 7 = normally 0  (set to 1 if needing to "dump" ie. insta-kill previous sound)
+;        bit 5 = rimshot
+;        bit 4 = tom
+;        bit 3 = hi-hat
+;        bit 2 = cymbal
+;        bit 1 = snare
+;        bit 0 = bass
+; register $11  global rhythm volume
+;        bits 0-5 = $3F is max, 0 is min  (.75dB per step)
+; registers $18-$1D
+;        bit 7 = left speaker enable
+;        bit 6 = left speaker enable
+;        bits 0-4 = instrument volume: $1F is max, 0 is min  (.75dB per step)
+;   ($18 is bassdrum, $1D is rimshot, etc.)
+
+        const defaultmode,0           ; use YM2151 by default
+
+        const centeratten,2           ; attenuation for sounds that play on both speakers (vs. L or R only)
+
+        const alldead,100000          ; time period after keyed-off note is assumed to be fully silent
+        const drumdead,30000          ; time period after FM drum is automatically keyed-off
+        const minimumon,800           ; minimum time a note is allowed to be on before going off again
+
+        const maxtracks,64            ; max number of tracks in a MIDI file
+
+        const maxchan,24              ; max number of YM+SSG channels necessary to keep track of
+        const ssgbegin,18             ; first channel number reserved for SSG
+
+        const psgtick,512             ; psg envelopes update every psgtick/44100
+        const vibtick,882             ; vibrato causes pitch update every vibtick/44100
+
+        const firstperc,35            ; first valid percussion instrument
+        const lastperc,82             ; last valid percussion instrument
+
+        const numinst,176             ; GM instruments (128) + percussion instruments
+
+        ifcpu "8086" > const reprocsize,180000 > const datasize,312000
+;        ifcpunot "8086" > const reprocsize,280000 > const datasize,412000
+        ifcpunot "8086" > const reprocsize,340000 > const datasize,412000
+
+        sectionbss
+
+cmdptr.d:       resd
+bbytes.d:       resd
+rbytes.d:       resd
+ff1.d:          resd
+ff2.d:          resd
+ff3.d:          resd
+dat.d:          resd
+temp1.d:        resd
+lastwait.d:     resd
+
+ymreg.b:        resb 512              ; registers for part 1 and part 2 of first chip
+ymreg2.b:       resb 512              ; registers for second chip
+
+fbuf:           resb 512
+
+fname:          resb 256
+outname:        resb 256
+
+mheader:        resb 14
+
+pathlen.b:      resb
+
+aa.b:           resb
+
+ymchannels.b:   resb
+chipmode.b:     resb
+
+chanmaplow.b:   resb 16
+chanmaphigh.b:  resb 16
+chanmap1.b:     resb 16
+chanmap2.b:     resb 16
+count1.b:       resb
+count2.b:       resb
+
+vibdepth.b:     resb 16
+vibspeed.b:     resb 16
+volumes.b:      resb 16
+programs.b:     resb 16
+bends.sb:       resb 16             ; top 8 bits of pitch bend associated with the MIDI channel
+notecount.b:    resb 16
+maxcount.b:     resb 16
+lowestnote.b:   resb 16
+
+psgkey.b:       resb                ; instrument number, or 0 for none
+psgvol.b:       resb                ; SN76 volume, with 4 fraction bits
+psgdecay.b:     resb
+psgduration.b:  resb                ; count in psgticks
+
+chipcmd.b:      resb maxchan
+chipchan.b:     resb maxchan
+
+yprogs.b:       resb maxchan
+ychans.b:       resb maxchan        ; current (or most recent) MIDI channel associated with the YM channel
+ykeys.b:        resb maxchan        ; 0=off, 1=release, 2=on
+ynotes.b:       resb maxchan
+yopmask.b:      resb maxchan        ; SSG channels use this field for envelope
+                                    ; 0-15: attack, 16-31: decay1, 32-47: decay2
+yoct.b:         resb maxchan
+yvelocity.b:    resb maxchan
+
+count64.b:      resb
+
+        alignd
+
+vibtimer.d:     resd
+psgtimer.d:     resd
+
+ytimes.d:       resd maxchan        ; timestamp when YM channel last started or stopped playing
+
+attenuate.b:    resb numinst
+param1.b:       resb numinst
+
+beats.d:        resd        ; beats (or frames) per 256 seconds
+ticks.d:        resd        ; ticks per beat
+tsamples.d:     resd        ; 44100Hz samples per 16 ticks
+
+dpointer.d:     resd
+
+tpointers.d:    resd maxtracks
+                resd
+ppointers.d:    resd maxtracks
+ttimes.d:       resd maxtracks
+tdelay.d:       resd maxtracks
+
+reproc:         resb reprocsize     ; re-processed (combined) data
+datablob:       resb datasize
+blobend:
+
+instdata.b:     resb 11264
+
+crossref.d:     resd 256
+
+voltable.b:     resb 128
+
+
+        sectiondata
+
+ocos.b:
+        db 0
+ssgmelody.b:
+        db 0
+ssgatten.b:
+        db 0
+drummode.b:
+        db 0        ; 0=default, 1=none, 2=YM2608 rhythm, 3=FM drums, 4=SN76 noise
+drumatten.sb:
+        db 0
+moddepth.b:
+        db 2
+reserved.b:
+        db 0
+chipdefault.b:
+        db 3,3,4,4,2,2,1,1
+        db 3,3,1,3,3
+
+testinst.b:
+        db 0
+
+noteslimit.b:
+        db maxchan
+
+vibtable.sb:
+        db $00,$01,$02,$03,$04,$05,$06,$07,$08,$09,$0A,$0B,$0C,$0D,$0E,$0F
+        db $10,$0F,$0E,$0D,$0C,$0B,$0A,$09,$08,$07,$06,$05,$04,$03,$02,$01
+        db $00,$FF,$FE,$FD,$FC,$FB,$FA,$F9,$F8,$F7,$F6,$F5,$F4,$F3,$F2,$F1
+        db $F0,$F1,$F2,$F3,$F4,$F5,$F6,$F7,$F8,$F9,$FA,$FB,$FC,$FD,$FE,$FF
+
+usagemsg:
+        db "mid2vgm by DamageX  (beta 5)",13,10
+        db "USAGE:",13,10
+        db "MID2VGM [options] file.mid [output.vgm]",13,10
+        db "  chip mode:",13,10
+        db "    -0 = 1x YM2151  (default)    -1 = 2x YM2151",13,10
+        db "    -2 = 1x YM2612               -3 = 2x YM2612",13,10
+        db "    -4 = 1x YM2608               -5 = 2x YM2608",13,10
+        db "    -6 = 1x YM2203               -7 = 2x YM2203",13,10
+        db "    -8 = 1x YMF262               -9 = 2x YMF262",13,10
+        db "   -10 = 1x YM3812              -11 = 2x YM3812",13,10
+        db "   -12 = ESFM",13,10
+        db "  drum mode:",13,10
+        db "    -d1 = none                   -d2 = use YM2608 rhythm",13,10
+        db "    -d3 = use FM drums           -d4 = use SN76 noise",13,10
+        db "  -p1 = attenuate drums (steps of .75dB, can be negative)",13,10
+        db "  -t1 = transpose (number of semitones, can be negative)",13,10
+        db "  -i1 = instrument test (where 1 is instrument #)",13,10
+        db "  -s1 = use SSG channels for melody (1=as needed, 2=all of them)",13,10
+        db "  -a1 = attenuate SSG volume (steps of .75dB)",13,10
+        db "  -f1 = vibrato depth factor (0=none, 2=default, 4=max)",13,10
+        db "  -one = use one-channel-one-sound allocation instead of LRKO",13,10
+        db "(if no output filename specified, writes MOUT.VGM)"
+
+        ; options that exist but don't fit on 25-row text screen
+;        db "  -l1 = limit notes per MIDI channel (where 1 is # of notes)",13,10
+;        db "  -v1 = use linear volume table instead of MIDI std.",13,10
+;        db "  -m1 = set minimum release time (in 44KHz ticks)",13,10
+;        db "  -r1 = reserve FM channels (for sfx or whatever)",13,10
+
+crlf:
+        db 13,10,0
+
+dumbtable.b:
+        db 24,25,30,30
+
+expression.b:
+        db 100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100
+pans.b:
+        db 64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64
+
+chancount.b:
+        db 8,16,6,12,6,12,3,6
+        db 9,18,4,8,18
+
+cmdtable:
+        db $54,$54,$54,$54,$54,$54,$54,$54,  0,0,0,0,0,0,0,0,0,0,                     0,0,0,0,0,0
+        db $54,$54,$54,$54,$54,$54,$54,$54,  $A4,$A4,$A4,$A4,$A4,$A4,$A4,$A4,0,0,     0,0,0,0,0,0
+        db $52,$52,$52,$53,$53,$53,0,0,      0,0,0,0,0,0,0,0,0,0,                     0,0,0,0,0,0
+        db $52,$52,$52,$53,$53,$53,$A2,$A2,  $A2,$A3,$A3,$A3,0,0,0,0,0,0,             0,0,0,0,0,0
+        db $56,$56,$56,$57,$57,$57,0,0,      0,0,0,0,0,0,0,0,0,0,                     $56,$56,$56,0,0,0
+        db $56,$56,$56,$57,$57,$57,$A6,$A6,  $A6,$A7,$A7,$A7,0,0,0,0,0,0,             $56,$56,$56,$A6,$A6,$A6
+        db $55,$55,$55,0,0,0,0,0,            0,0,0,0,0,0,0,0,0,0,                     $55,$55,$55,0,0,0
+        db $55,$55,$55,$A5,$A5,$A5,0,0,      0,0,0,0,0,0,0,0,0,0,                     $55,$55,$55,$A5,$A5,$A5
+
+        db $5E,$5E,$5E,$5E,$5F,$5F,$5F,$5F,  $5E,0,0,0,0,0,0,0,0,0,                   0,0,0,0,0,0
+        db $5E,$5E,$5E,$5E,$5F,$5F,$5F,$5F,  $AE,$AE,$AE,$AE,$AF,$AF,$AF,$AF,$5E,$AE, 0,0,0,0,0,0
+        db $5A,$5A,$5A,$5A,0,0,0,0,          0,0,0,0,0,0,0,0,0,0,                     0,0,0,0,0,0
+        db $5A,$5A,$5A,$5A,$AA,$AA,$AA,$AA,  0,0,0,0,0,0,0,0,0,0,                     0,0,0,0,0,0
+        db $CF,$CF,$CF,$CF,$CF,$CF,$CF,$CF,  $CF,$CF,$CF,$CF,$CF,$CF,$CF,$CF,$CF,$CF, 0,0,0,0,0,0
+
+        ; $52 - first YM2612 part 1          $A2 - second YM2612 part 1
+        ; $53 - first YM2612 part 2          $A3 - second YM2612 part 2
+        ; $54 - first YM2151                 $A4 - second YM2151
+        ; $55 - first YM2203                 $A5 - second YM2203
+        ; $56 - first YM2608 part 1          $A6 - second YM2608 part 1
+        ; $57 - first YM2608 part 2          $A7 - second YM2608 part 2
+        ; $5E - first YMF262 part 1          $AE - second YMF262 part 1
+        ; $5F - first YMF262 part 2          $AF - second YMF262 part 2
+        ; $5A - first YM3812                 $AA - second YM3812
+        ; $CF - ESFM (unofficial)
+
+chantable:        ; translation from logical channel number to physical channel number
+        db 0,1,2,3,4,5,6,7,    0,0,0,0,0,0,0,0,0,0,    0,0,0,0,0,0
+        db 0,1,2,3,4,5,6,7,    0,1,2,3,4,5,6,7,0,0,    0,0,0,0,0,0
+        db 0,1,2,4,5,6,0,0,    0,0,0,0,0,0,0,0,0,0,    0,1,2,0,0,0
+        db 0,1,2,4,5,6,0,1,    2,4,5,6,0,0,0,0,0,0,    0,0,0,0,0,0
+        db 0,1,2,4,5,6,0,0,    0,0,0,0,0,0,0,0,0,0,    0,1,2,0,0,0
+        db 0,1,2,4,5,6,0,1,    2,4,5,6,0,0,0,0,0,0,    0,1,2,0,1,2
+        db 0,1,2,0,0,0,0,0,    0,0,0,0,0,0,0,0,0,0,    0,1,2,0,0,0
+        db 0,1,2,0,1,2,0,0,    0,0,0,0,0,0,0,0,0,0,    0,1,2,0,1,2
+
+        db 0,2,4,6,0,2,4,6,    8,0,0,0,0,0,0,0,0,0,    0,0,0,0,0,0
+        db 0,2,4,6,0,2,4,6,    0,2,4,6,0,2,4,6,8,8,    0,0,0,0,0,0
+        db 0,2,4,6,0,0,0,0,    0,0,0,0,0,0,0,0,0,0,    0,0,0,0,0,0
+        db 0,2,4,6,0,2,4,6,    0,0,0,0,0,0,0,0,0,0,    0,0,0,0,0,0
+        db 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,  0,0,0,0,0,0
+
+ssgcount.b:
+        db 0,0,3,0,3,6,3,6
+        db 0,0,0,0,0
+
+        alignw
+
+regoffset.w:
+        dw 0,0,0,$100,0,0,0,$100        ; add $100 to register address for 'part 2'
+        dw 0,0,0,0,0,0,0,$100
+
+        alignd
+
+initchip1:
+        dd $A418BE,$A419A0,$A41B02,$A40100
+initchip0:
+        dd $5418BE,$5419A0,$541B02,$540100
+        dd 0
+
+initchip3:
+        dd $A22208
+initchip2:
+        dd $522208
+        dd 0
+
+initchip5:
+        dd $A62980,$A62208
+initchip4:
+        dd $562980,$562208,$561137        ; $5611xx sets volume of the OPNA rhythm section
+initchip7:
+initchip6:
+        dd 0
+
+initchip9:
+        dd $AF0501,$AF0400,$AE0120,$AE0800,$AEBD00
+initchip8:
+        dd $5F0501,$5F0400,$5E0120,$5E0800,$5EBD00
+        dd 0
+
+initchip11:
+        dd $AA0120,$AABD00
+initchip10:
+        dd $5A0120,$5ABD00
+        dd 0
+
+initchip12:
+        dd $5F0580
+        dd 0
+
+initdata.d:
+        dd initchip0,initchip1,initchip2,initchip3
+        dd initchip4,initchip5,initchip6,initchip7
+        dd initchip8,initchip9,initchip10,initchip11
+        dd initchip12
+
+drops.d:
+        dd 0
+
+mostlydead.d:
+        dd 0           ; minimum release time before YM channel becomes available again
+
+;timesig.d:
+;        dd 256        ; timing multiplier, gets modified if there is a time signature meta event
+
+chipclocks.d:
+        dd $30,$3D0900                ; 1x YM2151
+        dd $30,$403D0900              ; 2x YM2151
+        dd $2C,$750AB5                ; 1x YM2612
+        dd $2C,$40750AB5              ; 2x YM2612
+        dd $48,$7A1200                ; 1x YM2608
+        dd $48,$407A1200              ; 2x YM2608
+        dd $44,$369E99                ; 1x YM2203
+        dd $44,$40369E99              ; 2x YM2203
+        dd $5C,$DA7A64                ; 1x YMF262
+        dd $5C,$40DA7A64              ; 2x YMF262
+        dd $50,$369E99                ; 1x YM3812
+        dd $50,$40369E99              ; 2x YM3812
+        dd $5C,$DA7A64                ; ESFM (I'll set it the same as 1x YMF262)
+
+pitchoffset.sb:
+        db -3,-3,1,1,0,0,2,2
+        db 0,0,0,0,0
+
+transpose.sb:
+        db 0
+volmode.b:
+        db 0
+
+        alignd
+
+vgmheader:
+        dd "Vgm ",0,$160,0
+        dd 0,0,0,0
+        dd 0,0,0,0
+        dd 0,$4C,0,0
+
+        dd 0,0,0,0
+        dd 0,0,0,0
+        dd 0,0,0,0
+        dd 0,0,0,0
+
+pitchmap.w:
+        dw 1308,1386,1468,1556,1648,1746,1850,1960,2077,2200,2331,2469,2616        ;
+
+opnnote.w:
+        dw 617,654,693,734,778,824,873,925,980,1038,1100,1165,1234        ; (has one extra for interpolation)
+opnoctave.b:
+        db 0,0,0,0,0,1,2,3,4,5,6,7,7,7,7,7
+opnshuffle.b:
+        db $0C,$04,$08,0
+
+carriers.b:
+        db 1,1,1,1,5,7,7,15
+
+opmnote.b:
+        db 0,1,2,4,5,6,8,9,10,12,13,14
+opmoctave.b:
+        db 0,0,0,0,0,1,2,3,4,5,6,7,7,7,7,7
+opmpan.b:
+        db $80,$80,$80,$80,$80,$C0,$C0,$C0,$C0,$C0,$C0,$40,$40,$40,$40,$40
+opmshuffle.b:
+        db $18,$08,$10,0
+
+oplnote.w:
+        dw 343,363,385,408,432,458,485,514,544,577,611,647,686
+oploctave.b:
+        db 0,0,0,0,0,1,2,3,4,5,6,7,7,7,7,7
+oplshuffle.b:
+        db $04,$01,$03,$00
+        db $0B,$08,$05,$02
+        db $0D,$0A,$0C,$09
+        db $14,$11,$13,$10
+        db $15,$12,$15,$12
+banksplit.b:
+        db 0,0,0,0
+        db 0,0,0,0
+        db 0,0,0,0
+        db 0,0,0,0
+        db 1,1,0,0
+oplpair.b:
+        db $00,$01,$02,$08,$09,$0A,$10,$11,$12,$12
+esfmkeys.b:
+        db 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+        db 16,18
+esfmshuffle.b:
+        db $19,$11,$09,$01
+
+        ; settings for the MOD field, according to algorithm
+        ; (first operator gets feedback instead)
+esfmmod1.b:
+        db 14,0,0,14,14,14,14,0
+esfmmod2.b:
+        db 14,14,14,0,0,0,0,0
+esfmmod3.b:
+        db 14,14,14,14,14,0,0,0
+
+        ; settings for the OUT field, according to algorithm
+esfmout0.b:
+        db 0,0,0,0,0,0,0,$E0
+esfmout1.b:
+        db 0,0,0,0,$E0,$E0,$E0,$E0
+esfmout2.b:
+        db 0,0,0,0,0,$E0,$E0,$E0
+esfmout3.b:
+        db $E0,$E0,$E0,$E0,$E0,$E0,$E0,$E0
+
+
+        ; linear volume table
+linearvolume:
+        db $7F,$33,$2F,$2B,  $29,$27,$25,$23,  $22,$21,$20,$1F,  $1E,$1D,$1C,$1B
+        db $1B,$1A,$1A,$19,  $18,$18,$17,$17,  $16,$16,$15,$15,  $15,$14,$14,$13
+        db $13,$13,$12,$12,  $12,$12,$11,$11,  $11,$10,$10,$10,  $10,$0F,$0F,$0F
+        db $0F,$0E,$0E,$0E,  $0E,$0D,$0D,$0D,  $0D,$0D,$0C,$0C,  $0C,$0C,$0C,$0B
+        db $0B,$0B,$0B,$0B,  $0B,$0A,$0A,$0A,  $0A,$0A,$0A,$0A,  $09,$09,$09,$09
+        db $09,$09,$08,$08,  $08,$08,$08,$08,  $08,$08,$07,$07,  $07,$07,$07,$07
+        db $07,$07,$06,$06,  $06,$06,$06,$06,  $06,$06,$06,$05,  $05,$05,$05,$05
+        db $05,$05,$05,$05,  $05,$04,$04,$04,  $04,$04,$04,$04,  $04,$04,$04,$03
+
+        ; volume table according to official MIDI spec of 40dB * log10 (val / 127)
+        ; (but I shifted it by one)
+midivolume:
+;        db $7F,$70,$60,$57,  $50,$4B,$47,$43,  $40,$3D,$3B,$39,  $37,$35,$33,$31
+        db $7F,$60,$57,  $50,$4B,$47,$43,  $40,$3D,$3B,$39,  $37,$35,$33,$31
+        db $30,$2F,$2D,$2C,  $2B,$2A,$29,$28,  $27,$26,$25,$24,  $23,$22,$21,$21
+        db $20,$1F,$1F,$1E,  $1D,$1D,$1C,$1B,  $1B,$1A,$1A,$19,  $19,$18,$18,$17
+        db $17,$16,$16,$15,  $15,$14,$14,$13,  $13,$13,$12,$12,  $11,$11,$11,$10
+        db $10,$10,$0F,$0F,  $0E,$0E,$0E,$0D,  $0D,$0D,$0D,$0C,  $0C,$0C,$0B,$0B
+        db $0B,$0A,$0A,$0A,  $0A,$09,$09,$09,  $08,$08,$08,$08,  $07,$07,$07,$07
+        db $06,$06,$06,$06,  $06,$05,$05,$05,  $05,$04,$04,$04,  $04,$04,$03,$03
+        db $03,$03,$03,$02,  $02,$02,$02,$02,  $01,$01,$01,$01,  $01,$00,$00,$00
+        db $00
+
+ssgattack.b:    db 14        ; initial volume  (beginning of attack) (max 15)
+ssgdecay1.b:    db $4D       ; low nibble is sustain  (should be same or lower than ssgparam)
+                             ; high nibble is speed  (psgticks per step of decay1)
+ssgdecay2.b:    db $30       ; 0 is fastest decay2, 255 is slowest  (psgticks per step of decay2)
+ssgparam.b:     db 15        ; this is now the max volume  (end of attack) (max 15)
+        ; these instrument numbers are off-by-one compared to the literal byte in the event data
+                                ; 1. Acoustic Grand Piano
+        db 14,$4D,$30,15        ; 2. Bright Acoustic Piano
+        db 14,$4D,$30,15        ; 3. Electric Grand Piano
+        db 14,$2C,$30,15        ; 4. Honky-tonk Piano
+        db 14,$4D,$30,15        ; 5. Electric Piano 1
+        db 14,$4D,$30,15        ; 6. Electric Piano 2
+        db 14,$2D,$30,15        ; 7. Harpsichord
+        db 14,$2D,$30,15        ; 8. Clavi
+        db 14,$1C,$30,15        ; 9. Celesta
+        db 14,$2C,$30,15        ; 10. Glockenspiel
+        db 14,$2D,$30,15        ; 11. Music Box
+        db 14,$2C,$30,15        ; 12. Vibraphone
+        db 14,$1D,$30,15        ; 13. Marimba
+        db 14,$1C,$30,15        ; 14. Xylophone
+        db 14,$3D,$40,15        ; 15. Tubular Bells
+        db 14,$2C,$20,15        ; 16. Dulcimer
+        db 13,$1D,$90,15        ; 17. Drawbar Organ
+        db 13,$1D,$90,15        ; 18. Percussive Organ
+        db 14,$2E,$90,15        ; 19. Rock Organ
+        db 14,$1D,$90,15        ; 20. Church Organ
+        db 14,$2E,$90,15        ; 21. Reed Organ
+        db 12,$1E,$90,14        ; 22. Accordion
+        db 12,$1E,$90,14        ; 23. Harmonica
+        db 12,$1E,$90,14        ; 24. Tango Accordion
+        db 14,$2D,$20,15        ; 25. Acoustic Guitar (nylon)
+        db 14,$2D,$20,15        ; 26. Acoustic Guitar (steel)
+        db 14,$3D,$20,15        ; 27. Electric Guitar (jazz)
+        db 14,$3D,$30,15        ; 28. Electric Guitar (clean)
+        db 14,$3D,$30,15        ; 29. Electric Guitar (muted)
+        db 14,$2D,$40,15        ; 30. Overdriven Guitar
+        db 14,$2D,$40,15        ; 31. Distortion Guitar
+        db 14,$1D,$30,15        ; 32. Guitar harmonics
+        db 14,$3D,$20,15        ; 33. Acoustic Bass
+        db 14,$3D,$30,15        ; 34. Electric Bass (finger)
+        db 14,$3D,$30,15        ; 35. Electric Bass (pick)
+        db 14,$3D,$30,15        ; 36. Fretless Bass
+        db 14,$3D,$30,15        ; 37. Slap Bass 1
+        db 14,$3D,$30,15        ; 38. Slap Bass 2
+        db 14,$3D,$30,15        ; 39. Synth Bass 1
+        db 14,$3D,$30,15        ; 40. Synth Bass 2
+        db 12,$1E,$90,14        ; 41. Violin
+        db 12,$1E,$90,14        ; 42. Viola
+        db 12,$1E,$90,14        ; 43. Cello
+        db 12,$1E,$90,14        ; 44. Contrabass
+        db 12,$1E,$90,14        ; 45. Tremolo Strings
+        db 12,$1E,$90,14        ; 46. Pizzicato Strings
+        db 14,$2D,$30,15        ; 47. Orchestral Harp
+        db 14,$1D,$30,15        ; 48. Timpani
+        db 12,$1E,$90,14        ; 49. String Ensemble 1
+        db 12,$1E,$90,14        ; 50. String Ensemble 2
+        db 12,$1E,$90,14        ; 51. SynthStrings 1
+        db 12,$1E,$90,14        ; 52. SynthStrings 2
+        db 13,$1E,$90,15        ; 53. Choir Aahs
+        db 13,$1E,$90,15        ; 54. Voice Oohs
+        db 13,$1E,$90,15        ; 55. Synth Voice
+        db 14,$1D,$10,15        ; 56. Orchestra Hit
+        db 13,$1E,$90,15        ; 57. Trumpet
+        db 13,$1E,$90,15        ; 58. Trombone
+        db 13,$1E,$90,15        ; 59. Tuba
+        db 13,$1E,$90,15        ; 60. Muted Trumpet
+        db 13,$1E,$90,15        ; 61. French Horn
+        db 13,$1E,$90,15        ; 62. Brass Section
+        db 13,$1E,$90,15        ; 63. SynthBrass 1
+        db 13,$1E,$90,15        ; 64. SynthBrass 2
+        db 13,$1E,$90,15        ; 65. Soprano Sax
+        db 13,$1E,$90,15        ; 66. Alto Sax
+        db 13,$1E,$90,15        ; 67. Tenor Sax
+        db 13,$1E,$90,15        ; 68. Baritone Sax
+        db 13,$1E,$90,15        ; 69. Oboe
+        db 13,$1E,$90,15        ; 70. English Horn
+        db 13,$1E,$90,15        ; 71. Bassoon
+        db 13,$1E,$90,15        ; 72. Clarinet
+        db 13,$1E,$90,15        ; 73. Piccolo
+        db 13,$1E,$90,15        ; 74. Flute
+        db 13,$1E,$90,15        ; 75. Recorder
+        db 13,$1E,$90,15        ; 76. Pan Flute
+        db 13,$1E,$90,15        ; 77. Blown Bottle
+        db 13,$1E,$90,15        ; 78. Shakuhachi
+        db 13,$1E,$90,15        ; 79. Whistle
+        db 13,$1E,$90,15        ; 80. Ocarina
+        db 14,$1E,$90,15        ; 81. Lead 1 (square)
+        db 14,$1E,$90,15        ; 82. Lead 2 (sawtooth)
+        db 14,$1E,$90,15        ; 83. Lead 3 (calliope)  (sounds flute/recorder like)
+        db 14,$1E,$90,15        ; 84. Lead 4 (chiff)     (sounds brass-like?)
+        db 14,$1E,$90,15        ; 85. Lead 5 (charang)   (sounds brass-like?)
+        db 13,$1E,$90,15        ; 86. Lead 6 (voice)
+        db 14,$1E,$90,15        ; 87. Lead 7 (fifths)
+        db 14,$1E,$90,15        ; 88. Lead 8 (bass + lead)
+        db 14,$1E,$90,15        ; 89. Pad 1 (new age)
+        db 14,$1E,$90,15        ; 90. Pad 2 (warm)
+        db 14,$1E,$90,15        ; 91. Pad 3 (polysynth)
+        db 13,$1E,$90,15        ; 92. Pad 4 (choir)
+        db 14,$1E,$90,15        ; 93. Pad 5 (bowed)
+        db 14,$1E,$90,15        ; 94. Pad 6 (metallic)
+        db 14,$1E,$90,15        ; 95. Pad 7 (halo)
+        db 14,$1E,$90,15        ; 96. Pad 8 (sweep)
+        db 14,$4D,$20,15         ; 97. FX 1 (rain)
+        db 14,$4D,$20,15         ; 98. FX 2 (soundtrack)
+        db 14,$4D,$20,15         ; 99. FX 3 (crystal)
+        db 14,$1E,$90,15         ; 100. FX 4 (atmosphere)
+        db 14,$4D,$20,15         ; 101. FX 5 (brightness)
+        db 14,$4D,$20,15         ; 102. FX 6 (goblins)
+        db 14,$4D,$20,15         ; 103. FX 7 (echoes)
+        db 14,$1E,$90,15         ; 104. FX 8 (sci-fi)
+        db 14,$3D,$20,15        ; 105. Sitar
+        db 14,$3D,$20,15        ; 106. Banjo
+        db 14,$3D,$20,15        ; 107. Shamisen
+        db 14,$3D,$20,15        ; 108. Koto
+        db 14,$3D,$20,15        ; 109. Kalimba
+        db 12,$1E,$90,14        ; 110. Bag pipe
+        db 14,$3D,$20,15        ; 111. Fiddle
+        db 14,$3D,$20,15        ; 112. Shanai
+        db 14,$3D,$20,15        ; 113. Tinkle Bell
+        db 14,$1D,$10,15         ; 114. Agogo
+        db 14,$1D,$10,15         ; 115. Steel Drums
+        db 14,$1D,$10,15         ; 116. Woodblock
+        db 14,$1D,$10,15         ; 117. Taiko Drum
+        db 14,$1D,$10,15         ; 118. Melodic Tom
+        db 14,$1D,$10,15         ; 119. Synth Drum
+        db 11,$1D,$10,15         ; 120. Reverse Cymbal
+        db 14,$1C,$10,15         ; 121. Guitar Fret Noise
+        db 12,$1C,$10,15         ; 122. Breath Noise
+        db 12,$1C,$10,15         ; 123. Seashore
+        db 14,$1A,$10,15         ; 124. Bird Tweet
+        db 14,$1B,$20,15         ; 125. Telephone Ring
+        db 14,$1B,$20,15         ; 126. Helicopter
+        db 14,$1B,$20,15         ; 127. Applause
+        db 14,$1A,$10,15         ; 128. Gunshot
+
+        ; OPM/OPN instrumentation
+directory:
+        ; these instrument numbers are off-by-one compared to the literal byte in the event data
+        db 4,0,"gm01.isc",0         ; 1. Acoustic Grand Piano
+        db 4,0,"gm02.isc",0         ; 2. Bright Acoustic Piano
+        db 4,0,"gm03.isc",0         ; 3. Electric Grand Piano
+        db 4,0,"gm04.isc",0         ; 4. Honky-tonk Piano
+        db 4,0,"gm05.isc",0         ; 5. Electric Piano 1
+        db 4,0,"gm06.isc",0         ; 6. Electric Piano 2
+        db 4,0,"gm07.isc",0         ; 7. Harpsichord
+        db 4,0,"gm08.isc",0         ; 8. Clavi
+        db 4,0,"gm09.isc",0         ; 9. Celesta
+        db 4,0,"gm10.isc",0         ; 10. Glockenspiel
+        db 4,0,"gm11.isc",0         ; 11. Music Box
+        db 4,0,"gm12.isc",0         ; 12. Vibraphone
+        db 4,0,"gm13.isc",0         ; 13. Marimba
+        db 4,0,"gm14.isc",0         ; 14. Xylophone
+        db 4,0,"gm15.isc",0         ; 15. Tubular Bells
+        db 4,0,"gm16.isc",0         ; 16. Dulcimer
+        db 4,0,"gm20.isc",0         ; 17. Drawbar Organ
+        db 4,0,"gm18.isc",0         ; 18. Percussive Organ
+        db 4,0,"gm19.isc",0         ; 19. Rock Organ
+        db 4,0,"gm20.isc",0         ; 20. Church Organ
+        db 4,0,"gm21.isc",0         ; 21. Reed Organ
+        db 4,0,"gm22.isc",0         ; 22. Accordion
+        db 4,0,"gm23.isc",0         ; 23. Harmonica
+        db 4,0,"gm22.isc",0         ; 24. Tango Accordion
+        db 4,0,"gm25.isc",0         ; 25. Acoustic Guitar (nylon)
+        db 4,0,"gm26.isc",0         ; 26. Acoustic Guitar (steel)
+        db 4,0,"gm27.isc",0         ; 27. Electric Guitar (jazz)
+        db 4,0,"gm28.isc",0         ; 28. Electric Guitar (clean)
+        db 4,0,"gm29.isc",0         ; 29. Electric Guitar (muted)
+        db 4,0,"gm30.isc",0         ; 30. Overdriven Guitar
+        db 4,0,"gm31.isc",0         ; 31. Distortion Guitar
+        db 4,0,"gm25.isc",0         ; 32. Guitar harmonics
+        db 4,0,"gm33.isc",0         ; 33. Acoustic Bass
+        db 4,0,"gm34.isc",0         ; 34. Electric Bass (finger)
+        db 4,0,"gm35.isc",0         ; 35. Electric Bass (pick)
+        db 4,0,"gm34.isc",0         ; 36. Fretless Bass
+        db 4,0,"gm37.isc",0         ; 37. Slap Bass 1
+        db 4,0,"gm37.isc",0         ; 38. Slap Bass 2
+        db 4,0,"gm39.isc",0         ; 39. Synth Bass 1
+        db 4,0,"gm39.isc",0         ; 40. Synth Bass 2
+        db 4,0,"gm51.isc",0         ; 41. Violin
+        db 4,0,"gm51.isc",0         ; 42. Viola
+        db 4,0,"gm51.isc",0         ; 43. Cello
+        db 4,0,"gm51.isc",0         ; 44. Contrabass
+        db 4,0,"gm51.isc",0         ; 45. Tremolo Strings
+        db 4,0,"gm51.isc",0         ; 46. Pizzicato Strings
+        db 4,0,"gm47.isc",0         ; 47. Orchestral Harp
+        db 4,0,"gm48.isc",0         ; 48. Timpani
+        db 4,0,"gm49.isc",0         ; 49. String Ensemble 1
+        db 4,0,"gm49.isc",0         ; 50. String Ensemble 2
+        db 4,0,"gm51.isc",0         ; 51. SynthStrings 1
+        db 4,0,"gm51.isc",0         ; 52. SynthStrings 2
+        db 4,0,"gm53.isc",0         ; 53. Choir Aahs
+        db 4,0,"gm53.isc",0         ; 54. Voice Oohs
+        db 4,0,"gm53.isc",0         ; 55. Synth Voice
+        db 4,0,"gm56.isc",0         ; 56. Orchestra Hit
+        db 4,0,"gm57.isc",0         ; 57. Trumpet
+        db 4,0,"gm57.isc",0         ; 58. Trombone
+        db 4,0,"gm60.isc",0         ; 59. Tuba
+        db 4,0,"gm60.isc",0         ; 60. Muted Trumpet
+        db 4,0,"gm61.isc",0         ; 61. French Horn
+        db 4,0,"gm61.isc",0         ; 62. Brass Section
+        db 4,0,"gm63.isc",0         ; 63. SynthBrass 1
+        db 4,0,"gm63.isc",0         ; 64. SynthBrass 2
+        db 4,0,"gm67.isc",0         ; 65. Soprano Sax
+        db 4,0,"gm67.isc",0         ; 66. Alto Sax
+        db 4,0,"gm67.isc",0         ; 67. Tenor Sax
+        db 4,0,"gm67.isc",0         ; 68. Baritone Sax
+        db 4,0,"gm72.isc",0         ; 69. Oboe
+        db 4,0,"gm72.isc",0         ; 70. English Horn
+        db 4,0,"gm72.isc",0         ; 71. Bassoon
+        db 4,0,"gm72.isc",0         ; 72. Clarinet
+        db 4,0,"gm74.isc",0         ; 73. Piccolo
+        db 4,0,"gm74.isc",0         ; 74. Flute
+        db 4,0,"gm72.isc",0         ; 75. Recorder
+        db 4,0,"gm74.isc",0         ; 76. Pan Flute
+        db 4,0,"gm77.isc",0         ; 77. Blown Bottle
+        db 4,0,"gm74.isc",0         ; 78. Shakuhachi
+        db 4,0,"gm74.isc",0         ; 79. Whistle
+        db 4,0,"gm74.isc",0         ; 80. Ocarina
+        db 4,0,"gm81.isc",0         ; 81. Lead 1 (square)
+        db 4,0,"gm82.isc",0         ; 82. Lead 2 (sawtooth)
+        db 4,0,"gm81.isc",0         ; 83. Lead 3 (calliope)  (sounds flute/recorder like)
+        db 4,0,"gm82.isc",0         ; 84. Lead 4 (chiff)     (sounds brass-like?)
+        db 4,0,"gm82.isc",0         ; 85. Lead 5 (charang)   (sounds brass-like?)
+        db 4,0,"gm81.isc",0         ; 86. Lead 6 (voice)
+        db 4,0,"gm87.isc",0         ; 87. Lead 7 (fifths)
+        db 4,0,"gm88.isc",0         ; 88. Lead 8 (bass + lead)
+        db 4,0,"gm06.isc",0         ; 89. Pad 1 (new age)
+        db 4,0,"gm61.isc",0         ; 90. Pad 2 (warm)
+        db 4,0,"gm05.isc",0         ; 91. Pad 3 (polysynth)
+        db 4,0,"gm53.isc",0         ; 92. Pad 4 (choir)
+        db 4,0,"gm51.isc",0         ; 93. Pad 5 (bowed)
+        db 4,0,"gm51.isc",0         ; 94. Pad 6 (metallic)
+        db 4,0,"gm53.isc",0         ; 95. Pad 7 (halo)
+        db 4,0,"gm51.isc",0         ; 96. Pad 8 (sweep)
+        db 4,0,"gm97.isc",0         ; 97. FX 1 (rain)
+        db 127,0,0                   ; 98. FX 2 (soundtrack)
+        db 4,0,"gm99.isc",0         ; 99. FX 3 (crystal)
+        db 4,0,"gm100.isc",0        ; 100. FX 4 (atmosphere)
+        db 4,0,"gm101.isc",0        ; 101. FX 5 (brightness)
+        db 127,0,0                   ; 102. FX 6 (goblins)
+        db 4,0,"gm103.isc",0        ; 103. FX 7 (echoes)
+        db 4,0,"gm30.isc",0         ; 104. FX 8 (sci-fi)
+        db 4,0,"gm108.isc",0        ; 105. Sitar
+        db 4,0,"gm108.isc",0        ; 106. Banjo
+        db 4,0,"gm108.isc",0        ; 107. Shamisen
+        db 4,0,"gm108.isc",0        ; 108. Koto
+        db 4,0,"gm109.isc",0        ; 109. Kalimba
+        db 4,0,"gm22.isc",0         ; 110. Bag pipe
+        db 4,0,"gm51.isc",0         ; 111. Fiddle
+        db 4,0,"gm108.isc",0        ; 112. Shanai
+        db 4,0,"gm108.isc",0        ; 113. Tinkle Bell
+        db 4,0,"gm13.isc",0         ; 114. Agogo
+        db 4,0,"gm13.isc",0         ; 115. Steel Drums
+        db 127,0,0                   ; 116. Woodblock
+        db 4,0,"gm117.isc",0        ; 117. Taiko Drum
+        db 4,0,"gp43.isc",0         ; 118. Melodic Tom
+        db 127,0,0                   ; 119. Synth Drum
+        db 127,0,0                   ; 120. Reverse Cymbal
+        db 127,0,0                   ; 121. Guitar Fret Noise
+        db 127,0,0                   ; 122. Breath Noise
+        db 127,0,0                   ; 123. Seashore
+        db 127,0,0                   ; 124. Bird Tweet
+        db 4,0,"gm125.isc",0         ; 125. Telephone Ring
+        db 127,0,0                   ; 126. Helicopter
+        db 127,0,0                   ; 127. Applause
+        db 127,0,0                   ; 128. Gunshot
+
+        ; --------------  FM percussion  -------------
+
+        ; these instrument numbers are the literal byte in the event data (NOT off-by-one)
+
+        db 10,32,"gp36.isc",0        ; 35 Acoustic Bass Drum
+        db 10,34,"gp36.isc",0        ; 36 Electric Bass Drum
+        db 12,29,"gp37.isc",0        ; 37 Side Stick
+        db 4,13,"gp40.isc",0        ; 38 Acoustic Snare
+        db 8,47,"gp39.isc",0        ; 39 Hand Clap
+        db 4,13,"gp40.isc",0        ; 40 Electric Snare
+        db 12,40,"gp43.isc",0        ; 41 Low Floor Tom
+        db 12,52,"gp42.isc",0        ; 42 Closed Hi-hat
+        db 12,44,"gp43.isc",0        ; 43 High Floor Tom
+        db 12,52,"gp42.isc",0        ; 44 Pedal Hi-hat
+        db 12,40,"gp43.isc",0        ; 45 Low Tom
+        db 12,52,"gp46.isc",0        ; 46 Open Hi-hat
+        db 12,41,"gp43.isc",0        ; 47 Low-Mid Tom
+        db 12,43,"gp43.isc",0        ; 48 High-Mid Tom
+        db 12,61,"gp49.isc",0        ; 49 Crash Cymbal 1
+        db 12,44,"gp43.isc",0        ; 50 High Tom
+        db 12,61,"gp49.isc",0        ; 51 Ride Cymbal 1
+        db 12,61,"gp49.isc",0        ; 52 Chinese Cymbal
+        db 12,0,0                    ; 53 Ride Bell
+        db 12,49,"gp42.isc",0        ; 54 Tambourine
+        db 12,61,"gp49.isc",0        ; 55 Splash Cymbal
+        db 12,46,"gp42.isc",0        ; 56 Cowbell
+        db 12,61,"gp49.isc",0        ; 57 Crash Cymbal 2
+        db 12,0,0                    ; 58 Vibraslap
+        db 12,61,"gp49.isc",0        ; 59 Ride Cymbal 2
+        db 12,44,"gp60.isc",0        ; 60 High Bongo
+        db 12,40,"gp60.isc",0        ; 61 Low Bongo
+        db 12,0,0                    ; 62 Mute High Conga
+        db 12,0,0                    ; 63 Open High Conga
+        db 12,0,0                    ; 64 Low Conga
+        db 12,0,0                    ; 65 High Timbale
+        db 12,0,0                    ; 66 Low Timbale
+        db 12,77,"gp67.isc",0        ; 67 High Agogo
+        db 12,72,"gp67.isc",0        ; 68 Low Agogo
+        db 12,0,0                    ; 69 Cabasa
+        db 14,56,"gp42.isc",0        ; 70 Maracas
+        db 12,0,0                    ; 71 Short Whistle
+        db 12,0,0                    ; 72 Long Whistle
+        db 12,0,0                    ; 73 Short Guiro
+        db 12,0,0                    ; 74 Long Guiro
+        db 12,0,0                    ; 75 Claves
+        db 12,44,"gp60.isc",0        ; 76 High Woodblock
+        db 12,40,"gp60.isc",0        ; 77 Low Woodblock
+        db 12,0,0                    ; 78 Mute Cuica
+        db 12,0,0                    ; 79 Open Cuica
+        db 12,52,"gp42.isc",0        ; 80 Mute Triangle
+        db 12,52,"gp42.isc",0        ; 81 Open Triangle
+        db 12,80,"gp82.isc",0        ; 82 Shaker
+;        db 12,0,0                    ; 83 Jingle Bell
+
+        db $FF        ; end of table
+
+        ; OPL instrumentation
+directory2:
+        ; these instrument numbers are off-by-one compared to the literal byte in the event data
+        db 1,0,"lgm01.isc",0         ; 1. Acoustic Grand Piano
+        db 1,0,"lgm02.isc",0         ; 2. Bright Acoustic Piano
+        db 1,0,"lgm03.isc",0         ; 3. Electric Grand Piano
+        db 1,0,"lgm04.isc",0         ; 4. Honky-tonk Piano
+        db 1,0,"lgm05.isc",0         ; 5. Electric Piano 1
+        db 1,0,"lgm06.isc",0         ; 6. Electric Piano 2
+        db 1,0,"lgm07.isc",0         ; 7. Harpsichord
+        db 1,0,"lgm08.isc",0         ; 8. Clavi
+        db 1,0,"lgm09.isc",0         ; 9. Celesta
+        db 1,0,"lgm10.isc",0         ; 10. Glockenspiel
+        db 1,0,"lgm11.isc",0         ; 11. Music Box
+        db 1,0,"lgm12.isc",0         ; 12. Vibraphone
+        db 1,0,"lgm13.isc",0         ; 13. Marimba
+        db 1,0,"lgm14.isc",0         ; 14. Xylophone
+        db 1,0,"lgm15.isc",0         ; 15. Tubular Bells
+        db 1,0,"lgm16.isc",0         ; 16. Dulcimer
+        db 1,0,"lgm20.isc",0         ; 17. Drawbar Organ
+        db 1,0,"lgm18.isc",0         ; 18. Percussive Organ
+        db 1,0,"lgm19.isc",0         ; 19. Rock Organ
+        db 1,0,"lgm20.isc",0         ; 20. Church Organ
+        db 1,0,"lgm21.isc",0         ; 21. Reed Organ
+        db 1,0,"lgm22.isc",0         ; 22. Accordion
+        db 1,0,"lgm23.isc",0         ; 23. Harmonica
+        db 1,0,"lgm22.isc",0         ; 24. Tango Accordion
+        db 1,0,"lgm25.isc",0         ; 25. Acoustic Guitar (nylon)
+        db 1,0,"lgm26.isc",0         ; 26. Acoustic Guitar (steel)
+        db 1,0,"lgm27.isc",0         ; 27. Electric Guitar (jazz)
+        db 1,0,"lgm28.isc",0         ; 28. Electric Guitar (clean)
+        db 1,0,"lgm29.isc",0         ; 29. Electric Guitar (muted)
+        db 1,0,"lgm30.isc",0         ; 30. Overdriven Guitar
+        db 1,0,"lgm31.isc",0         ; 31. Distortion Guitar
+        db 1,0,"lgm25.isc",0         ; 32. Guitar harmonics
+        db 1,0,"lgm33.isc",0         ; 33. Acoustic Bass
+        db 1,0,"lgm34.isc",0         ; 34. Electric Bass (finger)
+        db 1,0,"lgm35.isc",0         ; 35. Electric Bass (pick)
+        db 1,0,"lgm34.isc",0         ; 36. Fretless Bass
+        db 1,0,"lgm37.isc",0         ; 37. Slap Bass 1
+        db 1,0,"lgm37.isc",0         ; 38. Slap Bass 2
+        db 1,0,"lgm39.isc",0         ; 39. Synth Bass 1
+        db 1,0,"lgm39.isc",0         ; 40. Synth Bass 2
+        db 1,0,"lgm51.isc",0         ; 41. Violin
+        db 1,0,"lgm51.isc",0         ; 42. Viola
+        db 1,0,"lgm51.isc",0         ; 43. Cello
+        db 1,0,"lgm51.isc",0         ; 44. Contrabass
+        db 1,0,"lgm51.isc",0         ; 45. Tremolo Strings
+        db 1,0,"lgm51.isc",0         ; 46. Pizzicato Strings
+        db 1,0,"lgm47.isc",0         ; 47. Orchestral Harp
+        db 127,0,0                   ; 48. Timpani
+        db 1,0,"lgm49.isc",0         ; 49. String Ensemble 1
+        db 1,0,"lgm49.isc",0         ; 50. String Ensemble 2
+        db 1,0,"lgm51.isc",0         ; 51. SynthStrings 1
+        db 1,0,"lgm51.isc",0         ; 52. SynthStrings 2
+        db 1,0,"lgm53.isc",0         ; 53. Choir Aahs
+        db 1,0,"lgm53.isc",0         ; 54. Voice Oohs
+        db 1,0,"lgm53.isc",0         ; 55. Synth Voice
+        db 1,0,"lgm56.isc",0         ; 56. Orchestra Hit
+        db 1,0,"lgm57.isc",0         ; 57. Trumpet
+        db 1,0,"lgm57.isc",0         ; 58. Trombone
+        db 1,0,"lgm60.isc",0         ; 59. Tuba
+        db 1,0,"lgm60.isc",0         ; 60. Muted Trumpet
+        db 1,0,"lgm61.isc",0         ; 61. French Horn
+        db 1,0,"lgm61.isc",0         ; 62. Brass Section
+        db 1,0,"lgm63.isc",0         ; 63. SynthBrass 1
+        db 1,0,"lgm63.isc",0         ; 64. SynthBrass 2
+        db 1,0,"lgm67.isc",0         ; 65. Soprano Sax
+        db 1,0,"lgm67.isc",0         ; 66. Alto Sax
+        db 1,0,"lgm67.isc",0         ; 67. Tenor Sax
+        db 1,0,"lgm67.isc",0         ; 68. Baritone Sax
+        db 1,0,"lgm72.isc",0         ; 69. Oboe
+        db 1,0,"lgm72.isc",0         ; 70. English Horn
+        db 1,0,"lgm72.isc",0         ; 71. Bassoon
+        db 1,0,"lgm72.isc",0         ; 72. Clarinet
+        db 1,0,"lgm74.isc",0         ; 73. Piccolo
+        db 1,0,"lgm74.isc",0         ; 74. Flute
+        db 1,0,"lgm72.isc",0         ; 75. Recorder
+        db 1,0,"lgm74.isc",0         ; 76. Pan Flute
+        db 1,0,"lgm77.isc",0         ; 77. Blown Bottle
+        db 1,0,"lgm74.isc",0         ; 78. Shakuhachi
+        db 1,0,"lgm74.isc",0         ; 79. Whistle
+        db 1,0,"lgm74.isc",0         ; 80. Ocarina
+        db 1,0,"lgm81.isc",0         ; 81. Lead 1 (square)
+        db 1,0,"lgm82.isc",0         ; 82. Lead 2 (sawtooth)
+        db 1,0,"lgm81.isc",0         ; 83. Lead 3 (calliope)  (sounds flute/recorder like)
+        db 1,0,"lgm82.isc",0         ; 84. Lead 4 (chiff)     (sounds brass-like?)
+        db 1,0,"lgm82.isc",0         ; 85. Lead 5 (charang)   (sounds brass-like?)
+        db 1,0,"lgm81.isc",0         ; 86. Lead 6 (voice)
+        db 1,0,"lgm87.isc",0         ; 87. Lead 7 (fifths)
+        db 1,0,"lgm88.isc",0         ; 88. Lead 8 (bass + lead)
+        db 1,0,"lgm06.isc",0         ; 89. Pad 1 (new age)
+        db 1,0,"lgm61.isc",0         ; 90. Pad 2 (warm)
+        db 1,0,"lgm05.isc",0         ; 91. Pad 3 (polysynth)
+        db 1,0,"lgm53.isc",0         ; 92. Pad 4 (choir)
+        db 1,0,"lgm51.isc",0         ; 93. Pad 5 (bowed)
+        db 1,0,"lgm51.isc",0         ; 94. Pad 6 (metallic)
+        db 1,0,"lgm53.isc",0         ; 95. Pad 7 (halo)
+        db 1,0,"lgm51.isc",0         ; 96. Pad 8 (sweep)
+        db 1,0,"lgm97.isc",0         ; 97. FX 1 (rain)
+        db 127,0,0                   ; 98. FX 2 (soundtrack)
+        db 1,0,"lgm99.isc",0         ; 99. FX 3 (crystal)
+        db 1,0,"lgm100.isc",0        ; 100. FX 4 (atmosphere)
+        db 1,0,"lgm101.isc",0        ; 101. FX 5 (brightness)
+        db 127,0,0                   ; 102. FX 6 (goblins)
+        db 1,0,"lgm103.isc",0        ; 103. FX 7 (echoes)
+        db 1,0,"lgm30.isc",0         ; 104. FX 8 (sci-fi)
+        db 1,0,"lgm108.isc",0        ; 105. Sitar
+        db 1,0,"lgm108.isc",0        ; 106. Banjo
+        db 1,0,"lgm108.isc",0        ; 107. Shamisen
+        db 1,0,"lgm108.isc",0        ; 108. Koto
+        db 1,0,"lgm109.isc",0        ; 109. Kalimba
+        db 1,0,"lgm22.isc",0         ; 110. Bag pipe
+        db 1,0,"lgm51.isc",0         ; 111. Fiddle
+        db 1,0,"lgm108.isc",0        ; 112. Shanai
+        db 1,0,"lgm108.isc",0        ; 113. Tinkle Bell
+        db 1,0,"lgm13.isc",0         ; 114. Agogo
+        db 1,0,"lgm13.isc",0         ; 115. Steel Drums
+        db 127,0,0                   ; 116. Woodblock
+        db 1,0,"lgm117.isc",0        ; 117. Taiko Drum
+        db 1,0,"lgp43.isc",0         ; 118. Melodic Tom
+        db 127,0,0                   ; 119. Synth Drum
+        db 127,0,0                   ; 120. Reverse Cymbal
+        db 127,0,0                   ; 121. Guitar Fret Noise
+        db 127,0,0                   ; 122. Breath Noise
+        db 127,0,0                   ; 123. Seashore
+        db 127,0,0                   ; 124. Bird Tweet
+        db 127,0,0                   ; 125. Telephone Ring
+        db 127,0,0                   ; 126. Helicopter
+        db 127,0,0                   ; 127. Applause
+        db 127,0,0                   ; 128. Gunshot
+
+        ; these instrument numbers are the literal byte in the event data (NOT off-by-one)
+
+        db 2,32,"lgp36.isc",0        ; 35 Acoustic Bass Drum
+        db 2,34,"lgp36.isc",0        ; 36 Electric Bass Drum
+        db 8,29,"lgp37.isc",0        ; 37 Side Stick
+        db 0,13,"lgp40.isc",0        ; 38 Acoustic Snare
+        db 2,45,"lgp39.isc",0        ; 39 Hand Clap
+        db 0,13,"lgp40.isc",0        ; 40 Electric Snare
+        db 8,40,"lgp43.isc",0        ; 41 Low Floor Tom
+        db 8,52,"lgp42.isc",0        ; 42 Closed Hi-hat
+        db 8,44,"lgp43.isc",0        ; 43 High Floor Tom
+        db 8,52,"lgp42.isc",0        ; 44 Pedal Hi-hat
+        db 8,40,"lgp43.isc",0        ; 45 Low Tom
+        db 8,52,"lgp46.isc",0        ; 46 Open Hi-hat
+        db 8,41,"lgp43.isc",0        ; 47 Low-Mid Tom
+        db 8,43,"lgp43.isc",0        ; 48 High-Mid Tom
+        db 8,61,"lgp49.isc",0        ; 49 Crash Cymbal 1
+        db 8,44,"lgp43.isc",0        ; 50 High Tom
+        db 8,61,"lgp49.isc",0        ; 51 Ride Cymbal 1
+        db 8,61,"lgp49.isc",0        ; 52 Chinese Cymbal
+        db 8,0,0                    ; 53 Ride Bell
+        db 8,49,"lgp42.isc",0        ; 54 Tambourine
+        db 8,61,"lgp49.isc",0        ; 55 Splash Cymbal
+        db 8,46,"lgp42.isc",0        ; 56 Cowbell
+        db 8,61,"lgp49.isc",0        ; 57 Crash Cymbal 2
+        db 8,0,0                    ; 58 Vibraslap
+        db 8,61,"lgp49.isc",0        ; 59 Ride Cymbal 2
+        db 8,44,"lgp60.isc",0        ; 60 High Bongo
+        db 8,40,"lgp60.isc",0        ; 61 Low Bongo
+        db 8,0,0                    ; 62 Mute High Conga
+        db 8,0,0                    ; 63 Open High Conga
+        db 8,0,0                    ; 64 Low Conga
+        db 8,0,0                    ; 65 High Timbale
+        db 8,0,0                    ; 66 Low Timbale
+        db 8,77,"lgp67.isc",0        ; 67 High Agogo
+        db 8,72,"lgp67.isc",0        ; 68 Low Agogo
+        db 8,0,0                    ; 69 Cabasa
+        db 10,56,"lgp42.isc",0        ; 70 Maracas
+        db 8,0,0                    ; 71 Short Whistle
+        db 8,0,0                    ; 72 Long Whistle
+        db 8,0,0                    ; 73 Short Guiro
+        db 8,0,0                    ; 74 Long Guiro
+        db 8,0,0                    ; 75 Claves
+        db 8,44,"lgp60.isc",0        ; 76 High Woodblock
+        db 8,40,"lgp60.isc",0        ; 77 Low Woodblock
+        db 8,0,0                    ; 78 Mute Cuica
+        db 8,0,0                    ; 79 Open Cuica
+        db 8,52,"lgp42.isc",0        ; 80 Mute Triangle
+        db 8,52,"lgp42.isc",0        ; 81 Open Triangle
+        db 8,80,"lgp82.isc",0        ; 82 Shaker
+        db 8,0,0                    ; 83 Jingle Bell
+
+        db $FF        ; end of table
+
+        ; 0=none, 1=bass, 2=snare, 3=cymbal, 4=hi-hat, 5=tom, 6=rimshot
+
+rhythmmap.b:
+        db 4,1        ; 35 Acoustic Bass Drum
+        db 4,1        ; 36 Electric Bass Drum
+        db 4,6        ; 37 Side Stick
+        db 4,2        ; 38 Acoustic Snare
+        db 4,6        ; 39 Hand Clap
+        db 4,2        ; 40 Electric Snare
+        db 4,5        ; 41 Low Floor Tom
+        db 4,4        ; 42 Closed Hi-hat
+        db 4,5        ; 43 High Floor Tom
+        db 4,4        ; 44 Pedal Hi-hat
+        db 4,5        ; 45 Low Tom
+        db 4,4        ; 46 Open Hi-hat
+        db 4,5        ; 47 Low-Mid Tom
+        db 4,5        ; 48 High-Mid Tom
+        db 4,3        ; 49 Crash Cymbal 1
+        db 4,5        ; 50 High Tom
+        db 4,3        ; 51 Ride Cymbal 1
+        db 4,3        ; 52 Chinese Cymbal
+        db 127,0        ; 53 Ride Bell
+        db 6,4        ; 54 Tambourine
+        db 4,3        ; 55 Splash Cymbal
+        db 4,6        ; 56 Cowbell
+        db 4,3        ; 57 Crash Cymbal 2
+        db 127,0        ; 58 Vibraslap
+        db 4,3        ; 59 Ride Cymbal 2
+        db 4,6        ; 60 High Bongo
+        db 4,6        ; 61 Low Bongo
+        db 127,0        ; 62 Mute High Conga
+        db 127,0        ; 63 Open High Conga
+        db 127,0        ; 64 Low Conga
+        db 127,0        ; 65 High Timbale
+        db 127,0        ; 66 Low Timbale
+        db 4,4        ; 67 High Agogo
+        db 127,0        ; 68 Low Agogo
+        db 127,0        ; 69 Cabasa
+        db 6,6        ; 70 Maracas
+        db 127,0        ; 71 Short Whistle
+        db 127,0        ; 72 Long Whistle
+        db 127,0        ; 73 Short Guiro
+        db 127,0        ; 74 Long Guiro
+        db 127,0        ; 75 Claves
+        db 5,6        ; 76 High Woodblock
+        db 5,5        ; 77 Low Woodblock
+        db 127,0        ; 78 Mute Cuica
+        db 127,0        ; 79 Open Cuica
+        db 6,4        ; 80 Mute Triangle
+        db 6,4        ; 81 Open Triangle
+        db 6,4        ; 82 Shaker
+
+        ; PSG noise channel percussion:
+        ; volume modifier, pitch/mode byte, decay setting, duration  (decay happens after duration)
+        ;                                                            (decay is * .125dB per tick)
+        ; pitch/mode bit 2:    clear = pulse, set = LFSR noise
+        ; pitch/mode bits 0~1: 0 = high pitch, 1 = mid, 2 = low
+        ;                      3 = use pitch from channel 3  (we won't use this here)
+
+sn76map.b:
+        db 1,6,9,17       ; 35 Acoustic Bass Drum
+        db 1,6,9,17       ; 36 Electric Bass Drum
+        db 1,4,18,10      ; 37 Side Stick
+        db 1,4,9,15       ; 38 Acoustic Snare
+        db 1,4,16,12      ; 39 Hand Clap
+        db 1,4,9,15       ; 40 Electric Snare
+        db 1,2,9,13       ; 41 Low Floor Tom
+        db 1,6,11,10      ; 42 Closed Hi-hat
+        db 1,2,9,13       ; 43 High Floor Tom
+        db 1,6,8,11       ; 44 Pedal Hi-hat
+        db 1,2,9,13       ; 45 Low Tom
+        db 1,6,7,13       ; 46 Open Hi-hat
+        db 1,2,9,13       ; 47 Low-Mid Tom
+        db 1,1,9,12       ; 48 High-Mid Tom
+        db 1,6,5,14       ; 49 Crash Cymbal 1
+        db 1,1,9,12       ; 50 High Tom
+        db 1,6,5,14       ; 51 Ride Cymbal 1
+        db 1,6,5,14       ; 52 Chinese Cymbal
+        db 127,0,0,0        ; 53 Ride Bell
+        db 127,0,0,0        ; 54 Tambourine
+        db 1,6,5,14       ; 55 Splash Cymbal
+        db 1,6,8,10       ; 56 Cowbell
+        db 1,6,5,14       ; 57 Crash Cymbal 2
+        db 127,0,0,0        ; 58 Vibraslap
+        db 1,6,5,14       ; 59 Ride Cymbal 2
+        db 1,1,12,14      ; 60 High Bongo
+        db 1,2,12,14      ; 61 Low Bongo
+        db 127,0,0,0        ; 62 Mute High Conga
+        db 127,0,0,0        ; 63 Open High Conga
+        db 127,0,0,0        ; 64 Low Conga
+        db 127,0,0,0        ; 65 High Timbale
+        db 127,0,0,0        ; 66 Low Timbale
+        db 127,0,0,0        ; 67 High Agogo
+        db 127,0,0,0        ; 68 Low Agogo
+        db 127,0,0,0        ; 69 Cabasa
+        db 127,0,0,0        ; 70 Maracas
+        db 127,0,0,0        ; 71 Short Whistle
+        db 127,0,0,0        ; 72 Long Whistle
+        db 127,0,0,0        ; 73 Short Guiro
+        db 127,0,0,0        ; 74 Long Guiro
+        db 127,0,0,0        ; 75 Claves
+        db 1,6,9,13       ; 76 High Woodblock
+        db 1,4,9,13       ; 77 Low Woodblock
+        db 127,0,0,0        ; 78 Mute Cuica
+        db 127,0,0,0        ; 79 Open Cuica
+        db 127,0,0,0        ; 80 Mute Triangle
+        db 127,0,0,0        ; 81 Open Triangle
+        db 1,6,9,10       ; 82 Shaker
+
+
+        sectioncode
+
+start!
+        callex cmdptr,initplatform
+
+        beginfunc
+        localvar w.d,x.d,y.d,z.d,xx.d,yy.d,zz.d,numtrack.d,trklen.d,curtime.d,prevtime.d,lastevent.d
+        localvar rptr.d,chan.d,dcode.d,atten.d,totalpoly.d,mindelay.d,kowaiting.d
+
+        chipmode=defaultmode
+
+        ; check command line
+a99:
+        callex w,readcmdstr,fname
+        ifunequal w,0,a100
+showusage:
+        callex ,printnt,usagemsg
+        goto programend
+a100:
+
+        ifunequal fname.b,"-".b,a98                ; options...
+        ifunequal fname.b(1),"i".b,a97             ; instrument test
+        gosub readdecimal
+        testinst=y
+        callex ,printnt,"testing instrument ".a
+        callex ,printhex8,testinst
+        callex ,printnt,crlf
+        goto a99
+a97:
+        ifunequal fname.b(1),"t".b,a96             ; transpose
+        gosub readdecimal
+        transpose=y > goto a99
+
+readdecimal:
+        x=2 > z=1
+        ifunequal fname.b(2),"-".b,a95
+        z=-1 > x=_+1
+a95:
+        y=0
+        whileless x,w
+        y=_*10+fname.b(x)-$30 > x=_+1
+        wend
+        y=_*z
+        return
+a96:
+        ifunequal fname.b(1),"d".b,a94             ; drum mode
+        drummode=fname.b(2) and 7 > goto a99
+a94:
+        ifunequal fname.b(1),"v".b,a93             ; volume mode
+        volmode=fname.b(2) and 1 > goto a99
+a93:
+        ifunequal fname.b(1),"s".b,a92             ; enable using SSG channels for melody
+        ssgmelody=fname.b(2) and 3 > goto a99
+a92:
+        ifunequal fname.b(1),"l".b,a91             ; limit simultaneous notes on a MIDI channel
+        noteslimit=fname.b(2) and 7 > goto a99
+a91:
+        ifunequal fname.b(1),"a".b,a90             ; attenuate SSG volume
+        gosub readdecimal
+        ssgatten=y > goto a99
+a90:
+        ifunequal fname.b(1),"p".b,a89             ; attenuate drums
+        gosub readdecimal
+        drumatten=y > goto a99
+a89:
+        ifunequal fname.b(1),"m".b,a88             ; set minimum release time
+        gosub readdecimal
+        mostlydead=y > goto a99
+a88:
+        ifunequal fname.d,"-one".b,a87             ; use one-channel-one-sound instead of LRKO
+        ocos=1 > goto a99
+a87:
+        ifunequal fname.b(1),"f".b,a86             ; modulation depth
+        gosub readdecimal
+        moddepth=y > goto a99
+a86:
+        ifunequal fname.b(1),"r".b,a85             ; reserved channels
+        gosub readdecimal
+        reserved=y > goto a99
+a85:
+        x=1 > z=1 > gosub a95
+        ifgreater y,12,showusage                   ; fail if chipmode is invalid
+        chipmode=y > goto a99
+a98:
+
+;        ifunequal chipmode,12,a202
+;        mostlydead=500
+;a202:
+
+        ; open input file
+        callex ff1,fileopen,fname
+        ifequal ff1.sd,-1,abortmsg
+        bbytes=0
+
+        callex ,fileread,ff1,mheader.a,14
+
+        ifequal mheader.d,"MThd".d,a101
+        callex ,printnt,"not a MIDI file"r.a
+        goto programend
+a101:
+        ifunequal mheader.b(9),2,a102
+        callex ,printnt,"Warning: type 2 multi-track"r.a
+a102:
+        ; byte at mheader.b(11) has number of tracks, but do I care?
+
+
+        ; check whether output filename was specified
+        callex w,readcmdstr,outname
+        ifgreater w,1,a229
+        copybytes "mout.vgm".a,outname,9
+a229:
+
+        ; done with command line options, setup volume conversion table
+        ifequal volmode,0,a180
+        copybytes linearvolume,voltable.a,128
+        goto a181
+a180:
+        copybytes midivolume,voltable.a,128
+a181:
+        lastwait=-1
+
+        ; process tracks
+        numtrack=-1 > dpointer=datablob.a
+a104:
+
+        numtrack=_+1
+        gosub getdword
+;callex ,printhexr,bbytes
+;callex ,printhexr,dat
+        loadbig dat,dat
+        ifunequal dat,"MTrk".d,a105
+;        ifunequal dat,"krTM".d,a105
+        gosub getdword > trklen=dat
+;        callex ,printnt,"found track ".a
+;        callex ,printhex16,numtrack
+;        callex ,printnt,crlf
+
+        ifequal numtrack,maxtracks,abortmsg
+
+        tpointers(numtrack shl 2)=dpointer
+
+        ttimes(numtrack shl 2)=0
+        prevtime=0 > curtime=0
+
+        ; read MIDI events from track data
+a107:
+        gosub getvariable        ; delta time
+        curtime=dat+_
+        gosub getbyte > z=aa     ; event type
+
+;ifunequal z and 15,7,hurpdurp
+;ifunequal numtrack,8,hurpdurp
+;callex ,printnt,"delay ".a > callex ,printhex,dat
+;callex ,printnt,"  event ".a > callex ,printhex8,z
+;callex ,printnt,"  total time ".a > callex ,printhexr,curtime
+;hurpdurp:
+
+        ; for normal events, channel number is in low 4 bits?
+        ; and parameter bytes are always 0-127 ?
+        ;
+        ; according to my old QBASIC code, if the event type is <128 then we reuse
+        ; the previous event type and channel, and treat the new byte as first parameter
+        ; 
+        ; $80 - note off, followed by byte (note number) and byte (velocity)
+        ; $90 - note on, followed by byte (note number) and byte (velocity)
+        ; $A0 - note aftertouch, followed by byte (note number) and byte (aftertouch value)
+        ;        "indicates a pressure change [...] often increasing some type of modulation"
+        ; $B0 - controller, followed by byte (ctrl number) and byte (ctrl value)
+        ;        0 - bank select
+        ;        1 - modulation
+        ;        2 - breath controller
+        ;        4 - foot controller
+        ;        5 - portamento time
+        ;        6 - data entry (MSB)
+        ;        7 - main volume
+        ;        8 - balance
+        ;        $0A - pan
+        ;        $0B - expression controller (another volume control?)
+        ;        $0C - effect controller 1
+        ;        $0D - effect controller 2
+        ;        $10...$13 - general purpose controllers 1...4
+        ;        $20...$3F - LSB for controllers 0...13
+        ;        $40 - damper pedal, a.k.a. sustain pedal  (off or on, according to bit 6)  (sustains all notes)
+        ;        $41 - portamento                          (off or on, according to bit 6)
+        ;        $42 - sostenuto                           (off or on, according to bit 6)  (sustains last note)
+        ;        $43 - soft pedal                          (off or on, according to bit 6)  (lower volume)
+        ;        $44 - legato footswitch                   (off or on, according to bit 6)
+        ;        $45 - hold 2
+        ;        $46 - sound controller 1  (timer variation)
+        ;        $47 - sound controller 2  (harmonic content)
+        ;        $48 - sound controller 3  (release time)
+        ;        $49 - sound controller 4  (attack time)
+        ;        $4A...$4F - sound controllers 5...10
+        ;        $50...$53 - general purpose controllers 5-8
+        ;        $54 - portamento control
+        ;        $5B - effect 1 depth  (external effect)
+        ;        $5C - effect 2 depth  (tremolo)
+        ;        $5D - effect 3 depth  (chorus)
+        ;        $5E - effect 4 depth  (celeste)
+        ;        $5F - effect 5 depth  (phaser)
+        ;        $60 - data increment
+        ;        $61 - data decrement
+        ;        $62 - non-registered parameter number (LSB)
+        ;        $63 - non-registered parameter number (MSB)
+        ;        $64 - registered parameter number (LSB)
+        ;        $65 - registered parameter number (MSB)
+        ;        $79...$7F - mode messages  ($7B turns all notes off for the channel?)
+        ; $C0 - program change, followed by byte (program number)
+        ; $D0 - channel aftertouch, followed by byte (aftertouch value)
+        ;        "effects all keys on the channel"
+        ; $E0 - pitch bend, followed by byte (low 7 bits) and byte (high 7 bits)
+        ;        varies the pitch by +/- 2 semi-tones. 8192 = no change.
+        ; $F0,$F7 - sysex event, followed by variable (length) and ends with $F7
+        ; $FF - meta event, followed by byte (subtype) and variable (length)
+        ;        0 - sequence number
+        ;        1 - text event
+        ;        2 - copyright notice
+        ;        3 - track name
+        ;        4 - instrument name
+        ;        5 - lyrics
+        ;        6 - marker (?)
+        ;        7 - cue point
+        ;        $20 - channel select prefix (applies to immediately following meta events)
+        ;        $2F - END OF TRACK
+        ;        $51 - set tempo (microseconds per beat) (3 actual bytes?)
+        ;        $54 - SMPTE (?) offset (track starting time)
+        ;                byte 0 - bits 0-4 = hours, bits 5-6 = 24/25/30/30fps
+        ;                byte 1 - minutes
+        ;                byte 2 - seconds
+        ;                byte 3 - frames
+        ;                byte 4 - hundredths of frames
+        ;        $58 - time signature  (yet another timing spec with yet another encoding)
+        ;        $59 - key signature (...)
+        ;        $7F - sequencer specific  (misc)
+
+        ifnotless z,$FF,evmeta
+        ifnotless z,$F0,evsysex
+        ifnotless z,$80,newevent
+        ; repeated event/channel number
+        x=z > z=lastevent
+        goto a115
+newevent:
+        lastevent=z > y=0
+        gosub getbyte > x=aa        ; parameter 1
+a115:
+        ifnotless z,$E0,evdouble
+        ifnotless z,$C0,evsingle
+        goto evdouble
+
+
+recalctiming:
+        tsamples=$AC440/beats shl 8/ticks
+;callex ,printnt,"beats ".a
+;callex ,printhex,beats
+;callex ,printnt,"  ticks ".a
+;callex ,printhex,ticks
+;callex ,printnt,"  tsamples ".a
+;callex ,printhexr,tsamples
+        return
+
+evmeta:
+        gosub getbyte > z=aa        ; meta event subtype
+
+        ifunequal z,$2F,a111
+        gosub getbyte                 ; length should be 0
+        dcode=-1 > goto writedat      ; end of track
+a111:
+        ifunequal z,$51,a112        ; tempo change
+        gosub getbyte               ; length should be 3
+        gosub getbyte > x=aa
+        gosub getbyte > x=_ shl 8+aa
+        gosub getbyte > x=_ shl 8+aa
+
+        dcode=x+$7F000000
+        goto writedat
+a112:
+
+;        ifunequal z,$54,a113                ; SMPTE
+;        ifunequal curtime,0,abortmsg        ; time should not have advanced from 0 yet...
+;        gosub getbyte                       ; length should be 5
+;        gosub getbyte > x=aa and $1F
+;        y=dumbtable(aa shr 5)
+;        gosub getbyte > x=_*60+aa           ; minutes
+;        gosub getbyte > x=_*60+aa*44100     ; seconds * 44100 = samples
+;        gosub getbyte > z=aa                ; frames
+;        gosub getbyte > z=_*100+aa          ; hundredths
+;        z=_*441/y+x
+;callex ,printnt,"track time offset ".a
+;callex ,printhexr,z
+;        ttimes(numtrack shl 2)=z shl 4
+;        goto a110
+;a113:
+
+;        ifunequal z,$58,a142                ; time signature
+;        gosub getbyte                       ; length should be 4
+;        gosub getbyte > x=aa                ; numerator
+;        gosub getbyte                       ; denominator exponent
+;        timesig=1 shl aa shl 8/x
+;        gosub getbyte
+;        gosub getbyte
+;        goto a110
+;a142:
+
+evsysex:
+evskip:
+        gosub getvariable
+        x=0
+        whileless x,dat
+        gosub getbyte > x=_+1
+        wend
+        goto a110
+
+evdouble:
+        gosub getbyte > y=aa        ; parameter 2
+evsingle:
+        ; store the event data (takes up 1 dword)
+        dcode=$8000+z shl 8+y shl 8+x
+
+writedat:
+        ifequal curtime,prevtime,a109
+        [dpointer].d=curtime-prevtime > dpointer=_+4        ; store a time delay (in ticks)
+        prevtime=curtime
+a109:
+        [dpointer].d=dcode
+        dpointer=_+4
+        ifequal dcode,-1,a104                    ; end of track?
+        ifnotless dpointer,blobend,overflow      ; stop processing if we filled the memory buffer    
+
+a110:
+        ifunequal rbytes,0,a107        ; check for premature EOF
+        callex ,printnt,"EOF"r.a
+
+overflow:
+        callex ,printnt,"track truncated!"r.a
+        numtrack=_+1
+
+a105:
+        callex ,fileclose,ff1
+        ifunequal numtrack,0,a114
+        callex ,printnt,"error: no tracks found"r.a
+        goto programend
+
+a114:
+
+        ; record final dpointer (end of the last track)
+        tpointers(numtrack shl 2)=dpointer
+
+        callex ,printnt,"tracks: ".a
+        callex ,printhex16,numtrack
+        callex ,printnt,crlf
+
+callex ,printnt,"separate data: ".a
+callex ,printhexr,dpointer-datablob.a
+
+
+        ; -------------- process separate tracks into single data stream --------------
+
+        rptr=reproc.a
+
+        w=0
+        whileless w,16                ; clear simultaneous note counters
+        notecount(w)=0
+        maxcount(w)=0
+        volumes(w)=0                  ; clear this so we can use it to record max vol during this pass
+        programs(w)=0                 ; clear this so we can record programs during this pass
+        bends(w)=0
+        vibdepth(w)=0
+        vibspeed(w)=48                ; default vibrato speed
+        lowestnote(w)=127
+        w=_+1        
+        wend
+
+        w=0
+        whileless w,256
+        crossref(w shl 2)=0           ; clear channel co-activity cross reference table
+        fbuf.b(w)=0                   ; clear this so we can use it as active notes bitmap
+        ymreg.w(w shl 1)=-1           ; clear this for logging percussion key-on/off time
+        w=_+1        
+        wend
+
+        w=0
+        whileless w,numtrack
+        ppointers(w shl 2)=tpointers(w shl 2)        ; copy pointers to track data
+        tdelay(w shl 2)=0                            ; clear delay counters
+        w=_+1
+        wend
+
+        beats=512                      ; (default tempo is 120 beats per minute, ie. 2/second)
+        loadbig x,mheader.w(12)        ; time division
+        ifequal x and $8000,0,a103
+        ; ticks per frame and frames per second
+        beats=x shr 8 and $7F
+        x=_ and $FF
+a103:
+        ticks=x        ; ticks per beat  
+        gosub recalctiming
+
+        zz=numtrack shl 2
+        prevtime=0 > curtime=0 > kowaiting=0
+
+a119:
+        mindelay=-1        ; init to maximum value
+        ; check each track for timely new data
+        w=0
+a117:
+        whileless w,zz
+        ifgreater ttimes(w),curtime,a144      ; track beginning time (in 16ths of 44100Hz samples)
+                                              ; now only used to flag track end, since SMPTE is ignored
+        ifequal tdelay(w),0,a118                ; track delay timers (in ticks)
+a198:
+        ifnotless tdelay(w),mindelay,a144
+        mindelay=tdelay(w)
+a144:
+        w=_+4
+        wend
+
+        ; if I was actually using ttimes, I'd have to compare the gap from curtime to there with mindelay
+
+        ; processed all tracks that had events ready, now advance the time
+        w=0
+        whileless w,zz
+        ifgreater ttimes(w),curtime,a145
+        tdelay(w)=_-mindelay
+a145:
+        w=_+4
+        wend
+
+        curtime=tsamples*mindelay+_        ; increment global timer and then loop
+        goto a119
+
+
+a118:
+        ; process some track data
+        x=ppointers(w)
+        ifgreater tpointers(w+4),x,a135        ; track data ended?
+        ttimes(w)=-1
+        ; check whether all tracks have ended
+        y=0
+        whileless y,zz
+        ifunequal ttimes(y),-1,a144
+        y=_+4
+        wend
+        goto reprocdone
+a135:
+
+        ppointers(w)=_+4
+        x=[x].d
+
+        ifunequal x and $80000000,0,a116
+        ifunequal x shr 24,$7F,a141
+        ; tempo change
+        x=_ and $FFFFFF
+        beats=256000000
+        whilegreater x,65535 > beats=_ shr 1 > x=_ shr 1 > wend        ; make it work with 16-bit divide
+        beats=_/x
+        gosub recalctiming
+        goto a117
+a141:
+        ; track delay
+        tdelay(w)=x > goto a198
+a116:
+
+        chan=x shr 16 and 15
+
+        ifunequal x and $F00000,$B00000,a120
+        ; controller event
+        y=x and $FF
+        ifequal y,1,a120          ; keep modulation wheel
+        ifequal y,3,a120          ; keep undefined controller (which I'll use for modulation speed)
+        ifequal y,7,a182          ; keep volume
+        ifequal y,$0A,a120        ; keep pan
+        ifequal y,$0B,a120        ; keep expression
+        ifequal y,$7B,a120        ; keep 'all notes off'
+;callex ,printnt,"controller ".a
+;callex ,printhex8,y
+;callex ,printnt," value ".a
+;callex ,printhex8,x shr 8
+;callex ,printnt," chan ".a
+;callex ,printhexr,x shr 16 and $0F
+;callex ,printnt,crlf
+        goto dropevent            ; discard others
+a182:
+        y=x shr 8
+        ifnotless volumes(chan),y,a120
+        volumes(chan)=y                              ; record highest volume setting on each channel
+a120:
+
+        ifequal curtime shr 4,prevtime,a136          ; need to write a new timestamp?
+        prevtime=curtime shr 4
+        [rptr].d=prevtime > rptr=_+4
+        ifequal kowaiting,0,a136
+        z=firstperc > y=lastperc+1
+        whileless z,y                                ; check for delayed percussion note-offs
+        ifnotless ymreg.d(z shl 2),prevtime,a212
+        ymreg.d(z shl 2)=-1
+        [rptr].d=z+$80890000 > rptr=_+4              ; insert the event now
+        yy=1 shl (z and 7)
+        fbuf.b($480+z shr 3)=yy xor 255 and _        ; turn off note in bitmap
+        ifequal notecount(9),0,a215
+        notecount(9)=_-1
+a215:
+        kowaiting=_-1 > ifequal kowaiting,0,a136
+a212:
+        z=_+1
+        wend
+a136:
+
+        ifequal x,-1,dropevent                 ; don't need end-of-track events in the combined data
+
+        ; track number of notes that play simultaneously on each channel
+        ifunequal x and $E00000,$800000,a151
+        y=x and $7F
+        ifequal chan,9,a219                          ; don't 'transpose' percussion sounds
+        y=_+pitchoffset(chipmode)+transpose
+        ifgreater y,127,dropevent                    ; ignore notes that go out of range
+a219:
+        yy=chan shl 7+y shr 3+fbuf.a                 ; address
+        z=1 shl (y and 7)                            ; bit mask
+        ifequal x and $100000,0,a152
+        ifequal x and $7F00,0,a152
+        ; note on
+        ifunequal [yy].b and z,0,dropevent           ; note already on?
+        ifunequal chan,9,a218
+        ymreg.d(x and $7F shl 2)=prevtime+minimumon        ; record timestamp for percussion key-on
+a218:
+        [yy].b=_ or z                                ; now it is
+        ifnotgreater lowestnote(chan),y,a210
+        lowestnote(chan)=y                                 ; record lowest note
+a210:
+        z=0
+        whileless z,16
+        crossref(chan shl 4+z shl 2)=notecount(z)+_        ; add to conflict tallies
+        z=_+1
+        wend
+        y=notecount(chan)+1
+        notecount(chan)=y
+        ifnotless maxcount(chan),y,a151
+        maxcount(chan)=y > goto a151                       ; record max polyphony
+a152:
+        ; note off
+        ifequal [yy].b and z,0,dropevent             ; note wasn't on to begin with?
+        ifunequal chan,9,a207
+        ifless ymreg.d(x and $7F shl 2),prevtime,a213      ; percussion getting keyed-off too early?
+        kowaiting=_+1 > goto dropevent
+a213:
+        ymreg.d(x and $7F shl 2)=-1
+a207:
+        [yy].b=z xor 255 and _                       ; turn it off
+        ifequal notecount(chan),0,a151
+        notecount(chan)=_-1
+a151:
+
+        ifunequal x and $F00000,$C00000,a153
+        programs(chan)=x and $7F
+        notecount(chan)=0                         ; all notes stop when a program change happens
+        z=chan shl 4+fbuf.a > [z].d=0
+        ea.d(z+4)=0                               ; so clear notes bitmap
+        ea.d(z+8)=0
+        ea.d(z+12)=0
+a153:
+
+        ; other events
+        [rptr].d=x > rptr=_+4                     ; copy event
+dropevent:
+        ifless rptr,ppointers,a117
+
+        callex ,printnt,"reproc overflow :("r.a
+        goto programend
+
+
+reprocdone:
+
+        callex ,printnt,"combined data: ".a
+        callex ,printhexr,rptr-reproc.a
+
+;callex ff3,filecreate,"delthis.bin".a                ; debugging file
+;callex ,filewrite,ff3,reproc.a,rptr-reproc.a
+;callex ,fileclose,ff3
+
+        w=0 > totalpoly=0
+        whileless w,16
+        totalpoly=maxcount(w)+_
+        callex ,printhex8,maxcount(w)
+        callex ,printnt," ".a
+        w=_+1
+        wend
+        callex ,printnt,crlf
+
+;        callex ,printnt,"loading instrument data"r.a
+
+        callex pathlen,appgetpath,fname.a,240
+        fname.b(pathlen)="i".b > pathlen=_+1
+        fname.b(pathlen)="s".b > pathlen=_+1
+        fname.b(pathlen)="c".b > pathlen=_+1
+        fname.b(pathlen)="\".b > pathlen=_+1
+
+        z=directory.a
+        ifless chipmode,8,a206 > z=directory2.a
+a206:
+
+        w=0
+        whileunequal [z].b,$FF
+
+        attenuate(w)=[z].b > z=_+1
+        param1(w)=[z].b > z=_+1
+        ifequal [z].b,0,nullinst        ; is a filename specified? if not, it's a 'null' instrument
+;        fname.d="isc\".d
+;        y=4
+        y=pathlen
+a158:
+        fname.b(y)=[z].b > y=_+1        ; append file name after path
+        ifequal [z].b,0,a159
+        z=_+1 > goto a158
+a159:        
+        callex ff2,fileopen,fname.a
+
+        ifequal ff2.sd,-1,badfile       ; couldn't open the file? null instrument
+
+        callex ,fileread,ff2,instdata.a(w shl 6),64
+        callex ,fileclose,ff2
+
+        ifless chipmode,8,a108
+        x=instdata.a(w shl 6)
+        y=x+16
+        whileless x,y
+        ea.b(x+$10)=_*29 shr 6        ; adjust envelope params to work on OPL
+        ea.b(x+$11)=_*29 shr 6
+        ea.b(x+$13)=_*29 shr 6
+        ea.b(x+$01)=_ shr 1           ; shift the multiplier so I don't have to do it later
+        ifequal ea.b(x+$22),0,a208
+        ea.b(x+$01)=_ or $80          ; set tremolo bit if AMS was enabled in ISC data
+a208:
+        ifequal ea.b(y+$11),0,a209
+        ea.b(x+$01)=_ or $40          ; set vibrato bit if FMS was enabled in ISC data
+a209:
+        x=_+4
+        wend
+
+y=ea.b(x+$20)
+ifequal y,4,a108                ;
+ifequal y,6,a108                ; algos allowed on OPL
+ifequal y,7,a108                ;
+
+;        goto a108
+
+badfile:
+        callex ,printnt,"couldn't open ".a
+        callex ,printnt,fname.a
+        callex ,printnt,crlf
+
+nullinst:
+        attenuate(w)=127
+
+a108:
+        z=_+1
+        w=_+1
+        wend
+
+
+        callex ,printnt,"preparing to write VGM"r.a
+
+        callex ff1,filecreate,outname.a
+        ifequal ff1.sd,-1,abortmsg
+        bbytes=0
+
+        ymchannels=chancount(chipmode)-reserved
+
+;        w=0
+;        whileless w,512              ; init YM register files
+;        ymreg(w)=0
+;        ymreg2(w)=0 > w=_+1
+;        wend
+
+        w=0
+        whileless w,maxchan          ; init some YM data arrays
+        yprogs(w)=-1
+        ychans(w)=-1
+        ykeys(w)=0
+        ytimes(w shl 2)=0
+        w=_+1
+        wend
+
+        w=0
+        whileless w,16
+        chanmaplow(w)=0
+        chanmaphigh(w)=ymchannels
+        w=_+1
+        wend
+
+        w=0
+        whileless w,1024        ; clear some space here to flag registers being written
+        datablob.b(w)=0         ; (needs to happen before regwrite is used!)
+        w=_+1        
+        wend
+
+        psgtimer=-1 > psgkey=0
+        vibtimer=vibtick
+
+        ifunequal drummode,0,a160
+        drummode=chipdefault(chipmode)
+a160:
+        ifequal drummode,3,a189
+        totalpoly=_-maxcount(9)              ; if not using FM drums, don't count them in channel 'load'
+a189:
+        ifunequal drummode,4,a170
+        vgmheader.d($0C)=$369E99             ; enable the SN76489
+a170:
+
+        copybytes cmdtable.a(chipmode*maxchan),chipcmd.a,maxchan
+        copybytes chantable.a(chipmode*maxchan),chipchan.a,maxchan
+
+        ; let's display some info
+        callex ,printnt,"chip mode:  ".a > callex ,printhex8,chipmode > callex ,printnt,crlf
+        callex ,printnt,"drum mode:  ".a > callex ,printhex8,drummode > callex ,printnt,crlf
+        callex ,printnt,"SSG enable: ".a > callex ,printhex8,ssgmelody > callex ,printnt,crlf
+
+
+        vgmheader.d(chipclocks(chipmode shl 3))=chipclocks(chipmode shl 3+4)
+
+        callex ,filewrite,ff1,vgmheader.a,$80        ; write VGM header, even though it needs
+                                                     ; to be updated again later
+
+        ifequal ssgmelody,0,a183
+        zz=0                                     ; lowest possible note on YM2149  (doesn't really matter)
+        ifunequal chipmode,2,a211 > zz=69        ; lowest possible note on SN76489  (does actually matter)
+        vgmheader.d($0C)=$369E99                 ; enable the SN76489
+a211:
+        xx=0
+        whilegreater ssgcount(chipmode),xx
+
+        z=chipcmd(ssgbegin+xx)
+        callex ,regwrite,z,$07,56             ; init SSG config
+        callex ,regwrite,z,$08,0
+        callex ,regwrite,z,$09,0
+        callex ,regwrite,z,$0A,0
+
+        z=0
+        whileless z,3
+        ifgreater ssgmelody,1,a197
+        ifnotgreater totalpoly,ymchannels,a183       ; don't use SSG channels if we don't even need to
+a197:
+        x=127 > y=-1
+        w=0
+        whileless w,16                        ; find a channel...
+        ifequal w,9,a184                      ; which isn't percussion
+        ifless lowestnote(w),zz,a184          ; and doesn't play too low of a note
+        ifequal maxcount(w),0,a184
+        ifgreater maxcount(w)+z,3,a184        ; and doesn't play too many notes at once
+        yy=volumes(w)
+        ifunequal programs(w),80,a220
+        yy=_ shr 1                            ; (give preference to "square wave" instrument)
+;callex ,printnt,"squarepants"r.a
+a220:
+        ifgreater yy,x,a184                   ; and isn't too loud
+        x=yy > y=w
+a184:
+        w=_+1
+        wend
+        ifequal y,-1,a186                     ; ran out of qualified channels?
+callex ,printhexr,y
+        chanmaplow(y)=z+xx+ssgbegin
+        z=_+maxcount(y)
+        totalpoly=_-maxcount(y)
+        maxcount(y)=0                         ; clear this so it will be ignored in the next routine
+        wend
+a186:
+        xx=_+3
+        wend
+a183:
+
+        ; if one-channel-one-sound mode is selected, give each midi channel a fixed assignment
+        ifequal ocos,0,a222
+        w=0 > x=0
+        whileless w,16
+        ifless x,ymchannels,a224
+        chanmaplow(w)=0                       ; midi channel is assigned to null if fm channels ran out
+        chanmaphigh(w)=0
+        goto a223
+a224:
+        ifequal maxcount(w),0,a223
+        chanmaplow(w)=x
+        x=maxcount(w)+_
+        chanmaphigh(w)=x
+        maxcount(w)=0
+        ifless x,ymchannels,a223
+        chanmaphigh(w)=ymchannels
+a223:
+        w=_+1
+        wend
+        goto a174
+a222:
+
+
+        zz=4
+        ifequal chipmode,11,a214
+        ifunequal chipmode,7,a174
+        zz=3
+a214:
+        ; in 2x YM2203 (or 2x YM3812) mode, assign each MIDI channel to a particular chip
+        count1=0 > count2=0
+a177:
+        w=0 > x=0 > y=0
+        whileless w,16
+        ifnotgreater maxcount(w),x,a175
+        ifequal drummode,3,a176
+        ifequal w,9,a175
+a176:
+        x=maxcount(w) > y=w
+a175:
+        w=_+1
+        wend
+        ifequal x,0,a174        ; all channels assigned?
+        ; which side would have less conflict?
+        w=0
+        whileless w,2
+        z=0 > xx=yy > yy=0
+        whilegreater count1(w),z
+        yy=crossref(y shl 4+chanmap1(w shl 4+z) shl 2)+_
+        z=_+1
+        wend
+        w=_+1
+        wend
+;callex ,printhex,y
+;callex ,printhex,xx
+;callex ,printhexr,yy
+        ifgreater xx,yy,a178
+        chanmap1(count1)=y > count1=_+1
+        chanmaphigh(y)=zz
+        goto a179
+a178:
+        chanmap2(count2)=y > count2=_+1
+        chanmaplow(y)=zz
+a179:
+        maxcount(y)=0           ; now that the channel is assigned, cross it off the list
+        goto a177
+a174:
+
+        ; add initialization data to the output, if any
+        w=initdata(chipmode shl 2)
+        whileunequal [w].d,0
+        dat=[w].d > gosub puttriple
+        w=_+4
+        wend
+
+        w=0
+        whileless w,16
+        notecount(w)=0
+        volumes(w)=100                ; initialize volumes to default
+        programs(w)=0                 ; clear MIDI program assignments
+        w=_+1
+        wend
+
+
+        ; +++++++++++++++  begin processing loop  +++++++++++++++
+
+        curtime=0
+        w=reproc.a
+a121:
+        ifnotless w,rptr,vgmdone
+        x=[w].d > w=_+4
+
+        ifunequal x and $80000000,0,a122            ; timestamp?
+
+        ; check for other VGM events that might need to be inserted
+
+        ; find earliest event
+a167:
+        xx=psgtimer
+        ifnotgreater xx,vibtimer,a165 > xx=vibtimer
+a165:
+        yy=ssgbegin
+        whileless yy,maxchan                              ; SSG events
+        ifunequal ykeys(yy),2,a166
+        ifnotless ytimes(yy shl 2),xx,a166
+        xx=ytimes(yy shl 2)
+a166:
+        yy=_+1
+        wend
+
+        ifnotless xx,x,a168                        ; is it time to process any event yet?
+        prevtime=curtime > curtime=xx
+        callex ,vgmdelay,curtime-prevtime
+
+        ifunequal vibtimer,curtime,a227            ; is it time to adjust pitches for MIDI vibrato?
+        vibtimer=_+vibtick
+        count64=_+1 and 63
+        ifequal moddepth,0,a227
+        yy=0
+        whileless yy,maxchan                       ; recalc frequency of notes playing on the channel
+        ifequal ykeys(yy),0,a228
+        ifequal vibdepth(ychans(yy)),0,a228
+        callex ,pitchadj,yy
+a228:
+        yy=_+1
+        wend
+a227:
+
+        yy=ssgbegin
+        whileless yy,maxchan                       ; is there an SSG event?  ('2149 or SN76 square waves)
+        ifunequal ykeys(yy),2,a190
+        ifunequal ytimes(yy shl 2),curtime,a190
+        y=yopmask(yy) > z=psgtick
+        ifgreater y,15,a192                                        ; attack phase
+;        y=_+1 > ifunequal y,16,a191
+;        y=31 > goto a194
+        y=_+1 > ifgreater ssgparam(yprogs(yy) shl 2)+1,y,a191
+        y=_+15 > goto a194
+a192:
+        ifgreater y,31,a193                                        ; decay1 phase
+        ifequal ssgdecay1(yprogs(yy) shl 2) and 15+16,y,a195
+        y=_-1
+a194:
+        z=ssgdecay1(yprogs(yy) shl 2) shr 4+1*_                    ; decay1 time delay
+        goto a191
+a195:
+;        y=_+16 > goto a196
+        y=_+17
+a193:
+        y=_-1
+a196:
+        z=ssgdecay2(yprogs(yy) shl 2)+1*_                          ; decay2 time delay
+a191:
+        yopmask(yy)=y
+        ytimes(yy shl 2)=curtime+z                                 ; time of next event
+        callex atten,calcvolume,ychans(yy),yvelocity(yy)
+        callex ,volumeadj,yy,atten
+        ifunequal y,32,a190                        ; note has gone silent?
+        callex ,ymkeyoff,yy
+a190:
+        yy=_+1
+        wend
+
+        ifunequal psgtimer,curtime,a169            ; is there a PSG event?  (SN76 noise)
+        psgtimer=_+psgtick > psgduration=_-1
+        ifequal psgduration,0,a171
+        y=psgvol+psgdecay
+        ifgreater y,$EF,a171
+        swap psgvol,y
+        y=_ shr 4 > ifunequal psgvol shr 4,y,a172
+        goto a169
+a171:
+        psgvol=$FF                         ; silence SN76 noise
+        psgtimer=-1 > psgkey=0
+a172:
+        aa=$50 > gosub putbyte
+        aa=psgvol shr 4+$F0 > gosub putbyte
+a169:
+
+        goto a167        ; loop to check for more VGM events
+a168:
+        prevtime=curtime > curtime=x
+        callex ,vgmdelay,curtime-prevtime
+        goto a123
+a122:
+
+        chan=x shr 16 and 15
+        y=x shr 20 and 15                ; event type
+        z=x and $FF
+        ; lowest byte in x is the first parameter
+
+        ifunequal y,$0B,a127                        ; controllers
+        ifequal z,$7B,clearchannel
+        xx=x shr 8
+        ifunequal z,1,a225 > vibdepth(chan)=xx
+a225:   ifunequal z,3,a226 > vibspeed(chan)=xx
+a226:   ifunequal z,7,a128 > volumes(chan)=xx
+a128:   ifunequal z,$A,a129 > pans(chan)=xx
+a129:   ifunequal z,$B,a146 > expression(chan)=xx
+a146:
+        ifequal chan,9,a123
+        xx=0
+        whileless xx,maxchan               ; update notes playing on the affected channel
+        ifequal ykeys(xx),0,a147
+        ifunequal ychans(xx),chan,a147
+        callex atten,calcvolume,chan,yvelocity(xx)
+        callex ,volumeadj,xx,atten
+a147:
+        xx=_+1        
+        wend
+        goto a123
+a127:
+
+        ifunequal y,$0C,a124                        ; program change
+        ifequal testinst,0,a155
+        z=testinst-1
+a155:
+        programs(chan)=z
+clearchannel:
+        xx=0
+        whileless xx,maxchan               ; cut any notes that were still playing on this channel
+        ifunequal ychans(xx),chan,a201
+        ifunequal ykeys(xx),2,a201
+        ytimes(xx shl 2)=curtime
+        callex ,ymkeyoff,xx
+a201:
+        xx=_+1
+        wend
+        goto a123
+a124:
+
+        ifunequal y,$0E,a204                        ; pitch bend
+        ifequal chan,9,a123
+        bends(chan)=x shr 1 and $3F80+z shr 6-128
+        xx=0
+        whileless xx,maxchan                        ; recalc frequency of notes playing on the channel
+        ifunequal ychans(xx),chan,a205
+        callex ,pitchadj,xx
+a205:
+        xx=_+1
+        wend
+        goto a123
+a204:
+
+        zz=programs(chan)
+
+        ifunequal chan,9,a149              ; channel 9/10 is percussion
+        ifless z,firstperc,a123            ; is note number in the known range of percussion sounds?
+        ifgreater z,lastperc,a123
+        ifequal drummode,1,a123            ; percussion disabled?
+        ifunequal drummode,2,a161          ; using YM2608 rhythm?
+        xx=z-35 shl 1+rhythmmap.a
+        ifunequal y,$09,a150               ; is it a note-on?
+        ifequal x and $FF00,0,a150
+        callex yy,calcvolume,chan,x shr 8
+        aa=opmpan(pans(chan) shr 3)
+        ifunequal aa,$C0,a199 > yy=_+centeratten
+a199:
+        yy=_+[xx].b
+        ifgreater yy,$1E,a123
+        z=ea.b(xx+1)-1
+        callex ,regwrite,$56,z+$18,$1F-yy+aa
+        aa=$56 > gosub putbyte
+        aa=$10 > gosub putbyte
+        aa=1 shl z > gosub putbyte
+        goto a123
+a150:
+        ; note off (ignore for now)
+        goto a123
+
+a161:
+        ifunequal drummode,4,a163          ; using SN76 for drums?
+        ifunequal y,$09,a164               ; is it a note-on?
+        ifequal x and $FF00,0,a164
+        ifunequal psgkey,0,a123            ; channel already busy?
+        xx=z-35 shl 2+sn76map.a
+        callex yy,calcvolume,chan,x shr 8
+        yy=_+[xx].b/3
+        ifgreater yy,$0E,a123
+        psgkey=z
+        psgvol=yy shl 4
+        aa=$50 > gosub putbyte
+        aa=$F0+yy > gosub putbyte
+        psgdecay=ea.b(xx+2)
+        psgduration=ea.b(xx+3)
+        aa=$50 > gosub putbyte
+        aa=$E0+ea.sb(xx+1) > gosub putbyte
+        psgtimer=curtime+psgtick
+        goto a123
+a164:
+        ifunequal psgkey,z,a123            ; does the note-off pertain to what was playing?
+        psgkey=0                           ; silence SN76 noise
+        aa=$50 > gosub putbyte
+        aa=$FF > gosub putbyte
+        goto a123
+a163:
+        ; using FM drums...
+        zz=z+93                ; new program number
+;zz=129        ; bass
+;zz=130        ; sidestick
+;zz=131        ; snare
+;zz=132        ; clap
+;zz=134        ; low tom
+;zz=135        ; hi-hat
+;zz=136        ; high tom
+;zz=142        ; cymbal
+;zz=163        ; maracas
+;zz=175        ; shaker
+;zz=161
+        z=param1(zz)-transpose        ; new note number (with transpose cancelled out)
+a149:
+
+        ifunequal y,$09,a130                        ; note on
+        ifequal x and $7F00,0,a138                  ; or off?
+        ifequal attenuate(zz),127,a123              ; don't try to play null instrument
+        ifequal notecount(chan),noteslimit,a123
+
+        callex atten,calcvolume,chan,x shr 8
+;;        ifgreater atten,126,a123                    ; volume is too low to actually play?
+;        ifless atten,127,derpflerp
+;        callex ,printnt,"HUmbUG"r.a
+;derpflerp:
+
+;        xx=0
+;        whileless xx,maxchan                        ; is the same note already playing?
+;        ifunequal ychans(xx),chan,a216
+;        ifunequal ynotes(xx),z,a216
+;        ifunequal ykeys(xx),2,a216
+;        yvelocity(xx)=x shr 8                       ; use the new velocity value
+;        callex atten,calcvolume,chan,yvelocity(xx)
+;        callex ,volumeadj,xx,atten
+;        goto a123
+;a216:
+;        xx=_+1
+;        wend
+
+        xx=chanmaplow(chan)
+        ifless xx,ssgbegin,a185                     ; using SSG to play
+        y=xx
+        whileunequal ykeys(y),0 > y=_+1 > wend      ; find a free channel
+        yopmask(y)=ssgattack(zz shl 2)
+;        yopmask(y)=ssgattack(zz shl 2)+ssgparam(zz shl 2)-15
+        goto a134
+a185:                                               ; using FM channels to play
+;        atten=attenuate(programs(chan))+_           ; redundant! this is applied by volumeadj
+        yy=curtime+1 > y=-1
+        whilegreater chanmaphigh(chan),xx
+        ifunequal ykeys(xx),0,a133
+        lastevent=ytimes(xx shl 2)
+        ifgreater lastevent+alldead,curtime,a156
+        ifunequal yprogs(xx),zz,a156                ; is there an idle channel already on this program?
+        y=xx > goto a134
+a156:
+        ifgreater lastevent,yy,a133                 ; otherwise find least-recently-keyed-off YM channel
+        ifequal yprogs(xx),zz,a221
+        ifequal lastevent,yy,a133                   ; when keyed-off at same time, prefer same instrument
+a221:
+        y=xx > yy=lastevent
+a133:
+        xx=_+1
+        wend
+        ifunequal y,-1,a134                ; all YM channels busy?
+        drops=_+1
+        goto a123
+a134:
+        ykeys(y)=2 > ychans(y)=chan               ; associate MIDI channel with YM channel
+        ytimes(y shl 2)=curtime+psgtick           ; key-on time only matters for PSG/SSG and percussion
+        yvelocity(y)=x shr 8 > ynotes(y)=z
+        callex ,ymprogchange,y,zz                 ; YM channel number, program/instrument number
+        callex ,volumeadj,y,atten
+        callex ,pitchadj,y
+        callex ,ymkeyon,y
+        goto a123
+a130:
+
+
+        ifunequal y,$08,a131                        ; note off
+a138:
+        xx=0
+        whileless xx,maxchan
+        ifunequal ychans(xx),chan,a132
+        ifunequal ynotes(xx),z,a132
+        ifunequal ykeys(xx),2,a132
+        ytimes(xx shl 2)=curtime
+;        yvelocity(xx)=x shr 8             ; note off velocity isn't used for anything
+        callex ,ymkeyoff,xx
+        goto a123                         ; stop searching after we already turned something off?
+a132:
+        xx=_+1
+        wend
+;        goto a123
+a131:
+
+
+a123:
+
+        ; change channel status after specified timeout
+        x=0
+        whileless x,maxchan
+        ifunequal ychans(x),9,a162
+        ifunequal ykeys(x),2,a162
+        ifgreater ytimes(x shl 2)+drumdead,curtime,a125
+        ytimes(x shl 2)=curtime                           ; FM drums release automatically
+        callex ,ymkeyoff,x
+a162:
+        ifunequal ykeys(x),1,a125
+        ifgreater ytimes(x shl 2)+mostlydead,curtime,a125
+        ykeys(x)=0                                             ; keyed-off channel becomes available
+a125:
+        x=_+1
+        wend
+
+        goto a121
+
+vgmdone:
+;        dat=$61FFFF > gosub puttriple         ; add some extra time
+
+        aa=$62 > gosub putbyte                ; extra time
+        aa=$66 > gosub putbyte                ; end code
+
+        ; flush the buffer
+        ifequal bbytes and 511,0,a137
+        callex ,filewrite,ff1,fbuf.a,bbytes and 511
+a137:
+
+        ; finish VGM header
+        vgmheader.d(4)=bbytes+$7C
+        vgmheader.d($18)=curtime+$10000
+
+        ; ensure that endianness is correct
+        x=4
+        whileless x,$80
+        y=vgmheader.d(x)
+        loadlittle z,y
+        vgmheader.d(x)=z
+        x=_+4
+        wend
+
+        callex ,fileskwrite,ff1,0,vgmheader.a,$80
+        callex ,fileclose,ff1
+
+        callex ,printnt,"notes dropped due to insufficient polyphony: ".a
+        callex ,printhexr,drops
+
+        callex ,printnt,"done."r.a
+        goto programend
+
+abortmsg:
+        callex ,printnt,"some type of error :("r.a
+
+programend:
+        endfunc
+        end
+
+
+puttriple:
+        aa=dat shr 16 > gosub putbyte
+        aa=dat shr 8 > gosub putbyte
+        aa=dat
+putbyte:
+        fbuf.b(bbytes and 511)=aa
+        ifunequal bbytes and 511,511,pb01
+        callex ,filewrite,ff1,fbuf.a,512
+        lastwait=-1
+pb01:
+        bbytes=_+1
+        return
+
+getbyte:
+        ifunequal bbytes and 511,0,gb01
+        callex rbytes,fileread,ff1,fbuf.a,512
+gb01:
+        aa=fbuf.b(bbytes and 511) > bbytes=_+1
+        return
+
+getdword:                                ; read 4 bytes in big-endian order
+        gosub getbyte > dat=aa
+        gosub getbyte > dat=_ shl 8+aa
+        gosub getbyte > dat=_ shl 8+aa
+        gosub getbyte > dat=_ shl 8+aa
+        return
+
+getvariable:
+        temp1=4 > dat=0
+        countdown temp1
+        gosub getbyte > dat=_ shl 7+aa
+        ifless aa,128,gv02
+        dat=_-128
+        nextcount
+gv02:
+        return
+
+
+vgmdelay:
+        beginfunc x.d
+        localvar y.d,z.d
+
+        ifgreater x,65535,vd04
+        ifunequal bbytes-2,lastwait,vd03        ; check whether this wait can be combined with the previous one
+        z=lastwait and 511
+        y=fbuf.b(z+1) shl 8+fbuf.b(z)+x
+        ifgreater y,65535,vd03
+        fbuf.b(z+1)=y shr 8
+        fbuf.b(z)=y
+        goto vd01
+vd04:
+        dat=$61FFFF > gosub puttriple
+        x=_-65535
+        ifgreater x,65535,vd04
+        ifequal x,0,vd01
+vd03:
+        aa=$61 > gosub putbyte
+        lastwait=bbytes
+        aa=x and $FF > gosub putbyte
+        aa=x shr 8 > gosub putbyte
+
+vd01:
+        endfunc
+        returnex 4
+
+
+ymprogchange:
+        beginfunc instnum.d,ymchan.d
+        localvar x.d,y.d,z.d,vgmcmd.d
+
+        ifequal yprogs(ymchan),instnum,ypc01        ; already set to this instrument?
+        yprogs(ymchan)=instnum
+
+        ifnotless ymchan,ssgbegin,ypc01             ; nothing more to do for SSG channels
+
+        vgmcmd=chipcmd(ymchan)
+
+        ; ISC data layout
+        ;
+        ; bytes $00,$04,$08,$0C - waveform  (ignored on OPM/OPN)
+        ; bytes $01,$05,$09,$0D - multiplier  (bits 1-4)
+        ; bytes $02,$06,$0A,$0E - detune
+        ; bytes $03,$07,$0B,$0F - total level
+        ;
+        ; bytes $10,$14,$18,$1C - attack
+        ; bytes $11,$15,$19,$1D - decay1
+        ; bytes $12,$16,$1A,$1E - sustain level
+        ; bytes $13,$17,$1B,$1F - decay2
+        ;
+        ; bytes $20,$24,$28,$2C - release
+        ; bytes $21,$25,$29,$2D - fms        (only $21 is used)
+        ; bytes $22,$26,$2A,$2E - ams
+        ; bytes $23,$27,$2B,$2F - slot enable
+        ;
+        ; byte $30 - algo
+        ; byte $32 - lfo freq
+        ; byte $34 - octave adjust
+        ; byte $35 - portamento
+        ; byte $38 - feedback
+
+        x=instdata.a(instnum shl 6)
+
+        yoct(ymchan)=ea.b(x+$34)
+
+        z=chipchan(ymchan)
+
+        yopmask(ymchan)=ea.b(x+$23) shl 1+ea.b(x+$27) shl 1+ea.b(x+$2B) shl 1+ea.b(x+$2F) shl 4
+
+        ifunequal chipmode,12,ypc06
+
+        ; ESFM setting
+
+        z=_ shl 5
+
+        callex ,regwrite,vgmcmd,z+$02,ea.b(x+$1C) shl 4+ea.b(x+$1D)
+        callex ,regwrite,vgmcmd,z+$0A,ea.b(x+$18) shl 4+ea.b(x+$19)
+        callex ,regwrite,vgmcmd,z+$12,ea.b(x+$14) shl 4+ea.b(x+$15)
+        callex ,regwrite,vgmcmd,z+$1A,ea.b(x+$10) shl 4+ea.b(x+$11)
+
+        y=ea.b(x+$30)
+
+        callex ,regwrite,vgmcmd,z+$07,ea.b(x+$0C)+esfmout0(y)
+        callex ,regwrite,vgmcmd,z+$0F,ea.b(x+$08)+esfmout1(y)
+        callex ,regwrite,vgmcmd,z+$17,ea.b(x+$04)+esfmout2(y)
+        callex ,regwrite,vgmcmd,z+$1F,ea.b(x+$00)+esfmout3(y)
+
+        goto ypc01
+
+ypc06:
+        ifless chipmode,8,ypc03
+
+        ; OPL instrument setting
+
+        y=oplpair(z)
+        callex ,regwrite,vgmcmd,$60+y,ea.b(x+$1C) shl 4+ea.b(x+$1D)
+        callex ,regwrite,vgmcmd,$63+y,ea.b(x+$18) shl 4+ea.b(x+$19)
+        callex ,regwrite,vgmcmd,$E0+y,ea.b(x+$0C)
+        callex ,regwrite,vgmcmd,$E3+y,ea.b(x+$08)
+        y=oplpair(z+1)
+        ifunequal y,$12,ypc07 > vgmcmd=_+1        ; 9th channel straddles both register banks
+ypc07:
+        callex ,regwrite,vgmcmd,$60+y,ea.b(x+$14) shl 4+ea.b(x+$15)
+        callex ,regwrite,vgmcmd,$63+y,ea.b(x+$10) shl 4+ea.b(x+$11)
+        callex ,regwrite,vgmcmd,$E0+y,ea.b(x+$04)
+        callex ,regwrite,vgmcmd,$E3+y,ea.b(x+$00)
+
+        goto ypc01
+
+ypc03:
+        ifless chipmode,2,ypc02
+
+        ; OPN instrument setting
+
+;        yopmask(ymchan)=ea.b(x+$23) shl 1+ea.b(x+$27) shl 1+ea.b(x+$2B) shl 1+ea.b(x+$2F) shl 4
+
+        z=_ and 3
+
+        callex ,regwrite,vgmcmd,$30+z,ea.b(x+$0E) shl 5+ea.b(x+$0D) shr 1
+        callex ,regwrite,vgmcmd,$34+z,ea.b(x+$06) shl 5+ea.b(x+$05) shr 1
+        callex ,regwrite,vgmcmd,$38+z,ea.b(x+$0A) shl 5+ea.b(x+$09) shr 1
+        callex ,regwrite,vgmcmd,$3C+z,ea.b(x+$02) shl 5+ea.b(x+$01) shr 1
+
+        callex ,regwrite,vgmcmd,$50+z,ea.b(x+$1C)
+        callex ,regwrite,vgmcmd,$54+z,ea.b(x+$14)
+        callex ,regwrite,vgmcmd,$58+z,ea.b(x+$18)
+        callex ,regwrite,vgmcmd,$5C+z,ea.b(x+$10)
+
+        callex ,regwrite,vgmcmd,$60+z,ea.b(x+$1D)
+        callex ,regwrite,vgmcmd,$64+z,ea.b(x+$15)
+        callex ,regwrite,vgmcmd,$68+z,ea.b(x+$19)
+        callex ,regwrite,vgmcmd,$6C+z,ea.b(x+$11)
+
+        callex ,regwrite,vgmcmd,$70+z,ea.b(x+$1F)
+        callex ,regwrite,vgmcmd,$74+z,ea.b(x+$17)
+        callex ,regwrite,vgmcmd,$78+z,ea.b(x+$1B)
+        callex ,regwrite,vgmcmd,$7C+z,ea.b(x+$13)
+
+        callex ,regwrite,vgmcmd,$80+z,ea.b(x+$1E) shl 4+ea.b(x+$2C)
+        callex ,regwrite,vgmcmd,$84+z,ea.b(x+$16) shl 4+ea.b(x+$24)
+        callex ,regwrite,vgmcmd,$88+z,ea.b(x+$1A) shl 4+ea.b(x+$28)
+        callex ,regwrite,vgmcmd,$8C+z,ea.b(x+$12) shl 4+ea.b(x+$20)
+
+        callex ,regwrite,vgmcmd,$B0+z,ea.b(x+$38) shl 3+ea.b(x+$30)
+
+        goto ypc01
+
+ypc02:
+        ; OPM instrument setting
+
+;        yopmask(ymchan)=ea.b(x+$23) shl 1+ea.b(x+$27) shl 1+ea.b(x+$2B) shl 1+ea.b(x+$2F) shl 3
+        yopmask(ymchan)=_ shr 1
+
+        callex ,regwrite,vgmcmd,$38+z,ea.b(x+$21) shl 4+ea.b(x+$22)
+
+        callex ,regwrite,vgmcmd,$40+z,ea.b(x+$0E) shl 5+ea.b(x+$0D) shr 1
+        callex ,regwrite,vgmcmd,$48+z,ea.b(x+$06) shl 5+ea.b(x+$05) shr 1
+        callex ,regwrite,vgmcmd,$50+z,ea.b(x+$0A) shl 5+ea.b(x+$09) shr 1
+        callex ,regwrite,vgmcmd,$58+z,ea.b(x+$02) shl 5+ea.b(x+$01) shr 1
+
+        callex ,regwrite,vgmcmd,$80+z,ea.b(x+$1C)
+        callex ,regwrite,vgmcmd,$88+z,ea.b(x+$14)
+        callex ,regwrite,vgmcmd,$90+z,ea.b(x+$18)
+        callex ,regwrite,vgmcmd,$98+z,ea.b(x+$10)
+
+        callex ,regwrite,vgmcmd,$A0+z,ea.b(x+$1D)
+        callex ,regwrite,vgmcmd,$A8+z,ea.b(x+$15)
+        callex ,regwrite,vgmcmd,$B0+z,ea.b(x+$19)
+        callex ,regwrite,vgmcmd,$B8+z,ea.b(x+$11)
+
+        callex ,regwrite,vgmcmd,$C0+z,ea.b(x+$1F)
+        callex ,regwrite,vgmcmd,$C8+z,ea.b(x+$17)
+        callex ,regwrite,vgmcmd,$D0+z,ea.b(x+$1B)
+        callex ,regwrite,vgmcmd,$D8+z,ea.b(x+$13)
+
+        callex ,regwrite,vgmcmd,$E0+z,ea.b(x+$1E) shl 4+ea.b(x+$2C)
+        callex ,regwrite,vgmcmd,$E8+z,ea.b(x+$16) shl 4+ea.b(x+$24)
+        callex ,regwrite,vgmcmd,$F0+z,ea.b(x+$1A) shl 4+ea.b(x+$28)
+        callex ,regwrite,vgmcmd,$F8+z,ea.b(x+$12) shl 4+ea.b(x+$20)
+
+ypc01:
+        endfunc
+        returnex 8
+
+calcvolume:
+        beginfunc velocity.d,chan.d
+        localvar x.d
+        x=voltable(velocity and $7F)+voltable(volumes(chan))+voltable(expression(chan))
+        ifunequal chan,9,cv02
+        x=_+drumatten
+        ifnotless x.sd,0,cv02 > x=0
+cv02:
+        endfunc x
+        returnex 8
+
+volumeadj:
+        beginfunc atten.d,ymchan.d
+        localvar x.d,y.d,z.d,xx.d,instnum.d,instaddr.d,vgmcmd.d,panbits.d,alimit.d
+
+        vgmcmd=chipcmd(ymchan)
+        xx=chipchan(ymchan)
+        instnum=yprogs(ymchan)
+
+        z=ychans(ymchan)
+        ifless ymchan,ssgbegin,va07                    ; SSG channels
+        atten=_+ssgatten shr 2+15-(yopmask(ymchan) and 15)
+        ifless atten,15,va08 > atten=15
+va08:
+        ifunequal chipmode,2,va11
+        aa=$50 > gosub putbyte
+        aa=xx shl 5+atten+$90 > gosub putbyte          ; set volume on SN76489
+        goto va02
+va11:
+        callex ,regwrite,vgmcmd,xx+$08,15-atten        ; set volume on YM2149 channel
+        goto va02
+va07:
+
+        ; FM channels
+        instaddr=instdata.a(instnum shl 6)
+
+        panbits=opmpan(pans(z) shr 3)
+
+        ifequal chipmode and -2,6,cv01
+        ifequal chipmode and -2,10,cv01
+        ifunequal panbits,$C0,cv01
+        atten=_+centeratten
+cv01:
+        atten=attenuate(instnum)+_
+
+        ifless chipmode,8,va09
+        alimit=63
+        panbits=_ shr 2
+        ifunequal chipmode,12,va13
+        callex ,regwrite,vgmcmd,xx shl 5+$06,ea.b(instaddr+$38) shl 1+panbits        ; feedback
+        y=ea.b(instaddr+$30)        ; algorithm
+        callex ,regwrite,vgmcmd,xx shl 5+$0E,esfmmod1(y)+panbits
+        callex ,regwrite,vgmcmd,xx shl 5+$16,esfmmod2(y)+panbits
+        callex ,regwrite,vgmcmd,xx shl 5+$1E,esfmmod3(y)+panbits
+        goto va04
+va13:
+        callex ,regwrite,vgmcmd,xx+$C0,ea.b(instaddr+$38) shl 1+(ea.b(instaddr+$30) and 1)+panbits
+        x=ea.b(instaddr+$30) and 2 shr 1+panbits
+        ifunequal xx,8,va14                             ; 9th channel straddles both register banks
+        callex ,regwrite,vgmcmd+1,xx+$C0,x
+        goto va04
+va14:
+        callex ,regwrite,vgmcmd,xx+$C1,x
+        goto va04
+va09:
+        alimit=127
+        ifless chipmode,2,va03
+        xx=_ and 3
+        callex ,regwrite,vgmcmd,xx+$B4,ea.b(instaddr+$22) shl 4+ea.b(instaddr+$21)+panbits      ; AMS, PMS
+        goto va04
+va03:
+        callex ,regwrite,vgmcmd,xx+$20,ea.b(instaddr+$38) shl 3+ea.b(instaddr+$30)+panbits      ; feedback, algo
+va04:
+
+        y=carriers(ea.b(instaddr+$30))        ; which operators are carriers in this algo?
+
+        x=0
+        whileless x,4
+        z=ea.b(instaddr+$03) > instaddr=_+4
+        ifequal y and 1,0,va01
+        z=_+atten
+        ifless z,alimit,va01 > z=alimit
+va01:
+        ifless chipmode,8,va10
+        ifunequal chipmode,12,va12
+        callex ,regwrite,vgmcmd,xx shl 5+esfmshuffle(x),z
+        goto va06
+va12:
+        callex ,regwrite,banksplit(xx shl 1+x)+vgmcmd,oplshuffle(xx shl 1+x)+$40,z
+        goto va06
+va10:
+        ifless chipmode,2,va05
+        callex ,regwrite,vgmcmd,opnshuffle(x)+$40+xx,z
+        goto va06
+va05:
+        callex ,regwrite,vgmcmd,opmshuffle(x)+$60+xx,z
+va06:
+
+        y=_ shr 1
+        x=_+1
+        wend
+
+va02:
+        endfunc
+        returnex 8
+
+regwrite:
+        beginfunc regdata.d,regaddr.d,vgmcmd.d
+
+        ifequal chipmode,12,rw02
+        regaddr=regoffset(vgmcmd and 15 shl 1)+_
+        ifless vgmcmd,$A0,rw02
+        regaddr=_+$200
+rw02:
+
+        ifunequal datablob.b(regaddr),0,rw03
+        datablob.b(regaddr)=1 > goto rw04        ; always send out the FIRST write to a register
+rw03:
+        ifequal ymreg(regaddr),regdata,rw01
+rw04:
+        ymreg(regaddr)=regdata                ; log register values so we don't make redundant writes
+
+        aa=vgmcmd > gosub putbyte
+        aa=regaddr > gosub putbyte
+        ifunequal chipmode,12,rw05
+        aa=regaddr shr 8 > gosub putbyte
+rw05:
+        aa=regdata > gosub putbyte
+
+rw01:
+        endfunc
+        returnex 12
+
+pitchadj:
+        beginfunc ymchan.d
+        localvar w.d,x.d,y.d,z.d,xx.d,yy.d,zz.d,vgmcmd.d,vgmcmd2.d,notefrac.d,rate1.d,rate2.d,midichan.d
+
+        vgmcmd=chipcmd(ymchan) > vgmcmd2=vgmcmd
+        xx=chipchan(ymchan)
+        midichan=ychans(ymchan)
+        notefrac=bends(midichan)
+
+        ; calculate vibrato pitch offset (if any)
+        ifequal moddepth,0,pa12
+        x=vibdepth(midichan)                        ; ensure signed multiply...
+        x=vibtable(vibspeed(midichan) shr 3*count64 and 63)*x.sd                      ; range +/- 2032
+        notefrac=x sar (8-moddepth)+_
+pa12:
+
+        ; set octave and note
+        x=notefrac sar 6+ynotes(ymchan)+pitchoffset(chipmode)+transpose
+        ifnotless x.sd,0,yk07 > x=_+12
+yk07:
+        y=x/12                    ; octave
+        z=x-(y*12)                ; note
+
+        notefrac=_ and $3F
+
+        ifless ymchan,ssgbegin,yk10
+        ; SSG channels
+        x=pitchmap(z shl 1)
+        x=pitchmap(z+1 shl 1)-_*notefrac shr 6+_
+        ifunequal chipmode,2,yk19
+;        zz=17897725/x
+        zz=18666666/x              ; adjusted to match tuning for YM2612
+        whilegreater y,0
+        zz=_ shr 1 > y=_-1
+        wend
+        aa=$50 > gosub putbyte                             ; write square wave period to SN76489
+        aa=xx shl 5+$80+(zz and 15) > gosub putbyte
+        aa=$50 > gosub putbyte
+        aa=zz shr 4 > gosub putbyte
+        goto pa11
+yk19:
+;        zz=10000000/x
+        zz=20000000/x
+        whilegreater y,0
+        zz=_ shr 1 > y=_-1
+        wend
+        callex ,regwrite,vgmcmd,xx shl 1,zz and $FF        ; write square wave period to YM2149-compatible
+        callex ,regwrite,vgmcmd,xx shl 1+1,zz shr 8        ; registers on OPN/OPNA
+        goto pa11
+yk10:
+
+        ; FM channels
+        y=yoct(ymchan)+_
+
+        ifgreater chipmode,1,yk03
+        callex ,regwrite,vgmcmd,$28+xx,opmoctave(y) shl 4+opmnote(z)
+        callex ,regwrite,vgmcmd,$30+xx,notefrac shl 2
+        goto yk04
+yk03:
+        ifgreater chipmode,7,yk13
+        x=opnnote(z shl 1)
+        x=opnnote(z+1 shl 1)-_*notefrac shr 6+_
+        ; $A4 must be written first!
+        ; also, we set otherwise irrelevant bits in regdata so that the write will always happen
+        callex ,regwrite,vgmcmd,xx and 3+$A4,opnoctave(y) shl 11+x shr 8+$100
+        callex ,regwrite,vgmcmd,xx and 3+$A0,x        ;+$100
+        goto yk04
+yk13:
+        yy=oplnote(z shl 1)
+        yy=oplnote(z+1 shl 1)-_*notefrac shr 6+_
+        x=instdata.a(yprogs(ymchan) shl 6)
+        ifunequal chipmode,12,yk22
+        ; ESFM
+        zz=xx shl 5        ; > w=$20
+        ifequal ykeys(ymchan),2,yk23
+        callex ,regwrite,vgmcmd,$03+zz,ea.b(x+$1E) shl 4+ea.b(x+$2C)        ; release
+        callex ,regwrite,vgmcmd,$0B+zz,ea.b(x+$1A) shl 4+ea.b(x+$28)
+        callex ,regwrite,vgmcmd,$13+zz,ea.b(x+$16) shl 4+ea.b(x+$24)
+        callex ,regwrite,vgmcmd,$1B+zz,ea.b(x+$12) shl 4+ea.b(x+$20)
+        goto yk24
+yk23:
+        callex ,regwrite,vgmcmd,$03+zz,ea.b(x+$1E) shl 4+ea.b(x+$1F)        ; decay2
+        callex ,regwrite,vgmcmd,$0B+zz,ea.b(x+$1A) shl 4+ea.b(x+$1B)
+        callex ,regwrite,vgmcmd,$13+zz,ea.b(x+$16) shl 4+ea.b(x+$17)
+        callex ,regwrite,vgmcmd,$1B+zz,ea.b(x+$12) shl 4+ea.b(x+$13)
+;        w=0
+yk24:
+        callex ,regwrite,vgmcmd,zz,ea.b(x+$0D)        ; sustain bit always off now
+        callex ,regwrite,vgmcmd,$08+zz,ea.b(x+$09)
+        callex ,regwrite,vgmcmd,$10+zz,ea.b(x+$05)
+        callex ,regwrite,vgmcmd,$18+zz,ea.b(x+$01)
+        w=4
+        countdown w
+        callex ,regwrite,vgmcmd,zz+4,yy and $FF                             ; freq low and high
+        callex ,regwrite,vgmcmd,zz+5,oploctave(y) shl 10+yy shr 8
+        zz=_+8
+        nextcount
+        callex ,regwrite,vgmcmd,esfmkeys(xx)+$240,ykeys(ymchan) and 2 shr 1         ; key on/off
+        ifless xx,16,pa11
+        callex ,regwrite,vgmcmd,esfmkeys(xx)+$241,ykeys(ymchan) and 2 shr 1         ; and maybe one more
+        goto pa11
+
+yk22:
+        ; on OPL, we might be doing key-on/off here, so let's first set decay2 OR release (and sustain bit)
+        zz=oplpair(xx)
+        rate1=ea.b(x+$1F) > rate2=ea.b(x+$1B)        ; decay2
+        ifequal ykeys(ymchan),2,yk15
+        rate1=ea.b(x+$2C) > rate2=ea.b(x+$28)        ; release
+yk15:
+        callex ,regwrite,vgmcmd,$80+zz,ea.b(x+$1E) shl 4+rate1              ; set release or decay
+        callex ,regwrite,vgmcmd,$83+zz,ea.b(x+$1A) shl 4+rate2         
+        callex ,regwrite,vgmcmd,$20+zz,ea.b(x+$0D)                          ; sustain bit is always clear now
+        callex ,regwrite,vgmcmd,$23+zz,ea.b(x+$09)
+        zz=oplpair(xx+1)
+        vgmcmd2=xx shr 3+_                         ; 9th channel (xx=8) goes to second register bank
+        rate1=ea.b(x+$17) > rate2=ea.b(x+$13)        ; decay2
+        ifequal ykeys(ymchan),2,yk16
+        rate1=ea.b(x+$24) > rate2=ea.b(x+$20)        ; release
+yk16:
+        callex ,regwrite,vgmcmd2,$80+zz,ea.b(x+$16) shl 4+rate1             ; set release or decay
+        callex ,regwrite,vgmcmd2,$83+zz,ea.b(x+$12) shl 4+rate2         
+        callex ,regwrite,vgmcmd2,$20+zz,ea.b(x+$05)                         ; sustain bit is always clear now
+        callex ,regwrite,vgmcmd2,$23+zz,ea.b(x+$01)
+
+        z=ykeys(ymchan) and 2 shl 2+oploctave(y) shl 10+yy shr 8
+        callex ,regwrite,vgmcmd,xx+$A0,yy and $FF
+        callex ,regwrite,vgmcmd,xx+$B0,z
+        ifequal xx,8,yk25 > xx=_+1
+yk25:
+        callex ,regwrite,vgmcmd2,xx+$A0,yy and $FF
+        callex ,regwrite,vgmcmd2,xx+$B0,z
+yk04:
+
+pa11:
+        endfunc
+        returnex 4
+
+ymkeyon:
+        beginfunc ymchan.d
+        localvar x.d,y.d,z.d,xx.d,zz.d,vgmcmd.d
+
+        notecount(ychans(ymchan))=_+1
+
+        ifnotless ymchan,ssgbegin,yk11      ; no key-on command for SSG channels
+        ifnotless chipmode,8,yk11           ; nothing to do on OPL, because pitchadj already did it
+
+        vgmcmd=chipcmd(ymchan)
+        xx=chipchan(ymchan)
+        x=yopmask(ymchan)
+
+        ; send key-on command for OPN/OPM
+        y=$08
+        ifless chipmode,2,yk01
+;        x=_ shl 1
+        y=$28 > z=vgmcmd and 15
+        ifequal z,3,yk05
+        ifunequal z,7,yk01
+yk05:
+        vgmcmd=_ and $FE                ; key-on only works in 'part 1' of OPN2/OPNA
+yk01:
+
+        aa=vgmcmd > gosub putbyte
+        aa=y > gosub putbyte
+        aa=x+xx > gosub putbyte
+yk11:
+        endfunc
+        returnex 4
+
+ymkeyoff:
+        beginfunc ymchan.d
+        localvar x.d,y.d,z.d,xx.d,vgmcmd.d,velocity.d
+
+;        velocity=yvelocity(ymchan)
+        vgmcmd=chipcmd(ymchan)
+        xx=chipchan(ymchan)
+
+        ifequal notecount(ychans(ymchan)),0,yk12
+        notecount(ychans(ymchan))=_-1
+yk12:
+
+        ykeys(ymchan)=1
+
+        ifless ymchan,ssgbegin,yk08
+        ifunequal chipmode,2,yk20
+        aa=$50 > gosub putbyte
+        aa=xx shl 5+$9F > gosub putbyte          ; silence SN76489 channel
+        goto yk09
+yk20:
+        callex ,regwrite,vgmcmd,xx+$08,0         ; silence SSG channel on OPN/OPNA
+        goto yk09
+yk08:
+        ifless chipmode,8,yk14
+        callex ,pitchadj,ymchan                  ; handles key-off on OPL
+        goto yk09
+yk14:
+
+        y=$08
+        ifless chipmode,2,yk02
+        y=$28 > z=vgmcmd and 15
+        ifequal z,3,yk06
+        ifunequal z,7,yk02
+yk06:
+        vgmcmd=_ and $FE                ; key-on only works in 'part 1' of OPN2/OPNA
+yk02:
+
+        aa=vgmcmd > gosub putbyte
+        aa=y > gosub putbyte
+        aa=xx > gosub putbyte
+yk09:
+        endfunc
+        returnex 4
+
+
+        ; function that copies a string from [cmdptr]
+        ; skips leading spaces, ends at space or null
+        ; returns length, terminates output with 0
+readcmdstr:
+        beginfunc straddr.d
+        localvar w.d,x.d,quoted.d
+
+        w=0 > quoted=0
+
+        ; skip any extraneous spaces (and other weird characters?)
+        whileless [cmdptr].b,33
+        ifequal [cmdptr].b,0,a354
+        cmdptr=_+1
+        wend        
+
+        ; then copy the name
+        ; allow spaces between quotes, but remove the quotes (for Windows LFNs)
+        whileless w,255        ; this can be as big as the target string (accounting for null terminator)
+a357:
+        x=[cmdptr].b        ; > cmdptr=_+1
+        ifequal x,0,a354
+     cmdptr=_+1
+        ifunequal quoted,0,a355
+        ifless x,33,a354
+a355:
+        ifunequal x,34,a356
+        ifunequal quoted,0,a354
+        quoted=1 > goto a357
+a356:
+        [straddr].b=x > straddr=_+1
+        w=_+1 
+        wend
+
+a354:
+        [straddr].b=0
+        endfunc w
+        returnex 4
+
+
+
+   

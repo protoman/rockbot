@@ -1,15 +1,83 @@
 #!/usr/bin/env bash
 
-set -x
+#set -x
+#set -e
 
-read -r -p "What is the version number you are building? " version_number
-if [ "$version_number" != "1" ] && [ "$version_number" != "2" ];
-then
-    echo "Invalid version number"
-    exit
+# Let the user pick which game folder from ../games instead of entering 1 or 2.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+GAMES_DIR="$SCRIPT_DIR/../games"
+
+if [ ! -d "$GAMES_DIR" ]; then
+    echo "Games directory not found: $GAMES_DIR"
+    exit 1
 fi
 
-VERSIONNAME=`cat version_name_v$version_number.txt`
+# Build a list of subdirectories
+mapfile -t games < <(find "$GAMES_DIR" -maxdepth 1 -mindepth 1 -type d -printf '%f\n' | sort)
+if [ ${#games[@]} -eq 0 ]; then
+    echo "No game folders found in $GAMES_DIR"
+    exit 1
+fi
+
+echo "Select a game folder to build from:" 
+for i in "${!games[@]}"; do
+    idx=$((i+1))
+    echo "  $idx) ${games[$i]}"
+done
+
+read -r -p "Enter selection number: " sel
+if ! [[ "$sel" =~ ^[0-9]+$ ]] || [ "$sel" -lt 1 ] || [ "$sel" -gt ${#games[@]} ]; then
+    echo "Invalid selection"
+    exit 1
+fi
+
+GAME_NAME="${games[$((sel-1))]}"
+GAME_DIR="$GAMES_DIR/$GAME_NAME"
+
+# Expect icon and logo in images/ within the chosen game folder
+ICON_SRC="$GAME_DIR/images/icon_android.png"
+LOGO_SRC="$GAME_DIR/images/logo_android.png"
+
+if [ ! -f "$ICON_SRC" ]; then
+    echo "Icon not found: $ICON_SRC"
+    exit 1
+fi
+if [ ! -f "$LOGO_SRC" ]; then
+    echo "Logo not found: $LOGO_SRC"
+    exit 1
+fi
+
+# Parse canonical version from file/version.h (required). If missing, abort.
+VERSION_HEADER="$SCRIPT_DIR/../../file/version.h"
+if [ ! -f "$VERSION_HEADER" ]; then
+    echo "Version header not found: $VERSION_HEADER"
+    exit 1
+fi
+
+VERSION_FULL=$(grep -E '^\s*#\s*define\s+VERSION_NUMBER' "$VERSION_HEADER" | sed -E 's/.*"([^"]+)".*/\1/')
+if [ -z "$VERSION_FULL" ]; then
+    echo "Could not parse VERSION_NUMBER from $VERSION_HEADER"
+    exit 1
+fi
+
+VERSIONNAME="$VERSION_FULL"
+VERSION_MAJOR=$(echo "$VERSION_FULL" | cut -d. -f1)
+version_number="$VERSION_MAJOR"
+
+echo "Using VERSION_NUMBER=\"$VERSIONNAME\" (major: $version_number) from $VERSION_HEADER"
+
+# If the game folder name encodes a version, warn if it mismatches the header
+if [[ "$GAME_NAME" =~ ([0-9]+)$ ]]; then
+    GAME_MAJOR="${BASH_REMATCH[1]}"
+    if [ "$GAME_MAJOR" != "$version_number" ]; then
+        echo "Warning: picked game folder '$GAME_NAME' suggests major version $GAME_MAJOR but $VERSION_HEADER reports $version_number"
+        read -r -p "Continue with this game folder anyway? [y/N] " _cont
+        case $_cont in
+            [yY][eE][sS]|[yY]) ;;
+            *) echo "Aborting due to version mismatch"; exit 1 ;;
+        esac
+    fi
+fi
 
 export PELYA_ANDROID_SDK=/mnt/SamsungEXT4/development/SDK/Android/commandergenius
 export ANDROID_HOME=/mnt/SamsungEXT4/development/SDK/Android/SDK
@@ -20,14 +88,14 @@ export ANDROID_NDK_HOME=/mnt/SamsungEXT4/development/SDK/Android/android-ndk-r29
 export PATH=$PATH:$PELYA_ANDROID_SDK:$ANDROID_NDK_HOME/build:$ANDROID_HOME/build-tools/36.1.0
 
 
-read -r -p "Did you remember to update data version in version_name_v$version_number.txt? [y/N] " response
+read -r -p "Did you remember to update data version to $VERSIONNAME? [y/N] " response
 case $response in
 	[yY][eE][sS]|[yY])
 		ROCKDROIDDIR=`pwd`
 		export ROCKDROIDDIR
 
-		#copy icon
-		cp ../packages/files/android/icon_v$version_number.png /home/iuri/Desenvolvimento/rockbot/icon.png
+		#copy icon (from selected game folder)
+		cp "$ICON_SRC" /home/iuri/Desenvolvimento/rockbot/icon.png
 
 		#read -p "Press any key to continue..." -n1 -s
 		#copy data
@@ -37,15 +105,15 @@ case $response in
 		mkdir ./Android/data/games
 		rsync -r --exclude=.svn ../fonts ./Android/data
 		rsync -r --exclude=.svn ../shared ./Android/data
-		rsync -r --exclude=.svn ../games/RockDroid$version_number ./Android/data/games
-		mkdir ./Android/data/games/RockDroid$version_number/music/mp3/
+		rsync -r --exclude=.svn "$GAME_DIR" ./Android/data/games
+		mkdir ./Android/data/games/$GAME_NAME/music/mp3/
 
 		### Convert MOD music to MP3 ###
-		for filename in ../games/RockDroid$version_number/music/*; do
+		for filename in "$GAME_DIR/music/"*; do
 			basename=${filename##*/}
 			if [[ $basename =~ ".mod" ]] || [[ $basename =~ ".s3m" ]] || [[ $basename =~ ".xm" ]] || [[ $basename =~ ".it" ]]; then
-				ffmpeg -i "$filename" -vn -ar 44100 -ac 2 -b:a 48k "./Android/data/games/RockDroid$version_number/music/mp3/$basename.mp3"
-				#ffmpeg -i "$filename" -vn -ar 22050 -ac 2 -b:a 48k "./Android/data/games/RockDroid$version_number/music/mp3/$basename.mp3"
+				ffmpeg -i "$filename" -vn -ar 44100 -ac 2 -b:a 48k "./Android/data/games/$GAME_NAME/music/mp3/$basename.mp3"
+				#ffmpeg -i "$filename" -vn -ar 22050 -ac 2 -b:a 48k "./Android/data/games/$GAME_NAME/music/mp3/$basename.mp3"
 			fi
 		done
 
@@ -55,7 +123,7 @@ case $response in
         cp ./files/android/AndroidAppSettings.cfg $PELYA_ANDROID_SDK/project/jni/application/rockbot/
 
 		#export GRADLE_OPTS="org.gradle.jvmargs=-Xmx2000m -Xms1724m -Xmx5048m"
-		rm ./Android/data/games/RockDroid$version_number/music/ogg/*
+		rm ./Android/data/games/$GAME_NAME/music/ogg/*
 		rm ./Android/data/game*.sav
 		rm ./Android/data/config_v*.sav
 		cd ./Android/data
@@ -67,8 +135,8 @@ case $response in
 		fi
 		rm $PELYA_ANDROID_SDK/project/jni/application/rockbot/AndroidData/*.zip
 		cp ./data_$VERSIONNAME.zip $PELYA_ANDROID_SDK/project/jni/application/rockbot/AndroidData/
-		#copy splashscreen
-		cp ../../packages/files/android/logo_v$version_number.png $PELYA_ANDROID_SDK/project/jni/application/src/AndroidData/logo.png
+		#copy splashscreen (from selected game folder)
+		cp "$LOGO_SRC" $PELYA_ANDROID_SDK/project/jni/application/src/AndroidData/logo.png
 
 		cd $PELYA_ANDROID_SDK
 
