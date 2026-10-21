@@ -31,6 +31,7 @@ typedef struct {
     u8 status;
     bool on;
     bool pierce;        // full charged shot: PC vanishes_on_hit=false
+    u8 weapon;          // weapon that fired it (PC projectile.get_weapon_id)
     bool reflected;     // PC projectile.is_reflected: no more hits
 } Shot;
 
@@ -144,6 +145,7 @@ void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
         s->on = TRUE;
         s->pierce = FALSE;
         s->reflected = FALSE;
+        s->weapon = w;      // PC: damage uses the projectile's weapon id
         live++;
     }
     cooldown = SHOT_COOLDOWN;
@@ -220,6 +222,7 @@ void shot_charge_fire(s16 x, s16 y, s16 dir, u8 level)
     // projectiles (including damage-3 Desert Storm) vanish on contact.
     s->pierce = (level >= 2);
     s->reflected = FALSE;
+    s->weapon = w;
     cooldown = SHOT_COOLDOWN;
     sfx_play(SFX_CHARGE);
     if (w != 0)
@@ -374,7 +377,7 @@ void shot_update(void)
         // ignore shields: PC only reflects when vanishes_on_hit is true.
         u8 hit = enemies_try_hit(s->x, s->y, s->x + s->w - 1, s->y + s->h - 1,
                                  s->dmg, (s->dx < 0) ? -1 : 1, s->pierce,
-                                 player_weapon());
+                                 s->weapon);
         if (hit == 2) {
             // Shielded enemy: PC projectile::reflect() flips direction and
             // turns the shot into a diagonal (up/down by Y parity), then

@@ -36,14 +36,9 @@
 
 #define END_WALK_X 336
 #define END_WALK_Y 91
-#define END_WALK_FRAMES 400
 
 #define BLANK_TILE TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, TILE_FONT_INDEX)
 
-// PC draw::show_credits_text advances posY by 1 px every STARS_DELAY (50ms)
-// = 3 frames per pixel, 36 per 12px line. The port keeps the line stepping
-// but at 12 frames (0.2s) per line so a 51-line list takes ~10s.
-#define CREDITS_FRAMES_PER_LINE 12
 
 static void black_screen(void)
 {
@@ -128,31 +123,21 @@ static void walking_parade(void)
         SPR_setHFlip(ply, TRUE);   // PC: ANIM_DIRECTION_LEFT
     }
 
-    VDP_setScrollingMode(HSCROLL_LINE, VSCROLL_PLANE);
-    static s16 hs_a[28];
-    static s16 hs_b[28];
+    // MD per-line scrolling proved unreliable here (only one plane moved), so
+    // use the two planes as two speed layers: BG_A carries the front+mid art
+    // (PC bg1 1.1 px/frame) and BG_B the back layer (0.1). PC mid is 0.5.
+    VDP_setScrollingMode(HSCROLL_PLANE, VSCROLL_PLANE);
 
     u16 frame = 0;
     for (;;) {
-        s16 px = (s16)(END_WALK_X - frame);
+        // PC player_speed = -0.2 px/frame (1 px every 5 frames).
+        s16 px = (s16)(END_WALK_X - ((u32)frame * 2 / 10));
         if (ply) SPR_setPosition(ply, px, END_WALK_Y);
 
-        // PC show_player_walking_ending speeds: front 1.1, mid 0.5, back 0.1
-        // px/frame (all moving right while the player walks left).
-        s16 o1 = (s16)-(s16)(((u32)frame * 11 / 10) % 320);
-        s16 o2 = (s16)-(s16)(((u32)frame * 5 / 10) % 320);
-        s16 o3 = (s16)-(s16)(((u32)frame * 1 / 10) % 320);
-        for (u16 y = 0; y < 28; y++) {
-            hs_b[y] = o3;
-            if (y >= END_L2_ROW && y < END_L2_ROW + END_L2_MAP_H)
-                hs_a[y] = o2;
-            else if (y >= END_L1_ROW && y < END_L1_ROW + END_L1_MAP_H)
-                hs_a[y] = o1;
-            else
-                hs_a[y] = 0;
-        }
-        VDP_setHorizontalScrollLine(BG_B, 0, hs_b, 28, DMA_QUEUE);
-        VDP_setHorizontalScrollLine(BG_A, 0, hs_a, 28, DMA_QUEUE);
+        s16 o1 = (s16)(((u32)frame * 11 / 10) % 320);
+        s16 o3 = (s16)(((u32)frame * 1 / 10) % 320);
+        VDP_setHorizontalScroll(BG_A, o1);
+        VDP_setHorizontalScroll(BG_B, o3);
 
         SPR_update();
         SYS_doVBlankProcess();
@@ -160,7 +145,7 @@ static void walking_parade(void)
         VDP_setReg(18, 0);
 
         if (JOY_readJoypad(JOY_1) & BUTTON_START) break;
-        if (frame >= END_WALK_FRAMES) break;
+        if (px < -48) break;
         frame++;
     }
 
@@ -176,7 +161,8 @@ static void boss_parade(void)
 {
     music_play(MUSIC_ENEMY_PARADE);
     black_screen();
-    PAL_setPalette(PAL0, pal_ui.data, CPU);
+    PAL_setPalette(PAL0, pal_ui.data, DMA_QUEUE);
+    SYS_doVBlankProcess();
 
     for (u8 stage = 0; stage < STAGE_DEFINED_COUNT; stage++) {
         stage_set_data(stage);
@@ -214,26 +200,53 @@ static void boss_parade(void)
     }
 }
 
+// The PC scrolls the credits 1 px per 50ms through the text list. On the MD
+// that means rewriting the 28 visible rows every step, which is what the old
+// port did and it corrupted the plane while scrolling. Paged instead: a fixed
+// page of lines, a readable hold, next page. Same information, stable screen.
+#define CREDITS_ROWS_PER_PAGE 26
+#define CREDITS_PAGE_FRAMES 600      // 10s per page (PC: ~30s for the full list)
+
 static void credits_scroll(void)
 {
+    kprintf("CRED begin\n");
     music_play(MUSIC_END_CREDITS);
+    kprintf("CRED music\n");
     black_screen();
-    PAL_setPalette(PAL0, pal_ui.data, CPU);
+    // PAL0 holds the walking-parade palette at this point; a CPU CRAM write
+    // outside vblank is illegal and corrupts the font colours (the "garbled
+    // credits" screen), so flush a vblank first and let the write land.
+    PAL_setPalette(PAL0, pal_ui.data, DMA_QUEUE);
+    SYS_doVBlankProcess();
+    kprintf("CRED pal user=%d font=%d\n", (int)TILE_USER_INDEX,
+            (int)TILE_FONT_INDEX);
 
     u16 top = 0;
     while (top < CREDITS_LINES) {
-        VDP_fillTileMapRect(BG_A, BLANK_TILE, 0, 0, 64, 32);
-        for (u16 row = 0; row < 28; row++) {
+        black_screen();
+        for (u16 row = 0; row < CREDITS_ROWS_PER_PAGE; row++) {
             u16 i = (u16)(top + row);
             if (i < CREDITS_LINES && credits_lines[i][0])
-                center_text(credits_lines[i], row);
+                center_text(credits_lines[i], (u16)(row + 1));
         }
-        if (!wait_frames(CREDITS_FRAMES_PER_LINE)) break;
-        top++;
+        // PC holds the last page until a button; pages advance on their own
+        // after 4s so the ending never stalls.
+        kprintf("CRED page %d\n", (int)top);
+        bool w = wait_frames(CREDITS_PAGE_FRAMES);
+        kprintf("CRED page done %d\n", (int)w);
+        if (!w) break;
+        top = (u16)(top + CREDITS_ROWS_PER_PAGE);
     }
 
-    // Hold the last page for a moment (PC wait_and_update_screen).
-    if (!(JOY_readJoypad(JOY_1) & BUTTON_START)) wait_frames(120);
+    // Final page: keep it and wait for the player like the PC does.
+    if (!wait_frames(120)) return;
+    while (!(JOY_readJoypad(JOY_1) & (BUTTON_START | BUTTON_A | BUTTON_B |
+                                      BUTTON_C))) {
+        SPR_update();
+        SYS_doVBlankProcess();
+        VDP_setReg(17, 0);
+        VDP_setReg(18, 0);
+    }
 }
 
 void ending_run(void)
