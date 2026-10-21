@@ -111,6 +111,10 @@ void EditorArea::paintEvent(QPaintEvent *) {
 
     int i, j, pos;
     QPainter painter(this);
+    // MD view: the port's converter drops the PC map's top row (224p = 14
+    // rows of 16px), so shift everything up one row and let row 0 fall outside
+    // the canvas. What is visible here is exactly what the Mega Drive shows.
+    painter.translate(0, -16 * Mediator::get_instance()->zoom);
     QLineF line;
     QString filename;
 
@@ -712,7 +716,8 @@ void EditorArea::paintEvent(QPaintEvent *) {
     }
 
 
-    QSize resizeMe(MAP_W*16*Mediator::get_instance()->zoom, MAP_H*16*Mediator::get_instance()->zoom);
+    // 224p: 14 visible rows (MAP_H-1), the top PC row is cut by the converter.
+    QSize resizeMe(MAP_W*16*Mediator::get_instance()->zoom, (MAP_H-1)*16*Mediator::get_instance()->zoom);
     this->resize(resizeMe);
     myParent->adjustSize();
 
@@ -723,7 +728,7 @@ void EditorArea::mouseMoveEvent(QMouseEvent *event) {
 
     if (Mediator::get_instance()->editMode != EDITMODE_SELECT) {
         // forces "click" when moving
-        if (editor_selectedTileX != pnt.x()/(16*Mediator::get_instance()->zoom) || editor_selectedTileY != pnt.y()/(16*Mediator::get_instance()->zoom)) {
+        if (editor_selectedTileX != pnt.x()/(16*Mediator::get_instance()->zoom) || editor_selectedTileY != pnt.y()/(16*Mediator::get_instance()->zoom) + 1) {
             mousePressEvent(event);
         }
     } else {
@@ -758,7 +763,8 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
 
     QPoint pnt = event->pos();
     editor_selectedTileX = pnt.x()/(16*Mediator::get_instance()->zoom);
-    editor_selectedTileY = pnt.y()/(16*Mediator::get_instance()->zoom);
+    // +1: the MD view hides PC row 0 (see paintEvent)
+    editor_selectedTileY = pnt.y()/(16*Mediator::get_instance()->zoom) + 1;
 
     if (Mediator::get_instance()->editMode == EDITMODE_NORMAL) {
         if (Mediator::get_instance()->editTool == EDITMODE_NORMAL) {
