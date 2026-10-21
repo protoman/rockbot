@@ -337,6 +337,20 @@ stays unlocked afterwards — even after dying and coming back.
   forever in that stage attempt. Reloading the map (or re-closing doors) on
   respawn/stage re-entry should restore the lock.
 
+**Measurement 2026-10-21** (spawn x=1664 left of the first door, walked right;
+`kprintf` heartbeat with the camera):
+```
+F855 x1713 cam1437 d109=1
+F870 x1743 cam1582 d109=0   <- door opens, camera jumps +145 px
+F930 x1860 cam1700 d109=0   <- camera follows the player
+F2205 x2027 cam1741 d109=0  <- stopped at the *second* door (x=2048)
+```
+So the lock is released and the camera does move (145 px at the door, then it
+tracks the player), but there is no full 320 px screen step. The player is then
+stopped at x=2027 = 2048-21 by the **second** door while the UFO sub-boss is
+alive, so the boss room stays out of reach until that sub-boss dies. Repeating
+this with the UFO killed decides whether a camera step is still missing.
+
 ## BUG-007 — Charged shot resets when crossing a room link
 
 **Status**: **FIXED and verified 2026-10-21**. Holding the attack button
