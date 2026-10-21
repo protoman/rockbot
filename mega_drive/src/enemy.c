@@ -1087,10 +1087,11 @@ u8 enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage, s8 shot_dir,
         if (e->hurt_timer) return 1;
 
         // PC classplayer.cpp:747 uses weakness[weapon].damage_multiplier;
-        // 0 = immune to that weapon. Item weapons (9/10) have no weakness
-        // slot and use the buster's entry.
+        // 0 = immune to that weapon. The PC then `continue`s, so the shot is
+        // NOT consumed and keeps travelling. Item weapons (9/10) have no
+        // weakness slot and use the buster's entry.
         u8 mul = d->weak[(weapon < 9) ? weapon : 0];
-        if (mul == 0) return 1;
+        if (mul == 0) return 0;
         u8 dmg = damage * mul;
 
         e->hp = (dmg >= e->hp) ? 0 : e->hp - dmg;
