@@ -384,11 +384,38 @@ Implemented in `src/config.c` with the user's simplifications: AUDIO
 EXTRAS (music/sfx test), LEAVE STAGE; no platform/language/performance/quit.
 Opened with B from the in-game menu; stored in SRAM bytes 48..55.
 
-### 6. AI / bosses
+### 6. AI / bosses — PLANNED (next behavioural work)
 
-`EnemyAi` tables + `eshot.c` exist; the port's enemies are much simpler than the
-PC's `artificial_inteligence.cpp`. Incremental per enemy type; needs the user's
-playtesting.
+Today the port plays a **flat action list** per enemy (`AI_*` in
+`src/enemy.c`). The PC's `artificial_inteligence.cpp` is a **state graph**:
+`AI_MAX_STATES` = 20 states, each with an action, duration and reactions
+(`AI_REACTION_PLAYER_ON_RANGE / HIT / DEAD / SAME_Y / CLOSE / SAME_X`) that
+jump to another state. Bosses run on the same engine plus their own attack
+selection. That difference is what makes port enemies and bosses look "dumb".
+
+Planned order:
+
+1. **AI state graph**
+   - `tools/convert_enemies.py`: emit each enemy's state table from
+     `game_ai_list.dat` (action, frames/delay, next state, per-reaction target
+     state, range/distance), instead of flattening it to the actions used.
+   - `src/enemy.c`: add a state executor — current state, elapsed frames,
+     evaluate reactions each frame, follow the transition; keep the current
+     flat list as the fallback for single-state enemies.
+   - `tools/audit_data.py`: print per stage how many enemies use multi-state
+     graphs, so the conversion coverage is visible before an emulator run.
+2. **Boss attack patterns**
+   - boss entry/intro animation + the missing JUMP/TELEPORT anim rows
+     (BUG-011; unblocks BUG-010), converter emits them for bosses only (VRAM).
+   - per-boss action selection by distance/HP phase, using the state graph from
+     step 1 rather than hard-coded scripts.
+   - re-check BUG-012 (projectiles alive at boss death) with real boss attacks.
+3. Keep `eshot.c` trajectories in sync: add the trajectories the converter
+   prints as "falls back to LINEAR".
+
+Deliberately **not** ported (user decision 2026-10-21): difficulty select,
+cheats menu, static tile3 foreground art, rain/lightning overlays, save copy,
+language/platform/performance options. See `pc_features_vs_md.md` §11.
 
 ## Tools
 

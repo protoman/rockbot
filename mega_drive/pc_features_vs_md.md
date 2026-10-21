@@ -114,9 +114,9 @@ Equivalent order and content. The main gaps inside the loop are listed below
 | unbeaten intro scene (text/images/parallax) | `scenesLib::game_scenes_show_unbeaten_intro` | `src/scene.c` + `scenes_data.c` | **DONE** |
 | title screen (logo, zoom-in) | `scenesLib::main_screen` + `zoom_image` | `title64.py` art, static | **DONE** (no zoom; MD shows the composed art) |
 | main menu (new/load/config/about) | `main_screen` | `showTitle` | **DONE** |
-| cheats menu | `scenesLib::show_cheats_menu` | — | **MISSING** |
+| cheats menu | `scenesLib::show_cheats_menu` | — | **N/A** (deliberately not ported, user decision) |
 | save slot select + details | `select_save` | `src/saveselect.c` | **DONE** |
-| difficulty select (easy/normal/hard) | `select_difficulty` | — | **MISSING** (normal values are hard-coded: 5 lives, normal drops) |
+| difficulty select (easy/normal/hard) | `select_difficulty` | — | **N/A** (deliberately not ported; normal values are fixed: 5 lives, normal drop table) |
 | player select (4 characters) | `select_player` | `src/playerselect.c` | **DONE** |
 | stage select (map, boss faces, castle slot) | `pick_stage` | `src/stageselect.c` | **DONE** |
 | boss intro screen | `boss_intro` | `src/bossintro.c` | **DONE** |
@@ -222,9 +222,9 @@ shipped stages never place (0, 20, 27, 28, 33-45) are not implemented.
 | autoscroll | `autoscroll[]` | `stage_autoscroll` | **DONE** |
 | parallax background (speed per map) | `classmap` bg layers | `stage.c` BG_B | **DONE** (1 layer; PC uses up to 2) |
 | animated tiles + colourcycle | `draw_animated_tiles` | converter + `stage.c` | **DONE** (stages 1, 2, 3, 6, 8 cycle CRAM) |
-| foreground layer (tile3 over the player) | `showAbove` | collapsed into the anim mask | **PARTIAL** — static tile3 art is merged; only animated tile3 keeps its "above" bit |
+| foreground layer (tile3 over the player) | `showAbove` | collapsed into the anim mask | **N/A** (deliberately not ported; static tile3 art is merged, only animated tile3 keeps its "above" bit) |
 | boss room locked until boss/sub-boss dies | `subboss_alive_on_left` | `enemies_subboss_alive_left` | **DONE** |
-| map gfx overlay (rain/lightning) | `set_gfx` / `show_gfx` | — | **MISSING** (not present in the converter; nobody has checked whether stages 0-13 use it) |
+| map gfx overlay (rain/lightning) | `set_gfx` / `show_gfx` | — | **N/A** (deliberately not ported) |
 | castle stages 9-13 | `classic_style_castle.png` | **DONE** |
 | stages 14-19 | placeholders in the shipped data | **N/A** |
 
@@ -267,7 +267,7 @@ shipped stages never place (0, 20, 27, 28, 33-45) are not implemented.
 | 5 save slots | `select_save` | `src/save.c` (SRAM) | **DONE** |
 | stage/boss progress bits | `game_save.stages[]` | `save_slot_stages()` | **DONE** |
 | player, lives, weapons ammo, tanks, armor | `game_save.items` | `save_slot_*` | **DONE** |
-| save erasing / copying | `select_save` dialogs | erase only (NEW GAME) | **PARTIAL** |
+| save erasing / copying | `select_save` dialogs | erase only (NEW GAME) | **N/A** (copy deliberately not ported; erase happens via NEW GAME) |
 | config persistence | `game_config` | SRAM bytes 48..55 | **DONE** |
 | input remap | `inputlib` key map | 3 buttons (jump/fire/dash) | **PARTIAL** (no keyboard/analog) |
 | turbo / auto-charge | config | EXTRAS | **DONE** |
@@ -275,24 +275,33 @@ shipped stages never place (0, 20, 27, 28, 33-45) are not implemented.
 
 ---
 
-## 11. Open gaps, in the order they matter
+## 11. Out of scope (decided with the user, 2026-10-21)
+
+These PC features will **not** be ported, so their rows stay **N/A**:
+
+- difficulty select (easy/normal/hard) — the port always plays normal values
+- cheats menu
+- static tile3 foreground art (only the animated tile3 mask is kept)
+- map gfx overlays (rain / lightning)
+- save copy, language, platform, performance and quit options
+
+## 12. Open gaps, in the order they matter (the plan)
 
 1. **Boss fight depth** — bosses have HP, hurt windows, drop-in and the weapon
-   drop, but their attacks come from the generic scripted AI. This is the
-   largest remaining behavioural gap (roadmap in `HANDOUT.md` §6).
+   drop, but their attacks come from the generic scripted AI. Largest
+   behavioural gap; plan entry in `HANDOUT.md` §6.
 2. **Enemy AI graph** — `artificial_inteligence.cpp` supports linked states and
-   reactions; the port plays a flat action list. Shows up as "dumb" enemies.
+   reactions; the port plays a flat action list. Shows up as "dumb" enemies;
+   plan entry in `HANDOUT.md` §6.
 3. **Enemy projectiles** — several trajectories are approximated by LINEAR; the
    converter prints the real values, so this is a matter of adding cases.
 4. **Boss teleport/jump animation rows** (BUG-011, blocks BUG-010).
-5. **Foreground (tile3) static art** — merged into the map; only the animated
-   tile3 keeps an "above player" mask.
-6. **Overlay screen effects** (rain/lightning) and the teleport colour flash.
-7. **Weapon tooltip**, **difficulty select**, **cheats menu**, **save copy**.
-8. Known bugs and their traces live in `bugs.md` (BUG-006, 008, 010, 012, 013,
+5. **Weapon tooltip** on weapon switch.
+6. **Teleport colour flash** (the sprite animation is in).
+7. Known bugs and their traces live in `bugs.md` (BUG-006, 008, 010, 012, 013,
    014, 018 open).
 
-## 12. How this table was produced
+## 13. How this table was produced
 
 - PC: `main.cpp:318` → `game.cpp:133` → `classmap.cpp`, `classplayer.cpp`,
   `artificial_inteligence.cpp`, `object.cpp`, `defines.h`, `scenes/game_menu.cpp`,
