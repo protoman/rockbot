@@ -1,6 +1,144 @@
-- android falling when walking over stairs. Stairs should be considered solid when walking above it.
-- falling from stairs still resets player to stand and stuck at some position
-- screen transitions are not working well, some are still using fade (techno)
+
+Handover:
+State
+- Rockbot tree clean for our work; make and make check-vram green.
+- Emulator stopped. Test SRAM restored to the original save.
+- No changes were made in the Atari project.
+Recent commits
+- a45ea63c menu text stripes: hide BG_B while menu is open.
+- dfad13e1 weapon grid aligned to tile bars; restore animated tiles + all palettes on close.
+- 300d61d6 docs/play-test notes.
+- 361cc530 stage select: defeated boss faces greyed via PAL1 grey ramp; cursor moved to PAL0.
+Verified
+- Menu text, icons/bars, alignment, selected/unselected colours, close restoration.
+- Stage 1, 3 (water), 4, 6 start correctly.
+- Grey faces with partial save: stages 1/3/6 grey, others coloured.
+- Castle/Dr Destrin centre slot still works.
+Open / next
+- Reported Ape crash and Dynamite later-room tile/fall bugs were not reproduced in a short pass; need the exact rooms.
+- Mummy stair fade/sub-boss door reports are likely fixed but not re-tested in-room.
+- Music/audio integration still not validated on emulator.
+- mega_drive/HANDOUT.md has the current notes.
+- Do not commit user files: game.cpp, mega_drive/TODO.txt, art/title_rock_and_beta.png, src/title64_*.
+Trap worth passing on
+- BlastEm SRAM is at ~/.local/share/blastem/rom/save.sram; the game’s slot record for slot 0 is at file byte 8 (RB, stages at byte 10), not byte 16. Writing test saves at 16 silently fails.
+
+
+
+Waterfall physics and HUD polish remain
+
+
+
+/home/iuri/Desenvolvimento/rockbot/mega_drive/tools/mod2vgm/build/mod2vgm /home/iuri/Desenvolvimento/rockbot/build/games/RockDroid1/music/rockbot_daisy_bot.mod /home/iuri/Desenvolvimento/rockbot/mega_drive/tools/mod2vgm/rockbot_daisy_bot.vgm
+
+- dropping from a ladder that has a teleporter link on the bottom part, does not start the teleporter, player stands over the bottom of the screen instead.
+- dropping from a ladder pressing jump, still makes player sdand over the bottom of the ladder.
+
+========================================================================================================================================================
+Dynamite Stage Bugs
+========================================================================================================================================================
+Check - screenshots/bugs/dynamite/projectiles_and_block_fall.png. When I first enter the room, there are two projectiles (blue circles) in the air, stopped.
+There is a box over the ladder in the left/bottom, that simply falls through the ground instead of staying on top of the ground.
+In projectiles_and_tile_strip.png besides the projectiles appearing again, there is a strip of tiles (third from the bottom) that is incorrect.
+  # Also there is only one Disappearing Block #1, but in the data, there are quite a few Active Disappearing Block.
+    # Run a audit in data and out code to check that we did convert and added all objects from the map data.
+
+========================================================================================================================================================
+Ape Stage Bugs
+========================================================================================================================================================
+Got a crash. When stage starts, it is all black except player, then screenshots/bugs/ape/crash.png
+
+========================================================================================================================================================
+Mummy Stage Bugs
+========================================================================================================================================================
+First room, first stairs to the right fade. Second stairs following path too, also third... I will stop counting.
+Sub-boss door is not opening.
+
+========================================================================================================================================================
+
+
+Audited the PC sources against the port’s modules (game.cpp, sceneslib.cpp, classmap.cpp, classplayer/character, class_config, file_save, AI, objects, projectiles). Inventory below; “used” means used by the 14 converted stages, so it affects current play.
+
+
+2	Difficulty select - this we will not use.
+29	Music — per-stage, boss, final boss, got-weapon, game-over, stage-select, title, intro, ending, enemy parade (29 MOD + 1 MP3)	build/games/RockDroid1/music/	one shared XGM2 track - this we will do later.
+
+========================================================================================================================================================
+A. Core gameplay still missing
+========================================================================================================================================================
+#	Feature	PC evidence	Port state
+1	Enemy item drops — pills, 1UP, tanks, random drops from destructible blocks; sub-bosses always drop big energy	classmap.cpp:996 drop_item, ratios at :1016, :1128 drop_great_random_item	none. Kills only give the explosion
+2	Difficulty select (Easy/Normal/Hard) — affects damage, lives, drop rates, easy/hard terrain blocks, spawn filtering	sceneslib.cpp:222 select_difficulty; classmap.cpp:284, classplayer.cpp:1215	hardcoded Normal; converter drops terrain 12/13 and hard-only spawns. Matches Normal geometry, but no choice
+3	Cross-stage persistence — lives, energy/weapon/special tanks, armor pieces, difficulty stored in the save	file_save_v4.h st_items, armor_pieces	player_init() resets lives=5, tanks=0, armor=0 every stage; SRAM stores only stage mask + player (save.c)
+4	COIL / JET item weapons — awarded after stages 1 and 6, selectable in the menu, place object types 12/13	classplayer.cpp:1096 add_coil_object, :1130 add_jet_object; COIL_GOT_STAGE 1, JET_GOT_STAGE 6	absent, and objects 12/13 unimplemented
+5	Armor ARMS ability (charged projectile upgrade)	get_armor_arms_attack_id, effect weapon path	not modelled (known)
+6	Armor LEGS ability: shoryuken	armor_legs_ability value 2 in port; PC input	double jump and air dash work; shoryuken does not
+7	Armor pickup dialog	game::showGotArmorDialog	collected silently
+8	Weapon acquisition screen — “YOU GOT …”, player victory pose, colour flash, 5 s hold, only stages 1–8	player_victory game.cpp:1276, got_weapon :1320 + classic_style_got_weapon	stage jumps straight to “STAGE CLEAR” text
+9	Projectile trajectories — player weapons: only QUAKE and ARC work. SONAR (ZIGZAG), DESERT STORM (FOLLOW), MAGIC STAR (CENTERED), DYNAMITE (FREEZE), TIMED BOMB (BOMB) all fly straight. Enemy shots: SIN, BOMB, FREEZE, CENTERED, ZIGZAG, FALL_BOMB fall back to linear	projectilelib.cpp, defines.h:451	shot.c / eshot.c support LINEAR/ARC/QUAKE/FOLLOW/PROGRESSIVE/DIAG
+10	Weapon status effects — freeze, explosion, push/pull, ring, laser, bomb rain etc.	freeze_weapon_effect, is_using_circle_weapon	none
+11	Per-enemy weapon weakness multipliers — each weapon has its own multiplier per enemy	weakness[FS_NPC_WEAKNESSES]; converter only emits weakness[0]	only the buster multiplier applies
+12	AI actions used by current data but unimplemented: SHOT_INVERT_DIRECTION (7), AIR_WALK (8), FALL_TO_GROUND (9), JUMP_ATTACK_UP (18). Walk options “to saved point” (3) and “opposite direction” (6) are treated as plain ahead	defines.h:702, data counts across stages 0–13	partially implemented
+13	Enemy traits: is_sub_boss, respawn_delay (JUMPINER 2500 ms, MULTIDRILL 100 ms), second projectile id, is_ghost (currently unused), per-stage vulnerability boxes	classnpc.cpp, file_game_v4.h:715	only is_boss, one projectile, no respawn/sub-boss flag
+14	Death / game over semantics — death animation, reset room objects/animations, checkpoint rules, game-over screen + music, restart-or-leave	classplayer.cpp:951, game.cpp:1760, :2160 game_over	instant teleport respawn; out-of-lives returns to title with no screen
+15	Boss defeat sequence — expanding classic explosion, victory pose, weapon screen, clear jingle	classic_style_draw_boss_death game.cpp:1798	generic 32×32 puff, then “STAGE CLEAR”
+16	Boss arena presentation — blink, boss drops in from the top, then dialog	map_present_boss game.cpp:857	boss already stands in the map; only the dialog was added
+17	Sub-boss door rule — boss doors won’t open while a boss/sub-boss is alive on the left	classmap.cpp:1612, subboss_alive_on_left	door opens on touch
+18	Water physics — swim/floating behaviour	stage 3: 2057 water cells, stage 13: 234	minimal sink/slow-fall, untested at length
+19	Coil/jet/crusher/track/diagonal/timed-bomb/expanding-spike object types	defines.h:363+	unused by stages 0–13 except coil/jet; dormant until item weapons or more stages
+
+========================================================================================================================================================
+B. Flow, menus, content
+========================================================================================================================================================
+#	Feature	PC evidence	Port state
+20	Post-stage flow — after a stage, PC goes to stage select and starts the next stage directly	game.cpp:1445 leave_stage → sceneslib.cpp:529 pick_stage	returns to title; user must LOAD again
+21	Title menu CONFIG + ABOUT — PC title has NEW / LOAD / CONFIG / ABOUT	sceneslib.cpp:138-146	only NEW / LOAD; config only via in-game START
+22	ABOUT screen (site, bugs mail, Twitter, Facebook)	draw::show_about	missing
+23	Credits — scrolling game_credits.txt + engine credits, from ABOUT, EXTRAS, and the ending	draw::show_credits, game.cpp:1568	missing
+24	Ending is incomplete — after the four ending scenes PC plays: player-walking parade (3 parallax layers), enemy parade, credits, then intro	sceneslib.cpp:325 show_player_walking_ending, :404 show_enemies_ending	only scenes 2..5, then title
+25	Player unlock — PC allows 2 characters until game_finished, then all 4	sceneslib.cpp:557 max_loop = 2/4	all 4 always available; no game_finished flag
+26	Weapon grid UI — 2-column weapon/item grid, tank icons	class_config.cpp:284, generate_weapons_matrix	linear weapon list
+27	Scene op coverage — music/SFX ops stubbed; VIEWPOINT and ANIMATION ops skipped; MOVE_IMAGE static only	sceneshow.cpp	intro/endings use only the supported ops
+28	Modern-style stage select map (GAME_STYLE_MODERN)	stage_select.cpp pick_stage vs pick_stage_classic_style	classic 3×3 only (chosen style)
+
+
+========================================================================================================================================================
+C. Audio / visuals
+========================================================================================================================================================
+#	Feature	PC evidence	Port state
+29	Music — per-stage, boss, final boss, got-weapon, game-over, stage-select, title, intro, ending, enemy parade (29 MOD + 1 MP3)	build/games/RockDroid1/music/	one shared XGM2 track
+30	SFX — 46 PC wavs	sfx/	14 converted
+31	Audio volume music/SFX sliders	show_config_audio	on/off only (XGM2 limitation)
+32	Screen shake for QUAKE shots	graphLib quake	noted as not ported in shot.c/eshot.c
+33	HUD ball art dedup / real weapon colour	roadmap 11	3 sheets, fixed green
+34	Waterfall gap stage 2 map 2	roadmap 15	still needs a reproduction
+35	Dialogs	dialogs.cpp	done (boss pages + faces)
+
+========================================================================================================================================================
+D. Deliberate / not applicable
+========================================================================================================================================================
+- Platform, language, performance, quit-game config entries: omitted per your spec.
+- Cheats menu (keyboard combo), FPS display, quick-load: PC debug features.
+- 2-player mode: not present in this PC build’s runtime.
+- Stages 14–19 / second castle: use_second_castle = 0; placeholders.
+- Ghost/friend/weather NPC behaviour: no converted spawn uses it.
+- Stage-start dialogs: dead PC data (no reader; cutscene_pre/pos = -1).
+- Difficulty data: port matches PC Normal geometry.
+
+========================================================================================================================================================
+Recommended order
+========================================================================================================================================================
+1. Drops + cross-stage persistence + lives (items 1, 3, 8) — biggest effect on the actual game loop.
+2. Death/victory/game-over/boss-death + post-stage stage select (14, 15, 20) — closes the “game feels cut” gaps.
+3. COIL/JET + weapon grid (4, 26) and armor dialog/ARMS/shoryuken (5, 6, 7).
+4. Trajectories/effects/weakness (9–11) — weapon feel.
+5. AI actions + respawn/sub-boss (12, 13, 17), then per-boss AI with playtesting.
+6. Title CONFIG/ABOUT, difficulty, player unlock, game_finished (2, 21–25).
+7. Ending parade + credits (23, 24).
+8. Music/SFX last (29, 30) — tooling-bound.
+9. Polish: water, screen shake, HUD dedup, waterfall.
+No code changed for this audit; tree clean except your TODO.txt. Want me to start with step 1?
+
 
 
 ========================================================================================================================================================
