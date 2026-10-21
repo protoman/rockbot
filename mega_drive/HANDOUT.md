@@ -42,6 +42,15 @@ make run EMU_ARGS=   # GL renderer instead of software
   outlier (56 colours, BUG-004) and the first WATER/ICE stage (minimal
   physics). Endings 2..5 play after stage 13 (`scene_play(2+player)`); the
   six portraits are in the build (visual pass pending).
+- **Weapon menu (2026-10-20)**: the font has transparent background pixels, so
+  it was showing the stage parallax on BG_B as orange stripes. The menu now
+  blanks BG_B and points the backdrop at black while open, then rebuilds the
+  parallax, the animated-tile block and all four palette lines on close
+  (`stage_redraw_anim()`). The grid is aligned to the BG tile bars: icons at
+  x=14+80*col, y=41+24*row; bars at tile columns 3+10*col, rows 5/8/11.
+  Play-tested: stages 1 (DEEP JUNGLE), 3 (ATLANTIDA water), 4 (Mummy) and
+  6 (DARK MINE) start; menu opens with all weapons and closes with the stage
+  parallax/animated lamps intact.
 - **Title** renders the layered PC art at ~58 colours over four palette lines
   (`tools/title64.py`), verified on hardware against the user's reference.
 - **Colourcycle** (CRAM rotation instead of tile-frame animation) live in stages
