@@ -63,6 +63,9 @@ MAP_TILES_OFF = 78
 TILE_STRUCT = 5
 
 NPC_SZ = 6048
+STAGE_SZ = 438          # file_stage
+STAGE_BOSS_OFF = 360    # file_boss { Sint8 id_npc; Sint8 id_weapon; char name[20]; }
+STAGE_BOSS_ID = -1      # set in main() from the stage record
 PROJ_SZ = 104
 PROJ_MAX = 23          # 0..19 enemy shots; 20..22 armor charged shots
 MAP_NPC_SZ = 12
@@ -115,7 +118,7 @@ def read_enemy_defs(blob, ids):
                 rect = struct.unpack_from("<4h", b, o + 6)
                 if used:
                     out.append((px, dur, rect))
-        is_boss = b[6026]
+        is_boss = int(eid == STAGE_BOSS_ID)
         hp = struct.unpack_from("<h", b, 64)[0]
         if is_boss:
             hp = BOSS_INITIAL_HP    # PC classnpc.cpp:707, file value unused
@@ -169,6 +172,20 @@ def read_spawns():
             "diffL": r[9],
         })
     return out
+
+
+def read_stage_boss_id():
+    """PC stage_data.boss.id_npc: the ONE enemy that is the stage boss.
+
+    The NPC record also carries an is_boss flag, but that is per enemy TYPE and
+    several castle stages place other bosses as regular enemies; using it made
+    the first such enemy (APE BOT in stage 13) the boss intro sprite and gave it
+    the drop-in/HP bar. classmap.cpp:561: only boss.id_npc becomes the stage
+    boss, other boss-flagged types are just set_is_boss(true).
+    """
+    path = os.path.join(DATA, "stages_v301.dat")
+    blob = open(path, "rb").read()
+    return struct.unpack_from("<b", blob, STAGE_SZ * STAGE_INDEX + STAGE_BOSS_OFF)[0]
 
 
 def read_ai_states():
@@ -366,6 +383,9 @@ def load_indexed(path):
 
 def main():
     blob = open(os.path.join(DATA, "game_enemy_list_3_1_2.dat"), "rb").read()
+    global STAGE_BOSS_ID
+    STAGE_BOSS_ID = read_stage_boss_id()
+    print(f"stage {STAGE_INDEX} boss npc id {STAGE_BOSS_ID}")
     spawns_all = read_spawns()
     ai_states = read_ai_states()
     ai_react = read_ai_reactions()

@@ -396,14 +396,14 @@ static void enemy_die(Enemy *e)
 
 // Find the def with this PC npc id (the converter puts it in the bundle for
 // AI SPAWN_NPC / REPLACE_NPC / MORPH targets) and place it near the parent.
-static void ai_spawn_npc(Enemy *e, u8 npc_id, bool at_self)
+static Enemy *ai_spawn_npc(Enemy *e, u8 npc_id, bool at_self)
 {
     for (u8 i = 0; i < stage_def->enemy_def_count; i++) {
         if (stage_def->enemy_defs[i].npc_id != npc_id) continue;
-        enemy_add(i, at_self ? e->x : e->x + e->dir * 24, e->y,
-                  e->x_min, e->x_max, e->dir);
-        break;
+        return enemy_add(i, at_self ? e->x : e->x + e->dir * 24, e->y,
+                         e->x_min, e->x_max, e->dir);
     }
+    return NULL;
 }
 
 // PC check_ai_reaction: six slots, tested in this order. Only a slot with
@@ -690,12 +690,22 @@ static bool ai_action_run(Enemy *e)
         if (e->act_t == 1) ai_spawn_npc(e, (u8)st->param, FALSE);
         return TRUE;
 
-    case AI_REPLACE_NPC:
+    case AI_REPLACE_NPC: {
         // PC AI_ACTION_REPLACE_NPC: spawn the target NPC and remove the
         // parent. DESTRIN TANK's REACTION_DEAD uses it to become DESTRIN SHIP.
-        if (e->act_t == 1) ai_spawn_npc(e, (u8)st->param, TRUE);
+        if (e->act_t == 1) {
+            Enemy *child = ai_spawn_npc(e, (u8)st->param, TRUE);
+            // PC artificial_inteligence.cpp:2294: a stage boss's replacement
+            // inherits the boss status (HP bar + stage clear) with full HP.
+            if (child && (s16)(e - enemies) == boss_i) {
+                child->hp = BOSS_INITIAL_HP;
+                boss_i = (s16)(child - enemies);
+                boss_died = FALSE;
+            }
+        }
         enemy_die(e);
         return TRUE;
+    }
 
     case AI_CHANGE_MOVE:
         return TRUE;                    // animation-only action on PC
@@ -1058,7 +1068,10 @@ u8 enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage, s8 shot_dir,
         Enemy *e = &enemies[i];
         if (!e->alive || e->dying) continue;
         const EnemyDef *d = e->def;
-        if (d->is_boss && e->dropping) return 1;
+        // A replacement NPC can become the stage boss, so the live index (not
+        // the def flag) decides.
+        const bool stage_boss = ((s16)i == boss_i);
+        if (stage_boss && e->dropping) return 1;
         s16 el = e->x + d->box_l;
         s16 et = e->y + d->box_t;
         if (l >= el + d->box_w || r <= el || t >= et + d->box_h || b <= et)
@@ -1081,13 +1094,20 @@ u8 enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage, s8 shot_dir,
         u8 dmg = damage * mul;
 
         e->hp = (dmg >= e->hp) ? 0 : e->hp - dmg;
-        if (d->is_boss) e->hurt_timer = BOSS_HURT_FRAMES;
+        if (stage_boss) e->hurt_timer = BOSS_HURT_FRAMES;
         e->was_hit = 1;                 // PC _was_hit -> AI_REACTION_HIT
         sfx_play(SFX_NPC_HIT);
         if (e->hp == 0) {
-            sfx_play(d->is_boss ? SFX_EXPLOSION : SFX_NPC_KILLED);
-            if (d->is_boss) {
-                boss_died = TRUE;
+            // PC REACTION_DEAD (artificial_inteligence.cpp:184): if the
+            // enemy has a death reaction (DESTRIN TANK -> DESTRIN SHIP), play
+            // it first; the reaction removes the enemy when it finishes and a
+            // stage boss's replacement inherits the boss status, so the fight
+            // continues.
+            const bool dead_react = (stage_def->enemy_react &&
+                stage_def->enemy_react[e->def_i][REACT_DEAD].action);
+            sfx_play(stage_boss ? SFX_EXPLOSION : SFX_NPC_KILLED);
+            if (stage_boss) {
+                if (!dead_react) boss_died = TRUE;
             } else {
                 // PC classmap.cpp:2232: a regular enemy's death adds the 32x32
                 // explosion puff at its position (the stage boss has its own
@@ -1101,11 +1121,7 @@ u8 enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage, s8 shot_dir,
                     objects_drop_item(cx, cy, d->is_sub_boss != 0);
                 explosion_spawn(e->x, e->y);
             }
-            // PC REACTION_DEAD (artificial_inteligence.cpp:184): if the
-            // enemy has a death reaction (DESTRIN TANK -> DESTRIN SHIP), play
-            // it first and remove the enemy when it finishes.
-            if (!d->is_boss && stage_def->enemy_react &&
-                stage_def->enemy_react[e->def_i][REACT_DEAD].action) {
+            if (dead_react) {
                 e->dying = 1;
                 e->was_hit = 0;
                 e->react = REACT_DEAD + 1;

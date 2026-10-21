@@ -503,3 +503,32 @@ tiles; `enemy.c` only checks `TERRAIN_UNBLOCKED`/`WATER` for walking/cliff
 decisions, not a "stay in water" constraint. Check the PC AI for the water
 enemies (ATLANTIDA fish) and the `is_water`/terrain constraints, then add a
 flying-into-water rule (or the opposite) per enemy type.
+
+## BUG-019 — DR. DESTRIN boss intro shows APE BOT
+
+**Status**: **FIXED 2026-10-21** (runtime re-check pending with the user).
+
+**Report**: starting the castle stage whose boss is DR. DESTRIN, the boss intro
+drew an Ape sprite.
+
+**Cause**: `EnemyDef.is_boss` came from the NPC record's own `is_boss` byte
+(`file_npc`, `b[6026]`). That flag is per enemy TYPE, and castle stages place
+other stages' bosses as regular enemies — stage 13 spawns APE BOT (id 2),
+DAISIE BOT, MUMMY BOT, SPIKE BOT, TECHNO BOT, DYNAMITE BOT, SEAHORSE BOT and
+MAGE BOT, all with the flag set. `bossintro.c` draws the first `is_boss` def,
+so APE BOT (id 2, sorted before DR. DESTRIN id 24) won. The same conflation
+also gave the stage-13 APE BOT the boss drop-in and the boss HP row.
+
+PC reference: `classmap.cpp:561` — only `stage_data.boss.id_npc` becomes the
+stage boss (`set_stage_boss`: 36 HP, drop from the top, hit window); other
+boss-flagged types only get `set_is_boss(true)`.
+
+**Fix**:
+- `tools/convert_enemies.py` reads the stage record's `file_boss.id_npc`
+  (`stages_v301.dat` offset 360) and sets `is_boss` for that npc id only.
+  Stage 12 was also wrong in the other direction: WASPER is its boss but its
+  record flag is 0, so that stage had no boss def at all.
+- `enemy.c` treats the live `boss_i` index as the stage boss for the death
+  path, and an `AI_REPLACE_NPC` child of the boss inherits the status with
+  full boss HP (PC `artificial_inteligence.cpp:2294`), so DR. DESTRIN's
+  tank -> ship replacement continues the fight instead of clearing the stage.
