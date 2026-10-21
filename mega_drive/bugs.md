@@ -532,3 +532,20 @@ boss-flagged types only get `set_is_boss(true)`.
   path, and an `AI_REPLACE_NPC` child of the boss inherits the status with
   full boss HP (PC `artificial_inteligence.cpp:2294`), so DR. DESTRIN's
   tank -> ship replacement continues the fight instead of clearing the stage.
+
+## BUG-020 — No boss door in the DR. DESTRIN room (objects beyond 24 dropped)
+
+**Status**: **FIXED 2026-10-21** (in-game re-check pending).
+
+**Report**: the DR. DESTRIN room had no door; the same stage also seemed to be
+missing objects.
+
+**Cause**: `OBJECT_MAX` was 24, but stage 13 map 0 places **27** objects and the
+boss door is the last one. `objects_reset` stops at `obj_count < OBJECT_MAX`,
+so the door (and the two objects before it) never spawned. The converter was
+not dropping anything: it reports 0 skipped spawns for every stage 0..13.
+`ENEMY_MAX` had the same problem — stage 10 map 2 spawns 27 enemies and 11 were
+dropped.
+
+**Fix**: `OBJECT_MAX` 24 -> 32, `ENEMY_MAX` 16 -> 32 (max per map across the
+converted stages is 27 for both).

@@ -40,6 +40,11 @@
 
 #define BLANK_TILE TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, TILE_FONT_INDEX)
 
+// PC draw::show_credits_text advances posY by 1 px every STARS_DELAY (50ms)
+// = 3 frames per pixel, 36 per 12px line. The port keeps the line stepping
+// but at 12 frames (0.2s) per line so a 51-line list takes ~10s.
+#define CREDITS_FRAMES_PER_LINE 12
+
 static void black_screen(void)
 {
     u16 blank = BLANK_TILE;
@@ -118,7 +123,10 @@ static void walking_parade(void)
 
     Sprite *ply = SPR_addSprite(player_definition(), END_WALK_X, END_WALK_Y,
                                 TILE_ATTR(PAL2, FALSE, FALSE, FALSE));
-    if (ply) SPR_setAnim(ply, ANIM_WALK);
+    if (ply) {
+        SPR_setAnim(ply, ANIM_WALK);
+        SPR_setHFlip(ply, TRUE);   // PC: ANIM_DIRECTION_LEFT
+    }
 
     VDP_setScrollingMode(HSCROLL_LINE, VSCROLL_PLANE);
     static s16 hs_a[28];
@@ -129,9 +137,11 @@ static void walking_parade(void)
         s16 px = (s16)(END_WALK_X - frame);
         if (ply) SPR_setPosition(ply, px, END_WALK_Y);
 
-        s16 o1 = (s16)-(s16)(frame % 320);
-        s16 o2 = (s16)-(s16)((frame * 2) % 320);
-        s16 o3 = (s16)-(s16)((frame * 4) % 320);
+        // PC show_player_walking_ending speeds: front 1.1, mid 0.5, back 0.1
+        // px/frame (all moving right while the player walks left).
+        s16 o1 = (s16)-(s16)(((u32)frame * 11 / 10) % 320);
+        s16 o2 = (s16)-(s16)(((u32)frame * 5 / 10) % 320);
+        s16 o3 = (s16)-(s16)(((u32)frame * 1 / 10) % 320);
         for (u16 y = 0; y < 28; y++) {
             hs_b[y] = o3;
             if (y >= END_L2_ROW && y < END_L2_ROW + END_L2_MAP_H)
@@ -218,7 +228,7 @@ static void credits_scroll(void)
             if (i < CREDITS_LINES && credits_lines[i][0])
                 center_text(credits_lines[i], row);
         }
-        if (!wait_frames(2)) break;
+        if (!wait_frames(CREDITS_FRAMES_PER_LINE)) break;
         top++;
     }
 

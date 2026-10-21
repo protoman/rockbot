@@ -5,7 +5,9 @@
 
 #include "stage_data.h"
 
-#define OBJECT_MAX 24
+// Stage 13 map 0 places 27 objects (the boss door is the last one); the old
+// cap of 24 silently dropped it, so the DR. DESTRIN room had no door.
+#define OBJECT_MAX 32
 
 // Temp test-room overlay: PX/PY/CX line + per-platform state lines.
 // Remove together with the test-room spawns (stage0_plan backlog).

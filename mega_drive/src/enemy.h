@@ -5,7 +5,8 @@
 
 #include "stage_data.h"
 
-#define ENEMY_MAX 16
+// Stage 10 map 2 spawns 27 enemies; the old cap of 16 silently dropped 11.
+#define ENEMY_MAX 32
 
 // PC shareddata: TOUCH_DAMAGE_SMALL (walk into an enemy).
 #define TOUCH_DAMAGE_SMALL 2

@@ -660,34 +660,24 @@ static void showGameOver(void)
 // its last frame); the text screen and the 5s hold match.
 static void showStageClear(u8 stage, bool first_clear)
 {
+    // PC has no "STAGE CLEAR / PRESS START" screen: game::got_weapon()
+    // (game.cpp:1320) shows the weapon on a first clear of stages 1..8 and
+    // then the game returns straight to the stage select.
+    if (!first_clear || stage < 1 || stage > 8) return;
+
     textScreenBegin();
-    music_play((first_clear && stage >= 1 && stage <= 8)
-               ? MUSIC_GOT_WEAPON : MUSIC_STAGE_COMPLETE);
-
-    // Got-weapon screen: stage 0 and the castle stages have no weapon.
-    if (first_clear && stage >= 1 && stage <= 8) {
-        sfx_play(SFX_GOT_WEAPON);
-        drawCentered("YOU GOT", 10);
-        drawCentered(weapon_data[stage].name, 12);
-        for (u16 i = 0; i < 300; i++) {        // PC wait 5000ms
-            if (JOY_readJoypad(JOY_1) & BUTTON_START) break;
-            SPR_update();
-            SYS_doVBlankProcess();
-            VDP_setReg(17, 0);
-            VDP_setReg(18, 0);
-        }
-        VDP_clearTextArea(0, 8, 40, 6);
-    }
-
-    drawCentered("STAGE CLEAR", 12);
-    drawCentered("PRESS START", 15);
-    while (TRUE) {
+    music_play(MUSIC_GOT_WEAPON);
+    sfx_play(SFX_GOT_WEAPON);
+    drawCentered("YOU GOT", 10);
+    drawCentered(weapon_data[stage].name, 12);
+    for (u16 i = 0; i < 300; i++) {            // PC wait 5000ms
         if (JOY_readJoypad(JOY_1) & BUTTON_START) break;
         SPR_update();
         SYS_doVBlankProcess();
         VDP_setReg(17, 0);
         VDP_setReg(18, 0);
     }
+    VDP_clearTextArea(0, 8, 40, 6);
 }
 
 // PC game loop after leave_stage(): the stage select drives the next stage.
