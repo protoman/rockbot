@@ -205,6 +205,8 @@ from already-captured screenshots/assets over running the emulator again.
 
 ## Port status
 
+- Feature-by-feature comparison with the PC game (boot, loop, player, enemies,
+  objects, stage, HUD, audio, saves): **`pc_features_vs_md.md`**.
 - Stages 0..13 are converted (14 of 20). The first nine (0..8) play: maps,
   parallax, enemies, objects, shots, HUD, menu, save/load, stage select.
   Stages 9..13 (castle #1) are reachable: the stage-select centre slot
