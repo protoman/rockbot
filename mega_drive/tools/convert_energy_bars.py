@@ -27,7 +27,12 @@ VARIANTS = {
     "hud_bar_boss": {(139, 0, 115): 2, (0, 113, 238): 3,  (0, 0, 0): 1},
 }
 # (name suffix, source start row, height)
-PARTS = (("top", 0, 24), ("mid", 24, 24), ("bot", 48, 8))
+# The source art is 51 rows (0..50). The bottom slice must overlap the middle
+# one instead of running past row 50: the old ("bot", 48, 8) read rows 48..55,
+# and rows 51..55 do not exist, so 5 rows of the bar were permanently black
+# (the black strip under the HP bar). Rows 43..47 are drawn twice with
+# identical content, which is invisible.
+PARTS = (("top", 0, 24), ("mid", 24, 24), ("bot", 43, 8))
 FRAMES = 51
 
 

@@ -12,14 +12,23 @@
 #define HUD_BAR_WPN_X  10
 #define HUD_BAR_BOSS_X (320 - 15)
 #define HUD_BAR_Y      2
+// PC draw.cpp:1328: the icon is drawn at y=54 with the 50px bar ending at 53,
+// i.e. a 1px gap, on top of a black box the size of the icon. The icon art's
+// black ring is sprite-transparent (colour 0), so the box needs its own
+// sprite; the bar's frame 0 is a solid black 8x8 we can reuse.
+#define HUD_ICON_Y     (HUD_BAR_Y + 52)
 
-static const u16 part_y[HUD_PARTS] = { 0, 24, 48 };
+// The bottom slice overlaps the middle one (source rows 43..47 are
+// drawn twice, identical), so the bar is 51 rows tall like the art.
+static const u16 part_y[HUD_PARTS] = { 0, 24, 43 };
 
 static Sprite *hp_parts[HUD_PARTS];
 static Sprite *wpn_parts[HUD_PARTS];
 static Sprite *boss_parts[HUD_PARTS];
 static Sprite *hp_icon;
 static Sprite *wpn_icon;
+static Sprite *hp_box;
+static Sprite *wpn_box;
 static bool hp_on, wpn_on, boss_on;
 static bool hud_on = TRUE;
 
@@ -30,7 +39,11 @@ static Sprite *add_part(const SpriteDefinition *def, s16 x, s16 y, u16 pal)
     return sp;
 }
 
-static void set_bar(Sprite *const *parts, bool show, s16 pct)
+// The icon and its black box follow the bar, so no caller can show a bar
+// without its icon (the weapon icon used to stay hidden until the menu forced
+// hud_set_visible).
+static void set_bar(Sprite *const *parts, bool show, s16 pct,
+                    Sprite *icon, Sprite *box)
 {
     s16 frame = (pct * 50) / 100;
     if (frame < 0) frame = 0;
@@ -40,6 +53,8 @@ static void set_bar(Sprite *const *parts, bool show, s16 pct)
         SPR_setVisibility(parts[i], show ? VISIBLE : HIDDEN);
         if (show) SPR_setFrame(parts[i], frame);
     }
+    if (icon) SPR_setVisibility(icon, show ? VISIBLE : HIDDEN);
+    if (box) SPR_setVisibility(box, show ? VISIBLE : HIDDEN);
 }
 
 void hud_init(void)
@@ -62,9 +77,23 @@ void hud_init(void)
         if (wpn_parts[i]) SPR_setFrame(wpn_parts[i], 0);
         if (boss_parts[i]) SPR_setFrame(boss_parts[i], 0);
     }
-    hp_icon = SPR_addSprite(&hud_icon_sprite, HUD_BAR_HP_X, HUD_BAR_Y + 56,
+    // Icon box first so it sits behind the icon sprite (SPR_MIN_DEPTH is the
+    // front-most depth).
+    hp_box = SPR_addSprite(&hud_bar_hp_bot_sprite, HUD_BAR_HP_X, HUD_ICON_Y,
+                           TILE_ATTR(PAL2, FALSE, FALSE, FALSE));
+    wpn_box = SPR_addSprite(&hud_bar_hp_bot_sprite, HUD_BAR_WPN_X, HUD_ICON_Y,
+                            TILE_ATTR(PAL2, FALSE, FALSE, FALSE));
+    if (hp_box) {
+        SPR_setFrame(hp_box, 0);          // bar frame 0 = solid black 8x8
+        SPR_setDepth(hp_box, SPR_MAX_DEPTH);
+    }
+    if (wpn_box) {
+        SPR_setFrame(wpn_box, 0);
+        SPR_setDepth(wpn_box, SPR_MAX_DEPTH);
+    }
+    hp_icon = SPR_addSprite(&hud_icon_sprite, HUD_BAR_HP_X, HUD_ICON_Y,
                              TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
-    wpn_icon = SPR_addSprite(&hud_icon_sprite, HUD_BAR_WPN_X, HUD_BAR_Y + 56,
+    wpn_icon = SPR_addSprite(&hud_icon_sprite, HUD_BAR_WPN_X, HUD_ICON_Y,
                              TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
     if (hp_icon) {
         SPR_setFrame(hp_icon, 0);
@@ -74,6 +103,18 @@ void hud_init(void)
         SPR_setFrame(wpn_icon, 0);
         SPR_setDepth(wpn_icon, SPR_MIN_DEPTH);
     }
+    // Nothing is shown until the first update: the bar sprites are added
+    // visible with frame 0 (solid black), which used to draw black HUD boxes
+    // over the stage during "MISSION STARTED".
+    for (u8 i = 0; i < HUD_PARTS; i++) {
+        if (hp_parts[i]) SPR_setVisibility(hp_parts[i], HIDDEN);
+        if (wpn_parts[i]) SPR_setVisibility(wpn_parts[i], HIDDEN);
+        if (boss_parts[i]) SPR_setVisibility(boss_parts[i], HIDDEN);
+    }
+    if (hp_icon) SPR_setVisibility(hp_icon, HIDDEN);
+    if (wpn_icon) SPR_setVisibility(wpn_icon, HIDDEN);
+    if (hp_box) SPR_setVisibility(hp_box, HIDDEN);
+    if (wpn_box) SPR_setVisibility(wpn_box, HIDDEN);
     hp_on = wpn_on = boss_on = FALSE;
     hud_on = TRUE;
 }
@@ -83,19 +124,16 @@ void hud_weapon(u8 weapon, u8 ammo)
     if (!hud_on) return;
     bool show = (weapon != 0);
     s16 pct = (100 * ammo) / PLAYER_INITIAL_HP;
-    set_bar(wpn_parts, show, pct);
+    set_bar(wpn_parts, show, pct, wpn_icon, wpn_box);
     wpn_on = show;
-    if (wpn_icon) {
-        SPR_setVisibility(wpn_icon, show ? VISIBLE : HIDDEN);
-        SPR_setFrame(wpn_icon, weapon);
-    }
+    if (show && wpn_icon) SPR_setFrame(wpn_icon, weapon);
 }
 
 void hud_update(u8 hp)
 {
     if (!hud_on) return;
     s16 pct = (100 * hp) / PLAYER_INITIAL_HP;
-    set_bar(hp_parts, TRUE, pct);
+    set_bar(hp_parts, TRUE, pct, hp_icon, hp_box);
     hp_on = TRUE;
 }
 
@@ -104,7 +142,7 @@ void hud_boss(s16 hp)
     if (!hud_on) return;
     bool show = (hp > 0);
     s16 pct = show ? (100 * hp) / BOSS_INITIAL_HP : 0;
-    set_bar(boss_parts, show, pct);
+    set_bar(boss_parts, show, pct, NULL, NULL);
     boss_on = show;
 }
 
@@ -117,5 +155,7 @@ void hud_set_visible(bool visible)
         if (boss_parts[i]) SPR_setVisibility(boss_parts[i], visible && boss_on ? VISIBLE : HIDDEN);
         if (hp_icon) SPR_setVisibility(hp_icon, visible && hp_on ? VISIBLE : HIDDEN);
         if (wpn_icon) SPR_setVisibility(wpn_icon, visible && wpn_on ? VISIBLE : HIDDEN);
+        if (hp_box) SPR_setVisibility(hp_box, visible && hp_on ? VISIBLE : HIDDEN);
+        if (wpn_box) SPR_setVisibility(wpn_box, visible && wpn_on ? VISIBLE : HIDDEN);
     }
 }

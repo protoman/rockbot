@@ -2,6 +2,77 @@
 
 Things that are wrong or worse than the original. Track here, fix later.
 
+## BUG-005 — Returning through a stair kills the player instead of teleporting
+
+**Status**: **FIX IMPLEMENTED 2026-10-21, needs one emulator verification**
+(arrival no longer leaves the player inside the band he just used).
+
+**Symptom**: SUN-GOD REALM (stage 4, "Mummy"), climbing the stairs *up* works
+normally (forward room change **scrolls**, no fade — confirmed 2026-10-21).
+Coming back **down**, the player dies unless he first climbs a good deal
+higher; climbing high enough makes the room change happen as it should.
+
+**What is known**:
+- The first staircase right of the stage start is a jump-grab ladder at tile
+  x=60 (stair rows 0-2 and 6-9, body-middle sampling row 10 at ground level);
+  the floor-level ladder is tile x=65 (rows 9-13). Both behave like the PC.
+- `tools/audit_links.py` reproduces the arrival math of every link in both
+  directions against the generated terrain. For stage 4 the arrival of the
+  return link (map 2 (189,13) -> map 0 (60,0)) is **clean**: px 955, on a
+  stair, no solid overlap, no out-of-map tile. Only two stage-4 arrivals are
+  flagged, both `NO-FLOOR` bottom-edge arrivals (link4 rev, link5 rev).
+- So this is not a static placement bug: the death happens dynamically after
+  the arrival (or on a different link than the one assumed).
+
+**Repro**: stage 4, climb the x=60 ladder to the top (room change), then use
+the stair back. Watch for the death animation instead of the return room.
+
+**Next step**: one KDEBUG run (`kprintf` in `stage_check_link`,
+`transition_scroll`, `stage_load`, `player_place`) around the return link —
+see `blastem_debug.md` for the recipe.
+
+**Latch analysis (2026-10-21, offline)** — user's hypothesis: *the player never
+leaves the link, so the return link cannot re-activate*.
+
+- `stage_check_link` keeps `link_latch` set until the link's `hit` becomes
+  false ("cleared on region miss only"), the port's version of the PC
+  `player.teleporter != -1` gate + the `else { set_teleporter(-1) }` reset.
+- The PC arrival for non-teleporter links keeps the player's screen position
+  and only scrolls the map (`test_player->set_position(real_x + new_map_pos_x,
+  player.y)`), plus the `new_map_pos_x -= diff_h + 2` offset. It never places
+  the player on the destination tile centre.
+- The port places the player **exactly on the destination cell** and sets
+  `on_ladder` from its terrain. For a stair link whose destination is a
+  top/bottom row, the trigger band of the return link overlaps the arrival and
+  its margin points outside the map, so the only way to clear the latch is to
+  climb away by a large amount — this matches "dies unless I go up a lot, then
+  it changes rooms as it should".
+- Candidate fixes:
+  A. Offset the arrival a couple of tiles away from the trigger cell (PC-like),
+     so the player starts outside the band and re-entering fires the return.
+  B. Clear the latch once the player's *tile* differs from the arrival tile
+     (then the return fires from inside a wide band) — needs a guard against
+     immediate ping-pong.
+  A is closer to the reference implementation and does not loosen the latch.
+
+**Implemented (A)**: `stage_link_band_hit()` in `stage.c` reports whether the
+player box sits inside any link band of the current map, with the same
+geometry `stage_check_link` uses. `main.c` now, after a link arrival clamped to
+the top or bottom map edge, steps the player off that edge in 8 px steps (max
+four) until the box is outside every band, then sets `on_ladder` as before.
+
+Worked example (map 0 (60,0) -> map 2 (189,13)): the bottom-map-row rule now
+judges by the **body centre** against the row's top edge (`centre >= ty*16`)
+instead of the feet sample against `ty*16 - 8`. Arrival py=195 (feet at the
+224 screen bottom) has centre 211 >= 208, so it is inside the band; the nudge
+moves him up just **4 px** (py=191, feet 220), centre 207 < 208, and the
+latch can clear. Pressing down re-enters the band and fires the return — the
+player now stands at the bottom of the screen instead of a tile up the ladder.
+
+Top-edge arrivals whose band is already missed (e.g. map 2 -> map 0 (60,0),
+feet sample py=21 vs band -19..16) are left untouched.
+
+
 ## BUG-001 — Title screen art loses color depth
 
 **Status**: **FIXED 2026-10-19** — the title draws the PC art at 59 colours
@@ -240,3 +311,181 @@ per-stage re-quantisation. The anim side of this bug is done.
 
 **Files**: `tools/convert_stage.py`, `tools/img2tiles.py`, the source art.
 
+
+## BUG-006 — Sub-boss door opens but the screen never scrolls to the boss room
+
+**Status**: **FIXES IN, needs an in-game check** (reported 2026-10-21, Mummy
+stage / SUN-GOD REALM). Two changes from the source review:
+`column_locked()` now gives the **live door state priority over the converted
+scroll-lock table** (a door column that is also in the map table stayed locked
+after opening, so the camera could never scroll into the boss room), and
+`objects_reset_doors()` re-closes opened doors when the player respawns (the
+port does not reload the map on death, so a door stayed open for the rest of
+the stage and its lock never came back).
+
+**Symptom**: touching the sub-boss door lets the player through, but the
+horizontal scroll that reveals the boss room never happens. Worse, the scroll
+stays unlocked afterwards — even after dying and coming back.
+
+**Suspects** (both in the port's door handling):
+- `objects_boss_door_locked()` (`object.c:594`) releases the lock as soon as
+  the door is `started`; the PC additionally scrolls the screen to the boss
+  room when the door opens (`classmap.cpp:1611` area). The port has no
+  equivalent camera/scroll step.
+- Doors live in the object list and are **not reset on death**: the death path
+  reloads neither objects nor the door state, so an opened door stays open
+  forever in that stage attempt. Reloading the map (or re-closing doors) on
+  respawn/stage re-entry should restore the lock.
+
+## BUG-007 — Charged shot resets when crossing a room link
+
+**Status**: **FIXED and verified 2026-10-21**. Holding the attack button
+through a stair/link transition now keeps the charge, as in the PC.
+
+**Cause**: `player_place()` cleared `player.charge_frames`, and the room-link
+handler calls `player_place()` on arrival. Immediately after the transition
+`handle_fire()` saw a "fresh press" and fired a normal shot, restarting the
+charge from zero.
+
+**Fix**: `player_place()` no longer touches the charge (it is used by the link
+arrival too); the reset moved to `respawn_player()` (plus the existing one in
+`player_init()`), together with `fire_prev = FALSE` so a held button after a
+death does not fire.
+
+**Verified** with `kprintf` around the link and at release:
+`CHG pre=124 -> CHG post=124 -> REL chg=124` (before the fix: `111 -> 0`).
+
+## BUG-008 — Boss dialogs are a black box (PC shows an image)
+
+**Status**: **OPEN, next chunk**. `dialogs.c` fills the page with one black
+tile; the PC blits `images/backgrounds/dialog.png` (310x65) centred and draws
+`btn_a.png` (12x12) at its bottom-right corner instead of the "JUMP: NEXT"
+text (`graphicslib.cpp:1801` `show_dialog`, `dialogs.cpp:176`
+`draw_dialog_bg`).
+
+Needs: convert the 310x65 panel + the A button with `tools/img2tiles.py` (same
+pipeline as the menu panel), draw them on BG_A in `show_page`, and keep the
+text/face positions inside the panel. The panel is wider than the current
+DLG_W box, so the layout constants move too.
+
+## BUG-009 — Rockbot has no eyes in boss dialogs
+
+**Status**: **FIXED and verified 2026-10-21**. The face art's white eye sockets
+are palette index 0, i.e. sprite-transparent, and the pupils live in the
+separate `ssel_eyes_pN` layer that only the stage select drew. `dialogs.c` now
+adds that eyes sprite (offset +10,+18, same as the PC's face (144,104) /
+eyes (154,122)) behind the face on the player's pages only. Verified in a
+forced boss-room dialog: the portrait now has eyes.
+
+## BUG-010 — Mummy keeps facing away from the player
+
+**Status**: **OPEN — analysis done, fix needs a decision.**
+- The Mummy's AI rows (`stage4_enemies.c`, MUMMY BOT) use actions 2 (jump),
+  10 (teleport) and 5 (shot ahead). In the PC, action 5 is
+  `AI_ACTION_SHOT_PROJECTILE_AHEAD`, which explicitly does **not** turn to the
+  player (`artificial_inteligence.cpp:1164`: only non-ahead actions do). So the
+  port currently matches the PC here.
+- Spawn direction is converted correctly: map_npc `dir` is 0/1 and
+  `enemy_add()` maps it to -1/+1 (`enemy.c:643`).
+- Therefore the wrong facing most likely comes from the **missing teleport and
+  jump animations** (BUG-011): without them the boss keeps the previous art row
+  while the AI repositions him, so he visually "faces" the old direction.
+  Fix BUG-011 first, then re-check this before adding any facing rule.
+
+## BUG-011 — Enemies do not switch to teleport/jump animations
+
+**Status**: **OPEN** (probably global). `enemy.c` has stand/walk/attack frames;
+teleport (AI action) and jump use no dedicated animation. The PC plays
+`ANIM_TYPE_TELEPORT` / `ANIM_TYPE_JUMP` for those actions. Needs the anim rows
+in the converted enemy sheets plus the AI hooks.
+
+## BUG-012 — Projectiles not cleared when the boss dies
+
+**Status**: **OPEN, needs a reproduction**. `main.c:602` already calls
+`shots_reset()` + `eshots_reset()` when `enemies_boss_died()` fires, so either a
+different projectile list is involved (boss beams?) or something respawns them
+during the 2 s death sequence. Check with one run, noting the projectile type
+on screen.
+
+## BUG-013 — The "YOU GOT ..." screen differs from the PC
+
+**Status**: **OPEN**. The port's post-boss screen is a text page; the PC shows
+the weapon art/dialog. Needs the PC layout (weapon icon + text) converted.
+
+## BUG-014 — Stage select shows garbage text after beating Mummy
+
+**Status**: **OPEN**. After returning to the stage select, text appears over a
+garbled background. Likely the stage-select plane/tiles were not fully rebuilt
+after the stage (stale VRAM/tilemap or a palette left over from the boss
+screen). Reproduce and compare with a normal return.
+
+## BUG-015 — Missing boss intro for Seahorse (maybe global)
+
+**Status**: **NOT REPRODUCED / by design (2026-10-21)**. The intro for stage 3
+plays: a forced stage-3 run showed the `SEAHORSE BOT` intro screen with the
+boss backdrop (screenshot `scr3/scr4` of that session). `runStage()` skips the
+intro when the stage is already beaten (`save_slot_stages & (1<<stage)`), which
+is the PC behaviour, so the report was most likely a stage that was already
+cleared in the loaded save.
+
+## BUG-016 — Seahorse screen transitions are broken; player X shifts
+
+**Status**: **FIXES IN, needs a re-test.** Traced 2026-10-21 with `kprintf`
+captured via `script -qf` (see `blastem_debug.md`).
+
+Trace (ATLANTIDA, map 0 -> 1 -> 0):
+```
+LINK m0->1 tx176 ty0 off22
+TRANS 0->1 cam-3 px185 py0
+TRANS ret=1 code=0
+ARR m1 x185 y0 lad0
+LINK m1->0 tx928 ty0 off141
+TRANS 1->0 cam909 px1056 py0
+ARR m0 x1056 y0 lad0
+```
+Two defects shown:
+
+1. **X shift**: the port snapped every arrival to the destination tile centre
+   (`px = dst*16 + 8 - 13`). PC keeps the player's horizontal position and
+   scrolls the map (`game.cpp:762`), which matters for wide links (stage 3 has
+   sizes 4, 7, 8, 18). Fixed: `stage_check_link` stores the player's centre
+   offset inside the trigger band (`stage_link_band_off`) and the arrival uses
+   `dst_tile*16 + off - box_centre`, clamped to the map. The trace above now
+   shows `off22 -> x185` and `off141 -> x1056`, i.e. preserved.
+2. **Corrupted tiles / negative camera**: `scroll_lock_span()` can set
+   `camera.x = (c<<4) - 307`, which is **-3** for column 19, and
+   `stage_arrival_camera_x()` returned it unclamped (`TRANS 0->1 cam-3`). The
+   transition then drew the destination screen with a negative camera, putting
+   garbage tiles on the plane. Fixed: clamp the result in
+   `stage_arrival_camera_x()`.
+
+**Verified 2026-10-21** (spawn forced at x=751, walked right into the link):
+```
+LINK m0->1 tx176 ty0 off56
+TRANS 0->1 cam0 px219 py0
+TRANS ret=1 code=0
+ARR m1 x219 y0 lad0
+```
+`cam0` (was -3), `x219 = 176+56-13` so the offset is preserved, no corrupt
+tiles on the destination screen, HUD survives the transition.
+
+## BUG-017 — Falling into water lands on the surface
+
+**Status**: **FIXED and verified 2026-10-21**. `ground_pair()`
+(`player.c:369`) treated "different feet tile vs centre tile" as ground, so
+feet-in-WATER over centre-UNBLOCKED counted as floor and the player stood on
+the surface. Water is now excluded from the ground pair; the water gravity /
+jump rules already in the port take over.
+
+Verified in ATLANTIDA (tile x=103: water rows 7-10, solid row 11, air above):
+spawned at y=80 above the surface, the player fell **through** the water and
+landed on the floor at y=147 (feet row 11). Before the fix he stopped at the
+surface (y=83). Screenshot confirms him under the water column.
+
+## BUG-018 — Fish leaves the water to chase the player
+
+**Status**: **OPEN** (probably global). Water-bound enemies must stay in WATER
+tiles; `enemy.c` only checks `TERRAIN_UNBLOCKED`/`WATER` for walking/cliff
+decisions, not a "stay in water" constraint. Check the PC AI for the water
+enemies (ATLANTIDA fish) and the `is_water`/terrain constraints, then add a
+flying-into-water rule (or the opposite) per enemy type.

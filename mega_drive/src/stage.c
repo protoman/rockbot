@@ -451,7 +451,8 @@ void stage_load(u8 map_index)
 #define LINK_TRANS_T2B 0
 #define LINK_TRANS_B2T 1
 
-static bool link_region(s16 px, s16 py, u8 tx, u8 ty, u8 size, u8 trans)
+static bool link_region(s16 px, s16 py, s16 py_centre, u8 tx, u8 ty,
+                        u8 size, u8 trans)
 {
     // PC check_player_is_on_teleport: lim2 = temp_x*TILESIZE + size*TILESIZE
     // (size is the band width in tiles; wide stairways use it).
@@ -471,10 +472,48 @@ static bool link_region(s16 px, s16 py, u8 tx, u8 ty, u8 size, u8 trans)
     // bottom edge, so he can never satisfy py < lim4. Fire as soon as the
     // feet enter the link row (py = bottom - 8), which is where a ladder
     // releases him. The PC's T2B band shift would put lim3 below the map.
+    // Bottom map row: judge by the BODY CENTRE, not the feet sample. With the
+    // feet rule the band started 8 px above the row, so an arrival clamped to
+    // the bottom landed inside it and had to be nudged a whole tile up the
+    // ladder (BUG-005). Centre + row top keeps him at the bottom of the
+    // screen and still fires as soon as he descends into the last row.
     if (ty >= (u8)(stage_def->map_h - 1))
-        return py >= (s16)ty * stage_def->tile - 8;
+        return py_centre >= (s16)ty * stage_def->tile;
     return py > lim3 && py < lim4;
 }
+
+// TRUE while the player box sits inside ANY link band of the current map,
+// in either direction, with the same geometry stage_check_link uses but
+// without the latch/suppressions. Used to nudge a link arrival out of the
+// band it just came through (BUG-005: the player never left the link, so the
+// return link stayed latched and never fired).
+bool stage_link_band_hit(s16 left, s16 top, s16 right, s16 bottom)
+{
+    const s16 px = (left + right) >> 1;
+    const s16 py = bottom - 8;
+
+    for (u8 i = 0; i < stage_def->link_count; i++) {
+        const StageLink *lk = &stage_def->links[i];
+        u8 tx, ty, trans;
+
+        if (lk->map_from == stage_current_map) {
+            tx = lk->tile_x;
+            ty = lk->tile_y;
+            trans = (lk->tile_y > lk->dst_y) ? LINK_TRANS_T2B : LINK_TRANS_B2T;
+        } else if (lk->map_to == stage_current_map && lk->bidir) {
+            tx = lk->dst_x;
+            ty = lk->dst_y;
+            trans = (lk->tile_y < lk->dst_y) ? LINK_TRANS_T2B : LINK_TRANS_B2T;
+        } else {
+            continue;
+        }
+        if (link_region(px, py, (top + bottom) >> 1, tx, ty, lk->size, trans))
+            return TRUE;
+    }
+    return FALSE;
+}
+
+s16 stage_link_band_off;   // player centre minus trigger band start (px)
 
 bool stage_check_link(s16 left, s16 top, s16 right, s16 bottom,
                       u8 *to_map, s16 *to_x, s16 *to_y, u8 *to_trans)
@@ -507,7 +546,7 @@ bool stage_check_link(s16 left, s16 top, s16 right, s16 bottom,
             continue;
         }
 
-        hit = link_region(px, py, tx, ty, lk->size, trans);
+        hit = link_region(px, py, (top + bottom) >> 1, tx, ty, lk->size, trans);
 
         // A stair tile on the top row is the mouth of a ladder: the link is
         // only valid while the player is still climbing/hanging on it. Once
@@ -533,6 +572,12 @@ bool stage_check_link(s16 left, s16 top, s16 right, s16 bottom,
         }
         if (hit) {
             link_latch = (s8)i;
+            // PC keeps the player's horizontal position on a scroll link and
+            // moves the map instead (game.cpp:762). Save the offset inside
+            // the trigger band so wide links (stage 3 uses sizes 4, 7, 8, 18)
+            // land at the same relative place instead of snapping to the
+            // destination tile centre.
+            stage_link_band_off = px - (s16)tx * stage_def->tile;
             *to_map = dst_map;
             *to_x   = (s16)dst_x * stage_def->tile;
             *to_y   = (s16)dst_y * stage_def->tile;
@@ -676,6 +721,13 @@ s16 stage_arrival_camera_x(u8 map, s16 focus_x)
     camera.x = focus_x - 160;
     clamp_camera();
     scroll_lock_span(focus_x);
+    // scroll_lock_span can push the camera negative: a locked column `c`
+    // sets camera.x = (c<<4) - 307, which is -3 for c=19. The room
+    // transition then loaded the destination screen with a negative camera
+    // and drew garbage tiles (seen in ATLANTIDA, TRANS 0->1 cam-3).
+    if (camera.x < 0) camera.x = 0;
+    if (camera.x > (stage_def->map_w * stage_def->tile) - 320)
+        camera.x = (stage_def->map_w * stage_def->tile) - 320;
     const s16 res = camera.x;
     camera.x = save_x;
     camera.y = save_y;

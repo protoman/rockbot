@@ -42,6 +42,16 @@ static const SpriteDefinition *const player_face[4] = {
     &ssel_face_p1_sprite, &ssel_face_p2_sprite,
     &ssel_face_p3_sprite, &ssel_face_p4_sprite,
 };
+// The player's white eye sockets are palette index 0 (sprite-transparent) in
+// the face art; the pupils live in this separate layer (the stage select
+// draws it too). Without it the dialog portrait has empty eye sockets.
+static const SpriteDefinition *const player_eyes[4] = {
+    &ssel_eyes_p1_sprite, &ssel_eyes_p2_sprite,
+    &ssel_eyes_p3_sprite, &ssel_eyes_p4_sprite,
+};
+// Eyes offset inside the 32x32 face (PC face (144,104), eyes (154,122)).
+#define DLG_EYES_DX 10
+#define DLG_EYES_DY 18
 
 static void wait_button(void)
 {
@@ -65,7 +75,8 @@ static void wait_button(void)
 // cells with the camera's tile offset; per-cell writes also wrap at the
 // 64-cell plane width.
 static void show_page(const char *const *lines, u8 first, u8 y0,
-                      const SpriteDefinition *face, const Palette *face_pal)
+                      const SpriteDefinition *face, const Palette *face_pal,
+                      bool player_eyes_layer, u8 player_idx)
 {
     const u16 base = (u16)((camera.x >> 3) & 63);
     const u16 entry = TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE,
@@ -78,8 +89,16 @@ static void show_page(const char *const *lines, u8 first, u8 y0,
     // Face on the left of the box (PC draw_dialog_bg: face at x+16, text at
     // x+52 -> the port uses 32px face + 1 tile gap, text from column 6).
     Sprite *fs = NULL;
+    Sprite *es = NULL;
     if (face) {
         PAL_setPalette(PAL2, face_pal->data, DMA_QUEUE);
+        // Eyes first: the sprite engine draws lower indices in front.
+        if (player_eyes_layer) {
+            es = SPR_addSprite(player_eyes[player_idx & 3],
+                               8 + DLG_EYES_DX,
+                               (s16)(y0 * 8 + 8 + DLG_EYES_DY),
+                               TILE_ATTR(PAL2, FALSE, FALSE, FALSE));
+        }
         fs = SPR_addSprite(face, 8, (s16)(y0 * 8 + 8),
                            TILE_ATTR(PAL2, FALSE, FALSE, FALSE));
     }
@@ -97,6 +116,7 @@ static void show_page(const char *const *lines, u8 first, u8 y0,
                    (u16)(y0 + DLG_H - 1));
     wait_button();
     if (fs) SPR_releaseSprite(fs);
+    if (es) SPR_releaseSprite(es);
 }
 
 static const char *armor_shot_name(u8 id)
@@ -138,7 +158,8 @@ void dialog_show_armor(u8 kind)
         else                   lines[2] = "SHOURUYKEN (UP+DASH)";
     }
 
-    show_page(lines, 0, 1, &dlg_face_armor_sprite, &dlg_face_armor_pal);
+    show_page(lines, 0, 1, &dlg_face_armor_sprite, &dlg_face_armor_pal,
+              FALSE, 0);
     player_restore_palette();
     stage_force_redraw();
     player_sync_sprite();
@@ -164,10 +185,12 @@ void dialog_show_boss(u8 stage, u8 player)
     const Palette *bp = (stage < 9) ? boss_face_pal[stage] : NULL;
     const SpriteDefinition *pf = player_face[player & 3];
     const Palette *pp = pf->palette;
-    show_page(d, boss0, y0, bf, bp);
-    show_page(d, ply0, y0, pf, pp);
-    if (d[boss0 + 3][0]) show_page(d, (u8)(boss0 + 3), y0, bf, bp);
-    if (d[ply0 + 3][0]) show_page(d, (u8)(ply0 + 3), y0, pf, pp);
+    show_page(d, boss0, y0, bf, bp, FALSE, player);
+    show_page(d, ply0, y0, pf, pp, TRUE, player);
+    if (d[boss0 + 3][0])
+        show_page(d, (u8)(boss0 + 3), y0, bf, bp, FALSE, player);
+    if (d[ply0 + 3][0])
+        show_page(d, (u8)(ply0 + 3), y0, pf, pp, TRUE, player);
 
     player_restore_palette();  // PAL2 held the last face
     stage_force_redraw();     // the box overwrote map cells on BG_A

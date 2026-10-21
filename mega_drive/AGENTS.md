@@ -134,6 +134,21 @@ is cheap.
 
 ## Emulator (verified)
 
+**Read `blastem_debug.md` before launching anything.** It has the ask-first
+rule, the pre-flight checks, the KDEBUG/`kprintf` console recipe, the SRAM
+backup/restore steps and the list of what is not reachable on this machine.
+
+Hard rules, because they were broken twice in one session (2026-10-21):
+
+- **Ask before every launch.** One explicit permission = one launch. A retry
+  with different flags, a `stdbuf`, a different terminal — all new launches,
+  all need a new ask.
+- Before asking, run the pre-flight checks (`command -v`, `ps`, window search)
+  in their own call. Never put a launch and the check that justifies it in the
+  same shell command.
+- If the first attempt yields no data, **stop and report**; do not try a
+  variant to "just see if it works".
+
 ```bash
 flatpak run --branch=stable --arch=x86_64 --command=Fusion --file-forwarding \
   com.carpeludum.KegaFusion @@ <rom.bin> @@

@@ -115,6 +115,13 @@ void stage_teleport_boss(u8 dest_map, u8 dest_tx, u8 dest_ty);
 // transition direction (TRANS_T2B / TRANS_B2T) the room transition needs.
 #define TRANS_T2B 0   // destination lies below (PC TRANSITION_TOP_TO_BOTTOM)
 #define TRANS_B2T 1   // destination lies above (PC TRANSITION_BOTTOM_TO_TOP)
+bool stage_link_band_hit(s16 left, s16 top, s16 right, s16 bottom);
+
+// Horizontal offset of the player centre inside the band of the link that
+// just fired (0..size*16). Wide scroll links use it to keep the player at the
+// same place relative to the destination band (PC game.cpp:762).
+extern s16 stage_link_band_off;
+
 bool stage_check_link(s16 left, s16 top, s16 right, s16 bottom,
                       u8 *to_map, s16 *to_x, s16 *to_y, u8 *to_trans);
 

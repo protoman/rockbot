@@ -1,7 +1,14 @@
 # Debugging — RockBot Mega Drive port
 
+**Start with `blastem_debug.md`.** It is the maintained, verified doc: the
+ask-first launch rule, pre-flight checks, the KDEBUG/`kprintf` console recipe,
+SRAM backup/restore, and what is *not* reachable on this machine (interactive
+debugger UI, m68k gdb, tmux). This file keeps the older notes and the event-log
+format.
+
 How to debug the SGDK ROM on this machine. Emulator of record: **BlastEm**
-(flatpak `com.retrodev.blastem`). Kega Fusion is the fallback.
+(native build; the flatpak references below are stale). Kega Fusion is the
+fallback.
 
 ## BlastEm command line
 

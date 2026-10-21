@@ -70,6 +70,8 @@ void objects_debug_text(u8 tile_y, s16 px, s16 py, s16 camx);
 // has not been opened. The camera lock uses this live state instead of the
 // static spawn list, so opening the door releases the scroll.
 bool objects_boss_door_locked(s16 tile_x);
+bool objects_boss_door_present(s16 tile_x);
+void objects_reset_doors(void);
 
 // Hide/show every live object sprite (in-game menu overlay).
 void objects_set_visible(bool visible);

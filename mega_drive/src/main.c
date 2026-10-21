@@ -480,11 +480,18 @@ static RunResult runStage(u8 stage)
             // climbing out of the room never triggered anything).
             const bool on_stair =
                 stage_terrain_at(to_map, dst_tx, to_y / tile) == TERRAIN_STAIR;
-            s16 px = to_x + tile / 2 - (PLAYER_BOX_L + PLAYER_BOX_R) / 2;
+            // Keep the player's offset inside the link band (PC keeps his
+            // screen X and scrolls the map instead of snapping to the tile
+            // centre, which made wide links jump sideways).
+            s16 px = to_x + stage_link_band_off
+                     - (PLAYER_BOX_L + PLAYER_BOX_R) / 2;
             s16 py = to_y + tile / 2 - (PLAYER_BOX_T + PLAYER_BOX_B) / 2;
             const s16 py_max = stage_def->map_h * tile - PLAYER_BOX_B;
             if (py > py_max) py = py_max;
             if (py < 0) py = 0;
+            const s16 px_max = stage_def->map_w * tile - PLAYER_BOX_R;
+            if (px > px_max) px = px_max;
+            if (px < 0) px = 0;
             if (on_stair)
                 px = dst_tx * tile + tile / 2
                      - (PLAYER_BOX_L + PLAYER_BOX_R) / 2;

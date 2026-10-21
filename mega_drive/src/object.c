@@ -591,6 +591,36 @@ void objects_debug_text(u8 tile_y, s16 px, s16 py, s16 camx)
     VDP_drawText(buf, 0, tile_y + 1);
 }
 
+// Re-close every boss door. Called when the player respawns: a door opened in
+// a previous life used to stay open for the rest of the stage, so its scroll
+// lock never came back (the port does not reload the map on death).
+void objects_reset_doors(void)
+{
+    for (u8 i = 0; i < obj_count; i++) {
+        MapObj *o = &objs[i];
+        if (o->def->type != 30 || !o->started) continue;
+        o->started = FALSE;
+        o->frame = 0;
+        if (o->spr) SPR_setFrame(o->spr, 0);
+    }
+}
+
+// TRUE when a boss door occupies the column, open or closed. The scroll lock
+// must take the live door state over the converted table: a door column that
+// is also listed in the map's locks would otherwise stay locked after the
+// door opens (no scroll into the boss room).
+bool objects_boss_door_present(s16 tile_x)
+{
+    for (u8 i = 0; i < obj_count; i++) {
+        const MapObj *o = &objs[i];
+        if (o->def->type != 30) continue;
+        const s16 x0 = o->x >> 4;
+        const s16 x1 = (o->x + o->def->w - 1) >> 4;
+        if (tile_x >= x0 && tile_x <= x1) return TRUE;
+    }
+    return FALSE;
+}
+
 bool objects_boss_door_locked(s16 tile_x)
 {
     for (u8 i = 0; i < obj_count; i++) {

@@ -56,6 +56,20 @@ make run EMU_ARGS=   # GL renderer instead of software
   Play-tested: stages 1 (DEEP JUNGLE), 3 (ATLANTIDA water), 4 (Mummy) and
   6 (DARK MINE) start; menu opens with all weapons and closes with the stage
   parallax/animated lamps intact.
+- **Session 2026-10-21 (later)**: fixed and verified **BUG-017** (falling into
+  water now enters it: `ground_pair()` excluded WATER), **BUG-007** (charge
+  survives room links; `player_place()` no longer clears it, the reset moved to
+  `respawn_player()`), **BUG-016** (link arrivals keep the horizontal offset
+  inside the band via `stage_link_band_off`, and `stage_arrival_camera_x()`
+  clamps the negative camera produced by `scroll_lock_span()`), and BUG-005
+  (stair-return arrival nudged out of the link band). **BUG-006** fixes are in
+  (live door state wins over the converted lock table; doors re-close on
+  respawn) but not yet checked in-game. Debug readout: KDEBUG via
+  `script -qf` — see `blastem_debug.md`.
+- **HUD boxes (2026-10-21)**: the bar sprites are added hidden now, so no
+  black HUD boxes during "MISSION STARTED"; the weapon/HP icon sits over an
+  explicit 8x8 black box (bar frame 0) with the PC's 1px gap under the 56px
+  bar (PC draw.cpp:1328 uses y=54 on a bar ending at 53).
 - **Title** renders the layered PC art at ~58 colours over four palette lines
   (`tools/title64.py`), verified on hardware against the user's reference.
 - **Colourcycle** (CRAM rotation instead of tile-frame animation) live in stages
@@ -383,6 +397,10 @@ playtesting.
   emulator run.
 - `tools/check_vram.py` — tile budget, colourcycle pool guard, transition
   fallbacks.
+- `tools/audit_links.py` — read-only: for every stage link (both directions)
+  it reproduces the ROM's arrival math against the generated terrain and flags
+  SOLID/SPIKE/WATER/OUT/NO-FLOOR arrivals. Found the stage-4 return arrival is
+  clean (BUG-005 is dynamic, not a placement bug).
 - `tools/convert_stage.py N` — prints the stage's palette error.
 - `tools/emu.sh {start|stop|shot|keys_up}`.
 

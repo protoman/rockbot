@@ -155,6 +155,9 @@ static s16 spawn_ground_y(s16 x)
 
 static void respawn_player(bool invuln)
 {
+    objects_reset_doors();   // a new life starts with the doors shut
+    player.charge_frames = 0;   // a new life starts uncharged
+    player.fire_prev = FALSE;
     s16 sx = SPAWN_X;
     s16 sy = spawn_ground_y(SPAWN_X);
     if (cp_active && cp_map == stage_current_map) {
@@ -376,6 +379,12 @@ static bool ground_pair(s16 tx, s16 feet_row, s16 centre_row, s16 middle_row)
     if (lock1 == TERRAIN_UNBLOCKED &&
         stage_terrain_at(stage_current_map, tx, centre_row) == TERRAIN_STAIR)
         return FALSE;
+    // Water is not floor: falling into it must enter the water (BUG-017).
+    // The pair test below saw feet WATER over centre UNBLOCKED as "different
+    // tiles -> ground", so the player stood on the surface. PC reports the
+    // surface as ground too, but only after the water gravity/physics has
+    // already put the player in the water; the port needs the tile excluded.
+    if (lock1 == TERRAIN_WATER) return FALSE;
     if (lock1 != TERRAIN_UNBLOCKED && lock1 != TERRAIN_STAIR &&
         lock1 != TERRAIN_WATER)
         return TRUE;
@@ -440,6 +449,16 @@ static s8 flip_dx(void)
                                     ? current_anim : 0];
 }
 
+// Ladder poses are not centred in their 29px frame: measured from p1.png,
+// the STAND art centre is 12.5, STAIRS 14.5 and STAIRS_ATTACK 15.0, so the
+// player looked ~2px right of the hitbox while climbing. flip_dx() already
+// makes the hardware-flipped art land where the unflipped one does, so the
+// same correction applies with either facing.
+static s8 ladder_art_dx(void)
+{
+    return (current_anim == ANIM_STAIRS_ATTACK) ? -3 : -2;
+}
+
 // Re-place the player sprite for the CURRENT camera. player_place() moves the
 // player but the sprite's screen position is only set in player_update(), so
 // after a map link the sprite is drawn once at its old screen position while
@@ -474,7 +493,9 @@ void player_place(s16 px, s16 py)
     player.sliding = FALSE;
     player.slide_prev = TRUE;
     player.slide_dist = 0;
-    player.charge_frames = 0;
+    // NOTE: do NOT clear the charge here. player_place() is also used by the
+    // room-link arrival, and the PC keeps the charge when you cross a link
+    // with the button held (BUG-007). The charge is cleared on spawn/respawn.
     coyote_timer = 0;
     jump_timer = 0;
     player.hit_push = 0;
@@ -818,7 +839,9 @@ void player_update(u16 pad)
                 SPR_setHFlip(player.spr, ladder_flip);
                 SPR_setAnim(player.spr, stair_anim);
             }
-            SPR_setPosition(player.spr, ix - camera.x + flip_dx(), iy - camera.y);
+            SPR_setPosition(player.spr,
+                            ix - camera.x + flip_dx() + ladder_art_dx(),
+                            iy - camera.y);
             invuln_blink();
             // JUMP press on a ladder = let go and fall in place (the press
             // is consumed so it cannot double as a ground jump).
