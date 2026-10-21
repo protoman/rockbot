@@ -8,6 +8,11 @@
 #undef main
 #endif
 
+#ifdef SWITCH
+#include "ports/switch/switch_platform.h"
+#undef main
+#endif
+
 #ifdef ANDROID
 #include <jni.h>
 #include <android/log.h>
@@ -65,7 +70,7 @@ jobject activity_ref;
     #include <sys/stat.h>
     #include <unistd.h>
     #include <sys/param.h>
-#elif defined(PLAYSTATION2) || defined(DINGUX) || defined(PSP) || defined(ANDROID) || defined(OPEN_PANDORA) || defined(WII) || defined(POCKETGO)
+#elif defined(PLAYSTATION2) || defined(DINGUX) || defined(PSP) || defined(SWITCH) || defined(ANDROID) || defined(OPEN_PANDORA) || defined(WII) || defined(POCKETGO)
     #include <unistd.h>
 #elif defined(WIN32)
     #include <direct.h>
@@ -80,6 +85,8 @@ jobject activity_ref;
     std::string EXEC_NAME("rockbot.elf");
 #elif defined(PSP)
     std::string EXEC_NAME("EBOOT.PBP");
+#elif defined(SWITCH)
+    std::string EXEC_NAME("rockbot.nro");
 #elif defined(WII)
     std::string EXEC_NAME("boot.dol");
 #elif defined(DINGUX)
@@ -186,9 +193,10 @@ void PS2_create_save_icons()
 #endif
 
 
-void get_filepath()
+void get_filepath(const char *argv0)
 {
 #ifdef WIN32
+    UNUSED(argv0);
     char* buffer;
     if( (buffer = _getcwd( NULL, 0 )) != NULL ) {
         FILEPATH = std::string(buffer);
@@ -196,6 +204,7 @@ void get_filepath()
     }
     delete[] buffer;
 #elif defined OSX
+    UNUSED(argv0);
     char path[1024];
     uint32_t size = sizeof(path);
     if (_NSGetExecutablePath(path, &size) == 0) {
@@ -203,8 +212,12 @@ void get_filepath()
         FILEPATH = FILEPATH.substr(0, FILEPATH.length()-7);
     }
 #elif defined(PSP)
+    UNUSED(argv0);
     psp_platform::get_filepath(FILEPATH, MAXPATHLEN);
+#elif defined(SWITCH)
+    switch_platform::get_filepath(FILEPATH, MAXPATHLEN, argv0);
 #else
+    UNUSED(argv0);
     char *buffer = new char[MAXPATHLEN];
     char *res = getcwd(buffer, MAXPATHLEN);
 
@@ -281,6 +294,9 @@ int main(int argc, char *argv[])
 #ifdef PSP
     psp_platform::setup();
 #endif
+#ifdef SWITCH
+    switch_platform::setup();
+#endif
     for (int i=0; i<FLAG_COUNT; i++) {
         GAME_FLAGS[i] = false;
     }
@@ -291,10 +307,11 @@ int main(int argc, char *argv[])
 
     fflush(stdout);
 
-    get_filepath();
+    get_filepath(argv[0]);
     // fallback in case getcwd returns null
     if (FILEPATH.size() == 0) {
         FILEPATH = argvString.substr(0, argvString.size()-EXEC_NAME.size());
+        GAMEPATH = FILEPATH;
     }
 
 #ifdef PLAYSTATION2
@@ -384,6 +401,13 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+#ifdef SWITCH
+    if (switch_platform::is_applet_mode()) {
+        graphLib.show_debug_msg("WARN: applet mode (low RAM)");
+        graphLib.show_debug_msg("Use title redirection");
+    }
+#endif
+
 #ifdef ANDROID
     game_services.init_android_button_size();
     game_services.set_android_default_buttons_size(SharedData::get_instance()->game_config.android_touch_controls_size, SharedData::get_instance()->game_config.android_button_spacing);
@@ -415,7 +439,10 @@ int main(int argc, char *argv[])
         graphicsLib::safe_sdl_quit();
         return 0;
     }
-    FILEPATH += std::string("/games/") + GAMENAME + std::string("/");
+    if (!FILEPATH.empty() && FILEPATH[FILEPATH.size() - 1] != '/') {
+        FILEPATH += "/";
+    }
+    FILEPATH += std::string("games/") + GAMENAME + std::string("/");
 #ifdef PC
     graphLib.set_window_icon();
 #endif

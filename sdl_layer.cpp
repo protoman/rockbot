@@ -2,6 +2,9 @@
 #ifdef PSP
 #include "ports/psp/psp_platform.h"
 #endif
+#ifdef SWITCH
+#include "ports/switch/switch_platform.h"
+#endif
 #include <string>
 #include <map>
 #include <cstdio>
@@ -487,6 +490,8 @@ SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
 	Uint32 window_flags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
 #ifdef PSP
 	psp_platform::adjust_window_size(width, height, &win_w, &win_h, &window_flags);
+#elif defined(SWITCH)
+	switch_platform::adjust_window_size(width, height, &win_w, &win_h, &window_flags);
 #endif
 
 	if (texture != NULL) {

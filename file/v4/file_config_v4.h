@@ -4,6 +4,9 @@
 #ifdef PSP
 #include "../../ports/psp/psp_platform.h"
 #endif
+#ifdef SWITCH
+#include "../../ports/switch/switch_platform.h"
+#endif
 #include "../format/st_common.h"
 #include "file/v4/file_config_old.h"
 
@@ -54,6 +57,8 @@ namespace format_v4 {
             }
 #elif PSP
             psp_platform::get_default_keys(keys_codes_copy);
+#elif SWITCH
+            switch_platform::get_default_keys(keys_codes_copy);
 #elif WII
             for (int i=0; i<BTN_COUNT; i++) {
                 keys_codes_copy[i] = -1;
@@ -196,6 +201,8 @@ namespace format_v4 {
             button_codes_copy[BTN_LEFT].value = 0;
 #elif PSP
             psp_platform::get_default_buttons(button_codes_copy);
+#elif SWITCH
+            switch_platform::get_default_buttons(button_codes_copy);
 #elif WII
             button_codes_copy[BTN_SHIELD].type = JOYSTICK_INPUT_TYPE_BUTTON;
             button_codes_copy[BTN_SHIELD].value = 1;
@@ -325,6 +332,8 @@ namespace format_v4 {
             input_mode = INPUT_MODE_DIGITAL;
 #elif PSP
             psp_platform::set_default_input_mode(&input_type, &input_mode);
+#elif SWITCH
+            switch_platform::set_default_input_mode(&input_type, &input_mode);
 #elif WII
             input_type = INPUT_TYPE_JOYSTICK;
             input_mode = INPUT_MODE_DIGITAL;
@@ -359,6 +368,8 @@ namespace format_v4 {
             return PLATFORM_PS2;
     #elif PSP
             return psp_platform::get_platform();
+    #elif SWITCH
+            return switch_platform::get_platform();
     #elif WII
             return PLATFORM_WII;
     #elif DREAMCAST
