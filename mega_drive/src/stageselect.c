@@ -15,7 +15,8 @@
 // converter bakes the static screen (bg + faces + player face) as tiles.
 #define SSEL_PAL_BG     PAL3
 #define SSEL_PAL_PLAYER PAL2
-#define SSEL_PAL_CURSOR PAL1
+#define SSEL_PAL_GRAY   PAL1
+#define SSEL_PAL_CURSOR PAL0
 
 #define CURSOR_X0   56          // face_x 64 - 8
 #define CURSOR_Y0   24          // face_y 32 (PC 40 - crop 8) - 8
@@ -53,6 +54,28 @@ static u8 complete_stage(void)
 {
     u8 stage_n = sy * 3 + sx + 1;      // PC stage_n, 1..9
     return (stage_n > 5) ? stage_n - 1 : stage_n;
+}
+
+// Boss faces sit at 64+80*col, 32+64*row (8x8 tiles); face 32x32 = 4x4.
+static const u8 face_col[8] = { 0, 1, 2, 0, 2, 0, 1, 2 };
+static const u8 face_row[8] = { 0, 0, 0, 1, 1, 2, 2, 2 };
+
+// Switch the boss faces of beaten stages to PAL1 (the grey ramp). The tile
+// pixels are unchanged; only the tilemap palette bits are rewritten.
+static void grey_beaten_faces(void)
+{
+    for (u8 st = 1; st <= 8; st++) {
+        if (!(sel_mask & (1u << st))) continue;
+        const u16 tx0 = (u16)(8 + face_col[st - 1] * 10);
+        const u16 ty0 = (u16)(4 + face_row[st - 1] * 8);
+        for (u8 dy = 0; dy < 4; dy++) {
+            for (u8 dx = 0; dx < 4; dx++) {
+                u16 *e = &cells[(ty0 + dy) * SSEL_MAP_W + tx0 + dx];
+                *e = (*e & ~TILE_ATTR_PALETTE_MASK) |
+                     ((u16)SSEL_PAL_GRAY << TILE_ATTR_PALETTE_SFT);
+            }
+        }
+    }
 }
 
 // Only STAGE_DEFINED_COUNT stages exist; stage_set_data() clamps anything else
@@ -103,12 +126,14 @@ u8 stage_select_run(u8 player, u16 stage_mask)
 
     VDP_loadTileData(ssel_tiles_data, SSEL_TILE_BASE, SSEL_TILE_COUNT, DMA_QUEUE);
     PAL_setPalette(SSEL_PAL_BG, ssel_pal_bg, DMA_QUEUE);
-    PAL_setPalette(SSEL_PAL_CURSOR, ssel_pal_cursor, DMA_QUEUE);
+    PAL_setPalette(SSEL_PAL_GRAY, ssel_pal_gray, DMA_QUEUE);
     PAL_setPalette(PAL0, pal_ui.data, DMA_QUEUE);
 
+    sel_mask = stage_mask;
     for (u16 i = 0; i < SSEL_MAP_W * SSEL_MAP_H; i++) {
         cells[i] = ssel_map[i] + SSEL_TILE_BASE;   // palette bits preserved
     }
+    grey_beaten_faces();
     VDP_setTileMapDataRect(BG_A, cells, 0, 0, SSEL_MAP_W, SSEL_MAP_H,
                            SSEL_MAP_W, CPU);
 
@@ -155,7 +180,6 @@ u8 stage_select_run(u8 player, u16 stage_mask)
 
     sx = 1;                 // default to the centre slot
     sy = 1;
-    sel_mask = stage_mask;
     draw_names();
     SYS_doVBlankProcess();      // flush queued DMA before input
 

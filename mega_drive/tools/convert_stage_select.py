@@ -11,8 +11,10 @@ Layout (PC 320x240, top 8 + bottom 8 cropped to the MD 320x224 screen):
     brackets + yellow pulse), drawn as 4 quadrant sprites x2 frames
 
 Everything static is baked into ONE BG_A tilemap with per-cell palettes:
-  bg -> PAL3, boss faces -> PAL0 (font line, 1..14), player face -> PAL2.
-The cursor is 4x2 hardware sprites (48x48 = 2x2 of 24x24, sprite max 32).
+  bg -> PAL3, boss faces -> PAL0 (font line, 1..14), player face -> PAL2,
+  defeated boss faces -> PAL1 (grey ramp; same tiles, palette bits switched
+  at runtime). The cursor is 4x2 hardware sprites (48x48 = 2x2 of 24x24,
+  sprite max 32) on PAL0.
 
 Emits:
   src/ssel_data.c/h     packed 4bpp tile strip + u16 tilemap (palette bits) +
@@ -26,6 +28,8 @@ import os
 import sys
 
 from PIL import Image
+
+from pal_ui_data import PAL_UI_RGB
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -41,7 +45,8 @@ CROP_TOP = 8            # PC 240 -> MD 224: drop 8 rows top and bottom
 TILE = 8
 BASE_TILE = 16          # TILE_USER_INDEX: where ssel tiles are uploaded
 
-PAL_BG, PAL_FACE, PAL_PLAYER, PAL_CURSOR = 3, 0, 2, 1
+PAL_BG, PAL_FACE, PAL_PLAYER, PAL_GRAY = 3, 0, 2, 1
+PAL_CURSOR = PAL_FACE        # cursor is remapped from its yellow art to PAL0
 MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)
 
 NAME_COUNT = 14         # real stages: 0 intro, 1..8 bosses, 9..13 castle #1
@@ -66,6 +71,18 @@ def vdp(c):
     # MD CRAM word: R bits 1-3, G bits 5-7, B bits 9-11 (white = 0x0EEE).
     return ((MD_LEVELS.index(c[0]) << 1) | (MD_LEVELS.index(c[1]) << 5)
             | (MD_LEVELS.index(c[2]) << 9))
+
+
+def grey_palette():
+    """Face-index -> grey ramp. The face tiles keep their pixel indices; a
+    defeated stage only switches those cells to this palette line, so no
+    duplicate face tiles are needed in VRAM."""
+    out = []
+    for r, g, b in PAL_UI_RGB:
+        lum = (299 * r + 587 * g + 114 * b) // 1000
+        level = min(7, max(0, (lum * 7 + 127) // 255))
+        out.append((MD_LEVELS[level],) * 3)
+    return out
 
 
 def load_p(path):
@@ -163,9 +180,15 @@ def main():
         for f, suffix in ((0, "b"), (1, "y")):
             out = Image.new("P", (24, 24))
             out.putpalette([v for c in pal_cursor for v in c] + [0] * (768 - 48))
+            # The cursor art has its own yellow/white palette. Remap its
+            # indices to the UI palette (PAL0) so PAL1 stays free for the
+            # grey face line: 1/8 yellow -> 7 orange, 10 white -> 2,
+            # dark brackets -> 1, index 0 stays transparent.
+            cmap = {1: 7, 2: 7, 8: 7, 9: 7, 10: 2}
             for y in range(24):
                 for x in range(24):
-                    out.putpixel((x, y), cur.getpixel((f * 48 + qx + x, qy + y)))
+                    px = cur.getpixel((f * 48 + qx + x, qy + y))
+                    out.putpixel((x, y), cmap.get(px, 0 if px == 0 else 1))
             out.save(os.path.join(RES, f"ssel_cursor_{name}_{suffix}.png"))
     print("wrote res/ssel_cursor_{tl,tr,bl,br}_{b,y}.png (single frames)")
 
@@ -196,11 +219,12 @@ extern const char *const ssel_boss_names[SSEL_STAGE_SLOTS];
 
 // Static screen: packed 4bpp tiles + a u16 tilemap (palette bits included,
 // local tile index -- add SSEL_TILE_BASE). PAL: 0 faces+font, 2 player,
-// 3 background.
+// 3 background, 1 grey defeated faces.
 extern const u32 ssel_tiles_data[SSEL_TILE_COUNT * 8];
 extern const u16 ssel_map[SSEL_MAP_W * SSEL_MAP_H];
 extern const u16 ssel_pal_bg[16];
 extern const u16 ssel_pal_cursor[16];
+extern const u16 ssel_pal_gray[16];
 
 #endif
 """ % (BASE_TILE, n, MAP_W, MAP_H)
@@ -221,6 +245,7 @@ extern const u16 ssel_pal_cursor[16];
 
     pal_lines("ssel_pal_bg", pal_bg)
     pal_lines("ssel_pal_cursor", pal_cursor)
+    pal_lines("ssel_pal_gray", grey_palette())
 
     def cstr(s):
         return '"' + s.replace("\\", "\\\\").replace('"', '\\"') + '"'

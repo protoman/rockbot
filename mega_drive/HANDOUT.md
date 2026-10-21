@@ -42,6 +42,11 @@ make run EMU_ARGS=   # GL renderer instead of software
   outlier (56 colours, BUG-004) and the first WATER/ICE stage (minimal
   physics). Endings 2..5 play after stage 13 (`scene_play(2+player)`); the
   six portraits are in the build (visual pass pending).
+- **Stage select (2026-10-21)**: defeated boss faces are grey. The face
+  tiles stay in VRAM; `grey_beaten_faces()` switches their tilemap palette
+  bits to PAL1, which holds a 16-entry grey ramp generated from the PAL0 UI
+  colours. The cursor moved to PAL0 (its art indices are remapped in
+  `tools/convert_stage_select.py`).
 - **Weapon menu (2026-10-20)**: the font has transparent background pixels, so
   it was showing the stage parallax on BG_B as orange stripes. The menu now
   blanks BG_B and points the backdrop at black while open, then rebuilds the

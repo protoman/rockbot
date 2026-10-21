@@ -16,10 +16,11 @@ extern const char *const ssel_boss_names[SSEL_STAGE_SLOTS];
 
 // Static screen: packed 4bpp tiles + a u16 tilemap (palette bits included,
 // local tile index -- add SSEL_TILE_BASE). PAL: 0 faces+font, 2 player,
-// 3 background.
+// 3 background, 1 grey defeated faces.
 extern const u32 ssel_tiles_data[SSEL_TILE_COUNT * 8];
 extern const u16 ssel_map[SSEL_MAP_W * SSEL_MAP_H];
 extern const u16 ssel_pal_bg[16];
 extern const u16 ssel_pal_cursor[16];
+extern const u16 ssel_pal_gray[16];
 
 #endif
