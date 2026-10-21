@@ -169,6 +169,10 @@ typedef struct {
     const EnemySpawn *enemy_spawns;
     u16 enemy_spawn_count;
     const EnemyAi (*enemy_ai)[20];
+    // PC artificial_inteligence.reactions[6]: PLAYER_ON_RANGE, HIT, DEAD,
+    // PLAYER_SAME_Y, PLAYER_CLOSE, PLAYER_SAME_X (action 0 = inactive,
+    // go_to 0 = back to the chance roll).
+    const EnemyAi (*enemy_react)[6];
     const EnemyProj *enemy_proj;
     u8 enemy_proj_max;
 

@@ -68,6 +68,9 @@ PROJ_MAX = 23          # 0..19 enemy shots; 20..22 armor charged shots
 MAP_NPC_SZ = 12
 AI_SZ = 528            # file_artificial_inteligence (name30+pad + 20x20 + 6x16)
 AI_STATES = 20
+AI_ACTIONS_OFF = 32    # name[30] + 2 pad
+MAX_AI_REACTIONS = 6
+AI_REACTIONS_OFF = AI_ACTIONS_OFF + AI_STATES * 20   # 432
 
 # PC defines.h:438, applied by classnpc.cpp:707 set_stage_boss()
 BOSS_INITIAL_HP = 36
@@ -182,7 +185,8 @@ def read_ai_states():
         b = blob[eid * AI_SZ:(eid + 1) * AI_SZ]
         states = []
         for i in range(AI_STATES):
-            chance, action, go_to, delay, param = struct.unpack_from("<5i", b, 32 + i * 20)
+            chance, action, go_to, delay, param = struct.unpack_from(
+                "<5i", b, AI_ACTIONS_OFF + i * 20)
             if not (0 <= chance <= 100):
                 chance = 0
             if not (0 <= action <= 23):
@@ -195,6 +199,37 @@ def read_ai_states():
                 param = 0
             states.append((chance, action, go_to, delay, param))
         out[eid] = states
+    return out
+
+
+def read_ai_reactions():
+    """game_ai_list.dat reactions -> 6 per enemy id.
+
+    PC file_artificial_inteligence.reactions[MAX_AI_REACTIONS] (file_game_v4.h:
+    884), 16 bytes each: action, go_to, go_to_delay, extra_parameter.
+    action 0 = slot inactive. The 6 slots are indexed by AI_REACTION_* in the
+    order artificial_inteligence.cpp:check_ai_reaction tests them:
+    PLAYER_ON_RANGE, HIT, DEAD, PLAYER_SAME_Y, PLAYER_CLOSE, PLAYER_SAME_X.
+    """
+    path = os.path.join(DATA, "game_ai_list.dat")
+    blob = open(path, "rb").read()
+    out = {}
+    for eid in range(len(blob) // AI_SZ):
+        b = blob[eid * AI_SZ:(eid + 1) * AI_SZ]
+        rows = []
+        for i in range(MAX_AI_REACTIONS):
+            action, go_to, delay, param = struct.unpack_from(
+                "<4i", b, AI_REACTIONS_OFF + i * 16)
+            if not (0 <= action <= 27):
+                action = 0
+            if not (0 <= go_to <= 20):
+                go_to = 0
+            if not (0 <= delay <= 20000):
+                delay = 0
+            if not (-128 <= param <= 127):
+                param = 0
+            rows.append((action, go_to, delay, param))
+        out[eid] = rows
     return out
 
 
@@ -333,6 +368,7 @@ def main():
     blob = open(os.path.join(DATA, "game_enemy_list_3_1_2.dat"), "rb").read()
     spawns_all = read_spawns()
     ai_states = read_ai_states()
+    ai_react = read_ai_reactions()
 
     used_ids = []
     for s in spawns_all:
@@ -350,6 +386,12 @@ def main():
     for eid in set(used_ids):
         for (ch, act, g, delay, param) in ai_states.get(eid, []):
             if ch > 0 and act in (13, 15, 21) and 0 <= param < len(blob) // NPC_SZ:
+                extra_ids.add(param)
+        # REACTION_DEAD can REPLACE_NPC/MORPH to a form that is never placed on
+        # the map (DESTRIN TANK -> DESTRIN SHIP), so its target joins the
+        # bundle too.
+        for (act, g, delay, param) in ai_react.get(eid, []):
+            if act in (13, 15, 21) and 0 <= param < len(blob) // NPC_SZ:
                 extra_ids.add(param)
     used_ids = sorted(set(used_ids) | extra_ids)
     defs = read_enemy_defs(blob, set(used_ids))
@@ -568,6 +610,7 @@ def main():
 extern const EnemyDef {PFX}_enemy_defs[{UP}_ENEMY_DEF_COUNT];
 extern const EnemySpawn {PFX}_enemy_spawns[{UP}_ENEMY_SPAWN_COUNT];
 extern const EnemyAi {PFX}_enemy_ai[{UP}_ENEMY_DEF_COUNT][20];
+extern const EnemyAi {PFX}_enemy_react[{UP}_ENEMY_DEF_COUNT][6];
 extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
 
 #endif
@@ -606,6 +649,13 @@ extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
             for (ch, act, g, delay, param) in states)
         lines.append(f"    {{ {rows} }},  // {defs[eid]['name']}\n")
     lines.append("};\n\n")
+    lines.append(f"const EnemyAi {PFX}_enemy_react[{UP}_ENEMY_DEF_COUNT][6] = {{\n")
+    for eid in ids_sorted:
+        rows = ", ".join(
+            f"{{0,{act},{g},{delay},{param}}}"
+            for (act, g, delay, param) in ai_react.get(eid, [(0, 0, 0, 0)] * 6))
+        lines.append(f"    {{ {rows} }},  // {defs[eid]['name']}\n")
+    lines.append("};\n\n")
     lines.append(f"const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX] = {{\n")
     for pid in sorted(proj_info):
         r = proj_info[pid]
@@ -615,7 +665,13 @@ extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
     lines.append("};\n")
     with open(os.path.join(SRC, f"{PFX}_enemies.c"), "w") as f:
         f.writelines(lines)
-    print(f"wrote src/{PFX}_enemies.c/h ({len(ids_sorted)} defs, {len(spawn_out)} spawns)")
+    active = {eid: [r for r in ai_react.get(eid, []) if r[0] > 0]
+              for eid in ids_sorted}
+    active = {k: v for k, v in active.items() if v}
+    print(f"wrote src/{PFX}_enemies.c/h ({len(ids_sorted)} defs, "
+          f"{len(spawn_out)} spawns, {len(active)} with reactions)")
+    for eid, rows in active.items():
+        print(f"  reactions {defs[eid]['name']}: {rows}")
 
     # --- resources.res block ------------------------------------------------
     print("\n--- paste into res/resources.res ---")

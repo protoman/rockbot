@@ -857,7 +857,8 @@ def main():
              f".enemy_def_count = {UP}_ENEMY_DEF_COUNT,\n")
     c.append(f"    .enemy_spawns = {PFX}_enemy_spawns, "
              f".enemy_spawn_count = {UP}_ENEMY_SPAWN_COUNT,\n")
-    c.append(f"    .enemy_ai = {PFX}_enemy_ai, .enemy_proj = {PFX}_enemy_proj, "
+    c.append(f"    .enemy_ai = {PFX}_enemy_ai, .enemy_react = {PFX}_enemy_react,\n")
+    c.append(f"    .enemy_proj = {PFX}_enemy_proj, "
              f".enemy_proj_max = {UP}_ENEMY_PROJ_MAX,\n")
     c.append(f"    .object_defs = {PFX}_object_defs, "
              f".object_def_count = {UP}_OBJECT_DEF_COUNT,\n")

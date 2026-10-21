@@ -168,8 +168,9 @@ No player-side feature was found missing; what remains is tuning (see
 | off-screen freeze | `classnpc` | `enemies_update` | **DONE** |
 | contact damage | `TOUCH_DAMAGE` | `TOUCH_DAMAGE_SMALL` | **DONE** |
 | enemy HP + shields (`SHIELD_*`) | `character::is_shielded` | `enemy_is_shielded` | **DONE** |
-| scripted AI actions | `artificial_inteligence.cpp` | `enemy.c` (`AI_*`) | **PARTIAL** — walk/fly/jump/wait/shoot/air-walk/fall/teleport/dash/grab-wall/spawn/change-move/jump-attack-up only |
-| AI state graph (links, reactions, 20 states) | `AI_MAX_STATES`, reactions | — | **MISSING** |
+| scripted AI actions | `artificial_inteligence.cpp` | `enemy.c` (`AI_*`) | **PARTIAL** — walk/fly/jump/wait/shoot/air-walk/fall/teleport/dash/grab-wall/spawn/replace/change-move/jump-attack-up; the other action types are not reached by the converted data |
+| AI state graph (20 states, chance + go_to chain) | `AI_MAX_STATES` | `ai_pick` / `ai_tick` | **DONE** |
+| AI reactions (range/hit/dead/same-y/close/same-x) | `check_ai_reaction` | `ai_reaction_pick` / `ai_reaction_end` | **DONE** (2026-10-21) |
 | enemy projectiles + trajectories | `projectilelib.cpp` | `src/eshot.c` | **PARTIAL** (linear, arc, sin, bomb, freeze, centered, zigzag, fall-bomb, laser, quake; others fall back) |
 | freeze weapon | `FREEZE` | `enemies_freeze` | **DONE** |
 | sub-boss flag + door gating + drop | `is_sub_boss` | `enemies_subboss_alive_left` | **DONE** |
@@ -290,10 +291,7 @@ These PC features will **not** be ported, so their rows stay **N/A**:
 1. **Boss fight depth** — bosses have HP, hurt windows, drop-in and the weapon
    drop, but their attacks come from the generic scripted AI. Largest
    behavioural gap; plan entry in `HANDOUT.md` §6.
-2. **Enemy AI graph** — `artificial_inteligence.cpp` supports linked states and
-   reactions; the port plays a flat action list. Shows up as "dumb" enemies;
-   plan entry in `HANDOUT.md` §6.
-3. **Enemy projectiles** — several trajectories are approximated by LINEAR; the
+2. **Enemy projectiles** — several trajectories are approximated by LINEAR; the
    converter prints the real values, so this is a matter of adding cases.
 4. **Boss teleport/jump animation rows** (BUG-011, blocks BUG-010).
 5. **Weapon tooltip** on weapon switch.

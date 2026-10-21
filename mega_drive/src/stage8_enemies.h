@@ -14,6 +14,7 @@
 extern const EnemyDef stage8_enemy_defs[STAGE8_ENEMY_DEF_COUNT];
 extern const EnemySpawn stage8_enemy_spawns[STAGE8_ENEMY_SPAWN_COUNT];
 extern const EnemyAi stage8_enemy_ai[STAGE8_ENEMY_DEF_COUNT][20];
+extern const EnemyAi stage8_enemy_react[STAGE8_ENEMY_DEF_COUNT][6];
 extern const EnemyProj stage8_enemy_proj[STAGE8_ENEMY_PROJ_MAX];
 
 #endif

@@ -35,6 +35,7 @@
 #define AI_GRAB_WALL  12
 #define AI_SPAWN_NPC  13
 #define AI_CHANGE_MOVE 14
+#define AI_REPLACE_NPC 15
 #define AI_JUMP_ATTACK_UP 18
 
 // PC WALK/FLY option parameters we see in stage 0 (defines.h:778/795)
@@ -98,6 +99,13 @@ typedef struct {
     s16 drop_target;
     u8 always_ahead;  // PC always_move_ahead (AI state loops on itself)
     u8 auto_jump;     // stepping over a low wall (GOLD CART)
+    // --- game_ai_list.dat reactions (PC check_ai_reaction) ----------------
+    // react = 0 none, else reaction index+1; while set, ai_action_init/run
+    // read the reaction slot instead of the state. dying = hp reached 0 and
+    // a REACTION_DEAD is playing (the enemy is removed when it finishes).
+    u8 react;
+    u8 was_hit;       // damage taken since the last reaction check
+    u8 dying;
 } Enemy;
 
 static Enemy *enemy_add(u8 def_i, s16 x, s16 y, s16 x_min, s16 x_max, u8 dir);
@@ -183,14 +191,32 @@ static s16 sign16(s16 v)
     return (v > 0) - (v < 0);
 }
 
-// ---- AI core (PC artificial_inteligence.cpp, states only; stage 0 has no
-// reactions). Chance rolls and goto chains keep the PC data semantics:
-// go_to 0 = re-roll chance, N = state N-1 (1-based, defines.h:758).
+// ---- AI core (PC artificial_inteligence.cpp). Chance rolls and goto chains
+// keep the PC data semantics: go_to 0 = re-roll chance, N = state N-1
+// (1-based, defines.h:758).
+
+// PC AI_REACTIONS order, as tested by check_ai_reaction
+// (artificial_inteligence.cpp:117).
+#define REACT_RANGE  0
+#define REACT_HIT    1
+#define REACT_DEAD   2
+#define REACT_SAME_Y 3
+#define REACT_CLOSE  4
+#define REACT_SAME_X 5
+
+// The action currently executing: a reaction slot while one is playing,
+// otherwise the AI state.
+static const EnemyAi *ai_state(const Enemy *e)
+{
+    if (e->react && stage_def->enemy_react)
+        return &stage_def->enemy_react[e->def_i][e->react - 1];
+    return &stage_def->enemy_ai[e->def_i][e->ai_chain];
+}
 
 static void ai_action_init(Enemy *e)
 {
     const EnemyDef *d = e->def;
-    const EnemyAi *st = &stage_def->enemy_ai[e->def_i][e->ai_chain];
+    const EnemyAi *st = ai_state(e);
     s16 half = (d->box_l + d->box_w) / 2 + (s16)d->range;
 
     e->moving = 0;
@@ -352,11 +378,112 @@ static bool ai_auto_jump(Enemy *e)
     return FALSE;
 }
 
+// PC remove_self + auto_respawn (classnpc): hide for respawn_delay or release.
+static void enemy_die(Enemy *e)
+{
+    const EnemyDef *d = e->def;
+    e->dying = 0;
+    e->react = 0;
+    if (d->respawn_delay && !d->is_boss && !d->is_sub_boss) {
+        if (e->spr) SPR_setVisibility(e->spr, HIDDEN);
+        e->respawn_t = (u16)(((u32)d->respawn_delay * 6) / 100);
+    } else {
+        if (e->spr) SPR_releaseSprite(e->spr);
+        e->spr = NULL;
+    }
+    e->alive = FALSE;
+}
+
+// Find the def with this PC npc id (the converter puts it in the bundle for
+// AI SPAWN_NPC / REPLACE_NPC / MORPH targets) and place it near the parent.
+static void ai_spawn_npc(Enemy *e, u8 npc_id, bool at_self)
+{
+    for (u8 i = 0; i < stage_def->enemy_def_count; i++) {
+        if (stage_def->enemy_defs[i].npc_id != npc_id) continue;
+        enemy_add(i, at_self ? e->x : e->x + e->dir * 24, e->y,
+                  e->x_min, e->x_max, e->dir);
+        break;
+    }
+}
+
+// PC check_ai_reaction: six slots, tested in this order. Only a slot with
+// action != 0 can fire; the first match wins. `was_hit` is cleared every
+// call, as the PC does at the end of check_ai_reaction.
+static s8 ai_reaction_pick(Enemy *e)
+{
+    if (!stage_def->enemy_react) return -1;
+    const EnemyAi *r = stage_def->enemy_react[e->def_i];
+    const EnemyDef *d = e->def;
+    s16 pl, pt, pr, pb;
+    player_get_box(&pl, &pt, &pr, &pb);
+    s32 dx = (s32)player.x - e->x;
+    s32 dy = (s32)player.y - e->y;
+    s32 dist2 = dx * dx + dy * dy;
+    s32 range2 = (s32)d->range * d->range;
+    s16 diff_y = (pb) - (e->y + d->box_t + d->box_h);
+    if (diff_y < 0) diff_y = -diff_y;
+    s16 diff_x = (pl <= e->x)
+                 ? (s16)((pr) - e->x)
+                 : (s16)(player.x - (e->x + d->box_w));
+    if (diff_x < 0) diff_x = -diff_x;
+
+    s8 type = -1;
+    if (r[REACT_RANGE].action && dist2 < 64 * 64)           // TILESIZE*4
+        type = REACT_RANGE;
+    else if (e->hp == 0 && r[REACT_DEAD].action)
+        type = REACT_DEAD;
+    else if (e->was_hit && r[REACT_HIT].action)
+        type = REACT_HIT;
+    else if (r[REACT_SAME_Y].action && dist2 < range2 && diff_y < 2)
+        type = REACT_SAME_Y;
+    else if (r[REACT_SAME_X].action && dist2 < range2 && diff_x < 16)
+        type = REACT_SAME_X;
+    else if (r[REACT_CLOSE].action &&
+             dist2 < (s32)(d->range / 4) * (d->range / 4))
+        type = REACT_CLOSE;   // PC: dist < walk_range/4
+
+    e->was_hit = FALSE;
+    if (type < 0) return -1;
+
+    e->react = (u8)(type + 1);
+    e->act_t = 0;
+    e->ai_phase = AI_RUN;
+    ai_action_init(e);
+    return type;
+}
+
+// The reaction action finished: PC follows reactions[type].go_to; 0 means
+// "back to the chance roll", N jumps to state N-1 and its own go_to chain
+// takes over. A death reaction removes the enemy.
+static void ai_reaction_end(Enemy *e)
+{
+    const EnemyAi *r = ai_state(e);
+    u8 go = r->go_to;
+    u16 delay = r->delay;
+    e->react = 0;
+
+    if (e->dying) {
+        enemy_die(e);
+        return;
+    }
+    if (go > 0 && go <= 20) {
+        e->ai_chain = go - 1;
+        e->act_t = 0;
+        ai_action_init(e);
+        e->always_ahead = (stage_def->enemy_ai[e->def_i][e->ai_chain].go_to
+                           == e->ai_chain + 1);
+        e->ai_phase = AI_RUN;
+    } else {
+        e->ai_phase = AI_WAIT;
+        e->ai_wait = ((u32)delay * 6) / 100;
+    }
+}
+
 // Run one frame of the current action. TRUE = action finished.
 static bool ai_action_run(Enemy *e)
 {
     const EnemyDef *d = e->def;
-    const EnemyAi *st = &stage_def->enemy_ai[e->def_i][e->ai_chain];
+    const EnemyAi *st = ai_state(e);
 
     switch (st->action) {
     case AI_WALK:
@@ -559,17 +686,16 @@ static bool ai_action_run(Enemy *e)
         }
         return FALSE;
 
-    case AI_SPAWN_NPC: {
-        if (e->act_t == 1) {
-            for (u8 i = 0; i < stage_def->enemy_def_count; i++) {
-                if (stage_def->enemy_defs[i].npc_id != (u8)st->param) continue;
-                enemy_add(i, e->x + e->dir * 24, e->y,
-                          e->x_min, e->x_max, e->dir);
-                break;
-            }
-        }
+    case AI_SPAWN_NPC:
+        if (e->act_t == 1) ai_spawn_npc(e, (u8)st->param, FALSE);
         return TRUE;
-    }
+
+    case AI_REPLACE_NPC:
+        // PC AI_ACTION_REPLACE_NPC: spawn the target NPC and remove the
+        // parent. DESTRIN TANK's REACTION_DEAD uses it to become DESTRIN SHIP.
+        if (e->act_t == 1) ai_spawn_npc(e, (u8)st->param, TRUE);
+        enemy_die(e);
+        return TRUE;
 
     case AI_CHANGE_MOVE:
         return TRUE;                    // animation-only action on PC
@@ -608,12 +734,19 @@ static void ai_pick(Enemy *e, bool initial)
 
 static void ai_tick(Enemy *e)
 {
-    const EnemyAi *st = &stage_def->enemy_ai[e->def_i][e->ai_chain];
-
+    // a reaction interrupts whatever the state machine was doing
+    if (e->react) {
+        e->act_t++;
+        if (ai_action_run(e) && e->react) ai_reaction_end(e);
+        return;
+    }
+    // PC checks reactions before the action timer, every frame.
+    if (ai_reaction_pick(e) >= 0) return;
     if (e->ai_phase == AI_FIRST) {
         ai_pick(e, TRUE);
         return;
     }
+
     if (e->ai_phase == AI_WAIT) {
         if (e->ai_wait > 0) e->ai_wait--;
         if (e->ai_wait == 0) ai_pick(e, FALSE);
@@ -622,6 +755,7 @@ static void ai_tick(Enemy *e)
     // AI_RUN
     e->act_t++;
     if (ai_action_run(e)) {
+        const EnemyAi *st = ai_state(e);
         e->ai_phase = AI_WAIT;
         e->ai_wait = ((u32)st->delay * 6) / 100;        // PC ms -> 60fps frames
     }
@@ -649,6 +783,9 @@ static Enemy *enemy_add(u8 def_i, s16 x, s16 y, s16 x_min, s16 x_max, u8 dir)
     e->ai_phase = AI_FIRST;
     e->ai_chain = 0;
     e->ai_wait = 0;
+    e->react = 0;
+    e->was_hit = 0;
+    e->dying = 0;
     e->act_t = 0;
     e->dest_x = x;
     e->dest_y = y;
@@ -714,6 +851,9 @@ void enemies_update(void)
                 e->ai_chain = 0;
                 e->ai_wait = 0;
                 e->act_t = 0;
+                e->react = 0;
+                e->was_hit = 0;
+                e->dying = 0;
                 e->jumping = 0;
                 e->moving = 0;
                 e->shooting = 0;
@@ -795,6 +935,7 @@ void enemies_update(void)
 
         if (vis) {
             ai_tick(e);
+            if (!e->alive) continue;    // AI_REPLACE_NPC removed it
             // boss hit blink (PC shows a white flash via palette; the boss
             // shares PAL0 with the HUD, so blink instead).
             if (d->is_boss) boss_screen = TRUE;
@@ -845,6 +986,7 @@ void enemies_update(void)
         }
 
         // ---- contact damage ------------------------------------------------
+        if (e->dying) continue;     // already dead, playing the reaction
         s16 el = e->x + d->box_l;
         s16 et = e->y + d->box_t;
         if (pl < el + d->box_w && pr > el && pt < et + d->box_h && pb > et)
@@ -914,7 +1056,7 @@ u8 enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage, s8 shot_dir,
 {
     for (u8 i = 0; i < enemy_count; i++) {
         Enemy *e = &enemies[i];
-        if (!e->alive) continue;
+        if (!e->alive || e->dying) continue;
         const EnemyDef *d = e->def;
         if (d->is_boss && e->dropping) return 1;
         s16 el = e->x + d->box_l;
@@ -940,6 +1082,7 @@ u8 enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage, s8 shot_dir,
 
         e->hp = (dmg >= e->hp) ? 0 : e->hp - dmg;
         if (d->is_boss) e->hurt_timer = BOSS_HURT_FRAMES;
+        e->was_hit = 1;                 // PC _was_hit -> AI_REACTION_HIT
         sfx_play(SFX_NPC_HIT);
         if (e->hp == 0) {
             sfx_play(d->is_boss ? SFX_EXPLOSION : SFX_NPC_KILLED);
@@ -958,16 +1101,19 @@ u8 enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage, s8 shot_dir,
                     objects_drop_item(cx, cy, d->is_sub_boss != 0);
                 explosion_spawn(e->x, e->y);
             }
-            if (d->respawn_delay && !d->is_boss && !d->is_sub_boss) {
-                // PC classnpc auto_respawn: keep the sprite hidden and revive
-                // at the spawn point after respawn_delay (ms -> 60fps).
-                if (e->spr) SPR_setVisibility(e->spr, HIDDEN);
-                e->respawn_t = (u16)(((u32)d->respawn_delay * 6) / 100);
-                e->alive = FALSE;
+            // PC REACTION_DEAD (artificial_inteligence.cpp:184): if the
+            // enemy has a death reaction (DESTRIN TANK -> DESTRIN SHIP), play
+            // it first and remove the enemy when it finishes.
+            if (!d->is_boss && stage_def->enemy_react &&
+                stage_def->enemy_react[e->def_i][REACT_DEAD].action) {
+                e->dying = 1;
+                e->was_hit = 0;
+                e->react = REACT_DEAD + 1;
+                e->act_t = 0;
+                e->ai_phase = AI_RUN;
+                ai_action_init(e);
             } else {
-                if (e->spr) SPR_releaseSprite(e->spr);
-                e->spr = NULL;
-                e->alive = FALSE;
+                enemy_die(e);
             }
         }
         return 1;

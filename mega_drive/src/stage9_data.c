@@ -618,7 +618,8 @@ const StageDef stage9_def = {
     .anim_slots = &stage9_anim_slots[0][0], .anim_frames = &stage9_anim_frames[0][0],
     .enemy_defs = stage9_enemy_defs, .enemy_def_count = STAGE9_ENEMY_DEF_COUNT,
     .enemy_spawns = stage9_enemy_spawns, .enemy_spawn_count = STAGE9_ENEMY_SPAWN_COUNT,
-    .enemy_ai = stage9_enemy_ai, .enemy_proj = stage9_enemy_proj, .enemy_proj_max = STAGE9_ENEMY_PROJ_MAX,
+    .enemy_ai = stage9_enemy_ai, .enemy_react = stage9_enemy_react,
+    .enemy_proj = stage9_enemy_proj, .enemy_proj_max = STAGE9_ENEMY_PROJ_MAX,
     .object_defs = stage9_object_defs, .object_def_count = STAGE9_OBJECT_DEF_COUNT,
     .object_spawns = stage9_object_spawns, .object_spawn_count = STAGE9_OBJECT_SPAWN_COUNT,
 };

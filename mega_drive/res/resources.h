@@ -362,6 +362,7 @@ extern const Palette stage12_bg0_pal;
 extern const Palette stage12_bg1_pal;
 extern const Palette stage12_bg2_pal;
 extern const SpriteDefinition enemy_destrin_tank_sprite;
+extern const SpriteDefinition enemy_destrin_ship_sprite;
 extern const SpriteDefinition enemy_multidrill_sprite;
 extern const SpriteDefinition enemy_shocker_sprite;
 extern const TileSet stage13_tiles0;
