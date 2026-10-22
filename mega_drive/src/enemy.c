@@ -90,6 +90,7 @@ typedef struct {
     s16 dest_x, dest_y;
     u8 jumping;       // JUMP action in the air
     u8 teleporting;   // TELEPORT action (teleport animation row)
+    u16 intro_t;      // frames of ANIM_TYPE_INTRO left (boss landing)
     u8 moving;        // walk anim while the action moves the enemy
     u8 shooting;      // attack anim while a SHOT action runs
     s16 move_acc;     // 50Hz movement accumulator (PC AI step throttle)
@@ -408,9 +409,13 @@ static void enemy_die(Enemy *e)
     const EnemyDef *d = e->def;
     e->dying = 0;
     e->react = 0;
-    if (d->respawn_delay && !d->is_boss && !d->is_sub_boss) {
+    if (!d->is_boss && (d->respawn_delay || d->is_sub_boss)) {
+        // The sub-boss keeps its sprite: PC classmap.cpp:2201 revives it once
+        // its body is off screen, so the door it guards never stays free.
         if (e->spr) SPR_setVisibility(e->spr, HIDDEN);
-        e->respawn_t = (u16)(((u32)d->respawn_delay * 6) / 100);
+        const u16 t = d->respawn_delay
+                          ? (u16)(((u32)d->respawn_delay * 6) / 100) : 1;
+        e->respawn_t = t ? t : 1;
     } else {
         if (e->spr) SPR_releaseSprite(e->spr);
         e->spr = NULL;
@@ -881,7 +886,14 @@ void enemies_update(void)
         const s16 pre_x = e->x;
         const s16 pre_y = e->y;
         if (!e->alive) {
-            if (e->respawn_t && --e->respawn_t == 0) {
+            // PC classmap.cpp:2201: a dead sub-boss only revives while it is
+            // off screen (the player must not see it pop back).
+            bool respawn_tick = TRUE;
+            if (e->def->is_sub_boss) {
+                const s16 sxb = e->x - camera.x;
+                respawn_tick = (sxb < -40 || sxb >= 336);
+            }
+            if (e->respawn_t && respawn_tick && --e->respawn_t == 0) {
                 const EnemyDef *rd = e->def;
                 e->x = e->spawn_x;
                 e->y = e->spawn_y;
@@ -951,6 +963,10 @@ void enemies_update(void)
                     e->y = e->drop_target;
                     e->dropping = 0;
                     e->drop_done = 1;
+                    // PC classMap::boss_show_intro_sprites: play the INTRO
+                    // animation (file anim 16) after the landing drop.
+                    if (d->intro_anim != 255 && d->intro_ms)
+                        e->intro_t = (u16)(((u32)d->intro_ms * 6) / 100);
                 }
                 if (e->spr) {
                     s16 dsx = e->x - camera.x;
@@ -966,6 +982,7 @@ void enemies_update(void)
         }
 
         if (e->hurt_timer) e->hurt_timer--;
+        if (e->intro_t) e->intro_t--;
 
         // ---- visibility (the AI only runs on-screen, like the PC move
         // early-exit; keeps off-screen chasers parked until seen) ---------
@@ -1026,6 +1043,8 @@ void enemies_update(void)
                 SPR_setAnim(e->spr, 2);
             else if (e->teleporting && d->teleport_anim != 255)
                 SPR_setAnim(e->spr, d->teleport_anim);
+            else if (e->intro_t && d->intro_anim != 255)
+                SPR_setAnim(e->spr, d->intro_anim);
             else if (e->jumping && d->jump_anim != 255)
                 SPR_setAnim(e->spr, d->jump_anim);
             else if (d->walk_n > 0)

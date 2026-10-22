@@ -413,7 +413,9 @@ The old analysis stands: action 5 (SHOT_AHEAD) does not turn, as on the PC.
 
 ## BUG-011 — Enemies do not switch to teleport/jump animations
 
-**Status**: **FIXED 2026-10-22** (play-test pending). The converter now ships
+**Status**: **FIXED 2026-10-22** (play-test pending), including the boss
+`ANIM_TYPE_INTRO` row (file anim 16) played after the landing drop. The
+converter now ships
 the `ANIM_TYPE_JUMP` (file anim 2) and `ANIM_TYPE_TELEPORT` (anim 4) rows, but
 ONLY for enemies whose AI uses those actions (action 2 / 10): the extra row
 costs sprite VRAM, and crowded stages are already near the 504-tile pool. The

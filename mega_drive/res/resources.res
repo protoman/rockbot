@@ -143,7 +143,7 @@ SPRITE enemy_spinner_ball_sprite "enemy_spinner_ball.png" 24p 24p FAST [[6,6,6,6
 SPRITE enemy_classic_metool_sprite "enemy_classic_metool.png" 24p 24p FAST [[12][12,12][9,9,30,6,9,9]]
 SPRITE enemy_cannon_ball_sprite "enemy_cannon_ball.png" 24p 24p FAST [[120][18,18][12,12,60]]
 # Stage boss MILONGA BOT (id 37): 36x33 art in 40x40 cells, stand + walk rows
-SPRITE enemy_milonga_sprite "enemy_milonga.png" 40p 40p FAST [[120][120][12,48][120]]
+SPRITE enemy_milonga_sprite "enemy_milonga.png" 40p 40p FAST [[120][120][12,48][120][12,36]]
 SPRITE shot_sprite "shot.png" 8p 8p FAST [[1]]
 # Player + enemy charged projectiles (game_projectile_list ids 11/10).
 # Frames are 100ms each (defines.h:644); semi art restored by the enemy
@@ -302,7 +302,7 @@ PALETTE stage2_bg2_pal "stage2_bg2_tiles.png"
 # ---- STAGE 3 (ATLANTIDA) ----
 SPRITE enemy_bat_sprite "enemy_bat.png" 32p 24p FAST [[48][12,12,12,12][120]]
 SPRITE enemy_seahorsebot_sprite "enemy_seahorsebot.png" 32p 40p FAST [[12,12][12,12][72]]
-SPRITE enemy_giant_dolphin_sprite "enemy_giant_dolphin.png" 104p 64p FAST [[3,3][3,3][3,3]]
+SPRITE enemy_giant_dolphin_sprite "enemy_giant_dolphin.png" 104p 64p FAST [[3,3][3,3][3,3][6,6,6,6]]
 SPRITE enemy_small_fish_sprite "enemy_small_fish.png" 24p 16p FAST [[12,12,12][6,6,6][0]]
 SPRITE enemy_killer_fish_sprite "enemy_killer_fish.png" 32p 32p FAST [[6,6][6][0]]
 SPRITE enemy_spiked_floor_sprite "enemy_spiked_floor.png" 24p 16p FAST [[12,12][12,12][0]]
@@ -406,7 +406,7 @@ PALETTE stage8_bg2_pal "stage8_bg2_tiles.png"
 
 # ---- STAGE 9 (LAVA PIT) ----
 SPRITE enemy_spinning_drill_sprite "enemy_spinning_drill.png" 16p 24p FAST [[3,3,3][6,6,6][0]]
-SPRITE enemy_tech_circle_sprite "enemy_tech_circle.png" 64p 64p FAST [[60,6,6,6,6,6][60,6,6,6,6,6][0][1]]
+SPRITE enemy_tech_circle_sprite "enemy_tech_circle.png" 64p 64p FAST [[60,6,6,6,6,6][60,6,6,6,6,6][0][1][6,6,6,6,6,6,6]]
 TILESET stage9_tiles0 "stage9_map0.png"  NONE ALL
 PALETTE stage9_pal0   "stage9_map0.png"
 MAP     stage9_map0   "stage9_map0.png"  stage9_tiles0 FAST 0
@@ -421,7 +421,7 @@ PALETTE stage9_bg1_pal "stage9_bg1_tiles.png"
 PALETTE stage9_bg2_pal "stage9_bg2_tiles.png"
 
 # ---- STAGE 10 (SPACE BASE) ----
-SPRITE enemy_giant_metool_sprite "enemy_giant_metool.png" 104p 120p FAST [[540][6][6,60][12,600]]
+SPRITE enemy_giant_metool_sprite "enemy_giant_metool.png" 104p 120p FAST [[540][6][6,60][12,600][24,6,24]]
 TILESET stage10_tiles0 "stage10_map0.png"  NONE ALL
 PALETTE stage10_pal0   "stage10_map0.png"
 MAP     stage10_map0   "stage10_map0.png"  stage10_tiles0 FAST 0
@@ -436,7 +436,7 @@ PALETTE stage10_bg1_pal "stage10_bg1_tiles.png"
 PALETTE stage10_bg2_pal "stage10_bg2_tiles.png"
 
 # ---- STAGE 11 (POWER GRID) ----
-SPRITE enemy_tank_sprite "enemy_tank.png" 104p 80p FAST [[6,6][6,6][90][1]]
+SPRITE enemy_tank_sprite "enemy_tank.png" 104p 80p FAST [[6,6][6,6][90][1][6,6,6,6]]
 TILESET stage11_tiles0 "stage11_map0.png"  NONE ALL
 PALETTE stage11_pal0   "stage11_map0.png"
 MAP     stage11_map0   "stage11_map0.png"  stage11_tiles0 FAST 0
@@ -451,7 +451,7 @@ PALETTE stage11_bg1_pal "stage11_bg1_tiles.png"
 PALETTE stage11_bg2_pal "stage11_bg2_tiles.png"
 
 # ---- STAGE 12 (RECYCLE FACTORY) ----
-SPRITE enemy_giant_bee_sprite "enemy_giant_bee.png" 112p 72p FAST [[3,3][5,5][3,3]]
+SPRITE enemy_giant_bee_sprite "enemy_giant_bee.png" 112p 72p FAST [[3,3][5,5][3,3][6,6,6,6]]
 TILESET stage12_tiles0 "stage12_map0.png"  NONE ALL
 PALETTE stage12_pal0   "stage12_map0.png"
 MAP     stage12_map0   "stage12_map0.png"  stage12_tiles0 FAST 0
@@ -487,8 +487,8 @@ PALETTE stage13_bg2_pal "stage13_bg2_tiles.png"
 
 
 # ---- sprites missed by the first pass (converter assert fixed) ----
-SPRITE enemy_mummybot_sprite "enemy_mummybot.png" 40p 40p FAST [[120][120][120][120][6,6,6,6,6,6,6,6,6,6]]
-SPRITE enemy_giant_fly_sprite "enemy_giant_fly.png" 64p 48p FAST [[9,9][6,6][0]]
+SPRITE enemy_mummybot_sprite "enemy_mummybot.png" 40p 40p FAST [[120][120][120][120][6,6,6,6,6,6,6,6,6,6][12,12,120]]
+SPRITE enemy_giant_fly_sprite "enemy_giant_fly.png" 64p 48p FAST [[9,9][6,6][0][12,12,12,12]]
 SPRITE enemy_fly_sprite "enemy_fly.png" 32p 24p FAST [[4,4,4,4][6,6,6][0]]
 
 # ---- objects/pickups added with the Techno fixes ----

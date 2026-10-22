@@ -83,6 +83,7 @@ BOSS_INITIAL_HP = 36
 AI_GOTO_CHANCE = 0
 
 ANIM_STAND, ANIM_WALK, ANIM_JUMP, ANIM_ATTACK, ANIM_TELEPORT = 0, 1, 2, 3, 4
+ANIM_INTRO = 16     # bosses only (PC classMap::boss_show_intro_sprites)
 COLORKEY = (75, 125, 125)
 MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)
 WHITE8 = 219           # md_round(219/238/235) == 219 -> CRAM 0x0EEE (font white)
@@ -110,10 +111,10 @@ def read_enemy_defs(blob, ids):
         # The list is positional: a few late records (59/60 = UFO/FLYBOT) carry
         # 0xFF in the id byte but are still real entries — trust the index.
         assert b[0] == eid or b[0] == 0xFF, f"record {eid}: id byte {b[0]} != {eid}"
-        stand, walk, attack, jump, teleport = [], [], [], [], []
+        stand, walk, attack, jump, teleport, intro = [], [], [], [], [], []
         for anim, out in ((ANIM_STAND, stand), (ANIM_WALK, walk),
                           (ANIM_ATTACK, attack), (ANIM_JUMP, jump),
-                          (ANIM_TELEPORT, teleport)):
+                          (ANIM_TELEPORT, teleport), (ANIM_INTRO, intro)):
             for f in range(10):
                 o = 78 + (anim * 10 + f) * 14
                 used, dur, px = b[o], struct.unpack_from("<H", b, o + 2)[0], b[o + 4]
@@ -156,6 +157,7 @@ def read_enemy_defs(blob, ids):
             "attack": attack,
             "jump": jump,
             "teleport": teleport,
+            "intro": intro,
         }
     return defs
 
@@ -476,6 +478,12 @@ def main():
         teleport = frames_of(d["teleport"]) if needs_tele else []
         jump_anim = 3 if needs_jump else 255
         teleport_anim = (4 if needs_jump else 3) if needs_tele else 255
+        # Boss landing intro (PC boss_show_intro_sprites): only bosses/subs,
+        # and only when the file has the INTRO frames.
+        intro = frames_of(d["intro"]) if (d["is_boss"] or d["is_sub_boss"]) else []
+        nrows = 3 + (1 if needs_jump else 0) + (1 if needs_tele else 0)
+        intro_anim = nrows if intro else 255
+        intro_ms = sum(du for _, du in intro)
         # all stand frames / all walk frames, times in 1/60s
         def times(fr):
             return [max(1, round(dur * 6 / 100)) for _, dur in fr]
@@ -488,7 +496,7 @@ def main():
         bb = max(r[1] + r[3] for r in rects)
 
         cols = max(len(stand), len(walk), len(attack), len(jump),
-                   len(teleport), 1)
+                   len(teleport), len(intro), 1)
         src = sheet.load()
         cells = []
         rows = [stand, walk, attack]
@@ -496,6 +504,8 @@ def main():
             rows.append(jump or stand)
         if needs_tele:
             rows.append(teleport or stand)
+        if intro:
+            rows.append(intro)
         for row_frames in rows:
             row = []
             for (fcol, _dur) in row_frames:
@@ -511,7 +521,8 @@ def main():
             "stand": stand, "walk": walk, "attack": attack,
             "jump": jump, "teleport": teleport,
             "jump_anim": jump_anim, "teleport_anim": teleport_anim,
-            "nrows": 3 + (1 if needs_jump else 0) + (1 if needs_tele else 0),
+            "intro_anim": intro_anim, "intro_ms": intro_ms,
+            "nrows": nrows + (1 if intro else 0),
             "stand_t": times(stand), "walk_t": times(walk),
             "attack_t": times(attack),
             "jump_t": times(jump) if jump else [1],
@@ -701,6 +712,7 @@ extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
             f"{bl}, {bt}, {bw}, {bh}, "
             f"{len(p['stand'])}, {len(p['walk'])}, {len(p['attack'])}, "
             f"{p['jump_anim']}, {p['teleport_anim']}, "
+            f"{p['intro_anim']}, {p['intro_ms']}, "
             f"{p['attack_ms']}, {d['shield_type']}, "
             f"{{ {', '.join(str(x & 0xFF) for x in d['weak'])} }} }},"
             f"  // {d['name']}\n")
@@ -754,6 +766,10 @@ extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
             anims.append("[" + ",".join(str(t) for t in p["jump_t"]) + "]")
         if p["teleport_anim"] != 255:
             anims.append("[" + ",".join(str(t) for t in p["teleport_t"]) + "]")
+        if p["intro_anim"] != 255:
+            anims.append("[" + ",".join(str(t) for t in
+                                          [max(1, round(du * 6 / 100))
+                                           for _, du, _r in p["d"]["intro"]]) + "]")
         line = (f'SPRITE {p["res_name"]}_sprite "{p["res_name"]}.png" '
                 f'{p["cw"]}p {p["ch"]}p FAST [' + "".join(anims) + ']')
         print(line)

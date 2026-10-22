@@ -42,10 +42,18 @@ detailed traces live in `bugs.md` and `HANDOUT.md`.
 
 ## 5. Boss behaviour
 
-- [ ] Boss intro sprites (fall-in + intro frames) `draw.cpp:280`.
-- [ ] Boss ground shake on landing `classmap.cpp:2428`.
-- [ ] Sub-boss revive after the boss dies `classmap.cpp:2201`.
-- [ ] Boss teleport/jump animation rows (BUG-011, unblocks BUG-010).
+- [x] Boss intro sprites: the converter ships `ANIM_TYPE_INTRO` (file anim 16,
+      bosses/subs only) as an extra sheet row (`intro_anim`/`intro_ms`); the
+      boss plays it once the landing drop finishes, like
+      `classMap::boss_show_intro_sprites`.
+- [x] Sub-boss revive: `enemy_die()` keeps the sprite and sets a 1-frame
+      respawn for sub-bosses; the dead branch only counts that timer down while
+      the body is off screen, then revives it (PC `classmap.cpp:2201`).
+- [x] Boss teleport/jump animation rows (BUG-011), plus the teleport lands
+      facing the player (BUG-010).
+- [ ] Boss ground shake on landing — no PC reference found: `classmap.cpp:2428`
+      is `boss_hit_ground()` (animation switch), not a shake. Needs a PC clip
+      before implementing.
 
 ## 6. Enemy AI (low priority: the shipped data does not use them)
 
