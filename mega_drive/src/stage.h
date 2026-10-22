@@ -88,6 +88,8 @@ void stage_horizontal_screen_move(s16 dir);
 // Re-load the stage tileset palette (PAL1) after a full-screen overlay
 // (in-game menu) borrowed the palette line.
 void stage_restore_palette(void);
+// Re-apply the colourcycle band (PAL3) after a temporary palette use.
+void stage_restore_cycle(void);
 
 // Re-draw the parallax background plane (image, palette, scroll) after an
 // overlay borrowed the background tile block.

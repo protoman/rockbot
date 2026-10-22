@@ -63,6 +63,9 @@ $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA) $(MUSIC_TOOL) Makefile
 	$(PYTHON) tools/convert_credits.py
 	$(PYTHON) tools/convert_player.py
 	$(PYTHON) tools/convert_save_icons.py
+	# boss dialog panel + its A-button icon (PAL3, drawn on BG_A by dialogs.c)
+	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/dialog.png --name dlg_panel
+	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/btn_a.png --name dlg_btn_a
 	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/boss_intro/boss_intro_bg.png \
 	    --name boss_intro_bg --crop-h 224
 	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/player_selection.png \

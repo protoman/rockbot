@@ -609,10 +609,14 @@ plays nothing; the PC has a checkpoint animation/SFX.
 
 ## BUG-028 — Boss dialog background still missing
 
-**Report**: the boss dialog panel background is still absent.
-
-**Status**: OPEN (= BUG-008 route 1: quantize the PC `dialog.png` into PAL0 and
-draw it behind the dialog text).
+**Status**: **IMPLEMENTED 2026-10-22** (play-test pending). The PC panel
+(`images/backgrounds/dialog.png`, 310x65) and its A-button icon (`btn_a.png`)
+are converted by `tools/img2tiles.py` (`dlg_panel`, `dlg_btn_a`, wired into the
+Makefile) and drawn on BG_A at the PC position (panel rows 0..8, button at
+column 34/row 5) in PAL3 with their own palette, replacing the old black box
+and the "JUMP: NEXT" text. The stage colourcycle band is re-applied through
+`stage_restore_cycle()` when the dialog closes (PAL3 is the cycle line in
+stages 1/2/3/6/8).
 
 ## BUG-029 — "YOU GOT" screen (PC stage-clear sequence)
 

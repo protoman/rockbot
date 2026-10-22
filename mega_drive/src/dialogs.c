@@ -9,6 +9,10 @@
 #include "hud.h"
 #include "config.h"
 #include "resources.h"
+#include "dlg_panel_tiles.h"
+#include "dlg_panel_map.h"
+#include "dlg_btn_a_tiles.h"
+#include "dlg_btn_a_map.h"
 
 // PC boss-room dialog (scenes/dialogs.cpp:249, called by
 // game::map_present_boss when the boss appears in the arena). The PC also
@@ -19,14 +23,13 @@
 // PC build: no code path reads it, and every stage's cutscene_pre/pos is -1.
 // Only the boss block (30..59) is displayed here.
 
-#define DLG_BLACK_TILE 15       // system blank tile (935 is inside the anim slots)
+// PC graphicsLib::show_dialog: the 310x65 panel at x=5, y=3 (top side). The
+// port draws it on BG_A with the camera's tile offset, in PAL3 with its own
+// palette (the stage colourcycle band is re-applied when the dialog closes).
+#define DLG_PANEL_TILE_BASE 912     // free: stage data ends well below 936
+#define DLG_BTN_TILE_BASE   (DLG_PANEL_TILE_BASE + DLG_PANEL_TILE_COUNT)
 #define DLG_W 40
 #define DLG_H 6
-
-static const u32 dlg_black[8] = {
-    0x11111111, 0x11111111, 0x11111111, 0x11111111,
-    0x11111111, 0x11111111, 0x11111111, 0x11111111,
-};
 
 static const SpriteDefinition *const boss_face[9] = {
     &dlg_face_0_sprite, &dlg_face_1_sprite, &dlg_face_2_sprite,
@@ -71,20 +74,53 @@ static void wait_button(void)
     } while (!(pad & config_jump_mask()));
 }
 
-// One 3-line page. The box is drawn at screen rows y0..y0+5 by writing plane
-// cells with the camera's tile offset; per-cell writes also wrap at the
+// Draw the PC dialog panel (39x9 tiles) with the camera's plane offset.
+static void dlg_panel_draw(u8 y0)
+{
+    const u16 base = (u16)((camera.x >> 3) & 63);
+    const u8 top = (y0 > 0) ? (u8)(y0 - 1) : 0;
+    PAL_setPalette(PAL3, dlg_panel_pal.data, DMA_QUEUE);
+    VDP_loadTileData(dlg_panel_tiles_data, DLG_PANEL_TILE_BASE,
+                     DLG_PANEL_TILE_COUNT, DMA_QUEUE);
+    for (u8 row = 0; row < DLG_PANEL_MAP_H; row++) {
+        for (u8 col = 0; col < DLG_PANEL_MAP_W; col++) {
+            u16 t = dlg_panel_map[row * DLG_PANEL_MAP_W + col];
+            VDP_setTileMapXY(BG_A,
+                             TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE,
+                                            DLG_PANEL_TILE_BASE + t),
+                             (u16)((base + col) & 63), (u16)(top + row));
+        }
+    }
+}
+
+// PC show_dialog_button: the A button icon inside the panel, bottom right.
+static void dlg_button_draw(u8 y0)
+{
+    const u16 base = (u16)((camera.x >> 3) & 63);
+    const u8 top = (y0 > 0) ? (u8)(y0 - 1) : 0;
+    VDP_loadTileData(dlg_btn_a_tiles_data, DLG_BTN_TILE_BASE,
+                     DLG_BTN_A_TILE_COUNT, DMA_QUEUE);
+    for (u8 row = 0; row < DLG_BTN_A_MAP_H; row++) {
+        for (u8 col = 0; col < DLG_BTN_A_MAP_W; col++) {
+            u16 t = dlg_btn_a_map[row * DLG_BTN_A_MAP_W + col];
+            VDP_setTileMapXY(BG_A,
+                             TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE,
+                                            DLG_BTN_TILE_BASE + t),
+                             (u16)((base + 34 + col) & 63),
+                             (u16)(top + 5 + row));
+        }
+    }
+}
+
+// One 3-line page. The panel is drawn at screen rows y0-1..y0+7 by writing
+// plane cells with the camera's tile offset; per-cell writes also wrap at the
 // 64-cell plane width.
 static void show_page(const char *const *lines, u8 first, u8 y0,
                       const SpriteDefinition *face, const Palette *face_pal,
                       bool player_eyes_layer, u8 player_idx)
 {
     const u16 base = (u16)((camera.x >> 3) & 63);
-    const u16 entry = TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE,
-                                     DLG_BLACK_TILE);
-    for (u8 row = 0; row < DLG_H; row++)
-        for (u8 col = 0; col < DLG_W; col++)
-            VDP_setTileMapXY(BG_A, entry, (u16)((base + col) & 63),
-                             (u16)(y0 + row));
+    dlg_panel_draw(y0);
 
     // Face on the left of the box (PC draw_dialog_bg: face at x+16, text at
     // x+52 -> the port uses 32px face + 1 tile gap, text from column 6).
@@ -112,8 +148,7 @@ static void show_page(const char *const *lines, u8 first, u8 y0,
                            (u16)(y0 + 1 + i));
         }
     }
-    VDP_drawTextBG(BG_A, "JUMP: NEXT", (u16)((base + 30) & 63),
-                   (u16)(y0 + DLG_H - 1));
+    dlg_button_draw(y0);
     wait_button();
     if (fs) SPR_releaseSprite(fs);
     if (es) SPR_releaseSprite(es);
@@ -178,7 +213,6 @@ void dialog_show_boss(u8 stage, u8 player)
     enemies_set_visible(FALSE);
     hud_set_visible(FALSE);
 
-    VDP_loadTileData(dlg_black, DLG_BLACK_TILE, 1, DMA);
     // top side (all converted stages have dialog_top_side = true)
     const u8 y0 = 1;
     const SpriteDefinition *bf = (stage < 9) ? boss_face[stage] : NULL;
@@ -193,7 +227,8 @@ void dialog_show_boss(u8 stage, u8 player)
         show_page(d, (u8)(ply0 + 3), y0, pf, pp, TRUE, player);
 
     player_restore_palette();  // PAL2 held the last face
-    stage_force_redraw();     // the box overwrote map cells on BG_A
+    stage_restore_cycle();     // PAL3 held the panel palette
+    stage_force_redraw();      // the panel overwrote map cells on BG_A
     player_set_visible(TRUE);
     enemies_set_visible(TRUE);
     hud_set_visible(TRUE);

@@ -710,6 +710,13 @@ void stage_autoscroll(s8 dir)
     }
 }
 
+// Re-apply the colourcycle band after something else used PAL3 (the dialog
+// panel loads its own palette into that line).
+void stage_restore_cycle(void)
+{
+    stage_cycle_pal3_apply();
+}
+
 void stage_restore_palette(void)
 {
     PAL_setPalette(STAGE_PAL, stage_def->palettes[stage_current_map]->data, CPU);
