@@ -6,22 +6,23 @@ detailed traces live in `bugs.md` and `HANDOUT.md`.
 
 ## 1. Water / terrain constraints
 
-- [ ] Water enemies must not leave water (and land enemies must not enter it):
-      PC `character.cpp:1921-1923` + AI move checks. **BUG-018**.
+- [x] Water enemies must not leave water (and land enemies must not enter it):
+      PC `character.cpp:1921-1923`. Implemented in `enemies_update()`
+      (revert a move that crosses the water line). **BUG-018**.
 
 ## 2. Sound effects the PC has and the port does not
 
-- [ ] Disappearing block: appear SFX + the 5-frame appear animation
-      (`object.cpp:607`, `object.cpp:1021`).
-- [ ] Object break SFX for destructible walls (`object.cpp:1785`).
-- [ ] Beam SFX for rays / lava beams (`object.cpp:1102`).
-- [ ] Stage-selected SFX in the stage select (`sceneslib.cpp:648`).
-- [ ] Teleporter-activated SFX (`game.cpp:2208`).
-- [ ] Water enter/leave splash for the player (check: may already exist).
+- [x] Disappearing block: appear SFX + 5-frame appear animation.
+- [x] Object break SFX for destructible walls.
+- [x] Beam SFX for rays / lava beams.
+- [x] Stage-selected SFX (already wired) and water enter/leave (already wired).
+- [x] Teleporter-activated SFX (already wired).
 
 ## 3. Small features
 
-- [ ] Weapon tooltip when switching weapons (`draw.cpp:841`).
+- [ ] Weapon tooltip when switching weapons (`draw.cpp:841`). Needs sprite
+      art: a plane-drawn text leaves trails on the scrolling stage, so the
+      text version was reverted.
 - [ ] Water bubble animation on BG (`classmap.cpp:1215`).
 - [ ] Teleport-small colour flash (`draw.cpp:429`).
 - [ ] Dark mode (draw only animations/projectiles) (`game.h:273`).
@@ -50,7 +51,14 @@ in/out, to roof), quake attack, accelerate up/down, circle player, wall walk
 (+shoot), multi-projectile spreads, morph, explode itself, throw item, play
 sfx, wait random, change-animation, fly drill/sin/dash/opposite-wall.
 
-## 7. Runtime verification (one instrumented run)
+## 7. Runtime verification (instrumented run 2026-10-22)
+
+Found: with SEAHORSE loaded, `MEM_getFree()` is only **7 KB** after
+`stage_load`, so `MAP_create()` inside `transition_scroll()` failed and every
+link took the fade path (BUG-023) leaving a half-loaded room (BUG-022/024).
+Fix in place: `transition_scroll()` builds the outgoing screen first, then
+releases the current stage map before creating the destination Map, which frees
+that heap. Needs a re-run to confirm the links now scroll.
 
 - [ ] BUG-022 SEAHORSE: wrong/incomplete tileset at stage start.
 - [ ] BUG-023 SEAHORSE: fade on every link.

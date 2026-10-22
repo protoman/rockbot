@@ -148,6 +148,18 @@ return FALSE; }
     u16 *newbuf = top_to_bottom ? trans_buf[TRANS_ROWS] : trans_buf[0];
     u16 *oldbuf = top_to_bottom ? trans_buf[0] : trans_buf[TRANS_ROWS];
 
+    // ---- outgoing screen FIRST: its tiles are resident, and building it
+    // needs the current stage map. Releasing that map here frees the heap the
+    // destination Map needs: with the stage loaded, MEM_getFree() can be as low
+    // as ~7 KB, which made MAP_create fail and every SEAHORSE link fall back
+    // to the fade (BUG-023), leaving a half-loaded room behind (BUG-022/024).
+    const s16 ocam = clamp_cam_x(camera.x);
+    u16 omt0;
+    s16 old_hs;
+    load_screen(stage_map, ocam, oldbuf, &old_hs, &omt0);
+    apply_tile3(oldbuf, from_map, omt0);
+    stage_release_map();
+
     // ---- destination screen: tilemap window ------------------------------
     Map *dm = MAP_create(stage_def->map_defs[to_map], STAGE_PLANE,
                          TILE_ATTR_FULL(STAGE_PAL, FALSE, FALSE, FALSE,
@@ -201,12 +213,6 @@ return FALSE; }
         }
     }
 
-    // ---- outgoing screen: its tiles are already resident ------------------
-    const s16 ocam = clamp_cam_x(camera.x);
-    u16 omt0;
-    s16 old_hs;
-    load_screen(stage_map, ocam, oldbuf, &old_hs, &omt0);
-    apply_tile3(oldbuf, from_map, omt0);
 
     // ---- slide ------------------------------------------------------------
     // BG_B reads the same table in this mode, so it is filled with the
