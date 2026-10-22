@@ -128,6 +128,11 @@ def read_object_defs(blob, ids):
             "w": struct.unpack_from("<b", b, 76)[0],
             "h": struct.unpack_from("<b", b, 77)[0],
             "fd": struct.unpack_from("<h", b, 78)[0],
+            # file_object animation flags (offsets 80/81/82): the PC uses them
+            # to decide whether an object animates on its own and whether the
+            # animation loops (the checkpoint's flag loops once activated).
+            "anim_auto": b[80],
+            "anim_loop": b[82],
         }
     return defs
 
@@ -319,7 +324,9 @@ extern const ObjectSpawn {PFX}_object_spawns[{UP}_OBJECT_SPAWN_COUNT];
             f"{d['type']}, {p['frames']}, {p['frame_t']}, "
             f"{d['w']}, {d['h']}, {d['speed']}, "
             f"{max(0, min(65535, d['timer']))}, "
-            f"{max(0, min(65535, d['limit']))} }},  // {d['name']}\n")
+            f"{max(0, min(65535, d['limit']))}, "
+            f"{1 if d['anim_auto'] else 0}, {1 if d['anim_loop'] else 0} }},"
+            f"  // {d['name']}\n")
     lines.append("};\n\n")
     lines.append(f"const ObjectSpawn {PFX}_object_spawns[{UP}_OBJECT_SPAWN_COUNT] = {{\n")
     for (di, mp, x, y, dx, dy, dm) in spawn_out:

@@ -39,15 +39,23 @@ static Sprite *add_part(const SpriteDefinition *def, s16 x, s16 y, u16 pal)
     return sp;
 }
 
+// Frames in res/hud_*_ball.png (tools/convert_assets.py: 5 fill steps).
+#define HUD_BALL_FRAMES 5
+
 // The icon and its black box follow the bar, so no caller can show a bar
 // without its icon (the weapon icon used to stay hidden until the menu forced
 // hud_set_visible).
 static void set_bar(Sprite *const *parts, bool show, s16 pct,
                     Sprite *icon, Sprite *box)
 {
-    s16 frame = (pct * 50) / 100;
+    // The ball sheet has HUD_BALL_FRAMES frames, ordered full..empty
+    // (frame 0 = filled, last = empty), so pct 100 -> frame 0. The old
+    // `pct * 50 / 100` produced 0..50 on a 5-frame sprite: SPR_setFrame with
+    // an out-of-range index made SPR_update read a garbage frame pointer
+    // (ADDRESS ERROR, BUG-031).
+    s16 frame = ((100 - pct) * (HUD_BALL_FRAMES - 1)) / 100;
     if (frame < 0) frame = 0;
-    if (frame > 50) frame = 50;
+    if (frame > HUD_BALL_FRAMES - 1) frame = HUD_BALL_FRAMES - 1;
     for (u8 i = 0; i < HUD_PARTS; i++) {
         if (!parts[i]) continue;
         SPR_setVisibility(parts[i], show ? VISIBLE : HIDDEN);

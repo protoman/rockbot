@@ -140,7 +140,8 @@ bool transition_scroll(u8 from_map, u8 to_map, s16 to_cam_x,
     if (from_map == to_map) { transition_fail_code = 1; return FALSE; }
 
     const u16 spare = vram_free_base(from_map);
-    if (spare >= TILE_SPRITE_INDEX) { transition_fail_code = 2; return FALSE; }
+    if (spare >= TILE_SPRITE_INDEX) { transition_fail_code = 2;
+return FALSE; }
 
     const s16 dcam = clamp_cam_x(to_cam_x);
 
@@ -167,8 +168,10 @@ bool transition_scroll(u8 from_map, u8 to_map, s16 to_cam_x,
     ts.compression = COMPRESSION_NONE;
     ts.numTile = 0;
     ts.tiles = trans_tiles;
-    if (!unpackTileSet(stage_def->tile_sets[to_map], &ts)) { transition_fail_code = 4; return FALSE; }
-    if (ts.numTile > TRANS_TILES) { transition_fail_code = 5; return FALSE; }
+    if (!unpackTileSet(stage_def->tile_sets[to_map], &ts)) { transition_fail_code = 4;
+return FALSE; }
+    if (ts.numTile > TRANS_TILES) { transition_fail_code = 5;
+return FALSE; }
 
     memset(trans_remap, 0xFF, ts.numTile);
 
@@ -184,7 +187,8 @@ bool transition_scroll(u8 from_map, u8 to_map, s16 to_cam_x,
                     u16 local = (*e & TILE_INDEX_MASK) - TILE_USER_INDEX;
                     if (local >= ts.numTile) continue;
                     if (trans_remap[local] == 0xFF) {
-                        if (spare + used >= TILE_SPRITE_INDEX) { transition_fail_code = 6; return FALSE; }
+                        if (spare + used >= TILE_SPRITE_INDEX) { transition_fail_code = 6;
+return FALSE; }
                         trans_remap[local] = (u8)used;
                         VDP_loadTileData(&trans_tiles[local * 8], spare + used,
                                          1, DMA_QUEUE);

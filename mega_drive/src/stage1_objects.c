@@ -2,16 +2,16 @@
 #include "resources.h"
 
 const ObjectDef stage1_object_defs[STAGE1_OBJECT_DEF_COUNT] = {
-    /* 0 */ { &object_energy_pill_small_sprite, 7, 2, 6, 10, 10, 0, 0, 0 },  // Small Pill
-    /* 1 */ { &object_fall_block_sprite, 10, 2, 6, 16, 16, 4, 400, 0 },  // Fall Block
-    /* 2 */ { &object_energy_pill_big_sprite, 5, 2, 6, 14, 14, 0, 0, 0 },  // Big Pill
-    /* 3 */ { &object_energy_tank_sprite, 3, 2, 18, 16, 16, 0, 0, 0 },  // E-Tank
-    /* 4 */ { &object_weapons_tank_sprite, 4, 2, 18, 16, 16, 0, 0, 0 },  // W-Tank
-    /* 5 */ { &object_weapons_pill_big_sprite, 6, 2, 6, 14, 14, 0, 0, 0 },  // Weapon Pill Big
-    /* 6 */ { &object_armor_body_sprite, 16, 1, 566, 18, 14, 0, 0, 0 },  // Armor Piece [Body]
-    /* 7 */ { &object_checkpoint_sprite, 29, 2, 18, 32, 64, 0, 0, 0 },  // Checkpoint
-    /* 8 */ { &object_door_4_sprite, 30, 1, 1, 16, 64, 0, 0, 0 },  // Door [Size4]
-    /* 9 */ { &object_teleporter_stage_boss_sprite, 32, 3, 7, 32, 64, 0, 0, 0 },  // Stage Boss Teleporter
+    /* 0 */ { &object_energy_pill_small_sprite, 7, 2, 6, 10, 10, 0, 0, 0, 1, 1 },  // Small Pill
+    /* 1 */ { &object_fall_block_sprite, 10, 2, 6, 16, 16, 4, 400, 0, 0, 0 },  // Fall Block
+    /* 2 */ { &object_energy_pill_big_sprite, 5, 2, 6, 14, 14, 0, 0, 0, 1, 1 },  // Big Pill
+    /* 3 */ { &object_energy_tank_sprite, 3, 2, 18, 16, 16, 0, 0, 0, 1, 1 },  // E-Tank
+    /* 4 */ { &object_weapons_tank_sprite, 4, 2, 18, 16, 16, 0, 0, 0, 1, 1 },  // W-Tank
+    /* 5 */ { &object_weapons_pill_big_sprite, 6, 2, 6, 14, 14, 0, 0, 0, 1, 1 },  // Weapon Pill Big
+    /* 6 */ { &object_armor_body_sprite, 16, 1, 566, 18, 14, 0, 0, 0, 1, 1 },  // Armor Piece [Body]
+    /* 7 */ { &object_checkpoint_sprite, 29, 2, 18, 32, 64, 0, 0, 0, 0, 1 },  // Checkpoint
+    /* 8 */ { &object_door_4_sprite, 30, 1, 1, 16, 64, 0, 0, 0, 0, 0 },  // Door [Size4]
+    /* 9 */ { &object_teleporter_stage_boss_sprite, 32, 3, 7, 32, 64, 0, 0, 0, 1, 1 },  // Stage Boss Teleporter
 };
 
 const ObjectSpawn stage1_object_spawns[STAGE1_OBJECT_SPAWN_COUNT] = {

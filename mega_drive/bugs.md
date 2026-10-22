@@ -629,3 +629,37 @@ draw it behind the dialog text).
 **Status**: OPEN. The stage-clear text screen draws with PAL0 while the stage
 palette/backdrop is still loaded; note `apply_bg_color()` now writes CRAM 0
 (the backdrop) per map, which the text screen may inherit.
+
+## BUG-031 — ADDRESS ERROR (crash) when standing on a disappearing block
+
+**Report (2026-10-22)**: standing over a disappearing block crashed with the
+Mega Drive ADDRESS ERROR screen. The offset in the dump (0x272E4) resolves
+inside `SPR_update` in `out/release/symbol.txt`, and the fault address
+(0x20302F) is an ODD ROM address: a misaligned read.
+
+**Cause**: `hud.c` `set_bar()` computed `frame = (pct * 50) / 100` (0..50) and
+passed it to `SPR_setFrame()` on the HUD ball sheets, which have **5** frames
+(`tools/convert_assets.py`, ordered full..empty). Any frame above 4 makes
+`SPR_update` read a garbage frame pointer out of the sprite definition - the
+odd address it then tries to read is the crash. It is intermittent because the
+memory after the frame table sometimes looks like a valid frame.
+
+**Fix**: `frame = ((100 - pct) * (HUD_BALL_FRAMES - 1)) / 100`, clamped to
+0..4 (frame 0 = full). Applies to the HP, boss and weapon bars.
+
+## BUG-026 — Checkpoint shows no animation when activated
+
+**Cause**: the PC object flag `animation_loop` (file_object byte 82) is 1 for
+the checkpoint, so its flag keeps waving after activation; the port hardcoded
+`is_looping()` to type 32 (boss teleporter) only, so the checkpoint played one
+frame and stopped.
+
+**Fix**: the object converter now emits `anim_auto`/`anim_loop` per def and
+`is_looping()` uses the data flag.
+
+## BUG-030 — Font corrupted after winning a stage
+
+**Fix (pending play-test)**: `textScreenBegin()` now reloads PAL0 from
+`pal_ui`, so the text screens (stage clear / YOU GOT / game over) cannot
+inherit the per-map backdrop (CRAM 0, written by `apply_bg_color`) or any other
+palette the stage left behind.

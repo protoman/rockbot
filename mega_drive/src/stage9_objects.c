@@ -2,23 +2,23 @@
 #include "resources.h"
 
 const ObjectDef stage9_object_defs[STAGE9_OBJECT_DEF_COUNT] = {
-    /* 0 */ { &object_energy_pill_small_sprite, 7, 2, 6, 10, 10, 0, 0, 0 },  // Small Pill
-    /* 1 */ { &object_fall_block_sprite, 10, 2, 6, 16, 16, 4, 400, 0 },  // Fall Block
-    /* 2 */ { &object_energy_pill_big_sprite, 5, 2, 6, 14, 14, 0, 0, 0 },  // Big Pill
-    /* 3 */ { &object_energy_tank_sprite, 3, 2, 18, 16, 16, 0, 0, 0 },  // E-Tank
-    /* 4 */ { &object_weapons_tank_sprite, 4, 2, 18, 16, 16, 0, 0, 0 },  // W-Tank
-    /* 5 */ { &object_weapons_pill_big_sprite, 6, 2, 6, 14, 14, 0, 0, 0 },  // Weapon Pill Big
-    /* 6 */ { &object_disappearing_block_sprite, 2, 5, 4, 16, 16, 0, 1000, 0 },  // Disappearing Block #1
-    /* 7 */ { &object_disappearing_block_green_sprite, 2, 5, 4, 16, 16, 0, 2000, 0 },  // Disappearing Block #2
-    /* 8 */ { &object_disappearing_block_orange_sprite, 14, 5, 4, 16, 16, 0, 500, 0 },  // Active Disappearing Block
-    /* 9 */ { &object_fire_ray_vertical_sprite, 19, 3, 566, 16, 80, 0, 800, 0 },  // Fire Ray (Vertical)
-    /* 10 */ { &object_fire_ray_horizontal_sprite, 18, 4, 1, 80, 16, 0, 0, 0 },  // Fire Ray (Horizontal)
-    /* 11 */ { &object_lava_beam_sprite, 24, 3, 6, 48, 64, 0, 0, 0 },  // Lava Beam (Vertical)
-    /* 12 */ { &object_deathray_small_horz_sprite, 25, 6, 6, 64, 16, 0, 20, 0 },  // Lava Bean Small 1(horizontal)
-    /* 13 */ { &object_deathray_small_horz_sprite, 25, 6, 6, 64, 16, 0, 300, 0 },  // Lava Bean Small 2(horizontal)
-    /* 14 */ { &object_deathray_small_horz_sprite, 25, 6, 6, 64, 16, 0, 600, 0 },  // Lava Bean Small 3(horizontal)
-    /* 15 */ { &object_checkpoint_sprite, 29, 2, 18, 32, 64, 0, 0, 0 },  // Checkpoint
-    /* 16 */ { &object_teleporter_stage_boss_sprite, 32, 3, 7, 32, 64, 0, 0, 0 },  // Stage Boss Teleporter
+    /* 0 */ { &object_energy_pill_small_sprite, 7, 2, 6, 10, 10, 0, 0, 0, 1, 1 },  // Small Pill
+    /* 1 */ { &object_fall_block_sprite, 10, 2, 6, 16, 16, 4, 400, 0, 0, 0 },  // Fall Block
+    /* 2 */ { &object_energy_pill_big_sprite, 5, 2, 6, 14, 14, 0, 0, 0, 1, 1 },  // Big Pill
+    /* 3 */ { &object_energy_tank_sprite, 3, 2, 18, 16, 16, 0, 0, 0, 1, 1 },  // E-Tank
+    /* 4 */ { &object_weapons_tank_sprite, 4, 2, 18, 16, 16, 0, 0, 0, 1, 1 },  // W-Tank
+    /* 5 */ { &object_weapons_pill_big_sprite, 6, 2, 6, 14, 14, 0, 0, 0, 1, 1 },  // Weapon Pill Big
+    /* 6 */ { &object_disappearing_block_sprite, 2, 5, 4, 16, 16, 0, 1000, 0, 0, 0 },  // Disappearing Block #1
+    /* 7 */ { &object_disappearing_block_green_sprite, 2, 5, 4, 16, 16, 0, 2000, 0, 0, 0 },  // Disappearing Block #2
+    /* 8 */ { &object_disappearing_block_orange_sprite, 14, 5, 4, 16, 16, 0, 500, 0, 0, 0 },  // Active Disappearing Block
+    /* 9 */ { &object_fire_ray_vertical_sprite, 19, 3, 566, 16, 80, 0, 800, 0, 1, 1 },  // Fire Ray (Vertical)
+    /* 10 */ { &object_fire_ray_horizontal_sprite, 18, 4, 1, 80, 16, 0, 0, 0, 1, 1 },  // Fire Ray (Horizontal)
+    /* 11 */ { &object_lava_beam_sprite, 24, 3, 6, 48, 64, 0, 0, 0, 1, 1 },  // Lava Beam (Vertical)
+    /* 12 */ { &object_deathray_small_horz_sprite, 25, 6, 6, 64, 16, 0, 20, 0, 1, 1 },  // Lava Bean Small 1(horizontal)
+    /* 13 */ { &object_deathray_small_horz_sprite, 25, 6, 6, 64, 16, 0, 300, 0, 1, 1 },  // Lava Bean Small 2(horizontal)
+    /* 14 */ { &object_deathray_small_horz_sprite, 25, 6, 6, 64, 16, 0, 600, 0, 1, 1 },  // Lava Bean Small 3(horizontal)
+    /* 15 */ { &object_checkpoint_sprite, 29, 2, 18, 32, 64, 0, 0, 0, 0, 1 },  // Checkpoint
+    /* 16 */ { &object_teleporter_stage_boss_sprite, 32, 3, 7, 32, 64, 0, 0, 0, 1, 1 },  // Stage Boss Teleporter
 };
 
 const ObjectSpawn stage9_object_spawns[STAGE9_OBJECT_SPAWN_COUNT] = {

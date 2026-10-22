@@ -628,6 +628,10 @@ static void textScreenBegin(void)
     music_stop();
     SYS_doVBlankProcess();      // flush pending MAP updates
     stage_release_map();
+    // Reload the font/UI palette: the stage may have left CRAM 0 (the backdrop,
+    // written per map by apply_bg_color) on a stage colour, which would tint
+    // every transparent pixel of the text screen (BUG-030).
+    PAL_setPalette(PAL0, pal_ui.data, CPU);
     VDP_setHorizontalScroll(BG_A, 0);
     VDP_setVerticalScroll(BG_A, 0);
     VDP_setHorizontalScroll(BG_B, 0);

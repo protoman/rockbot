@@ -2,12 +2,12 @@
 #include "resources.h"
 
 const ObjectDef stage3_object_defs[STAGE3_OBJECT_DEF_COUNT] = {
-    /* 0 */ { &object_energy_pill_big_sprite, 5, 2, 6, 14, 14, 0, 0, 0 },  // Big Pill
-    /* 1 */ { &object_weapons_tank_sprite, 4, 2, 18, 16, 16, 0, 0, 0 },  // W-Tank
-    /* 2 */ { &object_weapons_pill_big_sprite, 6, 2, 6, 14, 14, 0, 0, 0 },  // Weapon Pill Big
-    /* 3 */ { &object_checkpoint_sprite, 29, 2, 18, 32, 64, 0, 0, 0 },  // Checkpoint
-    /* 4 */ { &object_door_4_sprite, 30, 1, 1, 16, 64, 0, 0, 0 },  // Door [Size4]
-    /* 5 */ { &object_teleporter_stage_boss_sprite, 32, 3, 7, 32, 64, 0, 0, 0 },  // Stage Boss Teleporter
+    /* 0 */ { &object_energy_pill_big_sprite, 5, 2, 6, 14, 14, 0, 0, 0, 1, 1 },  // Big Pill
+    /* 1 */ { &object_weapons_tank_sprite, 4, 2, 18, 16, 16, 0, 0, 0, 1, 1 },  // W-Tank
+    /* 2 */ { &object_weapons_pill_big_sprite, 6, 2, 6, 14, 14, 0, 0, 0, 1, 1 },  // Weapon Pill Big
+    /* 3 */ { &object_checkpoint_sprite, 29, 2, 18, 32, 64, 0, 0, 0, 0, 1 },  // Checkpoint
+    /* 4 */ { &object_door_4_sprite, 30, 1, 1, 16, 64, 0, 0, 0, 0, 0 },  // Door [Size4]
+    /* 5 */ { &object_teleporter_stage_boss_sprite, 32, 3, 7, 32, 64, 0, 0, 0, 1, 1 },  // Stage Boss Teleporter
 };
 
 const ObjectSpawn stage3_object_spawns[STAGE3_OBJECT_SPAWN_COUNT] = {

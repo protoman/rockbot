@@ -110,9 +110,9 @@ static u8 obj_ms_frames(u16 ms)
 
 static bool is_looping(const ObjectDef *d)
 {
-    // checkpoint frames are states (inactive/activated), so it must not
-    // loop; the teleporter animates forever; platforms play once
-    return d->type == 32;
+    // PC file_object.animation_loop: the checkpoint's flag keeps waving after
+    // activation, the boss teleporter animates forever, platforms play once.
+    return d->anim_loop != 0;
 }
 
 // PC object::test_change_position for a pure vertical step, terrain only

@@ -2,13 +2,13 @@
 #include "resources.h"
 
 const ObjectDef stage0_object_defs[STAGE0_OBJECT_DEF_COUNT] = {
-    /* 0 */ { &object_energy_pill_small_sprite, 7, 2, 6, 10, 10, 0, 0, 0 },  // Small Pill
-    /* 1 */ { &object_fall_block_sprite, 10, 2, 6, 16, 16, 4, 400, 0 },  // Fall Block
-    /* 2 */ { &object_1up_sprite, 9, 4, 12, 16, 16, 0, 0, 0 },  // 1UP
-    /* 3 */ { &object_item_jump_sprite, 13, 5, 2, 28, 18, 2, 2000, 2000 },  // COIL FROG
-    /* 4 */ { &object_item_jet_sprite, 12, 4, 18, 37, 9, 0, 0, 0 },  // JET EAGLE
-    /* 5 */ { &object_checkpoint_sprite, 29, 2, 18, 32, 64, 0, 0, 0 },  // Checkpoint
-    /* 6 */ { &object_teleporter_stage_boss_sprite, 32, 3, 7, 32, 64, 0, 0, 0 },  // Stage Boss Teleporter
+    /* 0 */ { &object_energy_pill_small_sprite, 7, 2, 6, 10, 10, 0, 0, 0, 1, 1 },  // Small Pill
+    /* 1 */ { &object_fall_block_sprite, 10, 2, 6, 16, 16, 4, 400, 0, 0, 0 },  // Fall Block
+    /* 2 */ { &object_1up_sprite, 9, 4, 12, 16, 16, 0, 0, 0, 1, 1 },  // 1UP
+    /* 3 */ { &object_item_jump_sprite, 13, 5, 2, 28, 18, 2, 2000, 2000, 0, 0 },  // COIL FROG
+    /* 4 */ { &object_item_jet_sprite, 12, 4, 18, 37, 9, 0, 0, 0, 1, 1 },  // JET EAGLE
+    /* 5 */ { &object_checkpoint_sprite, 29, 2, 18, 32, 64, 0, 0, 0, 0, 1 },  // Checkpoint
+    /* 6 */ { &object_teleporter_stage_boss_sprite, 32, 3, 7, 32, 64, 0, 0, 0, 1, 1 },  // Stage Boss Teleporter
 };
 
 const ObjectSpawn stage0_object_spawns[STAGE0_OBJECT_SPAWN_COUNT] = {

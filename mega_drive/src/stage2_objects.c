@@ -2,13 +2,13 @@
 #include "resources.h"
 
 const ObjectDef stage2_object_defs[STAGE2_OBJECT_DEF_COUNT] = {
-    /* 0 */ { &object_energy_pill_big_sprite, 5, 2, 6, 14, 14, 0, 0, 0 },  // Big Pill
-    /* 1 */ { &object_energy_tank_sprite, 3, 2, 18, 16, 16, 0, 0, 0 },  // E-Tank
-    /* 2 */ { &object_weapons_pill_big_sprite, 6, 2, 6, 14, 14, 0, 0, 0 },  // Weapon Pill Big
-    /* 3 */ { &object_platform_down_sprite, 10, 2, 6, 32, 16, 4, 0, 200 },  // Platform Fall (large)
-    /* 4 */ { &object_platform_up_sprite, 11, 2, 6, 32, 16, 4, 0, 200 },  // Platform Flyier (large)
-    /* 5 */ { &object_checkpoint_sprite, 29, 2, 18, 32, 64, 0, 0, 0 },  // Checkpoint
-    /* 6 */ { &object_teleporter_stage_boss_sprite, 32, 3, 7, 32, 64, 0, 0, 0 },  // Stage Boss Teleporter
+    /* 0 */ { &object_energy_pill_big_sprite, 5, 2, 6, 14, 14, 0, 0, 0, 1, 1 },  // Big Pill
+    /* 1 */ { &object_energy_tank_sprite, 3, 2, 18, 16, 16, 0, 0, 0, 1, 1 },  // E-Tank
+    /* 2 */ { &object_weapons_pill_big_sprite, 6, 2, 6, 14, 14, 0, 0, 0, 1, 1 },  // Weapon Pill Big
+    /* 3 */ { &object_platform_down_sprite, 10, 2, 6, 32, 16, 4, 0, 200, 0, 0 },  // Platform Fall (large)
+    /* 4 */ { &object_platform_up_sprite, 11, 2, 6, 32, 16, 4, 0, 200, 0, 0 },  // Platform Flyier (large)
+    /* 5 */ { &object_checkpoint_sprite, 29, 2, 18, 32, 64, 0, 0, 0, 0, 1 },  // Checkpoint
+    /* 6 */ { &object_teleporter_stage_boss_sprite, 32, 3, 7, 32, 64, 0, 0, 0, 1, 1 },  // Stage Boss Teleporter
 };
 
 const ObjectSpawn stage2_object_spawns[STAGE2_OBJECT_SPAWN_COUNT] = {

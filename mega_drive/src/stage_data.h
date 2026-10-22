@@ -118,6 +118,9 @@ typedef struct {
     s8 speed;
     u16 timer;          // PC file_object.timer: beam delay / block initial delay
     u16 limit;          // PC file_object.limit: LR platform travel range
+    // PC file_object animation flags: auto = animate without being started,
+    // loop = the animation repeats (the checkpoint's flag loops once active).
+    u8 anim_auto, anim_loop;
 } ObjectDef;
 
 typedef struct {

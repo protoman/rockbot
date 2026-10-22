@@ -209,17 +209,13 @@ static void boss_parade(void)
 
 static void credits_scroll(void)
 {
-    kprintf("CRED begin\n");
     music_play(MUSIC_END_CREDITS);
-    kprintf("CRED music\n");
     black_screen();
     // PAL0 holds the walking-parade palette at this point; a CPU CRAM write
     // outside vblank is illegal and corrupts the font colours (the "garbled
     // credits" screen), so flush a vblank first and let the write land.
     PAL_setPalette(PAL0, pal_ui.data, DMA_QUEUE);
     SYS_doVBlankProcess();
-    kprintf("CRED pal user=%d font=%d\n", (int)TILE_USER_INDEX,
-            (int)TILE_FONT_INDEX);
 
     u16 top = 0;
     while (top < CREDITS_LINES) {
@@ -231,9 +227,7 @@ static void credits_scroll(void)
         }
         // PC holds the last page until a button; pages advance on their own
         // after 4s so the ending never stalls.
-        kprintf("CRED page %d\n", (int)top);
         bool w = wait_frames(CREDITS_PAGE_FRAMES);
-        kprintf("CRED page done %d\n", (int)w);
         if (!w) break;
         top = (u16)(top + CREDITS_ROWS_PER_PAGE);
     }
