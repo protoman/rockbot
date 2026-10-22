@@ -85,6 +85,7 @@ typedef struct {
     s16 box_l, box_t;
     u16 box_w, box_h;
     u8 stand_n, walk_n, attack_n;
+    u8 jump_anim, teleport_anim;  // sheet row of JUMP/TELEPORT, 255 = none
     u16 attack_ms;
     u8 shield_type;     // e_shield_types: SHIELD_STAND etc. (character.cpp:3357)
     u8 weak[9];         // PC weakness[weapon].damage_multiplier (0 = immune)

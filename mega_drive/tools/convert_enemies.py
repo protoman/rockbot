@@ -35,6 +35,7 @@ Simplifications (per user: precompute in converter, simple runtime AI):
 Usage: python3 tools/convert_enemies.py
 """
 import os
+import re
 import struct
 import sys
 from collections import Counter
@@ -81,7 +82,7 @@ BOSS_INITIAL_HP = 36
 # PC defines.h AI_ACTION_LIST + AI_ACTION_GOTO_LIST (goto 0 = chance roll)
 AI_GOTO_CHANCE = 0
 
-ANIM_STAND, ANIM_WALK, ANIM_ATTACK = 0, 1, 3
+ANIM_STAND, ANIM_WALK, ANIM_JUMP, ANIM_ATTACK, ANIM_TELEPORT = 0, 1, 2, 3, 4
 COLORKEY = (75, 125, 125)
 MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)
 WHITE8 = 219           # md_round(219/238/235) == 219 -> CRAM 0x0EEE (font white)
@@ -109,9 +110,10 @@ def read_enemy_defs(blob, ids):
         # The list is positional: a few late records (59/60 = UFO/FLYBOT) carry
         # 0xFF in the id byte but are still real entries — trust the index.
         assert b[0] == eid or b[0] == 0xFF, f"record {eid}: id byte {b[0]} != {eid}"
-        stand, walk, attack = [], [], []
+        stand, walk, attack, jump, teleport = [], [], [], [], []
         for anim, out in ((ANIM_STAND, stand), (ANIM_WALK, walk),
-                          (ANIM_ATTACK, attack)):
+                          (ANIM_ATTACK, attack), (ANIM_JUMP, jump),
+                          (ANIM_TELEPORT, teleport)):
             for f in range(10):
                 o = 78 + (anim * 10 + f) * 14
                 used, dur, px = b[o], struct.unpack_from("<H", b, o + 2)[0], b[o + 4]
@@ -152,6 +154,8 @@ def read_enemy_defs(blob, ids):
             "stand": stand,
             "walk": walk,
             "attack": attack,
+            "jump": jump,
+            "teleport": teleport,
         }
     return defs
 
@@ -381,6 +385,24 @@ def load_indexed(path):
 
 # ---------------------------------------------------------------- main
 
+def update_res_lines(lines):
+    """Rewrite the SPRITE lines of res/resources.res in place.
+
+    The enemy sheets gained the jump and teleport animation rows (BUG-011), so
+    every SPRITE line must list five animations - otherwise rescomp slices the
+    sheet rows into the wrong animations. Only lines that already exist are
+    replaced; add_stage.py still inserts whole blocks for new stages."""
+    path = os.path.join(ROOT, "res", "resources.res")
+    text = open(path).read()
+    n = 0
+    for sym, line in lines.items():
+        pat = re.compile(r"^SPRITE " + re.escape(sym) + r"\b.*$", re.M)
+        text, k = pat.subn(lambda m: line, text)
+        n += k
+    open(path, "w").write(text)
+    print(f"resources.res: {n} SPRITE line(s) updated")
+
+
 def main():
     blob = open(os.path.join(DATA, "game_enemy_list_3_1_2.dat"), "rb").read()
     global STAGE_BOSS_ID
@@ -442,6 +464,18 @@ def main():
         stand = frames_of(d["stand"]) or frames_of(d["walk"])
         walk = frames_of(d["walk"]) or stand
         attack = frames_of(d["attack"])   # may be empty (no attack anim)
+        # The jump/teleport rows cost sprite VRAM in every sheet that carries
+        # them, so only the enemies whose AI really uses those actions get one
+        # (the extra row would otherwise push crowded stages past the 504-tile
+        # sprite pool). The row index is stored in the def: the order is
+        # stand, walk, attack, [jump], [teleport].
+        acts = {a[1] for a in ai_states.get(eid, [])}
+        needs_jump = 2 in acts
+        needs_tele = 10 in acts
+        jump = frames_of(d["jump"]) if needs_jump else []
+        teleport = frames_of(d["teleport"]) if needs_tele else []
+        jump_anim = 3 if needs_jump else 255
+        teleport_anim = (4 if needs_jump else 3) if needs_tele else 255
         # all stand frames / all walk frames, times in 1/60s
         def times(fr):
             return [max(1, round(dur * 6 / 100)) for _, dur in fr]
@@ -453,10 +487,16 @@ def main():
         br = max(r[0] + r[2] for r in rects)
         bb = max(r[1] + r[3] for r in rects)
 
-        cols = max(len(stand), len(walk), len(attack), 1)
+        cols = max(len(stand), len(walk), len(attack), len(jump),
+                   len(teleport), 1)
         src = sheet.load()
         cells = []
-        for row_frames in (stand, walk, attack):
+        rows = [stand, walk, attack]
+        if needs_jump:
+            rows.append(jump or stand)
+        if needs_tele:
+            rows.append(teleport or stand)
+        for row_frames in rows:
             row = []
             for (fcol, _dur) in row_frames:
                 art = []
@@ -469,8 +509,14 @@ def main():
         plans[eid] = {
             "d": d, "cw": cw, "ch": ch, "fw": fw, "fh": fh, "cols": cols,
             "stand": stand, "walk": walk, "attack": attack,
+            "jump": jump, "teleport": teleport,
+            "jump_anim": jump_anim, "teleport_anim": teleport_anim,
+            "nrows": 3 + (1 if needs_jump else 0) + (1 if needs_tele else 0),
             "stand_t": times(stand), "walk_t": times(walk),
-            "attack_t": times(attack), "attack_ms": sum(du for _, du in attack),
+            "attack_t": times(attack),
+            "jump_t": times(jump) if jump else [1],
+            "teleport_t": times(teleport) if teleport else [1],
+            "attack_ms": sum(du for _, du in attack),
             "cells": cells,
             "box": (bl, bt, br - bl, bb - bt),
             "res_name": "enemy_" + os.path.splitext(d["gfx"])[0],
@@ -509,9 +555,10 @@ def main():
     os.makedirs(RES, exist_ok=True)
     for eid, p in sorted(plans.items()):
         cols, cw, ch = p["cols"], p["cw"], p["ch"]
-        out = Image.new("P", (cols * cw, 3 * ch))
+        rows = len(p["cells"])          # stand, walk, attack, jump, teleport
+        out = Image.new("P", (cols * cw, rows * ch))
         out.putpalette([v for c in palette for v in c])
-        data = [0] * (cols * cw * 3 * ch)
+        data = [0] * (cols * cw * rows * ch)
         for r, row in enumerate(p["cells"]):
             for c, art in enumerate(row):
                 ox, oy = c * cw, r * ch
@@ -653,6 +700,7 @@ extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
             f"{shot0}, {d['walk_range']}, "
             f"{bl}, {bt}, {bw}, {bh}, "
             f"{len(p['stand'])}, {len(p['walk'])}, {len(p['attack'])}, "
+            f"{p['jump_anim']}, {p['teleport_anim']}, "
             f"{p['attack_ms']}, {d['shield_type']}, "
             f"{{ {', '.join(str(x & 0xFF) for x in d['weak'])} }} }},"
             f"  // {d['name']}\n")
@@ -694,14 +742,24 @@ extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
         print(f"  reactions {defs[eid]['name']}: {rows}")
 
     # --- resources.res block ------------------------------------------------
-    print("\n--- paste into res/resources.res ---")
+    print("\n--- res/resources.res (rewritten in place) ---")
+    res_lines = {}
     for eid in ids_sorted:
         p = plans[eid]
         st = ",".join(str(t) for t in p["stand_t"])
         wk = ",".join(str(t) for t in p["walk_t"])
         ak = ",".join(str(t) for t in p["attack_t"]) or "0"
-        print(f'SPRITE {p["res_name"]}_sprite "{p["res_name"]}.png" '
-              f'{p["cw"]}p {p["ch"]}p FAST [[{st}][{wk}][{ak}]]')
+        anims = [f"[{st}]", f"[{wk}]", f"[{ak}]"]
+        if p["jump_anim"] != 255:
+            anims.append("[" + ",".join(str(t) for t in p["jump_t"]) + "]")
+        if p["teleport_anim"] != 255:
+            anims.append("[" + ",".join(str(t) for t in p["teleport_t"]) + "]")
+        line = (f'SPRITE {p["res_name"]}_sprite "{p["res_name"]}.png" '
+                f'{p["cw"]}p {p["ch"]}p FAST [' + "".join(anims) + ']')
+        print(line)
+        # Rewrite the existing line in place: the sheet now has 5 rows, so the
+        # animation lists must match or rescomp mis-slices the frames.
+        res_lines[line.split()[1]] = line
     if STAGE_INDEX == 0:
         emit_explosion_sprite()
         for pid in sorted(proj_spr):
@@ -714,6 +772,7 @@ extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
     # Enemy death puff (PC classmap.cpp:2232 add_animation(explosion32, 80ms, 2))
     print('SPRITE explosion_sprite "explosion.png" 32p 32p FAST [[5]]')
     print(f"shot_speed={shot_speed} shot_dmg={shot_dmg}")
+    update_res_lines(res_lines)
     return 0
 
 

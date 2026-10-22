@@ -77,7 +77,11 @@ static void snap_to_ground(EShot *s)
 
 void eshots_reset(void)
 {
+    // Release, do not just forget the handle: dropping it left the projectile
+    // sprites allocated and frozen on screen (BUG-012, visible during the 2 s
+    // boss death sequence after shots_reset()/eshots_reset()).
     for (u8 i = 0; i < ESHOT_MAX; i++) {
+        if (shots[i].spr) SPR_releaseSprite(shots[i].spr);
         shots[i].spr = NULL;
         shots[i].on = FALSE;
     }

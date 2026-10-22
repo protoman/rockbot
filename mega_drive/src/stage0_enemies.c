@@ -2,13 +2,13 @@
 #include "resources.h"
 
 const EnemyDef stage0_enemy_defs[STAGE0_ENEMY_DEF_COUNT] = {
-    /* 0 */ { &enemy_shield_sprite, 1, 3, 1, 3, 1, 0, 0, 0, 0, 320, 9, 0, 16, 26, 2, 2, 0, 0, 2, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // BLUE SHIELDER
-    /* 1 */ { &enemy_spinner_ball_red_sprite, 21, 3, 1, 3, 1, 0, 0, 0, 0, 200, 0, 0, 18, 19, 1, 6, 4, 1400, 3, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // SPINNASTER
-    /* 2 */ { &enemy_spinner_ball_sprite, 23, 1, 1, 12, 1, 0, 0, 2500, 0, 240, 2, 0, 14, 19, 6, 6, 4, 800, 0, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // JUMPINER
-    /* 3 */ { &enemy_milonga_sprite, 37, 36, 3, 4, 0, 1, 0, 0, 0, 320, 0, 0, 36, 33, 1, 1, 2, 1000, 0, { 3, 1, 1, 3, 1, 1, 1, 1, 1 } },  // MILONGA BOT
-    /* 4 */ { &enemy_classic_metool_sprite, 45, 2, 1, 1, 0, 0, 0, 0, 0, 150, 0, 0, 18, 21, 1, 2, 6, 1200, 3, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // MINE HELMUT
-    /* 5 */ { &enemy_cannon_ball_sprite, 51, 4, 1, 2, 1, 0, 0, 0, 0, 200, 0, 0, 23, 20, 1, 2, 3, 1399, 3, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // CANNON BALL
-    /* 6 */ { &enemy_bunny_sprite, 54, 2, 1, 2, 0, 0, 0, 0, 0, 600, 0, 0, 29, 40, 1, 1, 0, 0, 0, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // ANGRY BUNNY
+    /* 0 */ { &enemy_shield_sprite, 1, 3, 1, 3, 1, 0, 0, 0, 0, 320, 9, 0, 16, 26, 2, 2, 0, 255, 255, 0, 2, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // BLUE SHIELDER
+    /* 1 */ { &enemy_spinner_ball_red_sprite, 21, 3, 1, 3, 1, 0, 0, 0, 0, 200, 0, 0, 18, 19, 1, 6, 4, 255, 255, 1400, 3, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // SPINNASTER
+    /* 2 */ { &enemy_spinner_ball_sprite, 23, 1, 1, 12, 1, 0, 0, 2500, 0, 240, 2, 0, 14, 19, 6, 6, 4, 255, 255, 800, 0, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // JUMPINER
+    /* 3 */ { &enemy_milonga_sprite, 37, 36, 3, 4, 0, 1, 0, 0, 0, 320, 0, 0, 36, 33, 1, 1, 2, 3, 255, 1000, 0, { 3, 1, 1, 3, 1, 1, 1, 1, 1 } },  // MILONGA BOT
+    /* 4 */ { &enemy_classic_metool_sprite, 45, 2, 1, 1, 0, 0, 0, 0, 0, 150, 0, 0, 18, 21, 1, 2, 6, 255, 255, 1200, 3, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // MINE HELMUT
+    /* 5 */ { &enemy_cannon_ball_sprite, 51, 4, 1, 2, 1, 0, 0, 0, 0, 200, 0, 0, 23, 20, 1, 2, 3, 255, 255, 1399, 3, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // CANNON BALL
+    /* 6 */ { &enemy_bunny_sprite, 54, 2, 1, 2, 0, 0, 0, 0, 0, 600, 0, 0, 29, 40, 1, 1, 0, 3, 4, 0, 0, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // ANGRY BUNNY
 };
 
 const EnemySpawn stage0_enemy_spawns[STAGE0_ENEMY_SPAWN_COUNT] = {

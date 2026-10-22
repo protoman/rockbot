@@ -393,7 +393,12 @@ forced boss-room dialog: the portrait now has eyes.
 
 ## BUG-010 — Mummy keeps facing away from the player
 
-**Status**: **OPEN — analysis done, fix needs a decision.**
+**Status**: **FIXED 2026-10-22** (play-test pending). Two things:
+1. `AI_TELEPORT` now lands facing the player (`e->dir` from the new position),
+   and
+2. the teleport/jump animation rows exist (BUG-011), so the boss no longer
+   keeps the old art while he repositions.
+The old analysis stands: action 5 (SHOT_AHEAD) does not turn, as on the PC.
 - The Mummy's AI rows (`stage4_enemies.c`, MUMMY BOT) use actions 2 (jump),
   10 (teleport) and 5 (shot ahead). In the PC, action 5 is
   `AI_ACTION_SHOT_PROJECTILE_AHEAD`, which explicitly does **not** turn to the
@@ -408,18 +413,21 @@ forced boss-room dialog: the portrait now has eyes.
 
 ## BUG-011 — Enemies do not switch to teleport/jump animations
 
-**Status**: **OPEN** (probably global). `enemy.c` has stand/walk/attack frames;
-teleport (AI action) and jump use no dedicated animation. The PC plays
-`ANIM_TYPE_TELEPORT` / `ANIM_TYPE_JUMP` for those actions. Needs the anim rows
-in the converted enemy sheets plus the AI hooks.
+**Status**: **FIXED 2026-10-22** (play-test pending). The converter now ships
+the `ANIM_TYPE_JUMP` (file anim 2) and `ANIM_TYPE_TELEPORT` (anim 4) rows, but
+ONLY for enemies whose AI uses those actions (action 2 / 10): the extra row
+costs sprite VRAM, and crowded stages are already near the 504-tile pool. The
+row index is stored per def (`jump_anim` / `teleport_anim`, 255 = none) because
+the row order is stand, walk, attack, [jump], [teleport]. `enemy.c` picks the
+row while the action runs, and `convert_enemies.py` now rewrites the matching
+`SPRITE` lines in `res/resources.res` (they must list one animation per row).
 
 ## BUG-012 — Projectiles not cleared when the boss dies
 
-**Status**: **OPEN, needs a reproduction**. `main.c:602` already calls
-`shots_reset()` + `eshots_reset()` when `enemies_boss_died()` fires, so either a
-different projectile list is involved (boss beams?) or something respawns them
-during the 2 s death sequence. Check with one run, noting the projectile type
-on screen.
+**Status**: **FIXED 2026-10-22** (play-test pending). `eshots_reset()` dropped
+the sprite HANDLES without releasing the sprites, so every enemy projectile
+stayed allocated and frozen on screen (and the sprite VRAM leaked for the rest
+of the stage). It now calls `SPR_releaseSprite()` first, exactly like `kill()`.
 
 ## BUG-013 — The "YOU GOT ..." screen differs from the PC
 

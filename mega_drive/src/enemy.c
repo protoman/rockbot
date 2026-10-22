@@ -89,6 +89,7 @@ typedef struct {
     u16 act_t;        // frames inside the current action
     s16 dest_x, dest_y;
     u8 jumping;       // JUMP action in the air
+    u8 teleporting;   // TELEPORT action (teleport animation row)
     u8 moving;        // walk anim while the action moves the enemy
     u8 shooting;      // attack anim while a SHOT action runs
     s16 move_acc;     // 50Hz movement accumulator (PC AI step throttle)
@@ -390,6 +391,7 @@ static bool ai_auto_jump(Enemy *e)
                 e->y = (row << 4) - bottom;
                 e->vy = 0;
                 e->jumping = 0;
+    e->teleporting = 0;
                 e->auto_jump = 0;
                 e->moving = 0;
                 return TRUE;
@@ -683,6 +685,10 @@ static bool ai_action_run(Enemy *e)
             if (nx > e->x_max) nx = e->x_max;
             e->x = nx;
             e->y = player.y - 16;
+            // PC teleport lands facing the player; without this the boss kept
+            // the old facing after reappearing behind the player (BUG-010).
+            e->dir = (player.x >= e->x) ? 1 : -1;
+            e->teleporting = 1;
             sfx_play(SFX_TELEPORT);
         }
         return e->act_t >= 20;
@@ -1012,8 +1018,16 @@ void enemies_update(void)
             if (e->hurt_timer && ((e->hurt_timer >> 3) & 1)) vis2 = FALSE;
             SPR_setVisibility(e->spr, vis2 ? VISIBLE : HIDDEN);
             SPR_setHFlip(e->spr, e->dir < 0);
+            // Sheet rows: 0 stand, 1 walk, 2 attack, 3 jump, 4 teleport
+            // (PC ANIM_TYPE_*; BUG-011 - teleporting/jumping used to keep
+            // the previous row, which is what made the Mummy look like he
+            // faced the wrong way while repositioning).
             if (d->attack_n > 0 && e->shooting)
-                SPR_setAnim(e->spr, 2);          // ANIM_ATTACK row
+                SPR_setAnim(e->spr, 2);
+            else if (e->teleporting && d->teleport_anim != 255)
+                SPR_setAnim(e->spr, d->teleport_anim);
+            else if (e->jumping && d->jump_anim != 255)
+                SPR_setAnim(e->spr, d->jump_anim);
             else if (d->walk_n > 0)
                 SPR_setAnim(e->spr, e->moving ? 1 : 0);
             SPR_setPosition(e->spr, e->x - camera.x, e->y - camera.y);
