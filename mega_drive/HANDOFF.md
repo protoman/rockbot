@@ -39,11 +39,16 @@ the roadmap; this file is the short state + what to do next.
    frames differed by 6 px. `tools/import_pc_art.py` now pins them apart
    (`CHECKPOINT_OVERRIDES`: screen -> black, text -> white, LEDs -> red) and
    `images/sprites/objects/checkpoint.png` was rebuilt: 130 px differ now.
-4. **Death explosion burst (BUG-036)** — two bugs: the player-death branch never
-   called `explosion_update()` (puffs froze on frame 0 and were never released)
-   and the port burned 3 puffs in a horizontal row. Now the centre puff repeats
+4. **Explosions (BUG-036)** — the player-death branch never called
+   `explosion_update()` (puffs froze on frame 0 and were never released) and
+   the port burned 3 puffs in a horizontal row. Now the centre puff repeats
    over the 90-frame death (0/30/60) and four more spawn at ±32 px diagonals at
-   18/36/54/72, like `game.cpp:1707/1734`.
+   18/36/54/72, like `game.cpp:1707/1734`. The **boss** death is a different
+   animation: the PC sends eight explosions outward from the centre
+   (`classic_style_draw_boss_death`), so `explosion.c` grew
+   `explosion_ring_start/update` (8 sprites, PC art 5x24x24 from
+   `tools/convert_assets.py`, 3 px/frame) and `runStage` runs it instead of the
+   old pseudo-random scatter.
 5. **Stage-select names (BUG-014 / BUG-030)** — the lines were drawn with the
    global PAL0, whose entry 0 (CRAM 0, the backdrop) the stage leaves on a map
    colour; the names rendered that colour on itself (peach on peach). They are
@@ -74,7 +79,8 @@ split, checkpoint frame difference, stage-select text palette). Run it after
 
 1. One emulator run (ask first) covering: BETABOT stage-select + in-game colours
    and the HP bar, the boss dialog text/arrow, a checkpoint activation, a death
-   explosion, and the stage select names after a boss. Ask before launching.
+   explosion, the boss-death ring, and the stage select names after a boss.
+   Ask before launching.
 2. If the CHAOS CITY slowdown persists, `make profile` with stage 0.
 
 ## Reminders
