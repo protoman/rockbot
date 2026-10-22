@@ -291,12 +291,11 @@ static void rebuild_player_palette(void)
         if (wc[k][0] < 0) continue;
         base_pal[13 + k] = rgb9((u8)wc[k][0], (u8)wc[k][1], (u8)wc[k][2]);
     }
-    // Classic HUD bar colours use PAL2 entries the player art does not use:
-    // 8/9 = default weapon (HP), 13/14 = selected weapon, 12 = black gaps.
-    const s16 (*hp)[3] = player_data[player_n].wcol[0];
-    if (hp[0][0] >= 0) base_pal[8] = rgb9((u8)hp[0][0], (u8)hp[0][1], (u8)hp[0][2]);
-    if (hp[1][0] >= 0) base_pal[9] = rgb9((u8)hp[1][0], (u8)hp[1][1], (u8)hp[1][2]);
-    base_pal[12] = 0;
+    // The HP/weapon HUD bars no longer live on this line: PAL2 is fully used by
+    // the player art (BETABOT's body is index 8, CANDYBOT/KITTYBOT use 9 and
+    // 12), so writing bar colours here recoloured the sprite. hud.c draws the
+    // HP bar on PAL0 with PLAYER 1's fixed colours (PC draw_energy_bar) and the
+    // weapon bar on 13/14, which are the art's swap placeholders.
     make_flash_palettes();
 }
 

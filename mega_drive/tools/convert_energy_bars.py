@@ -3,15 +3,23 @@
 
 The source art is 8x51: black gaps plus purple/blue columns.  It is emitted as
 three 8-pixel-tall slices (24+24+8) for the sprite engine; each slice has 51
-horizontal frames, one per 1% step (0..50 px filled).  The unfilled part of
-each frame is solid black, so the HUD shows a proper empty bar instead of
-transparent gaps.
+horizontal frames, one per 1% step (0..50 px filled).
 
-Palette indices are chosen from free entries in the player palette (PAL2):
-  8/9   HP bar, weapon 0 colour1/colour2
-  12    bar black
- 13/14  weapon bar, selected weapon colour1/colour2
-The boss strip uses PAL0's fixed black/white entries.
+Palette lines (a MD sprite only has 4, and PAL2 is fully used by the player
+art, so the HUD cannot own entries there):
+  HP bar    PAL0: 6 purple + 3 light blue + 1 black.  The PC's draw_energy_bar
+            always uses PLAYER 1's weapon-0 colours (magenta/blue) no matter
+            which player is selected, so a fixed line is the faithful choice.
+            Before this, the HP bar lived on PAL2 indices 8/9, which the
+            player sheets USE (BETABOT's whole black body is index 8): writing
+            the bar colours there recoloured the player red (BUG: "BETABOT
+            colours wrong").
+  weapon    PAL2: 13/14 = the selected weapon's colours (the player sheet's
+            own swap placeholders) and index 0 = transparent, so the empty
+            part shows the black backdrop sprite hud.c places behind it.
+            Index 12 was the old black, which CANDYBOT/KITTYBOT use in their
+            art (cream/light grey gaps).
+  boss      PAL0: black/white/light blue, unchanged.
 """
 import os
 from PIL import Image
@@ -22,9 +30,20 @@ ART = os.path.join(ROOT, "art", "energy_bar_vertical.png")
 RES = os.path.join(ROOT, "res")
 
 VARIANTS = {
-    "hud_bar_hp":  {(139, 0, 115): 8,  (0, 113, 238): 9,  (0, 0, 0): 12},
-    "hud_bar_wpn": {(139, 0, 115): 13, (0, 113, 238): 14, (0, 0, 0): 12},
+    "hud_bar_hp":  {(139, 0, 115): 6,  (0, 113, 238): 3,  (0, 0, 0): 1},
+    "hud_bar_wpn": {(139, 0, 115): 13, (0, 113, 238): 14, (0, 0, 0): 0},
     "hud_bar_boss": {(139, 0, 115): 2, (0, 113, 238): 3,  (0, 0, 0): 1},
+}
+# Palette written into the emitted PNGs so they preview correctly. The runtime
+# colours come from the palette lines named above (hud.c sets the sprite
+# attribute); these are just the same values in RGB.
+PAL_COLOURS = {
+    1: (0, 0, 0),            # PAL0 black
+    2: (255, 255, 255),      # PAL0 white
+    3: (146, 219, 255),      # PAL0 light blue
+    6: (146, 0, 255),        # PAL0 purple
+    13: (139, 0, 115),       # PAL2 weapon colour 1
+    14: (0, 113, 238),       # PAL2 weapon colour 2
 }
 # (name suffix, source start row, height)
 # The source art is 51 rows (0..50). The bottom slice must overlap the middle
@@ -44,14 +63,8 @@ def main():
         for suffix, start, height in PARTS:
             out = Image.new("P", (8 * FRAMES, height))
             pal = [0] * 48
-            pal[1 * 3:1 * 3 + 3] = [0, 0, 0]
-            pal[2 * 3:2 * 3 + 3] = [255, 255, 255]
-            pal[3 * 3:3 * 3 + 3] = [146, 219, 255]
-            pal[8 * 3:8 * 3 + 3] = [139, 0, 115]
-            pal[9 * 3:9 * 3 + 3] = [0, 113, 238]
-            pal[12 * 3:12 * 3 + 3] = [0, 0, 0]
-            pal[13 * 3:13 * 3 + 3] = [139, 0, 115]
-            pal[14 * 3:14 * 3 + 3] = [0, 113, 238]
+            for idx, c in PAL_COLOURS.items():
+                pal[idx * 3:idx * 3 + 3] = list(c)
             out.putpalette(pal)
             for f in range(FRAMES):
                 for y in range(height):

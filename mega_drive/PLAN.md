@@ -87,11 +87,22 @@ Fix in place: `transition_scroll()` builds the outgoing screen first, then
 releases the current stage map before creating the destination Map, which frees
 that heap. Needs a re-run to confirm the links now scroll.
 
-- [ ] BUG-022 SEAHORSE: wrong/incomplete tileset at stage start.
-- [ ] BUG-023 SEAHORSE: fade on every link.
-- [ ] BUG-024 SEAHORSE: tileset corrupt after the second link / after a ladder.
+- [x] BUG-022/023/024 SEAHORSE tileset/fade/corruption: confirmed fixed by the
+      2026-10-22 play test (heap fix in `transition_scroll`).
+- [x] Palette bugs from the 2026-10-22 play test, fixed offline:
+      BUG-035 (BETABOT/HP bar colours: the HUD wrote into the player PAL2),
+      BUG-036 (death explosion: burst was frozen and centred),
+      BUG-037 (dialog text background + A-button box),
+      BUG-026 (checkpoint frames quantized identical),
+      BUG-014/030 (stage-select names drawn in the stage's leftover PAL0).
+      `tools/check_palettes.py` guards all of them.
 - [ ] Re-check the 2026-10-22 fixes in game: BUG-021, 025, 026, 027, 028, 029,
-      030, 031.
+      030, 031, 035, 036, 037.
+- [ ] CHAOS CITY slowdown near the active platforms: needs `make profile`
+      numbers before any code change.
+- [ ] Question for the user: on a replay of a beaten stage, should the boss
+      intro play again? The PC skips it (`classic_style_boss_intro` returns
+      when `game_save.stages[stage] != 0`); the port mirrors the PC.
 
 ## Out of scope (decided)
 

@@ -24,6 +24,7 @@ static const u16 part_y[HUD_PARTS] = { 0, 24, 43 };
 
 static Sprite *hp_parts[HUD_PARTS];
 static Sprite *wpn_parts[HUD_PARTS];
+static Sprite *wpn_back[HUD_PARTS];   // black backdrop, the wpn bar is cut out
 static Sprite *boss_parts[HUD_PARTS];
 static Sprite *hp_icon;
 static Sprite *wpn_icon;
@@ -75,7 +76,21 @@ void hud_init(void)
         &hud_bar_boss_top_sprite, &hud_bar_boss_mid_sprite, &hud_bar_boss_bot_sprite
     };
     for (u8 i = 0; i < HUD_PARTS; i++) {
-        hp_parts[i] = add_part(hp[i], HUD_BAR_HP_X, HUD_BAR_Y + part_y[i], PAL2);
+        // HP bar: PAL0 fixed purple/light blue (PC draw_energy_bar always uses
+        // PLAYER 1's weapon-0 colours whatever player is selected). It used to
+        // sit on PAL2 8/9, entries the player sheets really use - BETABOT's
+        // whole black body is index 8, so the HP colours recoloured him red.
+        hp_parts[i] = add_part(hp[i], HUD_BAR_HP_X, HUD_BAR_Y + part_y[i], PAL0);
+        // Weapon bar: PAL2 13/14 are the sheet's weapon-colour placeholders and
+        // its empty part is transparent (index 0), so it needs its own black
+        // backdrop behind it (added first = furthest back).
+        wpn_back[i] = SPR_addSprite(boss[i], HUD_BAR_WPN_X,
+                                    HUD_BAR_Y + part_y[i],
+                                    TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
+        if (wpn_back[i]) {
+            SPR_setFrame(wpn_back[i], 0);       // frame 0 = solid black
+            SPR_setDepth(wpn_back[i], SPR_MAX_DEPTH);
+        }
         wpn_parts[i] = add_part(wpn[i], HUD_BAR_WPN_X, HUD_BAR_Y + part_y[i], PAL2);
         boss_parts[i] = add_part(boss[i], HUD_BAR_BOSS_X,
                                  HUD_BAR_Y + part_y[i], PAL0);
@@ -86,9 +101,9 @@ void hud_init(void)
     // Icon box first so it sits behind the icon sprite (SPR_MIN_DEPTH is the
     // front-most depth).
     hp_box = SPR_addSprite(&hud_bar_hp_bot_sprite, HUD_BAR_HP_X, HUD_ICON_Y,
-                           TILE_ATTR(PAL2, FALSE, FALSE, FALSE));
+                           TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
     wpn_box = SPR_addSprite(&hud_bar_hp_bot_sprite, HUD_BAR_WPN_X, HUD_ICON_Y,
-                            TILE_ATTR(PAL2, FALSE, FALSE, FALSE));
+                            TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
     if (hp_box) {
         SPR_setFrame(hp_box, 0);          // bar frame 0 = solid black 8x8
         SPR_setDepth(hp_box, SPR_MAX_DEPTH);
@@ -115,6 +130,7 @@ void hud_init(void)
     for (u8 i = 0; i < HUD_PARTS; i++) {
         if (hp_parts[i]) SPR_setVisibility(hp_parts[i], HIDDEN);
         if (wpn_parts[i]) SPR_setVisibility(wpn_parts[i], HIDDEN);
+        if (wpn_back[i]) SPR_setVisibility(wpn_back[i], HIDDEN);
         if (boss_parts[i]) SPR_setVisibility(boss_parts[i], HIDDEN);
     }
     if (hp_icon) SPR_setVisibility(hp_icon, HIDDEN);
@@ -131,6 +147,9 @@ void hud_weapon(u8 weapon, u8 ammo)
     bool show = (weapon != 0);
     s16 pct = (100 * ammo) / PLAYER_INITIAL_HP;
     set_bar(wpn_parts, show, pct, wpn_icon, wpn_box);
+    for (u8 i = 0; i < HUD_PARTS; i++) {
+        if (wpn_back[i]) SPR_setVisibility(wpn_back[i], show ? VISIBLE : HIDDEN);
+    }
     wpn_on = show;
     if (show && wpn_icon) SPR_setFrame(wpn_icon, weapon);
 }
@@ -158,6 +177,7 @@ void hud_set_visible(bool visible)
     for (u8 i = 0; i < HUD_PARTS; i++) {
         if (hp_parts[i]) SPR_setVisibility(hp_parts[i], visible && hp_on ? VISIBLE : HIDDEN);
         if (wpn_parts[i]) SPR_setVisibility(wpn_parts[i], visible && wpn_on ? VISIBLE : HIDDEN);
+        if (wpn_back[i]) SPR_setVisibility(wpn_back[i], visible && wpn_on ? VISIBLE : HIDDEN);
         if (boss_parts[i]) SPR_setVisibility(boss_parts[i], visible && boss_on ? VISIBLE : HIDDEN);
         if (hp_icon) SPR_setVisibility(hp_icon, visible && hp_on ? VISIBLE : HIDDEN);
         if (wpn_icon) SPR_setVisibility(wpn_icon, visible && wpn_on ? VISIBLE : HIDDEN);

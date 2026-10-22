@@ -11,8 +11,6 @@
 #include "resources.h"
 #include "dlg_panel_tiles.h"
 #include "dlg_panel_map.h"
-#include "dlg_btn_a_tiles.h"
-#include "dlg_btn_a_map.h"
 
 // PC boss-room dialog (scenes/dialogs.cpp:249, called by
 // game::map_present_boss when the boss appears in the arena). The PC also
@@ -27,7 +25,6 @@
 // port draws it on BG_A with the camera's tile offset, in PAL3 with its own
 // palette (the stage colourcycle band is re-applied when the dialog closes).
 #define DLG_PANEL_TILE_BASE 912     // free: stage data ends well below 936
-#define DLG_BTN_TILE_BASE   (DLG_PANEL_TILE_BASE + DLG_PANEL_TILE_COUNT)
 #define DLG_W 40
 #define DLG_H 6
 
@@ -75,11 +72,26 @@ static void wait_button(void)
 }
 
 // Draw the PC dialog panel (39x9 tiles) with the camera's plane offset.
+// The panel/arrow/name palette: entry 0 of the source art is unused by the
+// panel tiles, so it is repurposed as the panel fill colour. The font glyphs
+// paint their whole 8x8 cell with palette index 0, so drawing the text in
+// PAL3 gives teal text cells instead of black ones (the reported "dialog text
+// background" bug). Entry 15 is the font's ink index, which the panel palette
+// leaves black - force it white.
+static void dlg_palette_load(void)
+{
+    static u16 pal[16];
+    for (u8 i = 0; i < 16; i++) pal[i] = dlg_panel_pal.data[i];
+    pal[0] = dlg_panel_pal.data[2];     // panel fill (0,36,36)
+    pal[15] = 0x0EEE;                  // font white
+    PAL_setPalette(PAL3, pal, DMA_QUEUE);
+}
+
 static void dlg_panel_draw(u8 y0)
 {
     const u16 base = (u16)((camera.x >> 3) & 63);
     const u8 top = (y0 > 0) ? (u8)(y0 - 1) : 0;
-    PAL_setPalette(PAL3, dlg_panel_pal.data, DMA_QUEUE);
+    dlg_palette_load();
     VDP_loadTileData(dlg_panel_tiles_data, DLG_PANEL_TILE_BASE,
                      DLG_PANEL_TILE_COUNT, DMA_QUEUE);
     for (u8 row = 0; row < DLG_PANEL_MAP_H; row++) {
@@ -94,22 +106,18 @@ static void dlg_panel_draw(u8 y0)
 }
 
 // PC show_dialog_button: the A button icon inside the panel, bottom right.
+// Drawn as a font glyph in the panel palette: the 12x12 art goes through
+// img2tiles, which re-quantizes even an indexed source and put the arrow's
+// white on index 1 - that index is PAL3's black border, so the icon rendered
+// as a black box (the reported "A-button box"). "A" also matches what the PC
+// icon says.
 static void dlg_button_draw(u8 y0)
 {
     const u16 base = (u16)((camera.x >> 3) & 63);
     const u8 top = (y0 > 0) ? (u8)(y0 - 1) : 0;
-    VDP_loadTileData(dlg_btn_a_tiles_data, DLG_BTN_TILE_BASE,
-                     DLG_BTN_A_TILE_COUNT, DMA_QUEUE);
-    for (u8 row = 0; row < DLG_BTN_A_MAP_H; row++) {
-        for (u8 col = 0; col < DLG_BTN_A_MAP_W; col++) {
-            u16 t = dlg_btn_a_map[row * DLG_BTN_A_MAP_W + col];
-            VDP_setTileMapXY(BG_A,
-                             TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE,
-                                            DLG_BTN_TILE_BASE + t),
-                             (u16)((base + 34 + col) & 63),
-                             (u16)(top + 5 + row));
-        }
-    }
+    VDP_setTextPalette(PAL3);       // white ink (15), panel-fill background (0)
+    VDP_drawTextBG(BG_A, "A", (u16)((base + 36) & 63), (u16)(top + 6));
+    VDP_setTextPalette(PAL0);
 }
 
 // One 3-line page. The panel is drawn at screen rows y0-1..y0+7 by writing
@@ -139,6 +147,11 @@ static void show_page(const char *const *lines, u8 first, u8 y0,
                            TILE_ATTR(PAL2, FALSE, FALSE, FALSE));
     }
 
+    // The glyph cells carry palette index 0 as their background, so the text
+    // must be written with the panel palette (PAL3): its entry 0 is the panel
+    // fill, which paints the cell background in the panel colour and entry 15
+    // (the ink) white. Drawn with the default PAL0 it painted black boxes.
+    VDP_setTextPalette(PAL3);
     for (u8 i = 0; i < 3; i++) {
         const char *line = lines[first + i];
         if (!line[0]) continue;
@@ -148,6 +161,7 @@ static void show_page(const char *const *lines, u8 first, u8 y0,
                            (u16)(y0 + 1 + i));
         }
     }
+    VDP_setTextPalette(PAL0);
     dlg_button_draw(y0);
     wait_button();
     if (fs) SPR_releaseSprite(fs);

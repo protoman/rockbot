@@ -52,7 +52,6 @@ PALETTE scene_img11_pal "scene_img11_tiles.png"
 PALETTE scene_img12_pal "scene_img12_tiles.png"
 
 PALETTE dlg_panel_pal "dlg_panel_tiles.png"
-PALETTE dlg_btn_a_pal "dlg_btn_a_tiles.png"
 PALETTE dlg_face_0_pal "dlg_face_0.png"
 SPRITE dlg_face_0_sprite "dlg_face_0.png" 32p 32p FAST [[0]]
 PALETTE dlg_face_1_pal "dlg_face_1.png"

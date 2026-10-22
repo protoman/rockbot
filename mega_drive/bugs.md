@@ -371,16 +371,26 @@ death does not fire.
 
 ## BUG-008 — Boss dialogs are a black box (PC shows an image)
 
-**Status**: **OPEN, next chunk**. `dialogs.c` fills the page with one black
-tile; the PC blits `images/backgrounds/dialog.png` (310x65) centred and draws
-`btn_a.png` (12x12) at its bottom-right corner instead of the "JUMP: NEXT"
-text (`graphicslib.cpp:1801` `show_dialog`, `dialogs.cpp:176`
-`draw_dialog_bg`).
+**Status**: **FIXED** — the panel landed in BUG-028 (PC `dialog.png` through
+`tools/img2tiles.py`, drawn on BG_A in PAL3); the 2026-10-22 play-test report
+"dialog text background / A arrow" is BUG-037.
 
-Needs: convert the 310x65 panel + the A button with `tools/img2tiles.py` (same
-pipeline as the menu panel), draw them on BG_A in `show_page`, and keep the
-text/face positions inside the panel. The panel is wider than the current
-DLG_W box, so the layout constants move too.
+## BUG-037 — Dialog text background black, A-button arrow a black box
+
+**Report (2026-10-22 play test)**: the panel shows, but the three text lines sit
+on a black band and the A-button icon is a black square
+(`screenshots/bugs/playtest/boss_dialog_text_bg.png`).
+
+**Cause**: two separate palette mistakes. SGDK's font paints a whole 8x8 cell
+per character, background = palette index 0 and ink = index 15, so drawing the
+lines with the default PAL0 painted black cells over the panel. And the 12x12
+`btn_a.png` goes through `img2tiles.py`, which re-quantizes even an indexed
+source: its white landed on index 1, which in PAL3 is the panel's black border.
+
+**Fix**: `dialogs.c` builds PAL3 with entry 0 = the panel fill
+(`dlg_panel_pal.data[2]`, the dark teal) and entry 15 = font white, and the
+pages are written with `VDP_setTextPalette(PAL3)`; the button is a font "A"
+glyph in the same palette (the icon art and its build steps are gone).
 
 ## BUG-009 — Rockbot has no eyes in boss dialogs
 
@@ -443,12 +453,68 @@ typing included.
 
 ## BUG-014 — Stage select shows garbage text after beating Mummy
 
-**Status**: **OPEN, needs a reproduction**. After returning to the stage select,
-text appears over a garbled background. Candidates (not confirmed): the
-select's plane/palette rebuild after the boss screen, or stale text cells
-outside the four bar rows `draw_names()` restores. A screenshot of the select
-right after a clear would settle which of the two it is; offline inspection of
-`stageselect.c` shows the bar restore and `PAL0` reload in place.
+**Status**: **FIXED 2026-10-22** (play-test pending).
+
+**Cause**: the name lines were drawn with the *global* PAL0. The font paints
+its cell background with palette index 0 (= CRAM 0, the backdrop, which the
+stage writes per map via `apply_bg_color` and the YOU GOT screen overwrites
+with its colour flash), so the names came out in that leftover colour on the
+same colour (peach on peach in the report) and unreadable.
+
+**Fix** (`stageselect.c`): `draw_names()` sets the text plane explicitly and
+draws with **PAL1** (the grey ramp already loaded for the beaten faces: 0 =
+black, 15 = light grey), restoring PAL0 afterwards; `stage_select_run()` also
+re-uploads the default font (`VDP_loadDefaultFont(CPU)`) so a previous screen
+that wrote past the user tile area cannot leave the glyphs garbled.
+`tools/check_palettes.py` asserts the 0/15 palette entries.
+
+## BUG-035 — BETABOT colours wrong / HP bar colours wrong
+
+**Report (2026-10-22 play test)**: BETABOT's body is red instead of black/grey
+(`screenshots/bugs/playtest/betabot_colors.png`), and the HP bar shows the
+player's weapon colours instead of the PC's fixed magenta/blue.
+
+**Cause**: `player.c::rebuild_player_palette()` wrote the classic HUD bar
+colours into PAL2 entries 8/9 (and 12) — but PAL2 is the *player* palette and
+the sheets use every entry: BETABOT's entire black body is index 8, CANDYBOT's
+armour index 8/9/12, KITTYBOT's index 9. The HP bar silently recoloured the
+sprite (ROCKBOT was unaffected because his sheet leaves 8/9 unused, which is
+why only some players looked wrong).
+
+**Fix**: the HP bar moved to **PAL0** with the PC's fixed colours
+(`draw_energy_bar` always uses PLAYER 1's weapon-0 colours: PAL0 6 purple +
+3 light blue + 1 black), the weapon bar keeps PAL2 13/14 (the art's own swap
+placeholders) with a transparent empty part and a black PAL0 backdrop sprite,
+and `rebuild_player_palette()` no longer touches 8/9/12.
+
+## BUG-036 — Explosions do not move away from the centre
+
+**Report (2026-10-22 play test)**: the death explosion stays as one centred
+puff.
+
+**Cause**: two things. The port froze the burst: the player-death branch never
+called `explosion_update()`, so the puffs sat on frame 0 and were never
+released; and it burned three puffs in a horizontal row instead of the PC's
+outward pattern.
+
+**Fix** (`main.c`): the death branch now advances the puffs and spawns the PC
+pattern (`game.cpp:1707/1734`): the centre puff repeats over the 90-frame death
+window (0/30/60) and four more spawn at ±32 px diagonals at 18/36/54/72 frames.
+
+## BUG-026 — Checkpoint shows no animation when activated
+
+**Status**: **FIXED 2026-10-22** (play-test pending).
+
+**Cause**: the art, not the object logic. `checkpoint.png` is a terminal whose
+two frames are "screen off" (dark green) and "CHECK POINT" (bright green + red
+LEDs). PAL0 has only ONE green, so both greens quantized to index 13 and the
+two frames ended up 6 pixels apart — the loop (`anim_loop = 1`, 300ms/frame)
+was running all along and could not be seen. `object.c` itself was correct.
+
+**Fix**: `tools/import_pc_art.py` pins the terminal's colours apart
+(`CHECKPOINT_OVERRIDES`: screen background -> PAL0 black, text -> white, LEDs
+-> red) and the hand art was rebuilt; the frames now differ by 130 px.
+`tools/check_palettes.py` guards the pair.
 
 ## BUG-015 — Missing boss intro for Seahorse (maybe global)
 
@@ -582,24 +648,26 @@ and on a bounce.
 **Report**: starting the SEAHORSE BOT stage shows a wrong or incomplete
 tileset.
 
-**Status**: OPEN. Stage 3 has a colourcycle pool (stage0_plan) — check the
-tileset/palette load order and the cycle band, plus `tools/check_vram.py`.
+**Status**: **FIXED / confirmed by the 2026-10-22 play test** ("SEAHORSE
+tileset/fade/corruption after links" is listed under "do not regress" in
+HANDOFF.md). The per-map tileset/palette reload and the colourcycle band are
+in `stage_load()`.
 
 ## BUG-023 — SEAHORSE: every link transition has a fade
 
 **Report**: every room link in the SEAHORSE stage shows a fade; suspects it
 started after playing MAGE BOT first.
 
-**Status**: OPEN. `transition.c` fade state may not be reset between stages
-(the stage-clear / game-over paths leave it set).
+**Status**: **FIXED / confirmed by the 2026-10-22 play test** (same group as
+BUG-022).
 
 ## BUG-024 — SEAHORSE: tileset corrupt/incomplete after the second link
 
 **Report**: after leaving through the second link the tileset is corrupted or
 incomplete.
 
-**Status**: OPEN. Same area as BUG-022; check the per-map tileset reload
-(VRAM budget, DMA queue) on a room change.
+**Status**: **FIXED / confirmed by the 2026-10-22 play test** (same group as
+BUG-022).
 
 ## BUG-025 — Sub-boss door scroll is too fast and leaves the player on the right
 
@@ -619,10 +687,8 @@ step, so the door keeps its world position.
 
 ## BUG-026 — Checkpoint shows no animation when activated
 
-**Report**: activating a checkpoint gives no animation.
-
-**Status**: OPEN. `object.c` type 29 (checkpoint) sets the respawn point but
-plays nothing; the PC has a checkpoint animation/SFX.
+**Status**: superseded by the entry above (the object flags were fine; the two
+art frames quantized to the same colours).
 
 ## BUG-027 — Slide speed equals walking speed
 
@@ -672,9 +738,14 @@ to a transparent tile.
 
 **Report**: after clearing a stage the font is corrupted.
 
-**Status**: OPEN. The stage-clear text screen draws with PAL0 while the stage
-palette/backdrop is still loaded; note `apply_bg_color()` now writes CRAM 0
-(the backdrop) per map, which the text screen may inherit.
+**Status**: **FIXED 2026-10-22** (play-test pending). Two screens were hit:
+
+1. The stage-clear / YOU GOT / game-over text screens draw with PAL0 while the
+   stage backdrop is still in CRAM 0: `textScreenBegin()` reloads PAL0 from
+   `pal_ui` (see the fix note further down).
+2. The stage select drew its name lines with PAL0 as well, so the per-map
+   backdrop tinted the glyph cells (the "peach on peach" names, BUG-014). It
+   now draws them with PAL1 and re-uploads the default font first.
 
 ## BUG-031 — ADDRESS ERROR (crash) when standing on a disappearing block
 
@@ -695,13 +766,17 @@ memory after the frame table sometimes looks like a valid frame.
 
 ## BUG-026 — Checkpoint shows no animation when activated
 
-**Cause**: the PC object flag `animation_loop` (file_object byte 82) is 1 for
-the checkpoint, so its flag keeps waving after activation; the port hardcoded
-`is_looping()` to type 32 (boss teleporter) only, so the checkpoint played one
-frame and stopped.
+**Cause (first half)**: the PC object flag `animation_loop` (file_object byte
+82) is 1 for the checkpoint, so its flag keeps waving after activation; the
+port hardcoded `is_looping()` to type 32 (boss teleporter) only, so the
+checkpoint played one frame and stopped.
 
-**Fix**: the object converter now emits `anim_auto`/`anim_loop` per def and
-`is_looping()` uses the data flag.
+**Fix (first half)**: the object converter now emits `anim_auto`/`anim_loop`
+per def and `is_looping()` uses the data flag.
+
+**Second half (still invisible after that)**: the two art frames were only 6
+pixels apart because PAL0 has a single green - see the entry above (fixed
+2026-10-22 by pinning the terminal's colours apart in `import_pc_art.py`).
 
 ## BUG-030 — Font corrupted after winning a stage
 
@@ -781,29 +856,27 @@ died elsewhere (`stage_load(cp_map)`), then places him at the stored point.
 
 Reports, in the user's order, with what is known so far:
 
-1. **BETABOT colours all wrong** (not a charge state). Suspect the enemy sheet's
-   palette/index handling for that art (`res/enemy_betabot.png`, PAL0), not the
-   weapon palette swap. Compare the sheet's palette against `tools/pal_ui.py`.
-2. **HP bar broken.** `set_bar()` maps pct -> frame `pct*50/100`, which matches
-   `tools/convert_energy_bars.py` (frame 0 = empty, 50 = full, same index in all
-   three slices). If the colours are wrong too, the PAL2 line (weapon palette)
-   is the suspect, not the frame maths.
-3. **Checkpoint still does not animate when activated.** PC mechanism is
-   `classMap::add_animation(ANIMATION_LOOP, &graphLib.checkpoint, ...)` when the
-   object is touched (object.cpp), i.e. a separate animation object, not the
-   object's own frame list - the port only flips `started` and relies on the
-   object animation.
-4. **Slowdown in CHAOS CITY around the active platforms + small pill**: likely
-   the same sprite-VRAM pressure as the Seahorse regression (was fixed by
-   gating the extra enemy rows to bosses; needs a re-measure if it persists).
+1. **BETABOT colours all wrong** — ROOT CAUSE (2026-10-22): not the enemy
+   sheet; `rebuild_player_palette()` wrote the HUD bar colours into PAL2 8/9/12,
+   entries the player art uses. See BUG-035, fixed.
+2. **HP bar broken** — same cause; the bar is PAL0 with the PC's fixed colours
+   now (BUG-035, fixed).
+3. **Checkpoint still does not animate when activated** — the object logic was
+   already correct (anim_loop=1); the two art frames quantized to the same
+   colours. See BUG-026, fixed.
+4. **Slowdown in CHAOS CITY around the active platforms + small pill**: still
+   needs numbers. `make profile` (MD_PROFILE) boots straight into a hardcoded
+   stage - set that to 0 first. No code added until the profile exists.
 5. **Dialog text background must match the panel colour**; the A-button arrow
-   must be WHITE on a transparent background (`boss_dialog_text_bg.png`).
-   `dlg_btn_a` art/palette (PAL3) or its tile colour 0 is the suspect.
-6. **Explosions must move away from the centre** (PC art is a directional,
-   expanding animation); the port plays a static puff centred on the body.
-7. **Stage-select font** (`stage_select_bad_font.png`): BUG-014, still open.
-8. **SEAHORSE stage intro did not play** (only music) - the per-stage intro
-   scene before the stage start is missing.
+   must be WHITE - fixed, BUG-037.
+6. **Explosions must move away from the centre** - fixed, BUG-036 (the burst
+   was also frozen: the death branch never advanced the puffs).
+7. **Stage-select font** (`stage_select_bad_font.png`) - fixed, BUG-014.
+8. **SEAHORSE stage intro did not play** (only music): the PC does not play a
+   per-stage intro scene anywhere either (`scenesLib::show_game_scene()` has no
+   caller) and `classic_style_boss_intro()` returns when the stage is already
+   beaten. The port mirrors both. Open question for the user: should a replay
+   of a beaten stage show the boss intro again?
 9. **After entering SEAHORSE the player sprite is invisible** (projectiles
    visible), then **CRASH** on the second play (`crash_seahorse_second_played_stage.png`).
    Root cause found: the new jump/teleport animation rows for NORMAL enemies

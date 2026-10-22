@@ -439,7 +439,8 @@ static RunResult runStage(u8 stage)
     u16 prev_pad = JOY_readJoypad(JOY_1);  // START edge (a press held from
                                            // the title must not open the menu)
     bool stage_cleared = FALSE;
-    bool death_fx = FALSE;                 // puffs already spawned
+    bool death_fx = FALSE;                 // death burst started
+    u16 death_fx_t = 0;                    // frames inside the death burst
     bool boss_death_seq = FALSE;
     u16 boss_death_t = 0;
     s16 boss_death_x = 0, boss_death_y = 0;
@@ -460,15 +461,29 @@ static RunResult runStage(u8 stage)
 
         // ---- death sequence: freeze the world while the player is gone ----
         if (player_is_dying()) {
+            s16 dl, dt, dr, db;
+            player_get_box(&dl, &dt, &dr, &db);
+            s16 cx = (dl + dr) / 2, cy = (dt + db) / 2;
             if (!death_fx) {
-                s16 dl, dt, dr, db;
-                player_get_box(&dl, &dt, &dr, &db);
-                s16 cx = (dl + dr) / 2, cy = (dt + db) / 2;
-                explosion_spawn(cx, cy);
-                explosion_spawn(cx - 12, cy);
-                explosion_spawn(cx + 12, cy);
                 death_fx = TRUE;
+                death_fx_t = 0;
             }
+            // PC game.cpp:1707/1734: the 47x47 death explosion repeats over the
+            // player, then four more spawn at +-32px diagonals 300ms apart, so
+            // the burst travels OUTWARD (the port used to burn three puffs in a
+            // horizontal row and freeze them). The 90-frame death window holds
+            // three centre puffs (0/30/60) and the 18/36/54/72 diagonals.
+            if (death_fx_t < 90 && (death_fx_t % 30) == 0)
+                explosion_spawn(cx, cy);
+            if (death_fx_t == 18 || death_fx_t == 36 ||
+                death_fx_t == 54 || death_fx_t == 72) {
+                static const s8 ddx[4] = { -32, 32, 32, -32 };
+                static const s8 ddy[4] = { -32, 32, -32, 32 };
+                u8 k = (u8)(death_fx_t / 18 - 1);
+                explosion_spawn((s16)(cx + ddx[k]), (s16)(cy + ddy[k]));
+            }
+            death_fx_t++;
+            explosion_update();          // the puffs animate (and free)
             player_set_visible(FALSE);
             if (!player_death_update()) {
                 if (player_out_of_lives()) {

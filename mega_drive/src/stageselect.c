@@ -87,6 +87,14 @@ static bool stage_ready(u8 st)
 
 static void draw_names(void)
 {
+    // The SGDK font paints every glyph cell with palette index 0 as its
+    // BACKGROUND and 15 as the ink, so the text has to be drawn with a palette
+    // line whose 0 is black and 15 light. Inheriting PAL0 here was the bug
+    // (BUG-014): the previous screen (stage / YOU GOT colour flash) leaves
+    // CRAM 0 on a stage colour, so the names came out peach-on-peach.
+    // PAL1 already holds the grey ramp (beaten faces): 0 = black, 15 = grey.
+    VDP_setTextPlane(BG_A);
+    VDP_setTextPalette(PAL1);
     // restore the bottom bar from the static map, then draw the two lines
     VDP_setTileMapDataRect(BG_A, &cells[BAR_ROW0 * SSEL_MAP_W], 0, BAR_ROW0,
                            SSEL_MAP_W, BAR_ROWS, SSEL_MAP_W, CPU);
@@ -124,6 +132,12 @@ u8 stage_select_run(u8 player, u16 stage_mask)
     VDP_setHorizontalScroll(BG_A, 0);
     VDP_setVerticalScroll(BG_A, 0);
 
+    // The font's VRAM block sits above every screen's tiles (TILE_FONT_INDEX
+    // 1440); reload it before the first name line so a previous screen that
+    // wrote past the user tile area cannot leave the glyphs garbled
+    // (BUG-014 "stage select font garbage"). CPU transfer: the font resource
+    // is compressed, so unpacking frees its buffer - unsafe for a queued DMA.
+    VDP_loadDefaultFont(CPU);
     VDP_loadTileData(ssel_tiles_data, SSEL_TILE_BASE, SSEL_TILE_COUNT, DMA_QUEUE);
     PAL_setPalette(SSEL_PAL_BG, ssel_pal_bg, DMA_QUEUE);
     PAL_setPalette(SSEL_PAL_GRAY, ssel_pal_gray, DMA_QUEUE);
@@ -181,6 +195,7 @@ u8 stage_select_run(u8 player, u16 stage_mask)
     sx = 1;                 // default to the centre slot
     sy = 1;
     draw_names();
+    VDP_setTextPalette(PAL0);   // draw_names borrowed PAL1 (black bg/grey ink)
     SYS_doVBlankProcess();      // flush queued DMA before input
 
     u16 prev = JOY_readJoypad(JOY_1);
