@@ -20,4 +20,12 @@ void explosion_update(void);
 // Release every live puff (stage_load / leaving a stage).
 void explosion_reset(void);
 
+// Boss-death ring (PC game::classic_style_draw_boss_death): eight explosions
+// leave (cx, cy) and travel outward until they cross the screen. Also release
+// the ring sprites, so call it from the stage teardown path.
+void explosion_ring_start(s16 cx, s16 cy);
+// Advance the ring one frame; FALSE once it finished (sprites released).
+bool explosion_ring_update(void);
+void explosion_ring_reset(void);
+
 #endif

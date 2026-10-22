@@ -107,6 +107,7 @@ extern const SpriteDefinition shot_sprite;
 extern const SpriteDefinition enemy_shot_semi_sprite;
 extern const SpriteDefinition shot_charge_full_sprite;
 extern const SpriteDefinition explosion_sprite;
+extern const SpriteDefinition death_explosion_sprite;
 extern const SpriteDefinition enemy_rhino_sprite;
 extern const SpriteDefinition proj_0_sprite;
 extern const SpriteDefinition proj_1_sprite;

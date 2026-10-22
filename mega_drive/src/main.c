@@ -442,20 +442,16 @@ static RunResult runStage(u8 stage)
     bool death_fx = FALSE;                 // death burst started
     u16 death_fx_t = 0;                    // frames inside the death burst
     bool boss_death_seq = FALSE;
-    u16 boss_death_t = 0;
-    s16 boss_death_x = 0, boss_death_y = 0;
     while (TRUE) {
         // ---- boss death sequence (PC kill_all_enemies + ring explosion) ---
         if (boss_death_seq) {
-            if (boss_death_t < 72 && (boss_death_t % 12) == 0)
-                explosion_spawn(boss_death_x + (s16)(boss_death_t % 24) - 12,
-                                boss_death_y + (s16)(boss_death_t % 18) - 9);
-            explosion_update();
+            // PC game::classic_style_draw_boss_death: the 8-explosion ring
+            // travels outward until it crosses the screen (320 steps).
+            if (!explosion_ring_update()) { stage_cleared = TRUE; break; }
             SPR_update();
             SYS_doVBlankProcess();
             VDP_setReg(17, 0);
             VDP_setReg(18, 0);
-            if (++boss_death_t >= 120) { stage_cleared = TRUE; break; }
             continue;
         }
 
@@ -672,11 +668,10 @@ static RunResult runStage(u8 stage)
         // stage boss falls. The sequence itself runs at the top of the loop.
         if (!boss_death_seq && enemies_boss_died()) {
             boss_death_seq = TRUE;
-            boss_death_t = 0;
             enemies_boss_death_pos(&boss_death_x, &boss_death_y);
             shots_reset();
             eshots_reset();
-            explosion_spawn(boss_death_x, boss_death_y);
+            explosion_ring_start(boss_death_x, boss_death_y);
         }
     }
 

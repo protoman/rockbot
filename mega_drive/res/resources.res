@@ -151,6 +151,9 @@ SPRITE enemy_shot_semi_sprite "enemy_shot_semi.png" 16p 16p FAST [[6,6]]
 SPRITE shot_charge_full_sprite "shot_charge_full.png" 32p 32p FAST [[6,6]]
 # enemy death puff (PC classmap.cpp:2232 add_animation 80ms x2)
 SPRITE explosion_sprite "explosion.png" 32p 32p FAST [[5]]
+# boss-death ring (PC game::classic_style_draw_boss_death): 5 frames of 24x24,
+# 8 sprites travel outward from the centre. tools/convert_assets.py.
+SPRITE death_explosion_sprite "death_explosion.png" 24p 24p FAST [[3,3,3,3,3]]
 
 SPRITE enemy_rhino_sprite "enemy_rhino.png" 96p 72p FAST [[540][540][0]]
 # ---- ENEMY PROJECTILES (tools/convert_enemies.py): one SPRITE per

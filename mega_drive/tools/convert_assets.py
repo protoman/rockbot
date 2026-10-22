@@ -241,11 +241,49 @@ def convert_hud_ball(src_name="hp_ball.png", out_name="hud_hp_ball.png"):
     return True
 
 
+def convert_death_explosion():
+    """Boss-death ring art (PC game::classic_style_draw_boss_death):
+    images/backgrounds/classic_style_death_explosion.png = 5 frames of 24x24.
+    Quantized to PAL0 (sprites draw it with the enemy/UI line) and emitted as a
+    plain 24x24 SPRITE strip; the plane blit of the PC becomes 8 sprites in
+    explosion.c."""
+    src = os.path.join(ROCKBOT, "build/games/RockDroid1/images/backgrounds/"
+                       "classic_style_death_explosion.png")
+    if not os.path.exists(src):
+        print(f"  SKIP death_explosion: {src} not found")
+        return False
+    img = load_rgba(src)
+    fw = 24
+    n = img.size[0] // fw
+    px = img.load()
+    out = Image.new("P", (n * fw, fw))
+    out.putpalette([v for c in PAL_UI_RGB for v in c] + [0] * (768 - 16 * 3))
+    data = [0] * (n * fw * fw)
+    for f in range(n):
+        for y in range(fw):
+            for x in range(fw):
+                p = px[f * fw + x, y]
+                if p[3] == 0:
+                    idx = 0
+                else:
+                    idx = nearest_index((md_round(p[0]), md_round(p[1]),
+                                         md_round(p[2])))
+                data[y * n * fw + f * fw + x] = idx
+    out.putdata(data)
+    os.makedirs(OUT_DIR, exist_ok=True)
+    out.save(os.path.join(OUT_DIR, "death_explosion.png"))
+    print(f"  OK death_explosion.png: {img.size} -> {out.size} ({n} frames, PAL0)")
+    return True
+
+
 def main():
     explicit = sys.argv[1:]
     targets = explicit or list(ASSETS)
     ok = sum(1 for n in targets if n in ASSETS and convert(n, ASSETS[n]))
     n = len(targets)
+    if not explicit or "death_explosion" in explicit:
+        ok += convert_death_explosion()
+        n += 1
     if not explicit or "hud_hp_ball" in explicit:
         ok += convert_hud_ball()
         n += 1

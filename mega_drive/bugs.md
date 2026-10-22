@@ -501,6 +501,16 @@ outward pattern.
 pattern (`game.cpp:1707/1734`): the centre puff repeats over the 90-frame death
 window (0/30/60) and four more spawn at ±32 px diagonals at 18/36/54/72 frames.
 
+**Boss half (same report)**: the port played a pseudo-random scatter of puffs for
+2 s. The PC (`game::classic_style_draw_boss_death`, game.cpp:1798) sends **eight**
+explosions outward from the boss (right/left/up/down + the four diagonals), the
+radius growing until it leaves the screen. `explosion.c` now has
+`explosion_ring_start/update` doing exactly that with 8 sprites using the PC art
+`classic_style_death_explosion.png` (5 frames of 24x24, emitted as
+`res/death_explosion.png` by `tools/convert_assets.py`), PAL0, 3 px/frame so the
+speed matches the PC's ~200 px/s. `runStage` starts the ring instead of the
+scatter and holds the stage until it finishes (~108 frames).
+
 ## BUG-026 — Checkpoint shows no animation when activated
 
 **Status**: **FIXED 2026-10-22** (play-test pending).
