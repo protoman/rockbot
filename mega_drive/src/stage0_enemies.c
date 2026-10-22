@@ -8,7 +8,7 @@ const EnemyDef stage0_enemy_defs[STAGE0_ENEMY_DEF_COUNT] = {
     /* 3 */ { &enemy_milonga_sprite, 37, 36, 3, 4, 0, 1, 0, 0, 0, 320, 0, 0, 36, 33, 1, 1, 2, 3, 255, 4, 800, 1000, 0, { 3, 1, 1, 3, 1, 1, 1, 1, 1 } },  // MILONGA BOT
     /* 4 */ { &enemy_classic_metool_sprite, 45, 2, 1, 1, 0, 0, 0, 0, 0, 150, 0, 0, 18, 21, 1, 2, 6, 255, 255, 255, 0, 1200, 3, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // MINE HELMUT
     /* 5 */ { &enemy_cannon_ball_sprite, 51, 4, 1, 2, 1, 0, 0, 0, 0, 200, 0, 0, 23, 20, 1, 2, 3, 255, 255, 255, 0, 1399, 3, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // CANNON BALL
-    /* 6 */ { &enemy_bunny_sprite, 54, 2, 1, 2, 0, 0, 0, 0, 0, 600, 0, 0, 29, 40, 1, 1, 0, 3, 4, 255, 0, 0, 0, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // ANGRY BUNNY
+    /* 6 */ { &enemy_bunny_sprite, 54, 2, 1, 2, 0, 0, 0, 0, 0, 600, 0, 0, 29, 40, 1, 1, 0, 255, 255, 255, 0, 0, 0, { 1, 1, 1, 1, 1, 1, 1, 1, 1 } },  // ANGRY BUNNY
 };
 
 const EnemySpawn stage0_enemy_spawns[STAGE0_ENEMY_SPAWN_COUNT] = {

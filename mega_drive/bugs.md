@@ -776,3 +776,39 @@ from a previous stage could survive into the next one.
 **Fix**: a new stage clears the checkpoint (`player_clear_checkpoint()` from
 `runStage`), and the respawn now loads the checkpoint's map when the player
 died elsewhere (`stage_load(cp_map)`), then places him at the stored point.
+
+## Play-test batch 2026-10-22 (after the boss/animation commits)
+
+Reports, in the user's order, with what is known so far:
+
+1. **BETABOT colours all wrong** (not a charge state). Suspect the enemy sheet's
+   palette/index handling for that art (`res/enemy_betabot.png`, PAL0), not the
+   weapon palette swap. Compare the sheet's palette against `tools/pal_ui.py`.
+2. **HP bar broken.** `set_bar()` maps pct -> frame `pct*50/100`, which matches
+   `tools/convert_energy_bars.py` (frame 0 = empty, 50 = full, same index in all
+   three slices). If the colours are wrong too, the PAL2 line (weapon palette)
+   is the suspect, not the frame maths.
+3. **Checkpoint still does not animate when activated.** PC mechanism is
+   `classMap::add_animation(ANIMATION_LOOP, &graphLib.checkpoint, ...)` when the
+   object is touched (object.cpp), i.e. a separate animation object, not the
+   object's own frame list - the port only flips `started` and relies on the
+   object animation.
+4. **Slowdown in CHAOS CITY around the active platforms + small pill**: likely
+   the same sprite-VRAM pressure as the Seahorse regression (was fixed by
+   gating the extra enemy rows to bosses; needs a re-measure if it persists).
+5. **Dialog text background must match the panel colour**; the A-button arrow
+   must be WHITE on a transparent background (`boss_dialog_text_bg.png`).
+   `dlg_btn_a` art/palette (PAL3) or its tile colour 0 is the suspect.
+6. **Explosions must move away from the centre** (PC art is a directional,
+   expanding animation); the port plays a static puff centred on the body.
+7. **Stage-select font** (`stage_select_bad_font.png`): BUG-014, still open.
+8. **SEAHORSE stage intro did not play** (only music) - the per-stage intro
+   scene before the stage start is missing.
+9. **After entering SEAHORSE the player sprite is invisible** (projectiles
+   visible), then **CRASH** on the second play (`crash_seahorse_second_played_stage.png`).
+   Root cause found: the new jump/teleport animation rows for NORMAL enemies
+   pushed those rooms past the 504-tile sprite pool, so the sprite engine could
+   not allocate the player's frames (invisible) and read garbage frame data
+   (ADDRESS ERROR). Fixed by shipping those rows for bosses/sub-bosses only and
+   growing the pool to 768 tiles (`SPR_initEx(768)`, stage data ends at 573).
+   Needs a re-test.

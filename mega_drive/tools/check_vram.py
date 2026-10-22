@@ -169,7 +169,7 @@ def main():
     bg = read_bg_tiles()
     anim = read_anim_slots()
     links = read_links()
-    sprite_base = 1440 - 504          # TILE_FONT_INDEX - SPR_inItEx(504)
+    sprite_base = 1440 - 768          # TILE_FONT_INDEX - SPR_inItEx(768)
 
     def layout_end(s, m):
         """First free tile after tileset + bg + anim (runtime derives the same

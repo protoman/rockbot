@@ -359,12 +359,12 @@ static RunResult runStage(u8 stage)
 
     player_set_number(current_player);
 
-    // SPR_initEx(504): sprite VRAM = TILE_SPRITE_INDEX(1440) - 504 =
+    // SPR_initEx(768): sprite VRAM = TILE_SPRITE_INDEX(1440) - 504 =
     // 936..1439, right after the animated tiles (end 935). TILE_FONT_INDEX
     // is 1440 (0xC000/32 - FONT_LEN 96), NOT 1952 as older comments said —
     // a bigger pool would overlap the parallax background tiles.
     // The engine only holds the tiles of the frames currently on screen.
-    SPR_initEx(504); // released again by showTitle()
+    SPR_initEx(768); // released again by showTitle()
 
     // PAL2 still holds intro/title colors; clear it before the player
     // sprite claims it (player_init loads the player palette over this).
@@ -877,7 +877,7 @@ int main(bool hardReset)
     VDP_setScreenWidth320();
     VDP_setScreenHeight224();
     JOY_init();
-    SPR_initEx(504); // see runStage() — sprite VRAM 936..1439
+    SPR_initEx(768); // see runStage() — sprite VRAM 936..1439
 
     // The default DMA queue (80 entries) overflows during stage_load's force
     // map redraw / animated-frame upload (up to 17 slots x 6 frames), silently

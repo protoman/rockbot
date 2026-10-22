@@ -56,7 +56,7 @@ static void castle_screen(void)
 void boss_intro_run(u8 stage)
 {
     SPR_end();
-    SPR_initEx(504);
+    SPR_initEx(768);
     stage_release_map();
 
     VDP_setHorizontalScroll(BG_A, 0);

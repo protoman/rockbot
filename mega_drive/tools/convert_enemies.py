@@ -472,8 +472,12 @@ def main():
         # sprite pool). The row index is stored in the def: the order is
         # stand, walk, attack, [jump], [teleport].
         acts = {a[1] for a in ai_states.get(eid, [])}
-        needs_jump = 2 in acts
-        needs_tele = 10 in acts
+        # Only bosses/subs get the extra rows: a stage boss is alone on screen,
+        # while a normal enemy sheet with 5 rows pushed crowded rooms past the
+        # sprite VRAM pool (invisible player + garbage frame pointers).
+        boss_or_sub = bool(d["is_boss"] or d["is_sub_boss"])
+        needs_jump = boss_or_sub and 2 in acts
+        needs_tele = boss_or_sub and 10 in acts
         jump = frames_of(d["jump"]) if needs_jump else []
         teleport = frames_of(d["teleport"]) if needs_tele else []
         jump_anim = 3 if needs_jump else 255

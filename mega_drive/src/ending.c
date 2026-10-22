@@ -94,7 +94,7 @@ static void walking_parade(void)
 {
     music_play(MUSIC_END_ANIMATION);
     SPR_end();
-    SPR_initEx(504);
+    SPR_initEx(768);
 
     black_screen();
 
@@ -256,7 +256,7 @@ void ending_run(void)
 void ending_credits_run(void)
 {
     SPR_end();
-    SPR_initEx(504);
+    SPR_initEx(768);
     credits_scroll();
     SPR_end();
     black_screen();

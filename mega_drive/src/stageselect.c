@@ -117,7 +117,7 @@ static void draw_names(void)
 
 u8 stage_select_run(u8 player, u16 stage_mask)
 {
-    SPR_initEx(504);
+    SPR_initEx(768);
     stage_release_map();
     music_play(MUSIC_SELECTOR);
 
