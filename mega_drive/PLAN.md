@@ -7,8 +7,9 @@ detailed traces live in `bugs.md` and `HANDOUT.md`.
 ## 1. Water / terrain constraints
 
 - [x] Water enemies must not leave water (and land enemies must not enter it):
-      PC `character.cpp:1921-1923`. Implemented in `enemies_update()`
-      (revert a move that crosses the water line). **BUG-018**.
+      PC `character.cpp:1921-1923`. Implemented in `enemies_update()`.
+      **BUG-018** (first attempt compared the position with itself; fixed
+      2026-10-22: the pre-move position is now passed in).
 
 ## 2. Sound effects the PC has and the port does not
 
@@ -20,6 +21,9 @@ detailed traces live in `bugs.md` and `HANDOUT.md`.
 
 ## 3. Small features
 
+- [x] HUD bars: the sheets are 51 frames ordered empty..full; `set_bar()` used
+      the old 5-frame scale, so full HP showed frame 0 (the empty art).
+      **BUG-032**.
 - [ ] Weapon tooltip when switching weapons (`draw.cpp:841`). Needs sprite
       art: a plane-drawn text leaves trails on the scrolling stage, so the
       text version was reverted.
@@ -51,7 +55,22 @@ in/out, to roof), quake attack, accelerate up/down, circle player, wall walk
 (+shoot), multi-projectile spreads, morph, explode itself, throw item, play
 sfx, wait random, change-animation, fly drill/sin/dash/opposite-wall.
 
-## 7. Runtime verification (instrumented run 2026-10-22)
+## 7. Animated tiles: plane-window coordinates and call count
+
+- [x] `stage_anim_apply_cells()` wrote at raw map coordinates, so past the
+      first screen (metatile 31) the writes landed in the H-scroll table and the
+      animation stopped there. Now windowed (`(cx & 31) * 2`) and batched as one
+      `VDP_setTileMapDataRect()` per contiguous run. `tools/anim_calls.py` counts
+      the calls: SEAHORSE map 0 goes from 31 to 7 per frame (it was never the
+      frame-rate cause, but the animation was wrong for most of the map).
+      **BUG-033**.
+- [ ] SEAHORSE still reported "VERY slow" while APE is fine: not reproduced
+      offline (enemy sheets, animated-tile calls and VRAM budget are all *lower*
+      than stage 1). `make profile` builds the scanline profiler added to
+      `main.c` (`MD_PROFILE`): one instrumented run prints per-second scanline
+      cost of camera / anim / npc / shot / sprite / vblank wait.
+
+## 8. Runtime verification (instrumented run 2026-10-22)
 
 Found: with SEAHORSE loaded, `MEM_getFree()` is only **7 KB** after
 `stage_load`, so `MAP_create()` inside `transition_scroll()` failed and every

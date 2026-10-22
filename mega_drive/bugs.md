@@ -677,3 +677,43 @@ frame and stopped.
 `pal_ui`, so the text screens (stage clear / YOU GOT / game over) cannot
 inherit the per-map backdrop (CRAM 0, written by `apply_bg_color`) or any other
 palette the stage left behind.
+
+## BUG-018 — Water enemies leave the water (still open after the first fix)
+
+**Cause**: the first fix (`enemies_update()` reverts a move that crosses the
+water line) compared the NEW position with itself: `enemy_water_ok(e, e->x,
+e->y)` read `e->x/e->y`, which the AI had already moved, for the "old" probe
+too, so `now == was` was always true and the rule never fired. The SEAHORSE
+fish therefore kept swimming onto the pipes.
+
+**Fix**: pass the pre-move position (`pre_x/pre_y`, captured before the AI runs)
+as the "old" probe. A non-boss NPC now cannot leave water or enter it, exactly
+like `character.cpp:1921-1923`.
+
+## BUG-032 — HP/weapon/boss bars show empty
+
+**Cause**: the bar sheets are 51 frames ordered **empty..full** (frame 0 = no
+fill, frame 50 = full, `tools/convert_energy_bars.py`), but `set_bar()` still
+used the old 5-frame ball sheet scale: `((100 - pct) * 4) / 100`, i.e. 0..4 of
+51. Full HP selected frame 0, which is the empty art, so the bars never showed
+a fill (and the gauge could not move).
+
+**Fix**: `HUD_BAR_FRAMES 51`, `frame = (pct * 50) / 100`, clamped. Applies to
+the HP, boss and weapon bars (all three sheets are the same 51-step art).
+
+## BUG-033 — SEAHORSE runs at half speed (animated tiles)
+
+**Cause**: `stage_anim_apply_cells()` wrote the animated cells at raw map
+coordinates (`tx = cx * 2`, up to 398). SGDK's MAP keeps a 64-cell (32
+metatile) wide window of the plane and scrolls it with the H-scroll, so map
+metatile `cx` lands at plane column `(cx & 31) * 2`; past the first screen the
+writes ran past the plane into the H-scroll table (0xF01C+), so the animation
+stopped there while still costing four `VDP_setTileMapXY()` calls per cell.
+SEAHORSE map 0 has 13 slots with no static screen area, i.e. ~300+ tilemap
+calls per frame, which is what tipped the frame over the 60 fps budget (APE has
+no animated slots on map 0 and stayed fine).
+
+**Fix**: windowed plane coordinates plus **one `VDP_setTileMapDataRect()` per
+contiguous run** instead of four `VDP_setTileMapXY()` per cell, with the run
+split where the 32-metatile plane window wraps. Same output, a fraction of the
+VDP calls (needs a play-test on SEAHORSE and on the other animated stages).

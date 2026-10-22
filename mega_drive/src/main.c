@@ -67,6 +67,42 @@ static void drawCentered(const char *text, u16 tileY)
     VDP_drawText(text, (SCREEN_TILE_W - strlen(text)) / 2, tileY);
 }
 
+#ifdef MD_PROFILE
+// Temporary build for the "SEAHORSE is slow" report: scanlines spent per frame
+// in each part of the loop, printed once per second over KDEBUG. Build with
+// `make PROFILE=1`, run, then read the kprintf lines. See PLAN.md.
+#include <string.h>
+#define PROF_CAMERA  0
+#define PROF_ANIM    1
+#define PROF_ENEMY   2
+#define PROF_SHOT    3
+#define PROF_SPRITE  4
+#define PROF_VBLANK  5
+#define PROF_N       6
+static u16 prof_last;
+static u32 prof_acc[PROF_N];
+static u16 prof_frames;
+static inline void prof_tick(u8 i)
+{
+    const u16 v = GET_VCOUNTER;
+    prof_acc[i] += (u16)((v - prof_last) & 0x1FF);
+    prof_last = v;
+}
+static void prof_report(void)
+{
+    if (++prof_frames < 60) return;
+    kprintf("PROF cam=%lu anim=%lu npc=%lu shot=%lu spr=%lu wait=%lu\n",
+            (unsigned long)(prof_acc[PROF_CAMERA] / 60),
+            (unsigned long)(prof_acc[PROF_ANIM] / 60),
+            (unsigned long)(prof_acc[PROF_ENEMY] / 60),
+            (unsigned long)(prof_acc[PROF_SHOT] / 60),
+            (unsigned long)(prof_acc[PROF_SPRITE] / 60),
+            (unsigned long)(prof_acc[PROF_VBLANK] / 60));
+    for (u8 i = 0; i < PROF_N; i++) prof_acc[i] = 0;
+    prof_frames = 0;
+}
+#endif
+
 // Wait N frames at 60Hz. SPR_update() is mandatory: the sprite engine is
 // deferred, it only really draws here. See lessons_learned.md #10.
 static void waitFrames(u16 n)
@@ -549,9 +585,16 @@ static RunResult runStage(u8 stage)
             }
         }
 
+#ifdef MD_PROFILE
+        prof_tick(PROF_CAMERA);
+        prof_report();
+#endif
         // camera focus = centre of the player hitbox
         stage_update_camera((bl + br) / 2, (bt + bb) / 2);
 
+#ifdef MD_PROFILE
+        prof_tick(PROF_ANIM);
+#endif
         stage_anim_update();
         stage_cycle_update();
 
@@ -575,13 +618,25 @@ static RunResult runStage(u8 stage)
             music_play((stage == 13) ? MUSIC_FINAL_BOSS : MUSIC_BOSS);
             boss_music_started = TRUE;
         }
+#ifdef MD_PROFILE
+        prof_tick(PROF_ENEMY);
+#endif
         explosion_update(); // enemy death puffs (PC death animation)
         eshots_update();    // enemy AI projectiles -> player
         shot_update();
         hud_boss(enemies_boss_on_screen() ? (s16)enemies_boss_hp() : -1);
 
+#ifdef MD_PROFILE
+        prof_tick(PROF_SHOT);
+#endif
         SPR_update();
+#ifdef MD_PROFILE
+        prof_tick(PROF_SPRITE);
+#endif
         SYS_doVBlankProcess();
+#ifdef MD_PROFILE
+        prof_tick(PROF_VBLANK);
+#endif
         VDP_setReg(17, 0); // see above — DMA clobbers window regs
         VDP_setReg(18, 0);
 

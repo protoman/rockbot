@@ -283,30 +283,68 @@ void stage_cycle_update(void)
 // current frame's four tiles). The converted map initially points at the
 // static art in the tileset, so this must also run for frame 0; otherwise
 // Daisie's palm trees all show the same tile until the first animation tick.
+// Attribute bits (palette line + tile3 priority) of map metatile `n`.
+static u16 stage_cell_attr(u16 n)
+{
+    const u16 moff = stage_current_map * STAGE_MASK_BYTES + (n >> 3);
+    const u16 mbit = 1u << (n & 7);
+    u16 a = (u16)STAGE_PAL << TILE_ATTR_PALETTE_SFT;
+    if (stage_def->tile3_mask[moff] & mbit) a |= TILE_ATTR_PRIORITY_MASK;
+    if (stage_def->pal3_mask && (stage_def->pal3_mask[moff] & mbit))
+        a = (a & ~TILE_ATTR_PALETTE_MASK) |
+            ((u16)STAGE_PAL_CYCLE << TILE_ATTR_PALETTE_SFT);
+    return a;
+}
+
+// Rewrite the visible cells of animated slot `s` to use `base` (the current
+// frame's four tiles).
+//
+// SGDK's MAP keeps a 64-cell (32-metatile) wide window of the plane and scrolls
+// it with the H-scroll, so map metatile column `cx` lands in plane column
+// `(cx & 31) * 2`. Writing at the raw `cx * 2` (what this used to do) is only
+// correct inside the first screen: beyond it the writes ran past the plane into
+// the H-scroll table (0xF01C onward), which is why the animation appeared to
+// stop and why SEAHORSE - 13 slots over a 200-metatile map - was making
+// hundreds of useless VDP calls per frame.
+//
+// One VDP_setTileMapDataRect per contiguous run replaces four
+// VDP_setTileMapXY per cell; the per-call overhead was what pushed the fully
+// animated stages over the 60 fps frame budget.
 static void stage_anim_apply_cells(u8 s, u16 base)
 {
+    const u16 mw = stage_def->map_w, mh = stage_def->map_h;
     const u8 *cell_slot = stage_def->anim_cell_slot
-                          + stage_current_map * stage_def->map_w * stage_def->map_h;
-    u16 pal = STAGE_PAL << TILE_ATTR_PALETTE_SFT;
-    s16 cx0 = camera.x >> 4, cy0 = camera.y >> 4;
-    for (s16 cy = cy0; cy <= cy0 + 14; cy++) {
-        if (cy < 0 || cy >= stage_def->map_h) continue;
-        for (s16 cx = cx0; cx <= cx0 + 20; cx++) {
-            if (cx < 0 || cx >= stage_def->map_w) continue;
-            u16 n2 = cy * stage_def->map_w + cx;
-            if (cell_slot[n2] != s + 1) continue;
-            s16 sx = cx * stage_def->tile - camera.x;
-            s16 sy = cy * stage_def->tile - camera.y;
-            if (sx < -stage_def->tile || sx >= 320 ||
-                sy < -stage_def->tile || sy >= 224) continue;
-            bool t3 = stage_def->tile3_mask[stage_current_map * STAGE_MASK_BYTES
-                                            + (n2 >> 3)] & (1 << (n2 & 7));
-            u16 a = pal | (t3 ? TILE_ATTR_PRIORITY_MASK : 0);
-            u16 tx = cx * 2, ty = cy * 2;
-            VDP_setTileMapXY(STAGE_PLANE, a | (base + 0), tx,     ty);
-            VDP_setTileMapXY(STAGE_PLANE, a | (base + 1), tx + 1, ty);
-            VDP_setTileMapXY(STAGE_PLANE, a | (base + 2), tx,     ty + 1);
-            VDP_setTileMapXY(STAGE_PLANE, a | (base + 3), tx + 1, ty + 1);
+                          + stage_current_map * mw * mh;
+    const s16 cx0 = camera.x >> 4, cy0 = camera.y >> 4;
+    const s16 cx_end = cx0 + 20, cy_end = cy0 + 14;
+    u16 buf[2 * 2 * 21];        // 2 cell rows x up to 21 metatiles (42 cells)
+
+    for (s16 cy = cy0; cy <= cy_end; cy++) {
+        if (cy < 0 || cy >= mh) continue;
+        const u8 *row = cell_slot + cy * mw;
+        s16 cx = cx0;
+        while (cx <= cx_end) {
+            if (cx < 0 || cx >= mw || row[cx] != s + 1) { cx++; continue; }
+            s16 a = cx, b = cx;
+            while (b + 1 <= cx_end && b + 1 < mw && row[b + 1] == s + 1) b++;
+            // The 32-metatile plane window wraps: split the run there so both
+            // halves stay contiguous in the plane.
+            const s16 wrap = a | 31;
+            if (b > wrap) b = wrap;
+
+            const u16 w = (u16)((b - a + 1) * 2);
+            for (s16 mx = a; mx <= b; mx++) {
+                const u16 attr = stage_cell_attr((u16)(cy * mw + mx));
+                const u16 i = (u16)((mx - a) * 2);
+                buf[i]         = attr | (base + 0);
+                buf[i + 1]     = attr | (base + 1);
+                buf[w + i]     = attr | (base + 2);
+                buf[w + i + 1] = attr | (base + 3);
+            }
+            VDP_setTileMapDataRect(STAGE_PLANE, buf,
+                                   (u16)((a & 31) * 2), (u16)(cy * 2),
+                                   w, 2, w, CPU);
+            cx = b + 1;
         }
     }
 }

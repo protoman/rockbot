@@ -140,6 +140,14 @@ check-vram: all
 #   -g forces software rendering. It was required for the flatpak build under
 #   Wayland (the GL renderer froze ~half the time); kept by default here as it
 #   is the known-good path — try `make run EMU_ARGS=` if you want GL.
+# Profiling build: per-second scanline cost of each part of the stage loop,
+# printed over KDEBUG (see images/../PLAN.md "Runtime verification"). Needs a
+# clean build because the flags are not part of the object dependencies.
+.PHONY: profile
+profile:
+	$(MAKE) clean
+	$(MAKE) EXTRA_FLAGS=-DMD_PROFILE
+
 .PHONY: run
 run: check-vram
 	bash tools/emu.sh start out/rom.bin

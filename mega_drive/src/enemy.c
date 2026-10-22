@@ -116,19 +116,23 @@ static bool boss_died;
 static bool boss_screen;     // boss visible this frame (gates the HP row)
 
 // PC character.cpp:1921-1923: a non-boss NPC may not leave water, and may not
-// enter it either - the water enemies (ATLANTIDA fish) stayed on land in the
+// enter it either - the water enemies (SEAHORSE fish) stayed on land in the
 // port (BUG-018). Bosses are exempt, as on the PC.
-static bool enemy_water_ok(const Enemy *e, s16 nx, s16 ny)
+// `ox, oy` is where the enemy was before this frame's AI: the old code read
+// e->x/e->y for the "was" probe too, but that was already the new position, so
+// the comparison was always true and the rule never fired.
+static bool enemy_water_ok(const Enemy *e, s16 ox, s16 oy,
+                           s16 nx, s16 ny)
 {
     const EnemyDef *d = e->def;
     if (d->is_boss) return TRUE;
-    const s16 cx = nx + d->box_l + d->box_w / 2;
-    const s16 cy = ny + d->box_t + d->box_h / 2;
-    const bool now = stage_terrain_at(stage_current_map, cx >> 4, cy >> 4)
+    const bool now = stage_terrain_at(stage_current_map,
+                                      (nx + d->box_l + d->box_w / 2) >> 4,
+                                      (ny + d->box_t + d->box_h / 2) >> 4)
                      == TERRAIN_WATER;
     const bool was = stage_terrain_at(stage_current_map,
-                                      (e->x + d->box_l + d->box_w / 2) >> 4,
-                                      (e->y + d->box_t + d->box_h / 2) >> 4)
+                                      (ox + d->box_l + d->box_w / 2) >> 4,
+                                      (oy + d->box_t + d->box_h / 2) >> 4)
                      == TERRAIN_WATER;
     return now == was;
 }
@@ -1017,7 +1021,7 @@ void enemies_update(void)
 
         // PC character.cpp:1921: a non-boss NPC never crosses the water line.
         if ((e->x != pre_x || e->y != pre_y) &&
-            !enemy_water_ok(e, e->x, e->y)) {
+            !enemy_water_ok(e, pre_x, pre_y, e->x, e->y)) {
             e->x = pre_x;
             e->y = pre_y;
             e->moving = 0;
