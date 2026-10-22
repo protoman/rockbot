@@ -549,3 +549,84 @@ dropped.
 
 **Fix**: `OBJECT_MAX` 24 -> 32, `ENEMY_MAX` 16 -> 32 (max per map across the
 converted stages is 27 for both).
+
+## BUG-021 — MAGE: card-throwing enemy is not flipped correctly
+
+**Report (2026-10-22)**: in the MAGE BOT stage, the card-throwing enemy
+("jogador de cartas") faces the wrong way — its sprite is not mirrored in the
+direction it moves/attacks.
+
+**Status**: OPEN. Check the enemy's `dir` handling in `enemy.c` (SPR_setHFlip
+is applied from `e->dir` for every enemy; a card dealer may keep the editor
+direction while its AI turns), and the converter's stand/walk frames.
+
+## BUG-022 — SEAHORSE: wrong/incomplete tileset at stage start
+
+**Report**: starting the SEAHORSE BOT stage shows a wrong or incomplete
+tileset.
+
+**Status**: OPEN. Stage 3 has a colourcycle pool (stage0_plan) — check the
+tileset/palette load order and the cycle band, plus `tools/check_vram.py`.
+
+## BUG-023 — SEAHORSE: every link transition has a fade
+
+**Report**: every room link in the SEAHORSE stage shows a fade; suspects it
+started after playing MAGE BOT first.
+
+**Status**: OPEN. `transition.c` fade state may not be reset between stages
+(the stage-clear / game-over paths leave it set).
+
+## BUG-024 — SEAHORSE: tileset corrupt/incomplete after the second link
+
+**Report**: after leaving through the second link the tileset is corrupted or
+incomplete.
+
+**Status**: OPEN. Same area as BUG-022; check the per-map tileset reload
+(VRAM budget, DMA queue) on a room change.
+
+## BUG-025 — Sub-boss door scroll is too fast and leaves the player on the right
+
+**Report**: the sub-boss door scrolls very fast and keeps the player on the
+right side of the screen; it should move him to the left.
+
+**Status**: OPEN. `stage_horizontal_screen_move()` (stage.c) does 20 steps of
+16 px in a single frame loop and the door handler carries the player by the
+same delta, so he keeps his screen X. PC `game::horizontal_screen_move` moves
+the view and leaves the player near the left edge.
+
+## BUG-026 — Checkpoint shows no animation when activated
+
+**Report**: activating a checkpoint gives no animation.
+
+**Status**: OPEN. `object.c` type 29 (checkpoint) sets the respawn point but
+plays nothing; the PC has a checkpoint animation/SFX.
+
+## BUG-027 — Slide speed equals walking speed
+
+**Report**: the slide moves at walking speed; it should be 1.5x.
+
+**Status**: OPEN. `player.c` slide: check the speed constant against the PC
+`character.cpp` slide.
+
+## BUG-028 — Boss dialog background still missing
+
+**Report**: the boss dialog panel background is still absent.
+
+**Status**: OPEN (= BUG-008 route 1: quantize the PC `dialog.png` into PAL0 and
+draw it behind the dialog text).
+
+## BUG-029 — "YOU GOT" screen missing
+
+**Report**: implement the "you got" (weapon acquired) screen.
+
+**Status**: OPEN. `showStageClear()` (main.c) only draws it when
+`first_clear && stage 1..8`; verify why it did not appear (stage clear path,
+`save_slot_weapon_mask`, or it is skipped after the STAGE CLEAR removal).
+
+## BUG-030 — Font corrupted after winning a stage
+
+**Report**: after clearing a stage the font is corrupted.
+
+**Status**: OPEN. The stage-clear text screen draws with PAL0 while the stage
+palette/backdrop is still loaded; note `apply_bg_color()` now writes CRAM 0
+(the backdrop) per map, which the text screen may inherit.
