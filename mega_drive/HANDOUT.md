@@ -419,9 +419,13 @@ parent tree again, so map/enemy/object edits are not overwritten by a rebuild.
 The PC Qt editor was copied to `editor/` (Qt5) with two changes: its `.pro` and
 includes point at `../../file|aux_tools` (the parent's shared sources) and
 `main.cpp` accepts `ROCKBOT_EDITOR_PATH` for the data root. Build with
-`make editor`, launch with `tools/editor.sh`. Verified headlessly
-(`QT_QPA_PLATFORM=offscreen`) that it loads `data/games/RockDroid1` without
-crashing; a missing font no longer aborts it.
+`make editor` (CMake, Qt5 or Qt6), launch with `tools/editor.sh`. Verified
+headlessly (`QT_QPA_PLATFORM=offscreen`) that it loads `data/games/RockDroid1`
+without crashing; a missing font no longer aborts it. The editor shows the
+224p view (the converter cuts the top row). **Edit > Shift Down** moves the
+current room one tile down for that cut: rows 2..14 take rows 1..13, rows 0
+and 1 receive the old first row, the old bottom row is discarded, objects and
+enemies move with it, links are untouched.
 
 ## Tools
 
