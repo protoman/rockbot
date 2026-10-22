@@ -488,21 +488,6 @@ void MainWindow::on_actionShift_Down_triggered()
     }
     Mediator::get_instance()->maps_data_npc_list = new_npcs;
 
-    // links: same one-tile move so they stay attached to the room. A link that
-    // would fall off the bottom is clamped to the last row.
-    CURRENT_FILE_FORMAT::file_stage &stage_data = Mediator::get_instance()->stage_data.stages[stage];
-    for (int i = 0; i < FS_STAGE_MAX_LINKS; i++) {
-        CURRENT_FILE_FORMAT::file_link &link = stage_data.links[i];
-        if (link.id_map_origin == map) {
-            int y = link.pos_origin.y + 1;
-            link.pos_origin.y = (y > EDITOR_MAP_H - 1) ? EDITOR_MAP_H - 1 : y;
-        }
-        if (link.id_map_destiny == map) {
-            int y = link.pos_destiny.y + 1;
-            link.pos_destiny.y = (y > EDITOR_MAP_H - 1) ? EDITOR_MAP_H - 1 : y;
-        }
-    }
-
     map_edit_tab->update_edit_area();
 }
 
@@ -556,18 +541,6 @@ void MainWindow::on_actionShift_Up_triggered()
         }
     }
     Mediator::get_instance()->maps_data_npc_list = new_npcs;
-
-    // links: one tile up, clamped to row 0
-    CURRENT_FILE_FORMAT::file_stage &stage_data = Mediator::get_instance()->stage_data.stages[stage];
-    for (int i = 0; i < FS_STAGE_MAX_LINKS; i++) {
-        CURRENT_FILE_FORMAT::file_link &link = stage_data.links[i];
-        if (link.id_map_origin == map && link.pos_origin.y > 0) {
-            link.pos_origin.y--;
-        }
-        if (link.id_map_destiny == map && link.pos_destiny.y > 0) {
-            link.pos_destiny.y--;
-        }
-    }
 
     map_edit_tab->update_edit_area();
 }

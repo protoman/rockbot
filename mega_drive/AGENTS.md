@@ -223,7 +223,7 @@ from already-captured screenshots/assets over running the emulator again.
 - After editing maps/enemies/objects: `make` (or `make assets`) regenerates
   `src/stageN_*` from the edited data, then the ROM.
 - The editor shows the same 14 rows the game uses; Edit > Shift Down / Shift Up
-  move the whole room (tiles, objects, enemies, links) by one row.
+  move the room's tiles, objects and enemies by one row (links are untouched).
 
 ## Port status
 
