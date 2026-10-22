@@ -36,6 +36,7 @@
 #define ANIM_STAIRS_ATTACK 8
 #define ANIM_SHIELD   9
 #define ANIM_SPECIAL  10   // SHORYUKEN (PC ANIM_TYPE_SPECIAL_ATTACK, frame 29)
+#define ANIM_GOT_WEAPON 11 // PC ANIM_TYPE_GOT_WEAPON (frames 26/27, stage clear)
 
 typedef struct {
     Sprite *spr;
@@ -133,6 +134,9 @@ u16 player_weapon_color(u8 weapon);      // PC weapon_colors[weapon].color1, MD 
 bool player_can_shoryuken(void);         // LEGS SHORYUKEN ability
 bool player_is_shoryuken(void);          // attack hitbox active
 bool player_out_of_lives(void);
+
+// Force an animation row (stage-clear poses; the physics state is ignored).
+void player_force_anim(u8 anim);
 
 // pad = JOY_readJoypad(JOY_1)
 void player_update(u16 pad);

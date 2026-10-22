@@ -467,6 +467,14 @@ static s8 ladder_art_dx(void)
 // player but the sprite's screen position is only set in player_update(), so
 // after a map link the sprite is drawn once at its old screen position while
 // the camera has already jumped (it flashed at the top of the screen).
+// Force an animation row regardless of the physics state (stage-clear
+// sequences: PC ANIM_TYPE_GOT_WEAPON / ANIM_TYPE_ATTACK).
+void player_force_anim(u8 anim)
+{
+    current_anim = anim;
+    if (player.spr) SPR_setAnim(player.spr, anim);
+}
+
 void player_sync_sprite(void)
 {
     if (player.spr)

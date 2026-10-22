@@ -62,6 +62,8 @@ ANIMS = [
     ("SHIELD",   [22],           [100]),
     # classplayer.cpp:627 addSpriteFrame(ANIM_TYPE_SPECIAL_ATTACK, 29, ..., 200)
     ("SPECIAL",  [29],           [200]),
+    # classplayer.cpp:625 addSpriteFrame(ANIM_TYPE_GOT_WEAPON, 26/27, ..., 200)
+    ("GOT_WEAPON", [26, 27],     [200, 200]),
 ]
 
 MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)

@@ -83,6 +83,14 @@ void eshots_reset(void)
     }
 }
 
+// PC projectile::show() mirrors the projectile art by its direction; the art
+// faces right, so anything flying left must be flipped (GAMBIT's cards were
+// always drawn facing right - BUG-021).
+static void eshot_flip(EShot *s)
+{
+    if (s->spr) SPR_setHFlip(s->spr, s->dx < 0);
+}
+
 bool eshot_fire(s16 x, s16 y, s16 dir, u8 proj_id)
 {
     if (proj_id >= stage_def->enemy_proj_max) proj_id = 0;
@@ -116,6 +124,7 @@ bool eshot_fire(s16 x, s16 y, s16 dir, u8 proj_id)
         s->age = 0;
         s->on = TRUE;
         s->reflected = FALSE;
+        eshot_flip(s);          // art faces right: mirror when flying left
 
         // Trajectories that resolve at fire time (PC set_target_position).
         if (p->traj == TRAJ_TARGET_DIRECTION) {
@@ -132,6 +141,7 @@ bool eshot_fire(s16 x, s16 y, s16 dir, u8 proj_id)
                 s->traj = TRAJ_LINEAR;
             }
             s->dx = (pcx < s->x) ? -(s16)p->speed : (s16)p->speed;
+            eshot_flip(s);
         }
         return TRUE;
     }
@@ -221,7 +231,7 @@ void eshots_update(void)
                             s->y + s->h / 2) && s->status < 4) {
                 s->dx = (s16)-s->dx;
                 s->dir = (s8)-s->dir;
-                SPR_setHFlip(s->spr, s->dir < 0);
+                eshot_flip(s);
                 s16 vy = (s->dy < 0) ? -s->dy : s->dy;
                 if (vy == 0) vy = (s16)s->speed;
                 s->dy = (s->status & 1) ? -vy : vy;

@@ -550,15 +550,15 @@ dropped.
 **Fix**: `OBJECT_MAX` 24 -> 32, `ENEMY_MAX` 16 -> 32 (max per map across the
 converted stages is 27 for both).
 
-## BUG-021 — MAGE: card-throwing enemy is not flipped correctly
+## BUG-021 — MAGE: enemy projectile is not flipped when fired left
 
-**Report (2026-10-22)**: in the MAGE BOT stage, the card-throwing enemy
-("jogador de cartas") faces the wrong way — its sprite is not mirrored in the
-direction it moves/attacks.
+**Report (2026-10-22)**: GAMBIT's card flies left but is drawn facing right.
 
-**Status**: OPEN. Check the enemy's `dir` handling in `enemy.c` (SPR_setHFlip
-is applied from `e->dir` for every enemy; a card dealer may keep the editor
-direction while its AI turns), and the converter's stand/walk frames.
+**Status**: **FIXED 2026-10-22** (play-test pending). `eshot.c` only set
+`SPR_setHFlip` when a shot bounced; the spawn and the target-direction paths
+left the art facing right. `eshot_flip()` now mirrors every enemy shot from its
+travel direction (`dx < 0`), at fire time, after the target-direction resolve
+and on a bounce.
 
 ## BUG-022 — SEAHORSE: wrong/incomplete tileset at stage start
 
@@ -614,13 +614,23 @@ plays nothing; the PC has a checkpoint animation/SFX.
 **Status**: OPEN (= BUG-008 route 1: quantize the PC `dialog.png` into PAL0 and
 draw it behind the dialog text).
 
-## BUG-029 — "YOU GOT" screen missing
+## BUG-029 — "YOU GOT" screen (PC stage-clear sequence)
 
-**Report**: implement the "you got" (weapon acquired) screen.
+**Status**: **IMPLEMENTED 2026-10-22** (play-test pending). `showStageClear()`
+now follows the PC:
 
-**Status**: OPEN. `showStageClear()` (main.c) only draws it when
-`first_clear && stage 1..8`; verify why it did not appear (stage clear path,
-`save_slot_weapon_mask`, or it is skipped after the STAGE CLEAR removal).
+- `game::player_victory` (game.cpp:1276): music stops, explosion SFX, the
+  player takes the GOT_WEAPON pose (new animation row 26/27 in the player
+  sheet), the screen flashes the PC's four colours twice (300ms each) and then
+  the stage is shown for 3.5s;
+- `game::classic_style_got_weapon` (game.cpp:1347): dark blue CONFIG_BGCOLOR
+  screen, player at x=20 with the attack pose, and the three lines
+  "<WEAPON>" / "AND <ITEM>" (stages 1 and 6) / "HAVE BEEN ACQUIRED" (or
+  "HAS BEEN ACQUIRED"), held 5s or until START.
+
+The MD has no full-screen colour fill, so the flash writes the colour into
+PAL0 slot 0 (the backdrop) with a queued palette write and clears both planes
+to a transparent tile.
 
 ## BUG-030 — Font corrupted after winning a stage
 

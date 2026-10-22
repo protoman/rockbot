@@ -662,26 +662,97 @@ static void showGameOver(void)
 // stages 1..8 shows the weapon acquired before leaving the stage. The PC
 // player_victory() flash/pose is not reproduced yet (the stage is frozen on
 // its last frame); the text screen and the 5s hold match.
-static void showStageClear(u8 stage, bool first_clear)
-{
-    // PC has no "STAGE CLEAR / PRESS START" screen: game::got_weapon()
-    // (game.cpp:1320) shows the weapon on a first clear of stages 1..8 and
-    // then the game returns straight to the stage select.
-    if (!first_clear || stage < 1 || stage > 8) return;
+// PC defines.h:914/915: the stages that also grant an item weapon.
+#define COIL_GOT_STAGE 1
+#define JET_GOT_STAGE  6
 
-    textScreenBegin();
-    music_play(MUSIC_GOT_WEAPON);
-    sfx_play(SFX_GOT_WEAPON);
-    drawCentered("YOU GOT", 10);
-    drawCentered(weapon_data[stage].name, 12);
-    for (u16 i = 0; i < 300; i++) {            // PC wait 5000ms
-        if (JOY_readJoypad(JOY_1) & BUTTON_START) break;
+static void clear_to_color(u8 r, u8 g, u8 b)
+{
+    static u16 pal[16];
+    for (u8 i = 0; i < 16; i++) pal[i] = pal_ui.data[i];
+    pal[0] = RGB3_3_3_TO_VDPCOLOR((u8)((r * 7) / 255), (u8)((g * 7) / 255),
+                                  (u8)((b * 7) / 255));
+    PAL_setPalette(PAL0, pal, DMA_QUEUE);
+    SYS_doVBlankProcess();
+    const u16 blank = TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, TILE_FONT_INDEX);
+    VDP_fillTileMapRect(BG_A, blank, 0, 0, 64, 32);
+    VDP_fillTileMapRect(BG_B, blank, 0, 0, 64, 32);
+}
+
+static void hold_frames(u16 n)
+{
+    for (u16 i = 0; i < n; i++) {
+        if (JOY_readJoypad(JOY_1) & BUTTON_START) return;
         SPR_update();
         SYS_doVBlankProcess();
         VDP_setReg(17, 0);
         VDP_setReg(18, 0);
     }
-    VDP_clearTextArea(0, 8, 40, 6);
+}
+
+// PC game::player_victory / got_weapon / classic_style_got_weapon
+// (game.cpp:1276 / 1320 / 1347). The MD cannot fill the screen with an
+// arbitrary colour, so the flash puts the colour into PAL0 slot 0 (CRAM 0, the
+// backdrop) with a queued palette write and clears both planes to a
+// transparent tile: the screen then shows that colour with the player sprite on
+// top, which is what the PC does (clear_area + player.show()).
+static void showStageClear(u8 stage, bool first_clear)
+{
+    // PC shows the acquired weapon on a first clear of stages 1..8 only
+    // (game::got_weapon: currentStage != 0 && <= 8).
+    if (!first_clear || stage < 1 || stage > 8) return;
+
+    // ---- game::player_victory(): pose, colour flash, 3.5s of the stage ----
+    music_stop();
+    sfx_play(SFX_EXPLOSION);
+    hud_set_visible(FALSE);
+    shots_reset();
+    eshots_reset();
+    player_force_anim(ANIM_GOT_WEAPON);
+
+    static const u8 flash[4][3] = {
+        { 251, 225, 101 }, { 101, 105, 251 },
+        { 112, 251, 101 }, { 251, 101, 101 },
+    };
+    for (u8 round = 0; round < 2; round++) {
+        for (u8 j = 0; j < 4; j++) {
+            clear_to_color(flash[j][0], flash[j][1], flash[j][2]);
+            player_sync_sprite();
+            hold_frames(18);                       // PC timer.delay(300)
+        }
+    }
+
+    music_play(MUSIC_GOT_WEAPON);
+    // The stage again, with the player holding the pose (PC 3500ms).
+    PAL_setPalette(PAL0, pal_ui.data, DMA_QUEUE);
+    stage_restore_palette();
+    stage_force_redraw();
+    player_sync_sprite();
+    hold_frames(210);
+
+    // ---- game::classic_style_got_weapon(): the PC screen ----
+    // Dark blue CONFIG_BGCOLOR (5,29,65), player at x=20 vertically centred,
+    // then "WEAPON" / "AND ITEM" / "HAVE BEEN ACQUIRED" (game.cpp:1347).
+    clear_to_color(5, 29, 65);
+    camera.x = 0;
+    camera.y = 0;
+    player_place(20, 98);
+    player_force_anim(ANIM_ATTACK);
+    player_sync_sprite();
+
+    const u8 tx = 8;                                // RES_W*0.5-90 -> tile 8
+    VDP_drawText(weapon_data[stage].name, tx, 13);
+    u8 line3 = 15;
+    if (stage == COIL_GOT_STAGE || stage == JET_GOT_STAGE) {
+        VDP_drawText("AND", tx, 15);
+        VDP_drawText(weapon_data[(stage == COIL_GOT_STAGE) ? 9 : 10].name,
+                     tx + 4, 15);
+        line3 = 16;
+    }
+    VDP_drawText((stage == COIL_GOT_STAGE || stage == JET_GOT_STAGE)
+                     ? "HAVE BEEN ACQUIRED" : "HAS BEEN ACQUIRED", tx, line3);
+    hold_frames(300);                               // PC wait 5000ms
+    VDP_clearTextArea(0, 12, 40, 6);
 }
 
 // PC game loop after leave_stage(): the stage select drives the next stage.
