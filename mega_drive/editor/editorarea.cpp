@@ -1,4 +1,5 @@
 #include <iostream>
+#include "port_layout.h"
 #include <stdio.h>
 #include "editorarea.h"
 #include <QApplication>
@@ -111,10 +112,6 @@ void EditorArea::paintEvent(QPaintEvent *) {
 
     int i, j, pos;
     QPainter painter(this);
-    // MD view: the port's converter drops the PC map's top row (224p = 14
-    // rows of 16px), so shift everything up one row and let row 0 fall outside
-    // the canvas. What is visible here is exactly what the Mega Drive shows.
-    painter.translate(0, -16 * Mediator::get_instance()->zoom);
     QLineF line;
     QString filename;
 
@@ -122,7 +119,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
 	// draw background-color
     if (Mediator::get_instance()->show_background_color == true) {
         //painter.setPen(QColor(Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.r, Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.g, Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.b, 255));
-        painter.fillRect(QRectF(0.0, 0.0, MAP_W*TILESIZE*Mediator::get_instance()->zoom, MAP_H*TILESIZE*Mediator::get_instance()->zoom), QColor(Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.r, Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.g, Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.b, 255));
+        painter.fillRect(QRectF(0.0, 0.0, MAP_W*TILESIZE*Mediator::get_instance()->zoom, EDITOR_MAP_H*TILESIZE*Mediator::get_instance()->zoom), QColor(Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.r, Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.g, Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].background_color.b, 255));
 	}
 	// draw background1
     std::string bg1_filename(Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].backgrounds[0].filename);
@@ -143,7 +140,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
 
     // DRAW TILES //
     for (i=0; i<MAP_W; i++) {
-        for (j=0; j<MAP_H; j++) {
+        for (j=0; j<EDITOR_MAP_H; j++) {
 
             if (Mediator::get_instance()->show_tileset_flag == true) {
                 // level one
@@ -673,10 +670,10 @@ void EditorArea::paintEvent(QPaintEvent *) {
             pos = i*16*Mediator::get_instance()->zoom-1;
             //QLineF line(0, 800, 16, 800);
             // linhas horizontais
-            line = QLineF(pos, 0, pos, MAP_H*16*Mediator::get_instance()->zoom-1);
+            line = QLineF(pos, 0, pos, EDITOR_MAP_H*16*Mediator::get_instance()->zoom-1);
             if (i % 20 == 0) {
                 painter.setPen(pen_white);
-                QLineF lineWhite = QLineF(pos+4, 0, pos+4, MAP_H*16*Mediator::get_instance()->zoom-1);
+                QLineF lineWhite = QLineF(pos+4, 0, pos+4, EDITOR_MAP_H*16*Mediator::get_instance()->zoom-1);
                 painter.drawLine(lineWhite);
                 painter.setPen(pen_red);
             } else {
@@ -685,7 +682,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
             painter.drawLine(line);
         }
         painter.setPen(pen);
-        for (i=1; i<MAP_H; i++) {
+        for (i=1; i<EDITOR_MAP_H; i++) {
             pos = i*16*Mediator::get_instance()->zoom-1;
             //QLineF line(0, 800, 16, 800);
             // linhas verticais
@@ -716,8 +713,8 @@ void EditorArea::paintEvent(QPaintEvent *) {
     }
 
 
-    // 224p: 14 visible rows (MAP_H-1), the top PC row is cut by the converter.
-    QSize resizeMe(MAP_W*16*Mediator::get_instance()->zoom, (MAP_H-1)*16*Mediator::get_instance()->zoom);
+    // 224p: the 14 game rows the ROM uses (no hidden row any more)
+    QSize resizeMe(MAP_W*16*Mediator::get_instance()->zoom, EDITOR_MAP_H*16*Mediator::get_instance()->zoom);
     this->resize(resizeMe);
     myParent->adjustSize();
 
@@ -728,7 +725,7 @@ void EditorArea::mouseMoveEvent(QMouseEvent *event) {
 
     if (Mediator::get_instance()->editMode != EDITMODE_SELECT) {
         // forces "click" when moving
-        if (editor_selectedTileX != pnt.x()/(16*Mediator::get_instance()->zoom) || editor_selectedTileY != pnt.y()/(16*Mediator::get_instance()->zoom) + 1) {
+        if (editor_selectedTileX != pnt.x()/(16*Mediator::get_instance()->zoom) || editor_selectedTileY != pnt.y()/(16*Mediator::get_instance()->zoom)) {
             mousePressEvent(event);
         }
     } else {
@@ -763,8 +760,7 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
 
     QPoint pnt = event->pos();
     editor_selectedTileX = pnt.x()/(16*Mediator::get_instance()->zoom);
-    // +1: the MD view hides PC row 0 (see paintEvent)
-    editor_selectedTileY = pnt.y()/(16*Mediator::get_instance()->zoom) + 1;
+    editor_selectedTileY = pnt.y()/(16*Mediator::get_instance()->zoom);
 
     if (Mediator::get_instance()->editMode == EDITMODE_NORMAL) {
         if (Mediator::get_instance()->editTool == EDITMODE_NORMAL) {
@@ -1162,7 +1158,7 @@ void EditorArea::fill_area() {
 			}
 		}
 		// área abaixo
-		for (j=editor_selectedTileY+1; j<MAP_H; j++) {
+		for (j=editor_selectedTileY+1; j<EDITOR_MAP_H; j++) {
             if (Mediator::get_instance()->layerLevel == 1) {
                 searchX = Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.x;
                 searchY = Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.y;
@@ -1207,7 +1203,7 @@ void EditorArea::fill_area() {
 			}
 		}
 		// área abaixo
-		for (j=editor_selectedTileY+1; j<MAP_H; j++) {
+		for (j=editor_selectedTileY+1; j<EDITOR_MAP_H; j++) {
             if (Mediator::get_instance()->layerLevel == 1) {
                 searchX = Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.x;
                 searchY = Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.y;

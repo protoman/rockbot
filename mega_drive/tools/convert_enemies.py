@@ -56,7 +56,7 @@ PFX = "stage%d" % STAGE_INDEX
 UP = PFX.upper()
 MAPS_PER_STAGE = 3
 MAP_W = 200
-MAP_H_SRC = 15          # source rows; convert_stage crops the top row
+MAP_H_SRC = 15          # file slot stride; slot 14 is unused padding
 MAP_H = 14              # MD rows
 MAP_STRUCT = 15078
 MAP_TILES_OFF = 78
@@ -251,7 +251,7 @@ def read_ai_reactions():
 
 
 def read_terrain():
-    """MD grid per map: source col[1:] (top row cropped, like convert_stage)."""
+    """MD grid per map: the 14 game rows (tools/import_pc_data.py did the crop)."""
     grids = []
     with open(os.path.join(DATA, "maps_v2.dat"), "rb") as f:
         for m in range(MAPS_PER_STAGE):
@@ -264,7 +264,7 @@ def read_terrain():
                 for y in range(MAP_H_SRC):
                     col.append(t[(x * MAP_H_SRC + y) * TILE_STRUCT])
                 col_major.append(col)
-            grids.append([col[1:] for col in col_major])   # crop top row
+            grids.append([col[:MAP_H] for col in col_major])   # 14 game rows
     return grids
 
 
@@ -592,7 +592,7 @@ def main():
         p = plans[s["id"]]
         box_l, box_t, box_w, box_h = p["box"]
         x = s["x"] * 16 + d["bgx"]
-        y = max(0, (s["y"] - 1) * 16) + d["bgy"]
+        y = s["y"] * 16 + d["bgy"]
         if not d["fly"]:
             y, ok = drop_to_ground(grids[s["map"]], x + box_l, y, box_t, box_h)
             if not ok:

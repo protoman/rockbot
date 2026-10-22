@@ -19,7 +19,7 @@ Rules (mirrors PC, verified in source):
     2=hard, defines.h:1314). PC rule classmap.cpp:1326-1331.
   - boss teleporter (type 32) kept (M6b): dest tiles from the spawn's
     _lx/_ly/_mdest fields (PC game::object_teleport_boss destination).
-  - spawn px: x = sx*16, y = max(0, sy-1)*16 (top PC row cropped).
+  - spawn px: x = sx*16, y = sy*16 (the data is already cropped to 14 rows).
   - load-time drop for gravity types (pill/1UP/checkpoint):
     object::initialize_object_position_to_ground() runs gravity()
     h times; each step up to GRAVITY_SPEED=4px, blocked when the
@@ -267,14 +267,12 @@ def main():
         d = defs[s["id"]]
         x = s["x"] * 16
         if d["type"] == OBJ_BOSS_DOOR:
-            # Static door: the map top row was cropped, so its world Y moves
-            # up one tile like every non-platform object (it was sitting one
-            # tile inside the floor in SUN-GOD REALM).
-            y = max(0, s["y"] - 1) * 16
+            # Static door: y is the tile row in the (already cropped) data.
+            y = s["y"] * 16
         elif d["type"] in PLATFORM_TYPES:
             y = s["y"] * 16          # PC object.cpp:66: position.y = sy*TILESIZE
         else:
-            y = max(0, s["y"] - 1) * 16
+            y = s["y"] * 16
         if d["type"] in GRAVITY_TYPES:
             y, fell = drop_to_ground(grids[s["map"]], x, y, d["w"], d["h"])
             if fell:

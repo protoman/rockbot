@@ -411,6 +411,19 @@ Deliberately **not** ported (user decision 2026-10-21): difficulty select,
 cheats menu, static tile3 foreground art, rain/lightning overlays, save copy,
 language/platform/performance options. See `pc_features_vs_md.md` §11.
 
+## Editable game data + stage editor (2026-10-22)
+
+The data in `data/games/RockDroid1` is **already converted** to the port's
+geometry: the PC 15 rows were cropped to 14 game rows (slots 0..13; slot 14 is
+unused padding of the PC struct), link rows remapped (row 0 stays, else -1) and
+spawn Y shifted, all by the one-time `tools/import_pc_data.py`. The converters
+stopped cropping, so what the editor edits is exactly what the ROM gets, and
+Shift Down/Up now move links with the room. Verified by regenerating the assets
+after the import: terrain/links/enemies/objects came out identical; only two
+scroll-lock columns (stage 2 map 2, stage 11 map 1) and the stage 1/6/11
+palettes changed, because both are derived from the tiles of the *visible*
+rows now instead of including the cropped row.
+
 ## Editable game data + stage editor (2026-10-21)
 
 `data/games/RockDroid1/` is now the master copy of the game data (12 MB copy of

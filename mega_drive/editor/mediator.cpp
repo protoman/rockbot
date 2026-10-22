@@ -1,4 +1,5 @@
 #include "mediator.h"
+#include "port_layout.h"
 #include <stdio.h>
 #include <QFile>
 #include <QDir>
@@ -507,9 +508,9 @@ void Mediator::clean_map_data()
     //maps_data_v2[FS_MAX_STAGES][FS_STAGE_MAX_MAPS]
     for (int i=0; i<FS_MAX_STAGES; i++) {
         for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
-            //tiles[MAP_W][MAP_H]
+            //tiles[MAP_W][EDITOR_MAP_H]
             for (int k=0; k<MAP_W; k++) {
-                for (int l=0; l<MAP_H; l++) {
+                for (int l=0; l<EDITOR_MAP_H; l++) {
                     if (maps_data_v2[i][j].tiles[k][l].locked == TERRAIN_CHECKPOINT) {
                         maps_data_v2[i][j].tiles[k][l].locked = TERRAIN_UNBLOCKED;
                     }
@@ -567,7 +568,7 @@ void Mediator::resetMap(int map_n) {
 /*
     snprintf(map.filename, "%s/images/tilesets/default.png", FILEPATH.c_str());
 	for (j=0; j<MAP_W; j++) {
-		for (k=0; k<MAP_H; k++) {
+		for (k=0; k<EDITOR_MAP_H; k++) {
 			map.tiles[j][k].locked=0;
 			map.tiles[j][k].tile1.x=-1;
 			map.tiles[j][k].tile1.y=-1;

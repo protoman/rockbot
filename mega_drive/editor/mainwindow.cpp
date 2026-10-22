@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "port_layout.h"
 #include "ui_mainwindow.h"
 #include "defines.h"
 #include "addwizard.h"
@@ -398,7 +399,7 @@ void MainWindow::on_bg2_speed_valueChanged(double arg1)
 void MainWindow::on_actionReset_Map_triggered()
 {
 	for (int i=0; i<MAP_W; i++) {
-		for (int j=0; j<MAP_H; j++) {
+		for (int j=0; j<EDITOR_MAP_H; j++) {
             Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].locked = 0;
             Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.x = -1;
             Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile1.y = -1;
@@ -451,7 +452,7 @@ void MainWindow::on_actionShift_Down_triggered()
     CURRENT_FILE_FORMAT::file_map_v2 &map_data = Mediator::get_instance()->maps_data_v2[stage][map];
 
     for (int i = 0; i < MAP_W; i++) {
-        for (int j = MAP_H - 1; j >= 2; j--) {
+        for (int j = EDITOR_MAP_H - 1; j >= 2; j--) {
             map_data.tiles[i][j] = map_data.tiles[i][j - 1];
         }
         map_data.tiles[i][1] = map_data.tiles[i][0];
@@ -466,7 +467,7 @@ void MainWindow::on_actionShift_Down_triggered()
             continue;
         }
         obj.start_point.y++;
-        if (obj.start_point.y < MAP_H) {           // pushed past the bottom: drop it
+        if (obj.start_point.y < EDITOR_MAP_H) {           // pushed past the bottom: drop it
             new_objects.push_back(obj);
         }
     }
@@ -481,11 +482,26 @@ void MainWindow::on_actionShift_Down_triggered()
             continue;
         }
         npc.start_point.y++;
-        if (npc.start_point.y < MAP_H) {
+        if (npc.start_point.y < EDITOR_MAP_H) {
             new_npcs.push_back(npc);
         }
     }
     Mediator::get_instance()->maps_data_npc_list = new_npcs;
+
+    // links: same one-tile move so they stay attached to the room. A link that
+    // would fall off the bottom is clamped to the last row.
+    CURRENT_FILE_FORMAT::file_stage &stage_data = Mediator::get_instance()->stage_data.stages[stage];
+    for (int i = 0; i < FS_STAGE_MAX_LINKS; i++) {
+        CURRENT_FILE_FORMAT::file_link &link = stage_data.links[i];
+        if (link.id_map_origin == map) {
+            int y = link.pos_origin.y + 1;
+            link.pos_origin.y = (y > EDITOR_MAP_H - 1) ? EDITOR_MAP_H - 1 : y;
+        }
+        if (link.id_map_destiny == map) {
+            int y = link.pos_destiny.y + 1;
+            link.pos_destiny.y = (y > EDITOR_MAP_H - 1) ? EDITOR_MAP_H - 1 : y;
+        }
+    }
 
     map_edit_tab->update_edit_area();
 }
@@ -505,10 +521,10 @@ void MainWindow::on_actionShift_Up_triggered()
     CURRENT_FILE_FORMAT::file_map_v2 &map_data = Mediator::get_instance()->maps_data_v2[stage][map];
 
     for (int i = 0; i < MAP_W; i++) {
-        for (int j = 0; j <= MAP_H - 3; j++) {
+        for (int j = 0; j <= EDITOR_MAP_H - 3; j++) {
             map_data.tiles[i][j] = map_data.tiles[i][j + 1];
         }
-        map_data.tiles[i][MAP_H - 2] = map_data.tiles[i][MAP_H - 1];
+        map_data.tiles[i][EDITOR_MAP_H - 2] = map_data.tiles[i][EDITOR_MAP_H - 1];
     }
 
     // objects
@@ -540,6 +556,18 @@ void MainWindow::on_actionShift_Up_triggered()
         }
     }
     Mediator::get_instance()->maps_data_npc_list = new_npcs;
+
+    // links: one tile up, clamped to row 0
+    CURRENT_FILE_FORMAT::file_stage &stage_data = Mediator::get_instance()->stage_data.stages[stage];
+    for (int i = 0; i < FS_STAGE_MAX_LINKS; i++) {
+        CURRENT_FILE_FORMAT::file_link &link = stage_data.links[i];
+        if (link.id_map_origin == map && link.pos_origin.y > 0) {
+            link.pos_origin.y--;
+        }
+        if (link.id_map_destiny == map && link.pos_destiny.y > 0) {
+            link.pos_destiny.y--;
+        }
+    }
 
     map_edit_tab->update_edit_area();
 }

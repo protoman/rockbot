@@ -76,13 +76,13 @@ static const StageBgInfo stage2_bg_info[3] = {
 };
 
 static const u8 stage2_scroll_lock_n[3] = {
-    3, 6, 7
+    3, 6, 8
 };
 
-static const u8 stage2_scroll_lock[3][7] = {
-    { 94, 95, 169, 0, 0, 0, 0 },
-    { 0, 19, 20, 39, 40, 59, 0 },
-    { 1, 48, 49, 178, 179, 198, 199 },
+static const u8 stage2_scroll_lock[3][8] = {
+    { 94, 95, 169, 0, 0, 0, 0, 0 },
+    { 0, 19, 20, 39, 40, 59, 0, 0 },
+    { 1, 48, 49, 50, 178, 179, 198, 199 },
 };
 
 static const u8 stage2_tile3_mask[3][350] = {
@@ -663,7 +663,7 @@ const StageDef stage2_def = {
     .links = stage2_links, .link_count = 6,
     .bg_info = stage2_bg_info, .bg_pal = stage2_bg_pal, .bg_tiles = stage2_bg_tiles,
     .bg_tiles_n = stage2_bg_tiles_n, .bg_maps = stage2_bg_maps, .bg_map_h = stage2_bg_map_h,
-    .scroll_lock_n = stage2_scroll_lock_n, .scroll_lock = &stage2_scroll_lock[0][0], .scroll_lock_max = 7,
+    .scroll_lock_n = stage2_scroll_lock_n, .scroll_lock = &stage2_scroll_lock[0][0], .scroll_lock_max = 8,
     .tile3_mask = &stage2_tile3_mask[0][0],
     .pal3_mask = &stage2_pal3_mask[0][0],
     .cycle_base = 12, .cycle_n = 3, .cycle_frames = 7,

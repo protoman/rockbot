@@ -205,10 +205,15 @@ from already-captured screenshots/assets over running the emulator again.
 
 ## Editable stage data (source of truth)
 
-- `data/games/RockDroid1/` is a **copy** of the PC game data and is what every
+- `data/games/RockDroid1/` is the **master** game data and is what every
   converter reads (`tools/*.py` use `ROOT/data/games/RockDroid1`). The parent
   `rockbot/build/games/RockDroid1` is never read again, so edits made here
   survive every `make assets`.
+- It is already converted to the port's geometry: **14 game rows (224p)** in
+  file slots 0..13 (slot 14 is unused padding of the PC struct), link rows and
+  spawn Y remapped. `tools/import_pc_data.py` did that once from the PC data;
+  the converters no longer crop anything. Re-running it overwrites the data
+  (it backs up first) and is only for a fresh PC import.
 - `data/fonts` and `data/shared` are symlinks to the parent's read-only shared
   art (the editor wants them next to `games/`).
 - Editor: the PC Qt editor copied into `editor/` (Qt5/Qt6, **CMake**), pointed
@@ -217,6 +222,8 @@ from already-captured screenshots/assets over running the emulator again.
   `ROCKBOT_EDITOR_PATH=$PWD/data editor/editor`).
 - After editing maps/enemies/objects: `make` (or `make assets`) regenerates
   `src/stageN_*` from the edited data, then the ROM.
+- The editor shows the same 14 rows the game uses; Edit > Shift Down / Shift Up
+  move the whole room (tiles, objects, enemies, links) by one row.
 
 ## Port status
 

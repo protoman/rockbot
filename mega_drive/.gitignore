@@ -8,3 +8,6 @@ editor/ui_*.h
 editor/qrc_*.cpp
 editor/CMakeCache.txt
 editor/CMakeFiles/
+
+# transient backup made by tools/import_pc_data.py
+data/backup_pre_import_*/

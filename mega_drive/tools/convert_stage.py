@@ -13,7 +13,7 @@ Writes:
   src/stage0_data.h/.c      terrain grids, links, background info
 
 Stage 0 progression (from stages_v301.dat links, positions are Uint8;
-y values after the top-row crop, see crop_top_row):
+y values after the top-row crop done by tools/import_pc_data.py):
   link2: map 0 (136,13) -> map 1 (198,0)  climb down the ladder at x=136
   link3: map 1 (1,0)    -> map 0 (139,13) climb up the ladder at x=1
 
@@ -36,8 +36,8 @@ STAGE_STRUCT = 438
 MAP_STRUCT = 15078
 MAP_TILES_OFF = 78
 TILE_STRUCT = 5
-MAP_W, MAP_H = 200, 14   # output size: 320x224 NTSC (top PC row cropped)
-MAP_H_SRC = 15           # PC maps are 15 rows (240px)
+MAP_W, MAP_H = 200, 14   # 320x224 NTSC; the data is already cropped to 14 rows
+MAP_H_SRC = 15           # file slot stride (slot 14 is unused padding)
 TILE = 16
 STAGE_INDEX = int(sys.argv[1]) if len(sys.argv) > 1 else 0
 PFX = "stage%d" % STAGE_INDEX
@@ -139,7 +139,7 @@ def read_map(stage_n, map_n):
     cells = []
     for x in range(MAP_W):
         col = []
-        for y in range(MAP_H_SRC):
+        for y in range(MAP_H):          # game rows only (tools/import_pc_data.py)
             v = t[(x * MAP_H_SRC + y) * TILE_STRUCT:(x * MAP_H_SRC + y) * TILE_STRUCT + TILE_STRUCT]
             locked = v[0]
             t1x, t1y, t3x, t3y = struct.unpack("bbbb", v[1:5])
@@ -292,7 +292,7 @@ def collect_map(map_n):
     _, _, cells = read_map(STAGE_INDEX, map_n)
     used, seen = [], set()
     for x in range(MAP_W):
-        for y in range(MAP_H_SRC):
+        for y in range(MAP_H):
             _, t1x, t1y, t3x, t3y = cells[x][y]
             for (cx, cy) in ((t1x, t1y), (t3x, t3y)):
                 if cx < 0 or cy < 0:
@@ -301,19 +301,6 @@ def collect_map(map_n):
                     seen.add((cx, cy))
                     used.append((cx, cy))
     return cells, used
-
-
-def crop_top_row(cells, links, map_n):
-    """Drop the top row so the map fits 14 rows (224px, no vertical scroll).
-    If any link touches this map at row 0, copy the top row onto row 1
-    first so its tiles/links stay reachable. Link rows: 0 stays 0,
-    everything else shifts up by one."""
-    touches = any((frm == map_n and oy == 0) or (to == map_n and dy == 0)
-                  for (_, frm, to, ox, oy, dx, dy, _size, _bidir, _type) in links)
-    if touches:
-        for x in range(MAP_W):
-            cells[x][1] = cells[x][0]
-    return [col[1:] for col in cells]
 
 
 def collect_colors(used, ts_px):
@@ -442,9 +429,9 @@ def main():
         maps_data.append((cells, used))
         scroll_locks.append([
             x for x in range(MAP_W)
-            if all(cells[x][y][0] in lock_terrain for y in range(MAP_H_SRC))
+            if all(cells[x][y][0] in lock_terrain for y in range(MAP_H))
         ])
-    maps_data = [(crop_top_row(cells, links, m), used)
+    maps_data = [(cells, used)
                  for m, (cells, used) in enumerate(maps_data)]
 
     anim_blocks = read_anim_blocks()
@@ -726,8 +713,6 @@ def main():
 
     c.append(f"static const StageLink {PFX}_links[{max(1,len(links))}] = {{\n")
     for (i, frm, to, ox, oy, dx, dy, size, bidir, typ) in links:
-        oy = 0 if oy == 0 else oy - 1
-        dy = 0 if dy == 0 else dy - 1
         c.append(f"    {{ {frm}, {ox}, {oy}, {to}, {dx}, {dy}, "
                  f"{size}, {bidir}, {typ} }}, // link{i}\n")
     c.append("};\n\n")
