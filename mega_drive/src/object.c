@@ -658,6 +658,25 @@ void objects_shift_y(s16 dy)
     }
 }
 
+// Blocking horizontal scroll (boss door): the camera moves while the objects
+// stay put in world space, so their sprites must be re-placed from the world
+// position - otherwise the door stays glued to the screen while the stage
+// slides under it (SEAHORSE sub-boss door).
+void objects_sync_sprites(void)
+{
+    for (u8 i = 0; i < obj_count; i++) {
+        MapObj *o = &objs[i];
+        if (!o->active || !o->spr) continue;
+        const ObjectDef *d = o->def;
+        s16 sx = o->x - camera.x;
+        s16 sy = o->y - camera.y;
+        bool on_screen = (sx + d->w > 0 && sx < 320 &&
+                          sy + d->h > 0 && sy < 224);
+        SPR_setVisibility(o->spr, on_screen ? VISIBLE : HIDDEN);
+        if (on_screen) SPR_setPosition(o->spr, sx, sy);
+    }
+}
+
 // Player shots vs destructible walls (OBJ_DESTRUCTIBLE_WALL): the PC block
 // vanishes after enough hits (block003 art has a broken frame). Returns TRUE
 // when the shot hit something (the caller kills the shot).

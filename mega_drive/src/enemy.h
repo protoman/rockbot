@@ -58,4 +58,8 @@ void enemies_set_visible(bool visible);
 // copies a frozen bitmap of it), so the caller passes the screen offset.
 void enemies_shift_y(s16 dy);
 
+// Blocking horizontal scroll: re-place every live enemy sprite from its world
+// position (the camera moved, the enemies did not).
+void enemies_sync_sprites(void);
+
 #endif

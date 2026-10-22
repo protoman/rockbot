@@ -82,4 +82,8 @@ void objects_set_visible(bool visible);
 // screen pixels (the outgoing screen takes its objects with it).
 void objects_shift_y(s16 dy);
 
+// Blocking horizontal scroll: re-place every live object sprite from its
+// world position (the camera moved, the objects did not).
+void objects_sync_sprites(void);
+
 #endif

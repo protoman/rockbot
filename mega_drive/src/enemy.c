@@ -1048,6 +1048,20 @@ void enemies_set_visible(bool visible)
 // what is on screen, so its enemies slide with it. Visibility is set
 // explicitly (clearing SGDK's auto modes) before the position write, which
 // would otherwise recompute it.
+// Blocking horizontal scroll (boss door): same as objects_sync_sprites().
+void enemies_sync_sprites(void)
+{
+    for (u8 i = 0; i < enemy_count; i++) {
+        Enemy *e = &enemies[i];
+        if (!e->spr || !e->alive) continue;
+        s16 sx = e->x - camera.x;
+        s16 sy = e->y - camera.y;
+        SPR_setVisibility(e->spr, (sx >= -40 && sx < 336 &&
+                                   sy >= -40 && sy < 248) ? VISIBLE : HIDDEN);
+        SPR_setPosition(e->spr, sx, sy);
+    }
+}
+
 void enemies_shift_y(s16 dy)
 {
     for (u8 i = 0; i < enemy_count; i++) {

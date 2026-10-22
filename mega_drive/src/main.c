@@ -345,6 +345,7 @@ static RunResult runStage(u8 stage)
     // Pick the stage's data bundle (clamped to the converted stages), then
     // load its map 0. Links/map changes stay within the current stage.
     stage_set_data(stage);
+    player_clear_checkpoint();   // per-stage respawn point (PC resets it)
 
     // PC boss intro (sceneslib.cpp:681) before the stage; skipped once the
     // stage is beaten (game_save.stages[stage] != 0).

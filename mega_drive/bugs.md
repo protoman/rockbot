@@ -593,6 +593,13 @@ incomplete.
 Two steps per frame (the PC runs one every ~2 ms), and the door handler no
 longer carries him the full screen.
 
+**Remaining half (2026-10-22)**: the door sprite stayed glued to the screen
+while the stage slid under it — the scroll moved the camera and the player but
+never re-placed the objects/enemies (their sprites are positioned from world
+coordinates only in the normal frame loop). `stage_horizontal_screen_move()`
+now calls `enemies_sync_sprites()` and `objects_sync_sprites()` after every
+step, so the door keeps its world position.
+
 ## BUG-026 — Checkpoint shows no animation when activated
 
 **Report**: activating a checkpoint gives no animation.
@@ -617,6 +624,14 @@ column 34/row 5) in PAL3 with their own palette, replacing the old black box
 and the "JUMP: NEXT" text. The stage colourcycle band is re-applied through
 `stage_restore_cycle()` when the dialog closes (PAL3 is the cycle line in
 stages 1/2/3/6/8).
+
+**Follow-up (2026-10-22)**: the art is 310x65, i.e. 38.75 x 8.125 tiles, so
+`img2tiles` padded the panel to 39x9 with TRANSPARENT cells: the last 2 px of
+the right column and the whole 9th row were see-through, and the stage showed
+through them (the vertical strip of water at the right edge of the panel in
+`screenshots/bugs/boss_dialog.png`). The source art is now padded to 320x72
+with its own black border (`images/backgrounds/dialog.png`), which is exactly
+40x9 tiles: every cell of the panel is opaque.
 
 ## BUG-029 — "YOU GOT" screen (PC stage-clear sequence)
 
@@ -728,3 +743,19 @@ a frame change is a **single 4-tile DMA** into that block. No tilemap writes at
 all. `TILE_ANIM_STRIDE` 24 -> 4 also frees 260 tiles of VRAM: `check_vram` now
 reports `OK (14 stages, 0 transition fallbacks)` (the three stage-2 fade
 fallbacks are gone too).
+
+## BUG-034 — Death respawns at the wrong checkpoint (SEAHORSE)
+
+**Report**: activated the second SEAHORSE checkpoint, died, and came back at
+the THIRD one, next to the boss teleporter.
+
+**Cause**: `respawn_player()` honoured the checkpoint only when
+`cp_map == stage_current_map`; dying in the next room fell through to that
+room's start position. The PC (`game.cpp:395`) treats the checkpoint as the
+STAGE-wide respawn point and resets the stage maps, so a death always returns
+to the checkpoint room. `cp_active` was also never cleared, so a checkpoint
+from a previous stage could survive into the next one.
+
+**Fix**: a new stage clears the checkpoint (`player_clear_checkpoint()` from
+`runStage`), and the respawn now loads the checkpoint's map when the player
+died elsewhere (`stage_load(cp_map)`), then places him at the stored point.

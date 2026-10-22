@@ -180,8 +180,10 @@ void player_crush(void);
 void player_super_jump(void);
 
 // Record the respawn point (worldX, feet-Y worldY) when touching a
-// checkpoint object. Death and pit-falls respawn there while on that map.
+// checkpoint object. Death and pit-falls respawn there (its own room, like the
+// PC). Cleared when a new stage starts.
 void player_set_checkpoint(s16 worldX, s16 worldY);
+void player_clear_checkpoint(void);
 
 // Hide/show the player sprite (in-game menu overlay).
 void player_set_visible(bool visible);

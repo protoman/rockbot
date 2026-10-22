@@ -636,6 +636,11 @@ void stage_horizontal_screen_move(s16 dir)
         player.x += F16_toInt(player_acc);
         player_acc &= 63;                     // keep the sub-pixel remainder
         player_sync_sprite();
+        // The camera moved: doors/enemies/objects keep their WORLD position,
+        // so their sprites must follow (the sub-boss door used to stay glued
+        // to the screen while the stage slid under it).
+        enemies_sync_sprites();
+        objects_sync_sprites();
         if ((i & 1) == 0) {                   // 2 steps per frame
             SPR_update();
             SYS_doVBlankProcess();

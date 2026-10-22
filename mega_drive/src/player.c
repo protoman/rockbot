@@ -117,6 +117,12 @@ static u16 base_pal[16];    // sheet palette + the current weapon's 13/14/15
 static bool cp_active;
 static s16 cp_map, cp_x, cp_y;
 
+// A new stage starts without a checkpoint (the PC keeps it per stage only).
+void player_clear_checkpoint(void)
+{
+    cp_active = FALSE;
+}
+
 void player_set_checkpoint(s16 worldX, s16 worldY)
 {
     cp_map = stage_current_map;
@@ -164,7 +170,18 @@ static void respawn_player(bool invuln)
     player.fire_prev = FALSE;
     s16 sx = SPAWN_X;
     s16 sy = spawn_ground_y(SPAWN_X);
-    if (cp_active && cp_map == stage_current_map) {
+    if (cp_active) {
+        // PC game.cpp:395: the checkpoint is the STAGE-wide respawn point, and
+        // a death sends the player back to it even from another room (the PC
+        // resets the stage maps and teleports there). The port used to honour
+        // the checkpoint only on its own map, so dying one room later spawned
+        // you at that room's start (SEAHORSE: next to the boss teleporter
+        // instead of the checkpoint you had touched).
+        if (cp_map != stage_current_map) {
+            stage_load_in_place = FALSE;
+            stage_pending_camera_x = -1;
+            stage_load(cp_map);
+        }
         sx = cp_x;
         sy = cp_y - box_b;
     }
