@@ -581,11 +581,10 @@ surface (y=83). Screenshot confirms him under the water column.
 
 ## BUG-018 — Fish leaves the water to chase the player
 
-**Status**: **OPEN** (probably global). Water-bound enemies must stay in WATER
-tiles; `enemy.c` only checks `TERRAIN_UNBLOCKED`/`WATER` for walking/cliff
-decisions, not a "stay in water" constraint. Check the PC AI for the water
-enemies (ATLANTIDA fish) and the `is_water`/terrain constraints, then add a
-flying-into-water rule (or the opposite) per enemy type.
+**Status**: **FIXED** (confirmed by the 2026-10-22 play test — "fish staying in
+water" is in the do-not-regress list). First attempt compared the position with
+itself; see the analysis further down for the final fix (pre-move probe, PC
+`character.cpp:1921-1923`).
 
 ## BUG-019 — DR. DESTRIN boss intro shows APE BOT
 

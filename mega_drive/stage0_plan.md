@@ -1852,3 +1852,34 @@ yet) when `enemies_boss_on_screen()` first becomes true in `runStage`. The
 dialog box is drawn on BG_A at the camera's tile offset (cell writes wrap at
 the 64-cell plane), player/enemies/HUD are hidden while it is up, and
 `stage_force_redraw()` restores the map afterwards.
+
+## Play-test palette/animation batch (2026-10-22, offline)
+
+Fixed offline, one play-test pending. Root causes, all found in the data or the
+palette layout — none needed an emulator:
+
+- **BETABOT red body + wrong HP bar colours** were one bug:
+  `rebuild_player_palette()` wrote the HUD bar colours into PAL2 8/9/12, which
+  the player art uses (BETABOT's whole black body is index 8). The HP bar moved
+  to PAL0 (PC `draw_energy_bar` always uses PLAYER 1's weapon-0 colours), the
+  weapon bar keeps PAL2 13/14 + a black PAL0 backdrop sprite.
+- **Dialog text background / A button**: the font paints a whole cell with
+  palette index 0, so the lines must be written with a palette whose 0 is the
+  panel fill (PAL3 entry 0 = teal, entry 15 = white). The A-button art went
+  through `img2tiles.py`, which re-quantizes indexed sources, so its white
+  became a PAL3 border index: it is a font "A" glyph now.
+- **Checkpoint "no animation"**: the object logic was correct
+  (`anim_loop = 1`); PAL0 has one green, so both art frames quantized to the
+  same index and differed by 6 px. `CHECKPOINT_OVERRIDES` in
+  `tools/import_pc_art.py` pins screen/text/LEDs apart (130 px differ now).
+- **Death explosion**: the death branch never called `explosion_update()` (the
+  puffs froze and leaked) and used a 3-puff horizontal row. Now the PC pattern:
+  centre puff repeats (0/30/60), four diagonals at ±32 px (18/36/54/72).
+- **Stage-select names**: drawn with the global PAL0, whose entry 0 (CRAM 0)
+  holds the previous map's backdrop colour -> names in that colour on itself.
+  They use PAL1 (0 = black, 15 = grey) and the default font is re-uploaded.
+
+New tripwire: `tools/check_palettes.py` (HUD/PAL2 split, checkpoint frame
+difference, stage-select text palette). A fully transparent sprite frame is
+fine — rescomp emits 0 VDP sprites and SGDK's `loadTiles` skips empty tilesets,
+which is how the weapon bar's empty frames work.
