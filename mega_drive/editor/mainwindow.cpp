@@ -436,10 +436,10 @@ void MainWindow::on_actionReset_Map_triggered()
 
 // Edit > Shift Down: move the room one tile down. Built for the 240 -> 224p
 // conversion, where the Mega Drive drops the map's top row: shifting down makes
-// the old top row land in the first *visible* row and pushes the old bottom row
-// out. Rows 0 and 1 both receive the old first row (the "repeat"), rows 2..14
-// take rows 1..13, and the old row 14 is discarded. Objects and enemies of this
-// room move one tile down with it (anything pushed past the bottom is removed);
+// the old top row land in the first row and pushes the old bottom row out.
+// Rows 0 and 1 both receive the old first row (the "repeat"), rows 2..13 take
+// rows 1..12, and the old row 13 is discarded. Objects and enemies of this room
+// move one tile down with it (anything pushed past the bottom is removed);
 // links are left untouched.
 void MainWindow::on_actionShift_Down_triggered()
 {
@@ -491,8 +491,8 @@ void MainWindow::on_actionShift_Down_triggered()
     map_edit_tab->update_edit_area();
 }
 
-// Edit > Shift Up: the inverse of Shift Down. Rows 0..12 take rows 1..13,
-// rows 13 and 14 both receive the old last row (the repeat), and the old first
+// Edit > Shift Up: the inverse of Shift Down. Rows 0..11 take rows 1..12,
+// rows 12 and 13 both receive the old last row (the repeat), and the old first
 // row is discarded. Objects and enemies move one tile up (anything pushed above
 // the top row is removed); links are left untouched.
 void MainWindow::on_actionShift_Up_triggered()

@@ -109,7 +109,7 @@ public slots:
     // objects and enemies move with it, links are untouched.
     void on_actionShift_Down_triggered();
 
-    // Inverse of Shift Down: move the whole room one tile up (rows 13 and 14
+    // Inverse of Shift Down: move the whole room one tile up (rows 12 and 13
     // receive the old last row, the old first row is discarded).
     void on_actionShift_Up_triggered();
 
