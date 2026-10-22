@@ -13,6 +13,10 @@
 // Physics, tuned for 60fps. The original normalises movement by
 // fps_movement_multiplier = 60/max_fps (shareddata.cpp:22); here fps is fixed.
 #define MOVE_SPEED FIX16(2)
+// PC character::slide (character.cpp:1724): max_speed = move_speed * 2.5, and
+// the loop picks the largest step that does not collide, so an open-ground
+// slide is 2.5x walking (5 px/frame here). Water multiplies by 0.8.
+#define SLIDE_SPEED FIX16(5)
 #define ACCEL      FIX16(0.35)
 #define DECEL      FIX16(0.28)
 #define GRAVITY    FIX16(0.25)
@@ -926,7 +930,7 @@ void player_update(u16 pad)
             player.sliding = TRUE;
             player.slide_prev = FALSE;
             player.slide_dist = 0;
-            player.vx = (player.facing < 0) ? -MOVE_SPEED : MOVE_SPEED;
+            player.vx = (player.facing < 0) ? -SLIDE_SPEED : SLIDE_SPEED;
         } else if (player_can_air_dash() && !air_dash_used) {
             // PC air dash (character.cpp:1668): the SAME ANIM_TYPE_SLIDE state,
             // gravity off, up to 5 tiles, once per airtime (_can_execute_airdash).
@@ -935,7 +939,7 @@ void player_update(u16 pad)
             player.slide_prev = FALSE;
             player.slide_dist = 0;
             player.vy = 0;   // PC _obj_jump.finish(): the dash is horizontal
-            player.vx = (player.facing < 0) ? -MOVE_SPEED : MOVE_SPEED;
+            player.vx = (player.facing < 0) ? -SLIDE_SPEED : SLIDE_SPEED;
         }
     }
 
@@ -954,7 +958,7 @@ void player_update(u16 pad)
         } else if ((pad & BUTTON_LEFT) && player.facing != -1) {
             player.facing = -1;
         }
-        player.vx = (player.facing < 0) ? -MOVE_SPEED : MOVE_SPEED;
+        player.vx = (player.facing < 0) ? -SLIDE_SPEED : SLIDE_SPEED;
     } else if (pad & BUTTON_RIGHT) {
         player.facing = 1;
         player.vx += accel;

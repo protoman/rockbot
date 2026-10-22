@@ -631,13 +631,26 @@ void stage_update_camera(s16 focusX, s16 focusY)
 // PC game::horizontal_screen_move (game.cpp, called when a boss door has
 // finished opening): shift the view by one screen with a short scroll. The
 // door then closes behind the player, so it is one-way.
-s16 stage_horizontal_screen_move(s16 dir)
+// PC game::horizontal_screen_move (game.cpp:1174), the door case: the view
+// slides one screen while the player is pushed only ~2.5 tiles forward, so he
+// ends up near the LEFT edge of the new screen (he used to be carried the full
+// screen, which left him on the right).
+//   TRANSITION_STEP 4 px, move_limit = RES_W/4 - TILESIZE/4 = 76 steps,
+//   player_move_x = (TILESIZE*2.5)/move_limit per step (40 px total).
+// The PC runs a step every ~2ms; on the MD two steps per frame keeps it smooth
+// without being a single 320 px jump.
+#define DOOR_SCROLL_STEP   4
+#define DOOR_SCROLL_STEPS  ((320 / DOOR_SCROLL_STEP) - (16 / DOOR_SCROLL_STEP))
+#define DOOR_PLAYER_MOVE_F 34      // 40 px over 76 steps, in 1/64 px (34/64 = 0.53)
+
+void stage_horizontal_screen_move(s16 dir)
 {
-    const s16 start = camera.x;
     const s16 max = stage_def->map_w * stage_def->tile - 320;
     const StageBgInfo *info = &stage_def->bg_info[stage_current_map];
-    for (u8 i = 0; i < 20; i++) {
-        camera.x += dir * 16;
+    // 40 px over 76 steps, accumulated in 1/64 px so the player moves smoothly.
+    fix16 player_acc = 0;
+    for (u8 i = 0; i < DOOR_SCROLL_STEPS; i++) {
+        camera.x += dir * DOOR_SCROLL_STEP;
         if (camera.x < 0) camera.x = 0;
         if (camera.x > max) camera.x = max;
         MAP_scrollTo(stage_map, camera.x, camera.y);
@@ -647,10 +660,17 @@ s16 stage_horizontal_screen_move(s16 dir)
             if (scroll > 0) scroll -= 512;
             VDP_setHorizontalScroll(BG_B, (s16)scroll);
         }
-        SPR_update();
-        SYS_doVBlankProcess();
+        player_acc += DOOR_PLAYER_MOVE_F;
+        player.x += F16_toInt(player_acc);
+        player_acc &= 63;                     // keep the sub-pixel remainder
+        player_sync_sprite();
+        if ((i & 1) == 0) {                   // 2 steps per frame
+            SPR_update();
+            SYS_doVBlankProcess();
+        }
     }
-    return (s16)(camera.x - start);
+    SPR_update();
+    SYS_doVBlankProcess();
 }
 
 // Force a complete MAP redraw. Needed whenever the camera jumps a large

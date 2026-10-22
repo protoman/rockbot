@@ -875,13 +875,9 @@ void objects_update(void)
                 o->frame = (u8)(d->frames - 1);
                 if (o->spr) SPR_setFrame(o->spr, o->frame);
                 sfx_play(SFX_DOOR_OPEN);
-                {
-                    // The player keeps his screen position: carry him with
-                    // the scroll (PC horizontal_screen_move moves both).
-                    s16 dx = stage_horizontal_screen_move(1);
-                    player.x += dx;
-                    player_sync_sprite();
-                }
+                // The scroll moves the player ~2.5 tiles forward itself (PC
+                // horizontal_screen_move), leaving him near the left edge.
+                stage_horizontal_screen_move(1);
                 o->started = FALSE;      // closed again: one-way
                 o->frame = 0;
                 if (o->spr) SPR_setFrame(o->spr, 0);

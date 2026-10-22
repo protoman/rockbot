@@ -586,13 +586,12 @@ incomplete.
 
 ## BUG-025 — Sub-boss door scroll is too fast and leaves the player on the right
 
-**Report**: the sub-boss door scrolls very fast and keeps the player on the
-right side of the screen; it should move him to the left.
-
-**Status**: OPEN. `stage_horizontal_screen_move()` (stage.c) does 20 steps of
-16 px in a single frame loop and the door handler carries the player by the
-same delta, so he keeps his screen X. PC `game::horizontal_screen_move` moves
-the view and leaves the player near the left edge.
+**Status**: **FIXED 2026-10-22** (play-test pending). Port now follows PC
+`game::horizontal_screen_move` (game.cpp:1174): 4 px steps
+(`TRANSITION_STEP`), 76 of them, and the player is pushed only ~2.5 tiles
+(40 px) in the same direction, so he ends near the LEFT edge of the new screen.
+Two steps per frame (the PC runs one every ~2 ms), and the door handler no
+longer carries him the full screen.
 
 ## BUG-026 — Checkpoint shows no animation when activated
 
@@ -603,10 +602,10 @@ plays nothing; the PC has a checkpoint animation/SFX.
 
 ## BUG-027 — Slide speed equals walking speed
 
-**Report**: the slide moves at walking speed; it should be 1.5x.
-
-**Status**: OPEN. `player.c` slide: check the speed constant against the PC
-`character.cpp` slide.
+**Status**: **FIXED 2026-10-22** (play-test pending). The slide/dash now use
+`SLIDE_SPEED` = 2.5x walk, matching PC `character::slide`
+(character.cpp:1724: `max_speed = move_speed * 2.5`). Note: the report said
+1.5x, the PC source says 2.5x - easy to change if it still feels wrong.
 
 ## BUG-028 — Boss dialog background still missing
 
