@@ -27,6 +27,9 @@ typedef enum {
     SFX_GOT_WEAPON,     // weapon acquisition screen
     SFX_STAGE_SELECTED, // stage select confirm
     SFX_CURSOR,         // menu open/cursor
+    SFX_BLOCK_APPEAR,   // disappearing block becoming visible
+    SFX_OBJECT_BREAK,   // destructible wall destroyed
+    SFX_BEAM,           // ray / lava beam firing
     SFX_COUNT
 } SfxId;
 

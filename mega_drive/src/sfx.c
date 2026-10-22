@@ -35,6 +35,9 @@ static const SfxDef sfx_def[SFX_COUNT] = {
     [SFX_DOOR_OPEN]    = { sfx_door_open,          sizeof(sfx_door_open),          SOUND_PCM_CH3, 6 },
     [SFX_GOT_WEAPON]   = { sfx_got_weapon,         sizeof(sfx_got_weapon),         SOUND_PCM_CH3, 6 },
     [SFX_STAGE_SELECTED] = { sfx_stage_selected,   sizeof(sfx_stage_selected),     SOUND_PCM_CH3, 6 },
+    [SFX_BLOCK_APPEAR]  = { sfx_disappearning_block, sizeof(sfx_disappearning_block), SOUND_PCM_CH2, 7 },
+    [SFX_OBJECT_BREAK]  = { sfx_object_break,      sizeof(sfx_object_break),       SOUND_PCM_CH2, 6 },
+    [SFX_BEAM]          = { sfx_beam,              sizeof(sfx_beam),               SOUND_PCM_CH2, 6 },
     [SFX_CURSOR]       = { sfx_cursor,             sizeof(sfx_cursor),             SOUND_PCM_CH3, 6 },
 };
 

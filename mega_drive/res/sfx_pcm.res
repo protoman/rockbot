@@ -18,4 +18,7 @@ WAV sfx_water_leave "sfx/water_leave.wav" XGM2
 WAV sfx_door_open "sfx/door_open.wav" XGM2
 WAV sfx_got_weapon "sfx/got_weapon.wav" XGM2
 WAV sfx_stage_selected "sfx/stage_selected.wav" XGM2
+WAV sfx_disappearning_block "sfx/disappearning_block.wav" XGM2
+WAV sfx_object_break "sfx/object_break.wav" XGM2
+WAV sfx_beam "sfx/beam.wav" XGM2
 WAV sfx_cursor "sfx/cursor.wav" XGM2

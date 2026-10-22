@@ -115,6 +115,24 @@ static s16 boss_i = -1;      // index of the is_boss enemy, -1 = none
 static bool boss_died;
 static bool boss_screen;     // boss visible this frame (gates the HP row)
 
+// PC character.cpp:1921-1923: a non-boss NPC may not leave water, and may not
+// enter it either - the water enemies (ATLANTIDA fish) stayed on land in the
+// port (BUG-018). Bosses are exempt, as on the PC.
+static bool enemy_water_ok(const Enemy *e, s16 nx, s16 ny)
+{
+    const EnemyDef *d = e->def;
+    if (d->is_boss) return TRUE;
+    const s16 cx = nx + d->box_l + d->box_w / 2;
+    const s16 cy = ny + d->box_t + d->box_h / 2;
+    const bool now = stage_terrain_at(stage_current_map, cx >> 4, cy >> 4)
+                     == TERRAIN_WATER;
+    const bool was = stage_terrain_at(stage_current_map,
+                                      (e->x + d->box_l + d->box_w / 2) >> 4,
+                                      (e->y + d->box_t + d->box_h / 2) >> 4)
+                     == TERRAIN_WATER;
+    return now == was;
+}
+
 // TRUE if any tile of the box [l..r) x [t..b) is solid.
 static bool box_hits_solid(s16 l, s16 t, s16 r, s16 b)
 {
@@ -850,6 +868,8 @@ void enemies_update(void)
 
     for (u8 i = 0; i < enemy_count; i++) {
         Enemy *e = &enemies[i];
+        const s16 pre_x = e->x;
+        const s16 pre_y = e->y;
         if (!e->alive) {
             if (e->respawn_t && --e->respawn_t == 0) {
                 const EnemyDef *rd = e->def;
@@ -993,6 +1013,15 @@ void enemies_update(void)
             else if (d->walk_n > 0)
                 SPR_setAnim(e->spr, e->moving ? 1 : 0);
             SPR_setPosition(e->spr, e->x - camera.x, e->y - camera.y);
+        }
+
+        // PC character.cpp:1921: a non-boss NPC never crosses the water line.
+        if ((e->x != pre_x || e->y != pre_y) &&
+            !enemy_water_ok(e, e->x, e->y)) {
+            e->x = pre_x;
+            e->y = pre_y;
+            e->moving = 0;
+            if (e->spr) SPR_setPosition(e->spr, e->x - camera.x, e->y - camera.y);
         }
 
         // ---- contact damage ------------------------------------------------

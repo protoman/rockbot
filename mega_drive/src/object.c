@@ -34,6 +34,7 @@ typedef struct {
     bool started;
     bool active;
     bool visible;    // disappearing blocks toggle this (collision follows it)
+    u8 anim_play;    // one-shot animation requested (block appearing)
     u8 vis_t;        // frames in the current visible/hidden phase
     u8 hp;           // destructible wall
     u16 duration;    // frames left before release (0 = permanent)
@@ -671,7 +672,7 @@ bool objects_try_hit(s16 l, s16 t, s16 r, s16 b, u8 dmg)
             o->hp -= dmg;
         } else {
             obj_release(o);
-            sfx_play(SFX_NPC_KILLED);
+            sfx_play(SFX_OBJECT_BREAK);   // PC object.cpp:1785
         }
         return TRUE;
     }
@@ -755,6 +756,7 @@ void objects_update(void)
             if (++o->vis_t >= 90) {
                 o->vis_t = 0;
                 o->visible = !o->visible;
+                if (o->visible) sfx_play(SFX_BEAM);   // PC object.cpp:1102
             }
         }
 
@@ -768,7 +770,13 @@ void objects_update(void)
         // (OBJ_ACTIVE_DISAPPEARING_BLOCK).
         if (d->type == 2) {
             if (!o->visible && o->vis_t) {
-                if (--o->vis_t == 0) o->visible = TRUE;
+                if (--o->vis_t == 0) {
+                    o->visible = TRUE;
+                    o->anim_play = 1;      // PC reset_animation() + SFX
+                    o->frame = 0;
+                    o->anim_t = 0;
+                    sfx_play(SFX_BLOCK_APPEAR);
+                }
             } else {
                 u8 lim = o->visible ? BLOCK_VISIBLE_FRAMES : BLOCK_HIDDEN_FRAMES;
                 if (++o->vis_t >= lim) {
@@ -789,6 +797,10 @@ void objects_update(void)
                 o->vis_t = 0;
                 o->visible = TRUE;
                 o->started = FALSE;
+                o->anim_play = 1;          // PC reset_animation() + SFX
+                o->frame = 0;
+                o->anim_t = 0;
+                sfx_play(SFX_BLOCK_APPEAR);
             }
         }
         if (o->spr) {
@@ -934,13 +946,15 @@ void objects_update(void)
         }
 
         // ---- animation ----------------------------------------------------
-        if (auto_anim(d->type) || o->started) {
+        if (auto_anim(d->type) || o->started || o->anim_play) {
             if (++o->anim_t >= d->frame_t) {
                 o->anim_t = 0;
                 if (o->frame + 1 < d->frames) {
                     o->frame++;
                 } else if (is_looping(d)) {
                     o->frame = 0;
+                } else {
+                    o->anim_play = 0;      // one-shot finished
                 }
                 if (o->spr) SPR_setFrame(o->spr, o->frame);
             }

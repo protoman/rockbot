@@ -43,6 +43,8 @@ SOUNDS = [
     # player enters/leaves water
     "water_enter", "water_leave",
     "door_open", "got_weapon", "stage_selected",
+    # objects: block appearing, destructible break, beams
+    "disappearning_block", "object_break", "beam",
     # UI
     "cursor",
 ]
