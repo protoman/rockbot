@@ -49,6 +49,8 @@ u16 stage_terrain_at(u8 map, s16 tileX, s16 tileY)
 // the unique tiles + a 64-wide tilemap replace the old full-image draw, so
 // VRAM holds ~232 tiles instead of 768 (bg0) and ~26 instead of 896 (bg1) —
 // bg1's tiles used to run into the animated-tile block.
+static void apply_bg_color(u8 map_index);   // PC map_data.background_color
+
 static void bg_upload_tiles_maps(u8 map_index)
 {
     if (!stage_def->bg_pal[map_index]) return;
@@ -58,8 +60,12 @@ static void bg_upload_tiles_maps(u8 map_index)
 
     const u16 *m = stage_def->bg_maps[map_index];
     u16 row[64];
+    // Rows the background art does not reach are NOT the art's first tile: the
+    // PC clears the screen with map_data.background_color and draws the image
+    // over it. A blank (transparent) tile lets that colour - the MD backdrop,
+    // set by apply_bg_color() - show through.
     const u16 sky = TILE_ATTR_FULL(BG_PAL, FALSE, FALSE, FALSE,
-                                   stage_bg_tile_base + m[0]);
+                                   TILE_FONT_INDEX);
     for (u16 y = 0; y < 32; y++) {
         for (u16 x = 0; x < 64; x++) {
             row[x] = (y < stage_def->bg_map_h[map_index])
@@ -364,6 +370,7 @@ void stage_load(u8 map_index)
     // lines) instead of the C array, which did not stick: the CRAM readback
     // showed PAL0 holding another palette while PAL1 decoded exactly.
     PAL_setPalette(PAL0, pal_ui.data, in_place ? DMA_QUEUE : CPU);
+    apply_bg_color(map_index);
 
     // Flush anything the previous map queued, then drop it BEFORE the tileset
     // load. A compressed tileset allocated its unpack buffer from the heap,
@@ -686,6 +693,17 @@ void stage_autoscroll(s8 dir)
 void stage_restore_palette(void)
 {
     PAL_setPalette(STAGE_PAL, stage_def->palettes[stage_current_map]->data, CPU);
+    apply_bg_color(stage_current_map);
+}
+
+// PC map_data.background_color: the backdrop colour behind both planes. CRAM 0
+// belongs to PAL0 (UI/font), so it is written directly after that palette is
+// loaded - the HUD and text use index 0 as "transparent" anyway.
+static void apply_bg_color(u8 map_index)
+{
+    if (!stage_def->bg_color) return;
+    const u8 *c = &stage_def->bg_color[map_index * 3];
+    PAL_setColor(0, RGB3_3_3_TO_VDPCOLOR(c[0], c[1], c[2]));
 }
 
 void stage_redraw_bg(void)

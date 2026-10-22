@@ -69,6 +69,12 @@ static const StageLink stage2_links[6] = {
     { 1, 42, 0, 2, 51, 13, 1, 1, 0 }, // link5
 };
 
+static const u8 stage2_bg_color[3][3] = {
+    { 0, 2, 3 }, // map 0
+    { 0, 2, 3 }, // map 1
+    { 0, 2, 3 }, // map 2
+};
+
 static const StageBgInfo stage2_bg_info[3] = {
     { 1, 0, 2, 0 }, // map 0
     { 1, 0, 2, 0 }, // map 1
@@ -661,7 +667,8 @@ const StageDef stage2_def = {
     .map_defs = stage2_map_defs, .tile_sets = stage2_tile_sets, .palettes = stage2_palettes,
     .terrain = &stage2_terrain[0][0],
     .links = stage2_links, .link_count = 6,
-    .bg_info = stage2_bg_info, .bg_pal = stage2_bg_pal, .bg_tiles = stage2_bg_tiles,
+    .bg_info = stage2_bg_info, .bg_color = &stage2_bg_color[0][0],
+    .bg_pal = stage2_bg_pal, .bg_tiles = stage2_bg_tiles,
     .bg_tiles_n = stage2_bg_tiles_n, .bg_maps = stage2_bg_maps, .bg_map_h = stage2_bg_map_h,
     .scroll_lock_n = stage2_scroll_lock_n, .scroll_lock = &stage2_scroll_lock[0][0], .scroll_lock_max = 8,
     .tile3_mask = &stage2_tile3_mask[0][0],

@@ -139,6 +139,10 @@ typedef struct {
     u8 link_count;
 
     const StageBgInfo *bg_info;         // [map_count]
+    // PC map_data.background_color as RGB333 ([map_count][3]): the colour
+    // the PC clears the screen with before the background image, so it
+    // shows wherever the image does not reach (MD backdrop, CRAM 0).
+    const u8 *bg_color;
     const Palette *const *bg_pal;       // [map_count], NULL = no bg
     const u32 *const *bg_tiles;
     const u16 *bg_tiles_n;

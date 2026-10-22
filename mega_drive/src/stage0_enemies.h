@@ -8,7 +8,7 @@
 // map_npc_data.dat. Types live in stage_data.h.
 
 #define STAGE0_ENEMY_DEF_COUNT 7
-#define STAGE0_ENEMY_SPAWN_COUNT 22
+#define STAGE0_ENEMY_SPAWN_COUNT 21
 #define STAGE0_ENEMY_PROJ_MAX 23
 
 extern const EnemyDef stage0_enemy_defs[STAGE0_ENEMY_DEF_COUNT];

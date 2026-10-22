@@ -55,6 +55,13 @@ def is_key(c):
             and abs(c[2] - COLORKEY[2]) <= KEY_TOL)
 MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)
 MAX_COLORS = 15  # index 0 stays reserved for transparency
+MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)   # 3-bit ramp (see pal_ui)
+
+
+def md3(v):
+    """8-bit channel -> MD 3-bit level (0..7)."""
+    v = max(0, min(255, v))
+    return min(range(8), key=lambda i: abs(MD_LEVELS[i] - v))
 
 # Animated tiles: file_anim_block is char filename[30] + int frame_delay[6]
 # with C++ alignment (56 bytes), stored as a raw array in anim_block_list.dat.
@@ -666,9 +673,13 @@ def main():
         print(f"  map {m}: tile3={sum(bin(b).count('1') for b in tile3_masks[m])} "
               f"anim_cells={n}")
 
-    bg_infos, bg_names = [], []
+    bg_infos, bg_names, bg_colors = [], [], []
     for m in range(MAPS_PER_STAGE):
-        _, bg0, _ = read_map(STAGE_INDEX, m)
+        bg_rgb, bg0, _ = read_map(STAGE_INDEX, m)
+        # PC classmap.cpp:244 clears the screen with map_data.background_color
+        # before drawing the background image: everything the image does not
+        # cover is this colour (the MD backdrop, CRAM 0).
+        bg_colors.append(tuple(md3(v) for v in bg_rgb))
         name, adj, spd, auto = bg0
         if name:
             info = convert_background(m, name, adj, spd)
@@ -715,6 +726,11 @@ def main():
     for (i, frm, to, ox, oy, dx, dy, size, bidir, typ) in links:
         c.append(f"    {{ {frm}, {ox}, {oy}, {to}, {dx}, {dy}, "
                  f"{size}, {bidir}, {typ} }}, // link{i}\n")
+    c.append("};\n\n")
+
+    c.append(f"static const u8 {PFX}_bg_color[{MAPS_PER_STAGE}][3] = {{\n")
+    for m, col in enumerate(bg_colors):
+        c.append(f"    {{ {col[0]}, {col[1]}, {col[2]} }}, // map {m}\n")
     c.append("};\n\n")
 
     c.append(f"static const StageBgInfo {PFX}_bg_info[{MAPS_PER_STAGE}] = {{\n")
@@ -821,7 +837,8 @@ def main():
              f".palettes = {PFX}_palettes,\n")
     c.append(f"    .terrain = &{PFX}_terrain[0][0],\n")
     c.append(f"    .links = {PFX}_links, .link_count = {len(links)},\n")
-    c.append(f"    .bg_info = {PFX}_bg_info, .bg_pal = {PFX}_bg_pal, "
+    c.append(f"    .bg_info = {PFX}_bg_info, .bg_color = &{PFX}_bg_color[0][0],\n")
+    c.append(f"    .bg_pal = {PFX}_bg_pal, "
              f".bg_tiles = {PFX}_bg_tiles,\n")
     c.append(f"    .bg_tiles_n = {PFX}_bg_tiles_n, .bg_maps = {PFX}_bg_maps, "
              f".bg_map_h = {PFX}_bg_map_h,\n")
