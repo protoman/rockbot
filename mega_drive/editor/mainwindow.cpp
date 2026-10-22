@@ -433,6 +433,63 @@ void MainWindow::on_actionReset_Map_triggered()
 
 }
 
+// Edit > Shift Down: move the room one tile down. Built for the 240 -> 224p
+// conversion, where the Mega Drive drops the map's top row: shifting down makes
+// the old top row land in the first *visible* row and pushes the old bottom row
+// out. Rows 0 and 1 both receive the old first row (the "repeat"), rows 2..14
+// take rows 1..13, and the old row 14 is discarded. Objects and enemies of this
+// room move one tile down with it (anything pushed past the bottom is removed);
+// links are left untouched.
+void MainWindow::on_actionShift_Down_triggered()
+{
+    int stage = Mediator::get_instance()->currentStage;
+    int map = Mediator::get_instance()->currentMap;
+    if (stage < 0 || map < 0) {
+        return;
+    }
+
+    CURRENT_FILE_FORMAT::file_map_v2 &map_data = Mediator::get_instance()->maps_data_v2[stage][map];
+
+    for (int i = 0; i < MAP_W; i++) {
+        for (int j = MAP_H - 1; j >= 2; j--) {
+            map_data.tiles[i][j] = map_data.tiles[i][j - 1];
+        }
+        map_data.tiles[i][1] = map_data.tiles[i][0];
+    }
+
+    // objects
+    std::vector<CURRENT_FILE_FORMAT::file_map_object_v2> new_objects;
+    for (unsigned int i = 0; i < Mediator::get_instance()->maps_data_object_list.size(); i++) {
+        CURRENT_FILE_FORMAT::file_map_object_v2 obj = Mediator::get_instance()->maps_data_object_list.at(i);
+        if (obj.stage_id != stage || obj.map_id != map) {
+            new_objects.push_back(obj);
+            continue;
+        }
+        obj.start_point.y++;
+        if (obj.start_point.y < MAP_H) {           // pushed past the bottom: drop it
+            new_objects.push_back(obj);
+        }
+    }
+    Mediator::get_instance()->maps_data_object_list = new_objects;
+
+    // enemies
+    std::vector<CURRENT_FILE_FORMAT::file_map_npc_v2> new_npcs;
+    for (unsigned int i = 0; i < Mediator::get_instance()->maps_data_npc_list.size(); i++) {
+        CURRENT_FILE_FORMAT::file_map_npc_v2 npc = Mediator::get_instance()->maps_data_npc_list.at(i);
+        if (npc.stage_id != stage || npc.map_id != map) {
+            new_npcs.push_back(npc);
+            continue;
+        }
+        npc.start_point.y++;
+        if (npc.start_point.y < MAP_H) {
+            new_npcs.push_back(npc);
+        }
+    }
+    Mediator::get_instance()->maps_data_npc_list = new_npcs;
+
+    map_edit_tab->update_edit_area();
+}
+
 void MainWindow::on_players_tab_maxshots_valueChanged(int arg1)
 {
     if (_data_loading == true) {

@@ -104,6 +104,11 @@ public slots:
 
 	void on_actionReset_Map_triggered();
 
+    // Move the whole room one tile down (compensate the 240->224p top-row cut):
+    // rows 0 and 1 receive the old first row, the bottom row is discarded,
+    // objects and enemies move with it, links are untouched.
+    void on_actionShift_Down_triggered();
+
 	void on_players_tab_maxshots_valueChanged(int arg1);
 
 	void on_can_slide_checkbox_toggled(bool checked);

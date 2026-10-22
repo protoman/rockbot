@@ -389,6 +389,8 @@
     </property>
     <addaction name="actionCopy"/>
     <addaction name="actionPaste"/>
+    <addaction name="separator"/>
+    <addaction name="actionShift_Down"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -540,6 +542,11 @@
   <action name="actionScenes_Editor">
    <property name="text">
     <string>Movie Editor</string>
+   </property>
+  </action>
+  <action name="actionShift_Down">
+   <property name="text">
+    <string>Shift Down</string>
    </property>
   </action>
   <action name="actionObjects">
