@@ -600,6 +600,7 @@ static RunResult runStage(u8 stage)
 #endif
         // camera focus = centre of the player hitbox
         stage_update_camera((bl + br) / 2, (bt + bb) / 2);
+        player_screen_edge_update();   // PC update_stage_scrolling
 
 #ifdef MD_PROFILE
         prof_tick(PROF_CAMERA);
@@ -757,6 +758,22 @@ static void hold_frames(u16 n)
     }
 }
 
+// PC graphLib::draw_progressive_text: the letters appear one by one. Returns
+// the number of frames spent typing so the caller can keep the PC's total
+// 5000 ms wait.
+static u16 draw_progressive(const char *str, u16 tx, u16 ty)
+{
+    u16 frames = 0;
+    for (const char *p = str; *p; p++) {
+        char ch[2] = { *p, '\0' };
+        VDP_drawTextBG(BG_A, ch, tx++, ty);
+        SPR_update();
+        SYS_doVBlankProcess();
+        frames++;
+    }
+    return frames;
+}
+
 // PC game::player_victory / got_weapon / classic_style_got_weapon
 // (game.cpp:1276 / 1320 / 1347). The MD cannot fill the screen with an
 // arbitrary colour, so the flash puts the colour into PAL0 slot 0 (CRAM 0, the
@@ -798,8 +815,12 @@ static void showStageClear(u8 stage, bool first_clear)
     hold_frames(210);
 
     // ---- game::classic_style_got_weapon(): the PC screen ----
-    // Dark blue CONFIG_BGCOLOR (5,29,65), player at x=20 vertically centred,
-    // then "WEAPON" / "AND ITEM" / "HAVE BEEN ACQUIRED" (game.cpp:1347).
+    // blank_screen + blink_screen(255,255,255) + blank_screen, then the dark
+    // blue CONFIG_BGCOLOR (5,29,65) and the player at x=20, vertically
+    // centred (game.cpp:1347).
+    clear_to_color(255, 255, 255);
+    hold_frames(6);
+    PAL_setPalette(PAL0, pal_ui.data, DMA_QUEUE);
     clear_to_color(5, 29, 65);
     camera.x = 0;
     camera.y = 0;
@@ -807,19 +828,26 @@ static void showStageClear(u8 stage, bool first_clear)
     player_force_anim(ANIM_ATTACK);
     player_sync_sprite();
 
-    const u8 tx = 8;                                // RES_W*0.5-90 -> tile 8
-    VDP_drawText(weapon_data[stage].name, tx, 13);
-    u8 line3 = 15;
-    if (stage == COIL_GOT_STAGE || stage == JET_GOT_STAGE) {
-        VDP_drawText("AND", tx, 15);
-        VDP_drawText(weapon_data[(stage == COIL_GOT_STAGE) ? 9 : 10].name,
-                     tx + 4, 15);
-        line3 = 16;
+    // Text at RES_W*0.5-90 (tile 8), lines at RES_H*0.5-4 / +8 / +20 =
+    // rows 14 / 16 / 17. The second line names the ITEM the stage also gives
+    // (game_data.player_items -> the object's name, uppercased): the port used
+    // to print weapons 9/10 here, which are not the items at all.
+    const char *item = NULL;
+    if (stage == COIL_GOT_STAGE)      item = "E-TANK";
+    else if (stage == JET_GOT_STAGE)  item = "W-TANK";
+
+    u16 typed = draw_progressive(weapon_data[stage].name, 8, 14);
+    u8 line3 = 16;
+    if (item) {
+        typed += draw_progressive("AND ", 8, 16);
+        typed += draw_progressive(item, 12, 16);
+        line3 = 17;
     }
-    VDP_drawText((stage == COIL_GOT_STAGE || stage == JET_GOT_STAGE)
-                     ? "HAVE BEEN ACQUIRED" : "HAS BEEN ACQUIRED", tx, line3);
-    hold_frames(300);                               // PC wait 5000ms
-    VDP_clearTextArea(0, 12, 40, 6);
+    typed += draw_progressive(item ? "HAVE BEEN ACQUIRED" : "HAS BEEN ACQUIRED",
+                              8, line3);
+    player_sync_sprite();
+    hold_frames((typed < 300) ? (u16)(300 - typed) : 0);   // PC wait 5000ms
+    VDP_clearTextArea(0, 12, 40, 7);
 }
 
 // PC game loop after leave_stage(): the stage select drives the next stage.

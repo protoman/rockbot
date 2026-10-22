@@ -431,15 +431,22 @@ of the stage). It now calls `SPR_releaseSprite()` first, exactly like `kill()`.
 
 ## BUG-013 — The "YOU GOT ..." screen differs from the PC
 
-**Status**: **OPEN**. The port's post-boss screen is a text page; the PC shows
-the weapon art/dialog. Needs the PC layout (weapon icon + text) converted.
+**Status**: **FIXED 2026-10-22** (play-test pending). The port now follows
+`game::classic_style_got_weapon()` (game.cpp:1347): white blink, CONFIG_BGCOLOR
+(5,29,65), player at x=20, and the text typed out (`draw_progressive_text`)
+at rows 14/16/17. The second line names the ITEM of the COIL/JET stage
+(E-TANK / W-TANK, the PC's `game_data.player_items` names uppercased) - it used
+to print weapons 9/10, which are not items at all. Total wait stays 5000 ms,
+typing included.
 
 ## BUG-014 — Stage select shows garbage text after beating Mummy
 
-**Status**: **OPEN**. After returning to the stage select, text appears over a
-garbled background. Likely the stage-select plane/tiles were not fully rebuilt
-after the stage (stale VRAM/tilemap or a palette left over from the boss
-screen). Reproduce and compare with a normal return.
+**Status**: **OPEN, needs a reproduction**. After returning to the stage select,
+text appears over a garbled background. Candidates (not confirmed): the
+select's plane/palette rebuild after the boss screen, or stale text cells
+outside the four bar rows `draw_names()` restores. A screenshot of the select
+right after a clear would settle which of the two it is; offline inspection of
+`stageselect.c` shows the bar restore and `PAL0` reload in place.
 
 ## BUG-015 — Missing boss intro for Seahorse (maybe global)
 

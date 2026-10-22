@@ -30,7 +30,9 @@ detailed traces live in `bugs.md` and `HANDOUT.md`.
 - [ ] Water bubble animation on BG (`classmap.cpp:1215`).
 - [ ] Teleport-small colour flash (`draw.cpp:429`).
 - [ ] Dark mode (draw only animations/projectiles) (`game.h:273`).
-- [ ] Autoscroll out-of-screen damage (`game.cpp:1654`).
+- [x] Autoscroll out-of-screen damage (`game.cpp:1652`):
+      `player_screen_edge_update()` nudges the player 1px back and kills him
+      past 2 tiles.
 - [ ] Ground-quake `block_jump` after a quake hit (`classplayer.cpp:281`).
 
 ## 4. Ending / scene player

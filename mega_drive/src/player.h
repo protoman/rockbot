@@ -143,6 +143,10 @@ void player_update(u16 pad);
 // Walked into a SCROLL_LOCK column? (PC process_special_map_points)
 void player_check_scroll_lock(u16 pad);
 
+// PC update_stage_scrolling: push the player back if autoscroll left him off
+// the left edge (2 tiles out = death).
+void player_screen_edge_update(void);
+
 // World-space hitbox, for camera focus and map-link overlap tests.
 void player_get_box(s16 *left, s16 *top, s16 *right, s16 *bottom);
 

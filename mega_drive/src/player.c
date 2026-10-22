@@ -703,6 +703,17 @@ static void invuln_blink(void)
     }
 }
 
+// PC game::update_stage_scrolling (game.cpp:1652): an autoscroll push can
+// leave the player behind the left edge. The PC nudges him 1px per frame and
+// kills him once he is more than 2 tiles out ("damage(999)").
+void player_screen_edge_update(void)
+{
+    const s16 sx = player.x + PLAYER_BOX_L - camera.x;
+    if (sx >= 0) return;
+    player.x += 1;
+    if (sx < -(16 * 2)) player_take_damage(999);
+}
+
 void player_check_scroll_lock(u16 pad)
 {
     if (player.on_ladder || player.sliding || player.hit_push > 0) return;
