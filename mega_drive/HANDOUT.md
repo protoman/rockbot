@@ -425,7 +425,9 @@ without crashing; a missing font no longer aborts it. The editor shows the
 224p view (the converter cuts the top row). **Edit > Shift Down** moves the
 current room one tile down for that cut: rows 2..14 take rows 1..13, rows 0
 and 1 receive the old first row, the old bottom row is discarded, objects and
-enemies move with it, links are untouched.
+enemies move with it, links are untouched. **Edit > Shift Up** is the mirror:
+rows 0..12 take rows 1..13, rows 13 and 14 receive the old last row, the old
+first row is discarded.
 
 ## Tools
 
