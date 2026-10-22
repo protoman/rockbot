@@ -11,9 +11,22 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-# Qt5 by default, Qt6 if that is what the system has.
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+# Qt5 is the tested configuration; Qt6 also builds (the sources avoid the
+# removed APIs, e.g. QWheelEvent::delta). Auto-detect Qt5 first, or force one
+# with -DEDITOR_QT_MAJOR=6 (CLion: Settings > CMake > CMake options).
+set(EDITOR_QT_MAJOR "" CACHE STRING "Qt major version (empty = auto: Qt5, then Qt6)")
+if(NOT EDITOR_QT_MAJOR)
+    find_package(Qt5 QUIET COMPONENTS Widgets)
+    if(Qt5_FOUND)
+        set(EDITOR_QT_MAJOR 5)
+    else()
+        find_package(Qt6 REQUIRED COMPONENTS Widgets)
+        set(EDITOR_QT_MAJOR 6)
+    endif()
+else()
+    find_package(Qt${EDITOR_QT_MAJOR} REQUIRED COMPONENTS Widgets)
+endif()
+message(STATUS "editor: building against Qt${EDITOR_QT_MAJOR}")
 
 set(EDITOR_SOURCES
     main.cpp
@@ -239,4 +252,4 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(editor PRIVATE -fpermissive)
 endif()
 
-target_link_libraries(editor PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(editor PRIVATE Qt${EDITOR_QT_MAJOR}::Widgets)

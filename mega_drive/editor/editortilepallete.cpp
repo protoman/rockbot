@@ -72,7 +72,7 @@ void EditorTilePallete::mousePressEvent(QMouseEvent *event) {
 
 void EditorTilePallete::wheelEvent(QWheelEvent *event)
 {
-    int numDegrees = event->delta() / 8;
+    int numDegrees = event->angleDelta().y() / 8;
     int numSteps = numDegrees / 15;
 
     if (numSteps > 0) {

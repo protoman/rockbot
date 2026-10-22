@@ -68,7 +68,8 @@ void ButtonDelegate::onButtonClicked(int row)
 {
     if (operation_mode == 0) {
         QString filename = QFileDialog::getOpenFileName((QWidget*)_parent, tr("Open Image File 1"), "/home", tr("Image Files (*.png)"));
-        if (filename == NULL || filename.size() == 0) {
+        // Qt6 removed the implicit QString <-> integer/null comparison.
+        if (filename.isNull() || filename.isEmpty()) {
             return;
         }
         QFileInfo file_info(filename);

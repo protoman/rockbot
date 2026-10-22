@@ -119,7 +119,7 @@ $(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA) $(MUSIC_TOOL) Makefile
 	$(PYTHON) tools/gen_gpl.py
 	@touch $@
 
-.PHONY: assets
+.PHONY: assets editor
 assets: $(ASSET_STAMP)
 
 # Verify the tile layout still fits the fixed VRAM blocks (tileset / parallax
