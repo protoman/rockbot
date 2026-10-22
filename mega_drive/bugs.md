@@ -528,12 +528,21 @@ was running all along and could not be seen. `object.c` itself was correct.
 
 ## BUG-015 — Missing boss intro for Seahorse (maybe global)
 
-**Status**: **NOT REPRODUCED / by design (2026-10-21)**. The intro for stage 3
-plays: a forced stage-3 run showed the `SEAHORSE BOT` intro screen with the
-boss backdrop (screenshot `scr3/scr4` of that session). `runStage()` skips the
-intro when the stage is already beaten (`save_slot_stages & (1<<stage)`), which
-is the PC behaviour, so the report was most likely a stage that was already
-cleared in the loaded save.
+**Status**: **FIXED 2026-10-22.** The intro was not skipped - it was skipped
+*instantly*. `boss_intro_run()` skipped on any button of the pad, and the stage
+select returns on a START/A/C press, so the player is still holding that button
+on the first intro frame: the loop broke immediately, the screen flashed the
+blue backdrop for one frame and only the jingle was heard. A forced stage-3 run
+from boot looked fine because no button was held.
+
+Proof offline: the live BlastEm SRAM (`~/.local/share/blastem/rom/save.sram`)
+holds the save the user played - slot 0, `stages = 0x0001` (only CHAOS CITY
+cleared), 5 lives - so the gate `!mask & (1 << 3)` was TRUE and the intro did
+run.
+
+**Fix** (`bossintro.c`): wait for the held buttons to be released first (capped
+at 60 frames so a stuck pad cannot hang the game), then skip only on a fresh
+press. Same latch rule the boss dialogs use in `wait_button()`.
 
 ## BUG-016 — Seahorse screen transitions are broken; player X shifts
 
@@ -881,11 +890,9 @@ Reports, in the user's order, with what is known so far:
 6. **Explosions must move away from the centre** - fixed, BUG-036 (the burst
    was also frozen: the death branch never advanced the puffs).
 7. **Stage-select font** (`stage_select_bad_font.png`) - fixed, BUG-014.
-8. **SEAHORSE stage intro did not play** (only music): the PC does not play a
-   per-stage intro scene anywhere either (`scenesLib::show_game_scene()` has no
-   caller) and `classic_style_boss_intro()` returns when the stage is already
-   beaten. The port mirrors both. Open question for the user: should a replay
-   of a beaten stage show the boss intro again?
+8. **SEAHORSE stage intro did not play** (only music) - FIXED, BUG-015: it was
+   not the stage mask (the live SRAM shows only CHAOS CITY cleared), it was the
+   held stage-select button skipping the intro on its first frame.
 9. **After entering SEAHORSE the player sprite is invisible** (projectiles
    visible), then **CRASH** on the second play (`crash_seahorse_second_played_stage.png`).
    Root cause found: the new jump/teleport animation rows for NORMAL enemies

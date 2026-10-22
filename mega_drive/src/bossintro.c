@@ -112,6 +112,21 @@ void boss_intro_run(u8 stage)
     VDP_setReg(17, 0);
     VDP_setReg(18, 0);
 
+    // The stage select returns on a START/A/C press and the player is still
+    // holding it on this very frame, so the old loop below (which skips on any
+    // button) broke out immediately: the intro flashed for one frame and only
+    // its jingle was heard. Wait for the press to be released first (capped so
+    // a stuck pad cannot hang the game), then skip only on a FRESH press.
+    for (u16 i = 0; i < 60; i++) {
+        if (!(JOY_readJoypad(JOY_1) &
+              (BUTTON_START | BUTTON_A | BUTTON_B | BUTTON_C)))
+            break;
+        SPR_update();
+        SYS_doVBlankProcess();
+        VDP_setReg(17, 0);
+        VDP_setReg(18, 0);
+    }
+
     // PC waits 6400ms; allow skipping with a button.
     for (u16 f = 0; f < BOSS_INTRO_FRAMES; f++) {
         u16 pad = JOY_readJoypad(JOY_1);

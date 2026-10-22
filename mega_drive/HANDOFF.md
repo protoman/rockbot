@@ -7,9 +7,9 @@ the roadmap; this file is the short state + what to do next.
 
 - ROM built: `out/rom.bin` (normal build, no profiler).
 - This session (offline only, no emulator launched): fixed every report from the
-  2026-10-22 play test except the two that need a run — see "Still open".
-  `736867c0` was the last commit before it; the fixes are in the commit that
-  carries this file.
+  2026-10-22 play test except the CHAOS CITY slowdown, which needs profile
+  numbers — see "Still open". `736867c0` was the last commit before it; the
+  fixes are in the commits that carry this file.
 - Only dirty files are the user's own (parent `game.cpp`,
   `build/games/RockDroid1/stages_v301.dat`, `mega_drive/TODO.txt`). Do not
   commit those.
@@ -49,7 +49,14 @@ the roadmap; this file is the short state + what to do next.
    `explosion_ring_start/update` (8 sprites, PC art 5x24x24 from
    `tools/convert_assets.py`, 3 px/frame) and `runStage` runs it instead of the
    old pseudo-random scatter.
-5. **Stage-select names (BUG-014 / BUG-030)** — the lines were drawn with the
+5. **Boss intro skipped instantly (BUG-015)** — the intro read the pad on its
+   first frame and skipped on any button; the stage select returns on a
+   START/A/C press, so that same press killed it (one blue frame + the jingle).
+   It now waits for the buttons to be released first (60-frame cap) and skips
+   only on a fresh press. Offline proof it was not the gate: the BlastEm SRAM
+   the user played with holds slot 0 with `stages = 0x0001` (CHAOS CITY only),
+   i.e. stage 3 was not beaten, so `boss_intro_run(3)` did run.
+6. **Stage-select names (BUG-014 / BUG-030)** — the lines were drawn with the
    global PAL0, whose entry 0 (CRAM 0, the backdrop) the stage leaves on a map
    colour; the names rendered that colour on itself (peach on peach). They are
    drawn with **PAL1** (the grey ramp already loaded for the beaten faces: 0 =
@@ -65,10 +72,8 @@ split, checkpoint frame difference, stage-select text palette). Run it after
 - **CHAOS CITY slowdown** near the active platforms + small pill: needs
   numbers. `make profile` (MD_PROFILE) boots into the stage hardcoded in
   `main()` — set it to 0 first. No code change until the profile exists.
-- **Boss intro on a replayed stage**: the PC skips it
-  (`classic_style_boss_intro` returns when `game_save.stages[stage] != 0`) and
-  so does the port. If the user wants it back, that is a one-line change in
-  `runStage` — ask first, it is a deviation from the PC.
+- (closed) The boss intro now plays whenever the stage is unbeaten; the report
+  was a held-button skip, see item 5 above.
 - BUG-004 (per-stage palette budget) and roadmap item 15 (waterfall gap) as
   before.
 - The 2026-10-22 re-tests the handoff already carried (sprite VRAM fix /

@@ -100,9 +100,10 @@ that heap. Needs a re-run to confirm the links now scroll.
       030, 031, 035, 036, 037.
 - [ ] CHAOS CITY slowdown near the active platforms: needs `make profile`
       numbers before any code change.
-- [ ] Question for the user: on a replay of a beaten stage, should the boss
-      intro play again? The PC skips it (`classic_style_boss_intro` returns
-      when `game_save.stages[stage] != 0`); the port mirrors the PC.
+- [x] Boss intro "did not play" (BUG-015): it played for one frame. The skip
+      check read the pad on the first frame and the stage select returns on a
+      START/A/C press, so the held button killed it. It now waits for the
+      buttons to be released (60-frame cap) like the in-game menu does.
 
 ## Out of scope (decided)
 
