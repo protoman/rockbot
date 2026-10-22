@@ -1,3 +1,39 @@
+Still open:
+BUG-021 (GAMBIT facing),
+BUG-022/023/024 (Seahorse tileset / fade / after-ladder),
+BUG-028 (boss dialog panel — well-defined: quantize dialog.png into PAL0),
+BUG-029 (YOU GOT).
+
+
+MAGE
+- jogador de cartas a carta não está flipped na direção correta
+
+SEAHORSE
+- ao iniciar fase do seahorse, tileset está errado/incompleto
+- todos os links da case estão com fade. Talvez porque joguei na sequência após a fase do mage?
+- após sair pelo segundo, o tileset fica corrompido/incompleto
+- porta de sub boss faz o scroll muito rápido, e mantém o player para o lado direto da tela (deveria mover ele para a esquerda)
+- peixe deixa a água, ele não pode fazer isto, a versão PC tem uma checagem isso
+
+
+GERAL:
+- checkpoint não está mostrando animação ao ser ativado
+- velocidade do slide está igual à de andar, deveria ser 1.5x
+- background de diálogo de chefes ainda está ausente
+- implementar "you got" screen
+- font após vencer um estágio fica corrompida
+
+
+
+
+
+
+
+1. In stage 13, kill the DESTRIN TANK normally — the port should replace it with DESTRIN SHIP (small flying ship), not leave a corpse or crash. Tell me what you see.
+2. Hit a DYNAMITE BOT (stage 6 or 13) once — it should do a short dash on the hit frame.
+3. Hit a WASPER (stage 12) once — it should switch to its flying pattern.
+
+
 
 Handover:
 State
