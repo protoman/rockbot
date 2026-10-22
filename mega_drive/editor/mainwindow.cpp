@@ -490,6 +490,60 @@ void MainWindow::on_actionShift_Down_triggered()
     map_edit_tab->update_edit_area();
 }
 
+// Edit > Shift Up: the inverse of Shift Down. Rows 0..12 take rows 1..13,
+// rows 13 and 14 both receive the old last row (the repeat), and the old first
+// row is discarded. Objects and enemies move one tile up (anything pushed above
+// the top row is removed); links are left untouched.
+void MainWindow::on_actionShift_Up_triggered()
+{
+    int stage = Mediator::get_instance()->currentStage;
+    int map = Mediator::get_instance()->currentMap;
+    if (stage < 0 || map < 0) {
+        return;
+    }
+
+    CURRENT_FILE_FORMAT::file_map_v2 &map_data = Mediator::get_instance()->maps_data_v2[stage][map];
+
+    for (int i = 0; i < MAP_W; i++) {
+        for (int j = 0; j <= MAP_H - 3; j++) {
+            map_data.tiles[i][j] = map_data.tiles[i][j + 1];
+        }
+        map_data.tiles[i][MAP_H - 2] = map_data.tiles[i][MAP_H - 1];
+    }
+
+    // objects
+    std::vector<CURRENT_FILE_FORMAT::file_map_object_v2> new_objects;
+    for (unsigned int i = 0; i < Mediator::get_instance()->maps_data_object_list.size(); i++) {
+        CURRENT_FILE_FORMAT::file_map_object_v2 obj = Mediator::get_instance()->maps_data_object_list.at(i);
+        if (obj.stage_id != stage || obj.map_id != map) {
+            new_objects.push_back(obj);
+            continue;
+        }
+        obj.start_point.y--;
+        if (obj.start_point.y >= 0) {              // pushed above the top: drop it
+            new_objects.push_back(obj);
+        }
+    }
+    Mediator::get_instance()->maps_data_object_list = new_objects;
+
+    // enemies
+    std::vector<CURRENT_FILE_FORMAT::file_map_npc_v2> new_npcs;
+    for (unsigned int i = 0; i < Mediator::get_instance()->maps_data_npc_list.size(); i++) {
+        CURRENT_FILE_FORMAT::file_map_npc_v2 npc = Mediator::get_instance()->maps_data_npc_list.at(i);
+        if (npc.stage_id != stage || npc.map_id != map) {
+            new_npcs.push_back(npc);
+            continue;
+        }
+        npc.start_point.y--;
+        if (npc.start_point.y >= 0) {
+            new_npcs.push_back(npc);
+        }
+    }
+    Mediator::get_instance()->maps_data_npc_list = new_npcs;
+
+    map_edit_tab->update_edit_area();
+}
+
 void MainWindow::on_players_tab_maxshots_valueChanged(int arg1)
 {
     if (_data_loading == true) {

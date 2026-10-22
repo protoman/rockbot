@@ -391,6 +391,7 @@
     <addaction name="actionPaste"/>
     <addaction name="separator"/>
     <addaction name="actionShift_Down"/>
+    <addaction name="actionShift_Up"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -547,6 +548,11 @@
   <action name="actionShift_Down">
    <property name="text">
     <string>Shift Down</string>
+   </property>
+  </action>
+  <action name="actionShift_Up">
+   <property name="text">
+    <string>Shift Up</string>
    </property>
   </action>
   <action name="actionObjects">
