@@ -45,7 +45,11 @@ void stage_autoscroll(s8 dir);
 // Animated-tile frame slots: 1 slot per animation, 6 frames x 4 tiles,
 // loaded at stage_anim_tile_base + slot*stride. The block must stay below the
 // sprite pool — check_vram.py verifies the per-map sum.
-#define TILE_ANIM_STRIDE 24
+// One animated slot owns ONE 2x2 tile block: a frame change overwrites those
+// 4 tiles in VRAM (single DMA) instead of pointing the map cells at a
+// frame-specific block, which used to rewrite the tilemap of every visible
+// cell of the slot on every frame (15 ms/frame on SEAHORSE).
+#define TILE_ANIM_STRIDE 4
 
 extern Map *stage_map;
 extern Vect2D_s16 camera;

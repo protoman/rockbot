@@ -55,20 +55,18 @@ in/out, to roof), quake attack, accelerate up/down, circle player, wall walk
 (+shoot), multi-projectile spreads, morph, explode itself, throw item, play
 sfx, wait random, change-animation, fly drill/sin/dash/opposite-wall.
 
-## 7. Animated tiles: plane-window coordinates and call count
+## 7. Animated tiles (SEAHORSE slowdown — solved)
 
-- [x] `stage_anim_apply_cells()` wrote at raw map coordinates, so past the
-      first screen (metatile 31) the writes landed in the H-scroll table and the
-      animation stopped there. Now windowed (`(cx & 31) * 2`) and batched as one
-      `VDP_setTileMapDataRect()` per contiguous run. `tools/anim_calls.py` counts
-      the calls: SEAHORSE map 0 goes from 31 to 7 per frame (it was never the
-      frame-rate cause, but the animation was wrong for most of the map).
-      **BUG-033**.
-- [ ] SEAHORSE still reported "VERY slow" while APE is fine: not reproduced
-      offline (enemy sheets, animated-tile calls and VRAM budget are all *lower*
-      than stage 1). `make profile` builds the scanline profiler added to
-      `main.c` (`MD_PROFILE`): one instrumented run prints per-second scanline
-      cost of camera / anim / npc / shot / sprite / vblank wait.
+- [x] **BUG-033**: profiled with `make profile` (getSubTick, 1280 = one 60 Hz
+      frame). SEAHORSE map 0 was `anim=1135` of ~2460 subticks per iteration,
+      i.e. 30 fps. A slot kept 4 tiles per animation frame and the map cells
+      pointed at the current frame, so each frame change rewrote the tilemap of
+      every visible cell (~15 ms/frame). Now a slot owns ONE 4-tile block: a
+      frame change is a single 4-tile DMA, no tilemap writes.
+      `TILE_ANIM_STRIDE` 24 -> 4 frees 260 tiles (`check_vram`: all stages OK,
+      0 transition fallbacks).
+- [x] The batch writer added earlier (one rect call per run) is gone with it;
+      the correct plane-window mapping stays documented in `stage_map_patch`.
 
 ## 8. Runtime verification (instrumented run 2026-10-22)
 

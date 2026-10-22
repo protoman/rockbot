@@ -703,17 +703,28 @@ the HP, boss and weapon bars (all three sheets are the same 51-step art).
 
 ## BUG-033 — SEAHORSE runs at half speed (animated tiles)
 
-**Cause**: `stage_anim_apply_cells()` wrote the animated cells at raw map
-coordinates (`tx = cx * 2`, up to 398). SGDK's MAP keeps a 64-cell (32
-metatile) wide window of the plane and scrolls it with the H-scroll, so map
-metatile `cx` lands at plane column `(cx & 31) * 2`; past the first screen the
-writes ran past the plane into the H-scroll table (0xF01C+), so the animation
-stopped there while still costing four `VDP_setTileMapXY()` calls per cell.
-SEAHORSE map 0 has 13 slots with no static screen area, i.e. ~300+ tilemap
-calls per frame, which is what tipped the frame over the 60 fps budget (APE has
-no animated slots on map 0 and stayed fine).
+**Measured** (`make profile`, per-frame cost in subticks, 1280 = one 60 Hz
+frame, SEAHORSE map 0 idle):
 
-**Fix**: windowed plane coordinates plus **one `VDP_setTileMapDataRect()` per
-contiguous run** instead of four `VDP_setTileMapXY()` per cell, with the run
-split where the 32-metatile plane window wraps. Same output, a fraction of the
-VDP calls (needs a play-test on SEAHORSE and on the other animated stages).
+```
+setup=213  cam=43  anim=1135  npc=160  shot=32  spr=99  wait=766
+```
+
+Total ~2460 subticks per iteration = the loop only completes every other
+vblank: **~30 fps**, exactly the reported "VERY slow". APE map 0 has no
+animated slots, which is why it felt fine.
+
+**Cause**: every animated slot kept **one 4-tile block per frame** (6 frames x
+4 = 24 tiles, `TILE_ANIM_STRIDE`) and the map cells pointed at the current
+frame's block, so a frame change had to rewrite the tilemap of **every visible
+cell of the slot** (4 `VDP_setTileMapXY` per cell, and before that even at raw
+map coordinates that ran past the plane window into the H-scroll table).
+SEAHORSE has 13 slots over a 200-metatile map: ~15 ms of tilemap writes per
+frame.
+
+**Fix**: a slot now owns ONE 4-tile block. The map cells point at it
+(frame-independent, so `stage_map_patch` no longer looks at `anim_frame`), and
+a frame change is a **single 4-tile DMA** into that block. No tilemap writes at
+all. `TILE_ANIM_STRIDE` 24 -> 4 also frees 260 tiles of VRAM: `check_vram` now
+reports `OK (14 stages, 0 transition fallbacks)` (the three stage-2 fade
+fallbacks are gone too).

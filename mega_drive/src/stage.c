@@ -184,7 +184,8 @@ static void stage_map_patch(Map *map, u16 *buf, u16 x, u16 y,
             u16 attr = (map->baseTile & TILE_ATTR_PALETTE_MASK) |
                        (t3 ? TILE_ATTR_PRIORITY_MASK : 0);
             u16 quad = (tx & 1) | ((ty & 1) << 1);
-            buf[i] = attr | (stage_anim_tile_base + anim_frame[sv - 1] * 4 + quad);
+            buf[i] = attr | (stage_anim_tile_base
+                             + (u16)(sv - 1) * TILE_ANIM_STRIDE + quad);
         } else if (t3) {
             buf[i] |= TILE_ATTR_PRIORITY_MASK;
         }
@@ -283,72 +284,6 @@ void stage_cycle_update(void)
 // current frame's four tiles). The converted map initially points at the
 // static art in the tileset, so this must also run for frame 0; otherwise
 // Daisie's palm trees all show the same tile until the first animation tick.
-// Attribute bits (palette line + tile3 priority) of map metatile `n`.
-static u16 stage_cell_attr(u16 n)
-{
-    const u16 moff = stage_current_map * STAGE_MASK_BYTES + (n >> 3);
-    const u16 mbit = 1u << (n & 7);
-    u16 a = (u16)STAGE_PAL << TILE_ATTR_PALETTE_SFT;
-    if (stage_def->tile3_mask[moff] & mbit) a |= TILE_ATTR_PRIORITY_MASK;
-    if (stage_def->pal3_mask && (stage_def->pal3_mask[moff] & mbit))
-        a = (a & ~TILE_ATTR_PALETTE_MASK) |
-            ((u16)STAGE_PAL_CYCLE << TILE_ATTR_PALETTE_SFT);
-    return a;
-}
-
-// Rewrite the visible cells of animated slot `s` to use `base` (the current
-// frame's four tiles).
-//
-// SGDK's MAP keeps a 64-cell (32-metatile) wide window of the plane and scrolls
-// it with the H-scroll, so map metatile column `cx` lands in plane column
-// `(cx & 31) * 2`. Writing at the raw `cx * 2` (what this used to do) is only
-// correct inside the first screen: beyond it the writes ran past the plane into
-// the H-scroll table (0xF01C onward), which is why the animation appeared to
-// stop and why SEAHORSE - 13 slots over a 200-metatile map - was making
-// hundreds of useless VDP calls per frame.
-//
-// One VDP_setTileMapDataRect per contiguous run replaces four
-// VDP_setTileMapXY per cell; the per-call overhead was what pushed the fully
-// animated stages over the 60 fps frame budget.
-static void stage_anim_apply_cells(u8 s, u16 base)
-{
-    const u16 mw = stage_def->map_w, mh = stage_def->map_h;
-    const u8 *cell_slot = stage_def->anim_cell_slot
-                          + stage_current_map * mw * mh;
-    const s16 cx0 = camera.x >> 4, cy0 = camera.y >> 4;
-    const s16 cx_end = cx0 + 20, cy_end = cy0 + 14;
-    u16 buf[2 * 2 * 21];        // 2 cell rows x up to 21 metatiles (42 cells)
-
-    for (s16 cy = cy0; cy <= cy_end; cy++) {
-        if (cy < 0 || cy >= mh) continue;
-        const u8 *row = cell_slot + cy * mw;
-        s16 cx = cx0;
-        while (cx <= cx_end) {
-            if (cx < 0 || cx >= mw || row[cx] != s + 1) { cx++; continue; }
-            s16 a = cx, b = cx;
-            while (b + 1 <= cx_end && b + 1 < mw && row[b + 1] == s + 1) b++;
-            // The 32-metatile plane window wraps: split the run there so both
-            // halves stay contiguous in the plane.
-            const s16 wrap = a | 31;
-            if (b > wrap) b = wrap;
-
-            const u16 w = (u16)((b - a + 1) * 2);
-            for (s16 mx = a; mx <= b; mx++) {
-                const u16 attr = stage_cell_attr((u16)(cy * mw + mx));
-                const u16 i = (u16)((mx - a) * 2);
-                buf[i]         = attr | (base + 0);
-                buf[i + 1]     = attr | (base + 1);
-                buf[w + i]     = attr | (base + 2);
-                buf[w + i + 1] = attr | (base + 3);
-            }
-            VDP_setTileMapDataRect(STAGE_PLANE, buf,
-                                   (u16)((a & 31) * 2), (u16)(cy * 2),
-                                   w, 2, w, CPU);
-            cx = b + 1;
-        }
-    }
-}
-
 static void stage_anim_reset(void)
 {
     u8 n = stage_def->anim_slot_n[stage_current_map];
@@ -359,7 +294,6 @@ static void stage_anim_reset(void)
         u16 base = stage_anim_tile_base + s * TILE_ANIM_STRIDE;
         VDP_loadTileData((const u32 *)stage_def->anim_frames[idx][0],
                          base, 4, DMA_QUEUE);
-        stage_anim_apply_cells(s, base);
     }
 }
 
@@ -374,11 +308,11 @@ void stage_anim_update(void)
         anim_frame[s]++;
         if (anim_frame[s] >= slot->frames) anim_frame[s] = 0;
         anim_timer[s] = slot->delay[anim_frame[s]];
-        u16 base = stage_anim_tile_base + s * TILE_ANIM_STRIDE + anim_frame[s] * 4;
+        // The slot's cells always point at its own 4 tiles, so animating is a
+        // single 4-tile DMA into that block - no tilemap writes.
+        u16 base = stage_anim_tile_base + s * TILE_ANIM_STRIDE;
         VDP_loadTileData((const u32 *)stage_def->anim_frames[idx][anim_frame[s]],
                          base, 4, DMA_QUEUE);
-
-        stage_anim_apply_cells(s, base);
     }
 }
 

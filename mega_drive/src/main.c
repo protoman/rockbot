@@ -68,30 +68,38 @@ static void drawCentered(const char *text, u16 tileY)
 }
 
 #ifdef MD_PROFILE
-// Temporary build for the "SEAHORSE is slow" report: scanlines spent per frame
-// in each part of the loop, printed once per second over KDEBUG. Build with
-// `make PROFILE=1`, run, then read the kprintf lines. See PLAN.md.
+// Temporary build for the "SEAHORSE is slow" report: time spent per frame in
+// each part of the stage loop, printed once per second over KDEBUG.
+// Build with `make profile`. Time base is getSubTick(): 1/76800 s (~13 us),
+// 1280 units per 60 Hz frame. (GET_VCOUNTER wraps every 256 lines and
+// getTick() only moves once per frame - neither can split a frame.)
+// The stage loop is SPLIT BY A MARK PLACED AFTER EACH UNIT OF WORK: the value
+// printed for a name is the time spent since the previous mark.
 #include <string.h>
-#define PROF_CAMERA  0
-#define PROF_ANIM    1
-#define PROF_ENEMY   2
-#define PROF_SHOT    3
-#define PROF_SPRITE  4
-#define PROF_VBLANK  5
-#define PROF_N       6
-static u16 prof_last;
+#define PROF_SETUP   0      // loop tail, input, menu, objects, player, HUD, link
+#define PROF_CAMERA  1      // stage_update_camera (MAP_scrollTo)
+#define PROF_ANIM    2      // stage_anim_update + stage_cycle_update
+#define PROF_ENEMY   3      // enemies_update + boss checks
+#define PROF_SHOT    4      // explosions, eshots, shots, boss HUD
+#define PROF_SPRITE  5      // SPR_update
+#define PROF_VBLANK  6      // SYS_doVBlankProcess (idle time if the frame fits)
+#define PROF_N       7
+static u32 prof_last;
 static u32 prof_acc[PROF_N];
 static u16 prof_frames;
 static inline void prof_tick(u8 i)
 {
-    const u16 v = GET_VCOUNTER;
-    prof_acc[i] += (u16)((v - prof_last) & 0x1FF);
-    prof_last = v;
+    const u32 t = getSubTick();
+    prof_acc[i] += t - prof_last;
+    prof_last = t;
 }
 static void prof_report(void)
 {
     if (++prof_frames < 60) return;
-    kprintf("PROF cam=%lu anim=%lu npc=%lu shot=%lu spr=%lu wait=%lu\n",
+    kprintf("PROF map=%d setup=%lu cam=%lu anim=%lu npc=%lu shot=%lu "
+            "spr=%lu wait=%lu (subticks/frame, 1280 = 60fps)\n",
+            (int)stage_current_map,
+            (unsigned long)(prof_acc[PROF_SETUP] / 60),
             (unsigned long)(prof_acc[PROF_CAMERA] / 60),
             (unsigned long)(prof_acc[PROF_ANIM] / 60),
             (unsigned long)(prof_acc[PROF_ENEMY] / 60),
@@ -586,17 +594,20 @@ static RunResult runStage(u8 stage)
         }
 
 #ifdef MD_PROFILE
-        prof_tick(PROF_CAMERA);
+        prof_tick(PROF_SETUP);  // closes loop tail + input + player + HUD
         prof_report();
 #endif
         // camera focus = centre of the player hitbox
         stage_update_camera((bl + br) / 2, (bt + bb) / 2);
 
 #ifdef MD_PROFILE
-        prof_tick(PROF_ANIM);
+        prof_tick(PROF_CAMERA);
 #endif
         stage_anim_update();
         stage_cycle_update();
+#ifdef MD_PROFILE
+        prof_tick(PROF_ANIM);
+#endif
 
         enemies_update();   // patrol/contact first, shots test fresh positions
         // SHORYUKEN (LEGS armor): PC collision_player_special_attack(..., 9)
@@ -868,6 +879,15 @@ int main(bool hardReset)
     save_init();
     config_init();
     stage_set_data(0);   // valid stage_def before anything reads it
+
+#ifdef MD_PROFILE
+    // Profiling build only: skip intro/menu and boot straight into SEAHORSE,
+    // the stage reported as "VERY slow". Reverted by dropping MD_PROFILE.
+    current_save_slot = 0;
+    current_player = 0;
+    player_new_game();
+    playSession(3);
+#endif
 
     showIntro();
     // PC game_scenes_show_unbeaten_intro(): scene list 0 (scenes_data.c)
