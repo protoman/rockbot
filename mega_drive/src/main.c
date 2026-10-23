@@ -442,6 +442,7 @@ static RunResult runStage(u8 stage)
     bool death_fx = FALSE;                 // death burst started
     u16 death_fx_t = 0;                    // frames inside the death burst
     bool boss_death_seq = FALSE;
+    s16 boss_death_x = 0, boss_death_y = 0; // ring centre (world)
     while (TRUE) {
         // ---- boss death sequence (PC kill_all_enemies + ring explosion) ---
         if (boss_death_seq) {
