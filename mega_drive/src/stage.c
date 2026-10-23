@@ -5,6 +5,7 @@
 #include "enemy.h"
 #include "explosion.h"
 #include "effects.h"
+#include "tooltip.h"
 #include "object.h"
 #include "player.h"
 #include "shot.h"
@@ -411,6 +412,7 @@ void stage_load(u8 map_index)
     eshots_reset();
     explosion_reset();
     effects_reset();
+    tooltip_hide();
     enemies_reset();
     objects_reset();
 

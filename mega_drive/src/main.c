@@ -9,6 +9,7 @@
 #include "shot.h"
 #include "explosion.h"
 #include "effects.h"
+#include "tooltip.h"
 #include "eshot.h"
 #include "hud.h"
 #include "menu.h"
@@ -655,6 +656,8 @@ static RunResult runStage(u8 stage)
         eshots_update();    // enemy AI projectiles -> player
         shot_update();
         hud_boss(enemies_boss_on_screen() ? (s16)enemies_boss_hp() : -1);
+        tooltip_update();   // weapon name after a menu pick (PC 1.5 s)
+
 
 #ifdef MD_PROFILE
         prof_tick(PROF_SHOT);

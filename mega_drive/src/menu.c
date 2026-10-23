@@ -3,6 +3,7 @@
 
 #include "player.h"
 #include "stage.h"
+#include "tooltip.h"
 #include "hud.h"
 #include "enemy.h"
 #include "shot.h"
@@ -390,6 +391,7 @@ bool menu_open(u16 weapon_mask)
             u8 w = find_next_weapon(player_weapon(), 1);
             if (w != player_weapon()) {
                 player_set_weapon(w);
+                tooltip_show(w);       // PC set_weapon(..., show_tooltip)
                 draw_weapon_line();
                 sfx_play(SFX_CURSOR);
             }
@@ -397,6 +399,7 @@ bool menu_open(u16 weapon_mask)
             u8 w = find_next_weapon(player_weapon(), -1);
             if (w != player_weapon()) {
                 player_set_weapon(w);
+                tooltip_show(w);       // PC set_weapon(..., show_tooltip)
                 draw_weapon_line();
                 sfx_play(SFX_CURSOR);
             }
@@ -405,6 +408,7 @@ bool menu_open(u16 weapon_mask)
             u8 w = find_next_weapon(player_weapon(), -4);
             if (w != player_weapon()) {
                 player_set_weapon(w);
+                tooltip_show(w);       // PC set_weapon(..., show_tooltip)
                 draw_weapon_line();
                 sfx_play(SFX_CURSOR);
             }
@@ -412,6 +416,7 @@ bool menu_open(u16 weapon_mask)
             u8 w = find_next_weapon(player_weapon(), 4);
             if (w != player_weapon()) {
                 player_set_weapon(w);
+                tooltip_show(w);       // PC set_weapon(..., show_tooltip)
                 draw_weapon_line();
                 sfx_play(SFX_CURSOR);
             }

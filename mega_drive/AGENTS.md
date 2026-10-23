@@ -309,6 +309,7 @@ Flow in `main.c`: `showIntro()` (logos) → `scene_play(SCENE_OPENING_UNBEATEN)`
 | `src/menu.{c,h}` | in-game START menu (window/panel over the stage) |
 | `src/hud.{c,h}` | HP balls + boss row (sprites; PAL0 via tools/pal_ui.py) |
 | `src/effects.{c,h}` | transient effects: dash dust, water splash/bubble, teleport beam |
+| `src/tooltip.{c,h}` | weapon-name tooltip after a menu pick (plane text + one redraw) |
 | `src/eshot.{c,h}` | enemy AI projectiles |
 | `res/resources.res` | rescomp manifest |
 

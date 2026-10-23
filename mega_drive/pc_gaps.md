@@ -162,8 +162,14 @@ data never uses, therefore unimplemented:
 
 ## HUD / menus
 
-- [ ] Weapon tooltip when switching weapons (`draw.cpp:841`) — needs sprite art
-      (plane text left trails on the scrolling stage).
+- [x] **Weapon tooltip** (`draw.cpp:833/841`, 2026-10-23): picking a weapon in
+      the START menu now shows its name (from `weapon_data[].name`) for 1500 ms
+      in the lower-left, at the PC's position (tile 4, row 25 of the 224 px
+      screen = the PC's pixel 34,224-22). The name is written into the stage
+      plane at the current camera position, so it belongs to the map while it
+      is up, and `stage_force_redraw()` rebuilds the plane once when it
+      expires (one redraw per tooltip, the trade-off noted in the plan). The
+      PC's frame/icon art is not drawn — the port has none.
 - [ ] Trophies screen / "characters unlocked" warning (PC `game_config.
       game_finished` gates players 3/4 — the port gates them too, but the
       warning dialog is absent).

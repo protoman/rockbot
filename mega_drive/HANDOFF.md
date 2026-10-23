@@ -41,14 +41,18 @@ PC-parity backlog, `PLAN.md` the roadmap.
     Effects are cosmetic: when the 768-tile sprite pool is full `SPR_addSprite`
     returns NULL and the effect is skipped, never a crash.
 
+11. **Weapon tooltip** (`src/tooltip.c`): the START-menu pick arms a label
+    with the weapon name (`weapon_data[].name`), the stage loop draws it at
+    the PC's lower-left spot for 1.5 s and then calls `stage_force_redraw()`
+    once to restore the map cells. Nothing is drawn while the menu is open.
+
 ## Next, in order (see pc_gaps.md for evidence per item)
 
 1. **Scene `SHOW_ANIMATION`** — used once (scene 0). Needs
    `images/scenes/animations/` art converted from `scenes_show_animation.dat`
    (6 records, frame_w/h/delay) and a timed frame loop on BG_B.
-2. **Weapon tooltip** (`draw.cpp:841`) — the port has no clean way to draw text
-   over the scrolling stage; plan: draw on BG_A, hold ~60 frames, then
-   `stage_force_redraw()`.
+2. **Dark mode** (`game.h:273`) and the **hit flash on the sprite palette** —
+   both need a per-frame CRAM hook (palette flash frames), not sprite art.
 3. **Quicksand terrain** — deferred on purpose: no converted stage uses it
    (PC: 0.2px/frame sink + halved move speed).
 4. Play-test everything above (ask before launching BlastEm; one run covers:
@@ -56,7 +60,10 @@ PC-parity backlog, `PLAN.md` the roadmap.
    re-entry (no invisible player / no crash), APE ceiling jump, BLUE SHIELDER
    turn animation, SPIKED CHAIN, cutscene music, dash dust on every slide,
    water splash + rising bubble in stage 3 (the only early stage with water;
-   13 also has it), teleport beam when a boss/castle teleporter warps).
+   13 also has it), teleport beam when a boss/castle teleporter warps, and the
+   weapon tooltip after picking a weapon in the START menu — check it appears
+   in the lower left for ~1.5 s and that the map under it is clean again
+   afterwards (the label itself belongs to the map while it is up).
    Effects are best effort on VRAM: if the 768-tile sprite pool is full the
    effect is silently skipped (SPR_addSprite NULL) — worth watching that the
    splash and the beam do appear rather than assuming.
