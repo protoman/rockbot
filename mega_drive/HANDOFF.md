@@ -54,7 +54,12 @@ PC-parity backlog, `PLAN.md` the roadmap.
 4. Play-test everything above (ask before launching BlastEm; one run covers:
    walking shots, door slide, dialog → stage colours, YOU GOT screen, stage
    re-entry (no invisible player / no crash), APE ceiling jump, BLUE SHIELDER
-   turn animation, SPIKED CHAIN, cutscene music).
+   turn animation, SPIKED CHAIN, cutscene music, dash dust on every slide,
+   water splash + rising bubble in stage 3 (the only early stage with water;
+   13 also has it), teleport beam when a boss/castle teleporter warps).
+   Effects are best effort on VRAM: if the 768-tile sprite pool is full the
+   effect is silently skipped (SPR_addSprite NULL) — worth watching that the
+   splash and the beam do appear rather than assuming.
 
 ## Reminders
 
