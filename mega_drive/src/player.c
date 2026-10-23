@@ -2,6 +2,7 @@
 #include "sfx.h"
 
 #include "stage.h"
+#include "effects.h"
 #include "shot.h"
 #include "object.h"
 #include "resources.h"
@@ -744,8 +745,15 @@ void player_update(u16 pad)
         bool water_now = terrain_under_feet() == TERRAIN_WATER;
         if (water_now != in_water) {
             sfx_play(water_now ? SFX_WATER_ENTER : SFX_WATER_LEAVE);
+            // PC art images/animations/water_splash.png: the splash sits on
+            // the surface the player just broke.
+            if (water_now)
+                fx_splash(player.x - 2, player.y + box_b, player.facing);
             in_water = water_now;
         }
+        // PC character.cpp:158 — a bubble rises from the player while he is
+        // inside water (one at a time, 3 s apart).
+        if (water_now) fx_water_bubble(player.x + 14, player.y + 6);
     }
     s16 ix = player.x;
     s16 iy = player.y;
@@ -985,6 +993,10 @@ void player_update(u16 pad)
             player.slide_prev = FALSE;
             player.slide_dist = 0;
             player.vx = (player.facing < 0) ? -SLIDE_SPEED : SLIDE_SPEED;
+            // PC character.cpp:1681: dash dust behind the player,
+            // adjust (frameSize.width+3 | -3, frameSize.height-8).
+            fx_dust(player.x + ((player.facing < 0) ? 29 + 3 : -3),
+                    player.y + 29 - 8, player.facing);
         } else if (player_can_air_dash() && !air_dash_used) {
             // PC air dash (character.cpp:1668): the SAME ANIM_TYPE_SLIDE state,
             // gravity off, up to 5 tiles, once per airtime (_can_execute_airdash).
@@ -994,6 +1006,10 @@ void player_update(u16 pad)
             player.slide_dist = 0;
             player.vy = 0;   // PC _obj_jump.finish(): the dash is horizontal
             player.vx = (player.facing < 0) ? -SLIDE_SPEED : SLIDE_SPEED;
+            // PC character.cpp:1681: dash dust behind the player, 8x16 art
+            // whose bottom edge sits at the feet (the PC clips it to 8x8).
+            fx_dust(player.x + ((player.facing < 0) ? 29 + 3 : -3),
+                    player.y + 29 - 16, player.facing);
         }
     }
 

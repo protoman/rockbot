@@ -34,20 +34,24 @@ PC-parity backlog, `PLAN.md` the roadmap.
 8. **Scene PLAY_MUSIC / STOP_MUSIC** wired (converter emits `scene_music_ids[]`).
 9. Quake screen shake for enemy QUAKE projectiles; boss-death ring (earlier).
 
+10. **Transient effects** (`src/effects.c`): dash dust, water splash, water
+    bubble, teleport beam — art converted by `tools/convert_assets.py`, frame
+    sizes verified by `tools/check_fx.py` (run it after touching either). Water
+    only exists in stages 3 and 13, which is where splash/bubble can be seen.
+    Effects are cosmetic: when the 768-tile sprite pool is full `SPR_addSprite`
+    returns NULL and the effect is skipped, never a crash.
+
 ## Next, in order (see pc_gaps.md for evidence per item)
 
 1. **Scene `SHOW_ANIMATION`** — used once (scene 0). Needs
    `images/scenes/animations/` art converted from `scenes_show_animation.dat`
    (6 records, frame_w/h/delay) and a timed frame loop on BG_B.
-2. **Effects batch** (needs one sprite-effect pool like `explosion.c` +
-   converted art): dash dust (`dash_dust.png`), water splash
-   (`water_splash.png`), bubble (`bubble.png`), teleport flash.
-3. **Weapon tooltip** (`draw.cpp:841`) — the port has no clean way to draw text
+2. **Weapon tooltip** (`draw.cpp:841`) — the port has no clean way to draw text
    over the scrolling stage; plan: draw on BG_A, hold ~60 frames, then
    `stage_force_redraw()`.
-4. **Quicksand terrain** — deferred on purpose: no converted stage uses it
+3. **Quicksand terrain** — deferred on purpose: no converted stage uses it
    (PC: 0.2px/frame sink + halved move speed).
-5. Play-test everything above (ask before launching BlastEm; one run covers:
+4. Play-test everything above (ask before launching BlastEm; one run covers:
    walking shots, door slide, dialog → stage colours, YOU GOT screen, stage
    re-entry (no invisible player / no crash), APE ceiling jump, BLUE SHIELDER
    turn animation, SPIKED CHAIN, cutscene music).

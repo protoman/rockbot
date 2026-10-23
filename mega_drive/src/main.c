@@ -8,6 +8,7 @@
 #include "object.h"
 #include "shot.h"
 #include "explosion.h"
+#include "effects.h"
 #include "eshot.h"
 #include "hud.h"
 #include "menu.h"
@@ -483,6 +484,7 @@ static RunResult runStage(u8 stage)
             }
             death_fx_t++;
             explosion_update();          // the puffs animate (and free)
+            effects_update();
             player_set_visible(FALSE);
             if (!player_death_update()) {
                 if (player_out_of_lives()) {
@@ -649,6 +651,7 @@ static RunResult runStage(u8 stage)
         prof_tick(PROF_ENEMY);
 #endif
         explosion_update(); // enemy death puffs (PC death animation)
+        effects_update();   // dust / splash / teleport / bubble
         eshots_update();    // enemy AI projectiles -> player
         shot_update();
         hud_boss(enemies_boss_on_screen() ? (s16)enemies_boss_hp() : -1);

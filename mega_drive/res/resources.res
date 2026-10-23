@@ -158,6 +158,14 @@ SPRITE explosion_sprite "explosion.png" 32p 32p FAST [[5]]
 # 8 sprites travel outward from the centre. tools/convert_assets.py.
 SPRITE death_explosion_sprite "death_explosion.png" 24p 24p FAST [[3,3,3,3,3]]
 
+// Transient effects (src/effects.c), PAL0, art from the PC's images/:
+// animations/dash_dust.png (3 frames of 8x16), animations/water_splash.png
+// (4 x 32x23), sprites/teleport_small.png (2 x 32x32), animations/bubble.png.
+SPRITE fx_dust_sprite "fx_dust.png" 8p 8p FAST [[4,4,4]]
+SPRITE fx_splash_sprite "fx_splash.png" 32p 24p FAST [[5,5,5,5]]
+SPRITE fx_teleport_sprite "fx_teleport.png" 32p 32p FAST [[6,6]]
+SPRITE fx_bubble_sprite "fx_bubble.png" 8p 8p FAST [[1]]
+
 SPRITE enemy_rhino_sprite "enemy_rhino.png" 96p 72p FAST [[540][540][0]]
 # ---- ENEMY PROJECTILES (tools/convert_enemies.py): one SPRITE per
 # projectile id, art from game_projectile_list.dat graphic_filename.

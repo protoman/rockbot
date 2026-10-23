@@ -127,11 +127,33 @@ data never uses, therefore unimplemented:
 
 ## Effects (PC draw.cpp / graphicslib.cpp)
 
-- [ ] Dash dust (`dash_dust.png` 24x16), water splash (`water_splash.png`
-      128x23), bubble (`bubble.png` 4x4), teleport-small colour flash
-      (`draw.cpp:429`), dark mode (`game.h:273`), hit flash on the sprite
-      palette (the port blinks the sprite instead). All need a sprite-effect
-      pool like `explosion.c` plus one converted art each.
+- [x] **Transient effects** (2026-10-23): `src/effects.c` is a small sprite
+      pool like `explosion.c`; `tools/convert_assets.py` emits one PAL0 strip
+      per art and `tools/check_fx.py` verifies PNG size against the
+      `resources.res` frame size (the off-by-one failure mode of the intro
+      logos). Wired:
+      - **dash dust** at slide start (`character.cpp:1681`): 3 frames of 8x8,
+        160 ms, mirrored by the facing, at the PC's adjust
+        (`frameSize.height-8` below the top, 3 px behind the art). The source
+        art is 8x16 per frame with the bottom half empty — the PC's
+        `st_size(8,8)` takes the top rows and the converter ships exactly
+        those.
+      - **water splash** on entering water: 4 frames of 32x23, 80 ms, two
+        rounds, placed so the painted droplets sit on the surface (the PC's
+        only trigger is a LIGHTNING projectile reaching the water floor, a
+        trajectory the port does not have).
+      - **bubble** while the player is inside water (`classMap::
+        add_bubble_animation`): one 4x4 bubble, rises 2 px/frame with the PC's
+        0..-4 px wobble, dies when it leaves water or after 3 s.
+      - **teleport beam** (`draw.cpp:429`, `object.cpp:520`): 2 frames of
+        32x32, 100 ms, 3 rounds. The PC draws it at the teleporter while it
+        warps; the port warps in one frame, so the beam plays at the
+        destination. Its art uses the two colourcycle keys, which the PC swaps
+        per object (`set_teleport_small_colors`); the strip is converted with
+        the PC's default grey + white pair.
+- [ ] Dark mode (`game.h:273`) and the hit flash on the sprite palette (the
+      port blinks the sprite instead) — both need a per-frame palette/CRAM
+      hook, not sprite art.
 - **Not a gap**: boss ground shake — the PC function at `classmap.cpp:2428` is
   `boss_hit_ground()` (an animation switch), not a screen shake; there is no
   shake to port.

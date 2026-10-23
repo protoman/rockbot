@@ -292,6 +292,7 @@ Flow in `main.c`: `showIntro()` (logos) → `scene_play(SCENE_OPENING_UNBEATEN)`
 | `src/stage0_enemies.{c,h}` | generated: defs, spawns, `palette_ui_enemies` |
 | `src/stage0_objects.{c,h}` | generated: object defs, spawns |
 | `tools/convert_assets.py` | logos → indexed PNG |
+| `tools/check_fx.py` | verifies each `fx_*` PNG against its resources.res frame size |
 | `tools/title64.py` | full-screen image → 4-palette-line art (tiles/map/palettes as C arrays, `--preview`)
 | `tools/convert_stage.py` | stage/map data → `res/stage0_map*.png` + `src/stage0_data.*` + parallax `res/stage0_bg*.png` |
 | `tools/convert_player.py` | `p1.png` → `res/player.png` (anim rows, palette swap) |
@@ -307,6 +308,7 @@ Flow in `main.c`: `showIntro()` (logos) → `scene_play(SCENE_OPENING_UNBEATEN)`
 | `tools/tiles_merge.py` | shared pieces across decomposed screens |
 | `src/menu.{c,h}` | in-game START menu (window/panel over the stage) |
 | `src/hud.{c,h}` | HP balls + boss row (sprites; PAL0 via tools/pal_ui.py) |
+| `src/effects.{c,h}` | transient effects: dash dust, water splash/bubble, teleport beam |
 | `src/eshot.{c,h}` | enemy AI projectiles |
 | `res/resources.res` | rescomp manifest |
 

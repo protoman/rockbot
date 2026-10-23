@@ -4,6 +4,7 @@
 #include "resources.h"
 #include "enemy.h"
 #include "explosion.h"
+#include "effects.h"
 #include "object.h"
 #include "player.h"
 #include "shot.h"
@@ -409,6 +410,7 @@ void stage_load(u8 map_index)
     shots_reset();
     eshots_reset();
     explosion_reset();
+    effects_reset();
     enemies_reset();
     objects_reset();
 
@@ -851,4 +853,9 @@ void stage_teleport_boss(u8 dest_map, u8 dest_tx, u8 dest_ty)
     player_place(px, py);
     stage_arrival_camera(px + (PLAYER_BOX_L + PLAYER_BOX_R) / 2,
                          py + (PLAYER_BOX_T + PLAYER_BOX_B) / 2);
+    // PC object.cpp:520 draws images/sprites/teleport_small.png at the
+    // teleporter while it warps. The port warps in one frame, so the beam
+    // plays at the destination instead — centred on the 29x29 player art,
+    // and after the camera has moved to the arrival room.
+    fx_teleport(px - 2, py - 2);
 }
