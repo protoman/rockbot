@@ -12,12 +12,16 @@
 #define TERRAIN_ICE       6
 #define TERRAIN_MOVE_LEFT  7
 #define TERRAIN_MOVE_RIGHT 8
+#define TERRAIN_QUICKSAND  9
 #define TERRAIN_SCROLL_LOCK 10
 #define TERRAIN_CHECKPOINT  11
 #define TERRAIN_EASYBLOCK 12
 #define TERRAIN_HARDBLOCK 13
 
 // Terrain that blocks movement (PC character.cpp:1940, normal difficulty).
+// QUICKSAND is included on purpose: the PC lets the PLAYER sink into it
+// (player.c skips it in its own floor/step tests) but blocks NPCs and objects
+// on it (check_map_collision_point, character.cpp:1914).
 #define TERRAIN_BLOCKS(t) ((t) != TERRAIN_UNBLOCKED && \
                            (t) != TERRAIN_STAIR && \
                            (t) != TERRAIN_EASYBLOCK && \

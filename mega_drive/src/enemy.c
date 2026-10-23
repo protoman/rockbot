@@ -74,6 +74,11 @@
 #define AI_FLY_OPPOSITE_SHOOT 12
 #define AI_FLY_RANDOM_X   16
 #define AI_FLY_RANDOM_Y   17
+// RockDroid2's tables use these three (audit_data.py --game RockDroid2):
+// TO_PLAYER_X/Y track one axis, DASH_TO_PLAYER homes in at double speed.
+#define AI_FLY_TO_PLAYER_X  13
+#define AI_FLY_TO_PLAYER_Y  14
+#define AI_FLY_DASH         19
 
 // PC AI_ACTION_JUMP_OPTION_LIST (defines.h:833)
 #define AI_JUMP_AHEAD          0
@@ -141,6 +146,7 @@ typedef struct {
     u8 jump_opt;      // AI_JUMP option of the current action
     u8 no_gravity;    // PC _ignore_gravity: TO_ROOF / WALL_WALK keep it set
     u8 ghost;         // DRILL_DOWN passes through walls at 1/4 speed
+    u8 dash_ai;       // FLY DASH_TO_PLAYER: moves at 2x the enemy speed
     u16 rand_t;       // WAIT_RANDOM_TIME duration / WALL_WALK_SHOOT timer
     // --- game_ai_list.dat reactions (PC check_ai_reaction) ----------------
     // react = 0 none, else reaction index+1; while set, ai_action_init/run
@@ -312,6 +318,7 @@ static void ai_action_init(Enemy *e)
     e->moving = 0;
     e->shooting = 0;
     e->ghost = 0;
+    e->dash_ai = 0;
     e->rand_t = 0;
     e->turn_t = 0;
     switch (st->action) {
@@ -372,6 +379,7 @@ static void ai_action_init(Enemy *e)
             e->dest_x = e->x;                       // UP / TO_ROOF: no drift
         break;
     case AI_FLY:
+        e->dash_ai = (st->param == AI_FLY_DASH) ? 1 : 0;
         if (st->param == AI_FLY_TURN) {
             if (d->turn_anim != 255 && d->turn_ms) {
                 e->turn_dir = (s8)-e->dir;
@@ -380,6 +388,23 @@ static void ai_action_init(Enemy *e)
                 e->dir = -e->dir;
             }
         } else if (st->param == AI_FLY_TO_PLAYER) {
+            e->dest_x = player.x;
+            e->dest_y = player.y;
+            e->dir = sign16(e->dest_x - e->x);
+        } else if (st->param == AI_FLY_TO_PLAYER_X ||
+                   st->param == AI_FLY_TO_PLAYER_Y) {
+            // PC: one axis only, the other keeps its current value
+            // (artificial_inteligence.cpp:1413/1425).
+            if (st->param == AI_FLY_TO_PLAYER_X) {
+                e->dest_x = player.x;
+                e->dest_y = e->y;
+                e->dir = sign16(player.x - e->x);
+            } else {
+                e->dest_x = e->x;
+                e->dest_y = player.y;
+            }
+        } else if (st->param == AI_FLY_DASH) {
+            // PC DASH_TO_PLAYER: home in on the player at 2x move_speed.
             e->dest_x = player.x;
             e->dest_y = player.y;
             e->dir = sign16(e->dest_x - e->x);
@@ -440,7 +465,9 @@ static void ai_action_init(Enemy *e)
 static bool step_axis(Enemy *e, s16 *pos, s16 dest, bool horizontal, bool can_fall)
 {
     const EnemyDef *d = e->def;
-    e->move_acc += (s16)d->speed * 5;
+    // DASH_TO_PLAYER runs at twice the enemy's speed (artificial_inteligence
+    // .cpp:1517 passes move_speed*2 to move_to_point).
+    e->move_acc += (s16)d->speed * 5 * (e->dash_ai ? 2 : 1);
     s16 step = e->move_acc / 6;
     e->move_acc %= 6;
     if (*pos == dest) return TRUE;
@@ -684,6 +711,17 @@ static bool ai_action_run(Enemy *e)
         e->moving = 1;
         if (st->param == AI_FLY_ZIGZAG)
             e->dest_y = e->spawn_y + (((e->act_t >> 5) & 1) ? 12 : -12);
+        else if (st->param == AI_FLY_TO_PLAYER_X) {
+            // PC re-reads the player every step and finishes within half a
+            // tile (artificial_inteligence.cpp:1569).
+            s16 ddx = player.x - e->x;
+            if (ddx < 0) ddx = -ddx;
+            if (ddx < 8) return TRUE;
+            e->dest_x = player.x;
+            e->dir = sign16(player.x - e->x);
+        } else if (st->param == AI_FLY_TO_PLAYER_Y) {
+            e->dest_y = player.y;
+        }
         bool dx = step_axis(e, &e->x, e->dest_x, TRUE, TRUE);
         bool dy = step_axis(e, &e->y, e->dest_y, FALSE, TRUE);
         if (st->param == AI_FLY_OPPOSITE_SHOOT && dx && dy) {

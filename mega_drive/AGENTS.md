@@ -302,7 +302,8 @@ Flow in `main.c`: `showIntro()` (logos) → `scene_play(SCENE_OPENING_UNBEATEN)`
 | `tools/img2tiles.py` | image → minimal tile set + tilemap (UI screens, HUD) |
 | `tools/convert_scenes.py` | PC scene tables → `src/scenes_data.*` + `res/scene_par*.png` |
 | `tools/add_stage.py` | one stage end to end: converters, resources, registry, `STAGES` |
-| `tools/audit_data.py` | read-only: terrain/object/NPC/AI coverage per stage |
+| `tools/audit_data.py` | read-only: terrain/object/NPC/AI coverage per stage (`--game RockDroid2` audits the sequel) |
+| `tools/check_terrain.py` | every terrain id the data uses is implemented (`src/stage_data.h` + a code path) |
 | `tools/convert_sfx.py` | PC `sfx/*.wav` → `res/sfx/*.wav` + `res/sfx_pcm.res` (XGM2 PCM) |
 | `src/sfx.{c,h}` | sound effects (XGM2 PCM, channels 2..4) |
 | `tools/tiles_merge.py` | shared pieces across decomposed screens |

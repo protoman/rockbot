@@ -101,15 +101,22 @@ data never uses, therefore unimplemented:
 
 ## Terrain (src/player.c, src/stage.c)
 
-- [ ] `TERRAIN_QUICKSAND` (9): no sink/slow behaviour. **Not used by any
-      converted stage** (`audit_data.py` terrain column), so this is deferred
-      rather than guessed at: the PC sinks 0.2px/frame and halves the move
-      speed (`QUICKSAND_GRAVITY`/`QUICKSAND_JUMP_LIMIT`).
+- [x] `TERRAIN_QUICKSAND` (9) (2026-10-23): passable and not floor — the
+      player sinks at `QUICKSAND_GRAVITY` (0.2 px/frame, `player.c`
+      `sink_acc`) and walks at `QUICKSAND_SPEED_MULT` (0.4) of the normal
+      speed, both from PC `defines.h:443/1461` and `character.cpp:237/1346`.
+      The quicksand tile blocks NPCs and objects (`TERRAIN_BLOCKS`), which is
+      what the PC's `check_map_collision_point` does with `BLOCK_QUICKSAND`.
+      Water now gets its `WATER_SPEED_MULT` (0.7) walk slowdown on the same
+      path. **No converted stage paints terrain 9**, so this is engine
+      readiness for RockDroid2 (whose maps do not use it yet either);
+      `tools/check_terrain.py` fails the moment a map uses an id the engine
+      does not name.
 - **Not a gap**: `TERRAIN_DOOR` (3) only exists for the PC's *tile3* boss-door
       redraw (`classmap.cpp:2069`); the port draws the door as an object
       (sprite) with the slide animation, so there is no terrain rule to port.
-- [ ] Water/ice are minimal (sink + slow fall / low friction) — PC has extra
-      movement rules (`character.cpp`).
+- [x] Water/ice movement (2026-10-23): water caps the walk at 0.7 and keeps
+      its reduced gravity/jump; ice keeps its low-friction acceleration.
 
 ## Scenes (src/scene.c)
 
@@ -202,6 +209,38 @@ data never uses, therefore unimplemented:
 
 - [x] Stage music, boss-intro jingle, SFX (XGM2 + PCM).
 - [ ] Music/SFX inside cutscenes (see Scenes above).
+
+## RockDroid2 (sequel data) — what its maps need that the port lacks
+
+`tools/audit_data.py --game RockDroid2` (reads the PC build tree, which this
+repo does not convert yet) reports the sequel's own feature set, 20 stages of
+which the port converts none. Differences from RockDroid1 worth knowing before
+its stages are added:
+
+- **Terrain**: same ids as RockDroid1, plus WATER in stages 8/9 and ICE in
+  stage 8. Quicksand (9) is still unused in the shipped data; the engine now
+  handles it (above), so a map may start using it.
+- **AI_FLY options 13/14/19** (2026-10-23): the sequel's tables use
+  `TO_PLAYER_X`, `TO_PLAYER_Y` and `DASH_TO_PLAYER` (npcs 1, 4, 15, 47, 75),
+  which RockDroid1 never did. Implemented in `enemy.c`
+  (`AI_FLY_TO_PLAYER_X/_Y`, `AI_FLY_DASH`, 2x speed, no dash sprite effect).
+  `audit_data.py` now reports option gaps for both games (`option gaps: 0`).
+- [ ] **`OBJ_CRUSHER` (type 33)**: 7x in stage 5 ("Circus Crusher"). PC
+      `object.cpp`: drops and kills whatever it presses against the ground
+      (`OBJ_CRUSHER`, `defines.h:394`), and needs its own art
+      (`images/objects/`).
+- [ ] **`OBJ_ACTIVE_OPENING_SLIM_PLATFORM` (27)**: 5x in stage 5, 5x in
+      stage 11 — a thin platform that opens after being activated.
+- [ ] **`OBJ_DAMAGING_PLATFORM` (28)**: 9x in stage 11 — a moving platform that
+      damages on contact.
+- [ ] **Second background layer**: 6 maps in stage 3 and 1 in stage 14 name a
+      `backgrounds[1]`. `tools/convert_stage.py` reads `backgrounds[0]` only,
+      and a second scrolling layer has no plane left (BG_A = map,
+      BG_B = bg0). Needs either compositing (only valid when both layers share
+      a speed) or a CRAM/plane budget decision.
+- **Enemies**: npc ids up to 75 (RockDroid1 stops at 60), i.e. new art and
+  `game_ai_list` rows to convert; every AI *action* they use is already
+  implemented.
 
 ## Process
 

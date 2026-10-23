@@ -54,14 +54,18 @@ PC-parity backlog, `PLAN.md` the roadmap.
 
 ## Next, in order (see pc_gaps.md for evidence per item)
 
-1. **Quicksand terrain** — deferred on purpose: no converted stage uses it
-   (PC: 0.2px/frame sink + halved move speed), and `TERRAIN_DOOR` has no PC
-    rule to port. Audited dead PC paths are closed in `pc_gaps.md`: scene
-    `SHOW_ANIMATION` (its only op sits in scene 1, which no game-scene type
-   maps to), `_dark_mode`, the quake-attack half and the white hit flash.
-2. **Small real leftovers** (`pc_gaps.md`): the PC's special tooltip names for
-   the tanks/COIL/JET, the "characters unlocked" warning before players 3/4,
-   and the PC's extra water/ice movement rules.
+1. **Quicksand is in the engine** (2026-10-23): terrain 9 sinks the player at
+   0.2 px/frame and caps the walk at 0.4, water's 0.7 walk cap landed on the
+   same path, and `tools/check_terrain.py` fails if a map uses a terrain id the
+   engine does not handle. Nothing paints terrain 9 yet, and there is no
+   converted map to try it on, so it is code-verified only.
+2. **RockDroid2 readiness** (`pc_gaps.md` -> "RockDroid2"): the sequel's AI_FLY
+   options 13/14/19 are implemented; its missing pieces are `OBJ_CRUSHER` (33),
+   `ACTIVE_OPENING_SLIM_PLATFORM` (27), `DAMAGING_PLATFORM` (28), the second
+   background layer (stage 3/14) and its 15 extra enemies. `audit_data.py
+   --game RockDroid2` lists what each stage needs.
+3. **Small real leftovers** (`pc_gaps.md`): the PC's special tooltip names for
+   the tanks/COIL/JET, and the "characters unlocked" warning before players 3/4.
 4. Play-test everything above (ask before launching BlastEm; one run covers:
    walking shots, door slide, dialog → stage colours, YOU GOT screen, stage
    re-entry (no invisible player / no crash), APE ceiling jump, BLUE SHIELDER

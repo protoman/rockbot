@@ -9,6 +9,8 @@ Reports, for every stage/map:
   * second background layer / auto-scroll flags that the port ignores.
 
 Read-only: prints the report, writes nothing. Usage: tools/audit_data.py
+[--game RockDroid1|RockDroid2]  (RockDroid2 is read from the PC build tree;
+it is not converted yet - the report says what WOULD be needed).
 """
 import os
 import re
@@ -86,20 +88,10 @@ AI_ACTION = {
     24: "WALL_WALK_SHOOT", 25: "SHOT_MULTIPLE", 26: "EXPLODE_ITSELF",
     27: "THROW_ITEM",
 }
-# AI actions implemented in src/enemy.c (updated 2026-10-23: the twelve
-# actions that had no code were added).
-AI_SUPPORT = {
-    4: "ok (marker)", 16: "ok (orbit)", 17: "ok (animation)", 19: "ok",
-    20: "ok", 21: "ok", 22: "ok", 23: "ok (ceiling walk)", 24: "ok",
-    25: "ok (3-shot)", 26: "ok", 27: "ok (drop table)",
-    0: "ok", 1: "ok", 2: "ok", 3: "ok", 5: "ok", 6: "ok (turns if move_speed)",
-    4: "MISSING", 7: "MISSING", 8: "MISSING", 9: "MISSING",
-    10: "ok (blink near player)", 11: "ok (dash)", 12: "ok (cling)",
-    13: "ok (spawn)", 14: "ok (instant)", 15: "MISSING",
-    16: "MISSING", 17: "MISSING", 18: "MISSING", 19: "MISSING", 20: "MISSING",
-    21: "MISSING", 22: "MISSING", 23: "MISSING", 24: "MISSING", 25: "MISSING",
-    26: "MISSING", 27: "MISSING",
-}
+# AI actions implemented in src/enemy.c (2026-10-23: the twelve actions that
+# had no code were added, and the option bytes of the ones that had code were
+# completed - see pc_gaps.md "Enemy AI").
+AI_SUPPORT = {a: "ok" for a in AI_ACTION}
 
 
 def cstr(b):
@@ -174,7 +166,7 @@ def ai_table():
         acts = []
         for j in range(20):
             ch, act = struct.unpack_from("<2i", r, 32 + j * 20)
-            if 0 <= ch <= 100 and ch > 0 and 0 <= act <= 23:
+            if 0 <= ch <= 100 and ch > 0 and 0 <= act <= 28:   # 28 = unknown
                 acts.append(act)
         out.append(acts)
     return out
@@ -197,6 +189,20 @@ def layer1_flags():
 
 
 def main():
+    global DATA, STAGES
+    if "--game" in sys.argv:
+        game = sys.argv[sys.argv.index("--game") + 1]
+        for base in (os.path.join(ROOT, "data/games"),
+                     os.path.join(ROCKBOT, "build/games")):
+            path = os.path.join(base, game)
+            if os.path.isdir(path):
+                DATA = path
+                break
+        else:
+            sys.exit(f"--game {game}: not found in data/games or build/games")
+        STAGES = os.path.getsize(os.path.join(DATA, "stages_v301.dat")) // 438
+        print(f"=== {game} ({os.path.relpath(DATA, ROCKBOT)}) - "
+              f"{STAGES} stages ===\n")
     terr = terrain_hist()
     objs = object_table()
     osp = object_spawns()
@@ -287,7 +293,10 @@ def main():
     # What src/enemy.c really implements, per (action, option).
     IMPLEMENTED = {
         0: {0, 1, 2, 3, 4, 5, 6, 7},          # AI_WALK: all options
-        1: {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 15, 16, 17},
+        # AI_FLY: 13/14 (TO_PLAYER_X/Y) and 19 (DASH_TO_PLAYER) were
+        # added for RockDroid2's tables (enemy.c AI_FLY_TO_PLAYER_X etc.)
+        1: {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16,
+            17, 19},
         2: {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10},  # AI_JUMP: every option
     }
     blob = open(os.path.join(DATA, "game_ai_list.dat"), "rb").read()
@@ -297,7 +306,7 @@ def main():
         for i in range(20):
             chance, action, _go, _delay, param = struct.unpack_from(
                 "<5i", b, 32 + i * 20)
-            if not (0 <= chance <= 100 and chance > 0 and 0 <= action <= 23):
+            if not (0 <= chance <= 100 and chance > 0 and 0 <= action <= 28):
                 continue
             if action in OPTION_NAMES:
                 used_opts[(action, param)].add(eid)

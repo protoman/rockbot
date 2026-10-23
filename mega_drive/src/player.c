@@ -32,6 +32,14 @@
 #define ICE_DECEL  FIX16(0.03)
 #define WATER_GRAVITY FIX16(0.09)
 #define WATER_MAX_FALL FIX16(2)
+// Walking through water/quicksand is slower on the PC: the horizontal step is
+// multiplied by the tile's factor (character.cpp:235 WATER_SPEED_MULT 0.7,
+// character.cpp:237 QUICKSAND_SPEED_MULT 0.4).
+#define WATER_SPEED_MULT     FIX16(0.7)
+#define QUICKSAND_SPEED_MULT FIX16(0.4)
+// Quicksand is passable and has no floor: instead of falling, the character
+// sinks at QUICKSAND_GRAVITY (defines.h:1461, character.cpp:1346).
+#define QUICKSAND_GRAVITY FIX16(0.2)
 
 #define COYOTE_FRAMES    6
 #define JUMP_BUFFER_FRAMES 6
@@ -107,6 +115,10 @@ static bool ladder_flip;    // climb pose desired (cycle/turn driven)
 static bool ladder_shown;   // last pose baked into the sprite VRAM
 static u8 ladder_semi;      // frames of the STAIRS_SEMI grab pose left
 static s16 climb_flip_dist;
+// Sub-pixel remainders for quicksand's 0.2 px/frame sink and for the slowed
+// walk, which runs below one pixel per frame (the move is whole-pixel).
+static fix16 sink_acc;
+static fix16 slow_acc;
 
 // charge-shot palette flash: two brighter copies of the player palette,
 // strobed every 8 frames while the fire button is held (PC
@@ -416,6 +428,9 @@ static bool ground_pair(s16 tx, s16 feet_row, s16 centre_row, s16 middle_row)
     // surface as ground too, but only after the water gravity/physics has
     // already put the player in the water; the port needs the tile excluded.
     if (lock1 == TERRAIN_WATER) return FALSE;
+    // Quicksand is not floor either: the PC lets the character sink into the
+    // tile (character.cpp:1346 adds QUICKSAND_GRAVITY instead of blocking).
+    if (lock1 == TERRAIN_QUICKSAND) return FALSE;
     if (lock1 != TERRAIN_UNBLOCKED && lock1 != TERRAIN_STAIR &&
         lock1 != TERRAIN_WATER)
         return TRUE;
@@ -443,11 +458,21 @@ static bool support_col(s16 tx, s16 top_row, s16 feet_row)
     return FALSE;                       // solid for the full height: a wall
 }
 
-// Feet tile terrain (centre column) — ice friction and water gravity.
+// Feet tile terrain (centre column) — ice friction and the quicksand sink.
 static u16 terrain_under_feet(void)
 {
     s16 cx = (player.x + (PLAYER_BOX_L + PLAYER_BOX_R) / 2) >> 4;
     s16 cy = (player.y + box_b) >> 4;
+    return stage_terrain_at(stage_current_map, cx, cy);
+}
+
+// Chest tile (centre column, body middle) — the water/quicksand walk
+// slowdown. The feet tile is the pool floor whenever the player stands in
+// shallow water, so the feet probe would never see the water.
+static u16 terrain_at_chest(void)
+{
+    s16 cx = (player.x + (PLAYER_BOX_L + PLAYER_BOX_R) / 2) >> 4;
+    s16 cy = (player.y + (box_t + box_b) / 2) >> 4;
     return stage_terrain_at(stage_current_map, cx, cy);
 }
 
@@ -1045,6 +1070,21 @@ void player_update(u16 pad)
         if (player.vx > 0) player.vx = 0;
     }
 
+    // Water and quicksand cap the walk at the PC's fraction of the speed
+    // (character.cpp:235/237). The cap is applied to the target speed and the
+    // remnant kept in slow_acc, because the move below is whole-pixel.
+    const u16 chest = terrain_at_chest();
+    const bool slowed = !player.sliding &&
+                        (chest == TERRAIN_WATER || chest == TERRAIN_QUICKSAND);
+    if (slowed) {
+        const fix16 cap = F16_mul(MOVE_SPEED,
+                                  (chest == TERRAIN_QUICKSAND)
+                                      ? QUICKSAND_SPEED_MULT
+                                      : WATER_SPEED_MULT);
+        if (player.vx > cap) player.vx = cap;
+        else if (player.vx < -cap) player.vx = -cap;
+    }
+
     // ---- jump (edge triggered, buffered + coyote time) ----------------------
     if ((pad & JUMP_BUTTONS) && !(prev_pad & JUMP_BUTTONS)) {
         jump_timer = JUMP_BUFFER_FRAMES;
@@ -1080,14 +1120,36 @@ void player_update(u16 pad)
     // PC skips gravity while the dash runs (character.cpp:1201: an air-dash
     // player stays in ANIM_TYPE_SLIDE, so the dash is a flat 5-tile move).
     if (!player.on_ground && !player.sliding) {
-        const bool water = terrain_under_feet() == TERRAIN_WATER;
-        const fix16 grav = water ? WATER_GRAVITY : GRAVITY;
-        const fix16 maxf = water ? WATER_MAX_FALL : MAX_FALL;
-        if (player.vy < maxf) player.vy += grav;
-        if (player.vy > maxf) player.vy = maxf;
+        if (player.vy >= 0 && terrain_under_feet() == TERRAIN_QUICKSAND) {
+            // Quicksand: sink at a constant 0.2 px/frame (character.cpp:1346)
+            // instead of falling. The remainders below one pixel are carried
+            // in sink_acc so 0.2 px/frame still advances.
+            sink_acc += QUICKSAND_GRAVITY;
+            const s16 q = F16_toInt(sink_acc);
+            sink_acc -= FIX16(q);
+            player.vy = FIX16(q);
+        } else {
+            sink_acc = 0;
+            const bool water = terrain_under_feet() == TERRAIN_WATER;
+            const fix16 grav = water ? WATER_GRAVITY : GRAVITY;
+            const fix16 maxf = water ? WATER_MAX_FALL : MAX_FALL;
+            if (player.vy < maxf) player.vy += grav;
+            if (player.vy > maxf) player.vy = maxf;
+        }
+    } else {
+        sink_acc = 0;
     }
 
-    s16 dx = F16_toInt(player.vx);
+    s16 dx;
+    if (slowed) {
+        // Below one pixel per frame the whole-pixel move would stand still.
+        const fix16 want = player.vx + slow_acc;
+        dx = F16_toInt(want);
+        slow_acc = want - FIX16(dx);
+    } else {
+        slow_acc = 0;
+        dx = F16_toInt(player.vx);
+    }
     s16 dy = F16_toInt(player.vy);
 
     // ---- horizontal move + resolve -----------------------------------------
