@@ -262,7 +262,7 @@ SPRITE ssel_cursor_br_y_sprite "ssel_cursor_br_y.png" 24p 24p FAST [[0]]
 
 # ---- STAGE 1 (DEEP JUNGLE) ----
 SPRITE enemy_rock_metool_sprite "enemy_rock_metool.png" 24p 24p FAST [[180][12,12][9,9,30,6,9,9]]
-SPRITE enemy_apebot_sprite "enemy_apebot.png" 40p 40p FAST [[48][12,12][24,24,24,24]]
+SPRITE enemy_apebot_sprite "enemy_apebot.png" 40p 40p FAST [[48][12,12][24,24,24,24][12][12,12,12,120]]
 SPRITE enemy_bee_sprite "enemy_bee.png" 24p 24p FAST [[6,6][6,6][0]]
 SPRITE enemy_flower_metool_sprite "enemy_flower_metool.png" 24p 24p FAST [[1][12,12][9,9,30,6,9,9]]
 SPRITE enemy_side_shooter_sprite "enemy_side_shooter.png" 16p 32p FAST [[6][600][48]]
@@ -284,7 +284,7 @@ PALETTE stage1_bg2_pal "stage1_bg2_tiles.png"
 
 # ---- STAGE 2 (FLOWER FIELDS) ----
 SPRITE enemy_flower_vase_sprite "enemy_flower_vase.png" 24p 24p FAST [[120,18][120,18][24,180]]
-SPRITE enemy_daisiebot_sprite "enemy_daisiebot.png" 32p 40p FAST [[12][7,7,7,7][12]]
+SPRITE enemy_daisiebot_sprite "enemy_daisiebot.png" 32p 40p FAST [[12][7,7,7,7][12][12][6][12,12,12,12,60]]
 SPRITE enemy_roof_shooter_sprite "enemy_roof_shooter.png" 16p 16p FAST [[6,6,6,6,6,6][6,6,6,6,6,6][1,6]]
 SPRITE enemy_ema_sprite "enemy_ema.png" 40p 48p FAST [[6,6,6][6,6,6][0]]
 SPRITE object_platform_down_sprite "object_platform_down.png" 32p 16p FAST [[6,6]]
@@ -303,7 +303,7 @@ PALETTE stage2_bg2_pal "stage2_bg2_tiles.png"
 
 # ---- STAGE 3 (ATLANTIDA) ----
 SPRITE enemy_bat_sprite "enemy_bat.png" 32p 24p FAST [[48][12,12,12,12][120]]
-SPRITE enemy_seahorsebot_sprite "enemy_seahorsebot.png" 32p 40p FAST [[12,12][12,12][72]]
+SPRITE enemy_seahorsebot_sprite "enemy_seahorsebot.png" 32p 40p FAST [[12,12][12,12][72][12,6,6,6,6,6,36]]
 SPRITE enemy_giant_dolphin_sprite "enemy_giant_dolphin.png" 104p 64p FAST [[3,3][3,3][3,3][6,6,6,6]]
 SPRITE enemy_small_fish_sprite "enemy_small_fish.png" 24p 16p FAST [[12,12,12][6,6,6][0]]
 SPRITE enemy_killer_fish_sprite "enemy_killer_fish.png" 32p 32p FAST [[6,6][6][0]]
@@ -337,7 +337,7 @@ PALETTE stage4_bg1_pal "stage4_bg1_tiles.png"
 PALETTE stage4_bg2_pal "stage4_bg2_tiles.png"
 
 # ---- STAGE 5 ----
-SPRITE enemy_magebot_sprite "enemy_magebot.png" 32p 40p FAST [[120][12,12][18,18]]
+SPRITE enemy_magebot_sprite "enemy_magebot.png" 32p 40p FAST [[120][12,12][18,18][120][12,12,12,36]]
 SPRITE enemy_bunny_sprite "enemy_bunny.png" 32p 40p FAST [[24][6][0]]
 SPRITE enemy_top_hat_sprite "enemy_top_hat.png" 24p 16p FAST [[120][120][0]]
 SPRITE enemy_gambit_sprite "enemy_gambit.png" 40p 40p FAST [[120][120][12,12,12,12,36]]
@@ -356,7 +356,7 @@ PALETTE stage5_bg1_pal "stage5_bg1_tiles.png"
 PALETTE stage5_bg2_pal "stage5_bg2_tiles.png"
 
 # ---- STAGE 6 ----
-SPRITE enemy_dynamitebot_sprite "enemy_dynamitebot.png" 48p 40p FAST [[12,18][18,18][12,12,12]]
+SPRITE enemy_dynamitebot_sprite "enemy_dynamitebot.png" 48p 40p FAST [[12,18][18,18][12,12,12][1][12,12,12,12]]
 SPRITE enemy_spinning_blade_sprite "enemy_spinning_blade.png" 24p 24p FAST [[15,15][9,9][0]]
 SPRITE enemy_mine_cart_sprite "enemy_mine_cart.png" 40p 40p FAST [[7,7][6,6][0]]
 TILESET stage6_tiles0 "stage6_map0.png"  NONE ALL
@@ -373,7 +373,7 @@ PALETTE stage6_bg1_pal "stage6_bg1_tiles.png"
 PALETTE stage6_bg2_pal "stage6_bg2_tiles.png"
 
 # ---- STAGE 7 ----
-SPRITE enemy_spikebot_sprite "enemy_spikebot.png" 40p 40p FAST [[12,12][6,6][120]]
+SPRITE enemy_spikebot_sprite "enemy_spikebot.png" 40p 40p FAST [[12,12][6,6][120][120][18,18,36]]
 SPRITE enemy_driller_sprite "enemy_driller.png" 32p 24p FAST [[6,6][6,6][0]]
 SPRITE enemy_metal_metool_sprite "enemy_metal_metool.png" 24p 24p FAST [[120][12,12][9,9,30,6,9,9]]
 TILESET stage7_tiles0 "stage7_map0.png"  NONE ALL
@@ -390,7 +390,7 @@ PALETTE stage7_bg1_pal "stage7_bg1_tiles.png"
 PALETTE stage7_bg2_pal "stage7_bg2_tiles.png"
 
 # ---- STAGE 8 ----
-SPRITE enemy_technobot_sprite "enemy_technobot.png" 48p 40p FAST [[120,1,12,12][120,1,12,12][120]]
+SPRITE enemy_technobot_sprite "enemy_technobot.png" 48p 40p FAST [[120,1,12,12][120,1,12,12][120][120][6,6,6,6,12,30]]
 SPRITE enemy_ground_shooter_sprite "enemy_ground_shooter.png" 16p 16p FAST [[6,6,6,6,6,6][6,6,6,6,6,6][1,6]]
 SPRITE enemy_android_sprite "enemy_android.png" 24p 24p FAST [[600][6,6,6][600]]
 TILESET stage8_tiles0 "stage8_map0.png"  NONE ALL
@@ -489,7 +489,7 @@ PALETTE stage13_bg2_pal "stage13_bg2_tiles.png"
 
 
 # ---- sprites missed by the first pass (converter assert fixed) ----
-SPRITE enemy_mummybot_sprite "enemy_mummybot.png" 40p 40p FAST [[120][120][120]]
+SPRITE enemy_mummybot_sprite "enemy_mummybot.png" 40p 40p FAST [[120][120][120][120][6,6,6,6,6,6,6,6,6,6][12,12,120]]
 SPRITE enemy_giant_fly_sprite "enemy_giant_fly.png" 64p 48p FAST [[9,9][6,6][0][12,12,12,12]]
 SPRITE enemy_fly_sprite "enemy_fly.png" 32p 24p FAST [[4,4,4,4][6,6,6][0]]
 

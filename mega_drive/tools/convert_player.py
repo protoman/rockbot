@@ -41,6 +41,15 @@ PLACEHOLDER_WEAPON1 = 13
 PLACEHOLDER_WEAPON2 = 14
 PLACEHOLDER_WEAPON3 = 15
 
+# PAL2 entries reserved for the classic HP bar strip: colour 1, colour 2 and
+# the black gaps. The bar is a sprite on the PLAYER palette line (the only line
+# whose colours belong to the player), so the player art must not use these
+# indices - otherwise writing the bar colours recolours the sprite (the bar on
+# 8/9/12 turned BETABOT's black body red). They are remapped to the nearest
+# free entry below; ~700 px of the four sheets in total, mostly 1-2 px details.
+HP_C1, HP_C2, HP_BLACK = 2, 3, 4
+HP_RESERVED = (HP_C1, HP_C2, HP_BLACK)
+
 
 
 # animation row -> (source frame indices, per-frame time in 1/60s)
@@ -110,8 +119,29 @@ def main():
 
         src = sheet.load()
 
+        # Free the HP-bar entries: any art pixel using 2/3/4 moves to the
+        # nearest colour the sheet actually has. Done per player because the
+        # four palettes differ.
+        avail = [i for i in range(1, PLACEHOLDER_WEAPON1) if i not in HP_RESERVED]
+        idx_map = list(range(16))
+        for r in HP_RESERVED:
+            c = palette[r]
+            idx_map[r] = min(
+                avail,
+                key=lambda i: sum((a - b) ** 2 for a, b in zip(palette[i], c)))
+            print(f"  player {n}: PAL2[{r}] {c} reserved for the HP bar -> "
+                  f"art uses {idx_map[r]} {palette[idx_map[r]]}")
+        # Only now that the art pixels moved: the HP-bar entries hold THIS
+        # player's weapon-0 colours, so the PNG previews what the game writes
+        # (player.c rebuild_player_palette sets the same three CRAM entries).
+        if c1:
+            palette[HP_C1] = tuple(md_round(v) for v in c1)
+        if c2:
+            palette[HP_C2] = tuple(md_round(v) for v in c2)
+        palette[HP_BLACK] = (0, 0, 0)
+
         def frame_idx(f):
-            return [src[f * FRAME + x, y]
+            return [idx_map[src[f * FRAME + x, y]]
                     for y in range(FRAME) for x in range(FRAME)]
 
         out = Image.new("P", (cols * CELL, rows * CELL))

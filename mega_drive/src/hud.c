@@ -76,11 +76,11 @@ void hud_init(void)
         &hud_bar_boss_top_sprite, &hud_bar_boss_mid_sprite, &hud_bar_boss_bot_sprite
     };
     for (u8 i = 0; i < HUD_PARTS; i++) {
-        // HP bar: PAL0 fixed purple/light blue (PC draw_energy_bar always uses
-        // PLAYER 1's weapon-0 colours whatever player is selected). It used to
-        // sit on PAL2 8/9, entries the player sheets really use - BETABOT's
-        // whole black body is index 8, so the HP colours recoloured him red.
-        hp_parts[i] = add_part(hp[i], HUD_BAR_HP_X, HUD_BAR_Y + part_y[i], PAL0);
+        // HP bar: PAL2 2/3/4 = the selected player's own colours (player.c
+        // writes them; tools/convert_player.py keeps the art off those
+        // entries). It used to sit on 8/9/12, which the sheets really use -
+        // BETABOT's whole black body is index 8, so the bar turned him red.
+        hp_parts[i] = add_part(hp[i], HUD_BAR_HP_X, HUD_BAR_Y + part_y[i], PAL2);
         // Weapon bar: PAL2 13/14 are the sheet's weapon-colour placeholders and
         // its empty part is transparent (index 0), so it needs its own black
         // backdrop behind it (added first = furthest back).
@@ -101,9 +101,9 @@ void hud_init(void)
     // Icon box first so it sits behind the icon sprite (SPR_MIN_DEPTH is the
     // front-most depth).
     hp_box = SPR_addSprite(&hud_bar_hp_bot_sprite, HUD_BAR_HP_X, HUD_ICON_Y,
-                           TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
+                           TILE_ATTR(PAL2, FALSE, FALSE, FALSE));
     wpn_box = SPR_addSprite(&hud_bar_hp_bot_sprite, HUD_BAR_WPN_X, HUD_ICON_Y,
-                            TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
+                            TILE_ATTR(PAL2, FALSE, FALSE, FALSE));
     if (hp_box) {
         SPR_setFrame(hp_box, 0);          // bar frame 0 = solid black 8x8
         SPR_setDepth(hp_box, SPR_MAX_DEPTH);

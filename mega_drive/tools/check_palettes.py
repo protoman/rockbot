@@ -45,14 +45,17 @@ def main():
     bad = 0
 
     # 1. HUD bars vs player sheets
-    #    The HP bar must be drawn on PAL0 (its art indices are PAL0 entries,
-    #    which overlap PAL2 names by number and mean nothing) and the player
-    #    palette builder must not write the HUD's old PAL2 slots.
+    #    The HP bar lives on PAL2 2/3/4 (the selected player's colours) and the
+    #    player art must keep off those three entries, or the bar recolours the
+    #    sprite - the bug that turned BETABOT red when the bar sat on 8/9/12.
     hud = open(os.path.join(SRC, "hud.c")).read()
-    if "hp[i], HUD_BAR_HP_X, HUD_BAR_Y + part_y[i], PAL0" not in hud:
-        print("!! the HP bar is not drawn with PAL0")
+    if "hp[i], HUD_BAR_HP_X, HUD_BAR_Y + part_y[i], PAL2" not in hud:
+        print("!! the HP bar is not drawn with PAL2 (player colours)")
         bad += 1
     pl = open(os.path.join(SRC, "player.c")).read()
+    if "base_pal[2]" not in pl or "base_pal[4]" not in pl:
+        print("!! player.c does not write the HP bar entries 2/3/4")
+        bad += 1
     for idx in ("base_pal[8]", "base_pal[9]", "base_pal[12]"):
         if idx in pl:
             print("!! player.c still writes %s (HUD bar colour over player art)"
@@ -61,7 +64,17 @@ def main():
     hp = set()
     for part in ("top", "mid", "bot"):
         hp |= used(os.path.join(RES, "hud_bar_hp_%s.png" % part))
-    print("hud hp bar art indices (PAL0) %s" % sorted(hp))
+    if not hp <= {2, 3, 4}:
+        print("!! HP bar art uses %s, expected only 2/3/4"
+              % sorted(hp - {2, 3, 4}))
+        bad += 1
+    print("hud hp bar art indices (PAL2) %s" % sorted(hp))
+    for n in (1, 2, 3, 4):
+        clash = used(os.path.join(RES, "player_p%d.png" % n)) & {2, 3, 4}
+        if clash:
+            print("!! player_p%d art uses the HP-bar entries %s"
+                  % (n, sorted(clash)))
+            bad += 1
     wpn = set()
     for part in ("top", "mid", "bot"):
         wpn |= used(os.path.join(RES, "hud_bar_wpn_%s.png" % part))

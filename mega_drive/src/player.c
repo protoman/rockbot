@@ -262,6 +262,9 @@ static void make_flash_palettes(void)
     for (u8 v = 0; v < 2; v++) {
         u8 boost = v ? 3 : 1;
         for (u8 i = 0; i < 16; i++) {
+            // 2/3/4 are the HUD HP bar, not the sprite: keep them steady so the
+            // gauge does not blink with the hit flash.
+            if (i >= 2 && i <= 4) { flash_pal[v][i] = base[i]; continue; }
             u16 c = base[i];
             u8 r = ((c >> 1) & 7) + boost;  if (r > 7) r = 7;
             u8 g = ((c >> 5) & 7) + boost;  if (g > 7) g = 7;
@@ -291,11 +294,17 @@ static void rebuild_player_palette(void)
         if (wc[k][0] < 0) continue;
         base_pal[13 + k] = rgb9((u8)wc[k][0], (u8)wc[k][1], (u8)wc[k][2]);
     }
-    // The HP/weapon HUD bars no longer live on this line: PAL2 is fully used by
-    // the player art (BETABOT's body is index 8, CANDYBOT/KITTYBOT use 9 and
-    // 12), so writing bar colours here recoloured the sprite. hud.c draws the
-    // HP bar on PAL0 with PLAYER 1's fixed colours (PC draw_energy_bar) and the
-    // weapon bar on 13/14, which are the art's swap placeholders.
+    // Classic HUD bars on this line, in the SELECTED player's colours:
+    //   2/3 = HP colour 1/2 (weapon 0), 4 = the bar's black gaps,
+    //   13/14 = the weapon bar (the art's swap placeholders, set above).
+    // Those entries are reserved in the player art by tools/convert_player.py
+    // (its pixels are remapped away) - the bar used to sit on 8/9/12, which
+    // BETABOT's black body / CANDYBOT's and KITTYBOT's armour really use, so
+    // the bar colours recoloured the sprite instead.
+    const s16 (*hp)[3] = player_data[player_n].wcol[0];
+    if (hp[0][0] >= 0) base_pal[2] = rgb9((u8)hp[0][0], (u8)hp[0][1], (u8)hp[0][2]);
+    if (hp[1][0] >= 0) base_pal[3] = rgb9((u8)hp[1][0], (u8)hp[1][1], (u8)hp[1][2]);
+    base_pal[4] = 0;
     make_flash_palettes();
 }
 

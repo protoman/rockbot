@@ -258,6 +258,41 @@ def main():
                 second_bg[s].append((m, "auto_scroll", auto))
                 print(f"stage {s} map {m}: bg0 auto_scroll mode {auto}")
 
+    # ---- sprite animation indices vs the sheets rescomp gets --------------
+    # A sheet is shared by every stage that spawns the art, and the castle
+    # stages spawn the bosses as plain enemies (3 rows). If a 3-row sheet wins
+    # for a boss art, the boss stage's def still points at rows 3/4 and
+    # SPR_setAnim() indexes past the animation table - a wild jump and a
+    # line-1111 crash (APE BOT jumping, 2026-10-22).
+    print("\n=== sprite animation rows ===")
+    res_path = os.path.join(ROOT, "res", "resources.res")
+    counts = {}
+    if os.path.exists(res_path):
+        for m in re.finditer(r'^SPRITE\s+(\w+)\s+"[^"]+"\s+\d+p\s+\d+p\s+'
+                             r'\w+\s+(\[.*\])\s*$', open(res_path).read(), re.M):
+            counts[m.group(1)] = m.group(2).count("[") - 1
+    bad_anim = 0
+    for si in range(STAGES):
+        path = os.path.join(SRC, f"stage{si}_enemies.c")
+        if not os.path.exists(path):
+            continue
+        for line in open(path):
+            m = re.match(r'\s*/\* (\d+) \*/ \{ &(\w+_sprite), (.*)$', line)
+            if not m or m.group(2) not in counts:
+                continue
+            f = [x.strip() for x in m.group(3).split(",")]
+            if len(f) < 20:
+                continue
+            jump, tele, intro = int(f[17]), int(f[18]), int(f[19])
+            n = counts[m.group(2)]
+            for label, v in (("jump", jump), ("teleport", tele), ("intro", intro)):
+                if v != 255 and v >= n:
+                    name = line.split("//")[-1].strip()
+                    print(f"stage {si} def {m.group(1)} {name}: "
+                          f"{label}_anim={v} but {m.group(2)} has {n} animations")
+                    bad_anim += 1
+    print(f"animation index problems: {bad_anim}")
+
     print("\n=== summary ===")
     for s in range(STAGES):
         bits = []

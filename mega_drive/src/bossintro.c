@@ -98,7 +98,13 @@ void boss_intro_run(u8 stage)
         if (spr) SPR_setAnim(spr, 0);
     }
 
-    // Boss name, centred (PC draw_centered_text(200, botname)).
+    // Boss name, centred (PC draw_centered_text(200, botname)). The text
+    // palette is GLOBAL state: the stage select borrows PAL1 and the dialogs
+    // PAL3, so a screen that forgot to restore left this name drawn with the
+    // boss-intro BACKGROUND palette - a solid bar of glyph cells (black ink on
+    // black, or inverted). Force PAL0 (pal_ui: 0 = black, 15 = font white).
+    VDP_setTextPlane(BG_A);
+    VDP_setTextPalette(PAL0);
     if (stage < SSEL_STAGE_SLOTS && ssel_boss_names[stage][0]) {
         const char *n = ssel_boss_names[stage];
         u8 len = strlen(n);

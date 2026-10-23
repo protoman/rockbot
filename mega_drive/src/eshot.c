@@ -159,6 +159,20 @@ void eshots_set_visible(bool visible)
             SPR_setVisibility(shots[i].spr, visible ? VISIBLE : HIDDEN);
 }
 
+// PC projectilelib.cpp:677: a live QUAKE projectile shakes the screen one
+// QUAKE_SCREEN_MOVE (2px) every QUAKE_TIMER (20ms) and resets it when it
+// expires. The PC's damage half (`ia_action_quake_attack`) has no caller in
+// that build, so this is the whole observable effect - APE BOT's quake
+// "doing nothing" was the port never shaking.
+s16 eshots_shake_x(void)
+{
+    for (u8 i = 0; i < ESHOT_MAX; i++) {
+        if (shots[i].on && shots[i].traj == TRAJ_QUAKE)
+            return ((shots[i].age / 12) & 1) ? -2 : 2;   // QUAKE_SCREEN_MOVE
+    }
+    return 0;
+}
+
 static bool eshot_solid(s16 x, s16 y)
 {
     return stage_terrain_at(stage_current_map, x >> 4, y >> 4) == TERRAIN_SOLID;

@@ -574,7 +574,9 @@ void stage_update_camera(s16 focusX, s16 focusY)
     const s16 dzx = 12; // horizontal deadzone
     const s16 dzy = 8;  // vertical deadzone
     const s16 prev_x = camera.x;
-    const s16 shake = shot_shake_x();   // PC QUAKE screen adjust
+    // PC QUAKE screen adjust: the player's pumpkin/quake weapon and any enemy
+    // QUAKE projectile (APE BOT) both shake the planes by +-2px.
+    const s16 shake = (s16)(shot_shake_x() + eshots_shake_x());
 
     if (focusX > camera.x + cx + dzx)       camera.x = focusX - cx - dzx;
     else if (focusX < camera.x + cx - dzx)  camera.x = focusX - cx + dzx;

@@ -21,4 +21,9 @@ void eshots_update(void);
 // Hide/show every live enemy-shot sprite (in-game menu overlay).
 void eshots_set_visible(bool visible);
 
+// PC projectile QUAKE screen adjust (+/-2px, QUAKE_SCREEN_MOVE) while an enemy
+// QUAKE projectile is alive; 0 otherwise. The player's own quake shots come
+// from shot_shake_x(); stage_update_camera adds both.
+s16 eshots_shake_x(void);
+
 #endif

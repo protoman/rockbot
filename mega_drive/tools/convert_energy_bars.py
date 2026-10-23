@@ -5,15 +5,13 @@ The source art is 8x51: black gaps plus purple/blue columns.  It is emitted as
 three 8-pixel-tall slices (24+24+8) for the sprite engine; each slice has 51
 horizontal frames, one per 1% step (0..50 px filled).
 
-Palette lines (a MD sprite only has 4, and PAL2 is fully used by the player
-art, so the HUD cannot own entries there):
-  HP bar    PAL0: 6 purple + 3 light blue + 1 black.  The PC's draw_energy_bar
-            always uses PLAYER 1's weapon-0 colours (magenta/blue) no matter
-            which player is selected, so a fixed line is the faithful choice.
-            Before this, the HP bar lived on PAL2 indices 8/9, which the
-            player sheets USE (BETABOT's whole black body is index 8): writing
-            the bar colours there recoloured the player red (BUG: "BETABOT
-            colours wrong").
+Palette lines (a MD sprite only has 4, so the HUD borrows the player's line):
+  HP bar    PAL2 2/3/4 = the SELECTED player's weapon-0 colour 1/2 + black.
+            Those three entries are reserved in the player art by
+            tools/convert_player.py (its pixels are remapped away), because the
+            bar must show the player's own colours ("the HUD should use his
+            colours") while the sprite itself keeps 8/9/12 (BETABOT's whole
+            black body is index 8 - writing the bar there turned him red).
   weapon    PAL2: 13/14 = the selected weapon's colours (the player sheet's
             own swap placeholders) and index 0 = transparent, so the empty
             part shows the black backdrop sprite hud.c places behind it.
@@ -30,18 +28,22 @@ ART = os.path.join(ROOT, "art", "energy_bar_vertical.png")
 RES = os.path.join(ROOT, "res")
 
 VARIANTS = {
-    "hud_bar_hp":  {(139, 0, 115): 6,  (0, 113, 238): 3,  (0, 0, 0): 1},
+    "hud_bar_hp":  {(139, 0, 115): 2,  (0, 113, 238): 3,  (0, 0, 0): 4},
     "hud_bar_wpn": {(139, 0, 115): 13, (0, 113, 238): 14, (0, 0, 0): 0},
     "hud_bar_boss": {(139, 0, 115): 2, (0, 113, 238): 3,  (0, 0, 0): 1},
 }
 # Palette written into the emitted PNGs so they preview correctly. The runtime
 # colours come from the palette lines named above (hud.c sets the sprite
 # attribute); these are just the same values in RGB.
+# Preview palette written into the emitted PNGs (the runtime colours come from
+# the sprite attribute's palette line and, for PAL2 2/3/4 and 13/14, from
+# player.c). The HP and boss bars share indices 2/3 on different lines, so the
+# boss sheet previews with the HP colours - cosmetic only.
 PAL_COLOURS = {
-    1: (0, 0, 0),            # PAL0 black
-    2: (255, 255, 255),      # PAL0 white
-    3: (146, 219, 255),      # PAL0 light blue
-    6: (146, 0, 255),        # PAL0 purple
+    1: (0, 0, 0),            # black
+    2: (139, 0, 115),        # PAL2 HP colour 1 (player.c writes the real one)
+    3: (0, 113, 238),        # PAL2 HP colour 2
+    4: (0, 0, 0),            # PAL2 HP bar black
     13: (139, 0, 115),       # PAL2 weapon colour 1
     14: (0, 113, 238),       # PAL2 weapon colour 2
 }

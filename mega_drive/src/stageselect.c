@@ -99,7 +99,10 @@ static void draw_names(void)
     VDP_setTileMapDataRect(BG_A, &cells[BAR_ROW0 * SSEL_MAP_W], 0, BAR_ROW0,
                            SSEL_MAP_W, BAR_ROWS, SSEL_MAP_W, CPU);
     if (sx == 1 && sy == 1) {
-        if (!castle_unlocked) return;   // centre slot: player/castle icon
+        if (!castle_unlocked) {         // centre slot: player/castle icon
+            VDP_setTextPalette(PAL0);
+            return;
+        }
         u8 st = castle_next_stage();
         char buf[40];
         strcpy(buf, "BOSS ");
@@ -108,6 +111,7 @@ static void draw_names(void)
         strcpy(buf, "STAGE ");
         strcat(buf, ssel_stage_names[st]);
         VDP_drawText(buf, 2, BAR_ROW0 + 2);
+        VDP_setTextPalette(PAL0);
         return;
     }
     u8 st = complete_stage();
@@ -121,6 +125,7 @@ static void draw_names(void)
     if (!stage_ready(st)) {
         VDP_drawText("NOT CONVERTED YET", 2, BAR_ROW0 + 3);
     }
+    VDP_setTextPalette(PAL0);   // never leak PAL1 into the next screen
 }
 
 u8 stage_select_run(u8 player, u16 stage_mask)
@@ -194,8 +199,7 @@ u8 stage_select_run(u8 player, u16 stage_mask)
 
     sx = 1;                 // default to the centre slot
     sy = 1;
-    draw_names();
-    VDP_setTextPalette(PAL0);   // draw_names borrowed PAL1 (black bg/grey ink)
+    draw_names();               // borrows PAL1 for the lines, restores PAL0
     SYS_doVBlankProcess();      // flush queued DMA before input
 
     u16 prev = JOY_readJoypad(JOY_1);

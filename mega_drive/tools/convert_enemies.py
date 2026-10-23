@@ -567,10 +567,31 @@ def main():
     print(f"PAL0 (from art): {len(palette)} entries")
 
     # --- write sprite sheets ------------------------------------------------
+    # A sheet is shared by every stage that spawns the art (the castle stages
+    # spawn the eight bosses as plain enemies). Those stages want 3 rows while
+    # the boss stage wants 5 (jump/teleport/intro), so with a naive write the
+    # LAST stage converted (13) left 3-row sheets behind while stages 1..8's
+    # defs still pointed at rows 3/4: SPR_setAnim(3) on a 3-animation sheet is
+    # out of range and SGDK then reads a garbage animation pointer - that was
+    # the APE BOT line-1111 crash (it fires when he jumps). Keep the TALLEST
+    # version of each art; the shorter plan's def never references the extra
+    # rows (its anim indices are 255) and its SPRITE line is dropped with it.
     os.makedirs(RES, exist_ok=True)
+    kept = {}
     for eid, p in sorted(plans.items()):
         cols, cw, ch = p["cols"], p["cw"], p["ch"]
         rows = len(p["cells"])          # stand, walk, attack, jump, teleport
+        path = os.path.join(RES, p["res_name"] + ".png")
+        if os.path.exists(path):
+            try:
+                old_rows = Image.open(path).height // ch
+            except Exception:
+                old_rows = 0
+            if old_rows > rows:
+                kept[p["res_name"]] = old_rows
+                print(f"keep res/{p['res_name']}.png ({old_rows} rows, this "
+                      f"stage needs {rows})")
+                continue
         out = Image.new("P", (cols * cw, rows * ch))
         out.putpalette([v for c in palette for v in c])
         data = [0] * (cols * cw * rows * ch)
@@ -581,7 +602,7 @@ def main():
                     x, y = i % p["fw"], i // p["fw"]
                     data[(oy + y) * cols * cw + ox + x] = px
         out.putdata(data)
-        out.save(os.path.join(RES, p["res_name"] + ".png"))
+        out.save(path)
         print(f"wrote res/{p['res_name']}.png {out.size}")
 
     # --- projectile sprites (data-driven, PAL0 hand art) -------------------
@@ -777,8 +798,11 @@ extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
         line = (f'SPRITE {p["res_name"]}_sprite "{p["res_name"]}.png" '
                 f'{p["cw"]}p {p["ch"]}p FAST [' + "".join(anims) + ']')
         print(line)
-        # Rewrite the existing line in place: the sheet now has 5 rows, so the
-        # animation lists must match or rescomp mis-slices the frames.
+        # Rewrite the existing line in place: the sheet has 3/4/5 rows, so the
+        # animation lists must match or rescomp mis-slices the frames. When a
+        # taller sheet was kept from an earlier stage, its line must stay too.
+        if p["res_name"] in kept:
+            continue
         res_lines[line.split()[1]] = line
     if STAGE_INDEX == 0:
         emit_explosion_sprite()

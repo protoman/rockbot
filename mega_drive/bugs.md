@@ -894,6 +894,70 @@ from a previous stage could survive into the next one.
 `runStage`), and the respawn now loads the checkpoint's map when the player
 died elsewhere (`stage_load(cp_map)`), then places him at the stored point.
 
+## BUG-039 — APE BOT crash (line 1111) and a silent quake attack
+
+**Report (2026-10-22 play test)**: fighting APE BOT his quake attack did
+nothing, then the game crashed with `LINE 1111 EMULATOR` /
+`screenshots/bugs/ape/crash.png` (PC 0xF90008, SP garbage).
+
+**Cause (offline, from the data)**: every stage boss except MILONGA had a
+**3-animation** sheet while its `EnemyDef` still pointed at rows 3/4:
+
+```
+stage 1 def 1 APE BOT: jump_anim=3 but enemy_apebot_sprite has 3 animations
+stage 1 def 1 APE BOT: intro_anim=4 but enemy_apebot_sprite has 3 animations
+... 17 mismatches over stages 1..8
+```
+
+A sheet is shared by every stage that spawns that art, and the castle stages
+spawn the eight bosses as *plain enemies* (3 rows). `make assets` converts stages
+0..13 in order, so stage 13's 3-row sheet and SPRITE line overwrote the boss
+stage's 5-row one. `SPR_setAnim(spr, 3)` past the end of the animation table
+leaves `sprite->animation` on garbage (SGDK only guards it when the lib log
+level is high enough), and the next `SPR_update` reads a bogus frame pointer -
+the same mechanism as BUG-031. It fires when the boss **jumps** (APE's jump =
+his quake attack), which is why it happened mid-fight.
+
+**Fix**: `convert_enemies.py` keeps the TALLEST existing sheet for an art name
+and, when it does, leaves its SPRITE line alone, so a 3-row castle pass can no
+longer shrink a 5/6-row boss sheet (regardless of stage order). Re-running the
+converters restored every boss sheet. `tools/audit_data.py` now cross-checks
+every stage's `jump/teleport/intro_anim` against the SPRITE animation counts
+(prints `animation index problems: 0`).
+
+**Quake**: the PC's `ia_action_quake_attack()` (the damage + jump lock) has **no
+caller** in that build - the observable effect of a QUAKE projectile is the
+screen shake (`projectilelib.cpp:677`: +-2 px every 20 ms). The port's enemy
+shot did nothing at all. `eshot.c` now exposes `eshots_shake_x()` and
+`stage_update_camera()` adds it to `shot_shake_x()`, so APE's quake shakes the
+stage like the PC.
+
+## BUG-040 — Boss-intro name is a solid bar
+
+**Report (2026-10-22 play test)**: the intro screen shows now, but the boss name
+is just a bar.
+
+**Cause**: the text palette is global state. `draw_names()` in the stage select
+set `VDP_setTextPalette(PAL1)` and only the *first* draw restored PAL0 - every
+cursor move after that left PAL1 installed. `boss_intro_run()` then loaded PAL1
+with the *background* palette, so the name's glyph cells were painted with that
+line (white cells with black ink / black on black) instead of the font's black
+background + white ink.
+
+**Fix**: `draw_names()` restores PAL0 on every exit path, and `boss_intro_run()`
+sets the text plane and palette explicitly before drawing the name.
+
+## BUG-035 addendum — HUD in the player's own colours
+
+The HP bar first moved to PAL0 with the PC's fixed PLAYER 1 colours (which
+stopped the sprite recolour but ignored the chosen player). Per the play test
+("the HUD should use his colours"), the bar is back on **PAL2** with
+**2/3/4 reserved** for it: `tools/convert_player.py` remaps any art pixel on
+those entries to the nearest free colour (~700 px over the four sheets, 1-2 px
+details), `player.c` writes the selected player's weapon-0 colours 1/2 and black
+there, and the hit-flash palettes leave 2/3/4 untouched so the gauge does not
+blink. `check_palettes.py` asserts both halves.
+
 ## Play-test batch 2026-10-22 (after the boss/animation commits)
 
 Reports, in the user's order, with what is known so far:
