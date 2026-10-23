@@ -163,13 +163,24 @@ data never uses, therefore unimplemented:
 ## HUD / menus
 
 - [x] **Weapon tooltip** (`draw.cpp:833/841`, 2026-10-23): picking a weapon in
-      the START menu now shows its name (from `weapon_data[].name`) for 1500 ms
-      in the lower-left, at the PC's position (tile 4, row 25 of the 224 px
-      screen = the PC's pixel 34,224-22). The name is written into the stage
-      plane at the current camera position, so it belongs to the map while it
-      is up, and `stage_force_redraw()` rebuilds the plane once when it
-      expires (one redraw per tooltip, the trade-off noted in the plan). The
-      PC's frame/icon art is not drawn — the port has none.
+      the START menu shows the PC's frame box, the weapon icon and its name
+      (from `weapon_data[].name`) for 1500 ms in the lower-left, at the PC's
+      position. Art comes from `tools/convert_tooltip.py` (PC
+      `weapon_tooltip.png` + the ACTIVE half of `icons.png`): the box is a
+      38x4 cell map of 8 deduplicated tiles, the icon is the selected weapon's
+      four tiles loaded per show, and all of it sits in the 24-tile window the
+      dialog panel uses (912..923). The name is written into the stage plane at
+      the current camera position, so the whole tooltip belongs to the map
+      while it is up, and `stage_force_redraw()` rebuilds the plane once when
+      it expires (one redraw per tooltip, the trade-off noted in the plan).
+      The art needs 16 colours and borrows PAL3 (the parallax/colourcycle line,
+      as the dialog panel does): saved and restored around the 90 frames, and
+      `stage_cycle_update()` holds the colourcycle while it owns the line. The
+      background is therefore recoloured for those 1.5 s.
+- [ ] The PC's special tooltip names for COIL/JET/E-TANK/W-TANK/S-TANK (extra
+      text with the item counts, `graphicslib.cpp:1370`); the port shows
+      `weapon_data[].name` only. The tank icons (14..17) are quantized hard
+      against the 11 icon slots and are not reachable from the menu anyway.
 - [ ] Trophies screen / "characters unlocked" warning (PC `game_config.
       game_finished` gates players 3/4 — the port gates them too, but the
       warning dialog is absent).

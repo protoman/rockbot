@@ -309,7 +309,9 @@ Flow in `main.c`: `showIntro()` (logos) → `scene_play(SCENE_OPENING_UNBEATEN)`
 | `src/menu.{c,h}` | in-game START menu (window/panel over the stage) |
 | `src/hud.{c,h}` | HP balls + boss row (sprites; PAL0 via tools/pal_ui.py) |
 | `src/effects.{c,h}` | transient effects: dash dust, water splash/bubble, teleport beam |
-| `src/tooltip.{c,h}` | weapon-name tooltip after a menu pick (plane text + one redraw) |
+| `src/tooltip.{c,h}` | weapon tooltip after a menu pick: PC box + icon + name (PAL3, plane cells, one redraw) |
+| `src/tooltip_data.{c,h}` | generated: tooltip box tiles/map, 18 icon tiles, per-icon palette |
+| `tools/convert_tooltip.py` | PC `weapon_tooltip.png` + `icons.png` → `src/tooltip_data.*` (`--preview N`) |
 | `src/eshot.{c,h}` | enemy AI projectiles |
 | `res/resources.res` | rescomp manifest |
 

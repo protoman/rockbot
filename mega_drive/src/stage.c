@@ -290,6 +290,9 @@ static void stage_cycle_reset(void)
 void stage_cycle_update(void)
 {
     if (!stage_def->cycle_n || !stage_def->cycle_frames) return;
+    // The tooltip borrows PAL3 for its art (tooltip.c); writing the rotating
+    // colours under it would repaint its icon and its white ink.
+    if (tooltip_owns_pal3()) return;
     if (++cycle_timer < stage_def->cycle_frames) return;
     cycle_timer = 0;
     cycle_step = (u8)((cycle_step + 1) % stage_def->cycle_n);

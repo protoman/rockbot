@@ -41,10 +41,16 @@ PC-parity backlog, `PLAN.md` the roadmap.
     Effects are cosmetic: when the 768-tile sprite pool is full `SPR_addSprite`
     returns NULL and the effect is skipped, never a crash.
 
-11. **Weapon tooltip** (`src/tooltip.c`): the START-menu pick arms a label
-    with the weapon name (`weapon_data[].name`), the stage loop draws it at
-    the PC's lower-left spot for 1.5 s and then calls `stage_force_redraw()`
-    once to restore the map cells. Nothing is drawn while the menu is open.
+11. **Weapon tooltip** (`src/tooltip.c` + `src/tooltip_data.*`): the
+    START-menu pick arms the PC's box + weapon icon + name, the stage loop
+    draws them at the PC's lower-left spot for 1.5 s and then calls
+    `stage_force_redraw()` once to restore the map cells. Nothing is drawn
+    while the menu is open. Art: `tools/convert_tooltip.py` (box 300x32 ->
+    8 tiles + a 38x4 map; icons 18 x 16x16, per-icon 11-colour palette).
+    RAM/VRAM cost: 12 tiles at 912..923 (the dialog panel window) and PAL3 for
+    the 90 frames (saved/restored, colourcycle paused). `convert_tooltip.py
+    --preview N` rebuilds the box + icon N from the emitted data; the
+    converter also round-trips its own packed tile bytes on every run.
 
 ## Next, in order (see pc_gaps.md for evidence per item)
 
@@ -61,9 +67,11 @@ PC-parity backlog, `PLAN.md` the roadmap.
    turn animation, SPIKED CHAIN, cutscene music, dash dust on every slide,
    water splash + rising bubble in stage 3 (the only early stage with water;
    13 also has it), teleport beam when a boss/castle teleporter warps, and the
-   weapon tooltip after picking a weapon in the START menu — check it appears
-   in the lower left for ~1.5 s and that the map under it is clean again
-   afterwards (the label itself belongs to the map while it is up).
+   weapon tooltip after picking a weapon in the START menu — check the box,
+   the icon and the name appear in the lower left for ~1.5 s, that the name
+   sits on the box interior (not in black boxes) and that the map under it is
+   clean again afterwards (the tooltip itself belongs to the map while it is
+   up, and the background palette is the tooltip's for those 1.5 s).
    Effects are best effort on VRAM: if the 768-tile sprite pool is full the
    effect is silently skipped (SPR_addSprite NULL) — worth watching that the
    splash and the beam do appear rather than assuming.
