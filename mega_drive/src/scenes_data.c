@@ -1,5 +1,6 @@
 #include "scenes_data.h"
 #include "resources.h"
+#include "music.h"
 #include "scene_par0_l0_tiles.h"
 #include "scene_par0_l0_map.h"
 #include "scene_par0_l1_tiles.h"
@@ -106,6 +107,13 @@ const SceneDef scene_defs[6] = {
     { scene3_ops, 15 }, // Ending Betabot
     { scene4_ops, 6 }, // Ending Candybot
     { scene5_ops, 6 }, // Ending KittyBot
+};
+
+// PLAY_MUSIC op seek -> MUSIC_* id (music.c owns id -> resource).
+const u8 scene_music_ids[3] = {
+    MUSIC_INTRO_SCENE, // INTRO [Bg-Music] = intro_scene.mod
+    MUSIC_STAGE2, // Musiquinha = daisie.mod
+    MUSIC_END_ANIMATION, // Ending Dialog Song = rockbot_end_animation.mod
 };
 
 // Parallax #1: 2 layers, 10ms/frame, 4000ms

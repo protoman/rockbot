@@ -136,6 +136,8 @@ typedef struct {
     s16 drop_target;
     u8 always_ahead;  // PC always_move_ahead (AI state loops on itself)
     u8 auto_jump;     // stepping over a low wall (GOLD CART)
+    u16 turn_t;       // frames of ANIM_TYPE_TURN left (AI TURN options)
+    s8 turn_dir;      // facing applied when the turn animation ends
     u8 jump_opt;      // AI_JUMP option of the current action
     u8 no_gravity;    // PC _ignore_gravity: TO_ROOF / WALL_WALK keep it set
     u8 ghost;         // DRILL_DOWN passes through walls at 1/4 speed
@@ -311,15 +313,21 @@ static void ai_action_init(Enemy *e)
     e->shooting = 0;
     e->ghost = 0;
     e->rand_t = 0;
+    e->turn_t = 0;
     switch (st->action) {
     case AI_WALK:
         if (st->param == AI_WALK_TURN || st->param == AI_WALK_TURN_PLYR) {
-            if (st->param == AI_WALK_TURN) {
-                e->dir = -e->dir;
+            // PC artificial_inteligence.cpp:1072 + 1462: the turn plays the
+            // art's ANIM_TYPE_TURN row and the facing flips when it ends (the
+            // flying shielder rotates its shield). Enemies without that row
+            // flip instantly, as before.
+            s16 nd = (st->param == AI_WALK_TURN) ? (s16)-e->dir
+                     : ((player.x > e->x) ? 1 : -1);
+            if (d->turn_anim != 255 && d->turn_ms) {
+                e->turn_dir = (s8)nd;
+                e->turn_t = (u16)(((u32)d->turn_ms * 6) / 100);
             } else {
-                // PC TURN_TO_PLAYER (artificial_inteligence.cpp:1121-1129):
-                // raw position compare, facing set instantly
-                e->dir = (player.x > e->x) ? 1 : -1;
+                e->dir = nd;
             }
         } else if (st->param == AI_WALK_TO_PLAYER) {
             e->dest_x = player.x;
@@ -365,7 +373,12 @@ static void ai_action_init(Enemy *e)
         break;
     case AI_FLY:
         if (st->param == AI_FLY_TURN) {
-            e->dir = -e->dir;
+            if (d->turn_anim != 255 && d->turn_ms) {
+                e->turn_dir = (s8)-e->dir;
+                e->turn_t = (u16)(((u32)d->turn_ms * 6) / 100);
+            } else {
+                e->dir = -e->dir;
+            }
         } else if (st->param == AI_FLY_TO_PLAYER) {
             e->dest_x = player.x;
             e->dest_y = player.y;
@@ -641,8 +654,11 @@ static bool ai_action_run(Enemy *e)
 
     switch (st->action) {
     case AI_WALK:
-        if (st->param == AI_WALK_TURN || st->param == AI_WALK_TURN_PLYR)
-            return TRUE;                                // instant (PC anim)
+        if (st->param == AI_WALK_TURN || st->param == AI_WALK_TURN_PLYR) {
+            if (!e->turn_t) return TRUE;                // no art: instant
+            if (--e->turn_t == 0) e->dir = e->turn_dir;
+            return FALSE;
+        }
         if (e->auto_jump) {
             ai_auto_jump(e);
             return FALSE;               // continue walking after landing
@@ -660,7 +676,11 @@ static bool ai_action_run(Enemy *e)
                              st->param == AI_WALK_FALLING);
 
     case AI_FLY: {
-        if (st->param == AI_FLY_TURN) return TRUE;
+        if (st->param == AI_FLY_TURN) {
+            if (!e->turn_t) return TRUE;
+            if (--e->turn_t == 0) e->dir = e->turn_dir;
+            return FALSE;
+        }
         e->moving = 1;
         if (st->param == AI_FLY_ZIGZAG)
             e->dest_y = e->spawn_y + (((e->act_t >> 5) & 1) ? 12 : -12);
@@ -1320,7 +1340,9 @@ void enemies_update(void)
             // (PC ANIM_TYPE_*; BUG-011 - teleporting/jumping used to keep
             // the previous row, which is what made the Mummy look like he
             // faced the wrong way while repositioning).
-            if (d->attack_n > 0 && e->shooting)
+            if (e->turn_t && d->turn_anim != 255)
+                SPR_setAnim(e->spr, d->turn_anim);
+            else if (d->attack_n > 0 && e->shooting)
                 SPR_setAnim(e->spr, 2);
             else if (e->teleporting && d->teleport_anim != 255)
                 SPR_setAnim(e->spr, d->teleport_anim);

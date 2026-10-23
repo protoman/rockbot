@@ -2,6 +2,7 @@
 
 #include "scene.h"
 #include "scenes_data.h"
+#include "music.h"
 #include "stage.h"
 
 // PC scene player (scenes/sceneshow.cpp) for the intro.
@@ -309,9 +310,20 @@ void scene_play(u8 index)
                 if (!parallax_play(&scene_parallax[op->seek])) return;
                 break;
             case SCENE_PLAY_MUSIC:
-            case SCENE_PLAY_SFX:
+                // PC sceneShow::play_music -> playmusic_list[n]; the converter
+                // maps each record's filename to a MUSIC_* id (music.c owns the
+                // id -> resource table), so a cutscene can change the track.
+                if (op->seek < SCENE_MUSIC_COUNT &&
+                    scene_music_ids[op->seek] != MUSIC_NONE)
+                    music_play(scene_music_ids[op->seek]);
+                break;
             case SCENE_STOP_MUSIC:
-                break;         // audio is not wired yet
+                music_stop();
+                break;
+            case SCENE_PLAY_SFX:
+                // No converted scene uses this op; scenes_play_sfx.dat has two
+                // records but no scene references them (checked 2026-10-23).
+                break;
             default:
                 // MOVE_IMAGE / MOVE_VIEWPOINT / SHOW_ANIMATION: art pipeline
                 // for the scenes that use them comes with the ending.

@@ -139,13 +139,13 @@ SPRITE player_p4_sprite "player_p4.png" 32p 32p FAST [[120,6][9,9,9,9][9][9][6,6
 # Generated sheets: row 0 = ANIM_STAND, row 1 = ANIM_WALK. Cells are padded
 # to multiples of 8 (SGDK requirement). Shared PAL0 palette
 # (palette_ui_enemies in stage0_enemies.c): index 0 transparent, 15 = white.
-SPRITE enemy_shield_sprite "enemy_shield.png" 32p 32p FAST [[12,12][12,12][0]]
+SPRITE enemy_shield_sprite "enemy_shield.png" 32p 32p FAST [[12,12][12,12][0][11,11,11,11,11]]
 SPRITE enemy_spinner_ball_red_sprite "enemy_spinner_ball_red.png" 24p 24p FAST [[1][6,6,6,6,6,6][12,12,48,12]]
 SPRITE enemy_spinner_ball_sprite "enemy_spinner_ball.png" 24p 24p FAST [[6,6,6,6,6,6][6,6,6,6,6,6][6,6,6,30]]
 SPRITE enemy_classic_metool_sprite "enemy_classic_metool.png" 24p 24p FAST [[12][12,12][9,9,30,6,9,9]]
 SPRITE enemy_cannon_ball_sprite "enemy_cannon_ball.png" 24p 24p FAST [[120][18,18][12,12,60]]
 # Stage boss MILONGA BOT (id 37): 36x33 art in 40x40 cells, stand + walk rows
-SPRITE enemy_milonga_sprite "enemy_milonga.png" 40p 40p FAST [[120][120][12,48][120][12,36]]
+SPRITE enemy_milonga_sprite "enemy_milonga.png" 40p 40p FAST [[120][120][12,48][120][12,36][120]]
 SPRITE shot_sprite "shot.png" 8p 8p FAST [[1]]
 # Player + enemy charged projectiles (game_projectile_list ids 11/10).
 # Frames are 100ms each (defines.h:644); semi art restored by the enemy
@@ -266,7 +266,7 @@ SPRITE ssel_cursor_br_y_sprite "ssel_cursor_br_y.png" 24p 24p FAST [[0]]
 # ---- STAGE 1 (DEEP JUNGLE) ----
 SPRITE enemy_rock_metool_sprite "enemy_rock_metool.png" 24p 24p FAST [[180][12,12][9,9,30,6,9,9]]
 SPRITE enemy_apebot_sprite "enemy_apebot.png" 40p 40p FAST [[48][12,12][24,24,24,24][12][12,12,12,120]]
-SPRITE enemy_bee_sprite "enemy_bee.png" 24p 24p FAST [[6,6][6,6][0]]
+SPRITE enemy_bee_sprite "enemy_bee.png" 24p 24p FAST [[6,6][6,6][0][3]]
 SPRITE enemy_flower_metool_sprite "enemy_flower_metool.png" 24p 24p FAST [[1][12,12][9,9,30,6,9,9]]
 SPRITE enemy_side_shooter_sprite "enemy_side_shooter.png" 16p 32p FAST [[6][600][48]]
 SPRITE enemy_tamandua_sprite "enemy_tamandua.png" 40p 32p FAST [[18,18][12,12][0]]
@@ -305,13 +305,13 @@ PALETTE stage2_bg1_pal "stage2_bg1_tiles.png"
 PALETTE stage2_bg2_pal "stage2_bg2_tiles.png"
 
 # ---- STAGE 3 (ATLANTIDA) ----
-SPRITE enemy_bat_sprite "enemy_bat.png" 32p 24p FAST [[48][12,12,12,12][120]]
+SPRITE enemy_bat_sprite "enemy_bat.png" 32p 24p FAST [[48][12,12,12,12][120][18,18]]
 SPRITE enemy_seahorsebot_sprite "enemy_seahorsebot.png" 32p 40p FAST [[12,12][12,12][72][12,6,6,6,6,6,36]]
 SPRITE enemy_giant_dolphin_sprite "enemy_giant_dolphin.png" 104p 64p FAST [[3,3][3,3][3,3][6,6,6,6]]
 SPRITE enemy_small_fish_sprite "enemy_small_fish.png" 24p 16p FAST [[12,12,12][6,6,6][0]]
 SPRITE enemy_killer_fish_sprite "enemy_killer_fish.png" 32p 32p FAST [[6,6][6][0]]
 SPRITE enemy_spiked_floor_sprite "enemy_spiked_floor.png" 24p 16p FAST [[12,12][12,12][0]]
-SPRITE enemy_wood_shield_sprite "enemy_wood_shield.png" 32p 32p FAST [[12,12][12,12][0]]
+SPRITE enemy_wood_shield_sprite "enemy_wood_shield.png" 32p 32p FAST [[12,12][12,12][0][11,11,11,11,11]]
 TILESET stage3_tiles0 "stage3_map0.png"  NONE ALL
 PALETTE stage3_pal0   "stage3_map0.png"
 MAP     stage3_map0   "stage3_map0.png"  stage3_tiles0 FAST 0

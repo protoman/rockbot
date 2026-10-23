@@ -83,6 +83,7 @@ BOSS_INITIAL_HP = 36
 AI_GOTO_CHANCE = 0
 
 ANIM_STAND, ANIM_WALK, ANIM_JUMP, ANIM_ATTACK, ANIM_TELEPORT = 0, 1, 2, 3, 4
+ANIM_TURN = 13       # PC ANIM_TYPE_TURN: the turn-around animation
 ANIM_INTRO = 16     # bosses only (PC classMap::boss_show_intro_sprites)
 COLORKEY = (75, 125, 125)
 MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)
@@ -112,9 +113,11 @@ def read_enemy_defs(blob, ids):
         # 0xFF in the id byte but are still real entries — trust the index.
         assert b[0] == eid or b[0] == 0xFF, f"record {eid}: id byte {b[0]} != {eid}"
         stand, walk, attack, jump, teleport, intro = [], [], [], [], [], []
+        turn = []
         for anim, out in ((ANIM_STAND, stand), (ANIM_WALK, walk),
                           (ANIM_ATTACK, attack), (ANIM_JUMP, jump),
-                          (ANIM_TELEPORT, teleport), (ANIM_INTRO, intro)):
+                          (ANIM_TELEPORT, teleport), (ANIM_INTRO, intro),
+                          (ANIM_TURN, turn)):
             for f in range(10):
                 o = 78 + (anim * 10 + f) * 14
                 used, dur, px = b[o], struct.unpack_from("<H", b, o + 2)[0], b[o + 4]
@@ -158,6 +161,7 @@ def read_enemy_defs(blob, ids):
             "jump": jump,
             "teleport": teleport,
             "intro": intro,
+            "turn": turn,
         }
     return defs
 
@@ -485,8 +489,13 @@ def main():
         # Boss landing intro (PC boss_show_intro_sprites): only bosses/subs,
         # and only when the file has the INTRO frames.
         intro = frames_of(d["intro"]) if (d["is_boss"] or d["is_sub_boss"]) else []
+        # ANIM_TYPE_TURN: the flying shielder turns by rotating its shield, so
+        # the row matters for the AI turn options (WALK TURN / FLY TURN).
+        turn = frames_of(d["turn"])
         nrows = 3 + (1 if needs_jump else 0) + (1 if needs_tele else 0)
         intro_anim = nrows if intro else 255
+        turn_anim = (nrows + (1 if intro else 0)) if turn else 255
+        turn_ms = sum(du for _, du in turn)
         intro_ms = sum(du for _, du in intro)
         # all stand frames / all walk frames, times in 1/60s
         def times(fr):
@@ -510,6 +519,8 @@ def main():
             rows.append(teleport or stand)
         if intro:
             rows.append(intro)
+        if turn:
+            rows.append(turn)
         for row_frames in rows:
             row = []
             for (fcol, _dur) in row_frames:
@@ -526,7 +537,9 @@ def main():
             "jump": jump, "teleport": teleport,
             "jump_anim": jump_anim, "teleport_anim": teleport_anim,
             "intro_anim": intro_anim, "intro_ms": intro_ms,
-            "nrows": nrows + (1 if intro else 0),
+            "turn_anim": turn_anim, "turn_ms": turn_ms,
+            "turn_t": times(turn) if turn else [1],
+            "nrows": nrows + (1 if intro else 0) + (1 if turn else 0),
             "stand_t": times(stand), "walk_t": times(walk),
             "attack_t": times(attack),
             "jump_t": times(jump) if jump else [1],
@@ -739,7 +752,8 @@ extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
             f"{p['jump_anim']}, {p['teleport_anim']}, "
             f"{p['intro_anim']}, {p['intro_ms']}, "
             f"{p['attack_ms']}, {d['shield_type']}, "
-            f"{{ {', '.join(str(x & 0xFF) for x in d['weak'])} }} }},"
+            f"{{ {', '.join(str(x & 0xFF) for x in d['weak'])} }}, "
+            f"{p['turn_anim']}, {p['turn_ms']} }},"
             f"  // {d['name']}\n")
     lines.append("};\n\n")
     lines.append(f"const EnemySpawn {PFX}_enemy_spawns[{UP}_ENEMY_SPAWN_COUNT] = {{\n")
@@ -795,6 +809,8 @@ extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
             anims.append("[" + ",".join(str(t) for t in
                                           [max(1, round(du * 6 / 100))
                                            for _, du, _r in p["d"]["intro"]]) + "]")
+        if p["turn_anim"] != 255:
+            anims.append("[" + ",".join(str(t) for t in p["turn_t"]) + "]")
         line = (f'SPRITE {p["res_name"]}_sprite "{p["res_name"]}.png" '
                 f'{p["cw"]}p {p["ch"]}p FAST [' + "".join(anims) + ']')
         print(line)

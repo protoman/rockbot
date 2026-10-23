@@ -42,6 +42,7 @@
 #define TRAJ_ARC               1
 #define TRAJ_SIN                2
 #define TRAJ_BOMB               5
+#define TRAJ_CHAIN              3
 #define TRAJ_FREEZE             8
 #define TRAJ_CENTERED          11
 #define TRAJ_ZIGZAG            12
@@ -91,6 +92,9 @@ typedef struct {
     u16 attack_ms;
     u8 shield_type;     // e_shield_types: SHIELD_STAND etc. (character.cpp:3357)
     u8 weak[9];         // PC weakness[weapon].damage_multiplier (0 = immune)
+    u8 turn_anim;       // sheet row of ANIM_TYPE_TURN (255 = none): the enemy
+                        // turns by playing it (the flying shielder rotates)
+    u16 turn_ms;        // its total duration in ms
 } EnemyDef;
 
 typedef struct {

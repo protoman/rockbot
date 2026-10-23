@@ -24,11 +24,11 @@ into a plain hop.
 - [x] `STAIRS_SEMI` (frame 18): the half-body pose when grabbing or leaving a
       ladder (`character.cpp:402/444`), 12 frames before the climb pose
       (2026-10-23).
-- [ ] **`TRAJECTORY_CHAIN` (3)** — the "Chain" weapon (projectile 7). The port
-      has no chain physics, so weapon 7 behaves like a straight shot. That is
-      the only trajectory the player's weapons use that the port lacks; the
-      others (0 linear, 9 quake, 6 arc, 5 zigzag, 1 follow, 4 centered,
-      2 freeze, 7 progressive, 8 bomb) are handled.
+- [x] **`TRAJECTORY_CHAIN` (3)** (2026-10-23): SPIKED CHAIN extends for 12
+      frames, retracts for 12 and is spent (PC projectilelib CHAIN behaviour
+      approximated; the art is not stretched). Every trajectory the player's
+      weapons use is now handled (0 linear, 9 quake, 6 arc, 5 zigzag, 1 follow,
+      4 centered, 2 freeze, 7 progressive, 8 bomb, 3 chain).
 - **Not a gap (verified in the source and the data)**: `ATTACK_DIAGONAL_UP`/
       `_DOWN` (frames 23/24) are only played for weapons with
       `TARGET_DIRECTION`/`TARGET_EXACT`/`ARC_TO_TARGET` (`classplayer.cpp:449-
@@ -63,11 +63,14 @@ SHOT_MULTIPLE_PROJECTILE, EXPLODE_ITSELF, THROW_ITEM. `audit_data.py` prints
       spread), `EXPLODE_ITSELF`, `THROW_ITEM` (enemy drop table). None of them
       is used by the AI data of stages 0..13 today, so they are untested beyond
       compiling — a re-exported stage can start using them.
-- [ ] Enemy animation rows the sheet does not carry: `TURN`, `VERTICAL_TURN`,
-      `WALK_AIR` (AI_AIR_WALK reuses the walk row), `HIT`/`HIT_SPECIAL` (the
-      port blinks the sprite), `STAIRS_*`. `tools/convert_enemies.py` ships
-      stand/walk/attack/jump/teleport/intro only; the PC art does have TURN
-      frames for some enemies, so this is cosmetic, not a mechanic.
+- [x] `ANIM_TYPE_TURN` rows (2026-10-23): shipped for every enemy whose art has
+      them and played by the AI turn options (WALK TURN/TURN_TO_PLAYER, FLY
+      TURN), the facing flipping when the animation ends — BLUE SHIELDER
+      rotates its shield, as on the PC.
+- [ ] Remaining enemy rows: `VERTICAL_TURN`, `WALK_AIR` (AI_AIR_WALK reuses the
+      walk row), `HIT`/`HIT_SPECIAL` (the port blinks the sprite), `STAIRS_*`.
+      The PC art of the converted enemies only carries TURN among these (checked
+      while adding it), so nothing else is missing in practice.
 - [ ] **Quake attack half**: `ia_action_quake_attack()`
       (`artificial_inteligence.cpp:866`) — player damage + 1 s jump lock. It
       has **no caller** in this PC build, so the port only does the screen
@@ -98,25 +101,40 @@ data never uses, therefore unimplemented:
 
 ## Terrain (src/player.c, src/stage.c)
 
-- [ ] `TERRAIN_QUICKSAND` (9): no sink/slow behaviour (not used by the
-      converted stages).
-- [ ] `TERRAIN_DOOR` (3): passable, no door logic.
+- [ ] `TERRAIN_QUICKSAND` (9): no sink/slow behaviour. **Not used by any
+      converted stage** (`audit_data.py` terrain column), so this is deferred
+      rather than guessed at: the PC sinks 0.2px/frame and halves the move
+      speed (`QUICKSAND_GRAVITY`/`QUICKSAND_JUMP_LIMIT`).
+- **Not a gap**: `TERRAIN_DOOR` (3) only exists for the PC's *tile3* boss-door
+      redraw (`classmap.cpp:2069`); the port draws the door as an object
+      (sprite) with the slide animation, so there is no terrain rule to port.
 - [ ] Water/ice are minimal (sink + slow fall / low friction) — PC has extra
       movement rules (`character.cpp`).
 
 ## Scenes (src/scene.c)
 
-- [ ] `PLAY_MUSIC`, `PLAY_SFX`, `STOP_MUSIC` ops are accepted and **ignored**
-      ("audio is not wired yet"), so a cutscene that changes music is silent.
-      The port has XGM2 music + PCM SFX now, so these can be wired to
-      `music_play`/`sfx_play`/`music_stop`.
-- [ ] `MOVE_VIEWPOINT`, `SHOW_ANIMATION` (animated scene art), `SUBSCENE`.
+- [x] `PLAY_MUSIC` (2026-10-23): the converter maps each
+      `scenes_play_music.dat` record to a `MUSIC_*` id (`scene_music_ids[]`,
+      3 records: intro scene, DAISIE's track, ending animation), `STOP_MUSIC`
+      stops it. `PLAY_SFX` stays a no-op: no converted scene references it.
+- [ ] `MOVE_VIEWPOINT` and `SUBSCENE`: not used by any converted scene
+      (`scenes_data.c` op counter: CLEAR_SCREEN/AREA, SHOW_TEXT, MOVE_IMAGE,
+      PARALLAX, PLAY_MUSIC, SHOW_ANIMATION only), so they are unimplemented on
+      purpose. `SHOW_ANIMATION` **is** used once (op in scene 0) and is still
+      missing: it needs the PC `images/scenes/animations/` art converted
+      (`scenes_show_animation.dat`: 6 records, frame_w/h + delay) plus a timed
+      frame loop on BG_B.
 
 ## Effects (PC draw.cpp / graphicslib.cpp)
 
-- [ ] Dash dust (`dash_dust.png`), water splash (`water_splash.png`), bubble
-      (`bubble.png`), teleport-small colour flash, boss ground shake, dark mode,
-      hit flash on the sprite palette (the port blinks the sprite instead).
+- [ ] Dash dust (`dash_dust.png` 24x16), water splash (`water_splash.png`
+      128x23), bubble (`bubble.png` 4x4), teleport-small colour flash
+      (`draw.cpp:429`), dark mode (`game.h:273`), hit flash on the sprite
+      palette (the port blinks the sprite instead). All need a sprite-effect
+      pool like `explosion.c` plus one converted art each.
+- **Not a gap**: boss ground shake — the PC function at `classmap.cpp:2428` is
+  `boss_hit_ground()` (an animation switch), not a screen shake; there is no
+  shake to port.
 - [x] Quake screen shake (2026-10-23), death ring (2026-10-23), enemy death
       puff, underwater tint?
 

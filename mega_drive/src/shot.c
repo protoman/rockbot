@@ -16,6 +16,7 @@
 #define SHOT_CHARGE_SPEED 3
 #define SHOT_COOLDOWN 10   // frames between shots (design choice, not in data)
 #define SHOT_QUAKE_LIFE 60 // ~1s for the stationary QUAKE shot
+#define SHOT_CHAIN_FRAMES 12   // chain out / chain back, ~0.2s each way
 
 typedef struct {
     Sprite *spr;
@@ -317,6 +318,19 @@ void shot_update(void)
                 explosion_spawn(s->x, s->y);
                 enemies_try_hit(s->x - 20, s->y - 20, s->x + 20, s->y + 20,
                                 s->dmg, 0, TRUE, player_weapon());
+                shot_kill(s);
+                continue;
+            }
+            break;
+        case TRAJ_CHAIN:
+            // PC projectilelib.cpp CHAIN (SPIKED CHAIN, weapon 7): the chain
+            // shoots out, then retracts and the weapon is spent. It used to
+            // fall into the default branch and fly on like a normal shot.
+            if (s->age <= SHOT_CHAIN_FRAMES) {
+                s->x += s->dx;
+            } else if (s->age <= (SHOT_CHAIN_FRAMES * 2)) {
+                s->x -= s->dx;
+            } else {
                 shot_kill(s);
                 continue;
             }

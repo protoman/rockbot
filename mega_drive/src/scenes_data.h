@@ -55,6 +55,8 @@ extern const SceneDef scene_defs[6];
 extern const SceneParallax scene_parallax[1];
 extern const SceneClear scene_clear[1];
 extern const SceneImage scene_images[13];
+#define SCENE_MUSIC_COUNT 3
+extern const u8 scene_music_ids[SCENE_MUSIC_COUNT];
 extern const SceneTextPos scene_text_pos[SCENE_TEXT_RECORDS];
 extern const char *const scene_text[SCENE_TEXT_RECORDS][SCENE_TEXT_LINES];
 
