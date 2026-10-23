@@ -338,6 +338,11 @@ void stage_anim_update(void)
     }
 }
 
+bool stage_map_ready(void)
+{
+    return stage_map != NULL;
+}
+
 void stage_load(u8 map_index)
 {
     if (map_index >= stage_def->map_count) map_index = 0;
@@ -395,7 +400,11 @@ void stage_load(u8 map_index)
                            TILE_ATTR_FULL(STAGE_PAL, FALSE, FALSE, FALSE, TILE_USER_INDEX));
     if (!stage_map) {
         // Out of heap: bail with the display restored (leaving it disabled
-        // here would black the screen silently).
+        // here would black the screen silently). BUG-040: the caller must not
+        // keep going with a NULL map (drawing it crashed in setMapRow).
+        kprintf("stage_load: MAP_create failed (free=%u largest=%u)\n",
+                (unsigned)MEM_getFree(),
+                (unsigned)MEM_getLargestFreeBlock());
         VDP_setEnable(wasEnabled);
         return;
     }
@@ -610,7 +619,7 @@ void stage_update_camera(s16 focusX, s16 focusY)
 
     clamp_camera();
     scroll_lock_camera(prev_x);
-    MAP_scrollTo(stage_map, camera.x + shake, camera.y);
+    if (stage_map) MAP_scrollTo(stage_map, camera.x + shake, camera.y);
 
     // Parallax: horizontal scroll derived DIRECTLY from camera.x at
     // speed/10, wrapped into (-512, 0]. PC accumulates camera_dx per frame
@@ -651,7 +660,7 @@ void stage_horizontal_screen_move(s16 dir)
         camera.x += dir * DOOR_SCROLL_STEP;
         if (camera.x < 0) camera.x = 0;
         if (camera.x > max) camera.x = max;
-        MAP_scrollTo(stage_map, camera.x, camera.y);
+        if (stage_map) MAP_scrollTo(stage_map, camera.x, camera.y);
         if (info->present && info->speed) {
             s32 scroll = -((s32)camera.x * info->speed) / 10;
             scroll %= 512;
@@ -682,6 +691,9 @@ void stage_horizontal_screen_move(s16 dir)
 // columns on screen (background "blinking").
 void stage_force_redraw(void)
 {
+    // BUG-040: stage_load() can fail (no heap for MAP_create) and leaves
+    // stage_map == NULL; redrawing then read a NULL map and crashed.
+    if (!stage_map) return;
     clamp_camera();
     MAP_scrollToEx(stage_map, camera.x, camera.y, TRUE);
 }
@@ -704,7 +716,7 @@ void stage_autoscroll(s8 dir)
     for (u8 i = 0; i < frames; i++) {
         camera.x += cam_step;
         player.x += ply_step;
-        MAP_scrollTo(stage_map, camera.x, camera.y);
+        if (stage_map) MAP_scrollTo(stage_map, camera.x, camera.y);
         player_sync_sprite();
         SPR_update();
         SYS_doVBlankProcess();

@@ -90,6 +90,10 @@ u16 stage_terrain_at(u8 map, s16 tileX, s16 tileY);
 // Load one map of the stage (0..STAGE0_MAP_COUNT-1) and reset the camera.
 void stage_load(u8 map_index);
 
+// FALSE when the last stage_load() could not create the map (no heap). The
+// caller must not enter the stage loop in that case (BUG-040).
+bool stage_map_ready(void);
+
 // Camera follow + plane scroll. Call once per frame before SPR_update().
 void stage_update_camera(s16 focusX, s16 focusY);
 

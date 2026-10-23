@@ -2,6 +2,46 @@
 
 Things that are wrong or worse than the original. Track here, fix later.
 
+## BUG-040 — Crash entering a stage from NEW GAME (out of heap, NULL map)
+
+**Report (2026-10-23)**: `crash_new_game.png` — ADDRESS ERROR, fault PC inside
+`setMapRow` (`out/release/symbol.txt`), odd fault address `0xF90003`. A second
+reproduction gave LINE 1111 EMULATOR with the internal PC holding `4EF90002`
+(a jump through garbage). Both die while drawing the stage map.
+
+**Cause**: `stage_load()` calls `MAP_create()`, which allocated
+`sizeof(Map) + compressed blocks`. `sizeof(Map)` alone is ~580 B because the
+map object carries `hScrollTable[240]` + `vScrollTable[20]`; the stage MAP
+resources were compressed (`FAST`), so a 45-block map needed another 2880 B.
+Measured over KDEBUG at that point in the boot:
+
+```
+SL: enter map=0 / SL: tileset loaded
+SL: MEM free=4554 largest=3272 alloc=16990
+SL: MAP_create FAILED free=4554 largest=3272
+```
+
+`free` was enough (4554) but the *largest contiguous block* (3272) was not
+(3460 needed): the heap is fragmented by the earlier screens. `stage_load()`
+`return`ed with `stage_map == NULL`, the caller ignored it and kept drawing the
+stage → `setMapRow` through a NULL/garbage map. Earlier RAM growth (objects /
+AI / tooltip state, ~230 B of BSS) had eaten the last few hundred bytes of a
+margin that was already negative for fragmented heaps.
+
+**Fix** (2026-10-23):
+1. `MAP_create()` now only needs `sizeof(Map)`: the stage MAP resources are
+   `NONE` instead of `FAST` (`res/resources.res`, `tools/add_stage.py`), the
+   same trick the tilesets already used. Blocks then point straight into ROM
+   (`blocksSize = 0`). RAM per map drops ~2880 B; the room-transition
+   `MAP_create` (BUG-023) gets the same margin. Cost: ~78 KB of ROM, which
+   puts the image at 2.09 MB — the next ~2 KB of code pads it to 2.25 MB.
+2. `stage_map_ready()`: `runStage()` returns to the title instead of entering
+   the stage loop with a NULL map, and `stage_force_redraw()` /
+   `stage_update_camera()` / the autoscroll path no longer call `MAP_*` with a
+   NULL map. A failure now logs one KDEBUG line instead of crashing.
+
+**Status**: fixed, needs one play-test (NEW GAME → stage 0).
+
 ## BUG-005 — Returning through a stair kills the player instead of teleporting
 
 **Status**: **FIX IMPLEMENTED 2026-10-21, needs one emulator verification**

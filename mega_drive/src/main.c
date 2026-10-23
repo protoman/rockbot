@@ -376,6 +376,11 @@ static RunResult runStage(u8 stage)
     PAL_setPalette(PAL2, black_pal, DMA_QUEUE);
 
     stage_load(0);
+    if (!stage_map_ready()) {
+        // BUG-040: no heap for MAP_create. Entering the stage loop with a NULL
+        // map crashed while drawing it; go back to the title instead.
+        return RUN_LEFT;
+    }
     player_init();
     hud_init();
 

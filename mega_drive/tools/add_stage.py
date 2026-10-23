@@ -79,7 +79,13 @@ def block(n, name):
         lines += [
             f'TILESET stage{n}_tiles{m} "stage{n}_map{m}.png" FAST ALL',
             f'PALETTE stage{n}_pal{m}   "stage{n}_map{m}.png"',
-            f'MAP     stage{n}_map{m}   "stage{n}_map{m}.png"  stage{n}_tiles{m} FAST 0',
+            # NONE, not FAST: a compressed MAP makes MAP_create() allocate
+            # its blocks buffer from the heap (~2.9 KB for a 45-block map) on
+            # top of sizeof(Map) (~580 B, it carries the 240-entry hscroll
+            # table). With the transition buffers in BSS the largest free
+            # block is only ~3.2 KB, so compressed maps failed to create and
+            # the game crashed drawing a NULL map (BUG-040).
+            f'MAP     stage{n}_map{m}   "stage{n}_map{m}.png"  stage{n}_tiles{m} NONE 0',
         ]
     for m in range(3):
         if os.path.exists(os.path.join(RES, f"stage{n}_bg{m}_tiles.png")):
