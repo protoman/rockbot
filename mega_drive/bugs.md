@@ -540,9 +540,33 @@ holds the save the user played - slot 0, `stages = 0x0001` (only CHAOS CITY
 cleared), 5 lives - so the gate `!mask & (1 << 3)` was TRUE and the intro did
 run.
 
-**Fix** (`bossintro.c`): wait for the held buttons to be released first (capped
-at 60 frames so a stuck pad cannot hang the game), then skip only on a fresh
-press. Same latch rule the boss dialogs use in `wait_button()`.
+**Fix** (`bossintro.c`): the skip is gone entirely. The PC's
+`classic_style_boss_intro` ends with `graphLib.wait_and_update_screen(6400)`,
+which reads no input: the intro is a fixed 6.4 s hold and is NOT skippable. The
+port had added a "press any button to skip" that the PC does not have.
+
+## BUG-038 — Port-only input skips (PC sequences that cannot be skipped)
+
+**Report**: "it should not be skippable. I believe the PC version has nothing
+like that."
+
+Same class as BUG-015 - the port had invented skips the PC does not have.
+Audited every `JOY_readJoypad` in a non-menu loop against the PC source:
+
+| port site | PC reference | verdict |
+|---|---|---|
+| `bossintro.c` boss intro | `wait_and_update_screen(6400)`: no input | skip REMOVED |
+| `main.c` `hold_frames()` (stage clear: victory flash, 3.5 s pose, YOU GOT 5 s) | `player_victory()` delays only, `classic_style_got_weapon()` ends with `wait_and_update_screen(5000)` | skip REMOVED |
+| `ending.c` walking parade | `show_player_walking_ending()`: `while` on the player x, `timer.delay`, no input | skip REMOVED |
+| `ending.c` boss parade + credits pages | `show_enemies_ending()`: 2000/3000 ms delays; credits scroll on a timer | skip REMOVED |
+| `ending.c` final "press" | `draw::show_credits(can_leave == false)` waits for JUMP | kept |
+| `scene.c` cutscenes | `sceneshow.cpp:59` aborts on START | kept (PC-faithful) |
+| `main.c` GAME OVER | `game_over()` -> `input.wait_keypress()` | kept |
+| `dialogs.c` page advance | `show_dialog()` -> `input.wait_keypress()` | kept |
+
+Also fixed while auditing: `CASTLE_FRAMES` was 180 (3 s) with a comment claiming
+the PC uses 3000 ms; `classic_style_castle_intro` actually holds **6500 ms**, so
+it is 390 frames now.
 
 ## BUG-016 — Seahorse screen transitions are broken; player X shifts
 

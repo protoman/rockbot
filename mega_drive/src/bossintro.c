@@ -17,7 +17,7 @@
 #define BOSS_INTRO_PAL       PAL1
 #define BOSS_INTRO_TILE_BASE TILE_USER_INDEX
 #define BOSS_INTRO_FRAMES    384      // 6.4s @60fps (PC wait_and_update_screen)
-#define CASTLE_FRAMES        180      // PC classic_style_castle_intro: 3000ms
+#define CASTLE_FRAMES        390      // PC classic_style_castle_intro: 6500ms
 
 // PC draws the boss at y = BOSS_INTRO_BG_POS_Y - h/2 = 96 - h/2 (240px),
 // name centred at y=200; both shifted up 16 for the MD 224 crop.
@@ -105,32 +105,17 @@ void boss_intro_run(u8 stage)
         VDP_drawText(n, (len < 40) ? (40 - len) / 2 : 0, BOSS_INTRO_NAME_ROW);
     }
 
-    // Flush the queued DMA NOW: if the player skips on the first frame the
-    // pending palette/tile transfers would otherwise land after the caller's
-    // (CPU) stage palette writes and clobber them.
+    // Flush the queued DMA NOW so the first displayed frame already has its
+    // palette and background tiles.
     SYS_doVBlankProcess();
     VDP_setReg(17, 0);
     VDP_setReg(18, 0);
 
-    // The stage select returns on a START/A/C press and the player is still
-    // holding it on this very frame, so the old loop below (which skips on any
-    // button) broke out immediately: the intro flashed for one frame and only
-    // its jingle was heard. Wait for the press to be released first (capped so
-    // a stuck pad cannot hang the game), then skip only on a FRESH press.
-    for (u16 i = 0; i < 60; i++) {
-        if (!(JOY_readJoypad(JOY_1) &
-              (BUTTON_START | BUTTON_A | BUTTON_B | BUTTON_C)))
-            break;
-        SPR_update();
-        SYS_doVBlankProcess();
-        VDP_setReg(17, 0);
-        VDP_setReg(18, 0);
-    }
-
-    // PC waits 6400ms; allow skipping with a button.
+    // PC `graphicsLib::wait_and_update_screen(6400)` reads NO input: the boss
+    // intro is a fixed 6.4 s hold and cannot be skipped. The port used to skip
+    // on any pad button, which also made it disappear instantly when a button
+    // from the stage select was still held (BUG-015).
     for (u16 f = 0; f < BOSS_INTRO_FRAMES; f++) {
-        u16 pad = JOY_readJoypad(JOY_1);
-        if (pad & (BUTTON_START | BUTTON_A | BUTTON_B | BUTTON_C)) break;
         SPR_update();
         SYS_doVBlankProcess();
         VDP_setReg(17, 0);

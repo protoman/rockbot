@@ -757,10 +757,13 @@ static void clear_to_color(u8 r, u8 g, u8 b)
     VDP_fillTileMapRect(BG_B, blank, 0, 0, 64, 32);
 }
 
+// Hold for n frames with no input: the PC's stage-clear sequence is a fixed
+// delay (`player_victory` 300ms x4 x2, then 3500ms; `classic_style_got_weapon`
+// `wait_and_update_screen(5000)`), neither of which reads the pad. The port
+// used to let START cut it short.
 static void hold_frames(u16 n)
 {
     for (u16 i = 0; i < n; i++) {
-        if (JOY_readJoypad(JOY_1) & BUTTON_START) return;
         SPR_update();
         SYS_doVBlankProcess();
         VDP_setReg(17, 0);

@@ -52,10 +52,16 @@ the roadmap; this file is the short state + what to do next.
 5. **Boss intro skipped instantly (BUG-015)** — the intro read the pad on its
    first frame and skipped on any button; the stage select returns on a
    START/A/C press, so that same press killed it (one blue frame + the jingle).
-   It now waits for the buttons to be released first (60-frame cap) and skips
-   only on a fresh press. Offline proof it was not the gate: the BlastEm SRAM
-   the user played with holds slot 0 with `stages = 0x0001` (CHAOS CITY only),
-   i.e. stage 3 was not beaten, so `boss_intro_run(3)` did run.
+   The PC's intro is a fixed 6.4 s hold (`wait_and_update_screen`, no input), so
+   per the user's call the skip is **gone entirely** (and with it the latch
+   problem). Offline proof it was not the gate: the BlastEm SRAM the user played
+   with holds slot 0 with `stages = 0x0001` (CHAOS CITY only), i.e. stage 3 was
+   not beaten, so `boss_intro_run(3)` did run.
+   The same audit (BUG-038) removed three other port-only skips: `hold_frames()`
+   in the stage-clear/YOU GOT sequence and both ending parades + credits pages.
+   Cutscenes (START aborts), GAME OVER (wait_keypress), dialog advance and the
+   screens before the title still take input, as the PC does. The castle intro
+   also now holds the PC's 6500 ms (was 3 s).
 6. **Stage-select names (BUG-014 / BUG-030)** — the lines were drawn with the
    global PAL0, whose entry 0 (CRAM 0, the backdrop) the stage leaves on a map
    colour; the names rendered that colour on itself (peach on peach). They are

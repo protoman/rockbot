@@ -60,16 +60,18 @@ static void center_text(const char *s, u16 row)
     VDP_drawText(s, (40 - len) / 2, row);
 }
 
-static bool wait_frames(u16 n)
+// Hold for n frames. No input: the PC ending parts are timer-driven
+// (`show_player_walking_ending` walks on `timer.delay`, `show_enemies_ending`
+// holds 2000/3000ms, the credits pages scroll on a timer) - none of them is
+// skippable. Only the final "press A" wait and the scene player accept input.
+static void wait_frames(u16 n)
 {
     while (n--) {
-        if (JOY_readJoypad(JOY_1) & BUTTON_START) return FALSE;
         SPR_update();
         SYS_doVBlankProcess();
         VDP_setReg(17, 0);
         VDP_setReg(18, 0);
     }
-    return TRUE;
 }
 
 // Upload one repeated map into a plane. Every row repeats the source map
@@ -144,7 +146,6 @@ static void walking_parade(void)
         VDP_setReg(17, 0);
         VDP_setReg(18, 0);
 
-        if (JOY_readJoypad(JOY_1) & BUTTON_START) break;
         if (px < -48) break;
         frame++;
     }
@@ -156,7 +157,7 @@ static void walking_parade(void)
 
 // PC show_enemies_ending is a long line of normal enemies; the port shows the
 // bosses, which are the sprites every stage already carries. One boss per
-// stage, name under it, START skips.
+// stage, name under it, fixed 100-frame hold (the PC ending reads no input).
 static void boss_parade(void)
 {
     music_play(MUSIC_ENEMY_PARADE);
@@ -191,10 +192,7 @@ static void boss_parade(void)
                 center_text(ssel_boss_names[stage], 23);
         }
 
-        if (!wait_frames(100)) {
-            if (spr) SPR_releaseSprite(spr);
-            break;
-        }
+        wait_frames(100);
         if (spr) SPR_releaseSprite(spr);
         SPR_update();
     }
@@ -225,15 +223,15 @@ static void credits_scroll(void)
             if (i < CREDITS_LINES && credits_lines[i][0])
                 center_text(credits_lines[i], (u16)(row + 1));
         }
-        // PC holds the last page until a button; pages advance on their own
-        // after 4s so the ending never stalls.
-        bool w = wait_frames(CREDITS_PAGE_FRAMES);
-        if (!w) break;
+        // Pages advance on their own (the PC scrolls on a timer); only the
+        // last page waits for the player.
+        wait_frames(CREDITS_PAGE_FRAMES);
         top = (u16)(top + CREDITS_ROWS_PER_PAGE);
     }
 
-    // Final page: keep it and wait for the player like the PC does.
-    if (!wait_frames(120)) return;
+    // Final page: keep it and wait for the player like the PC does
+    // (draw::show_credits with can_leave == false waits for JUMP).
+    wait_frames(120);
     while (!(JOY_readJoypad(JOY_1) & (BUTTON_START | BUTTON_A | BUTTON_B |
                                       BUTTON_C))) {
         SPR_update();
