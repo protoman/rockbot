@@ -104,6 +104,7 @@ static u16 current_anim;
 static bool in_water;       // previous water state (enter/leave SFX)
 static bool ladder_flip;    // climb pose desired (cycle/turn driven)
 static bool ladder_shown;   // last pose baked into the sprite VRAM
+static u8 ladder_semi;      // frames of the STAIRS_SEMI grab pose left
 static s16 climb_flip_dist;
 
 // charge-shot palette flash: two brighter copies of the player palette,
@@ -794,9 +795,14 @@ void player_update(u16 pad)
     }
 
     // freshly grabbed: pose starts from the approach direction, cycle restarts
-    if (player.on_ladder && current_anim != ANIM_STAIRS) {
+    if (player.on_ladder && current_anim != ANIM_STAIRS &&
+        current_anim != ANIM_STAIRS_SEMI) {
         ladder_flip = (player.facing < 0);
         climb_flip_dist = 0;
+        // PC character.cpp:402/444: grabbing (or leaving) a ladder goes through
+        // ANIM_TYPE_STAIRS_SEMI (frame 18) - the half-body pose - before the
+        // climb pose. 12 frames matches its 200ms transition.
+        ladder_semi = 12;
     }
 
     if (player.on_ladder) {
@@ -878,6 +884,10 @@ void player_update(u16 pad)
             // PC keeps the stairs pose; firing mid-climb uses
             // ANIM_TYPE_STAIRS_ATTACK (classplayer.cpp:482).
             u16 stair_anim = (attack_timer > 0) ? ANIM_STAIRS_ATTACK : ANIM_STAIRS;
+            if (attack_timer == 0 && ladder_semi) {
+                stair_anim = ANIM_STAIRS_SEMI;
+                if (--ladder_semi == 0) current_anim = ANIM_STAIRS;  // force relock
+            }
             // Rebuild the sprite when the pose changes: the VRAM tiles are
             // (re)built on anim changes and both rows are static (time 0)
             // so they never advance on their own.

@@ -86,7 +86,12 @@ AI_ACTION = {
     24: "WALL_WALK_SHOOT", 25: "SHOT_MULTIPLE", 26: "EXPLODE_ITSELF",
     27: "THROW_ITEM",
 }
+# AI actions implemented in src/enemy.c (updated 2026-10-23: the twelve
+# actions that had no code were added).
 AI_SUPPORT = {
+    4: "ok (marker)", 16: "ok (orbit)", 17: "ok (animation)", 19: "ok",
+    20: "ok", 21: "ok", 22: "ok", 23: "ok (ceiling walk)", 24: "ok",
+    25: "ok (3-shot)", 26: "ok", 27: "ok (drop table)",
     0: "ok", 1: "ok", 2: "ok", 3: "ok", 5: "ok", 6: "ok (turns if move_speed)",
     4: "MISSING", 7: "MISSING", 8: "MISSING", 9: "MISSING",
     10: "ok (blink near player)", 11: "ok (dash)", 12: "ok (cling)",
@@ -282,9 +287,8 @@ def main():
     # What src/enemy.c really implements, per (action, option).
     IMPLEMENTED = {
         0: {0, 1, 2, 3, 4, 5, 6, 7},          # AI_WALK: all options
-        1: {0, 1, 2, 3, 4, 5, 7, 15},         # AI_FLY: AHEAD/TURN/UP/DOWN/TO_PLAYER/
-                                              # TO_SAVED/FALL/ZIGZAG (+TO_SAVED var)
-        2: set(),                             # AI_JUMP: the option is IGNORED
+        1: {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 15, 16, 17},
+        2: {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10},  # AI_JUMP: every option
     }
     blob = open(os.path.join(DATA, "game_ai_list.dat"), "rb").read()
     used_opts = defaultdict(set)              # (action, option) -> {npc ids}

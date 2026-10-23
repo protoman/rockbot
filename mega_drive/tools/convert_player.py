@@ -78,6 +78,9 @@ ANIMS = [
     # walk-attack row; :585 the air one is a single 80ms frame.
     ("WALK_ATTACK", [12, 13, 14], [9, 9, 9]),
     ("JUMP_ATTACK", [10],         [5]),
+    # classplayer.cpp:600-602: entering/leaving a ladder first plays the
+    # half-body pose (frame 18). Appended at the end so no enum value moves.
+    ("STAIRS_SEMI", [18],         [0]),
 ]
 
 MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)

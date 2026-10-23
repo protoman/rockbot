@@ -37,6 +37,21 @@
 #define AI_CHANGE_MOVE 14
 #define AI_REPLACE_NPC 15
 #define AI_JUMP_ATTACK_UP 18
+// The rest of the PC's AI_ACTION_LIST (defines.h): none of them is used by the
+// AI data of stages 0..13 today, but they exist in the editor's action list,
+// so a re-exported stage can start using them at any time.
+#define AI_SAVE_POINT       4    // marker: nothing to do (state bookkeeping)
+#define AI_CIRCLE_PLAYER   16
+#define AI_CHANGE_MOVE_REV 17    // animation-only, like CHANGE_MOVE
+#define AI_JUMP_ATTACK_AHEAD 19
+#define AI_WAIT_RANDOM     20
+#define AI_MORPH           21    // become another NPC in place
+#define AI_PLAY_SFX        22    // param = SFX id
+#define AI_WALL_WALK       23    // cease gravity and walk along the ceiling
+#define AI_WALL_WALK_SHOOT 24    // same, firing periodically
+#define AI_SHOT_MULTIPLE   25    // param = projectile id, 3-shot spread
+#define AI_EXPLODE         26    // explode and die
+#define AI_THROW_ITEM      27    // drop a pickup at the enemy position
 
 // PC WALK/FLY option parameters we see in stage 0 (defines.h:778/795)
 #define AI_WALK_TURN      1
@@ -52,6 +67,26 @@
 #define AI_FLY_TO_SAVED   5
 #define AI_FLY_FALL       7
 #define AI_FLY_ZIGZAG     15
+#define AI_FLY_TO_RANDOM  6
+#define AI_FLY_DRILL_DOWN 8
+#define AI_FLY_PLAYER_DIR 10
+#define AI_FLY_OPPOSITE_WALL  11
+#define AI_FLY_OPPOSITE_SHOOT 12
+#define AI_FLY_RANDOM_X   16
+#define AI_FLY_RANDOM_Y   17
+
+// PC AI_ACTION_JUMP_OPTION_LIST (defines.h:833)
+#define AI_JUMP_AHEAD          0
+#define AI_JUMP_RANDOM         1
+#define AI_JUMP_UP             2
+#define AI_JUMP_TO_PLAYER      3
+#define AI_JUMP_TO_ROOF        4
+#define AI_JUMP_TO_SAVED       5
+#define AI_JUMP_TO_PLAYER_DIR  6
+#define AI_JUMP_TELEPORT_IN    7
+#define AI_JUMP_TELEPORT_OUT   8
+#define AI_JUMP_LONG_AHEAD     9
+#define AI_JUMP_ONCE          10
 
 #define AI_FIRST 0
 #define AI_RUN   1
@@ -101,6 +136,10 @@ typedef struct {
     s16 drop_target;
     u8 always_ahead;  // PC always_move_ahead (AI state loops on itself)
     u8 auto_jump;     // stepping over a low wall (GOLD CART)
+    u8 jump_opt;      // AI_JUMP option of the current action
+    u8 no_gravity;    // PC _ignore_gravity: TO_ROOF / WALL_WALK keep it set
+    u8 ghost;         // DRILL_DOWN passes through walls at 1/4 speed
+    u16 rand_t;       // WAIT_RANDOM_TIME duration / WALL_WALK_SHOOT timer
     // --- game_ai_list.dat reactions (PC check_ai_reaction) ----------------
     // react = 0 none, else reaction index+1; while set, ai_action_init/run
     // read the reaction slot instead of the state. dying = hp reached 0 and
@@ -237,6 +276,31 @@ static const EnemyAi *ai_state(const Enemy *e)
     return &stage_def->enemy_ai[e->def_i][e->ai_chain];
 }
 
+// PC create_rand_X_point/create_rand_Y_point: a point up to walk_range away.
+static s16 ai_rand_off(s16 range)
+{
+    if (range <= 0) return 0;
+    return (s16)((s16)(random() % (u16)(2 * range + 1)) - range);
+}
+
+// AI_JUMP TO_ROOF: the enemy `y` at which the box top rests against the first
+// solid row above it (PC ia_action_jump_to_roof scans the same way). 0 when
+// there is no ceiling, which makes the jump end at the top of the map.
+static s16 ai_roof_y(const Enemy *e)
+{
+    const EnemyDef *d = e->def;
+    s16 l = e->x + d->box_l + 2;
+    s16 r = e->x + d->box_l + d->box_w - 3;
+    s16 top = e->y + d->box_t;
+    for (s16 row = (top >> 4) - 1; row >= 0; row--) {
+        for (s16 tx = l >> 4; tx <= r >> 4; tx++) {
+            if (stage_terrain_at(stage_current_map, tx, row) == TERRAIN_SOLID)
+                return (s16)((row + 1) * 16 - d->box_t);
+        }
+    }
+    return 0;
+}
+
 static void ai_action_init(Enemy *e)
 {
     const EnemyDef *d = e->def;
@@ -245,6 +309,8 @@ static void ai_action_init(Enemy *e)
 
     e->moving = 0;
     e->shooting = 0;
+    e->ghost = 0;
+    e->rand_t = 0;
     switch (st->action) {
     case AI_WALK:
         if (st->param == AI_WALK_TURN || st->param == AI_WALK_TURN_PLYR) {
@@ -275,6 +341,28 @@ static void ai_action_init(Enemy *e)
             if (e->dest_x > e->x_max) e->dest_x = e->x_max;
         }
         break;
+    case AI_JUMP:
+        // PC AI_ACTION_JUMP_OPTION_LIST: the option decides where the hop goes.
+        // It used to be ignored, so TO_ROOF (APE BOT) became a plain hop and
+        // his ceiling walk never happened.
+        e->jump_opt = (u8)st->param;
+        if (e->jump_opt == AI_JUMP_TO_PLAYER)
+            e->dest_x = player.x;
+        else if (e->jump_opt == AI_JUMP_TO_SAVED)
+            e->dest_x = e->spawn_x;
+        else if (e->jump_opt == AI_JUMP_RANDOM)
+            e->dest_x = e->x + ai_rand_off((s16)d->range);
+        else if (e->jump_opt == AI_JUMP_TO_PLAYER_DIR)
+            e->dir = sign16(player.x - e->x);
+        else if (e->jump_opt == AI_JUMP_LONG_AHEAD)
+            e->dest_x = e->x + e->dir * (s16)(d->range * 2);
+        else if (e->jump_opt == AI_JUMP_AHEAD || e->jump_opt == AI_JUMP_ONCE ||
+                 e->jump_opt == AI_JUMP_TELEPORT_IN ||
+                 e->jump_opt == AI_JUMP_TELEPORT_OUT)
+            e->dest_x = e->x + e->dir * (s16)(d->box_w / 2 + d->range);
+        else
+            e->dest_x = e->x;                       // UP / TO_ROOF: no drift
+        break;
     case AI_FLY:
         if (st->param == AI_FLY_TURN) {
             e->dir = -e->dir;
@@ -290,6 +378,38 @@ static void ai_action_init(Enemy *e)
             e->dest_y = e->y - (s16)d->range;
         } else if (st->param == AI_FLY_FALL) {
             e->dest_y = e->y + (s16)d->range;
+        } else if (st->param == AI_FLY_TO_RANDOM) {
+            // PC create_rand_X/Y_point within walk_range of the current spot.
+            e->dest_x = e->x + ai_rand_off((s16)d->range);
+            e->dest_y = e->y + ai_rand_off((s16)d->range);
+            e->dir = sign16(e->dest_x - e->x);
+        } else if (st->param == AI_FLY_RANDOM_X) {
+            e->dest_x = e->x + ai_rand_off((s16)d->range);
+            e->dest_y = e->y;
+            e->dir = sign16(e->dest_x - e->x);
+        } else if (st->param == AI_FLY_RANDOM_Y) {
+            e->dest_x = e->x;
+            e->dest_y = e->y + ai_rand_off((s16)d->range);
+        } else if (st->param == AI_FLY_DRILL_DOWN) {
+            // PC: ghostly descent to below the screen at 1/4 speed, walls
+            // ignored (it is a drill).
+            e->ghost = 1;
+            e->dest_x = e->x + ai_rand_off((s16)d->range);
+            e->dest_y = (s16)((stage_def->map_h * stage_def->tile) + 64);
+        } else if (st->param == AI_FLY_PLAYER_DIR) {
+            // PC PLAYER_DIRECTION: face the player and travel walk_range that
+            // way (i.e. toward him).
+            e->dir = (player.x < e->x) ? -1 : 1;
+            e->dest_x = e->x + e->dir * (s16)d->range;
+            e->dest_y = e->y;
+        } else if (st->param == AI_FLY_OPPOSITE_WALL ||
+                   st->param == AI_FLY_OPPOSITE_SHOOT) {
+            // PC OPOSITE_WALL/OPOSITE_SHOOT: head for the other half of the
+            // screen; the SHOOT variant fires when it arrives.
+            e->dir = ((e->x - camera.x) > 160) ? -1 : 1;
+            e->dest_x = e->x + e->dir * (s16)d->range;
+            e->dest_y = e->y;
+            e->shooting = (st->param == AI_FLY_OPPOSITE_SHOOT);
         } else {                                        // ahead (+ zig-zag)
             e->dest_x = e->x + e->dir * (half);
             e->dest_y = e->spawn_y;
@@ -316,6 +436,10 @@ static bool step_axis(Enemy *e, s16 *pos, s16 dest, bool horizontal, bool can_fa
     s16 n = *pos + dir * step;
     if ((dir > 0 && n > dest) || (dir < 0 && n < dest)) n = dest;
 
+    if (e->ghost) {                     // DRILL_DOWN: pass through walls
+        *pos = n;
+        return *pos == dest;
+    }
     if (horizontal) {
         s16 lead = (dir > 0) ? n + d->box_l + d->box_w - 1 : n + d->box_l;
         if (box_hits_solid(lead, e->y + d->box_t,
@@ -542,23 +666,55 @@ static bool ai_action_run(Enemy *e)
             e->dest_y = e->spawn_y + (((e->act_t >> 5) & 1) ? 12 : -12);
         bool dx = step_axis(e, &e->x, e->dest_x, TRUE, TRUE);
         bool dy = step_axis(e, &e->y, e->dest_y, FALSE, TRUE);
+        if (st->param == AI_FLY_OPPOSITE_SHOOT && dx && dy) {
+            u8 pid = (st->param >= 0) ? d->shot : d->shot;
+            eshot_fire(e->x + d->box_l + d->box_w / 2,
+                       e->y + d->box_t + d->box_h / 2, -e->dir, pid);
+            e->shooting = 0;
+            return TRUE;
+        }
         return dx && dy;
     }
 
     case AI_JUMP: {
         if (!e->jumping) {
             if (!on_ground(e, d)) return FALSE;         // wait for the floor
-            e->vy = ENEMY_JUMP_VY;
             e->jumping = 1;
             e->moving = 1;
+            if (e->jump_opt == AI_JUMP_TO_ROOF) {
+                // PC ia_action_jump_to_roof(): rise to the ceiling with gravity
+                // disabled and KEEP it disabled, which is what lets the next
+                // WALK state move him along the roof (APE BOT).
+                e->dest_y = ai_roof_y(e);
+                e->vy = 0;
+                e->no_gravity = 1;
+                return FALSE;
+            }
+            e->vy = ENEMY_JUMP_VY;
             return FALSE;
         }
-        // airborne: hop forward at walk speed while the arc plays
-        s16 lead = (e->dir > 0) ? e->x + d->box_l + d->box_w - 1
-                                : e->x + d->box_l;
-        if (!box_hits_solid(lead, e->y + d->box_t,
-                            lead, e->y + d->box_t + d->box_h))
-            e->x += e->dir * (s16)d->speed;
+        if (e->jump_opt == AI_JUMP_TO_ROOF) {
+            s16 ny = (s16)(e->y - (s16)(d->speed ? d->speed * 2 : 2));
+            if (ny <= e->dest_y) {
+                e->y = e->dest_y;
+                e->jumping = 0;
+                e->moving = 0;              // stays up there: no_gravity
+                return TRUE;
+            }
+            e->y = ny;
+            return FALSE;
+        }
+        // airborne: hop toward the option's destination at walk speed
+        if (e->jump_opt == AI_JUMP_TO_PLAYER) e->dest_x = player.x;
+        if (e->jump_opt != AI_JUMP_UP) {
+            e->dir = sign16(e->dest_x - e->x);
+            if (e->dir == 0) e->dir = (player.x > e->x) ? 1 : -1;
+            s16 lead = (e->dir > 0) ? e->x + d->box_l + d->box_w - 1
+                                    : e->x + d->box_l;
+            if (!box_hits_solid(lead, e->y + d->box_t,
+                                lead, e->y + d->box_t + d->box_h))
+                e->x += e->dir * (s16)d->speed;
+        }
 
         e->vy += ENEMY_GRAVITY;
         s16 dy = F16_toInt(e->vy);
@@ -637,6 +793,7 @@ static bool ai_action_run(Enemy *e)
         return on_ground(e, d);
 
     case AI_FALL:
+        e->no_gravity = 0;                 // coming down off the ceiling
         e->jumping = 1;                    // suppress gravity while descending
         e->y += (s16)d->speed;
         if (feet_solid(e, (e->y + d->box_t + d->box_h) >> 4)) {
@@ -742,7 +899,131 @@ static bool ai_action_run(Enemy *e)
     }
 
     case AI_CHANGE_MOVE:
+    case AI_CHANGE_MOVE_REV:
         return TRUE;                    // animation-only action on PC
+
+    case AI_SAVE_POINT:
+        return TRUE;                    // bookkeeping marker, nothing to do
+
+    case AI_CIRCLE_PLAYER: {
+        // PC CIRCLE_PLAYER: orbit the player at walk_range. One step every
+        // ~10 frames around a 16-point circle (the PC uses a sin/cos point
+        // each AI step; the visual is the same).
+        static const s8 c16[16] = {
+            16, 15, 11, 6, 0, -6, -11, -15,
+            -16, -15, -11, -6, 0, 6, 11, 15
+        };
+        s16 r = (s16)d->range;
+        u8 a = (u8)(((e->act_t / 10) + (e->def_i & 7)) & 15);
+        e->dest_x = (s16)(player.x + (c16[a] * r) / 16);
+        e->dest_y = (s16)(player.y + (c16[(a + 4) & 15] * r) / 16);
+        e->moving = 1;
+        e->dir = sign16(e->dest_x - e->x);
+        bool dx = step_axis(e, &e->x, e->dest_x, TRUE, TRUE);
+        bool dy = step_axis(e, &e->y, e->dest_y, FALSE, TRUE);
+        return dx && dy;
+    }
+
+    case AI_WAIT_RANDOM:
+        // PC WAIT_RANDOM_TIME: hold for a random 0..range*2 frames.
+        if (!e->rand_t)
+            e->rand_t = (u16)(10 + (random() % (u16)(2 * (d->range ? d->range : 30) + 1)));
+        return e->act_t >= e->rand_t;
+
+    case AI_PLAY_SFX:
+        if (e->act_t == 1 && st->param >= 0 && st->param < SFX_COUNT)
+            sfx_play((u8)st->param);
+        return TRUE;
+
+    case AI_MORPH: {
+        // PC MORPH_INTO_NPC: same spot, becomes the target NPC.
+        if (e->act_t == 1) ai_spawn_npc(e, (u8)st->param, TRUE);
+        enemy_die(e);
+        return TRUE;
+    }
+
+    case AI_JUMP_ATTACK_AHEAD:
+    case AI_WALL_WALK:
+    case AI_WALL_WALK_SHOOT: {
+        // PC WALL_WALK runs along the ceiling with gravity off (the same
+        // _ignore_gravity the roof jump sets). JUMP_ATTACK_AHEAD is the
+        // upward jump-attack variant that fires while airborne.
+        if (st->action == AI_JUMP_ATTACK_AHEAD && !e->jumping) {
+            if (!on_ground(e, d)) return FALSE;
+            e->vy = ENEMY_JUMP_VY;
+            e->jumping = 1;
+            e->moving = 1;
+            return FALSE;
+        }
+        if (st->action != AI_JUMP_ATTACK_AHEAD) e->no_gravity = 1;
+        e->moving = 1;
+        s16 nx = (s16)(e->x + e->dir * (s16)d->speed);
+        s16 lead = (e->dir > 0) ? nx + d->box_l + d->box_w - 1 : nx + d->box_l;
+        if (box_hits_solid(lead, e->y + d->box_t,
+                           lead, e->y + d->box_t + d->box_h))
+            e->dir = -e->dir;                       // bounce off the end
+        else
+            e->x = nx;
+        if (st->action == AI_WALL_WALK_SHOOT && (e->act_t % 40) == 0)
+            eshot_fire(e->x + d->box_l + d->box_w / 2,
+                       e->y + d->box_t + d->box_h / 2, e->dir, d->shot);
+        if (st->action == AI_JUMP_ATTACK_AHEAD) {
+            if (e->act_t == 8 && st->param >= 0)
+                eshot_fire(e->x + d->box_l + d->box_w / 2,
+                           e->y + d->box_t + d->box_h / 2, e->dir, (u8)st->param);
+            e->vy += ENEMY_GRAVITY;
+            s16 dy = F16_toInt(e->vy);
+            s16 bottom = d->box_t + d->box_h;
+            s16 ny = e->y + dy;
+            if (dy > 0) {
+                for (s16 row = (e->y + bottom) >> 4;
+                     row <= ((ny + bottom) >> 4); row++) {
+                    if (feet_solid(e, row)) {
+                        e->y = (row << 4) - bottom;
+                        e->vy = 0;
+                        e->jumping = 0;
+                        e->moving = 0;
+                        return TRUE;
+                    }
+                }
+            }
+            e->y = ny;
+            return FALSE;
+        }
+        return FALSE;                   // wall walk lasts until the state ends
+    }
+
+    case AI_SHOT_MULTIPLE: {
+        // PC SHOT_MULTIPLE_PROJECTILE: three shots in a small vertical spread.
+        u16 dur = AI_SHOT_FRAMES;
+        e->shooting = 1;
+        if (e->act_t == 1 + (dur * 3) / 10) {
+            u8 pid = (st->param >= 0) ? (u8)st->param : d->shot;
+            s16 cx = (s16)(e->x + d->box_l + d->box_w / 2);
+            s16 cy = (s16)(e->y + d->box_t + d->box_h / 2);
+            eshot_fire(cx, cy, e->dir, pid);
+            eshot_fire(cx, (s16)(cy - 16), e->dir, pid);
+            eshot_fire(cx, (s16)(cy + 16), e->dir, pid);
+        }
+        return e->act_t >= dur;
+    }
+
+    case AI_EXPLODE:
+        if (e->act_t == 1) {
+            explosion_spawn((s16)(e->x + d->box_l + d->box_w / 2),
+                            (s16)(e->y + d->box_t + d->box_h / 2));
+            enemy_die(e);
+        }
+        return TRUE;
+
+    case AI_THROW_ITEM: {
+        // PC THROW_ITEM: lob a pickup; the port reuses the enemy drop table at
+        // the enemy's position (the PC item object art is not converted).
+        if (e->act_t == 1)
+            objects_drop_item((s16)(e->x + d->box_l + d->box_w / 2),
+                              (s16)(e->y + d->box_t + d->box_h / 2), FALSE);
+        return TRUE;
+    }
 
     default:
         return TRUE;                                    // unsupported: skip
@@ -1002,7 +1283,7 @@ void enemies_update(void)
         }
 
         // ---- gravity (walkers only; AI JUMP manages its own arc) ---------
-        if (!d->fly && !e->jumping) {
+        if (!d->fly && !e->jumping && !e->no_gravity) {
             if (e->vy < ENEMY_MAX_FALL) e->vy += ENEMY_GRAVITY;
             s16 dy = F16_toInt(e->vy);
             if (dy > 0) {
