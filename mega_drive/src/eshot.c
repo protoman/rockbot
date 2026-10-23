@@ -29,6 +29,7 @@ typedef struct {
 } EShot;
 
 static EShot shots[ESHOT_MAX];
+static u16 spr_seen;    // sprite-engine generation of the handles below
 
 static u8 count_proj(u8 proj_id)
 {
@@ -81,8 +82,7 @@ void eshots_reset(void)
     // sprites allocated and frozen on screen (BUG-012, visible during the 2 s
     // boss death sequence after shots_reset()/eshots_reset()).
     for (u8 i = 0; i < ESHOT_MAX; i++) {
-        if (shots[i].spr) SPR_releaseSprite(shots[i].spr);
-        shots[i].spr = NULL;
+        spr_release_guarded(&shots[i].spr, spr_seen);
         shots[i].on = FALSE;
     }
 }
@@ -109,6 +109,7 @@ bool eshot_fire(s16 x, s16 y, s16 dir, u8 proj_id)
         if (s->on) continue;
         s->spr = SPR_addSprite(p->spr, x - camera.x, y - camera.y,
                                TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
+        spr_seen = spr_gen;
         if (!s->spr) return FALSE;
         s->x = x - p->w / 2;
         s->y = y - p->h / 2;

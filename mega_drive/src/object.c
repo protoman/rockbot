@@ -159,18 +159,38 @@ static void obj_stop(MapObj *o)
     if (o->spr) SPR_setFrame(o->spr, 0);
 }
 
+static u16 spr_seen;   // sprite-engine generation of the handles below
+
 static void obj_release(MapObj *o)
 {
-    if (o->spr) SPR_releaseSprite(o->spr);
-    o->spr = NULL;
+    spr_release_guarded(&o->spr, spr_seen);
     o->active = FALSE;
+}
+
+// Boss door open/close. The PC art has a single frame, so the frame-based
+// animation in object::show_boss_door() does nothing visible there either; the
+// intent is a door that slides open. Animate the sprite down into the floor
+// (down) or back up (up), one VDP frame per step so the world keeps drawing.
+static void door_slide(MapObj *o, bool down)
+{
+    if (!o->spr) return;
+    const u8 steps = 10;
+    for (u8 i = 1; i <= steps; i++) {
+        s16 dy = (s16)((o->def->h * i) / steps);
+        if (!down) dy = (s16)(o->def->h - dy);
+        SPR_setVisibility(o->spr, VISIBLE);
+        SPR_setPosition(o->spr, o->x - camera.x, (s16)(o->y - camera.y + dy));
+        SPR_update();
+        SYS_doVBlankProcess();
+        VDP_setReg(17, 0);
+        VDP_setReg(18, 0);
+    }
 }
 
 void objects_reset(void)
 {
     for (u8 i = 0; i < obj_count; i++) {
-        if (objs[i].spr) SPR_releaseSprite(objs[i].spr);
-        objs[i].spr = NULL;
+        spr_release_guarded(&objs[i].spr, spr_seen);
         objs[i].active = FALSE;
     }
     obj_count = 0;
@@ -206,6 +226,7 @@ void objects_reset(void)
         o->duration = 0;
         o->spr = SPR_addSprite(d->spr, o->x - camera.x, o->y - camera.y,
                                TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
+        spr_seen = spr_gen;
         if (o->spr) {
             // manual visibility + manual frame advance (see objects_update)
             SPR_setAutoAnimation(o->spr, FALSE);
@@ -283,6 +304,7 @@ void objects_drop_item(s16 cx, s16 cy, bool subboss)
     s16 sy = o->y - camera.y;
     o->spr = SPR_addSprite(d->spr, sx, sy,
                            TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
+    spr_seen = spr_gen;
     if (o->spr) {
         SPR_setAutoAnimation(o->spr, FALSE);
         bool on_screen = (sx + d->w > 0 && sx < 320 &&
@@ -898,21 +920,17 @@ void objects_update(void)
                 // PC classmap.cpp:1611: a door stays shut while a boss or
                 // sub-boss is alive on the left side of it.
                 if (enemies_subboss_alive_left(o->x >> 4)) continue;
-                // PC object.cpp:1189: opening -> OPENED -> horizontal_screen
-                // move to reveal the boss room -> CLOSING (shuts behind the
-                // player). The converted door art has a single frame, so the
-                // open/close animation collapses to the scroll itself.
-                o->started = TRUE;
-                o->frame = (u8)(d->frames - 1);
-                if (o->spr) SPR_setFrame(o->spr, o->frame);
+                // PC object.cpp:1189: OPENING -> OPENED -> horizontal_screen
+                // move -> CLOSING. The PC data ships ONE door frame
+                // (max_frames = width/width-1 = 0), so its frame animation is a
+                // no-op and the door simply vanished; slide the sprite into the
+                // floor and back (see door_slide) so the opening reads.
                 sfx_play(SFX_DOOR_OPEN);
+                door_slide(o, TRUE);             // open: sink out of sight
                 // The scroll moves the player ~2.5 tiles forward itself (PC
                 // horizontal_screen_move), leaving him near the left edge.
                 stage_horizontal_screen_move(1);
-                o->started = FALSE;      // closed again: one-way
-                o->frame = 0;
-                if (o->spr) SPR_setFrame(o->spr, 0);
-                sfx_play(SFX_DOOR_OPEN);
+                door_slide(o, FALSE);            // closes behind the player
                 continue;
             }
             if (d->type == 21 || d->type == 26 || d->type == 31) {

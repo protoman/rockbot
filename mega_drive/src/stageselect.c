@@ -130,7 +130,7 @@ static void draw_names(void)
 
 u8 stage_select_run(u8 player, u16 stage_mask)
 {
-    SPR_initEx(768);
+    sprites_begin(768);
     stage_release_map();
     music_play(MUSIC_SELECTOR);
 
@@ -221,14 +221,14 @@ u8 stage_select_run(u8 player, u16 stage_mask)
                 if (castle_unlocked) {
                     u8 st = castle_next_stage();
                     sfx_play(SFX_STAGE_SELECTED);
-                    SPR_end();
+                    sprites_end();
                     return st;            // unbeaten castle #1 stage
                 }
             } else {
                 u8 st = complete_stage();
                 if (stage_ready(st)) {
                     sfx_play(SFX_STAGE_SELECTED);
-                    SPR_end();
+                    sprites_end();
                     return st;
                 }
             }

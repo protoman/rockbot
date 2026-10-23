@@ -7,6 +7,7 @@
 #include "player.h"
 #include "music.h"
 #include "stage_data.h"
+#include "stage.h"
 #include "ssel_data.h"
 #include "credits_data.h"
 #include "end_l1_tiles.h"
@@ -95,8 +96,8 @@ static void layer_upload(u16 plane, const u16 *map, u16 w, u16 h,
 static void walking_parade(void)
 {
     music_play(MUSIC_END_ANIMATION);
-    SPR_end();
-    SPR_initEx(768);
+    sprites_end();
+    sprites_begin(768);
 
     black_screen();
 
@@ -247,15 +248,15 @@ void ending_run(void)
     boss_parade();
     credits_scroll();
 
-    SPR_end();
+    sprites_end();
     black_screen();
 }
 
 void ending_credits_run(void)
 {
-    SPR_end();
-    SPR_initEx(768);
+    sprites_end();
+    sprites_begin(768);
     credits_scroll();
-    SPR_end();
+    sprites_end();
     black_screen();
 }

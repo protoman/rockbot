@@ -2,6 +2,7 @@
 
 #include "scene.h"
 #include "scenes_data.h"
+#include "stage.h"
 
 // PC scene player (scenes/sceneshow.cpp) for the intro.
 //
@@ -278,7 +279,7 @@ void scene_play(u8 index)
 {
     if (index >= 6) return;
 
-    SPR_end();                 // the intro logos used the sprite pool
+    sprites_end();                 // the intro logos used the sprite pool
 
     VDP_setTextPlane(BG_A);
     PAL_setColor(0, 0x0000);   // backdrop / font background

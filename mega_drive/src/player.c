@@ -1259,8 +1259,16 @@ void player_update(u16 pad)
     else if (player.hit_push > 0)    want = ANIM_HIT;
     else if (player.shielding)  want = ANIM_SHIELD;
     else if (player.sliding)    want = ANIM_SLIDE;   // ground slide + air dash
+    else if (attack_timer > 0) {
+        // PC classplayer.cpp:480-487: the fire animation is picked from the
+        // animation that was playing - walking gives WALK_ATTACK (12/13/14),
+        // in the air JUMP_ATTACK, on a ladder STAIRS_ATTACK, else ATTACK.
+        if (!player.on_ground)        want = ANIM_JUMP_ATTACK;
+        else if (player.on_ladder)    want = ANIM_STAIRS_ATTACK;
+        else if (player.vx != 0)      want = ANIM_WALK_ATTACK;
+        else                          want = ANIM_ATTACK;
+    }
     else if (!player.on_ground) want = ANIM_JUMP;
-    else if (attack_timer > 0)  want = ANIM_ATTACK;
     else if (player.vx != 0)    want = ANIM_WALK;
     else                        want = ANIM_STAND;
 

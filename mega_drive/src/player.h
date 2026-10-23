@@ -37,6 +37,9 @@
 #define ANIM_SHIELD   9
 #define ANIM_SPECIAL  10   // SHORYUKEN (PC ANIM_TYPE_SPECIAL_ATTACK, frame 29)
 #define ANIM_GOT_WEAPON 11 // PC ANIM_TYPE_GOT_WEAPON (frames 26/27, stage clear)
+#define ANIM_WALK_ATTACK 12 // PC ANIM_TYPE_WALK_ATTACK (frames 12/13/14): firing
+                            // while walking, NOT the plain ATTACK row
+#define ANIM_JUMP_ATTACK 13 // PC ANIM_TYPE_JUMP_ATTACK (frame 10)
 
 typedef struct {
     Sprite *spr;

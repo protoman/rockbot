@@ -75,7 +75,7 @@ static void draw_name(void)
 
 u8 player_select_run(void)
 {
-    SPR_end();
+    sprites_end();
     stage_release_map();
     VDP_setHorizontalScroll(BG_A, 0);
     VDP_setVerticalScroll(BG_A, 0);

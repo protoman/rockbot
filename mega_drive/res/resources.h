@@ -56,6 +56,7 @@ extern const Palette scene_img9_pal;
 extern const Palette scene_img10_pal;
 extern const Palette scene_img11_pal;
 extern const Palette scene_img12_pal;
+extern const Palette gotbg_pal;
 extern const Palette dlg_panel_pal;
 extern const Palette dlg_face_0_pal;
 extern const SpriteDefinition dlg_face_0_sprite;

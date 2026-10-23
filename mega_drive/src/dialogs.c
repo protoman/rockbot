@@ -78,6 +78,26 @@ static void wait_button(void)
 // PAL3 gives teal text cells instead of black ones (the reported "dialog text
 // background" bug). Entry 15 is the font's ink index, which the panel palette
 // leaves black - force it white.
+// The panel palette lives on PAL3, which is also the stage's PARALLAX palette
+// (BG_PAL) plus the colourcycle band. dlg_palette_load() rewrites entries 0 and
+// 15 of it, so the whole line is saved before the first page and put back
+// afterwards - otherwise the stage background came back with the panel's teal
+// and font white in place of the parallax colours (the "background colours
+// changed after the boss dialog" report; opening the menu reloaded them).
+static u16 pal3_saved[16];
+
+#define PAL3_CRAM 48
+
+static void pal3_save(void)
+{
+    for (u8 i = 0; i < 16; i++) pal3_saved[i] = PAL_getColor(PAL3_CRAM + i);
+}
+
+static void pal3_restore(void)
+{
+    PAL_setColors(PAL3_CRAM, pal3_saved, 16, DMA_QUEUE);
+}
+
 static void dlg_palette_load(void)
 {
     static u16 pal[16];
@@ -207,8 +227,10 @@ void dialog_show_armor(u8 kind)
         else                   lines[2] = "SHOURUYKEN (UP+DASH)";
     }
 
+    pal3_save();
     show_page(lines, 0, 1, &dlg_face_armor_sprite, &dlg_face_armor_pal,
               FALSE, 0);
+    pal3_restore();
     player_restore_palette();
     stage_force_redraw();
     player_sync_sprite();
@@ -233,6 +255,7 @@ void dialog_show_boss(u8 stage, u8 player)
     const Palette *bp = (stage < 9) ? boss_face_pal[stage] : NULL;
     const SpriteDefinition *pf = player_face[player & 3];
     const Palette *pp = pf->palette;
+    pal3_save();               // the panel borrows the parallax line
     show_page(d, boss0, y0, bf, bp, FALSE, player);
     show_page(d, ply0, y0, pf, pp, TRUE, player);
     if (d[boss0 + 3][0])
@@ -240,8 +263,9 @@ void dialog_show_boss(u8 stage, u8 player)
     if (d[ply0 + 3][0])
         show_page(d, (u8)(ply0 + 3), y0, pf, pp, TRUE, player);
 
+    pal3_restore();            // whole parallax line back (entries 0 and 15)
     player_restore_palette();  // PAL2 held the last face
-    stage_restore_cycle();     // PAL3 held the panel palette
+    stage_restore_cycle();     // re-apply the colourcycle band on top
     stage_force_redraw();      // the panel overwrote map cells on BG_A
     player_set_visible(TRUE);
     enemies_set_visible(TRUE);

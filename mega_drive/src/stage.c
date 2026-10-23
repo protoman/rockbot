@@ -24,6 +24,23 @@ static u16 anim_timer[STAGE_ANIM_SLOT_MAX];
 u16 stage_bg_tile_base;
 u16 stage_anim_tile_base;
 
+// Sprite-engine generation (see stage.h): every pool destroy/create bumps it,
+// so modules can tell that the handles they hold are stale and must not be
+// released into the new pool.
+u16 spr_gen = 1;
+
+void sprites_begin(u16 vram)
+{
+    SPR_initEx(vram);
+    spr_gen++;
+}
+
+void sprites_end(void)
+{
+    SPR_end();
+    spr_gen++;
+}
+
 // Per-map VRAM layout (see stage.h): tileset, then parallax, then anim frames.
 u16 stage_layout_bg(u8 map)
 {

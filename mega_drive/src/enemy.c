@@ -403,6 +403,8 @@ static bool ai_auto_jump(Enemy *e)
     return FALSE;
 }
 
+static u16 spr_seen;   // sprite-engine generation of the handles below
+
 // PC remove_self + auto_respawn (classnpc): hide for respawn_delay or release.
 static void enemy_die(Enemy *e)
 {
@@ -417,8 +419,7 @@ static void enemy_die(Enemy *e)
                           ? (u16)(((u32)d->respawn_delay * 6) / 100) : 1;
         e->respawn_t = t ? t : 1;
     } else {
-        if (e->spr) SPR_releaseSprite(e->spr);
-        e->spr = NULL;
+        spr_release_guarded(&e->spr, spr_seen);
     }
     e->alive = FALSE;
 }
@@ -843,6 +844,7 @@ static Enemy *enemy_add(u8 def_i, s16 x, s16 y, s16 x_min, s16 x_max, u8 dir)
     e->always_ahead = 0;
     e->auto_jump = 0;
     if (d->is_boss && boss_i < 0) boss_i = idx;
+    spr_seen = spr_gen;
     e->spr = SPR_addSprite(d->spr, e->x - camera.x, e->y - camera.y,
                            TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
     e->alive = (e->spr != NULL);
@@ -857,8 +859,7 @@ static Enemy *enemy_add(u8 def_i, s16 x, s16 y, s16 x_min, s16 x_max, u8 dir)
 void enemies_reset(void)
 {
     for (u8 i = 0; i < enemy_count; i++) {
-        if (enemies[i].spr) SPR_releaseSprite(enemies[i].spr);
-        enemies[i].spr = NULL;
+        spr_release_guarded(&enemies[i].spr, spr_seen);
         enemies[i].alive = FALSE;
     }
     enemy_count = 0;
@@ -1017,8 +1018,7 @@ void enemies_update(void)
                 }
                 e->y = ny;
                 if (e->y > (stage_def->map_h * stage_def->tile) + 32) {   // fell out of the level
-                    SPR_releaseSprite(e->spr);
-                    e->spr = NULL;
+                    spr_release_guarded(&e->spr, spr_seen);
                     e->alive = FALSE;
                     continue;
                 }

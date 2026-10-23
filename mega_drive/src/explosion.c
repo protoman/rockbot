@@ -18,12 +18,14 @@ typedef struct {
 } Puff;
 
 static Puff puffs[EXPLOSION_MAX];
+// Sprite-engine generation these handles belong to (stage.h): after a pool
+// destroy/create they are stale and must be forgotten, not released.
+static u16 spr_seen;
 
 void explosion_reset(void)
 {
     for (u8 i = 0; i < EXPLOSION_MAX; i++) {
-        if (puffs[i].spr) SPR_releaseSprite(puffs[i].spr);
-        puffs[i].spr = NULL;
+        spr_release_guarded(&puffs[i].spr, spr_seen);
         puffs[i].age = -1;
     }
     explosion_ring_reset();
@@ -41,6 +43,7 @@ void explosion_spawn(s16 x, s16 y)
                                   TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
         if (!s) return;
         puffs[i].spr = s;
+        spr_seen = spr_gen;
         puffs[i].x = x - 8;
         puffs[i].y = y - 8;
         puffs[i].age = 0;
@@ -98,10 +101,8 @@ static struct {
 
 void explosion_ring_reset(void)
 {
-    for (u8 i = 0; i < RING_SPRITES; i++) {
-        if (ring.spr[i]) SPR_releaseSprite(ring.spr[i]);
-        ring.spr[i] = NULL;
-    }
+    for (u8 i = 0; i < RING_SPRITES; i++)
+        spr_release_guarded(&ring.spr[i], spr_seen);
     ring.on = FALSE;
 }
 
@@ -114,6 +115,7 @@ void explosion_ring_start(s16 cx, s16 cy)
     ring.art_t = 0;
     ring.art_j = 0;
     ring.art_dir = 1;
+    spr_seen = spr_gen;
     for (u8 i = 0; i < RING_SPRITES; i++) {
         ring.spr[i] = SPR_addSprite(&death_explosion_sprite,
                                     cx - 12 - camera.x, cy - 12 - camera.y,

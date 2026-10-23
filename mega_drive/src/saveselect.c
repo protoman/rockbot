@@ -104,11 +104,11 @@ static void draw_labels(void)
 s16 save_selector(bool is_new_game)
 {
     stage_release_map();
-    // The title calls SPR_end(): without this the icon sprites below are all
+    // The title calls sprites_end(): without this the icon sprites below are all
     // NULL (SPR_addSprite fails with the engine ended), which is exactly what
     // happened — the slot rows came up empty. The stage select re-inits the
     // same way.
-    SPR_initEx(768);
+    sprites_begin(768);
     VDP_setHorizontalScroll(BG_A, 0);
     VDP_setVerticalScroll(BG_A, 0);
     VDP_setHorizontalScroll(BG_B, 0);
@@ -154,7 +154,7 @@ s16 save_selector(bool is_new_game)
         } else if (pressed & (BUTTON_START | BUTTON_A | BUTTON_C)) {
             if (is_new_game || save_slot_exists(sel)) {
                 icons_clear();
-                SPR_end();
+                sprites_end();
                 return (s16)sel;
             }
             // no SFX here: menu PCM used to load the XGM2 Z80 driver before
@@ -162,7 +162,7 @@ s16 save_selector(bool is_new_game)
             // is a later milestone; menus stay silent.
         } else if (pressed & BUTTON_B) {
             icons_clear();
-            SPR_end();
+            sprites_end();
             return -1;
         }
 

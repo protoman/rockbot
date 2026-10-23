@@ -51,6 +51,9 @@ PALETTE scene_img10_pal "scene_img10_tiles.png"
 PALETTE scene_img11_pal "scene_img11_tiles.png"
 PALETTE scene_img12_pal "scene_img12_tiles.png"
 
+# classic "YOU GOT" screen background (PC classic_style_got_weapon ->
+# show_config_bg): images/shared/config_bg.png via img2tiles.py
+PALETTE gotbg_pal "gotbg_tiles.png"
 PALETTE dlg_panel_pal "dlg_panel_tiles.png"
 PALETTE dlg_face_0_pal "dlg_face_0.png"
 SPRITE dlg_face_0_sprite "dlg_face_0.png" 32p 32p FAST [[0]]
@@ -127,10 +130,10 @@ XGM2 mus_stage13 "music/mus_stage13.vgm"
 # 4 cols x 7 anim rows, 32x32 cells. Green/magenta placeholders already swapped
 # to weapon_colors[0] by tools/convert_player.py.
 # rows: STAND, WALK, JUMP, ATTACK, HIT, TELEPORT, STAIRS, SLIDE, STAIRS_ATTACK
-SPRITE  player_p1_sprite "player_p1.png" 32p 32p FAST [[120,6][9,9,9,9][9][9][6,6][12,6,6][0][0][9][100][200][200,200]]
-SPRITE  player_p2_sprite "player_p2.png" 32p 32p FAST [[120,6][9,9,9,9][9][9][6,6][12,6,6][0][0][9][100][200][200,200]]
-SPRITE  player_p3_sprite "player_p3.png" 32p 32p FAST [[120,6][9,9,9,9][9][9][6,6][12,6,6][0][0][9][100][200][200,200]]
-SPRITE  player_p4_sprite "player_p4.png" 32p 32p FAST [[120,6][9,9,9,9][9][9][6,6][12,6,6][0][0][9][100][200][200,200]]
+SPRITE player_p1_sprite "player_p1.png" 32p 32p FAST [[120,6][9,9,9,9][9][9][6,6][12,6,6][0][0][9][100][200][200,200][9,9,9][5]]
+SPRITE player_p2_sprite "player_p2.png" 32p 32p FAST [[120,6][9,9,9,9][9][9][6,6][12,6,6][0][0][9][100][200][200,200][9,9,9][5]]
+SPRITE player_p3_sprite "player_p3.png" 32p 32p FAST [[120,6][9,9,9,9][9][9][6,6][12,6,6][0][0][9][100][200][200,200][9,9,9][5]]
+SPRITE player_p4_sprite "player_p4.png" 32p 32p FAST [[120,6][9,9,9,9][9][9][6,6][12,6,6][0][0][9][100][200][200,200][9,9,9][5]]
 
 # ---- STAGE 0 ENEMIES + PLAYER SHOT (tools/convert_enemies.py) ----
 # Generated sheets: row 0 = ANIM_STAND, row 1 = ANIM_WALK. Cells are padded

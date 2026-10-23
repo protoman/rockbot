@@ -36,13 +36,13 @@ typedef struct {
 } Shot;
 
 static Shot shots[SHOT_MAX];
+static u16 spr_seen;   // sprite-engine generation of the handles below
 static u8 cooldown;
 
 static void shot_kill(Shot *s)
 {
     if (s->on) {
-        SPR_releaseSprite(s->spr);
-        s->spr = NULL;
+        spr_release_guarded(&s->spr, spr_seen);
         s->on = FALSE;
     }
 }
@@ -124,6 +124,7 @@ void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
         s->spr = SPR_addSprite(spr, ox - camera.x, oy - camera.y,
                                TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
         if (!s->spr) break;
+        spr_seen = spr_gen;
         // The projectile art faces RIGHT (the charged shot's tail is on the
         // left), so mirror it when firing left.
         SPR_setHFlip(s->spr, dir < 0);
@@ -205,6 +206,7 @@ void shot_charge_fire(s16 x, s16 y, s16 dir, u8 level)
     s->spr = SPR_addSprite(spr, x - camera.x, y - camera.y,
                            TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
     if (!s->spr) return;
+    spr_seen = spr_gen;
     SPR_setAnim(s->spr, 0);
     SPR_setHFlip(s->spr, dir < 0);   // art faces right (see shot_fire)
     s->x = x;

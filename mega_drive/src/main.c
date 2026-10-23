@@ -11,6 +11,8 @@
 #include "eshot.h"
 #include "hud.h"
 #include "menu.h"
+#include "gotbg_tiles.h"
+#include "gotbg_map.h"
 #include "save.h"
 #include "stageselect.h"
 #include "saveselect.h"
@@ -170,7 +172,7 @@ static void showIntro(void)
 
 static s16 showTitle(void)
 {
-    SPR_end();                 // release sprite VRAM so the image fits
+    sprites_end();                 // release sprite VRAM so the image fits
     // Let any scheduled MAP update flush BEFORE we take over the planes,
     // then drop the map so nothing repaints them afterwards.
     SYS_doVBlankProcess();
@@ -359,12 +361,12 @@ static RunResult runStage(u8 stage)
 
     player_set_number(current_player);
 
-    // SPR_initEx(768): sprite VRAM = TILE_SPRITE_INDEX(1440) - 504 =
+    // sprites_begin(768): sprite VRAM = TILE_SPRITE_INDEX(1440) - 504 =
     // 936..1439, right after the animated tiles (end 935). TILE_FONT_INDEX
     // is 1440 (0xC000/32 - FONT_LEN 96), NOT 1952 as older comments said —
     // a bigger pool would overlap the parallax background tiles.
     // The engine only holds the tiles of the frames currently on screen.
-    SPR_initEx(768); // released again by showTitle()
+    sprites_begin(768); // released again by showTitle()
 
     // PAL2 still holds intro/title colors; clear it before the player
     // sprite claims it (player_init loads the player palette over this).
@@ -745,6 +747,26 @@ static void showGameOver(void)
 #define COIL_GOT_STAGE 1
 #define JET_GOT_STAGE  6
 
+// PC classic_style_got_weapon background: show_config_bg() blits
+// images/shared/config_bg.png (320x240, the navy frame). Decomposed into tiles
+// by tools/img2tiles.py; drawn on BG_A in PAL3 (the "screen art" line) while
+// the text stays PAL0 and the player sprite PAL2.
+#define GOTBG_TILE_BASE TILE_USER_INDEX
+
+static void got_weapon_bg(void)
+{
+    VDP_loadTileData(gotbg_tiles_data, GOTBG_TILE_BASE, GOTBG_TILE_COUNT,
+                     DMA_QUEUE);
+    PAL_setPalette(PAL3, gotbg_pal.data, DMA_QUEUE);
+    static u16 cells[GOTBG_MAP_W * GOTBG_MAP_H];
+    for (u16 i = 0; i < GOTBG_MAP_W * GOTBG_MAP_H; i++)
+        cells[i] = TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE,
+                                  GOTBG_TILE_BASE + gotbg_map[i]);
+    VDP_setTileMapDataRect(BG_A, cells, 0, 0, GOTBG_MAP_W, GOTBG_MAP_H,
+                           GOTBG_MAP_W, CPU);
+    SYS_doVBlankProcess();
+}
+
 static void clear_to_color(u8 r, u8 g, u8 b)
 {
     static u16 pal[16];
@@ -829,36 +851,37 @@ static void showStageClear(u8 stage, bool first_clear)
     hold_frames(210);
 
     // ---- game::classic_style_got_weapon(): the PC screen ----
-    // blank_screen + blink_screen(255,255,255) + blank_screen, then the dark
-    // blue CONFIG_BGCOLOR (5,29,65) and the player at x=20, vertically
-    // centred (game.cpp:1347).
+    // blank_screen + blink_screen(255,255,255) + blank_screen, then
+    // show_config_bg() (the framed navy art, NOT a flat fill) and the player
+    // at x=20, vertically centred (game.cpp:1339-1360).
     clear_to_color(255, 255, 255);
     hold_frames(6);
     PAL_setPalette(PAL0, pal_ui.data, DMA_QUEUE);
-    clear_to_color(5, 29, 65);
+    got_weapon_bg();
     camera.x = 0;
     camera.y = 0;
     player_place(20, 98);
     player_force_anim(ANIM_ATTACK);
     player_sync_sprite();
 
-    // Text at RES_W*0.5-90 (tile 8), lines at RES_H*0.5-4 / +8 / +20 =
+    // PC text x = RES_W*0.5-90 = 70px, i.e. 2px right of tile column 9 (the
+    // closest the MD tile grid gets), lines at RES_H*0.5-4 / +8 / +20 =
     // rows 14 / 16 / 17. The second line names the ITEM the stage also gives
     // (game_data.player_items -> the object's name, uppercased): the port used
     // to print weapons 9/10 here, which are not the items at all.
     const char *item = NULL;
     if (stage == COIL_GOT_STAGE)      item = "E-TANK";
-    else if (stage == JET_GOT_STAGE)  item = "W-TANK";
+    if (stage == JET_GOT_STAGE)       item = "W-TANK";
 
-    u16 typed = draw_progressive(weapon_data[stage].name, 8, 14);
+    u16 typed = draw_progressive(weapon_data[stage].name, 9, 14);
     u8 line3 = 16;
     if (item) {
-        typed += draw_progressive("AND ", 8, 16);
-        typed += draw_progressive(item, 12, 16);
+        typed += draw_progressive("AND ", 9, 16);
+        typed += draw_progressive(item, 13, 16);
         line3 = 17;
     }
     typed += draw_progressive(item ? "HAVE BEEN ACQUIRED" : "HAS BEEN ACQUIRED",
-                              8, line3);
+                              9, line3);
     player_sync_sprite();
     hold_frames((typed < 300) ? (u16)(300 - typed) : 0);   // PC wait 5000ms
     VDP_clearTextArea(0, 12, 40, 7);
@@ -891,7 +914,7 @@ int main(bool hardReset)
     VDP_setScreenWidth320();
     VDP_setScreenHeight224();
     JOY_init();
-    SPR_initEx(768); // see runStage() — sprite VRAM 936..1439
+    sprites_begin(768); // see runStage() — sprite VRAM 936..1439
 
     // The default DMA queue (80 entries) overflows during stage_load's force
     // map redraw / animated-frame upload (up to 17 slots x 6 frames), silently

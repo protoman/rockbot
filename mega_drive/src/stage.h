@@ -5,6 +5,26 @@
 
 #include "stage_data.h"
 
+// ---- sprite-engine generation ------------------------------------------
+// SPR_end()/SPR_initEx() destroy the sprite pool, and SGDK leaves the freed
+// Sprite structs' bytes (status ALLOCATED, prev/next links) in the heap block
+// the new pool re-uses. A module that still holds a handle across that call
+// and later SPR_releaseSprite()s it unlinks whatever sprite now occupies the
+// slot - the player vanished and SPR_update() then walked a corrupt list
+// (line-1111 crash). Every pool recreate/end bumps spr_gen; modules remember
+// the generation their handles belong to and forget them when it changed.
+extern u16 spr_gen;
+void sprites_begin(u16 vram);   // SPR_initEx + new generation
+void sprites_end(void);         // SPR_end + new generation
+
+// Release a handle only if it belongs to the current sprite-engine generation
+// (then always clear it).
+static inline void spr_release_guarded(Sprite **p, u16 seen)
+{
+    if (*p && seen == spr_gen) SPR_releaseSprite(*p);
+    *p = NULL;
+}
+
 // The stage tilemap lives on BG_A. BG_B carries the parallax background.
 #define STAGE_PLANE BG_A
 #define STAGE_PAL   PAL1

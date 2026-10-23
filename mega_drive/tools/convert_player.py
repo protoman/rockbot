@@ -19,6 +19,7 @@ Writes res/player_p1..p4.png. See res/resources.res for the SPRITE lines.
 Usage: python3 tools/convert_player.py
 """
 import os
+import re
 import sys
 from PIL import Image
 
@@ -73,6 +74,10 @@ ANIMS = [
     ("SPECIAL",  [29],           [200]),
     # classplayer.cpp:625 addSpriteFrame(ANIM_TYPE_GOT_WEAPON, 26/27, ..., 200)
     ("GOT_WEAPON", [26, 27],     [200, 200]),
+    # classplayer.cpp:587-589: firing while the current anim is WALK shows the
+    # walk-attack row; :585 the air one is a single 80ms frame.
+    ("WALK_ATTACK", [12, 13, 14], [9, 9, 9]),
+    ("JUMP_ATTACK", [10],         [5]),
 ]
 
 MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)
@@ -179,9 +184,18 @@ def main():
               f"flip_dx={row_dx}")
 
     times = "[" + "".join("[" + ",".join(str(t) for t in a[2]) + "]" for a in ANIMS) + "]"
-    print(f"SPRITE time array: {times}")
-    for n, _, _, _ in players:
-        print(f'SPRITE player_p{n}_sprite "player_p{n}.png" 32p 32p FAST {times}')
+    # Rewrite the SPRITE lines so the animation list can never drift from the
+    # sheet's row order (a missing row = SPR_setAnim past the table = crash).
+    res_path = os.path.join(ROOT, "res", "resources.res")
+    if os.path.exists(res_path):
+        text = open(res_path).read()
+        for n, _, _, _ in players:
+            line = (f'SPRITE player_p{n}_sprite "player_p{n}.png" 32p 32p '
+                    f'FAST {times}')
+            text = re.sub(r'^SPRITE\s+player_p%d_sprite\b.*$' % n, line, text,
+                          flags=re.M)
+            print(line)
+        open(res_path, "w").write(text)
 
     # Sprite X correction while HFliped, one per animation row (player.h's
     # ANIM_* order == ANIMS above). Generated because it depends on the art.
