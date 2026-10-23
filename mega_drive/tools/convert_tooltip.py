@@ -180,6 +180,8 @@ def emit(frame_tiles, fmap, fw, fh, icon_tiles, pals, icon_n):
     h.append(f"#define TOOLTIP_FRAME_W {fw}")
     h.append(f"#define TOOLTIP_FRAME_H {fh}")
     h.append(f"#define TOOLTIP_FRAME_TILE_COUNT {len(frame_tiles)}")
+    h.append(f"// last tile: solid index 1, the opaque backing of the box (BUG-042)")
+    h.append(f"#define TOOLTIP_FILL_TILE {len(frame_tiles) - 1}")
     h.append(f"#define TOOLTIP_ICON_N {icon_n}")
     h.append(f"#define TOOLTIP_ICON_TILES 4          // 16x16 cells")
     h.append(f"#define TOOLTIP_ICON_PAL_N {ICON_PAL_N}")
@@ -277,6 +279,13 @@ def preview(frame_tiles, fmap, fw, fh, icon_tiles, pals, icon_n, which=0):
 
 def main():
     frame_tiles, fmap, fw, fh = frame()
+    # The box art's interior (and the font's glyph background) is palette index
+    # 0, and on the Mega Drive a BG pixel with index 0 is TRANSPARENT: the
+    # parallax showed through the box and through every character cell
+    # (BUG-042). tooltip.c backs the box with this solid tile on the other
+    # plane, so it is appended last and referenced by TOOLTIP_FILL_TILE.
+    fill = [[1] * TILE for _ in range(TILE)]
+    frame_tiles = list(frame_tiles) + [fill]
     icon_tiles, pals, icon_n = icons()
     emit(frame_tiles, fmap, fw, fh, icon_tiles, pals, icon_n)
     if "--preview" in sys.argv:

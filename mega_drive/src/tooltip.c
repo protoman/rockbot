@@ -65,13 +65,32 @@ static void pal3_load(void)
 // Write one 8x8 cell of the box/icon art at screen cell (col,row). The plane
 // holds world tiles and wraps at 64 cells, so the position becomes
 // (camera tile + screen cell) & 63 - dialogs.c does the same for its panels.
-static void cell_draw(u16 tile, u8 col, u8 row)
+static void plane_cell(VDPPlane plane, u16 tile, u8 col, u8 row)
 {
     const u16 base = (u16)((camera.x >> 3) & 63);
     const u16 top = (u16)(((camera.y >> 3) + row) & 31);
-    VDP_setTileMapXY(STAGE_PLANE,
+    VDP_setTileMapXY(plane,
                      TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE, tile),
                      (u16)((base + col) & 63), top);
+}
+
+static void cell_draw(u16 tile, u8 col, u8 row)
+{
+    plane_cell(STAGE_PLANE, tile, col, row);
+}
+
+// The box art's interior and the font's glyph background are palette index 0,
+// and a BG pixel with index 0 is TRANSPARENT on the MD: the parallax showed
+// through the box and through every character cell (BUG-042). The box is
+// backed by a solid tile on the parallax plane; plane A then only carries the
+// opaque parts (borders, icon ink, glyph ink).
+static void back_fill_draw(void)
+{
+    const u16 tile = (u16)(TOOLTIP_TILE_BASE + TOOLTIP_FILL_TILE);
+    for (u8 r = 0; r < TOOLTIP_FRAME_H; r++)
+        for (u8 c = 0; c < TOOLTIP_FRAME_W; c++)
+            plane_cell(BG_B, tile, (u8)(TOOLTIP_COL + c),
+                       (u8)(TOOLTIP_ROW + r));
 }
 
 static void box_draw(void)
@@ -138,6 +157,7 @@ void tooltip_update(void)
         pal3_load();
         owns_pal3 = TRUE;
         box_draw();
+        back_fill_draw();   // opaque backing: see back_fill_draw()
         icon_draw();
         // The glyph cells carry palette index 0 as their background, which is
         // the box interior in PAL3, and entry 15 is the ink - drawn with the
@@ -161,5 +181,6 @@ void tooltip_update(void)
     pending = FALSE;
     drawn = FALSE;
     text = NULL;
+    stage_redraw_bg();      // the box backing overwrote parallax cells
     stage_force_redraw();
 }

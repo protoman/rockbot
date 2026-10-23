@@ -8,7 +8,9 @@
 // and the weapon icons (images/icons.png). Do not edit.
 #define TOOLTIP_FRAME_W 38
 #define TOOLTIP_FRAME_H 4
-#define TOOLTIP_FRAME_TILE_COUNT 8
+#define TOOLTIP_FRAME_TILE_COUNT 9
+// last tile: solid index 1, the opaque backing of the box (BUG-042)
+#define TOOLTIP_FILL_TILE 8
 #define TOOLTIP_ICON_N 18
 #define TOOLTIP_ICON_TILES 4          // 16x16 cells
 #define TOOLTIP_ICON_PAL_N 11

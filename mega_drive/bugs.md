@@ -2,6 +2,35 @@
 
 Things that are wrong or worse than the original. Track here, fix later.
 
+## BUG-042 — Tooltip box interior and name background showed the parallax
+
+**Report (2026-10-23, first play-test of BUG-041)**: the box, the icon and the
+name "APE QUAKE" all appeared and the HUD stayed intact, but the box's interior
+band showed the street/parallax instead of a solid fill, and the name had
+coloured speckles around the glyphs.
+
+**Cause**: the PC art's interior colour is index 0 of the box palette, and the
+SGDK font's glyph background is index 0 as well — but on the Mega Drive a
+**BG pixel with palette index 0 is transparent** (the other plane, then the
+backdrop, shows through). So every interior cell and every glyph cell let
+`BG_B` (the parallax) show. `VDP_setTextPalette(PAL3)` cannot help: index 0 is
+transparent regardless of what CRAM holds there. Confirmed offline by decoding
+the emitted tiles: the interior tile is `00000000` on every row, and the ROM's
+`hud_bar_*`/`tooltip_frame_*` sheets render fine, so the art and the converter
+were correct.
+
+**Fix**: `tools/convert_tooltip.py` appends one **solid index-1 tile**
+(`TOOLTIP_FILL_TILE`) to the box tiles, and `tooltip.c` backs the whole box with
+it on `BG_B` (`back_fill_draw()`) before drawing the opaque parts on `BG_A`
+(borders, icon ink, glyph ink). Expense: the box now also claims `BG_B` cells
+for its 1.5 s, restored by `stage_redraw_bg()` at expiry (next to the existing
+`stage_force_redraw()`). VRAM block grew by one tile: tooltip 672..684 (13),
+dialog 685..701, config 702, sprite pool 703..1439 (`SPRITE_VRAM_TILES 737`);
+`check_vram` still reports 0 transition fallbacks.
+
+**Status**: fixed, needs one play-test (same check as BUG-041: solid dark box,
+clean white name, HUD intact, parallax back afterwards).
+
 ## BUG-041 — Weapon tooltip never drawn, and it corrupted the HUD
 
 **Report (2026-10-23)**: after picking a weapon in the START menu the tooltip

@@ -169,9 +169,9 @@ def main():
     bg = read_bg_tiles()
     anim = read_anim_slots()
     links = read_links()
-    # TILE_FONT_INDEX - SPRITE_VRAM_TILES (src/stage.h): the 29 tiles
-    # below the pool hold the tooltip art and the dialog panel.
-    sprite_base = 1440 - 738
+    # TILE_FONT_INDEX - SPRITE_VRAM_TILES (src/stage.h): the 30 tiles
+    # below the pool hold the tooltip art, the dialog panel and the config tile.
+    sprite_base = 1440 - 737
 
     def layout_end(s, m):
         """First free tile after tileset + bg + anim (runtime derives the same
