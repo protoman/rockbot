@@ -54,13 +54,14 @@ PC-parity backlog, `PLAN.md` the roadmap.
 
 ## Next, in order (see pc_gaps.md for evidence per item)
 
-1. **Scene `SHOW_ANIMATION`** — used once (scene 0). Needs
-   `images/scenes/animations/` art converted from `scenes_show_animation.dat`
-   (6 records, frame_w/h/delay) and a timed frame loop on BG_B.
-2. **Dark mode** (`game.h:273`) and the **hit flash on the sprite palette** —
-   both need a per-frame CRAM hook (palette flash frames), not sprite art.
-3. **Quicksand terrain** — deferred on purpose: no converted stage uses it
-   (PC: 0.2px/frame sink + halved move speed).
+1. **Quicksand terrain** — deferred on purpose: no converted stage uses it
+   (PC: 0.2px/frame sink + halved move speed), and `TERRAIN_DOOR` has no PC
+    rule to port. Audited dead PC paths are closed in `pc_gaps.md`: scene
+    `SHOW_ANIMATION` (its only op sits in scene 1, which no game-scene type
+   maps to), `_dark_mode`, the quake-attack half and the white hit flash.
+2. **Small real leftovers** (`pc_gaps.md`): the PC's special tooltip names for
+   the tanks/COIL/JET, the "characters unlocked" warning before players 3/4,
+   and the PC's extra water/ice movement rules.
 4. Play-test everything above (ask before launching BlastEm; one run covers:
    walking shots, door slide, dialog → stage colours, YOU GOT screen, stage
    re-entry (no invisible player / no crash), APE ceiling jump, BLUE SHIELDER

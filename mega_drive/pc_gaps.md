@@ -117,13 +117,17 @@ data never uses, therefore unimplemented:
       `scenes_play_music.dat` record to a `MUSIC_*` id (`scene_music_ids[]`,
       3 records: intro scene, DAISIE's track, ending animation), `STOP_MUSIC`
       stops it. `PLAY_SFX` stays a no-op: no converted scene references it.
-- [ ] `MOVE_VIEWPOINT` and `SUBSCENE`: not used by any converted scene
+- [x] `MOVE_VIEWPOINT` and `SUBSCENE`: not used by any converted scene
       (`scenes_data.c` op counter: CLEAR_SCREEN/AREA, SHOW_TEXT, MOVE_IMAGE,
-      PARALLAX, PLAY_MUSIC, SHOW_ANIMATION only), so they are unimplemented on
-      purpose. `SHOW_ANIMATION` **is** used once (op in scene 0) and is still
-      missing: it needs the PC `images/scenes/animations/` art converted
-      (`scenes_show_animation.dat`: 6 records, frame_w/h + delay) plus a timed
-      frame loop on BG_B.
+      PARALLAX, PLAY_MUSIC), so they are unimplemented on purpose.
+- **Not a gap**: `SHOW_ANIMATION` is **dead data on the PC too** (checked
+      2026-10-23). The only op using it is in scene 1 (`Opening Unbeaten LAB
+      [#2]`, seek 4 = `rock_awakening.png`), and `game_scenes.dat` maps no
+      `e_game_scenes_types` to scene 1: type 1 (intro unbeaten) and type 2
+      (intro beaten) both point at scene 0, types 15..18 at scenes 2..5, type 0
+      and 19 at 255. The remaining animation records (city bg, two explosions)
+      are referenced by nothing. Porting it would build a cutscene nobody can
+      reach; the art stays in `data/` should the PC ever wire it up.
 
 ## Effects (PC draw.cpp / graphicslib.cpp)
 
@@ -151,9 +155,18 @@ data never uses, therefore unimplemented:
         destination. Its art uses the two colourcycle keys, which the PC swaps
         per object (`set_teleport_small_colors`); the strip is converted with
         the PC's default grey + white pair.
-- [ ] Dark mode (`game.h:273`) and the hit flash on the sprite palette (the
-      port blinks the sprite instead) — both need a per-frame palette/CRAM
-      hook, not sprite art.
+- [x] **Hit flash / dark mode audited** (2026-10-23): neither is missing.
+      - The PC's white silhouette (`character::show_sprite_graphic`,
+        `character.cpp:1096`) only fires after three blink cycles, because
+        `hit_animation_timer` is armed at `character.cpp:3028` under
+        `if (now > hit_duration + now)` — a condition that cannot be true when
+        it was just set to `now`. The observable PC behaviour is therefore the
+        blink the port already does (`invuln_blink()`), with the twinkle the
+        PC's own `hit_animation_count` path produces. An MD palette flash would
+        also recolour the HUD HP bar, which shares PAL2 entries 2..4.
+      - `game.h:273 _dark_mode` is initialised to false (`game.cpp:71`) and
+        never set to true anywhere in this PC build, so the "only show
+        animation and projectiles" mode is unreachable.
 - **Not a gap**: boss ground shake — the PC function at `classmap.cpp:2428` is
   `boss_hit_ground()` (an animation switch), not a screen shake; there is no
   shake to port.

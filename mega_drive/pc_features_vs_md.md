@@ -77,8 +77,8 @@ anim/colourcycle -> enemies_update -> shoryuken hit -> boss dialog ->
 boss music -> explosion/eshot/shot -> boss HUD -> SPR_update/vblank
 ```
 
-Order and content match. Gaps inside the loop: overlay GFX, weapon tooltip,
-autoscroll damage, PC AI depth (below).
+Order and content match. Gaps inside the loop: overlay GFX, autoscroll
+damage, PC AI depth (below).
 
 ---
 
@@ -122,7 +122,7 @@ autoscroll damage, PC AI depth (below).
 | 8 boss weapons + COIL/JET | `attack` `classplayer.cpp:290` | `shot.c`, `weapon_data.c` | **DONE** |
 | weapon ammo + refill | `refill_weapons` `classplayer.cpp:1078` | `player.c:305` | **DONE** |
 | weapon palette swap | `change_player_color` `classplayer.cpp:997` | `player.c:294` | **DONE** |
-| **weapon tooltip on switch** | `show_weapon_tooltip` `draw.cpp:841` | — | **MISSING** |
+| weapon tooltip on switch | `show_weapon_tooltip` `draw.cpp:841` | `tooltip.c:122` | **DONE** (box + icon + name; tank counts missing) |
 | armor pieces + abilities | `update_armor_properties` `classplayer.cpp:1251` | `player.c:192` | **DONE** |
 | tanks (E/W/S) + menu use | `get_item` `classplayer.cpp:109` | `player.c:1355` | **DONE** |
 | lives / game over / continue | `death` `classplayer.cpp:942` | `player.c:1250` | **DONE** |
@@ -226,7 +226,7 @@ converted data.
 | feature | PC | port | status |
 |---|---|---|---|
 | HP / weapon / boss bars | `show_hud` `draw.cpp:1202` | `hud.c:140` | **DONE** |
-| **weapon tooltip** | `show_weapon_tooltip` `draw.cpp:841` | — | **MISSING** |
+| weapon tooltip | `show_weapon_tooltip` `draw.cpp:841` | `tooltip.c:122` | **DONE** (box + icon + name; tank counts missing) |
 | in-game menu (weapons, tanks, config, leave) | `class_config.cpp:290` | `menu.c:297` | **DONE** |
 | screen shake (quake) | `set_screen_shake` | `stage.c:598` | **PARTIAL** (shots only) |
 | fades | `fade_in/out_screen` `draw.cpp:716` | `main.c`, `transition.c` | **DONE** |
