@@ -21,40 +21,53 @@ into a plain hop.
 
 - [x] `WALK_ATTACK` / `JUMP_ATTACK` rows + pose selection
       (`classplayer.cpp:480-489`, 2026-10-23).
-- [ ] **Aimed attack poses**: `ANIM_TYPE_ATTACK_DIAGONAL_UP`/`_DOWN`
-      (frames 23/24) when firing a weapon whose trajectory is
-      `TARGET_DIRECTION` / `TARGET_EXACT` / `ARC_TO_TARGET`
-      (`classplayer.cpp:449-461`). The player's boss weapons 14/15/18 use
-      `TARGET_DIRECTION`, so on the PC the shot *aims at the nearest enemy* and
-      the pose turns; the port fires it straight.
+- [x] `STAIRS_SEMI` (frame 18): the half-body pose when grabbing or leaving a
+      ladder (`character.cpp:402/444`), 12 frames before the climb pose
+      (2026-10-23).
 - [ ] **`TRAJECTORY_CHAIN` (3)** — the "Chain" weapon (projectile 7). The port
-      has no chain physics, so weapon 7 behaves like a straight shot.
-- [ ] Pose-only rows never played: `ANIM_TYPE_TURN`, `ANIM_TYPE_MOVE_SEMI`,
-      `ANIM_TYPE_STAIRS_SEMI`, `ANIM_TYPE_STAIRS_MOVE`, `ANIM_TYPE_LOOK_UP`,
-      `ANIM_TYPE_THROW`, `ANIM_TYPE_HIT_SPECIAL`, `ANIM_TYPE_GRAB_WALL`. The
-      port reuses STAND/STAIRS for those moments, so they look static.
+      has no chain physics, so weapon 7 behaves like a straight shot. That is
+      the only trajectory the player's weapons use that the port lacks; the
+      others (0 linear, 9 quake, 6 arc, 5 zigzag, 1 follow, 4 centered,
+      2 freeze, 7 progressive, 8 bomb) are handled.
+- **Not a gap (verified in the source and the data)**: `ATTACK_DIAGONAL_UP`/
+      `_DOWN` (frames 23/24) are only played for weapons with
+      `TARGET_DIRECTION`/`TARGET_EXACT`/`ARC_TO_TARGET` (`classplayer.cpp:449-
+      461`), and no player weapon uses those (they belong to the enemies'
+      missiles 14/15/18, which `eshot.c` already aims). Same for `TURN`,
+      `MOVE_SEMI`, `LOOK_UP`, `THROW`, `HIT_SPECIAL`, `GRAB_WALL`,
+      `ATTACK_UP/DOWN`: the PC never sets them on the player in this build.
 
 ## Enemy AI (src/enemy.c) — from `audit_data.py`
 
-Implemented: WALK, FLY, JUMP (plain), WAIT_RANGE, SHOT_AHEAD/DIR/INVERT,
-AIR_WALK, FALL, TELEPORT, DASH, GRAB_WALL, SPAWN_NPC, CHANGE_MOVE, REPLACE_NPC,
-JUMP_ATTACK_UP.
+Implemented: WALK (all options), FLY (all options the PC defines), JUMP (all
+eleven options), WAIT_RANGE, SHOT_AHEAD/DIR/INVERT, AIR_WALK, FALL, TELEPORT,
+DASH, GRAB_WALL, SPAWN_NPC, CHANGE_MOVE, CHANGE_MOVE_REVERSE, REPLACE_NPC,
+JUMP_ATTACK_UP, JUMP_ATTACK_AHEAD_ONCE, SAVE_POINT, CIRCLE_PLAYER,
+WAIT_RANDOM_TIME, MORPH_INTO_NPC, PLAY_SFX, WALL_WALK, WALL_WALK_SHOOT,
+SHOT_MULTIPLE_PROJECTILE, EXPLODE_ITSELF, THROW_ITEM. `audit_data.py` prints
+`option gaps: 0`.
 
-- [ ] **`AI_JUMP` ignores its option** — the biggest functional gap:
-      `AHEAD` (npcs 9,17,54,55), `TO_PLAYER` (2,6,7,8,9,10,17,41),
-      `TO_PLAYER_DIR` (8) and **`TO_ROOF` (2 = APE BOT, 48)**. PC
-      `ia_action_jump_to_roof()` (`artificial_inteligence.cpp:793`) rises
-      straight to the ceiling with gravity off and keeps `_ignore_gravity`, so
-      the NPC then walks along the roof — APE's missing movement.
-- [ ] `AI_FLY` options not implemented: `TO_RANDOM` (npcs 2,12),
-      `DRILL_DOWN` (1,48), `PLAYER_DIR` (12), `OPPOSITE_WALL` (44),
-      `OPPOSITE_SHOOT` (18), `RANDOM_X` (44), `RANDOM_Y` (12,20).
-- [ ] AI actions with no port code: `SAVE_POINT`, `CIRCLE_PLAYER`,
-      `CHANGE_MOVE_TYPE_REVERSE`, `JUMP_ATTACK_AHEAD_ONCE`, `WAIT_RANDOM_TIME`,
-      `MORPH_INTO_NPC`, `PLAY_SFX`, `WALL_WALK`, `WALL_WALK_SHOOT`,
-      `SHOT_MULTIPLE_PROJECTILE`, `EXPLODE_ITSELF`, `THROW_ITEM`.
-      (Not used by the AI data of stages 0..13 today, so nothing is visibly
-      wrong yet; they appear in the editor's palette.)
+- [x] **`AI_JUMP` options** (2026-10-23): `TO_ROOF`
+      (`ia_action_jump_to_roof`, `artificial_inteligence.cpp:793`) rises to the
+      ceiling with gravity off and KEEPS `no_gravity`, so the following WALK
+      state walks him along the roof — APE BOT's missing movement. `UP` jumps in
+      place; `TO_PLAYER`/`TO_SAVED`/`RANDOM`/`AHEAD`/`LONG_AHEAD`/`ONCE` steer
+      the arc; `TO_PLAYER_DIR` takes the direction at launch.
+- [x] `AI_FLY` options `TO_RANDOM`, `RANDOM_X`, `RANDOM_Y`, `PLAYER_DIR`,
+      `OPPOSITE_WALL`, `OPPOSITE_SHOOT` (fires on arrival) and `DRILL_DOWN`
+      (ghost descent through walls at 1/4 speed).
+- [x] AI actions that had no code (2026-10-23): `SAVE_POINT` (marker),
+      `CIRCLE_PLAYER` (orbit), `CHANGE_MOVE_REVERSE`, `JUMP_ATTACK_AHEAD_ONCE`,
+      `WAIT_RANDOM_TIME`, `MORPH_INTO_NPC`, `PLAY_SFX`, `WALL_WALK`/
+      `WALL_WALK_SHOOT` (ceiling walk), `SHOT_MULTIPLE_PROJECTILE` (3-shot
+      spread), `EXPLODE_ITSELF`, `THROW_ITEM` (enemy drop table). None of them
+      is used by the AI data of stages 0..13 today, so they are untested beyond
+      compiling — a re-exported stage can start using them.
+- [ ] Enemy animation rows the sheet does not carry: `TURN`, `VERTICAL_TURN`,
+      `WALK_AIR` (AI_AIR_WALK reuses the walk row), `HIT`/`HIT_SPECIAL` (the
+      port blinks the sprite), `STAIRS_*`. `tools/convert_enemies.py` ships
+      stand/walk/attack/jump/teleport/intro only; the PC art does have TURN
+      frames for some enemies, so this is cosmetic, not a mechanic.
 - [ ] **Quake attack half**: `ia_action_quake_attack()`
       (`artificial_inteligence.cpp:866`) — player damage + 1 s jump lock. It
       has **no caller** in this PC build, so the port only does the screen
