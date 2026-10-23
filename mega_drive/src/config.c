@@ -5,6 +5,7 @@
 
 #include "sfx.h"
 #include "ending.h"
+#include "stage.h"   // SPR_* fixed tile blocks below the sprite pool
 
 // SRAM: 5 save slots occupy bytes 8..47; options live at byte 48.
 #define CFG_OFF   48
@@ -83,7 +84,10 @@ static void apply_sound(void)
 // before the sprite pool (936): the stage tileset/parallax/anim blocks all
 // end below it (checked by make check-vram), and transitions only borrow the
 // block during a room slide, never while the menu is open.
-#define CFG_BLACK_TILE 935
+// Below the sprite pool (src/stage.h): this screen is reachable from
+// the in-game menu, so a fixed tile inside the pool would overwrite a
+// live sprite's art.
+#define CFG_BLACK_TILE SPR_CFG_BLACK_TILE
 static const u32 cfg_black[8] = {
     0x11111111, 0x11111111, 0x11111111, 0x11111111,
     0x11111111, 0x11111111, 0x11111111, 0x11111111,

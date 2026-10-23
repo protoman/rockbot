@@ -5,11 +5,13 @@
 #include "tooltip_data.h"
 #include "weapon_data.h"
 
-// The box/icon tiles live in the 24-tile window the boss dialog panel uses
-// (dialogs.c DLG_PANEL_TILE_BASE); the stage tileset ends well below it, and
-// no dialog can be open while the tooltip plays (it is triggered by the
-// START menu, which closes first).
-#define TOOLTIP_TILE_BASE 912
+// The box/icon tiles live in the 12 tiles the sprite pool leaves free at
+// SPR_TOOLTIP_TILE_BASE (stage.h): the sprite engine allocates from
+// TILE_FONT_INDEX - SPRITE_VRAM_TILES upward, so a fixed write INSIDE that
+// range overwrites whatever sprites own those tiles. BUG-041: loading the art
+// at 912 (the old dialog-panel window) hit the HUD bars once the stage's
+// objects had taken the low tiles, and the HUD then displayed the tooltip box.
+#define TOOLTIP_TILE_BASE SPR_TOOLTIP_TILE_BASE
 #define TOOLTIP_ICON_TILE (TOOLTIP_TILE_BASE + TOOLTIP_FRAME_TILE_COUNT)
 
 // PC layout on the 224 px screen: box at (10,192), icon at (14,200), name at
@@ -124,6 +126,14 @@ void tooltip_update(void)
     if (!pending) return;
 
     if (!drawn) {
+        // The START menu leaves a FULL plane redraw queued in SGDK's DMA
+        // buffer (menu_open -> stage_force_redraw -> MAP_scrollToEx ->
+        // setMapRow/Column -> DMA_allocateTemp). Those cells land at the next
+        // vblank, i.e. after anything written here, and painted over the box
+        // and its text: the tooltip never appeared (BUG-041). Flush the queue
+        // first -- the stage start sequence does the same before drawing
+        // "MISSION STARTED!". DmaQueue / vblank counters are unchanged by it.
+        SYS_doVBlankProcess();
         pal3_save();
         pal3_load();
         owns_pal3 = TRUE;

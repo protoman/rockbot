@@ -24,7 +24,9 @@
 // PC graphicsLib::show_dialog: the 310x65 panel at x=5, y=3 (top side). The
 // port draws it on BG_A with the camera's tile offset, in PAL3 with its own
 // palette (the stage colourcycle band is re-applied when the dialog closes).
-#define DLG_PANEL_TILE_BASE 912     // free: stage data ends well below 936
+// Below the sprite pool, next to the tooltip's block (src/stage.h owns the
+// layout): a fixed index inside the pool overwrote live sprite tiles.
+#define DLG_PANEL_TILE_BASE SPR_DLG_TILE_BASE
 #define DLG_W 40
 #define DLG_H 6
 

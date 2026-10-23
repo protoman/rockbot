@@ -2,6 +2,45 @@
 
 Things that are wrong or worse than the original. Track here, fix later.
 
+## BUG-041 — Weapon tooltip never drawn, and it corrupted the HUD
+
+**Report (2026-10-23)**: after picking a weapon in the START menu the tooltip
+never appeared (six screenshots at 0.2 s intervals, none of them with the box's
+light-blue border anywhere on screen), and the in-game HUD then showed
+multicoloured stripes instead of the two gauges.
+
+**Cause 1 — the tooltip was painted over.** `menu_open()` closing calls
+`stage_force_redraw()` → `MAP_scrollToEx(..., TRUE)`. SGDK implements the row
+and column writes through `DMA_allocateTemp` (`srclib/src/map.c`
+`setMapRow/setMapColumn`), so the whole visible plane is *queued* and lands at
+the next vblank — after `tooltip_update()` had written the box and the name.
+The port already knew this (the start sequence flushes before drawing
+"MISSION STARTED!"), the tooltip did not.
+
+**Cause 2 — the HUD garble.** `TOOLTIP_TILE_BASE` was 912, "the free window the
+dialog panel uses". That window is inside the **sprite pool**: `SPR_initEx`
+puts it at `TILE_FONT_INDEX - size` = 672..1439, and by the time the menu had
+been used the stage's enemies/objects had taken the low tiles, so the HUD bar
+sprites owned 912..923. The tooltip's `VDP_loadTileData(.., 912, 8)` then wrote
+the box art over the bars' tiles; the bars only re-upload on a frame change, so
+they kept showing that art (the weapon icon's orange/white plus the box
+colours). Same latent bug for the boss dialog panel (912..928) and the config
+screen's black tile (935), both reachable while sprites are live.
+
+**Fix**:
+1. `tooltip_update()` flushes the DMA queue (`SYS_doVBlankProcess()`) before
+   writing its cells, so the menu's queued repaint happens first.
+2. Fixed tile blocks moved out of the sprite pool into a reserved block below
+   it (`src/stage.h` owns the layout): 672..683 tooltip (12), 684..700 dialog
+   panel (17), 701 config black tile (1); the pool is
+   `SPRITE_VRAM_TILES 738` = 702..1439. `tools/check_vram.py` uses the same
+   number, and still reports **0 transition fallbacks** (the tooltip redraws
+   its own tiles on every show, so a transition window sliding over them is
+   harmless).
+
+**Status**: fixed, needs one play-test (menu → change weapon → box + icon +
+name for 1.5 s, HUD intact, map restored afterwards).
+
 ## BUG-040 — Crash entering a stage from NEW GAME (out of heap, NULL map)
 
 **Report (2026-10-23)**: `crash_new_game.png` — ADDRESS ERROR, fault PC inside

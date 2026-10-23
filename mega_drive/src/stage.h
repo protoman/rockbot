@@ -33,11 +33,30 @@ static inline void spr_release_guarded(Sprite **p, u16 seen)
 //
 // VRAM layout is computed PER MAP at stage_load: the stage tileset at
 // TILE_USER_INDEX, the parallax tiles right after it, the animated frames
-// after those, and the sprite pool at TILE_SPRITE_INDEX (1440 - SPR_initEx
-// size; 504 -> 936..1439), font at 1440..1535. The old fixed blocks (tileset
+// after those, then SPR_TOOLTIP_TILE_BASE (12 tiles for the weapon tooltip),
+// then the sprite pool, font at 1440..1535. The old fixed blocks (tileset
 // <=144, bg at 160, anim at 520) overflowed on FROZEN LAIR map 1, whose
 // rendered map uses 202 unique 8x8 tiles; deriving the bases from the actual
 // resource sizes keeps every stage inside the sprite pool.
+
+// Fixed tile blocks the game writes by hand must live OUTSIDE the sprite
+// pool: the engine allocates from TILE_SPRITE_INDEX upward, so a hard-coded
+// index inside the pool silently overwrites whatever sprites own those tiles.
+// BUG-041: the weapon tooltip loaded its art at 912..923, which is where the
+// HUD bars had landed once the stage's objects/enemies had taken the low
+// tiles, so the HUD drew the tooltip box; the boss dialog panel was parked in
+// the same range (it clobbers the HUD bars in boss rooms).
+//
+// Layout below the pool (the stage layout ends at <=573, tools/check_vram.py):
+//   672..683  weapon tooltip  (SPR_TOOLTIP_TILE_BASE, 12 tiles)
+//   684..700  dialog panel    (dialogs.c DLG_PANEL_TILE_BASE, 17 tiles)
+//   701       config screen   (config.c CFG_BLACK_TILE, 1 tile - reachable
+//                               from the in-game menu, so the stage is live)
+//   702..1439 sprite pool     (TILE_FONT_INDEX - SPRITE_VRAM_TILES)
+#define SPR_TOOLTIP_TILE_BASE 672
+#define SPR_DLG_TILE_BASE     684
+#define SPR_CFG_BLACK_TILE    701
+#define SPRITE_VRAM_TILES     738
 #define BG_PAL        PAL3
 #define STAGE_ANIM_SLOT_MAX 17
 extern u16 stage_bg_tile_base;    // current map: first parallax tile
