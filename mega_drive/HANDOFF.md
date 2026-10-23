@@ -96,6 +96,11 @@ split, checkpoint frame difference, stage-select text palette). Run it after
 
 ## Reminders
 
+- **Check `make`'s EXIT CODE, not a grep for "error".** The m68k toolchain here
+  reports failures in Portuguese (`erro:`), so `... | grep -E "error|Error"`
+  printed nothing while main.c was broken; a stale `out/rom.bin` looked green
+  for two commits on 2026-10-22. Use `make; echo "exit=$?"` (and `grep -E
+  "erro:|error:"` for the messages).
 - Offline first: `make`, `tools/check_vram.py`, `tools/check_palettes.py`,
   `tools/audit_data.py`. Ask before every BlastEm launch (`blastem_debug.md`).
 - `make assets` regenerates `src/stage*_enemies.*`, `res/*` and rewrites the
