@@ -12,8 +12,16 @@ Language: **English** for all code, comments and docs.
 - Env: `source /mnt/ExtraData/Devel/SDK/MegaDrive/mars/mars.sh` (already in `~/.bashrc`)
   - exports `MARSDEV`, `GDK=$MARSDEV/m68k-elf`, adds `$GDK/bin` to PATH
 - Build this project: `cd mega_drive && make` → `out/rom.bin` (padded to 128K
-  multiples; 384K since the SFX PCM landed)
+  multiples; 2 MB since the music landed)
   - `make debug` / `make clean`. Makefile sets `GDK ?=` then includes `$GDK/makefile.gen`.
+  - **Verify the build by `make`'s EXIT CODE, never by grepping the log.** This
+    toolchain emits Portuguese messages: `erro:` (error) and `aviso:` (warning),
+    lowercase — `grep -E "error|Error"` matches nothing while the build is
+    failing, and a stale `out/rom.bin` then looks green. Use
+    `make > log 2>&1; echo "exit=$?"` and, if in doubt,
+    `grep -E "erro:|error:"`.
+  - Before launching an emulator, confirm `out/rom.bin` is newer than the newest
+    source file. Both mistakes have already wasted play-test runs.
 - Templates: `marsdev/examples/sgdk-skeleton` (origin of this project), `sgdk/SGDK/sample/` (official)
 - Known-fixed template bug: removed orphan `src/boot/rom_head.c` (conflicted with `sega.o`) and `main()` → `main(bool hardReset)`. Do not re-add `rom_head.c`.
 

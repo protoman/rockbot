@@ -53,14 +53,20 @@ Real mistakes + fixes. Add to this on every session.
   thing: that one *is* the 2-bit line number (`TILE_ATTR_FULL`/`<< 13`).
 
 **26. A failing build is invisible if you only grep the log for "error"**
-- This toolchain's messages are localised: gcc reports `Erro 1` (Portuguese), so
-  `make ... | grep -iE 'error|Error'` matched nothing while every build was in
-  fact failing. Four emulator runs then tested a *stale* ROM (it played the intro
-  logo screen), and the conclusion drawn from them — "the palette line is not
-  switching" — was wrong: the code had never been compiled.
-- Always check make's exit status (`if ! make > log 2>&1; then ... fi`, or look
-  for `Erro`) and, before launching an emulator, that `out/rom.bin` is **newer
-  than the newest source file**. Two seconds of checking beats four bad runs.
+- This toolchain's messages are localised (Portuguese, and **lowercase**):
+  `erro: 'x' undeclared ...` and `aviso: ...`. `make ... | grep -E "error|Error"`
+  matches nothing while the build is failing, and `ls -l out/rom.bin` still shows
+  a happy-looking ROM - the *previous* one. This has now cost two sessions:
+  four emulator runs once (stale ROM, wrong conclusion about the palette line)
+  and two commits on 2026-10-22 (boss-death ring, boss-intro skip fix), where
+  `main.c` had a missing declaration and never compiled.
+- The only reliable check is **make's exit status**:
+  `make > log 2>&1; echo "exit=$?"` (`if ! make; then ...; fi` in scripts).
+  Grep is for reading the messages, not for deciding pass/fail - and it must
+  include the localised words: `grep -E "erro:|error:"`.
+- Before any emulator run also confirm `out/rom.bin` is **newer than the newest
+  source file** (`find src res -newer out/rom.bin -name '*.[ch]' | head`).
+  Two seconds of checking beats four bad runs and a wrong handoff.
 
 **27. A self-consistent preview cannot validate an encoding**
 - The 60-colour title tool emitted its palette as `[blank] + colours` but built
