@@ -258,6 +258,56 @@ def main():
                 second_bg[s].append((m, "auto_scroll", auto))
                 print(f"stage {s} map {m}: bg0 auto_scroll mode {auto}")
 
+    # ---- AI *option* (param) coverage --------------------------------------
+    # "action supported" is not enough: WALK/FLY/JUMP carry an option in the
+    # state's param field and the port used to ignore it, so e.g. APE BOT's
+    # JUMP(TO_ROOF) became a plain hop and his ceiling walk never happened.
+    # Report every (action, option) pair the data uses and whether the port
+    # implements that option.
+    print("\n=== AI action options used by the data ===")
+    OPTION_NAMES = {
+        0: {0: "AHEAD", 1: "TURN", 2: "TO_PLAYER", 3: "TO_SAVED", 4: "TURN_TO_PLAYER",
+            5: "RANDOM_DIR", 6: "OPPOSITE_DIR", 7: "AHEAD_FALLING"},
+        1: {0: "AHEAD", 1: "TURN", 2: "UP", 3: "DOWN", 4: "TO_PLAYER", 5: "TO_SAVED",
+            6: "TO_RANDOM", 7: "FALL", 8: "DRILL_DOWN", 9: "VERTICAL_CENTER",
+            10: "PLAYER_DIR", 11: "OPPOSITE_WALL", 12: "OPPOSITE_SHOOT",
+            13: "TO_PLAYER_X", 14: "TO_PLAYER_Y", 15: "ZIGZAG_AHEAD",
+            16: "RANDOM_X", 17: "RANDOM_Y", 18: "SIN_AHEAD", 19: "DASH_TO_PLAYER",
+            20: "DOWN_RANDOM_DIAG", 21: "UP_UNTIL_GROUND", 22: "DOWN_INTO_GROUND",
+            23: "DIAGONAL_UP", 24: "DIAGONAL_DOWN"},
+        2: {0: "AHEAD", 1: "TO_RANDOM_POINT", 2: "UP", 3: "TO_PLAYER", 4: "TO_ROOF",
+            5: "TO_SAVED_POINT", 6: "TO_PLAYER_DIR", 7: "TELEPORT_IN",
+            8: "TELEPORT_OUT", 9: "LONG_AHEAD", 10: "ONCE"},
+    }
+    # What src/enemy.c really implements, per (action, option).
+    IMPLEMENTED = {
+        0: {0, 1, 2, 3, 4, 5, 6, 7},          # AI_WALK: all options
+        1: {0, 1, 2, 3, 4, 5, 7, 15},         # AI_FLY: AHEAD/TURN/UP/DOWN/TO_PLAYER/
+                                              # TO_SAVED/FALL/ZIGZAG (+TO_SAVED var)
+        2: set(),                             # AI_JUMP: the option is IGNORED
+    }
+    blob = open(os.path.join(DATA, "game_ai_list.dat"), "rb").read()
+    used_opts = defaultdict(set)              # (action, option) -> {npc ids}
+    for eid in range(len(blob) // AI_SZ):
+        b = blob[eid * AI_SZ:(eid + 1) * AI_SZ]
+        for i in range(20):
+            chance, action, _go, _delay, param = struct.unpack_from(
+                "<5i", b, 32 + i * 20)
+            if not (0 <= chance <= 100 and chance > 0 and 0 <= action <= 23):
+                continue
+            if action in OPTION_NAMES:
+                used_opts[(action, param)].add(eid)
+    option_gaps = 0
+    for (action, opt), npcs in sorted(used_opts.items()):
+        name = OPTION_NAMES[action].get(opt, "?%d" % opt)
+        ok = opt in IMPLEMENTED[action]
+        ids = ",".join(str(n) for n in sorted(npcs)[:8])
+        print(f"AI_ACTION_{AI_ACTION.get(action, action)} option {opt} ({name})"
+              f" used by npc {ids}{'':<3} -> {'ok' if ok else 'MISSING in enemy.c'}")
+        if not ok:
+            option_gaps += 1
+    print(f"option gaps: {option_gaps}")
+
     # ---- sprite animation indices vs the sheets rescomp gets --------------
     # A sheet is shared by every stage that spawns the art, and the castle
     # stages spawn the bosses as plain enemies (3 rows). If a 3-row sheet wins

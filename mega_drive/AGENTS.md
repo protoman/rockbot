@@ -233,6 +233,18 @@ from already-captured screenshots/assets over running the emulator again.
 - The editor shows the same 14 rows the game uses; Edit > Shift Down / Shift Up
   move the room's tiles, objects and enemies by one row (links are untouched).
 
+## PC parity audit (never wait for a play-test to find these)
+
+Before saying a feature is "done", read the PC enum/field the converter
+consumes and check the port implements **every value the data uses**, not just
+the action name. `pc_gaps.md` is the running list; regenerate its data half
+with `tools/audit_data.py` (AI actions AND their option field, objects,
+terrain) plus `tools/check_palettes.py` / `tools/check_vram.py`.
+
+The APE BOT ceiling jump is the cautionary case: the AI action `JUMP` was
+"supported", but its *option* `TO_ROOF` was ignored, so a movement the PC has
+turned into a plain hop and only a play-test noticed.
+
 ## Port status
 
 - Feature-by-feature comparison with the PC game (boot, loop, player, enemies,
