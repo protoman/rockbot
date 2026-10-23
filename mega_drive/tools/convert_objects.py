@@ -90,6 +90,12 @@ OBJ_CHECKPOINT = 29
 OBJ_STAGE_BOSS_TELEPORTER = 32
 OBJ_ITEM_FLY = 12
 OBJ_ITEM_JUMP = 13
+# RockDroid2 object types (no RockDroid1 stage spawns them; the behaviour is in
+# src/object.c so its maps convert as soon as its stages are added).
+OBJ_ACTIVE_SLIM_PLATFORM = 27
+OBJ_DAMAGING_PLATFORM = 28
+OBJ_CRUSHER = 33
+EXTRA_TYPES = (OBJ_ACTIVE_SLIM_PLATFORM, OBJ_DAMAGING_PLATFORM, OBJ_CRUSHER)
 # Player item objects (COIL FROG / JET EAGLE) are referenced by object id,
 # not spawned by a map; stage 0 emits their art once for all stages.
 ITEM_OBJECT_IDS = (16, 17)
@@ -191,6 +197,7 @@ def main():
         typ = struct.unpack_from("<b", blob, s["id"] * OBJ_SZ + 60)[0]
         if typ not in GRAVITY_TYPES and typ not in PLATFORM_TYPES and \
            typ not in TELEPORT_TYPES and typ not in HAZARD_TYPES and \
+           typ not in EXTRA_TYPES and \
            typ not in (OBJ_ITEM_FLY, OBJ_ITEM_JUMP):
             print(f"skip spawn id={s['id']} map={s['map']} pos=({s['x']},{s['y']}): "
                   f"unsupported type {typ}")

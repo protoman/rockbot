@@ -59,11 +59,12 @@ PC-parity backlog, `PLAN.md` the roadmap.
    same path, and `tools/check_terrain.py` fails if a map uses a terrain id the
    engine does not handle. Nothing paints terrain 9 yet, and there is no
    converted map to try it on, so it is code-verified only.
-2. **RockDroid2 readiness** (`pc_gaps.md` -> "RockDroid2"): the sequel's AI_FLY
-   options 13/14/19 are implemented; its missing pieces are `OBJ_CRUSHER` (33),
-   `ACTIVE_OPENING_SLIM_PLATFORM` (27), `DAMAGING_PLATFORM` (28), the second
-   background layer (stage 3/14) and its 15 extra enemies. `audit_data.py
-   --game RockDroid2` lists what each stage needs.
+2. **RockDroid2 readiness** (`pc_gaps.md` -> "RockDroid2"): its AI_FLY options
+   13/14/19, the slim/damaging platforms (27/28), the crusher (33) and the
+   foreground layer (`backgrounds[1]`, composited into bg0) are implemented.
+   Left: bg0 `auto_scroll` modes (stage 3 uses LEFT), and its 15 extra enemies,
+   which need `tools/import_pc_art.py` run over RockDroid2's art first.
+   `audit_data.py --game RockDroid2` lists what each stage needs.
 3. **Small real leftovers** (`pc_gaps.md`): the PC's special tooltip names for
    the tanks/COIL/JET, and the "characters unlocked" warning before players 3/4.
 4. Play-test everything above (ask before launching BlastEm; one run covers:

@@ -40,6 +40,7 @@ typedef struct {
     u16 duration;    // frames left before release (0 = permanent)
     s8 dir;          // COIL/JET facing
     u8 drain;        // JET ammo drain counter
+    fix16 fall_speed;// crusher (33) accelerating fall
 } MapObj;
 
 static MapObj objs[OBJECT_MAX];
@@ -58,9 +59,20 @@ static bool auto_anim(u8 type)
 static bool is_platform(u8 type)
 {
     // disappearing/active blocks, fall/fly/LR platforms, destructible wall,
-    // boss door, JET EAGLE. COIL (13) is a trigger, not a platform.
+    // boss door, JET EAGLE, damaging platform (RockDroid2 28). COIL (13) is a
+    // trigger, not a platform. The slim platform (27) is one-way and is
+    // handled by slim_solid_now() instead, so it does not block from the side.
     return type == 1 || type == 2 || type == 10 || type == 11 || type == 12 ||
-           type == 14 || type == 22 || type == 30;
+           type == 14 || type == 22 || type == 28 || type == 30;
+}
+
+// PC OBJ_ACTIVE_OPENING_SLIM_PLATFORM (27) only collides with its TOP edge:
+// classmap.cpp:1560 skips it while the character moves up and the slim branch
+// (classmap.cpp:1447) clears every other block. Modelled as a one-way
+// platform: landing and standing only, no side or ceiling collision.
+static bool slim_solid_now(const MapObj *o)
+{
+    return o->active && o->def->type == 27 && o->visible;
 }
 
 // PC object::gravity() (objects/object.cpp:228): every object type not in
@@ -224,6 +236,7 @@ void objects_reset(void)
             o->vis_t = obj_ms_frames(d->timer);
         }
         o->duration = 0;
+        o->fall_speed = 0;
         o->spr = SPR_addSprite(d->spr, o->x - camera.x, o->y - camera.y,
                                TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
         spr_seen = spr_gen;
@@ -298,6 +311,7 @@ void objects_drop_item(s16 cx, s16 cy, bool subboss)
     o->visible = TRUE;
     o->vis_t = 0;
     o->hp = 0;
+    o->fall_speed = 0;
     o->duration = 270;
 
     s16 sx = o->x - camera.x;
@@ -360,6 +374,7 @@ bool objects_spawn_weapon_item(bool jet)
     o->hp = 0;
     o->duration = jet ? 270 : 150;   // PC 4500ms / 2500ms
     o->drain = 0;
+    o->fall_speed = 0;
     o->spr = SPR_addSprite(d->spr, o->x - camera.x, o->y - camera.y,
                            TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
     if (o->spr) {
@@ -475,12 +490,23 @@ void objects_player_land(s16 l, s16 r, s16 top)
 {
     for (u8 i = 0; i < obj_count; i++) {
         MapObj *o = &objs[i];
-        if (!o->active || !is_platform(o->def->type) || o->y != top)
-            continue;
+        if (!o->active || o->y != top) continue;
+        if (!is_platform(o->def->type) && !slim_solid_now(o)) continue;
         // match the X range too: two platforms can share a top edge, and the
         // old y-only test always started the first one in the array
         if (l >= o->x + o->def->w || r <= o->x)
             continue;
+        // RockDroid2 platforms that react to being stood on without moving:
+        // the slim platform opens, the damaging one starts its damage cycle
+        // (PC object::start() from classmap.cpp:1715/1740).
+        if (o->def->type == 27 || o->def->type == 28) {
+            if (!o->started) {
+                o->started = TRUE;
+                o->state = 0;
+                o->vis_t = 0;
+            }
+            return;
+        }
         if (o->state == OBJ_STATE_STAND) {
             o->started = TRUE;
             o->state = OBJ_STATE_MOVE;
@@ -513,6 +539,14 @@ s16 objects_land_check(s16 l, s16 r, s16 head_new, s16 feet_new)
             l <= o->x + o->def->w && r >= o->x)
             return o->y;
     }
+    // slim platforms last: they are one-way, but still land the player
+    for (u8 i = 0; i < obj_count; i++) {
+        MapObj *o = &objs[i];
+        if (!slim_solid_now(o)) continue;
+        if (head_new <= o->y && feet_new > o->y &&
+            l <= o->x + o->def->w && r >= o->x)
+            return o->y;
+    }
     return -1;
 }
 
@@ -520,7 +554,7 @@ bool objects_stand_check(s16 l, s16 r, s16 feet)
 {
     for (u8 i = 0; i < obj_count; i++) {
         MapObj *o = &objs[i];
-        if (!solid_now(o)) continue;
+        if (!solid_now(o) && !slim_solid_now(o)) continue;
         if (o->y == feet && l < o->x + o->def->w && r > o->x)
             return TRUE;
     }
@@ -720,6 +754,64 @@ bool objects_try_hit(s16 l, s16 t, s16 r, s16 b, u8 dmg)
     return FALSE;
 }
 
+// PC object::move_crusher (object.cpp:1343) + check_player_crushed (:1376).
+// The crusher starts embedded in the ceiling, falls while accelerating 0.1
+// px/frame^2, waits CRUSHER_DELAY on the ground, then climbs back at the
+// object's speed. Whoever it catches between it and the floor dies
+// (classmap.cpp:1644 -> damage(999), the port's player_crush()).
+// The PC also paints the shaft it leaves behind (show_crusher: frame 1
+// repeated up to the start point). The port draws the body only: the shaft
+// would need a plane redraw on every step.
+#define CRUSHER_WAIT_FRAMES 48      // PC CRUSHER_DELAY 800 ms
+#define CRUSHER_X_TOL 3             // PC CRUSHER_X_TOLERANCE
+#define CRUSHER_Y_TOL 4             // PC CRUSHER_Y_TOLERANCE
+
+static void crusher_update(MapObj *o)
+{
+    const ObjectDef *d = o->def;
+    const s16 cx = o->x + d->w / 2;
+    const u16 under = stage_terrain_at(stage_current_map, cx >> 4,
+                                       (o->y + d->h) >> 4);
+    switch (o->state) {
+    case 0:                         // INIT: drop out of the ceiling
+        o->y += F16_toInt(o->fall_speed);
+        o->fall_speed += FIX16(0.1);
+        if (under == TERRAIN_UNBLOCKED) o->state = 1;
+        break;
+    case 1:                         // FOUND_FREE_WALL: fall to the ground
+        o->y += F16_toInt(o->fall_speed);
+        o->fall_speed += FIX16(0.1);
+        if (under != TERRAIN_UNBLOCKED) {
+            o->state = 2;
+            o->vis_t = CRUSHER_WAIT_FRAMES;
+        }
+        break;
+    case 2:                         // FOUND_HIT_GROUND: rest on it
+        o->fall_speed = 0;
+        if (o->vis_t && --o->vis_t == 0) o->state = 3;
+        break;
+    default:                        // RETURNING: climb back to the ceiling
+        o->y -= (d->speed ? d->speed : 1);
+        if (o->y <= o->home_y) {
+            o->y = o->home_y;
+            o->state = 0;
+            o->fall_speed = 0;
+        }
+        break;
+    }
+
+    if (o->state > 1) return;       // only a moving crusher kills
+    s16 pl, pt, pr, pb;
+    player_get_box(&pl, &pt, &pr, &pb);
+    if (pt > o->y + d->h - CRUSHER_Y_TOL) return;
+    // PC tests both bottom corners of the player box against the crusher's
+    // width, minus a small tolerance on each side.
+    const s16 lo = o->x + CRUSHER_X_TOL;
+    const s16 hi = o->x + d->w - CRUSHER_X_TOL;
+    if ((pl >= lo && pl <= hi) || (pr >= lo && pr <= hi))
+        player_crush();
+}
+
 void objects_update(void)
 {
     s16 pl, pt, pr, pb;
@@ -772,6 +864,7 @@ void objects_update(void)
         // ---- platform state machine (before pickup: player box is fresh) --
         if (is_platform(d->type) && o->started)
             obj_move(o);
+        if (d->type == 33) crusher_update(o);
 
         // OBJ_MOVING_PLATFORM_LEFTRIGHT: starts when the player stands on it,
         // ping-pongs over +/- limit, carrying the player.
@@ -842,6 +935,51 @@ void objects_update(void)
                 o->frame = 0;
                 o->anim_t = 0;
                 sfx_play(SFX_BLOCK_APPEAR);
+            }
+        } else if (d->type == 27) {
+            // PC object.cpp:1039 (OBJ_ACTIVE_OPENING_SLIM_PLATFORM): once the
+            // player stands on it, it opens for the object's timer and comes
+            // back DISAPPEARNING_HIDDEN_TIME (2000 ms) later. A hidden slim
+            // platform keeps updating (object.cpp:426 keeps its exception).
+            if (o->started) {
+                u8 lim = d->timer ? obj_ms_frames(d->timer)
+                                  : BLOCK_VISIBLE_FRAMES;
+                if (++o->vis_t >= lim) {
+                    o->vis_t = 0;
+                    o->visible = FALSE;
+                    o->started = FALSE;
+                }
+            } else if (!o->visible) {
+                if (++o->vis_t >= BLOCK_HIDDEN_FRAMES) {
+                    o->vis_t = 0;
+                    o->visible = TRUE;
+                    o->frame = 0;
+                    o->anim_t = 0;
+                    o->anim_play = 1;
+                }
+            }
+        } else if (d->type == 28) {
+            // PC object.cpp:1051 (OBJ_DAMAGING_PLATFORM): the timer ticks
+            // from the moment the player stood on it; when it expires whoever
+            // is on top takes TOUCH_DAMAGE_SMALL, the second tick resets it.
+            if (o->started) {
+                u8 lim = d->timer ? obj_ms_frames(d->timer) : 6;
+                if (++o->vis_t >= lim) {
+                    o->vis_t = 0;
+                    if (o->state == 0) {
+                        o->state = 1;
+                        o->frame = (d->frames > 1) ? 1 : 0;
+                        if (o->spr) SPR_setFrame(o->spr, o->frame);
+                        if (player_on_top(o))
+                            player_take_damage(TOUCH_DAMAGE_SMALL);
+                    } else {
+                        o->state = 0;
+                        o->started = FALSE;
+                        o->frame = 0;
+                        if (o->spr) SPR_setFrame(o->spr, 0);
+                        o->anim_t = 0;
+                    }
+                }
             }
         }
         if (o->spr) {
@@ -983,7 +1121,10 @@ void objects_update(void)
         }
 
         // ---- animation ----------------------------------------------------
-        if (auto_anim(d->type) || o->started || o->anim_play) {
+        // The damaging platform's two frames are its two states (idle/damage),
+        // driven by the state machine above, so it must not auto-advance.
+        if (d->type != 28 && (auto_anim(d->type) || o->started ||
+                              o->anim_play)) {
             if (++o->anim_t >= d->frame_t) {
                 o->anim_t = 0;
                 if (o->frame + 1 < d->frames) {

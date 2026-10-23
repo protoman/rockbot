@@ -142,6 +142,13 @@ def read_map(stage_n, map_n):
     bg0_adjust_y, = struct.unpack("<h", rec[30:32])
     bg0_speed = struct.unpack("<b", rec[32:33])[0]
     bg0_auto = rec[33]      # E_BG_SCROLL_MODE: 0 = NONE (static, PC)
+    # backgrounds[1] (offset 36) is a SECOND scrolling layer. The MD has only
+    # two free scrollable planes (BG_A = map, BG_B = bg0), so the two layers
+    # have to share one scroll rate: convert_background() composites it.
+    rec1 = raw[36:72]
+    bg1_name = rec1[0:30].split(b"\0")[0].decode("latin1")
+    bg1_adjust_y, = struct.unpack("<h", rec1[30:32])
+    bg1_speed = struct.unpack("<b", rec1[32:33])[0]
     t = raw[MAP_TILES_OFF:MAP_TILES_OFF + MAP_W * MAP_H_SRC * TILE_STRUCT]
     cells = []
     for x in range(MAP_W):
@@ -152,7 +159,8 @@ def read_map(stage_n, map_n):
             t1x, t1y, t3x, t3y = struct.unpack("bbbb", v[1:5])
             col.append((locked, t1x, t1y, t3x, t3y))
         cells.append(col)
-    return bg, (bg0_name, bg0_adjust_y, bg0_speed, bg0_auto), cells
+    return (bg, (bg0_name, bg0_adjust_y, bg0_speed, bg0_auto),
+            (bg1_name, bg1_adjust_y, bg1_speed), cells)
 
 
 # ---- colourcycle ---------------------------------------------------------
@@ -296,7 +304,7 @@ def build_palette(rgbs):
 
 def collect_map(map_n):
     """Return (cells, used-tile coords) for one map."""
-    _, _, cells = read_map(STAGE_INDEX, map_n)
+    _, _, _, cells = read_map(STAGE_INDEX, map_n)
     used, seen = [], set()
     for x in range(MAP_W):
         for y in range(MAP_H):
@@ -393,15 +401,39 @@ def convert_map(map_n, ts_px, cells, used, palette, lut, frame0_px, slot_of,
 BG_PLANE_W = 512  # BG_B plane is 64 tiles wide; art is baked to this width
 
 
-def convert_background(map_n, name, adjust_y, speed):
+def background_exists(name):
+    """TRUE for a real background file. The PC data has records with unused
+    slots full of 0xFF bytes (RockDroid2 stage 14), which are not names."""
+    if not name or not name.lower().endswith(".png"):
+        return False
+    if not all(c.isalnum() or c in "_-." for c in name):
+        return False
+    return os.path.exists(os.path.join(DATA, "images/map_backgrounds", name))
+
+
+def convert_background(map_n, name, adjust_y, speed, over=None):
     """Bake one parallax background to 512px wide (art + first 192 cols
     appended) so the plane wraps naturally at its own width — no runtime
-    seam handling. Own palette (PAL3 at runtime)."""
+    seam handling. Own palette (PAL3 at runtime).
+
+    `over` is the PC's backgrounds[1] (name, adjust_y, speed): a second layer
+    composited on top of this one. It is a compromise, not a port - see the
+    caller."""
     src = Image.open(os.path.join(DATA, "images/map_backgrounds", name)).convert("RGBA")
     h = (src.height + 7) & ~7   # SGDK wants height as a multiple of 8
     bg = Image.new("RGBA", (BG_PLANE_W, h), (0, 0, 0, 255))
     bg.paste(src, (0, 0))
     bg.paste(src.crop((0, 0, BG_PLANE_W - src.width, src.height)), (src.width, 0))
+    if over:
+        o_name, o_adj, o_speed = over
+        top = Image.open(os.path.join(DATA, "images/map_backgrounds",
+                                      o_name)).convert("RGBA")
+        dy = o_adj - adjust_y
+        for x in range(0, BG_PLANE_W, max(1, top.width)):
+            bg.paste(top, (x, dy), top)
+        print(f"  bg{map_n}: layer1 {o_name} {top.size} composited at "
+              f"dy={dy} (its own speed {o_speed} vs {speed} cannot be "
+              f"independent on one plane)")
     px = bg.load()
     rgbs = [(md_round(px[x, y][0]), md_round(px[x, y][1]), md_round(px[x, y][2]))
             for y in range(bg.height) for x in range(bg.width)]
@@ -675,14 +707,15 @@ def main():
 
     bg_infos, bg_names, bg_colors = [], [], []
     for m in range(MAPS_PER_STAGE):
-        bg_rgb, bg0, _ = read_map(STAGE_INDEX, m)
+        bg_rgb, bg0, bg1, _ = read_map(STAGE_INDEX, m)
         # PC classmap.cpp:244 clears the screen with map_data.background_color
         # before drawing the background image: everything the image does not
         # cover is this colour (the MD backdrop, CRAM 0).
         bg_colors.append(tuple(md3(v) for v in bg_rgb))
         name, adj, spd, auto = bg0
+        over = bg1 if background_exists(bg1[0]) else None
         if name:
-            info = convert_background(m, name, adj, spd)
+            info = convert_background(m, name, adj, spd, over)
             info["auto_scroll"] = auto
             bg_infos.append(info)
             bg_names.append(name)

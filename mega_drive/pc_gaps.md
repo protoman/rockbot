@@ -225,19 +225,41 @@ its stages are added:
   which RockDroid1 never did. Implemented in `enemy.c`
   (`AI_FLY_TO_PLAYER_X/_Y`, `AI_FLY_DASH`, 2x speed, no dash sprite effect).
   `audit_data.py` now reports option gaps for both games (`option gaps: 0`).
-- [ ] **`OBJ_CRUSHER` (type 33)**: 7x in stage 5 ("Circus Crusher"). PC
-      `object.cpp`: drops and kills whatever it presses against the ground
-      (`OBJ_CRUSHER`, `defines.h:394`), and needs its own art
-      (`images/objects/`).
-- [ ] **`OBJ_ACTIVE_OPENING_SLIM_PLATFORM` (27)**: 5x in stage 5, 5x in
-      stage 11 — a thin platform that opens after being activated.
-- [ ] **`OBJ_DAMAGING_PLATFORM` (28)**: 9x in stage 11 — a moving platform that
-      damages on contact.
-- [ ] **Second background layer**: 6 maps in stage 3 and 1 in stage 14 name a
-      `backgrounds[1]`. `tools/convert_stage.py` reads `backgrounds[0]` only,
-      and a second scrolling layer has no plane left (BG_A = map,
-      BG_B = bg0). Needs either compositing (only valid when both layers share
-      a speed) or a CRAM/plane budget decision.
+- [x] **`OBJ_ACTIVE_OPENING_SLIM_PLATFORM` (27)** (2026-10-23): 5x in stage 5,
+      5x in stage 11. Modelled as a one-way platform (PC `classmap.cpp:1447/
+      1560`: no side or ceiling block, no collision while moving up); standing
+      on it starts the PC's open cycle — visible for the object's timer, then
+      gone for `DISAPPEARNING_HIDDEN_TIME` (2000 ms) and back
+      (`object.cpp:1039`).
+- [x] **`OBJ_DAMAGING_PLATFORM` (28)** (2026-10-23): 9x in stage 11. Carries the
+      player like any platform; once stood on, the damage tick runs
+      (`object.cpp:1051`): whoever is on top takes `TOUCH_DAMAGE_SMALL`, then
+      one more tick resets it. Its two frames are the idle/damage states.
+- [x] **`OBJ_CRUSHER` (type 33)** (2026-10-23): 7x in stage 5. Falls out of the
+      ceiling accelerating 0.1 px/frame^2, rests `CRUSHER_DELAY` (800 ms) on
+      the ground and climbs back at the object's speed
+      (`object::move_crusher`, `object.cpp:1343`); anything it catches between
+      it and the floor dies via `player_crush()` (`check_player_crushed`,
+      `classmap.cpp:1644`). **Divergence**: the PC also paints the shaft above
+      the crusher (`show_crusher`, frame 1 repeated), which would need a plane
+      redraw per step; the port draws the body only.
+- [x] **Second background layer** (2026-10-23): `backgrounds[1]` is the PC's
+      *foreground* layer (`classMap::draw_foreground_layer`, `classmap.cpp:664`),
+      drawn over the map with its own speed and auto-scroll mode. Stage 3 (all
+      three maps) is the only user, `fg_clouds.png` at speed 4 over
+      `valkyrie.png` at 18. The MD has two scrollable planes (BG_A = map,
+      BG_B = bg0), so `tools/convert_stage.py` now composites the layer into
+      the bg0 bake (`convert_background(..., over=...)`), which puts it behind
+      the map instead of in front and scrolls it at bg0's rate. Print-out says
+      so on every conversion. RockDroid1 data has no `backgrounds[1]`, so
+      nothing changes for the converted stages.
+- [ ] **bg0 `auto_scroll` mode** (`E_BG_SCROLL_MODE`, `defines.h:1332`): the
+      port stores `StageBgInfo.auto_scroll` but derives the bg scroll from the
+      camera only (`stage.c:625`). Stage 3 of RockDroid2 uses mode 3 (LEFT) at
+      speed 18, i.e. the backdrop should scroll by itself at 1.8 px/frame; on
+      the port it would follow the camera instead. Modes 1/2/5 (UP/DOWN/
+      DIAGONAL) would also need the plane's vertical scroll and its 256 px
+      wrap. No converted stage uses any of them.
 - **Enemies**: npc ids up to 75 (RockDroid1 stops at 60), i.e. new art and
   `game_ai_list` rows to convert; every AI *action* they use is already
   implemented.

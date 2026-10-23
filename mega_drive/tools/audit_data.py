@@ -64,6 +64,7 @@ OBJ_TYPE = {
     26: "FINAL_BOSS_TELEPORTER", 27: "ACTIVE_OPENING_SLIM_PLATFORM",
     28: "DAMAGING_PLATFORM", 29: "CHECKPOINT", 30: "BOSS_DOOR",
     31: "PLATFORM_TELEPORTER", 32: "STAGE_BOSS_TELEPORTER",
+    33: "CRUSHER",
 }
 OBJ_SUPPORT = {
     1: "ok (LR platform)", 2: "ok (visible/hidden cycle)",
@@ -75,6 +76,10 @@ OBJ_SUPPORT = {
     22: "ok (destructible wall)", 23: "ok (special tank)",
     24: "ok (beam)", 25: "ok (beam)", 26: "ok (castle teleporter)",
     29: "ok", 30: "ok (boss door)", 31: "ok (platform teleporter)", 32: "ok",
+    # RockDroid2 types, added 2026-10-23 (src/object.c)
+    27: "ok (one-way, opens when stood on)",
+    28: "ok (damages whoever stands on it)",
+    33: "ok (crusher: body only, the PC's shaft fill is not drawn)",
 }
 
 AI_ACTION = {
@@ -182,6 +187,10 @@ def layer1_flags():
             raw = maps[off:off + MAP_STRUCT]
             # backgrounds[0] at 0, backgrounds[1] at 36 (see convert_stage)
             name = cstr(raw[36:66])
+            # unused slots hold 0xFF bytes (RockDroid2 stage 14), not names
+            if not (name.lower().endswith(".png") and
+                    all(c.isalnum() or c in "_-." for c in name)):
+                name = ""
             speed = struct.unpack_from("<b", raw, 68)[0] if len(raw) > 68 else 0
             auto = raw[33]      # bg0 auto_scroll mode (PC E_BG_SCROLL_MODE)
             out[s].append((name, speed, auto))
@@ -259,7 +268,8 @@ def main():
             for a, n in bad.items():
                 missing_ai[s][a] += n
 
-    print("\n=== second background layer (port reads bg0 only) ===")
+    print("\n=== foreground layer bg1 / bg0 auto-scroll "
+          "(convert_stage composites bg1 into bg0) ===")
     for s in range(STAGES):
         for m, (name, speed, auto) in enumerate(layer1[s]):
             if name:
