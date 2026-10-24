@@ -613,8 +613,11 @@ static Enemy *ai_spawn_npc(Enemy *e, u8 npc_id, bool at_self)
 {
     for (u8 i = 0; i < stage_def->enemy_def_count; i++) {
         if (stage_def->enemy_defs[i].npc_id != npc_id) continue;
+        // enemy_add() takes the DATA direction byte (0 = left, 1 = right),
+        // not the signed runtime dir: passing -1 became 255, i.e. "right", so
+        // every child of a left-facing parent spawned facing right.
         return enemy_add(i, at_self ? e->x : e->x + e->dir * 24, e->y,
-                         e->x_min, e->x_max, e->dir);
+                         e->x_min, e->x_max, (e->dir < 0) ? 0 : 1);
     }
     return NULL;
 }
@@ -781,17 +784,17 @@ static bool ai_action_run(Enemy *e)
             e->y = ny;
             return FALSE;
         }
-        // airborne: hop toward the option's destination at walk speed
+        // airborne: hop toward the option's destination at walk speed. Uses
+        // the shared 50 Hz stepper, so an airborne enemy moves at the same
+        // rate as a walking one (the old per-frame `d->speed` was 20% fast)
+        // and still stops at walls and map objects.
         if (e->jump_opt == AI_JUMP_TO_PLAYER) e->dest_x = player.x;
         if (e->jump_opt != AI_JUMP_UP) {
             e->dir = sign16(e->dest_x - e->x);
             if (e->dir == 0) e->dir = (player.x > e->x) ? 1 : -1;
-            s16 lead = (e->dir > 0) ? e->x + d->box_l + d->box_w - 1
-                                    : e->x + d->box_l;
-            if (!box_hits_solid(lead, e->y + d->box_t,
-                                lead, e->y + d->box_t + d->box_h))
-                e->x += e->dir * (s16)d->speed;
         }
+        step_axis(e, &e->x, e->dest_x, TRUE, TRUE);   // TRUE = arrived
+
 
         e->vy += ENEMY_GRAVITY;
         s16 dy = F16_toInt(e->vy);
@@ -1180,6 +1183,10 @@ static Enemy *enemy_add(u8 def_i, s16 x, s16 y, s16 x_min, s16 x_max, u8 dir)
     e->x_min = x_min;
     e->x_max = x_max;
     e->dir = (dir == 0) ? -1 : 1;
+    // Guard against a chain that leaves the direction at 0 (a spawner with no
+    // facing passed one): AI_JUMP AHEAD and AI_WALK AHEAD would then move by
+    // dir*range = 0, the enemy hopping straight up in place (report
+    // 2026-10-24, ANGRY BUNNY).
     e->vy = 0;
     snap_out_of_floor(e);
     e->hp = d->hp;
