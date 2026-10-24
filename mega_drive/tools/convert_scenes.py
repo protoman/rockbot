@@ -70,6 +70,29 @@ def read(name, size):
     return [data[i:i + size] for i in range(0, len(data), size)]
 
 
+# Ops src/scene.c implements. MOVE_VIEWPOINT / SHOW_ANIMATION / SUBSCENE are
+# declared by the PC format but no scene in this data plays them except the
+# LAB opening (scene 1), which the port does not run; they are listed so a
+# future data export fails loudly instead of being skipped silently.
+PLAYABLE = {"CLEAR_SCREEN", "CLEAR_AREA", "MOVE_IMAGE", "SHOW_TEXT",
+            "PARALLAX", "PLAY_MUSIC", "STOP_MUSIC", "PLAY_SFX"}
+KNOWN_UNUSED = {"MOVE_VIEWPOINT", "SHOW_ANIMATION", "SUBSCENE"}
+PLAYED_SCENES = {0, 2, 3, 4, 5}       # SCENE_OPENING_UNBEATEN + the endings
+
+
+def report_ops(scenes):
+    for i, (name, ops) in enumerate(scenes):
+        for (typ, seek, delay, rt, rv, bg) in ops:
+            op = OP_NAMES[typ] if typ < len(OP_NAMES) else f"op{typ}"
+            if op in PLAYABLE:
+                continue
+            if i in PLAYED_SCENES:
+                sys.exit(f"scene {i} ({name}) uses {op}, which src/scene.c "
+                         "does not implement - implement it or drop the scene")
+            if op not in KNOWN_UNUSED:
+                sys.exit(f"scene {i} ({name}) uses unknown op {op}")
+
+
 def read_scenes():
     out = []
     for i, r in enumerate(read("scenes_list.dat", SCENE_STRUCT)):
@@ -384,6 +407,7 @@ def emit_c(scenes, texts, clears, pars, images, baked, music):
 
 def main():
     scenes = read_scenes()
+    report_ops(scenes)
     texts = read_texts()
     clears = read_clears()
     pars = read_parallax()

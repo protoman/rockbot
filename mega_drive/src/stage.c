@@ -103,10 +103,44 @@ s16 stage_bg_hscroll;
 s16 stage_bg_vscroll;
 
 // Draw the parallax background of the given map on BG_B.
+// PC E_BG_SCROLL_MODE (defines.h:1332): the background can move on its own,
+// independent of the camera. The PC accumulates bg_scroll per frame; here the
+// offset is derived from the frames since the map loaded, which cannot drift
+// and is also valid in the middle of a room transition.
+static u16 bg_tick;
+static s16 bg_base_vscroll;
+
+static s16 bg_auto_hscroll(u8 map)
+{
+    const StageBgInfo *i = &stage_def->bg_info[map];
+    if (i->auto_scroll != 3 && i->auto_scroll != 4 && i->auto_scroll != 5)
+        return 0;
+    const s8 spd = i->speed ? i->speed : 1;
+    s32 d = ((s32)bg_tick * spd) / 10;
+    d %= 512;
+    return (i->auto_scroll == 4) ? (s16)d : (s16)-d;   // 3 LEFT, 5 DIAGONAAL
+}
+
+static s16 bg_auto_vscroll(u8 map)
+{
+    const StageBgInfo *i = &stage_def->bg_info[map];
+    if (i->auto_scroll != 1 && i->auto_scroll != 2 && i->auto_scroll != 5)
+        return 0;
+    const s8 spd = i->speed ? i->speed : 1;
+    s32 d = ((s32)bg_tick * spd) / 10;
+    d %= 256;                      // the plane is 32 rows tall
+    return (i->auto_scroll == 2) ? (s16)d : (s16)-d;   // 1 UP, 2 DOWN
+}
+
+s16 stage_bg_auto_hscroll(u8 map) { return bg_auto_hscroll(map); }
+s16 stage_bg_auto_vscroll(u8 map) { return bg_auto_vscroll(map); }
+void stage_bg_tick(void) { bg_tick++; }
+
 static void bg_load(u8 map_index)
 {
     VDP_clearPlane(BG_B, TRUE);
     stage_bg_hscroll = 0;
+    bg_tick = 0;
     VDP_setHorizontalScroll(BG_B, 0);
 
     const StageBgInfo *info = &stage_def->bg_info[map_index];
@@ -455,10 +489,14 @@ void stage_load(u8 map_index)
     // and was lost (art sat at y=0: moon at top, skyline mid-screen).
     // The -16 corrects for the cropped top PC row (240 -> 224 screen).
     if (stage_def->bg_info[map_index].present) {
-        stage_bg_vscroll = (s16)(-((s16)stage_def->bg_info[map_index].adjust_y - 16));
+        bg_base_vscroll =
+            (s16)(-((s16)stage_def->bg_info[map_index].adjust_y - 16));
+        stage_bg_vscroll =
+            (s16)(bg_base_vscroll + bg_auto_vscroll(map_index));
         VDP_setVerticalScroll(BG_B, stage_bg_vscroll);
     } else {
         stage_bg_vscroll = 0;
+        bg_base_vscroll = 0;
         VDP_setVerticalScroll(BG_B, 0);
     }
 }
@@ -637,12 +675,28 @@ void stage_update_camera(s16 focusX, s16 focusY)
     // and cannot drift/jitter when the camera sits on a deadzone edge (the
     // accumulated version moved the bg a few px on its own).
     const StageBgInfo *info = &stage_def->bg_info[stage_current_map];
-    if (info->present && info->speed) {
-        s32 scroll = -((s32)(camera.x + shake) * info->speed) / 10;
-        scroll %= 512;
-        if (scroll > 0) scroll -= 512;
-        stage_bg_hscroll = (s16)scroll;
-        VDP_setHorizontalScroll(BG_B, (s16)scroll);
+    if (info->present && (info->speed || info->auto_scroll)) {
+        s16 scroll;
+        if (info->auto_scroll == 3 || info->auto_scroll == 4 ||
+            info->auto_scroll == 5) {
+            // PC classmap.cpp:592: with an auto-scroll mode the background no
+            // longer follows the camera, it moves by speed/10 per frame.
+            scroll = bg_auto_hscroll(stage_current_map);
+        } else {
+            s32 v = -((s32)(camera.x + shake) * info->speed) / 10;
+            v %= 512;
+            if (v > 0) v -= 512;
+            scroll = (s16)v;
+        }
+        stage_bg_hscroll = scroll;
+        VDP_setHorizontalScroll(BG_B, scroll);
+    }
+    if (info->present && (info->auto_scroll == 1 ||
+                          info->auto_scroll == 2 ||
+                          info->auto_scroll == 5)) {
+        stage_bg_vscroll = (s16)(bg_base_vscroll +
+                                 bg_auto_vscroll(stage_current_map));
+        VDP_setVerticalScroll(BG_B, stage_bg_vscroll);
     }
 }
 

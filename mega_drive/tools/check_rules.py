@@ -60,6 +60,16 @@ RULES = [
      "wall_scroll_lock is built at map load)",
      [("src/object.c", r"if \(o->def->type != 30\) continue;")],
      [("src/object.c", r"if \(o->def->type != 30 \|\| o->started\) continue;")]),
+    ("bg-auto-scroll",
+     "PC E_BG_SCROLL_MODE: a background with an auto mode moves by itself "
+     "(LEFT used by RockDroid2 stage 3) instead of following the camera",
+     [("src/stage.c", r"bg_auto_hscroll\(stage_current_map\)"),
+      ("src/stage.c", r"stage_bg_auto_hscroll\(u8 map\)")],
+     []),
+    ("scene-op-guard",
+     "a scene op the port cannot run is reported, never skipped silently",
+     [("src/scene.c", r"scene %d: op %d not implemented")],
+     []),
     ("unlock-hint",
      "players 3/4 are limited until the game is finished, and the screen says "
      "so (PC select_player + game_config.game_finished)",

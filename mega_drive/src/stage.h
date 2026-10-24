@@ -146,6 +146,10 @@ void stage_redraw_bg(void);
 // art can place cells on that plane (the tooltip's opaque backing, BUG-042).
 extern s16 stage_bg_hscroll;
 extern s16 stage_bg_vscroll;
+// PC E_BG_SCROLL_MODE: background offset that does not follow the camera.
+s16 stage_bg_auto_hscroll(u8 map);
+s16 stage_bg_auto_vscroll(u8 map);
+void stage_bg_tick(void);       // once per frame (auto-scroll phase)
 void stage_redraw_anim(void);
 
 // Release the stage map (its deferred vblank updates would repaint the

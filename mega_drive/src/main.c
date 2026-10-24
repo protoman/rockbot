@@ -692,6 +692,7 @@ static RunResult runStage(u8 stage)
         prof_report();
 #endif
         // camera focus = centre of the player hitbox
+        stage_bg_tick();       // PC bg auto-scroll phase
         stage_update_camera((bl + br) / 2, (bt + bb) / 2);
         player_screen_edge_update();   // PC update_stage_scrolling
 

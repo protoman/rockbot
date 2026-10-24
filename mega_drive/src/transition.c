@@ -103,7 +103,13 @@ static void load_screen(Map *m, s16 cam, u16 *buf, s16 *hs, u16 *mt0_out)
 static s16 bg_offset(u8 map, s16 cam)
 {
     const StageBgInfo *info = &stage_def->bg_info[map];
-    if (!info->present || !info->speed) return 0;
+    if (!info->present) return 0;
+    // auto-scroll maps ignore the camera (PC classmap.cpp:592); stage.c owns
+    // the phase so both screens agree mid-transition.
+    if (info->auto_scroll == 3 || info->auto_scroll == 4 ||
+        info->auto_scroll == 5)
+        return stage_bg_auto_hscroll(map);
+    if (!info->speed) return 0;
     s32 v = -((s32)cam * info->speed) / 10;
     v %= 512;
     if (v > 0) v -= 512;

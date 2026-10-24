@@ -716,6 +716,25 @@ def main():
         over = bg1 if background_exists(bg1[0]) else None
         if name:
             info = convert_background(m, name, adj, spd, over)
+            # backgrounds[1] is composited into the bg0 bake (the MD has one
+            # parallax plane), and the PC scrolls that layer on its own
+            # (backgrounds[1].auto_scroll: UP/DOWN on stage 6 and on several
+            # RockDroid2 maps). When bg0 is static, the baked layer inherits
+            # the mode/speed so the composite still moves.
+            if not auto and bg1[0] and over is not None:
+                b1_auto = read_map(STAGE_INDEX, m)[2]
+                # read_map returns name/adj/speed only for bg1; re-read the mode
+                import struct as _st
+                with open(os.path.join(DATA, "maps_v2.dat"), "rb") as _f:
+                    _f.seek((STAGE_INDEX * MAPS_PER_STAGE + m) * MAP_STRUCT)
+                    _raw = _f.read(MAP_STRUCT)
+                b1_mode = _raw[36 + 33]
+                if 1 <= b1_mode <= 5:
+                    auto = b1_mode
+                    spd = bg1[2]
+                    print(f"    !! map {m}: bg0 is static, backgrounds[1] "
+                          f"auto_scroll={b1_mode} speed={bg1[2]} -> the baked "
+                          f"layer scrolls with that mode")
             info["auto_scroll"] = auto
             bg_infos.append(info)
             bg_names.append(name)

@@ -216,6 +216,7 @@ from already-captured screenshots/assets over running the emulator again.
 - **Localisation / language selection.** The PC ships EN + PT strings; this
   port is **English only** (owner's decision, asked three times). `tools/audit_pc.py`
   lists `selected_language` as out of scope for that reason.
+- **Trophies / extras screen.** Not in this version (owner's decision).
 - **Separate SFX volume.** XGM2 exposes a master volume for the FM/PSG music
   only; PCM effects have no runtime volume control, so the port keeps SFX on/off
   and a 4-step MUSIC VOL. Revisit only if the driver changes.

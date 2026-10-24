@@ -51,8 +51,8 @@ Still open, with evidence:
       spaced across the screen; LARGE_BEAM grows one frame width per step up to
       the screen edge. The MD art cannot clip, so CHAIN/LARGE_BEAM show the
       full sprite while their hitbox grows.
-- [ ] **Trophies screen** (PC `game_config.game_finished` extras screen): not
-      started; the unlock hint above covers the gameplay-relevant half.
+- OUT OF SCOPE (owner's decision, recorded in AGENTS.md): the trophies/extras
+      screen is not in this version.
 
 # PC features the MD port is missing (source audit)
 
@@ -309,16 +309,44 @@ its stages are added:
       the map instead of in front and scrolls it at bg0's rate. Print-out says
       so on every conversion. RockDroid1 data has no `backgrounds[1]`, so
       nothing changes for the converted stages.
-- [ ] **bg0 `auto_scroll` mode** (`E_BG_SCROLL_MODE`, `defines.h:1332`): the
-      port stores `StageBgInfo.auto_scroll` but derives the bg scroll from the
-      camera only (`stage.c:625`). Stage 3 of RockDroid2 uses mode 3 (LEFT) at
-      speed 18, i.e. the backdrop should scroll by itself at 1.8 px/frame; on
-      the port it would follow the camera instead. Modes 1/2/5 (UP/DOWN/
-      DIAGONAL) would also need the plane's vertical scroll and its 256 px
-      wrap. No converted stage uses any of them.
+- [x] **bg `auto_scroll` modes** (`E_BG_SCROLL_MODE`, `defines.h:1332`;
+      2026-10-24): the backdrop now moves by itself when a mode is set —
+      LEFT/RIGHT on the plane's horizontal scroll, UP/DOWN on its vertical
+      scroll with the 256 px wrap, DIAGONAL on both (the PC build only
+      implements LEFT/RIGHT/UP/DOWN, so DIAGONAL is the port's own choice,
+      documented in stage.c). The phase comes from a frame counter reset on map
+      load, so it also holds in the middle of a room transition
+      (`transition.c bg_offset`). The converter keeps `backgrounds[1]`'s mode
+      when bg0 is static (the second layer is baked into bg0 on MD):
+      RockDroid1 stage 6 and several RockDroid2 maps rely on it.
+      `tools/check_bg_scroll.py` lists every mode in both games' data.
 - **Enemies**: npc ids up to 75 (RockDroid1 stops at 60), i.e. new art and
   `game_ai_list` rows to convert; every AI *action* they use is already
   implemented.
+
+### Scene ops (item 5 of the 2026-10-24 queue)
+
+`tools/check_scenes.py` walks every scene: the opening (0) and the four endings
+(2..5) use only implemented ops; the LAB opening (1, not played by the port) is
+the sole user of `SHOW_ANIMATION`, and `MOVE_VIEWPOINT`/`SUBSCENE` are used by
+no scene at all. `tools/convert_scenes.py` now REFUSES to emit a played scene
+with an unimplemented op, and `scene.c` logs one if it somehow reaches it, so
+this cannot regress silently. `SHOW_ANIMATION` would need the
+`city_bg_animation.png` (320x150) strip converted to plane animation, only if
+the LAB opening is ever wired.
+
+### Accepted deviations / data-side items (item 5)
+
+- **Crusher shaft**: the PC paints the shaft it leaves behind (`show_crusher`,
+  frame 1 repeated down to the start point). The port draws the body only — the
+  shaft would need the crusher art as plane tiles plus a plane redraw on every
+  step. Recorded as accepted.
+- **Enemy anim rows `VERTICAL_TURN` / `WALK_AIR` / `HIT`**: the converted
+  enemies' art carries none of them (checked when TURN was added), so there is
+  nothing to show; `audit_data.py` fails if a future export has art for a row
+  the port does not drive.
+- **Stages 14..19**: placeholders in the data (`Stage [16]`, empty). Not engine
+  work; they need a data conversion like the first fourteen got.
 
 ## Process
 

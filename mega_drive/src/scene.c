@@ -324,9 +324,19 @@ void scene_play(u8 index)
                 // No converted scene uses this op; scenes_play_sfx.dat has two
                 // records but no scene references them (checked 2026-10-23).
                 break;
+            case SCENE_MOVE_VIEWPOINT:
+            case SCENE_SHOW_ANIMATION:
+            case SCENE_SUBSCENE:
+                // Declared by the PC scene format, never used by a scene the
+                // port plays (the intro is scene 0, the endings are 2..5; the
+                // LAB opening, scene 1, is the only user of SHOW_ANIMATION).
+                // tools/convert_scenes.py refuses to emit a *played* scene with
+                // one of these, so reaching here means a data export went
+                // around the check - say so instead of skipping silently.
+                kprintf("scene %d: op %d not implemented, skipped\n",
+                        index, op->type);
+                break;
             default:
-                // MOVE_IMAGE / MOVE_VIEWPOINT / SHOW_ANIMATION: art pipeline
-                // for the scenes that use them comes with the ending.
                 break;
         }
         if (!wait_ms(op->delay)) return;
