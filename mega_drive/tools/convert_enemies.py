@@ -68,7 +68,13 @@ STAGE_SZ = 438          # file_stage
 STAGE_BOSS_OFF = 360    # file_boss { Sint8 id_npc; Sint8 id_weapon; char name[20]; }
 STAGE_BOSS_ID = -1      # set in main() from the stage record
 PROJ_SZ = 104
-PROJ_MAX = 23          # 0..19 enemy shots; 20..22 armor charged shots
+# Tables are indexed by the PC projectile id (no per-stage renumbering), so
+# this must cover the HIGHEST id any enemy asks for. It was 23 while the data
+# references 31..34 (stage 10's SIDERSHOOTER wants 34 = SMALL MISSILE EXACT,
+# TRAJECTORY_TARGET_EXACT); the runtime clamped those to projectile 0 and the
+# wall shooter fired a straight normal shot. tools/check_projectiles.py is the
+# regression check: it fails on any reference beyond the table.
+PROJ_MAX = 35          # 0..34 (Projectiles 27..29 are one-pixel test entries)
 MAP_NPC_SZ = 12
 AI_SZ = 528            # file_artificial_inteligence (name30+pad + 20x20 + 6x16)
 AI_STATES = 20
@@ -299,17 +305,33 @@ def drop_to_ground(grid, x, y, box_t, box_h):
     return y, False
 
 
+def read_projectile_blob():
+    """The projectile table the PC game actually loads.
+
+    The PC reads data/game_projectile_list_v3.dat (game_mediator.cpp:263,
+    106B file_projectilev3 records). The copy at the data root
+    (game_projectile_list.dat) is an older 30-record dump and does NOT contain
+    projectiles 30..35 - which the enemy AI references (id 34 = SMALL MISSILE
+    EXACT, the wall shooter's aimed missile). Prefer the v3 file and fall back
+    only if it is missing."""
+    v3 = os.path.join(DATA, "data", "game_projectile_list_v3.dat")
+    if os.path.exists(v3):
+        return open(v3, "rb").read(), 106
+    return open(os.path.join(DATA, "game_projectile_list.dat"), "rb").read(), PROJ_SZ
+
+
 def read_projectile_list():
-    """game_projectile_list.dat (file_projectilev3, 104B): full table."""
-    blob = open(os.path.join(DATA, "game_projectile_list.dat"), "rb").read()
+    """Full projectile table (file_projectilev3 records)."""
+    blob, sz = read_projectile_blob()
     out = []
-    for i in range(len(blob) // PROJ_SZ):
-        b = blob[i * PROJ_SZ:(i + 1) * PROJ_SZ]
+    for i in range(len(blob) // sz):
+        b = blob[i * sz:(i + 1) * sz]
         w, h = struct.unpack_from("<2h", b, 60)
         out.append({
             "id": i, "name": cstr(b, 0, 30), "gfx": cstr(b, 30, 30),
             "w": w, "h": h, "traj": b[66], "max_shots": b[67],
             "speed": b[68], "dmg": b[69],
+            "explosive": b[103] if sz > 103 else 0,
         })
     return out
 
@@ -344,7 +366,9 @@ def emit_proj_sprite(rec, palette, save=True):
     projectiles ship as vertical strips, e.g. big_missile 28x196 = 7x28x28).
     Returns (name, cw, ch, frames, times) or None."""
     w, h = rec["w"], rec["h"]
-    if w <= 0 or h <= 0 or w > 64 or h > 64 or not rec["gfx"]:
+    # The chain projectile ships as 70x7 (padded to 72x8); the old 64 px guard
+    # dropped it, so CHAIN enemies fired nothing at all.
+    if w <= 0 or h <= 0 or w > 128 or h > 128 or not rec["gfx"]:
         return None
     path = os.path.join(IMAGES, "projectiles", rec["gfx"])
     if not os.path.exists(path):
@@ -400,13 +424,18 @@ def update_res_lines(lines):
     replaced; add_stage.py still inserts whole blocks for new stages."""
     path = os.path.join(ROOT, "res", "resources.res")
     text = open(path).read()
-    n = 0
-    for sym, line in lines.items():
+    n = added = 0
+    for sym, line in sorted(lines.items()):
         pat = re.compile(r"^SPRITE " + re.escape(sym) + r"\b.*$", re.M)
         text, k = pat.subn(lambda m: line, text)
         n += k
+        if k == 0:
+            # A projectile the data newly references (PROJ_MAX grew) has no
+            # line yet: append it so rescomp declares the symbol.
+            text = text.rstrip("\n") + "\n" + line + "\n"
+            added += 1
     open(path, "w").write(text)
-    print(f"resources.res: {n} SPRITE line(s) updated")
+    print(f"resources.res: {n} SPRITE line(s) updated, {added} added")
 
 
 def main():
@@ -561,8 +590,8 @@ def main():
     semi_img = load_indexed(semi_path)[0] if os.path.exists(semi_path) else shot_img
     # full charge (id 10 "Charged") — art colors must join the shared pool
     full_img, _ = load_indexed(os.path.join(IMAGES, "projectiles/charged_shot.png"))
-    proj = open(os.path.join(DATA, "game_projectile_list.dat"), "rb").read()
-    p0 = proj[0:PROJ_SZ]
+    proj, _proj_sz = read_projectile_blob()
+    p0 = proj[0:_proj_sz]
     shot_speed = p0[68]
     shot_dmg = p0[69]
     print(f"projectile 0: '{cstr(p0,0,30)}' speed={shot_speed} damage={shot_dmg} "
@@ -825,7 +854,12 @@ extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
         for pid in sorted(proj_spr):
             name, cw, ch, frames, times = proj_spr[pid]
             tl = ",".join(str(t) for t in times)
-            print(f'SPRITE {name}_sprite "{name}.png" {cw}p {ch}p FAST [[{tl}]]')
+            line = (f'SPRITE {name}_sprite "{name}.png" {cw}p {ch}p '
+                    f'FAST [[{tl}]]')
+            print(line)
+            # keep resources.res in step: a projectile the data newly asks for
+            # (PROJ_MAX grew) has to be declared or the table cannot compile
+            res_lines[f"{name}_sprite"] = line
     print('SPRITE shot_sprite "shot.png" 8p 8p FAST [[1]]')
     print('SPRITE enemy_shot_semi_sprite "enemy_shot_semi.png" 16p 16p FAST [[6,6]]')
     print('SPRITE shot_charge_full_sprite "shot_charge_full.png" 32p 32p FAST [[6,6]]')

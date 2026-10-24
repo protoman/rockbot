@@ -163,6 +163,28 @@ static bool fire_impl(s16 x, s16 y, s16 dir, u8 proj_id, bool aim)
             s->dx = (pcx < s->x) ? -(s16)p->speed : (s16)p->speed;
             eshot_flip(s);
         }
+        if (p->traj == TRAJ_TARGET_EXACT) {
+            // PC projectilelib.cpp:412: dx = speed toward the player,
+            // dy = speed * (target.y + TILESIZE - y) / |target.x - x|, negated
+            // when the shot travels left.
+            s16 pcx, pcy;
+            player_center(&pcx, &pcy);
+            const s32 dist_x = (s32)pcx - (s->x + s->w / 2);
+            const s32 dist_y = (s32)(pcy + 16) - (s->y + s->h / 2);
+            const s32 adx = (dist_x < 0) ? -dist_x : dist_x;
+            s->dx = (dist_x < 0) ? -(s16)p->speed : (s16)p->speed;
+            if (adx > 0) {
+                s32 vy = ((s32)p->speed * dist_y) / adx;
+                if (vy > 32767) vy = 32767;
+                if (vy < -32768) vy = -32768;
+                s->dy = (s16)vy;
+            } else {
+                s->dy = 0;
+            }
+            s->traj = TRAJ_LINEAR;      // moves both axes in the default branch
+            s->dir = (s->dx < 0) ? -1 : 1;
+            eshot_flip(s);
+        }
         if (aim) {
             // True 2-D aim: full speed on the dominant axis, proportional on
             // the other (the PC's TARGET_DIRECTION only knows 45 degrees).

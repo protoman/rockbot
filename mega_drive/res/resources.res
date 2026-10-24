@@ -191,7 +191,7 @@ SPRITE proj_18_sprite "proj_18.png" 16p 16p FAST [[6,6,6,6,6,6,6]]
 SPRITE proj_19_sprite "proj_19.png" 24p 24p FAST [[6,6,6,6]]
 SPRITE proj_20_sprite "proj_20.png" 32p 32p FAST [[6,6]]
 SPRITE proj_21_sprite "proj_21.png" 24p 24p FAST [[6,6]]
-SPRITE proj_22_sprite "proj_22.png" 32p 32p FAST [[6,6,6]]
+SPRITE proj_22_sprite "proj_22.png" 32p 24p FAST [[6,6,6,6]]
 
 # ---- STAGE 0 OBJECTS (tools/convert_objects.py) ----
 # Single anim row; shared PAL0 (palette_ui_enemies). Checkpoint cell is
@@ -536,3 +536,13 @@ SPRITE object_deathray_small_horz_sprite "object_deathray_small_horz.png" 64p 16
 SPRITE object_platform_sprite "object_platform.png" 16p 16p FAST [[6]]
 SPRITE object_teleporter_sprite "object_teleporter.png" 32p 64p FAST [[9,9,9,9]]
 SPRITE object_teleport_base_sprite "object_teleport_base.png" 32p 16p FAST [[4,4,4,4,4]]
+SPRITE proj_7_sprite "proj_7.png" 72p 8p FAST [[0]]
+SPRITE proj_23_sprite "proj_23.png" 16p 8p FAST [[0]]
+SPRITE proj_24_sprite "proj_24.png" 32p 16p FAST [[6,6]]
+SPRITE proj_25_sprite "proj_25.png" 8p 8p FAST [[0]]
+SPRITE proj_26_sprite "proj_26.png" 8p 8p FAST [[0]]
+SPRITE proj_30_sprite "proj_30.png" 24p 24p FAST [[6,6]]
+SPRITE proj_31_sprite "proj_31.png" 16p 16p FAST [[6,6]]
+SPRITE proj_32_sprite "proj_32.png" 24p 24p FAST [[6,6,6,6]]
+SPRITE proj_33_sprite "proj_33.png" 48p 32p FAST [[6,6]]
+SPRITE proj_34_sprite "proj_34.png" 16p 16p FAST [[6,6,6,6,6,6,6]]
