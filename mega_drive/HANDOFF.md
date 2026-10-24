@@ -59,6 +59,16 @@ PC-parity backlog, `PLAN.md` the roadmap.
    same path, and `tools/check_terrain.py` fails if a map uses a terrain id the
    engine does not handle. Nothing paints terrain 9 yet, and there is no
    converted map to try it on, so it is code-verified only.
+1b. **Tooltip verified** (2026-10-23): box + icon + name render correctly
+   (BUG-041/042 closed): the plane redraw is flushed before drawing, the fixed
+   tile blocks sit outside the sprite pool, and the box is backed with a solid
+   tile on the parallax plane (scroll-compensated).
+1c. **Sprite guard** (2026-10-23, BUG-043): every `SPR_setAnim`/`SPR_setFrame`
+   in the port goes through `sprite_guard.c`, which rejects an out-of-range
+   index and prints it over KDEBUG instead of letting `SPR_update` read a
+   garbage frame pointer. The slide crash that started this is still not
+   reproduced on stage 0/1; with the guard it will log instead of crashing.
+   `make EXTRA_FLAGS=-DMD_TEST_STAGE=<n>` boots straight into a stage.
 2. **RockDroid2 readiness** (`pc_gaps.md` -> "RockDroid2"): its AI_FLY options
    13/14/19, the slim/damaging platforms (27/28), the crusher (33) and the
    foreground layer (`backgrounds[1]`, composited into bg0) are implemented.
