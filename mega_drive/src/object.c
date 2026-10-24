@@ -43,6 +43,7 @@ typedef struct {
     u8 drain;        // JET ammo drain counter
     fix16 fall_speed;// crusher (33) accelerating fall
     u8 door;         // boss door slice slot + 1 (0 = not a door)
+    u8 flags;        // ODF_*: type tests precomputed at spawn (hot loop)
 } MapObj;
 
 static MapObj objs[OBJECT_MAX];
@@ -50,13 +51,41 @@ static u8 obj_count;
 // Per-frame flags for the hot probes: most maps hold only pickups, and the
 // enemy/player collision probes used to walk the whole object list for every
 // enemy every frame (report 2026-10-24: slowdown with several objects).
-// PC objects animate from ONE clock (classMap::reset_objects_anim_timers
-// re-arms every object to the same global timer, so identical objects flip
-// their frame on the same tick). The port advanced a private counter per
-// object and only while it was on screen, so objects drifted apart and each
-// one changed frame at its own moment (owner's report 2026-10-24: pill
-// animations all out of step).
-static u16 obj_anim_tick;
+// PC objects animate against ONE global timer (classMap::
+// reset_objects_anim_timers re-arms every object to the same clock), so
+// identical objects flip their frame on the same tick. The port used to step
+// them only while on screen, which drifted the phases apart (owner's report);
+// every object now advances every frame, on screen or not.
+#ifdef MD_PROFILE
+// Profiling: the single most expensive object of the last second (index, type,
+// cost) - objects_update jumped 4x in CHAOS CITY without gaining objects, so
+// the next run must name the instance instead of the loop.
+u8 prof_obj_hot_i;
+u16 prof_obj_hot_cost;
+u8 prof_obj_hot_type;
+#endif
+// Type predicates used in the per-frame loop. They are long `||`/switch chains
+// over the PC type ids, and object_update ran them several times per object per
+// frame; the answer never changes for an object, so it is cached at spawn.
+#define ODF_PLATFORM 0x01    // is_platform()
+#define ODF_GRAVITY  0x02    // object_has_gravity()
+#define ODF_AUTOANIM 0x04    // auto_anim()
+#define ODF_LOOPING  0x08    // is_looping()
+
+static bool is_platform(u8 type);
+static bool object_has_gravity(u8 type);
+static bool auto_anim(u8 type);
+
+static u8 obj_flags_for(u8 type)
+{
+    u8 f = 0;
+    if (is_platform(type)) f |= ODF_PLATFORM;
+    if (object_has_gravity(type)) f |= ODF_GRAVITY;
+    if (auto_anim(type)) f |= ODF_AUTOANIM;
+    if (type != 28) f |= ODF_LOOPING;      // 28's frames are its two states
+    return f;
+}
+
 static bool any_solid_obj;
 static bool any_breakable_obj;
 
@@ -115,7 +144,9 @@ static bool object_has_gravity(u8 type)
 // A disappearing block only collides while in its visible phase.
 static bool solid_now(const MapObj *o)
 {
-    if (!o->active || !is_platform(o->def->type)) return FALSE;
+    // ODF_PLATFORM is the spawn-time answer of is_platform(); this runs for
+    // every object, twice per enemy and once per shot probe, every frame.
+    if (!o->active || !(o->flags & ODF_PLATFORM)) return FALSE;
     if (o->def->type == 30) return !o->started;   // boss door until opened
     return o->visible;
 }
@@ -305,7 +336,6 @@ void objects_reset(void)
     }
     obj_count = 0;
     door_used = 0;
-    obj_anim_tick = 0;
 
     for (u8 i = 0; i < stage_def->object_spawn_count && obj_count < OBJECT_MAX; i++) {
         const ObjectSpawn *sp = &stage_def->object_spawns[i];
@@ -338,6 +368,7 @@ void objects_reset(void)
         o->duration = 0;
         o->fall_speed = 0;
         o->door = 0;
+        o->flags = obj_flags_for(d->type);
         o->spr = door_spawn(o) ? NULL
                                : SPR_addSprite(d->spr, o->x - camera.x,
                                                o->y - camera.y,
@@ -967,7 +998,6 @@ void objects_update(void)
     s16 pl, pt, pr, pb;
     player_get_box(&pl, &pt, &pr, &pb);
 
-    obj_anim_tick++;            // PC's single object animation clock
     any_solid_obj = FALSE;
     any_breakable_obj = FALSE;
     for (u8 i = 0; i < obj_count; i++) {
@@ -982,6 +1012,22 @@ void objects_update(void)
         MapObj *o = &objs[i];
         if (!o->active) continue;
         const ObjectDef *d = o->def;
+#ifdef MD_PROFILE
+        const u32 prof_t0 = getSubTick();
+#endif
+        // Looping art advances on ONE clock for the whole map, and it advances
+        // even when the object is off screen (PC arms every object against the
+        // same global timer). Doing it here, before the visibility gate, keeps
+        // identical objects in lockstep without any per-object division.
+        if ((o->flags & ODF_LOOPING) && !o->anim_play &&
+            ((o->flags & ODF_AUTOANIM) || o->started) &&
+            d->frame_t && d->frames > 1) {
+            if (++o->anim_t >= d->frame_t) {
+                o->anim_t = 0;
+                o->frame = (u8)((o->frame + 1) % d->frames);
+                if (o->spr) spr_set_frame(o->spr, o->frame);
+            }
+        }
 
         // Dropped items live for a limited time (PC object duration); an
         // active JET EAGLE stays until its ammo runs out (PC object.cpp:875).
@@ -1023,7 +1069,7 @@ void objects_update(void)
         }
 
         // ---- platform state machine (before pickup: player box is fresh) --
-        if (is_platform(d->type) && o->started)
+        if ((o->flags & ODF_PLATFORM) && o->started)
             obj_move(o);
         if (d->type == 33) crusher_update(o);
 
@@ -1153,7 +1199,7 @@ void objects_update(void)
         if (!on_screen) continue;   // no pickup/anim while fully off-screen
 
         // ---- gravity (PC object::gravity) -------------------------------
-        if (object_has_gravity(d->type)) {
+        if (o->flags & ODF_GRAVITY) {
             for (u8 step = OBJ_GRAVITY_SPEED; step > 0; step--) {
                 if (platform_can_move(o, (s16)step)) {
                     bool carry = player_on_top(o);
@@ -1293,27 +1339,26 @@ void objects_update(void)
             }
         }
 
+#ifdef MD_PROFILE
+        {
+            const u16 cost = (u16)(getSubTick() - prof_t0);
+            if (cost > prof_obj_hot_cost) {
+                prof_obj_hot_cost = cost;
+                prof_obj_hot_i = i;
+                prof_obj_hot_type = d->type;
+            }
+        }
+#endif
         // ---- animation ----------------------------------------------------
         // The damaging platform's two frames are its two states (idle/damage),
         // driven by the state machine above, so it must not auto-advance.
-        if (d->type != 28 && (auto_anim(d->type) || o->started ||
-                              o->anim_play)) {
-            if (is_looping(d) && !o->anim_play && d->frame_t) {
-                // Looping art follows the shared clock: every object with the
-                // same frame count/delay flips on the same tick, exactly like
-                // the PC, and an object that was off screen cannot come back
-                // with a stale phase.
-                const u8 f = (u8)((obj_anim_tick / d->frame_t) % d->frames);
-                if (f != o->frame) {
-                    o->frame = f;
-                    if (o->spr) spr_set_frame(o->spr, f);
-                }
-            } else if (++o->anim_t >= d->frame_t) {
+        // One-shot animations (a block reappearing) keep their own progress;
+        // the looping ones were already stepped at the top of the loop.
+        if (d->type != 28 && o->anim_play) {
+            if (++o->anim_t >= d->frame_t) {
                 o->anim_t = 0;
                 if (o->frame + 1 < d->frames) {
                     o->frame++;
-                } else if (is_looping(d)) {
-                    o->frame = 0;
                 } else {
                     o->anim_play = 0;      // one-shot finished
                 }

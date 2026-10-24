@@ -55,13 +55,22 @@ u16 stage_layout_anim(u8 map)
            (stage_def->bg_pal[map] ? stage_def->bg_tiles_n[map] : 0);
 }
 
+// The current map's terrain slice, cached at stage_load: this function is the
+// hottest in the frame (every physics probe, enemy, object and projectile goes
+// through it), and the generic form pays a 32-bit multiply for the map offset
+// on every call.
+static const u8 *terrain_cur;
+
 u16 stage_terrain_at(u8 map, s16 tileX, s16 tileY)
 {
     if (map >= stage_def->map_count) return TERRAIN_SOLID;
     if (tileX < 0 || tileX >= stage_def->map_w) return TERRAIN_SOLID;
     if (tileY < 0 || tileY >= stage_def->map_h) return TERRAIN_UNBLOCKED;
-    return stage_def->terrain[map * stage_def->map_w * stage_def->map_h
-                              + tileY * stage_def->map_w + tileX];
+    const u8 *base = (map == stage_current_map && terrain_cur)
+                         ? terrain_cur
+                         : stage_def->terrain
+                               + (u16)map * stage_def->map_w * stage_def->map_h;
+    return base[tileY * stage_def->map_w + tileX];
 }
 
 // Parallax background on BG_B from the decomposed art (tools/img2tiles.py):
@@ -388,6 +397,8 @@ void stage_load(u8 map_index)
 {
     if (map_index >= stage_def->map_count) map_index = 0;
     stage_current_map = map_index;
+    terrain_cur = stage_def->terrain
+                  + (u16)map_index * stage_def->map_w * stage_def->map_h;
 
     bool wasEnabled = VDP_isEnable();
     const bool in_place = stage_load_in_place;
