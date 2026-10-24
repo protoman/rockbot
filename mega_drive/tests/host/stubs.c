@@ -70,15 +70,23 @@ Vect2D_s16 camera;
 Map *stage_map;
 const Palette *stage_bg_pal[1];
 
-/* A flat 200x14 map with a floor on the last two rows. */
+/* Terrain grid the tests load (default: flat 200x14). */
 static u8 host_terrain[200 * 14];
+static s16 host_map_w = 200, host_map_h = 14;
+
+void host_terrain_set(const unsigned char *src, s16 w, s16 h)
+{
+    host_map_w = w;
+    host_map_h = h;
+    for (s16 i = 0; i < w * h; i++) host_terrain[i] = src[i];
+}
 
 u16 stage_terrain_at(u8 map, s16 tileX, s16 tileY)
 {
     host_terrain_calls++;
     (void)map;
-    if (tileX < 0 || tileX >= 200) return TERRAIN_SOLID;
-    if (tileY < 0 || tileY >= 14) return TERRAIN_UNBLOCKED;
+    if (tileX < 0 || tileX >= host_map_w) return TERRAIN_SOLID;
+    if (tileY < 0 || tileY >= host_map_h) return TERRAIN_UNBLOCKED;
     return host_terrain[tileY * 200 + tileX];
 }
 

@@ -44,6 +44,9 @@ typedef struct {
     fix16 fall_speed;// crusher (33) accelerating fall
     u8 door;         // boss door slice slot + 1 (0 = not a door)
     u8 flags;        // ODF_*: type tests precomputed at spawn (hot loop)
+    u8 spr_vis;      // last visibility sent to the sprite (0xFF = unknown)
+    u8 grounded;     // resting on static terrain at rest_y
+    s16 rest_y;
 } MapObj;
 
 static MapObj objs[OBJECT_MAX];
@@ -94,9 +97,16 @@ static bool any_breakable_obj;
 // Host cost tests (tests/host): count how often the type predicates answer, so
 // a per-frame hot-path regression is visible without the emulator.
 u32 host_pred_calls;
+extern u32 host_terrain_calls;
+extern u32 host_spr_calls;
+u32 host_obj_work[OBJECT_MAX];
+u32 host_obj_terr[OBJECT_MAX];
+u32 host_obj_spr[OBJECT_MAX];
+#define HOST_WORK() (host_pred_calls + host_terrain_calls + host_spr_calls)
 #define HOST_PRED() (host_pred_calls++)
 #else
 #define HOST_PRED() do { } while (0)
+#define HOST_WORK() 0
 #endif
 
 static bool auto_anim(u8 type)
@@ -382,6 +392,7 @@ void objects_reset(void)
         o->fall_speed = 0;
         o->door = 0;
         o->flags = obj_flags_for(d->type);
+        o->spr_vis = 0xFF;
         o->spr = door_spawn(o) ? NULL
                                : SPR_addSprite(d->spr, o->x - camera.x,
                                                o->y - camera.y,
@@ -1028,6 +1039,11 @@ void objects_update(void)
 #ifdef MD_PROFILE
         const u32 prof_t0 = getSubTick();
 #endif
+#ifdef MD_HOST_TEST
+        const u32 host_w0 = HOST_WORK();
+        const u32 host_t0c = host_terrain_calls;
+        const u32 host_s0c = host_spr_calls;
+#endif
         // Looping art advances on ONE clock for the whole map, and it advances
         // even when the object is off screen (PC arms every object against the
         // same global timer). Doing it here, before the visibility gate, keeps
@@ -1205,20 +1221,45 @@ void objects_update(void)
         if (o->door) {
             door_sync(o, on_screen);
         } else if (o->spr) {
-            SPR_setVisibility(o->spr,
-                              (on_screen && o->visible) ? VISIBLE : HIDDEN);
-            if (on_screen) SPR_setPosition(o->spr, sx, sy);
+            // Only talk to the sprite engine when something actually changed:
+            // a room can hold 20+ objects and most of them never move, so the
+            // unconditional setVisibility+setPosition pair was pure overhead
+            // (measured: the fixture room asked for 2 sprite calls per object
+            // per frame, 42 of them for 21 objects).
+            const bool vis = on_screen && o->visible;
+            if ((u8)vis != o->spr_vis) {
+                SPR_setVisibility(o->spr, vis ? VISIBLE : HIDDEN);
+                o->spr_vis = (u8)vis;
+            }
+            if (vis && (o->spr->x != sx || o->spr->y != sy))
+                SPR_setPosition(o->spr, sx, sy);
         }
         if (!on_screen) continue;   // no pickup/anim while fully off-screen
 
         // ---- gravity (PC object::gravity) -------------------------------
         if (o->flags & ODF_GRAVITY) {
-            for (u8 step = OBJ_GRAVITY_SPEED; step > 0; step--) {
-                if (platform_can_move(o, (s16)step)) {
-                    bool carry = player_on_top(o);
-                    o->y += step;
-                    if (carry) player.y += step;
-                    break;
+            // A resting object only ever probes the STATIC map floor (blocks
+            // are map objects, which platform_can_move does not consider), so
+            // once it has been found resting at this y there is nothing to
+            // re-check. That probe costs up to 8 terrain lookups per object per
+            // frame and every pill/1-up/checkpoint pays it - measured as the
+            // dominant cost of the busy room in the intro stage.
+            if (!(o->grounded && o->y == o->rest_y)) {
+                bool fell = FALSE;
+                for (u8 step = OBJ_GRAVITY_SPEED; step > 0; step--) {
+                    if (platform_can_move(o, (s16)step)) {
+                        bool carry = player_on_top(o);
+                        o->y += step;
+                        if (carry) player.y += step;
+                        fell = TRUE;
+                        break;
+                    }
+                }
+                if (fell) {
+                    o->grounded = FALSE;
+                } else {
+                    o->grounded = TRUE;
+                    o->rest_y = o->y;
                 }
             }
             if (o->y > stage_def->map_h * stage_def->tile + 32) {
@@ -1352,6 +1393,11 @@ void objects_update(void)
             }
         }
 
+#ifdef MD_HOST_TEST
+        host_obj_work[i] += HOST_WORK() - host_w0;
+        host_obj_terr[i] += host_terrain_calls - host_t0c;
+        host_obj_spr[i] += host_spr_calls - host_s0c;
+#endif
 #ifdef MD_PROFILE
         {
             const u16 cost = (u16)(getSubTick() - prof_t0);
