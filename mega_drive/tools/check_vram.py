@@ -179,7 +179,7 @@ def main():
         return (L["user"] + ts.get(s, {}).get(m, 0) + bg[s][m]
                 + anim[s][m] * L["stride"])
 
-    bad, tight, fallback = [], [], []
+    bad, tight, fallback, nopar = [], [], [], []
     for s in range(STAGES):
         for m in range(MAPS):
             anim_end = layout_end(s, m)
@@ -199,6 +199,15 @@ def main():
                         fallback.append(
                             f"stage{s} map{f}->map{t} needs {need} tiles, has "
                             f"{room} -> falls back to the fade")
+                    # The incoming half shows the DESTINATION parallax: its tiles
+                    # are copied into whatever is left of the same block. When
+                    # they do not fit the incoming half is drawn as sky (the
+                    # backdrop colour) instead - never the outgoing room's art.
+                    elif need + bg[s][t] > room:
+                        nopar.append(
+                            f"stage{s} map{f}->map{t}: {room - need} tiles left, "
+                            f"destination bg needs {bg[s][t]} -> incoming half "
+                            "without parallax")
 
     bad += check_cycle_pool()
 
@@ -208,8 +217,12 @@ def main():
         print(f"VRAM tight:    {msg}")
     for msg in sorted(set(fallback)):
         print(f"transition:    {msg}")
+    for msg in sorted(set(nopar)):
+        print(f"transition bg: {msg}")
     if not bad and not tight:
-        print(f"check_vram: OK ({STAGES} stages, {len(fallback)} transition fallbacks)")
+        print(f"check_vram: OK ({STAGES} stages, {len(fallback)} transition "
+              f"fallbacks, {len(set(nopar))} links without an incoming "
+              "parallax)")
     return 1 if bad else 0
 
 
