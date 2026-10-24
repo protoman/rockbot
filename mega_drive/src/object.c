@@ -47,6 +47,11 @@ typedef struct {
 
 static MapObj objs[OBJECT_MAX];
 static u8 obj_count;
+// Per-frame flags for the hot probes: most maps hold only pickups, and the
+// enemy/player collision probes used to walk the whole object list for every
+// enemy every frame (report 2026-10-24: slowdown with several objects).
+static bool any_solid_obj;
+static bool any_breakable_obj;
 
 // Types that animate without player interaction (auto_start = 1 in data).
 static bool auto_anim(u8 type)
@@ -657,6 +662,7 @@ bool objects_stand_check(s16 l, s16 r, s16 feet)
 // destructible block (report 2026-10-24).
 bool objects_block_box(s16 l, s16 t, s16 r, s16 b)
 {
+    if (!any_solid_obj) return FALSE;
     for (u8 i = 0; i < obj_count; i++) {
         MapObj *o = &objs[i];
         if (!solid_now(o)) continue;
@@ -862,6 +868,7 @@ void objects_sync_sprites(void)
 // Returns TRUE when the shot hit something (the caller kills the shot).
 bool objects_try_hit(s16 l, s16 t, s16 r, s16 b, u8 dmg, bool bomb)
 {
+    if (!any_breakable_obj) return FALSE;
     for (u8 i = 0; i < obj_count; i++) {
         MapObj *o = &objs[i];
         if (!o->active || !o->visible) continue;
@@ -944,6 +951,16 @@ void objects_update(void)
 {
     s16 pl, pt, pr, pb;
     player_get_box(&pl, &pt, &pr, &pb);
+
+    any_solid_obj = FALSE;
+    any_breakable_obj = FALSE;
+    for (u8 i = 0; i < obj_count; i++) {
+        if (!objs[i].active) continue;
+        if (solid_now(&objs[i])) any_solid_obj = TRUE;
+        const u8 ty = objs[i].def->type;
+        if (ty == 22 || ty == 36 || ty == 37 || ty == 42)
+            any_breakable_obj = TRUE;
+    }
 
     for (u8 i = 0; i < obj_count; i++) {
         MapObj *o = &objs[i];
