@@ -79,9 +79,24 @@ u16 stage_terrain_at(u8 map, s16 tileX, s16 tileY)
 // bg1's tiles used to run into the animated-tile block.
 static void apply_bg_color(u8 map_index);   // PC map_data.background_color
 
+// A tile whose pixels are all palette index 0: on a plane that is transparent,
+// so whatever is behind (the backdrop colour = PC background_color) shows.
+static const u32 zero_tile[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+
+u16 stage_sky_tile(void)
+{
+    return SPR_CFG_BLACK_TILE;
+}
+
+static void stage_sky_tile_load(void)
+{
+    VDP_loadTileData(zero_tile, SPR_CFG_BLACK_TILE, 1, DMA_QUEUE);
+}
+
 static void bg_upload_tiles_maps(u8 map_index)
 {
     if (!stage_def->bg_pal[map_index]) return;
+    stage_sky_tile_load();
     PAL_setPalette(BG_PAL, stage_def->bg_pal[map_index]->data, CPU);
     VDP_loadTileData(stage_def->bg_tiles[map_index], stage_bg_tile_base,
                      stage_def->bg_tiles_n[map_index], DMA);
@@ -93,7 +108,7 @@ static void bg_upload_tiles_maps(u8 map_index)
     // over it. A blank (transparent) tile lets that colour - the MD backdrop,
     // set by apply_bg_color() - show through.
     const u16 sky = TILE_ATTR_FULL(BG_PAL, FALSE, FALSE, FALSE,
-                                   TILE_FONT_INDEX);
+                                   stage_sky_tile());
     for (u16 y = 0; y < 32; y++) {
         for (u16 x = 0; x < 64; x++) {
             row[x] = (y < stage_def->bg_map_h[map_index])

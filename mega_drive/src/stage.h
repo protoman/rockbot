@@ -60,6 +60,8 @@ static inline void spr_release_guarded(Sprite **p, u16 seen)
 #define BG_PAL        PAL3
 #define STAGE_ANIM_SLOT_MAX 17
 extern u16 stage_bg_tile_base;    // current map: first parallax tile
+// Blank (all index-0) tile used for cells the parallax art does not cover.
+u16 stage_sky_tile(void);
 extern u16 stage_anim_tile_base;  // current map: first animated-frame tile
 u16 stage_layout_bg(u8 map);      // first parallax tile of `map`
 u16 stage_layout_anim(u8 map);    // first animated-frame tile of `map`

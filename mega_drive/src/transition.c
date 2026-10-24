@@ -124,7 +124,8 @@ static void bg_row_cells(u16 *row, u8 map, s16 srow, u16 tile_base, s16 vscroll)
     const s16 plane_row = (s16)((srow + vscroll) & 31);
     const s16 h = (s16)stage_def->bg_map_h[map];
     const u16 *m = stage_def->bg_maps[map];
-    const u16 sky = TILE_ATTR_FULL(BG_PAL, FALSE, FALSE, FALSE, TILE_FONT_INDEX);
+    const u16 sky = TILE_ATTR_FULL(BG_PAL, FALSE, FALSE, FALSE,
+                                   stage_sky_tile());
     for (u16 x = 0; x < 64; x++) {
         row[x] = (plane_row >= 0 && plane_row < h)
                      ? TILE_ATTR_FULL(BG_PAL, FALSE, FALSE, FALSE,
@@ -352,7 +353,7 @@ return FALSE; }
                             for (u16 x = 0; x < 64; x++)
                                 bgrow[x] = TILE_ATTR_FULL(
                                     BG_PAL, FALSE, FALSE, FALSE,
-                                    TILE_FONT_INDEX);
+                                    stage_sky_tile());
                         }
                         VDP_setTileMapData(BG_B, bgrow, (u16)(r * 64), 64, 1,
                                            DMA_QUEUE);
@@ -368,7 +369,7 @@ return FALSE; }
                             for (u16 x = 0; x < 64; x++)
                                 bgrow[x] = TILE_ATTR_FULL(
                                     BG_PAL, FALSE, FALSE, FALSE,
-                                    TILE_FONT_INDEX);
+                                    stage_sky_tile());
                         }
                         VDP_setTileMapData(BG_B, bgrow, (u16)(r * 64), 64, 1,
                                            DMA_QUEUE);

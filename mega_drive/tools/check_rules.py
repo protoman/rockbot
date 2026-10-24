@@ -60,6 +60,18 @@ RULES = [
      "wall_scroll_lock is built at map load)",
      [("src/object.c", r"if \(o->def->type != 30\) continue;")],
      [("src/object.c", r"if \(o->def->type != 30 \|\| o->started\) continue;")]),
+    ("sky-blank-tile",
+     "cells the parallax art does not cover use a real all-zero tile, not the "
+     "font tile (which drew glyph pixels - white stripes over the bg)",
+     [("src/stage.c", r"VDP_loadTileData\(zero_tile, SPR_CFG_BLACK_TILE"),
+      ("src/transition.c", r"stage_sky_tile\(\)")],
+     [("src/stage.c", r"TILE_FONT_INDEX\);\s*\n\s*for \(u16 y = 0; y < 32")]),
+    ("spawn-cache-init",
+     "every object spawn path fills the hot-loop caches (flags/grounded), or "
+     "dropped items never fall",
+     [("src/object.c", r"obj_init_cached\(o, d\)"),
+      ("src/object.c", r"o->grounded = FALSE;")],
+     []),
     ("bg-auto-scroll",
      "PC E_BG_SCROLL_MODE: a background with an auto mode moves by itself "
      "(LEFT used by RockDroid2 stage 3) instead of following the camera",

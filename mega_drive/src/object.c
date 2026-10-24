@@ -89,6 +89,19 @@ static u8 obj_flags_for(u8 type)
     return f;
 }
 
+// Every spawn path (map reset, enemy drops, weapon items) must go through this:
+// the hot loop trusts o->flags (type predicates) and o->grounded/rest_y (the
+// static-floor probe cache), and a stale value there is a behaviour bug - the
+// dropped items never fell because their flags were never filled in.
+static void obj_init_cached(MapObj *o, const ObjectDef *d)
+{
+    o->def = d;
+    o->flags = obj_flags_for(d->type);
+    o->spr_vis = 0xFF;
+    o->grounded = FALSE;
+    o->rest_y = o->y;
+}
+
 static bool any_solid_obj;
 static bool any_breakable_obj;
 
@@ -391,8 +404,7 @@ void objects_reset(void)
         o->duration = 0;
         o->fall_speed = 0;
         o->door = 0;
-        o->flags = obj_flags_for(d->type);
-        o->spr_vis = 0xFF;
+        obj_init_cached(o, d);
         o->spr = door_spawn(o) ? NULL
                                : SPR_addSprite(d->spr, o->x - camera.x,
                                                o->y - camera.y,
@@ -454,9 +466,9 @@ void objects_drop_item(s16 cx, s16 cy, bool subboss)
         o = &objs[obj_count++];
     }
 
-    o->def = d;
     o->x = (s16)(cx - d->w / 2);
     o->y = (s16)(cy - d->h / 2);
+    obj_init_cached(o, d);
     o->home_x = o->x;
     o->home_y = o->y;
     o->distance = 0;
@@ -514,10 +526,10 @@ bool objects_spawn_weapon_item(bool jet)
     const ObjectDef *d = jet ? &jet_def : &coil_def;
     s16 l, t, r, b;
     player_get_box(&l, &t, &r, &b);
-    o->def = d;
     o->dir = (player.facing < 0) ? -1 : 1;
     o->x = (o->dir > 0) ? (s16)(r + 2) : (s16)(l - 2 - d->w);
     o->y = jet ? (s16)(player.y + 16) : (s16)(b - d->h);
+    obj_init_cached(o, d);
     o->home_x = o->x;
     o->home_y = o->y;
     o->distance = 0;
