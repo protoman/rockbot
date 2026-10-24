@@ -1,6 +1,7 @@
 #include <genesis.h>
 
 #include "resources.h"
+#include "sprite_guard.h"
 
 #include "stage.h"
 #include "player.h"
@@ -152,10 +153,10 @@ static void showIntro(void)
 
     // upperland strip animation: 30ms per frame (~2 frames at 60Hz)
     for (u16 i = 1; i < FRAME_COUNT; i++) {
-        SPR_setFrame(sprUpper, i);
+        spr_set_frame(sprUpper, i);
         waitFrames(2);
     }
-    SPR_setFrame(sprUpper, 0);
+    spr_set_frame(sprUpper, 0);
 
     drawCentered("HTTPS://TWITTER.COM/BOBERATU", 24);
     drawCentered("HTTPS://JMDAMIGAMUSIC.BANDCAMP.COM", 25);
@@ -394,18 +395,18 @@ static RunResult runStage(u8 stage)
     // sequence always plays through.
     {
         if (player.spr) {
-            SPR_setAnim(player.spr, ANIM_TELEPORT);
+            spr_set_anim(player.spr, ANIM_TELEPORT);
             for (u16 i = 0; i < 90; i++) {                   // ~1500ms
-                SPR_setFrame(player.spr, (i / 15) & 1);
+                spr_set_frame(player.spr, (i / 15) & 1);
                 SPR_update();
                 SYS_doVBlankProcess();
             }
-            SPR_setFrame(player.spr, 2);
+            spr_set_frame(player.spr, 2);
             for (u16 i = 0; i < 10; i++) {
                 SPR_update();
                 SYS_doVBlankProcess();
             }
-            SPR_setAnim(player.spr, ANIM_STAND);
+            spr_set_anim(player.spr, ANIM_STAND);
         }
         // Three blinks, each with a full second of readable on-screen time
         // (the PC's 200ms flashes were too short on the MD).
@@ -964,6 +965,15 @@ int main(bool hardReset)
     current_player = 0;
     player_new_game();
     playSession(3);
+#endif
+
+#ifdef MD_TEST_STAGE
+    // Test build: boot straight into one stage with a fresh ROCKBOT, so a
+    // reproduction does not need the stage unlocked (or a replay of the intro).
+    current_save_slot = 0;
+    current_player = 0;
+    player_new_game();
+    playSession((u8)MD_TEST_STAGE);
 #endif
 
     showIntro();

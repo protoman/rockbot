@@ -3,6 +3,7 @@
 // twice. On the MD each puff is one sprite; the PC's 80ms is 5 frames at 60fps
 // and the sheet has 3 frames, so a puff lives 2 * 3 * 5 = 30 frames.
 #include "explosion.h"
+#include "sprite_guard.h"
 
 #include "resources.h"
 #include "stage.h"
@@ -49,7 +50,7 @@ void explosion_spawn(s16 x, s16 y)
         puffs[i].age = 0;
         // manual frames: the sheet's own timing is only used as a fallback
         SPR_setAutoAnimation(s, FALSE);
-        SPR_setFrame(s, 0);
+        spr_set_frame(s, 0);
         return;
     }
 }
@@ -65,7 +66,7 @@ void explosion_update(void)
             p->age = -1;
             continue;
         }
-        SPR_setFrame(p->spr, (p->age / FRAME_TIME) % 3);
+        spr_set_frame(p->spr, (p->age / FRAME_TIME) % 3);
         SPR_setPosition(p->spr, p->x - camera.x, p->y - camera.y);
     }
 }
@@ -122,7 +123,7 @@ void explosion_ring_start(s16 cx, s16 cy)
                                     TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
         if (ring.spr[i]) {
             SPR_setAutoAnimation(ring.spr[i], FALSE);
-            SPR_setFrame(ring.spr[i], 0);
+            spr_set_frame(ring.spr[i], 0);
         }
     }
     ring.on = TRUE;
@@ -158,7 +159,7 @@ bool explosion_ring_update(void)
         if (!s) continue;
         SPR_setPosition(s, (s16)(rx[i] - 12 - camera.x),
                         (s16)(ry[i] - 12 - camera.y));
-        SPR_setFrame(s, (s16)ring.art_j);
+        spr_set_frame(s, (s16)ring.art_j);
         SPR_setVisibility(s, VISIBLE);
     }
 

@@ -1,4 +1,5 @@
 #include "bossintro.h"
+#include "sprite_guard.h"
 
 #include "music.h"
 
@@ -95,7 +96,7 @@ void boss_intro_run(u8 stage)
                             160 - boss->spr->w / 2,
                             BOSS_INTRO_BOSS_Y - boss->spr->h / 2,
                             TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
-        if (spr) SPR_setAnim(spr, 0);
+        if (spr) spr_set_anim(spr, 0);
     }
 
     // Boss name, centred (PC draw_centered_text(200, botname)). The text

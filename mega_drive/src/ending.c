@@ -1,4 +1,5 @@
 #include "ending.h"
+#include "sprite_guard.h"
 
 #include <genesis.h>
 #include <string.h>
@@ -122,7 +123,7 @@ static void walking_parade(void)
     Sprite *ply = SPR_addSprite(player_definition(), END_WALK_X, END_WALK_Y,
                                 TILE_ATTR(PAL2, FALSE, FALSE, FALSE));
     if (ply) {
-        SPR_setAnim(ply, ANIM_WALK);
+        spr_set_anim(ply, ANIM_WALK);
         SPR_setHFlip(ply, TRUE);   // PC: ANIM_DIRECTION_LEFT
     }
 
@@ -184,7 +185,7 @@ static void boss_parade(void)
                                 160 - boss->spr->w / 2,
                                 104 - boss->spr->h / 2,
                                 TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
-        if (spr) SPR_setAnim(spr, 0);
+        if (spr) spr_set_anim(spr, 0);
 
         VDP_fillTileMapRect(BG_A, BLANK_TILE, 0, 0, 64, 32);
         if (stage < SSEL_STAGE_SLOTS) {

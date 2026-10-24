@@ -2,6 +2,51 @@
 
 Things that are wrong or worse than the original. Track here, fix later.
 
+## BUG-043 — ADDRESS ERROR after a slide in the APE stage
+
+**Report (2026-10-23, `crash_slide.png`)**: sliding in APE crashed to the MD
+ADDRESS ERROR screen.
+
+**Evidence** (from the dump + `out/release/symbol.txt`): fault address
+`0x2D302F` (odd), PC `0x2D70C` = `SPR_update+1004`. The disassembly there is
+
+```
+2d4ee: moveal %a2@(16),%a4     ; a4 = sprite->frame
+2d4fa: bnew   2d704
+2d704: moveal %a4@(2),%a5      ; a5 = frame->tileset
+2d708: movew  %a5@(2),%d0      ; <-- faults: a5+2 = 0x302D302F -> 0x2D302F
+```
+
+with `a4 = 0x02400EEE` and `a5 = 0x302D302D` in the dump: `Sprite.frame` is
+garbage, i.e. **an out-of-range animation/frame index** was accepted earlier.
+SGDK only validates those inside `#if (LIB_LOG_LEVEL >= LOG_LEVEL_ERROR)`,
+and a release build sets `LIB_LOG_LEVEL` to DISABLE (`DEBUG == 0` in
+`config.h`), so the bad index reaches `SPR_update`, which then reads
+`animation->frames[i]` past the end and dereferences whatever is there. Same
+class as BUG-031 (HUD ball frame index).
+
+**Ruled out offline**: enemy `jump`/`teleport`/`intro`/`turn` animation rows
+(`audit_data.py` now checks `turn` too: "animation index problems: 0" for both
+games), the player's animation set (highest index 13 of 14 animations),
+HUD bars/icons, effect frames (`% frames`), object frames (`def->frames`).
+
+**Fix (defensive, 2026-10-23)**: `src/sprite_guard.{c,h}` wraps every
+`SPR_setFrame`/`SPR_setAnim` call in the port: it validates against
+`definition->numAnimation` / `animation->numFrame`, rejects instead of passing
+the index on, and prints the offender over KDEBUG (max 12 lines):
+
+```
+sprite guard: animation out of range (index %d, %u valid, def %p)
+sprite guard: frame index %d >= %u
+```
+
+The crash class is therefore gone (no more garbage frame pointers); the next
+reproduction names the call site's art so the *real* index bug can be fixed.
+
+**Status**: **open** — not reproduced yet on stage 0 or stage 1 with the guard
+active (three slide/fire passes each, no report). Needs a repro on the exact
+spot of the user's run; the guard turns it into a log line instead of a crash.
+
 ## BUG-042 — Tooltip box interior and name background showed the parallax
 
 **Report (2026-10-23, first play-test of BUG-041)**: the box, the icon and the

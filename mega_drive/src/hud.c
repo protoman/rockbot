@@ -1,4 +1,5 @@
 #include "hud.h"
+#include "sprite_guard.h"
 
 #include "enemy.h"
 #include "player.h"
@@ -58,7 +59,7 @@ static void set_bar(Sprite *const *parts, bool show, s16 pct,
     for (u8 i = 0; i < HUD_PARTS; i++) {
         if (!parts[i]) continue;
         SPR_setVisibility(parts[i], show ? VISIBLE : HIDDEN);
-        if (show) SPR_setFrame(parts[i], frame);
+        if (show) spr_set_frame(parts[i], frame);
     }
     if (icon) SPR_setVisibility(icon, show ? VISIBLE : HIDDEN);
     if (box) SPR_setVisibility(box, show ? VISIBLE : HIDDEN);
@@ -88,15 +89,15 @@ void hud_init(void)
                                     HUD_BAR_Y + part_y[i],
                                     TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
         if (wpn_back[i]) {
-            SPR_setFrame(wpn_back[i], 0);       // frame 0 = solid black
+            spr_set_frame(wpn_back[i], 0);       // frame 0 = solid black
             SPR_setDepth(wpn_back[i], SPR_MAX_DEPTH);
         }
         wpn_parts[i] = add_part(wpn[i], HUD_BAR_WPN_X, HUD_BAR_Y + part_y[i], PAL2);
         boss_parts[i] = add_part(boss[i], HUD_BAR_BOSS_X,
                                  HUD_BAR_Y + part_y[i], PAL0);
-        if (hp_parts[i]) SPR_setFrame(hp_parts[i], 0);
-        if (wpn_parts[i]) SPR_setFrame(wpn_parts[i], 0);
-        if (boss_parts[i]) SPR_setFrame(boss_parts[i], 0);
+        if (hp_parts[i]) spr_set_frame(hp_parts[i], 0);
+        if (wpn_parts[i]) spr_set_frame(wpn_parts[i], 0);
+        if (boss_parts[i]) spr_set_frame(boss_parts[i], 0);
     }
     // Icon box first so it sits behind the icon sprite (SPR_MIN_DEPTH is the
     // front-most depth).
@@ -105,11 +106,11 @@ void hud_init(void)
     wpn_box = SPR_addSprite(&hud_bar_hp_bot_sprite, HUD_BAR_WPN_X, HUD_ICON_Y,
                             TILE_ATTR(PAL2, FALSE, FALSE, FALSE));
     if (hp_box) {
-        SPR_setFrame(hp_box, 0);          // bar frame 0 = solid black 8x8
+        spr_set_frame(hp_box, 0);          // bar frame 0 = solid black 8x8
         SPR_setDepth(hp_box, SPR_MAX_DEPTH);
     }
     if (wpn_box) {
-        SPR_setFrame(wpn_box, 0);
+        spr_set_frame(wpn_box, 0);
         SPR_setDepth(wpn_box, SPR_MAX_DEPTH);
     }
     hp_icon = SPR_addSprite(&hud_icon_sprite, HUD_BAR_HP_X, HUD_ICON_Y,
@@ -117,11 +118,11 @@ void hud_init(void)
     wpn_icon = SPR_addSprite(&hud_icon_sprite, HUD_BAR_WPN_X, HUD_ICON_Y,
                              TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
     if (hp_icon) {
-        SPR_setFrame(hp_icon, 0);
+        spr_set_frame(hp_icon, 0);
         SPR_setDepth(hp_icon, SPR_MIN_DEPTH);
     }
     if (wpn_icon) {
-        SPR_setFrame(wpn_icon, 0);
+        spr_set_frame(wpn_icon, 0);
         SPR_setDepth(wpn_icon, SPR_MIN_DEPTH);
     }
     // Nothing is shown until the first update: the bar sprites are added
@@ -151,7 +152,7 @@ void hud_weapon(u8 weapon, u8 ammo)
         if (wpn_back[i]) SPR_setVisibility(wpn_back[i], show ? VISIBLE : HIDDEN);
     }
     wpn_on = show;
-    if (show && wpn_icon) SPR_setFrame(wpn_icon, weapon);
+    if (show && wpn_icon) spr_set_frame(wpn_icon, weapon);
 }
 
 void hud_update(u8 hp)

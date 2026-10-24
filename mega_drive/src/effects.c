@@ -1,6 +1,7 @@
 // Transient sprite effects — see effects.h. Same shape as explosion.c: a small
 // pool of sprites, each with its own art timing, released when it ends.
 #include "effects.h"
+#include "sprite_guard.h"
 
 #include "resources.h"
 #include "stage.h"
@@ -61,7 +62,7 @@ static Sprite *add(const SpriteDefinition *def, s16 x, s16 y, bool flip)
                               TILE_ATTR(PAL0, FALSE, FALSE, flip));
     if (s) {
         SPR_setAutoAnimation(s, FALSE);
-        SPR_setFrame(s, 0);
+        spr_set_frame(s, 0);
     }
     return s;
 }
@@ -165,7 +166,7 @@ void effects_update(void)
             spr_release_guarded(&f->spr, f->seen);
             continue;
         }
-        SPR_setFrame(f->spr, (s16)((f->age / f->ticks) % f->frames));
+        spr_set_frame(f->spr, (s16)((f->age / f->ticks) % f->frames));
         SPR_setPosition(f->spr, f->x - camera.x, f->y - camera.y);
     }
     bubble_update();

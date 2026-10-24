@@ -1,4 +1,5 @@
 #include "saveselect.h"
+#include "sprite_guard.h"
 
 #include "resources.h"
 #include "saveselect_data.h"
@@ -57,7 +58,7 @@ static void icons_draw(void)
             if (!sp) break;
             // frame 0 = disabled art, frame 1 = enabled (see the converter)
             SPR_setAutoAnimation(sp, FALSE);
-            SPR_setFrame(sp, (mask & (1u << i)) ? 1 : 0);
+            spr_set_frame(sp, (mask & (1u << i)) ? 1 : 0);
             icons[s][i] = sp;
         }
         Sprite *ps = SPR_addSprite(picon_def[save_slot_player(s) & 3],
@@ -65,7 +66,7 @@ static void icons_draw(void)
                                    TILE_ATTR(PAL3, FALSE, FALSE, FALSE));
         if (ps) {
             SPR_setAutoAnimation(ps, FALSE);
-            SPR_setFrame(ps, 1);
+            spr_set_frame(ps, 1);
             icons[s][9] = ps;
         }
     }

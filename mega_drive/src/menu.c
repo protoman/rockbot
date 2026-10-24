@@ -1,4 +1,5 @@
 #include "menu.h"
+#include "sprite_guard.h"
 #include "sfx.h"
 
 #include "player.h"
@@ -114,12 +115,12 @@ static void icons_create(void)
         if (!sp && !gr) break;
         if (sp) {
             SPR_setAutoAnimation(sp, FALSE);
-            SPR_setFrame(sp, w);
+            spr_set_frame(sp, w);
             wicon[w] = sp;
         }
         if (gr) {
             SPR_setAutoAnimation(gr, FALSE);
-            SPR_setFrame(gr, w);
+            spr_set_frame(gr, w);
             wicon_gray[w] = gr;
         }
     }
@@ -129,7 +130,7 @@ static void icons_create(void)
                                   TILE_ATTR(PAL3, FALSE, FALSE, FALSE));
     if (selected_icon) {
         SPR_setAutoAnimation(selected_icon, FALSE);
-        SPR_setFrame(selected_icon, player_weapon());
+        spr_set_frame(selected_icon, player_weapon());
     }
 }
 
@@ -223,7 +224,7 @@ static void draw_weapon_line(void)
     VDP_drawText("WEAPON/ITEM:", 13, 19);
     VDP_drawText(weapon_data[w].name, 13, 20);
     if (selected_icon) {
-        SPR_setFrame(selected_icon, w);
+        spr_set_frame(selected_icon, w);
         SPR_setVisibility(selected_icon, VISIBLE);
     }
     menu_icons_select();
@@ -349,7 +350,7 @@ bool menu_open(u16 weapon_mask)
 
     portrait = SPR_addSprite(player_definition(), 6, 141,
                              TILE_ATTR(PLAYER_PAL, FALSE, FALSE, FALSE));
-    if (portrait) SPR_setAnim(portrait, ANIM_ATTACK);
+    if (portrait) spr_set_anim(portrait, ANIM_ATTACK);
 
     // wait for the buttons to be released first (PC input.clean)
     u16 pad;
@@ -380,7 +381,7 @@ bool menu_open(u16 weapon_mask)
             if (cfg_leave) { leave = TRUE; break; }
             portrait = SPR_addSprite(player_definition(), 6, 141,
                                      TILE_ATTR(PLAYER_PAL, FALSE, FALSE, FALSE));
-            if (portrait) SPR_setAnim(portrait, ANIM_ATTACK);
+            if (portrait) spr_set_anim(portrait, ANIM_ATTACK);
             menu_draw_panel();
             continue;
         }

@@ -1,4 +1,5 @@
 #include "shot.h"
+#include "sprite_guard.h"
 #include "sfx.h"
 
 #include "stage.h"
@@ -208,7 +209,7 @@ void shot_charge_fire(s16 x, s16 y, s16 dir, u8 level)
                            TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
     if (!s->spr) return;
     spr_seen = spr_gen;
-    SPR_setAnim(s->spr, 0);
+    spr_set_anim(s->spr, 0);
     SPR_setHFlip(s->spr, dir < 0);   // art faces right (see shot_fire)
     s->x = x;
     s->y = y;

@@ -1,4 +1,5 @@
 #include "enemy.h"
+#include "sprite_guard.h"
 #include "sfx.h"
 
 #include "eshot.h"
@@ -1189,7 +1190,7 @@ static Enemy *enemy_add(u8 def_i, s16 x, s16 y, s16 x_min, s16 x_max, u8 dir)
     e->alive = (e->spr != NULL);
     if (e->spr) {
         SPR_setVisibility(e->spr, HIDDEN);
-        SPR_setAnim(e->spr, d->walk_n > 0 ? 1 : 0);
+        spr_set_anim(e->spr, d->walk_n > 0 ? 1 : 0);
         SPR_setHFlip(e->spr, e->dir < 0);
     }
     return e;
@@ -1379,17 +1380,17 @@ void enemies_update(void)
             // the previous row, which is what made the Mummy look like he
             // faced the wrong way while repositioning).
             if (e->turn_t && d->turn_anim != 255)
-                SPR_setAnim(e->spr, d->turn_anim);
+                spr_set_anim(e->spr, d->turn_anim);
             else if (d->attack_n > 0 && e->shooting)
-                SPR_setAnim(e->spr, 2);
+                spr_set_anim(e->spr, 2);
             else if (e->teleporting && d->teleport_anim != 255)
-                SPR_setAnim(e->spr, d->teleport_anim);
+                spr_set_anim(e->spr, d->teleport_anim);
             else if (e->intro_t && d->intro_anim != 255)
-                SPR_setAnim(e->spr, d->intro_anim);
+                spr_set_anim(e->spr, d->intro_anim);
             else if (e->jumping && d->jump_anim != 255)
-                SPR_setAnim(e->spr, d->jump_anim);
+                spr_set_anim(e->spr, d->jump_anim);
             else if (d->walk_n > 0)
-                SPR_setAnim(e->spr, e->moving ? 1 : 0);
+                spr_set_anim(e->spr, e->moving ? 1 : 0);
             SPR_setPosition(e->spr, e->x - camera.x, e->y - camera.y);
         }
 

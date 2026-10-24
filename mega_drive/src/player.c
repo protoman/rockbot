@@ -1,4 +1,5 @@
 #include "player.h"
+#include "sprite_guard.h"
 #include "sfx.h"
 
 #include "stage.h"
@@ -524,7 +525,7 @@ static s8 ladder_art_dx(void)
 void player_force_anim(u8 anim)
 {
     current_anim = anim;
-    if (player.spr) SPR_setAnim(player.spr, anim);
+    if (player.spr) spr_set_anim(player.spr, anim);
 }
 
 void player_sync_sprite(void)
@@ -605,7 +606,7 @@ void player_init(void)
     player.spr = SPR_addSprite(player_defs[player_n], SPAWN_X - camera.x, SPAWN_Y - camera.y,
                                TILE_ATTR(PLAYER_PAL, FALSE, FALSE, FALSE));
     PAL_setPalette(PLAYER_PAL, base_pal, DMA_QUEUE);
-    SPR_setAnim(player.spr, ANIM_STAND);
+    spr_set_anim(player.spr, ANIM_STAND);
     // player.y is the ground row spawn_ground_y() found, which is only row 10
     // (SPAWN_Y) in CHAOS CITY. Without this the sprite sat at SPAWN_Y for the
     // whole stage-start teleport and snapped up one tile on the first
@@ -928,7 +929,7 @@ void player_update(u16 pad)
                 current_anim = stair_anim;
                 ladder_shown = ladder_flip;
                 SPR_setHFlip(player.spr, ladder_flip);
-                SPR_setAnim(player.spr, stair_anim);
+                spr_set_anim(player.spr, stair_anim);
             }
             SPR_setPosition(player.spr,
                             ix - camera.x + flip_dx() + ladder_art_dx(),
@@ -1365,7 +1366,7 @@ void player_update(u16 pad)
     SPR_setHFlip(player.spr, player.facing < 0);
     if (want != current_anim) {
         current_anim = want;
-        SPR_setAnim(player.spr, want);
+        spr_set_anim(player.spr, want);
     }
     SPR_setPosition(player.spr, ix - camera.x + flip_dx(), iy - camera.y);
 

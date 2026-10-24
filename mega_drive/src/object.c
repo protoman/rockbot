@@ -1,4 +1,5 @@
 #include "object.h"
+#include "sprite_guard.h"
 #include "sfx.h"
 
 #include "stage.h"
@@ -168,7 +169,7 @@ static void obj_stop(MapObj *o)
     o->started = FALSE;
     o->frame = 0;
     o->anim_t = 0;
-    if (o->spr) SPR_setFrame(o->spr, 0);
+    if (o->spr) spr_set_frame(o->spr, 0);
 }
 
 static u16 spr_seen;   // sprite-engine generation of the handles below
@@ -658,7 +659,7 @@ void objects_reset_doors(void)
         if (o->def->type != 30 || !o->started) continue;
         o->started = FALSE;
         o->frame = 0;
-        if (o->spr) SPR_setFrame(o->spr, 0);
+        if (o->spr) spr_set_frame(o->spr, 0);
     }
 }
 
@@ -969,14 +970,14 @@ void objects_update(void)
                     if (o->state == 0) {
                         o->state = 1;
                         o->frame = (d->frames > 1) ? 1 : 0;
-                        if (o->spr) SPR_setFrame(o->spr, o->frame);
+                        if (o->spr) spr_set_frame(o->spr, o->frame);
                         if (player_on_top(o))
                             player_take_damage(TOUCH_DAMAGE_SMALL);
                     } else {
                         o->state = 0;
                         o->started = FALSE;
                         o->frame = 0;
-                        if (o->spr) SPR_setFrame(o->spr, 0);
+                        if (o->spr) spr_set_frame(o->spr, 0);
                         o->anim_t = 0;
                     }
                 }
@@ -1134,7 +1135,7 @@ void objects_update(void)
                 } else {
                     o->anim_play = 0;      // one-shot finished
                 }
-                if (o->spr) SPR_setFrame(o->spr, o->frame);
+                if (o->spr) spr_set_frame(o->spr, o->frame);
             }
         }
     }
