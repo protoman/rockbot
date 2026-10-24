@@ -70,7 +70,7 @@ RULES = [
     ("weapon-menu-linear",
      "the weapon menu walks the linear weapon list with wrap (PC "
      "class_config.cpp:419), so every owned weapon is reachable",
-     [("src/menu.c", r"while \(w < 0\) w = \(s16\)\(w \+ WEAPON_SWITCH_N\);")],
+     [("src/menu.c", r"for \(s16 i = \(s16\)cur \+ dir; i < n; i\+\+\)")],
      [("src/menu.c", r"const u8 row = \(u8\)\(cur / 4\);")]),
     ("ladder-semi-at-top",
      "the half-body ladder pose is the TOP-of-ladder state (feet on a rung, "

@@ -44,20 +44,26 @@ static u16 owned;            // owned weapons, bit n (PC has_weapon)
 // walk the linear weapon list (the grid is displayed for reference).
 static u8 find_next_weapon(u8 cur, s8 dir)
 {
-    // PC class_config.cpp:419: walk the LINEAR weapon list `cur+move` upward
-    // (or downward and wrapping) and stop at the first owned slot. The
-    // 4-column grid is only how the icons are DRAWN - the port used to keep
-    // the search inside the current row/column, so an owned weapon whose
-    // neighbours were not owned could never be selected: with only buster (0)
-    // and the MAGE weapon (5) the cursor never left the buster (report
-    // 2026-10-24). UP/DOWN pass +-4, LEFT/RIGHT +-1, as on the PC.
-    for (u8 i = 1; i <= WEAPON_SWITCH_N; i++) {
-        s16 w = (s16)((s16)cur + (s16)dir * (s16)i);
-        while (w >= WEAPON_SWITCH_N) w = (s16)(w - WEAPON_SWITCH_N);
-        while (w < 0) w = (s16)(w + WEAPON_SWITCH_N);
-        if (owned & (1u << w)) return (u8)w;
+    // PC class_config.cpp:419 verbatim: start at cur+move and scan LINEARLY
+    // (by one, not by `move`) to the end wrapping to the start, and the other
+    // way around for a negative move. The 4-column grid is only how the icons
+    // are DRAWN. The port used to keep the search inside the cursor's row or
+    // column, so an owned weapon whose grid neighbours were not owned could
+    // never be selected - with only the buster (0) and the MAGE weapon (5), the
+    // cursor stayed on the buster (report 2026-10-24).
+    const s16 n = WEAPON_SWITCH_N;
+    if (dir > 0) {
+        for (s16 i = (s16)cur + dir; i < n; i++)
+            if (owned & (1u << i)) return (u8)i;
+        for (s16 i = 0; i < (s16)cur; i++)
+            if (owned & (1u << i)) return (u8)i;
+    } else {
+        for (s16 i = (s16)cur + dir; i >= 0; i--)
+            if (owned & (1u << i)) return (u8)i;
+        for (s16 i = (s16)(n - 1); i > (s16)cur; i--)
+            if (owned & (1u << i)) return (u8)i;
     }
-    return cur;
+    return cur;          // PC returns -1: the caller keeps the weapon
 }
 
 // PC 4-column weapon grid (draw_game_menu_weapon_bar: x = 25+col*76,
