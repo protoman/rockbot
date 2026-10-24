@@ -50,6 +50,13 @@ static u8 obj_count;
 // Per-frame flags for the hot probes: most maps hold only pickups, and the
 // enemy/player collision probes used to walk the whole object list for every
 // enemy every frame (report 2026-10-24: slowdown with several objects).
+// PC objects animate from ONE clock (classMap::reset_objects_anim_timers
+// re-arms every object to the same global timer, so identical objects flip
+// their frame on the same tick). The port advanced a private counter per
+// object and only while it was on screen, so objects drifted apart and each
+// one changed frame at its own moment (owner's report 2026-10-24: pill
+// animations all out of step).
+static u16 obj_anim_tick;
 static bool any_solid_obj;
 static bool any_breakable_obj;
 
@@ -298,6 +305,7 @@ void objects_reset(void)
     }
     obj_count = 0;
     door_used = 0;
+    obj_anim_tick = 0;
 
     for (u8 i = 0; i < stage_def->object_spawn_count && obj_count < OBJECT_MAX; i++) {
         const ObjectSpawn *sp = &stage_def->object_spawns[i];
@@ -808,6 +816,13 @@ bool objects_boss_door_locked(s16 tile_x)
     return FALSE;
 }
 
+u8 objects_live(void)
+{
+    u8 n = 0;
+    for (u8 i = 0; i < obj_count; i++) if (objs[i].active) n++;
+    return n;
+}
+
 void objects_set_visible(bool visible)
 {
     for (u8 i = 0; i < obj_count; i++)
@@ -952,6 +967,7 @@ void objects_update(void)
     s16 pl, pt, pr, pb;
     player_get_box(&pl, &pt, &pr, &pb);
 
+    obj_anim_tick++;            // PC's single object animation clock
     any_solid_obj = FALSE;
     any_breakable_obj = FALSE;
     for (u8 i = 0; i < obj_count; i++) {
@@ -1282,7 +1298,17 @@ void objects_update(void)
         // driven by the state machine above, so it must not auto-advance.
         if (d->type != 28 && (auto_anim(d->type) || o->started ||
                               o->anim_play)) {
-            if (++o->anim_t >= d->frame_t) {
+            if (is_looping(d) && !o->anim_play && d->frame_t) {
+                // Looping art follows the shared clock: every object with the
+                // same frame count/delay flips on the same tick, exactly like
+                // the PC, and an object that was off screen cannot come back
+                // with a stale phase.
+                const u8 f = (u8)((obj_anim_tick / d->frame_t) % d->frames);
+                if (f != o->frame) {
+                    o->frame = f;
+                    if (o->spr) spr_set_frame(o->spr, f);
+                }
+            } else if (++o->anim_t >= d->frame_t) {
                 o->anim_t = 0;
                 if (o->frame + 1 < d->frames) {
                     o->frame++;

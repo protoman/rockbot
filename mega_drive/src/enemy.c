@@ -1691,6 +1691,13 @@ void enemies_boss_death_pos(s16 *x, s16 *y)
 }
 
 // Body box + facing of enemy `index` (CHAIN projectiles follow their owner)
+u8 enemies_live(void)
+{
+    u8 n = 0;
+    for (u8 i = 0; i < enemy_count; i++) if (enemies[i].alive) n++;
+    return n;
+}
+
 bool enemies_get_box(u8 index, s16 *x, s16 *y, s16 *w, s16 *h, s8 *dir)
 {
     if (index >= enemy_count) return FALSE;

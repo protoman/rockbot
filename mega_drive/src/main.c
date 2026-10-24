@@ -81,14 +81,17 @@ static void drawCentered(const char *text, u16 tileY)
 // The stage loop is SPLIT BY A MARK PLACED AFTER EACH UNIT OF WORK: the value
 // printed for a name is the time spent since the previous mark.
 #include <string.h>
-#define PROF_SETUP   0      // loop tail, input, menu, objects, player, HUD, link
+#define PROF_OBJ     7      // objects_update
+#define PROF_PLAYER  8      // player_update + scroll lock
+#define PROF_HUD     9      // hud_update + hud_weapon
+#define PROF_SETUP   0      // loop tail, input, menu, links, transitions
 #define PROF_CAMERA  1      // stage_update_camera (MAP_scrollTo)
 #define PROF_ANIM    2      // stage_anim_update + stage_cycle_update
 #define PROF_ENEMY   3      // enemies_update + boss checks
 #define PROF_SHOT    4      // explosions, eshots, shots, boss HUD
 #define PROF_SPRITE  5      // SPR_update
 #define PROF_VBLANK  6      // SYS_doVBlankProcess (idle time if the frame fits)
-#define PROF_N       7
+#define PROF_N       10
 static u32 prof_last;
 static u32 prof_acc[PROF_N];
 static u16 prof_frames;
@@ -101,10 +104,14 @@ static inline void prof_tick(u8 i)
 static void prof_report(void)
 {
     if (++prof_frames < 60) return;
-    kprintf("PROF map=%d setup=%lu cam=%lu anim=%lu npc=%lu shot=%lu "
-            "spr=%lu wait=%lu (subticks/frame, 1280 = 60fps)\n",
-            (int)stage_current_map,
+    kprintf("PROF map=%d obj=%d npc=%d setup=%lu objupd=%lu plr=%lu hud=%lu "
+            "cam=%lu anim=%lu npcs=%lu shot=%lu spr=%lu wait=%lu "
+            "(subticks/frame, 1280 = 60fps)\n",
+            (int)stage_current_map, (int)objects_live(), (int)enemies_live(),
             (unsigned long)(prof_acc[PROF_SETUP] / 60),
+            (unsigned long)(prof_acc[PROF_OBJ] / 60),
+            (unsigned long)(prof_acc[PROF_PLAYER] / 60),
+            (unsigned long)(prof_acc[PROF_HUD] / 60),
             (unsigned long)(prof_acc[PROF_CAMERA] / 60),
             (unsigned long)(prof_acc[PROF_ANIM] / 60),
             (unsigned long)(prof_acc[PROF_ENEMY] / 60),
@@ -538,10 +545,19 @@ static RunResult runStage(u8 stage)
         }
         prev_pad = pad;
         objects_update();   // platforms carry the player before his physics
+#ifdef MD_PROFILE
+        prof_tick(PROF_OBJ);
+#endif
         player_update(pad);
         player_check_scroll_lock(pad);
+#ifdef MD_PROFILE
+        prof_tick(PROF_PLAYER);
+#endif
         hud_update(player.hp);
         hud_weapon(player_weapon(), player_weapon_ammo());
+#ifdef MD_PROFILE
+        prof_tick(PROF_HUD);
+#endif
 
         s16 bl, bt, br, bb;
         player_get_box(&bl, &bt, &br, &bb);
@@ -1030,12 +1046,16 @@ int main(bool hardReset)
     stage_set_data(0);   // valid stage_def before anything reads it
 
 #ifdef MD_PROFILE
-    // Profiling build only: skip intro/menu and boot straight into SEAHORSE,
-    // the stage reported as "VERY slow". Reverted by dropping MD_PROFILE.
+    // Profiling build only: skip intro/menu and boot straight into the stage
+    // under test (MD_TEST_STAGE, default 0 = CHAOS CITY, the intro stage).
     current_save_slot = 0;
     current_player = 0;
     player_new_game();
-    playSession(3);
+#ifdef MD_TEST_STAGE
+    playSession((u8)MD_TEST_STAGE);
+#else
+    playSession(0);
+#endif
 #endif
 
 #ifdef MD_TEST_STAGE

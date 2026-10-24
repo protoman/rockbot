@@ -150,7 +150,11 @@ Hard rules, because they were broken twice in one session (2026-10-21):
 
 - **Ask before every launch.** One explicit permission = one launch. A retry
   with different flags, a `stdbuf`, a different terminal — all new launches,
-  all need a new ask.
+  all need a new ask. This includes a *verification* run that follows a test the
+  user just played, and any run where the agent drives the pad itself: a
+  session-long "let's profile" authorises exactly the launch that was asked for,
+  not the ones the agent invents afterwards (broken on 2026-10-24: two
+  auto-driven launches after the user's profiled run).
 - Before asking, run the pre-flight checks (`command -v`, `ps`, window search)
   in their own call. Never put a launch and the check that justifies it in the
   same shell command.

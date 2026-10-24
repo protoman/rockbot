@@ -82,6 +82,8 @@ void objects_reset_doors(void);
 
 // Hide/show every live object sprite (in-game menu overlay).
 void objects_set_visible(bool visible);
+// Live object count (profile line).
+u8 objects_live(void);
 
 // Room transition: redraw every live object sprite shifted down by `dy`
 // screen pixels (the outgoing screen takes its objects with it).
