@@ -546,7 +546,31 @@ static RunResult runStage(u8 stage)
             // link's band, so climbing back into it fires the return link
             // (before, he arrived inside the band, the arrival latch held and
             // climbing out of the room never triggered anything).
-            const bool on_stair =
+            // Ladder mouth: the link's dst_x can sit one column beside the
+            // actual ladder in the destination map (APE link2 points at tile 1
+            // while its stair is at tile 2, link4 at 21 vs 22), so trusting it
+            // dropped the player next to the ladder and he fell
+            // (transition_ladder_align_error). The PC never snaps X on a
+            // vertical transition - it keeps the screen X and relies on the
+            // ladder lining up - so look for the stair the link means: same
+            // column first, then +-1, then +-2, on the arrival row or the one
+            // below it.
+            s16 stair_col = -1;
+            if (to_trans == TRANS_T2B || to_trans == TRANS_B2T) {
+                const s16 row0 = to_y / tile;
+                for (s16 d = 0; d <= 2 && stair_col < 0; d++) {
+                    for (s16 sgn = -1; sgn <= 1; sgn += 2) {
+                        const s16 c = (s16)(dst_tx + (d ? d * sgn : 0));
+                        if (c < 0 || c >= stage_def->map_w) continue;
+                        if (stage_terrain_at(to_map, c, row0) == TERRAIN_STAIR ||
+                            stage_terrain_at(to_map, c, row0 + 1) == TERRAIN_STAIR) {
+                            stair_col = c;
+                            break;
+                        }
+                    }
+                }
+            }
+            const bool on_stair = stair_col >= 0 ||
                 stage_terrain_at(to_map, dst_tx, to_y / tile) == TERRAIN_STAIR;
             // Keep the player's offset inside the link band (PC keeps his
             // screen X and scrolls the map instead of snapping to the tile
@@ -560,9 +584,11 @@ static RunResult runStage(u8 stage)
             const s16 px_max = stage_def->map_w * tile - PLAYER_BOX_R;
             if (px > px_max) px = px_max;
             if (px < 0) px = 0;
-            if (on_stair)
-                px = dst_tx * tile + tile / 2
+            if (on_stair) {
+                const s16 col = (stair_col >= 0) ? stair_col : dst_tx;
+                px = col * tile + tile / 2
                      - (PLAYER_BOX_L + PLAYER_BOX_R) / 2;
+            }
             // The arrival camera must be known before the destination map is
             // loaded, so the transition knows which screen to slide in.
             const s16 cam_x = stage_arrival_camera_x(

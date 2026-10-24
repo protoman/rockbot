@@ -40,7 +40,6 @@
 #define ANIM_WALK_ATTACK 12 // PC ANIM_TYPE_WALK_ATTACK (frames 12/13/14): firing
                             // while walking, NOT the plain ATTACK row
 #define ANIM_JUMP_ATTACK 13 // PC ANIM_TYPE_JUMP_ATTACK (frame 10)
-#define ANIM_STAIRS_SEMI 14 // PC ANIM_TYPE_STAIRS_SEMI (frame 18): the half
                             // pose shown when grabbing/leaving a ladder
 
 typedef struct {

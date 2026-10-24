@@ -10,6 +10,12 @@ is bidirectional, reproduce the arrival math the ROM uses (main.c,
   on_stair  -> px centred on the ladder column
   player.on_ladder = on_stair
 
+Vertical links (arrival row 0 or map_h-1) use the ROM's ladder scan: the
+link's dst_x first, then +-1, then +-2 on the arrival row or the row below,
+because some links point one column beside their ladder (APE link2: tile 1,
+stair at 2). No stair found -> LADDER flag (the player would arrive beside
+it and fall).
+
 Flags reported:
   SOLID      the player's box overlaps a SOLID tile on arrival
   SPIKE/WATER the box touches SPIKE / WATER
@@ -70,6 +76,17 @@ def terrain(stage, mi, x, y):
     return stage["maps"][mi][y * w + x]
 
 
+def ladder_col(stage, dmap, dx, dy):
+    """Stair column a vertical link means (mirrors main.c's arrival scan)."""
+    for d in range(0, 3):
+        for sgn in (-1, 1):
+            c = dx + (d * sgn if d else 0)
+            if terrain(stage, dmap, c, dy) == STAIR or \
+               terrain(stage, dmap, c, dy + 1) == STAIR:
+                return c
+    return -1
+
+
 def arrival(stage, dmap, dx, dy):
     px = dx * TILE + TILE // 2 - (BOX_L + BOX_R) // 2
     py = dy * TILE + TILE // 2 - (BOX_T + BOX_B) // 2
@@ -81,8 +98,14 @@ def arrival(stage, dmap, dx, dy):
     return px, py, on_stair
 
 
-def check(stage, dmap, dx, dy):
+def check(stage, dmap, dx, dy, vertical=False):
     px, py, on_stair = arrival(stage, dmap, dx, dy)
+    ladder = None
+    if vertical:
+        ladder = ladder_col(stage, dmap, dx, dy)
+        if ladder >= 0:
+            on_stair = True
+            px = ladder * TILE + TILE // 2 - (BOX_L + BOX_R) // 2
     x0, x1 = (px + BOX_L) >> 4, (px + BOX_R - 1) >> 4
     y0, y1 = (py + BOX_T) >> 4, (py + BOX_B - 1) >> 4
     flags = []
@@ -108,7 +131,7 @@ def check(stage, dmap, dx, dy):
                 break
         if not floor:
             flags.append("NO-FLOOR")
-    return px, py, on_stair, flags
+    return px, py, on_stair, flags, ladder
 
 
 def main(argv):
@@ -120,18 +143,29 @@ def main(argv):
             continue
         base = os.path.basename("stage%d_data.c" % n)
         for i, (mfrom, tx, ty, mto, dx, dy, size, bidir, ltype) in enumerate(st["links"]):
-            trips = [(mto, dx, dy, "fwd")]
+            trips = [(mfrom, tx, ty, mto, dx, dy, "fwd")]
             if bidir:
-                trips.append((mfrom, tx, ty, "rev"))
-            for dmap, ax, ay, kind in trips:
+                trips.append((mto, dx, dy, mfrom, tx, ty, "rev"))
+            for smap, sx, sy, dmap, ax, ay, kind in trips:
                 total += 1
-                px, py, on_stair, flags = check(st, dmap, ax, ay)
+                # A vertical transition that leaves through a LADDER must
+                # arrive on one; a plain room boundary (no stair at the
+                # source) has nothing to align to.
+                # structural: the ROM decides the transition direction from
+                # the link geometry (destination row 0 or last row)
+                vertical = ay == 0 or ay == st["map_h"] - 1
+                px, py, on_stair, flags, ladder = check(st, dmap, ax, ay, vertical)
+                note = ""
+                if ladder is not None and ladder >= 0:
+                    note = " LADDER@%d%s" % (ladder,
+                                             "" if ladder == ax else " (dst_x=%d)" % ax)
                 if flags:
                     flagged += 1
-                    print("%s link%-2d %s m%d(%d,%d)->m%d(%d,%d) px%d py%d%s : %s"
+                if flags or note:
+                    print("%s link%-2d %s m%d(%d,%d)->m%d(%d,%d) px%d py%d%s%s : %s"
                           % (base, i, kind, mfrom, tx, ty, dmap, ax, ay,
-                             px, py, " STAIR" if on_stair else "",
-                             ", ".join(flags)))
+                             px, py, " STAIR" if on_stair else "", note,
+                             ", ".join(flags) if flags else "ok"))
     print("audited %d arrivals, %d flagged" % (total, flagged))
     return 0
 

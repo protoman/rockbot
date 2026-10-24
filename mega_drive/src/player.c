@@ -114,7 +114,8 @@ static u16 current_anim;
 static bool in_water;       // previous water state (enter/leave SFX)
 static bool ladder_flip;    // climb pose desired (cycle/turn driven)
 static bool ladder_shown;   // last pose baked into the sprite VRAM
-static u8 ladder_semi;      // frames of the STAIRS_SEMI grab pose left
+static u8 ladder_semi;      // frames of the half-body grab pose left
+static u8 ladder_frame;     // STAIRS frame last baked (0 climb, 1 half body)
 static s16 climb_flip_dist;
 // Sub-pixel remainders for quicksand's 0.2 px/frame sink and for the slowed
 // walk, which runs below one pixel per frame (the move is whole-pixel).
@@ -829,8 +830,7 @@ void player_update(u16 pad)
     }
 
     // freshly grabbed: pose starts from the approach direction, cycle restarts
-    if (player.on_ladder && current_anim != ANIM_STAIRS &&
-        current_anim != ANIM_STAIRS_SEMI) {
+    if (player.on_ladder && current_anim != ANIM_STAIRS) {
         ladder_flip = (player.facing < 0);
         climb_flip_dist = 0;
         // PC character.cpp:402/444: grabbing (or leaving) a ladder goes through
@@ -918,18 +918,25 @@ void player_update(u16 pad)
             // PC keeps the stairs pose; firing mid-climb uses
             // ANIM_TYPE_STAIRS_ATTACK (classplayer.cpp:482).
             u16 stair_anim = (attack_timer > 0) ? ANIM_STAIRS_ATTACK : ANIM_STAIRS;
+            // The half-body pose is frame 1 of the STAIRS animation (frames 17
+            // and 18 of the sheet); it used to be a separate animation, which
+            // ROCKBOT's sheet did not have (BUG-043).
+            u8 stair_frame = 0;
             if (attack_timer == 0 && ladder_semi) {
-                stair_anim = ANIM_STAIRS_SEMI;
+                stair_frame = 1;
                 if (--ladder_semi == 0) current_anim = ANIM_STAIRS;  // force relock
             }
             // Rebuild the sprite when the pose changes: the VRAM tiles are
             // (re)built on anim changes and both rows are static (time 0)
             // so they never advance on their own.
-            if (current_anim != stair_anim || ladder_flip != ladder_shown) {
+            if (current_anim != stair_anim || ladder_flip != ladder_shown ||
+                stair_frame != ladder_frame) {
                 current_anim = stair_anim;
                 ladder_shown = ladder_flip;
+                ladder_frame = stair_frame;
                 SPR_setHFlip(player.spr, ladder_flip);
                 spr_set_anim(player.spr, stair_anim);
+                spr_set_frame(player.spr, stair_frame);
             }
             SPR_setPosition(player.spr,
                             ix - camera.x + flip_dx() + ladder_art_dx(),

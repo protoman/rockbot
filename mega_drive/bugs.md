@@ -43,9 +43,28 @@ sprite guard: frame index %d >= %u
 The crash class is therefore gone (no more garbage frame pointers); the next
 reproduction names the call site's art so the *real* index bug can be fixed.
 
-**Status**: **open** — not reproduced yet on stage 0 or stage 1 with the guard
-active (three slide/fire passes each, no report). Needs a repro on the exact
-spot of the user's run; the guard turns it into a log line instead of a crash.
+**ROOT CAUSE found 2026-10-24** (the guard paid off): a logged run in the APE
+stage printed, nine times,
+
+```
+sprite guard: animation out of range (index 14, 14 valid, def 00034030)
+```
+
+and `0x34030` is `player_p1_sprite`. ROCKBOT's sprite got **14 animations**
+while the other three players got 15: rescomp dropped the trailing
+`STAIRS_SEMI` animation for player 1 only, so `SPR_setAnim(ANIM_STAIRS_SEMI)`
+(= 14) was out of range and `SPR_update` read a garbage frame pointer - the
+ADDRESS ERROR in `crash_slide.png`. The trigger was grabbing/leaving a ladder
+(12-frame half-body pose), not the slide itself.
+
+**Fix**: the half-body art (sheet frame 18) is now the **second frame of the
+STAIRS animation** (`tools/convert_player.py`: `("STAIRS", [17, 18], [0, 0])`,
+15th animation removed, `ANIM_STAIRS_SEMI` deleted from player.h) and
+`player.c` selects frame 1 for the semi pose. All four players now ship 14
+animations with the same layout, and the guard reports nothing.
+
+**Status**: fixed 2026-10-24, needs one play-test on a ladder (grab and leave
+should still show the half-body pose, and nothing may log).
 
 ## BUG-042 — Tooltip box interior and name background showed the parallax
 
