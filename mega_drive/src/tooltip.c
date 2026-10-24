@@ -86,11 +86,20 @@ static void cell_draw(u16 tile, u8 col, u8 row)
 // opaque parts (borders, icon ink, glyph ink).
 static void back_fill_draw(void)
 {
+    // BG_B is the SCROLLED parallax plane, so a screen cell (col,row) lives at
+    // plane cell ((col*8 - hscroll)/8, (row*8 - vscroll)/8) - the fill is one
+    // uniform tile, so a sub-tile offset only means one extra row/column of
+    // coverage, never a seam.
     const u16 tile = (u16)(TOOLTIP_TILE_BASE + TOOLTIP_FILL_TILE);
-    for (u8 r = 0; r < TOOLTIP_FRAME_H; r++)
-        for (u8 c = 0; c < TOOLTIP_FRAME_W; c++)
-            plane_cell(BG_B, tile, (u8)(TOOLTIP_COL + c),
-                       (u8)(TOOLTIP_ROW + r));
+    const s16 hx = (s16)(TOOLTIP_COL * 8 - stage_bg_hscroll);
+    const s16 vy = (s16)(TOOLTIP_ROW * 8 - stage_bg_vscroll);
+    const u16 c0 = (u16)((hx - 8) >> 3), c1 = (u16)((hx + TOOLTIP_FRAME_W * 8) >> 3);
+    const u16 r0 = (u16)((vy - 8) >> 3), r1 = (u16)((vy + TOOLTIP_FRAME_H * 8) >> 3);
+    for (u16 c = c0; c <= c1; c++)
+        for (u16 r = r0; r <= r1; r++)
+            VDP_setTileMapXY(BG_B,
+                             TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE, tile),
+                             (u16)(c & 63), (u16)(r & 31));
 }
 
 static void box_draw(void)

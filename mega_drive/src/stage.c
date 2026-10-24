@@ -96,10 +96,17 @@ static void bg_upload_tiles_maps(u8 map_index)
     }
 }
 
+// BG_B's current scroll, mirrored here: the tooltip backs its box with a fill
+// tile on that plane (BG index 0 is transparent, BUG-042), so it must know
+// where a screen cell actually lands on the scrolled parallax plane.
+s16 stage_bg_hscroll;
+s16 stage_bg_vscroll;
+
 // Draw the parallax background of the given map on BG_B.
 static void bg_load(u8 map_index)
 {
     VDP_clearPlane(BG_B, TRUE);
+    stage_bg_hscroll = 0;
     VDP_setHorizontalScroll(BG_B, 0);
 
     const StageBgInfo *info = &stage_def->bg_info[map_index];
@@ -447,10 +454,13 @@ void stage_load(u8 map_index)
     // VDP enabled — the bg_load write landed inside the disabled window
     // and was lost (art sat at y=0: moon at top, skyline mid-screen).
     // The -16 corrects for the cropped top PC row (240 -> 224 screen).
-    if (stage_def->bg_info[map_index].present)
-        VDP_setVerticalScroll(BG_B, -((s16)stage_def->bg_info[map_index].adjust_y - 16));
-    else
+    if (stage_def->bg_info[map_index].present) {
+        stage_bg_vscroll = (s16)(-((s16)stage_def->bg_info[map_index].adjust_y - 16));
+        VDP_setVerticalScroll(BG_B, stage_bg_vscroll);
+    } else {
+        stage_bg_vscroll = 0;
         VDP_setVerticalScroll(BG_B, 0);
+    }
 }
 
 // PC test_teleport/check_player_is_on_teleport (game.cpp:638-661, 771-835).
@@ -631,6 +641,7 @@ void stage_update_camera(s16 focusX, s16 focusY)
         s32 scroll = -((s32)(camera.x + shake) * info->speed) / 10;
         scroll %= 512;
         if (scroll > 0) scroll -= 512;
+        stage_bg_hscroll = (s16)scroll;
         VDP_setHorizontalScroll(BG_B, (s16)scroll);
     }
 }
@@ -665,6 +676,7 @@ void stage_horizontal_screen_move(s16 dir)
             s32 scroll = -((s32)camera.x * info->speed) / 10;
             scroll %= 512;
             if (scroll > 0) scroll -= 512;
+            stage_bg_hscroll = (s16)scroll;
             VDP_setHorizontalScroll(BG_B, (s16)scroll);
         }
         player_acc += DOOR_PLAYER_MOVE_F;

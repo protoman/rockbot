@@ -141,6 +141,11 @@ void stage_restore_cycle(void);
 // Re-draw the parallax background plane (image, palette, scroll) after an
 // overlay borrowed the background tile block.
 void stage_redraw_bg(void);
+
+// Current scroll of the parallax plane (BG_B), mirrored by stage.c so overlay
+// art can place cells on that plane (the tooltip's opaque backing, BUG-042).
+extern s16 stage_bg_hscroll;
+extern s16 stage_bg_vscroll;
 void stage_redraw_anim(void);
 
 // Release the stage map (its deferred vblank updates would repaint the
