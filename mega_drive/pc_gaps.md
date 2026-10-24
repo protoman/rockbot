@@ -348,6 +348,17 @@ the LAB opening is ever wired.
 - **Stages 14..19**: placeholders in the data (`Stage [16]`, empty). Not engine
   work; they need a data conversion like the first fourteen got.
 
+## Performance (2026-10-24)
+
+- [x] "Slowdown when several objects are on screen": reproduced offline with
+      `tools/run_host_tests.sh` (real `src/object.c` + counting stubs). The type
+      predicates answered 3-4x per object per frame (7/21/36/50 answers for
+      2/6/10/14 visible objects, ≈347 subticks of `objects_update` at 14, the
+      emulator measured 350); they are now answered once per object at spawn
+      (`MapObj.flags`), the looping animation steps without a per-object
+      division, and `stage_terrain_at` reads through a cached map base. Model:
+      ≈171 subticks at 14 objects.
+
 ## Process
 
 The lesson from APE: **"action supported" is not "option supported"**, and a

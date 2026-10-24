@@ -90,8 +90,18 @@ static bool any_solid_obj;
 static bool any_breakable_obj;
 
 // Types that animate without player interaction (auto_start = 1 in data).
+#ifdef MD_HOST_TEST
+// Host cost tests (tests/host): count how often the type predicates answer, so
+// a per-frame hot-path regression is visible without the emulator.
+u32 host_pred_calls;
+#define HOST_PRED() (host_pred_calls++)
+#else
+#define HOST_PRED() do { } while (0)
+#endif
+
 static bool auto_anim(u8 type)
 {
+    HOST_PRED();
     // pickups (small/big pills), 1UP, boss teleporter, COIL/JET items
     return type == 5 || type == 6 || type == 7 || type == 8 || type == 9 ||
            type == 12 || type == 13 ||
@@ -101,6 +111,7 @@ static bool auto_anim(u8 type)
 
 static bool is_platform(u8 type)
 {
+    HOST_PRED();
     // disappearing/active blocks, fall/fly/LR platforms, destructible wall,
     // boss door, JET EAGLE, damaging platform (RockDroid2 28). COIL (13) is a
     // trigger, not a platform. The slim platform (27) is one-way and is
@@ -125,6 +136,7 @@ static bool slim_solid_now(const MapObj *o)
 #define OBJ_GRAVITY_SPEED 4
 static bool object_has_gravity(u8 type)
 {
+    HOST_PRED();
     switch (type) {
     case 0:  case 1:  case 2:                 // up/down, left/right, block
     case 10: case 11: case 12:                // fall/fly platforms, fly item
@@ -168,6 +180,7 @@ static u8 obj_ms_frames(u16 ms)
 
 static bool is_looping(const ObjectDef *d)
 {
+    HOST_PRED();
     // PC file_object.animation_loop: the checkpoint's flag keeps waving after
     // activation, the boss teleporter animates forever, platforms play once.
     return d->anim_loop != 0;

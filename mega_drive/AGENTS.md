@@ -265,6 +265,23 @@ harness for it (e.g. a headless driver of the physics/arrival math in Python
 mirroring the C, or a converter-side assertion) instead of guessing a fix.
 State the reproduction in the commit message.
 
+## Performance work — host cost tests before the emulator
+
+A slowdown is a bug and follows the same rule: reproduce it offline first.
+`tools/run_host_tests.sh` compiles the **real** `src/object.c` against counting
+stubs (`tests/host/`) and prints the work one frame costs as a function of the
+number of visible objects: type-predicate answers, terrain lookups, sprite
+calls, plus an estimated `objects_update` cost in the profiler's subticks
+(calibrated on the CHAOS CITY measurement: 1280 subticks = one 60 Hz frame).
+
+    tools/run_host_tests.sh          # prints the table, exits 1 on a regression
+
+Use it before and after a change; the pre-fix numbers for the 2026-10-24
+"slowdown with objects on screen" report were 7/21/36/50 predicate answers per
+frame (2/6/10/14 objects, ≈347 subticks at 14) and are now 0 (≈171). Only then
+consider `make profile` on hardware, and only when the model says the frame is
+near the 1280-subtick budget.
+
 ## PC parity audit (never wait for a play-test to find these)
 
 Before saying a feature is "done", read the PC enum/field the converter
