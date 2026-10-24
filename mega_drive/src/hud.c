@@ -46,6 +46,11 @@ static Sprite *add_part(const SpriteDefinition *def, s16 x, s16 y, u16 pal)
 // The old HUD_BALL_FRAMES 5 mapped 100% HP to frame 0, so the bars showed their
 // empty art all the time.
 #define HUD_BAR_FRAMES 51
+// Lowest frame that still shows one whole segment. Frame 0 is the empty art and
+// frame 1 is a sliver of the first segment, so a nearly-dead player used to see
+// no gauge at all (report 2026-10-24: "HUD showed zero lines and I was still
+// alive"). tools/check_hud_bars.py asserts this mapping.
+#define HUD_BAR_MIN_FRAME 3
 
 // The icon and its black box follow the bar, so no caller can show a bar
 // without its icon (the weapon icon used to stay hidden until the menu forced
@@ -56,6 +61,7 @@ static void set_bar(Sprite *const *parts, bool show, s16 pct,
     s16 frame = (pct * (HUD_BAR_FRAMES - 1)) / 100;
     if (frame < 0) frame = 0;
     if (frame > HUD_BAR_FRAMES - 1) frame = HUD_BAR_FRAMES - 1;
+    if (frame > 0 && frame < HUD_BAR_MIN_FRAME) frame = HUD_BAR_MIN_FRAME;
     for (u8 i = 0; i < HUD_PARTS; i++) {
         if (!parts[i]) continue;
         SPR_setVisibility(parts[i], show ? VISIBLE : HIDDEN);

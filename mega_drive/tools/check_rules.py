@@ -1,0 +1,108 @@
+#!/usr/bin/env python3
+"""Source invariants for interaction bugs that cannot be driven offline.
+
+Some reports are pure gameplay interaction (a door re-opening, knockback
+pushing the player into an object, a slide through a scroll lock). There is no
+headless harness for the 68k here, so the reproduction is a **rule check**: each
+entry states the PC behaviour it encodes, the file it lives in and the code
+shape that must exist. It fails on the tree *before* the fix (see
+`--rev`), which is how the fix was verified without the emulator:
+
+    tools/check_rules.py --rev HEAD   # old tree: these rules fail
+    tools/check_rules.py              # fixed tree: all pass
+
+Numbers in brackets are the reports from 2026-10-24.
+"""
+import argparse
+import os
+import re
+import subprocess
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# (id, description, [(file, regex)...], [forbidden regexes on that file])
+RULES = [
+    ("door-once",
+     "a boss door opens once; touching it again must not scroll the room",
+     [("src/object.c", r"if \(o->started\) continue;"),
+      ("src/object.c", r"o->started = TRUE;")],
+     []),
+    ("door-scroll-sync",
+     "the door's slice sprites follow the camera during a screen move",
+     [("src/object.c", r"door_sync\(o, on_screen\);")],
+     []),
+    ("pushback-collision",
+     "knockback stops at solid map objects (player cannot land inside a door)",
+     [("src/player.c", r"objects_block_x\(ix, iy \+ box_t, iy \+ box_b, pdx, &px\)")],
+     []),
+    ("slide-scroll-lock",
+     "a slide triggers a horizontal scroll lock, and the probe covers the sweep",
+     [("src/player.c", r"if \(!dir && player\.sliding\) dir ="),
+      ("src/player.c", r"for \(s16 off = -reach; off <= 2; off\+\+\)")],
+     [("src/player.c", r"if \(player\.on_ladder \|\| player\.sliding \|\| player\.hit_push > 0\) return;")]),
+    ("enemy-object-collision",
+     "enemies stop at solid map objects instead of walking through them",
+     [("src/enemy.c", r"objects_block_box\(lead, e->y \+ d->box_t")],
+     []),
+    ("wall-bomb-only",
+     "only an exploding bomb breaks a destructible wall (type 22)",
+     [("src/object.c", r"if \(ty == 22 && !bomb\) continue;"),
+      ("src/shot.c", r"objects_try_hit\(s->x - 20, s->y - 20, s->x \+ 20, s->y \+ 20,\s*\n?\s*s->dmg, TRUE\);")],
+     []),
+    ("hud-min-bar",
+     "a live player/boss always shows at least one gauge segment",
+     [("src/hud.c", r"if \(frame > 0 && frame < HUD_BAR_MIN_FRAME\) frame = HUD_BAR_MIN_FRAME;")],
+     []),
+]
+
+
+def read(path, rev):
+    if rev:
+        try:
+            out = subprocess.run(["git", "show", f"{rev}:{path}"], cwd=ROOT,
+                                 capture_output=True, text=True, check=True)
+            return out.stdout
+        except subprocess.CalledProcessError:
+            return ""
+    try:
+        return open(os.path.join(ROOT, path)).read()
+    except OSError:
+        return ""
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--rev", help="check a git revision (reproduces the bugs)")
+    args = ap.parse_args()
+    cache = {}
+
+    def text(path):
+        if path not in cache:
+            cache[path] = read(path, args.rev)
+        return cache[path]
+
+    failed = 0
+    for rid, desc, needs, forbids in RULES:
+        bad = [f"{f}: missing /{rx}/" for f, rx in needs
+               if not re.search(rx, text(f))]
+        bad += [f"{f}: still has /{rx}/" for f, rx in forbids
+                if re.search(rx, text(f))]
+        if bad:
+            failed += 1
+            print(f"FAIL {rid}: {desc}")
+            for line in bad:
+                print(f"     {line}")
+        else:
+            print(f"ok   {rid}")
+
+    where = f" (rev {args.rev})" if args.rev else ""
+    if failed:
+        print(f"check_rules: {failed}/{len(RULES)} rule(s) violated{where}")
+        return 1
+    print(f"check_rules: OK ({len(RULES)} rules){where}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

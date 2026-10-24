@@ -37,7 +37,12 @@ bool objects_spawn_weapon_item(bool jet);
 // Call once per frame BEFORE player_update (carry moves the player first).
 void objects_update(void);
 // Player shot vs destructible wall; TRUE = consumed.
-bool objects_try_hit(s16 l, s16 t, s16 r, s16 b, u8 dmg);
+// `bomb`: the hit comes from an exploding bomb (the only thing that can
+// break OBJ_DESTRUCTIBLE_WALL type 22 - PC classplayer.cpp:800).
+bool objects_try_hit(s16 l, s16 t, s16 r, s16 b, u8 dmg, bool bomb);
+// Solid map objects (blocks, doors) inside the box: enemies and the
+// player hit-pushback use it the same way terrain does.
+bool objects_block_box(s16 l, s16 t, s16 r, s16 b);
 
 // Descending-player query: first fall/fly platform whose top the box crosses
 // this frame (head ended at/above it, feet below, any horizontal touch —

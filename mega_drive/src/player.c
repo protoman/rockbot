@@ -763,15 +763,31 @@ void player_screen_edge_update(void)
 
 void player_check_scroll_lock(u16 pad)
 {
-    if (player.on_ladder || player.sliding || player.hit_push > 0) return;
+    if (player.on_ladder) return;
     s8 dir = (pad & BUTTON_RIGHT) ? 1 : (pad & BUTTON_LEFT) ? -1 : 0;
+    // PC character::process_special_map_points fires on the COLLISION and takes
+    // the facing from the movement, so a slide counts. The port skipped the
+    // check entirely while sliding, letting the player slide through a
+    // horizontal lock and leave the scroll state broken (report 2026-10-24).
+    if (!dir && player.sliding) dir = (player.facing < 0) ? -1 : 1;
     if (!dir) return;
-    s16 row = (player.y + (box_t + box_b) / 2) >> 4;
-    s16 edge = (dir > 0) ? player.x + PLAYER_BOX_R + 2
-                         : player.x + PLAYER_BOX_L - 2;
-    if (stage_terrain_at(stage_current_map, edge >> 4, row) != TERRAIN_SCROLL_LOCK)
-        return;
-    stage_autoscroll(dir);
+    const s16 row = (player.y + (box_t + box_b) / 2) >> 4;
+    // Probe every column the leading edge crossed this frame: a slide moves
+    // 5 px, more than the old fixed 2 px look-ahead, so it could jump over the
+    // whole band.
+    s16 step = F16_toInt(player.vx);
+    if (step < 0) step = -step;
+    if (step < 2) step = 2;
+    const s16 reach = step + 2;
+    for (s16 off = -reach; off <= 2; off++) {
+        s16 edge = (dir > 0) ? player.x + PLAYER_BOX_R + off
+                             : player.x + PLAYER_BOX_L - off;
+        if (stage_terrain_at(stage_current_map, edge >> 4, row)
+            == TERRAIN_SCROLL_LOCK) {
+            stage_autoscroll(dir);
+            return;
+        }
+    }
 }
 
 void player_update(u16 pad)
@@ -979,7 +995,13 @@ void player_update(u16 pad)
         if (mv > 0) {
             // pushed away from facing: use the same first-solid-column rule as
             // walking, or a hit next to a thick wall drives the box inside it
-            ix = step_x_solid(ix, player.hit_dir * mv, iy + box_t, iy + box_b);
+            const s16 pdx = player.hit_dir * mv;
+            ix = step_x_solid(ix, pdx, iy + box_t, iy + box_b);
+            // Map objects stop the knockback too: next to a boss door the old
+            // path pushed the player INSIDE it, off-screen and stuck
+            // (report 2026-10-24).
+            s16 px;
+            if (objects_block_x(ix, iy + box_t, iy + box_b, pdx, &px)) ix = px;
         }
         player.vx = 0;
         pad &= ~(BUTTON_LEFT | BUTTON_RIGHT | JUMP_BUTTONS | SLIDE_BUTTON);

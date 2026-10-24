@@ -233,6 +233,24 @@ from already-captured screenshots/assets over running the emulator again.
 - The editor shows the same 14 rows the game uses; Edit > Shift Down / Shift Up
   move the room's tiles, objects and enemies by one row (links are untouched).
 
+## Bug workflow — reproduce offline BEFORE fixing (standing rule)
+
+Every reported bug gets an **offline reproduction first**, then a fix, then the
+same reproduction proves the fix — no emulator round-trip needed to know whether
+it worked:
+
+1. Write the reproduction as a check in `tools/` (or extend an existing one:
+   `audit_data.py`, `audit_links.py`, `check_vram.py`, `check_palettes.py`,
+   `check_terrain.py`, `check_fx.py`) or as an assert-based self-check next to
+   the code. It must **fail on the current tree** and say what it saw.
+2. Fix the code until that check passes.
+3. Only then consider a play-test, for things no check can see (feel, colour).
+
+If a bug cannot be reproduced offline yet, that is the first task — build the
+harness for it (e.g. a headless driver of the physics/arrival math in Python
+mirroring the C, or a converter-side assertion) instead of guessing a fix.
+State the reproduction in the commit message.
+
 ## PC parity audit (never wait for a play-test to find these)
 
 Before saying a feature is "done", read the PC enum/field the converter

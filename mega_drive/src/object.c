@@ -652,6 +652,20 @@ bool objects_stand_check(s16 l, s16 r, s16 feet)
     return FALSE;
 }
 
+// Any solid object inside the box (axis-agnostic). Enemies stop at one the way
+// they stop at a wall: a WOOD SHIELDER used to walk straight through the
+// destructible block (report 2026-10-24).
+bool objects_block_box(s16 l, s16 t, s16 r, s16 b)
+{
+    for (u8 i = 0; i < obj_count; i++) {
+        MapObj *o = &objs[i];
+        if (!solid_now(o)) continue;
+        if (l < o->x + o->def->w && r > o->x &&
+            t < o->y + o->def->h && b > o->y) return TRUE;
+    }
+    return FALSE;
+}
+
 bool objects_block_x(s16 nx, s16 t, s16 b, s16 dx, s16 *out_x)
 {
     s16 l = nx + PLAYER_BOX_L;
@@ -813,25 +827,41 @@ void objects_sync_sprites(void)
 {
     for (u8 i = 0; i < obj_count; i++) {
         MapObj *o = &objs[i];
-        if (!o->active || !o->spr) continue;
+        if (!o->active) continue;
         const ObjectDef *d = o->def;
         s16 sx = o->x - camera.x;
         s16 sy = o->y - camera.y;
         bool on_screen = (sx + d->w > 0 && sx < 320 &&
                           sy + d->h > 0 && sy < 224);
+        if (o->door) {
+            // A boss door is a stack of slice sprites, not o->spr: without this
+            // it stayed put while the room scrolled (report 2026-10-24).
+            door_sync(o, on_screen);
+            continue;
+        }
+        if (!o->spr) continue;
         SPR_setVisibility(o->spr, on_screen ? VISIBLE : HIDDEN);
         if (on_screen) SPR_setPosition(o->spr, sx, sy);
     }
 }
 
-// Player shots vs destructible walls (OBJ_DESTRUCTIBLE_WALL): the PC block
-// vanishes after enough hits (block003 art has a broken frame). Returns TRUE
-// when the shot hit something (the caller kills the shot).
-bool objects_try_hit(s16 l, s16 t, s16 r, s16 b, u8 dmg)
+// Player shots vs destructible walls. The PC rule (classplayer.cpp:800
+// object_is_affected_by_projectile) is narrow: OBJ_DESTRUCTIBLE_WALL only
+// breaks from an EXPLODING bomb (effect_n == 1 && TRAJECTORY_BOMB/FALL_BOMB,
+// or a projectile with the data flag is_explosive - no RockDroid1 projectile
+// sets it). Every other shot passes straight through. The block types
+// OBJ_DESTRUCTIBLE_NO_DROP/WITH_DROP/JUMP_SHOOT_DESTRUCTIBLE (36/37/42) accept
+// any projectile, so they are handled without the bomb requirement.
+// Returns TRUE when the shot hit something (the caller kills the shot).
+bool objects_try_hit(s16 l, s16 t, s16 r, s16 b, u8 dmg, bool bomb)
 {
     for (u8 i = 0; i < obj_count; i++) {
         MapObj *o = &objs[i];
-        if (!o->active || o->def->type != 22 || !o->visible) continue;
+        if (!o->active || !o->visible) continue;
+        const u8 ty = o->def->type;
+        if (ty != 22 && ty != 36 && ty != 37 && ty != 42) continue;
+        // A plain shot must NOT break (or stop at) the destructible wall.
+        if (ty == 22 && !bomb) continue;
         if (l >= o->x + o->def->w || r <= o->x ||
             t >= o->y + o->def->h || b <= o->y) continue;
         if (o->hp > dmg) {
@@ -1148,9 +1178,19 @@ void objects_update(void)
                 continue;
             }
             if (d->type == 30) {                    // boss door: open on touch
+                // PC classmap.cpp:1611: `if (temp_obj.is_started() == false
+                // && subboss_alive_on_left(...) == false)`. The port never set
+                // the flag, so walking back into the door re-ran the whole
+                // sequence and scrolled the room again (report 2026-10-24).
+                if (o->started) continue;
+                // PC also requires the player's box to be inside the door's
+                // vertical span (gz + char_rect.h <= door bottom + 2).
+                if (player.y + PLAYER_BOX_B > o->y + d->h + 2 ||
+                    player.y + PLAYER_BOX_T < o->y) continue;
                 // PC classmap.cpp:1611: a door stays shut while a boss or
                 // sub-boss is alive on the left side of it.
                 if (enemies_subboss_alive_left(o->x >> 4)) continue;
+                o->started = TRUE;
                 // PC object.cpp:1189: OPENING -> OPENED -> horizontal_screen
                 // move -> CLOSING. The PC data ships ONE door frame
                 // (max_frames = width/width-1 = 0), so its frame animation is a

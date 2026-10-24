@@ -497,7 +497,12 @@ static bool step_axis(Enemy *e, s16 *pos, s16 dest, bool horizontal, bool can_fa
     if (horizontal) {
         s16 lead = (dir > 0) ? n + d->box_l + d->box_w - 1 : n + d->box_l;
         if (box_hits_solid(lead, e->y + d->box_t,
-                           lead, e->y + d->box_t + d->box_h))
+                           lead, e->y + d->box_t + d->box_h) ||
+            // solid map objects block NPCs exactly like walls (PC collision
+            // loop runs for every character). WOOD SHIELDER used to walk
+            // through the destructible block (report 2026-10-24).
+            objects_block_box(lead, e->y + d->box_t,
+                              lead, e->y + d->box_t + d->box_h))
             return TRUE;
         // PC check_can_move_to_point (artificial_inteligence.cpp:2052): a
         // walker samples the tile BELOW the leading edge; a hole there stops

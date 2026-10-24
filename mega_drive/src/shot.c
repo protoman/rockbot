@@ -322,6 +322,10 @@ void shot_update(void)
                 explosion_spawn(s->x, s->y);
                 enemies_try_hit(s->x - 20, s->y - 20, s->x + 20, s->y + 20,
                                 s->dmg, 0, TRUE, player_weapon());
+                // PC: the bomb's explosion (effect_n == 1) is what breaks an
+                // OBJ_DESTRUCTIBLE_WALL - no other player shot does.
+                objects_try_hit(s->x - 20, s->y - 20, s->x + 20, s->y + 20,
+                                s->dmg, TRUE);
                 shot_kill(s);
                 continue;
             }
@@ -387,7 +391,7 @@ void shot_update(void)
 
         // destructible walls (OBJ_DESTRUCTIBLE_WALL) stop a non-charged shot
         if (objects_try_hit(s->x, s->y, s->x + s->w - 1, s->y + s->h - 1,
-                            s->dmg) && !s->pierce) {
+                            s->dmg, FALSE) && !s->pierce) {
             shot_kill(s);
             continue;
         }
