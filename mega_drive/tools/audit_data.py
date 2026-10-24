@@ -357,8 +357,10 @@ def main():
             if len(f) < 20:
                 continue
             jump, tele, intro = int(f[17]), int(f[18]), int(f[19])
+            turn = int(f[32]) if len(f) > 32 else 255
             n = counts[m.group(2)]
-            for label, v in (("jump", jump), ("teleport", tele), ("intro", intro)):
+            for label, v in (("jump", jump), ("teleport", tele),
+                             ("intro", intro), ("turn", turn)):
                 if v != 255 and v >= n:
                     name = line.split("//")[-1].strip()
                     print(f"stage {si} def {m.group(1)} {name}: "
