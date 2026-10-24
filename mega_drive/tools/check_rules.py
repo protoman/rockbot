@@ -60,6 +60,11 @@ RULES = [
      "wall_scroll_lock is built at map load)",
      [("src/object.c", r"if \(o->def->type != 30\) continue;")],
      [("src/object.c", r"if \(o->def->type != 30 \|\| o->started\) continue;")]),
+    ("menu-armor-line",
+     "the in-game menu shows the installed armor pieces (PC "
+     "draw::weapon_menu_show_player)",
+     [("src/menu.c", r"draw_armor_line\(\);")],
+     []),
     ("menu-tank-use",
      "the in-game menu can use a reserve tank (PC class_config.cpp:218 row 6 "
      "+ BTN_ATTACK); player_use_tank() used to have no caller",

@@ -1,3 +1,47 @@
+## Sweep 2026-10-24 (tools/audit_pc.py)
+
+`tools/audit_pc.py` walks the PC source and data and prints, side by side, what
+the PC has and what the port implements: player animation types, the weapon
+table, in-game menu/HUD pieces, config fields, seventeen player abilities, and
+the data-driven lists (reusing audit_data/check_terrain/check_projectiles/
+check_trajectories/check_vram/audit_ai). Run it instead of waiting for a
+play-test.
+
+Closed by this sweep:
+
+- [x] **Reserve tanks could not be used.** The menu printed the counts but
+      `player_use_tank()` had no caller; the PC keeps E/W/S-TANK in an extra row
+      of the weapon grid and uses one with BTN_ATTACK (`class_config.cpp:218`).
+      The cursor now walks weapons + tanks (count > 0), shows `NAME [n] B:USE`
+      and B uses one. `check_rules.py menu-tank-use`.
+- [x] **Armor pieces were not shown in the in-game menu** (PC
+      `draw.cpp:1021` draws the three installed pieces next to the portrait).
+      The port now prints `ARMOR: ARMS + BODY - LEGS +` on the panel; the PC
+      icon art still needs a free 16-tile VRAM block (see below).
+      `check_rules.py menu-armor-line`.
+
+Still open, with evidence:
+
+- [ ] **Armor piece ICONS** in the menu (PC art
+      `images/backgrounds/player_armor_pieces.png`, 4 frames x 4 players of
+      28x29). Needs 16 tiles of fixed VRAM outside the sprite pool (the layout
+      below the pool is full: 672..702 tooltip/dialog/config, 703..1439 pool).
+- [ ] **Straight up/down player shots**: the port shoots diagonally with Up/Down
+      held (`dy = +-3`); the PC also has `ANIM_TYPE_ATTACK_UP/DOWN` (weapons
+      whose projectile is a vertical trajectory). Diagonal art is also absent
+      (the port reuses the normal attack pose - accepted).
+- [ ] **Separate SFX/music volume** (PC `volume_sfx`/`volume_music`): the port
+      has a single on/off. XGM2 exposes both, so this is mostly menu work.
+- [ ] **Language selection** (PC ships EN + PT strings; the port ships EN only).
+- [ ] **Trophies screen + the "characters unlocked" warning** before players 3/4
+      (PC gates the warning on `game_config.game_finished`).
+- [ ] **Throw / carried object** (`ANIM_TYPE_THROW`, `ANIM_TYPE_HOLDING_HAND`):
+      no PC stage data uses them in RockDroid1; they matter if a sequel does.
+- [ ] **Wall grab** (`ANIM_TYPE_GRAB_WALL`): PC action AI_GRAB_WALL exists in
+      `enemy.c`, the *player* grab does not.
+- [ ] Trajectories CHAIN / BOMB_RAIN / LARGE_BEAM (stage 13 only) remain linear;
+      `check_trajectories.py` prints them as known.
+
 # PC features the MD port is missing (source audit)
 
 Purpose: the list of things the PC does that the port does not, found by reading

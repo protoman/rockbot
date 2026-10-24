@@ -319,6 +319,29 @@ static void draw_tank_line(void)
     VDP_drawText(buf, 5, 22);
 }
 
+// PC weapon_menu_show_player (draw.cpp:1021) also shows which armor pieces
+// are installed, as icons at the panel's right edge. The MD port has no free
+// VRAM block for that 28x29 art yet, so the state is a text line on the same
+// panel: ARMS/BODY/LEGS with the acquired ones spelled out.
+static void draw_armor_line(void)
+{
+    static const char *const names[3] = { "ARMS", "BODY", "LEGS" };
+    char buf[40];
+    u8 n = 0;
+    const char *head = "ARMOR: ";
+    while (*head) buf[n++] = *head++;
+    for (u8 i = 0; i < 3; i++) {
+        const bool on = (player.armor & (1u << i)) != 0;
+        for (const char *c = names[i]; *c; c++) buf[n++] = *c;
+        buf[n++] = ' ';
+        buf[n++] = on ? '+' : '-';
+        if (i < 2) { buf[n++] = ' '; buf[n++] = ' '; }
+    }
+    buf[n] = 0;
+    menu_restore_strip(2, 23, 36);
+    VDP_drawText(buf, 2, 23);
+}
+
 static void stage_sprites_visible(bool visible)
 {
     player_set_visible(visible);
@@ -358,6 +381,7 @@ static void menu_draw_panel(void)
     menu_restore_strip(2, 26, 20);
     VDP_drawText("A: LEAVE STAGE", 2, 26);
     draw_tank_line();
+    draw_armor_line();
     // PC weapon_menu_show_player (draw.cpp:1021): lives next to the portrait
     {
         char buf[6] = { 'x', '[', '0', ']', 0, 0 };
@@ -450,6 +474,7 @@ bool menu_open(u16 weapon_mask)
                 sfx_play(SFX_PILL);   // PC SFX_GOT_ENERGY (closest PCM here)
                 draw_tank_entry();
                 draw_tank_line();
+    draw_armor_line();
             }
             continue;
         }
