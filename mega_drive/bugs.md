@@ -1,3 +1,47 @@
+## Batch 2026-10-24 (c) — the rest of the fifteen reports
+
+Fixed, each with its offline reproduction:
+
+- **Room transition drew the current room's parallax behind the incoming
+  screen**, and **applied the outgoing horizontal offset to the incoming half
+  in upward (B2T) changes** — the 1..15px "unaligned" jump. Both planes now take
+  their source row from the same tilemap index (`base + y/8`), so the answer
+  cannot disagree with what the screen shows, and the destination room's bg
+  tiles are copied into the transition's spare VRAM and filled in as the split
+  claims them (sky instead when the two bg palettes differ, because both halves
+  share PAL3). `check_rules.py` transition-row-split.
+- **GAMBIT fell through the floor.** `AI_TELEPORT` ignored its option and placed
+  the enemy at `player.y - 16`, i.e. inside the floor. Now the PC's options
+  (`ia_action_teleport`): slide to the first wall within `walk_range`, Y never
+  changes. `check_rules.py` teleport-options.
+- **ANGRY BUNNY hopped in place.** A spawned NPC inherited the spawner's patrol
+  span, so every AHEAD move clamped back. A child is a fresh NPC on the PC and
+  now gets a span around its own spawn point (its own `range`, clamped to the
+  map). `check_rules.py` spawn-own-span.
+- **"The old bug returned" on the stage-5 second ladder (death / no return).**
+  It really had: BUG-005's arrival nudge lost its caller when the ladder-scan
+  arrival landed, so `stage_link_band_hit()` was dead code and a top/bottom
+  stair arrival stayed inside the return link's band - the latch never clears
+  and the room cannot be left the way it was entered. Restored (8px steps along
+  the ladder, max four). `check_rules.py` arrival-band-nudge.
+- **BOUNCING projectile (23)** implemented (gravity + floor/wall bounce);
+  `check_trajectories.py` now only lists CHAIN, BOMB_RAIN and LARGE_BEAM
+  (stage 13 only) as known fallbacks.
+
+New tool: `tools/preview_got_weapon.py` renders the stage-clear screen from the
+generated art. It shows the text at tile column 9 (72px) and the player sprite
+at x=20 **do not overlap**, so the "text over the player" report needs the
+player's screenshot to identify which text is meant.
+
+One trace-build emulator run (stage 5, `MD_LINK_TRACE` + `MD_TEST_TILE`, start
+on the map-1 ladder) captured:
+`LINK map 1->0 trans 0 dst(105,0) stair 105 px 1675 py 0 cam 1389 latch_off 8`
+- the arrival numbers match `tools/audit_links.py` exactly, and the room change
+  ran with no crash. The follow-up climb (down, up, down) fired **no further
+  link** and left the player ~40px left of the ladder, which is the next thing
+  to look at: either the nudge or the ladder grab is releasing him after the
+  arrival.
+
 ## Batch 2026-10-24 (b) — fifteen play-test reports, offline reproductions
 
 Standing rule from here on (AGENTS.md): a bug is reproduced by an offline
