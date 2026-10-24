@@ -42,6 +42,7 @@ typedef struct {
     s8 dir;          // COIL/JET facing
     u8 drain;        // JET ammo drain counter
     fix16 fall_speed;// crusher (33) accelerating fall
+    u8 door;         // boss door slice slot + 1 (0 = not a door)
 } MapObj;
 
 static MapObj objs[OBJECT_MAX];
@@ -180,33 +181,118 @@ static void obj_release(MapObj *o)
     o->active = FALSE;
 }
 
-// Boss door open/close. The PC art has a single frame, so the frame-based
-// animation in object::show_boss_door() does nothing visible there either; the
-// intent is a door that slides open. Animate the sprite down into the floor
-// (down) or back up (up), one VDP frame per step so the world keeps drawing.
-static void door_slide(MapObj *o, bool down)
+// Boss door: the PC paints it into the map layer and opens it from the CENTRE
+// outward, closing from the borders back in. The port draws it as 16x16 sprite
+// slices (convert_objects.py declares the art as 16x16 cells, one frame per
+// slice) and hides/shows them in that order - the old "slide the door down"
+// was neither the PC behaviour nor glitch-free. The collision is unchanged
+// (solid_now(): the door stays solid until it is opened).
+#define DOOR_MAX 4          // 64 px tall door = 4 slices
+#define DOOR_SLOTS 4        // doors animated at once (a map holds up to 3)
+
+static Sprite *door_slices[DOOR_SLOTS][DOOR_MAX];
+static u8 door_used;
+
+// Order in which slices disappear when the door opens (centre first).
+static const u8 door_order[DOOR_MAX][DOOR_MAX] = {
+    { 0 },                  // 1 slice (unused: doors are 3/4)
+    { 0, 1 },               // 2
+    { 1, 0, 2 },            // 3
+    { 1, 2, 0, 3 },         // 4
+};
+
+static u8 door_slice_count(const MapObj *o)
 {
-    if (!o->spr) return;
-    const u8 steps = 10;
-    for (u8 i = 1; i <= steps; i++) {
-        s16 dy = (s16)((o->def->h * i) / steps);
-        if (!down) dy = (s16)(o->def->h - dy);
-        SPR_setVisibility(o->spr, VISIBLE);
-        SPR_setPosition(o->spr, o->x - camera.x, (s16)(o->y - camera.y + dy));
-        SPR_update();
-        SYS_doVBlankProcess();
-        VDP_setReg(17, 0);
-        VDP_setReg(18, 0);
+    u8 n = (u8)(o->def->h / 16);
+    return (n >= 2 && n <= DOOR_MAX) ? n : 3;
+}
+
+// TRUE when this object is a door and its slices were created.
+static bool door_spawn(MapObj *o)
+{
+    if (o->def->type != 30 || door_used >= DOOR_SLOTS) return FALSE;
+    const u8 slot = door_used++;
+    o->door = (u8)(slot + 1);
+    const u8 n = door_slice_count(o);
+    for (u8 i = 0; i < n; i++) {
+        Sprite *sp = SPR_addSprite(o->def->spr,
+                                   o->x - camera.x,
+                                   (s16)(o->y - camera.y + i * 16),
+                                   TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
+        door_slices[slot][i] = sp;
+        if (!sp) continue;
+        SPR_setAutoAnimation(sp, FALSE);
+        spr_set_anim(sp, i);            // slice i: one animation per slice
+        spr_set_frame(sp, 0);
+        SPR_setVisibility(sp, HIDDEN);
     }
+    return TRUE;
+}
+
+static void door_free(MapObj *o)
+{
+    if (!o->door) return;
+    const u8 slot = (u8)(o->door - 1);
+    for (u8 i = 0; i < DOOR_MAX; i++) {
+        if (door_slices[slot][i]) {
+            SPR_releaseSprite(door_slices[slot][i]);
+            door_slices[slot][i] = NULL;
+        }
+    }
+    o->door = 0;
+}
+
+// Place/show the slices for the current screen position (the general sprite
+// pass only handles o->spr, which a door does not have).
+static void door_sync(MapObj *o, bool on_screen)
+{
+    if (!o->door) return;
+    const u8 slot = (u8)(o->door - 1);
+    const u8 n = door_slice_count(o);
+    const bool vis = on_screen && o->visible;
+    for (u8 i = 0; i < n; i++) {
+        Sprite *sp = door_slices[slot][i];
+        if (!sp) continue;
+        SPR_setPosition(sp, o->x - camera.x,
+                        (s16)(o->y - camera.y + i * 16));
+        SPR_setVisibility(sp, vis ? VISIBLE : HIDDEN);
+    }
+}
+
+// Open (hide centre-out) or close (show borders-in). Blocking, a few VDP
+// frames per slice: the PC pauses the game while the door runs.
+static void door_anim(MapObj *o, bool open)
+{
+    if (!o->door) return;
+    const u8 slot = (u8)(o->door - 1);
+    const u8 n = door_slice_count(o);
+    const u8 *order = door_order[n - 1];
+    for (u8 k = 0; k < n; k++) {
+        const u8 i = open ? order[k] : order[n - 1 - k];
+        Sprite *sp = door_slices[slot][i];
+        if (!sp) continue;
+        SPR_setPosition(sp, o->x - camera.x,
+                        (s16)(o->y - camera.y + i * 16));
+        SPR_setVisibility(sp, open ? HIDDEN : VISIBLE);
+        for (u8 f = 0; f < 3; f++) {       // ~50 ms per slice
+            SPR_update();
+            SYS_doVBlankProcess();
+            VDP_setReg(17, 0);
+            VDP_setReg(18, 0);
+        }
+    }
+    door_sync(o, TRUE);
 }
 
 void objects_reset(void)
 {
     for (u8 i = 0; i < obj_count; i++) {
+        door_free(&objs[i]);
         spr_release_guarded(&objs[i].spr, spr_seen);
         objs[i].active = FALSE;
     }
     obj_count = 0;
+    door_used = 0;
 
     for (u8 i = 0; i < stage_def->object_spawn_count && obj_count < OBJECT_MAX; i++) {
         const ObjectSpawn *sp = &stage_def->object_spawns[i];
@@ -238,8 +324,12 @@ void objects_reset(void)
         }
         o->duration = 0;
         o->fall_speed = 0;
-        o->spr = SPR_addSprite(d->spr, o->x - camera.x, o->y - camera.y,
-                               TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
+        o->door = 0;
+        o->spr = door_spawn(o) ? NULL
+                               : SPR_addSprite(d->spr, o->x - camera.x,
+                                               o->y - camera.y,
+                                               TILE_ATTR(PAL0, FALSE,
+                                                         FALSE, FALSE));
         spr_seen = spr_gen;
         if (o->spr) {
             // manual visibility + manual frame advance (see objects_update)
@@ -983,7 +1073,9 @@ void objects_update(void)
                 }
             }
         }
-        if (o->spr) {
+        if (o->door) {
+            door_sync(o, on_screen);
+        } else if (o->spr) {
             SPR_setVisibility(o->spr,
                               (on_screen && o->visible) ? VISIBLE : HIDDEN);
             if (on_screen) SPR_setPosition(o->spr, sx, sy);
@@ -1065,11 +1157,11 @@ void objects_update(void)
                 // no-op and the door simply vanished; slide the sprite into the
                 // floor and back (see door_slide) so the opening reads.
                 sfx_play(SFX_DOOR_OPEN);
-                door_slide(o, TRUE);             // open: sink out of sight
+                door_anim(o, TRUE);              // opens from the centre out
                 // The scroll moves the player ~2.5 tiles forward itself (PC
                 // horizontal_screen_move), leaving him near the left edge.
                 stage_horizontal_screen_move(1);
-                door_slide(o, FALSE);            // closes behind the player
+                door_anim(o, FALSE);             // closes borders back in
                 continue;
             }
             if (d->type == 21 || d->type == 26 || d->type == 31) {

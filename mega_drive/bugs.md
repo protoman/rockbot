@@ -1,3 +1,31 @@
+## Batch 2026-10-24 — six reports (charge, shots, enemy speed, door, shooter)
+
+1. **Charged shot must be consumed by the enemy it hits.** It pierced for
+   `level >= 2` (a comment claimed the PC's full charge is permanent). Now every
+   charged shot dies on the first enemy (or destructible wall). Needs a
+   play-test.
+2. **No full-charge indication.** PAL2 cannot spare another highlight (the HUD
+   bar owns 2/3/4), so the existing two-step armour flash now strobes at
+   **2 frames** instead of 8 once `charge_frames >= CHARGE_FULL_FRAMES`
+   (132 = the PC's 2.2 s). Verified in-game: the full-charge orb fires.
+3. **Wall shooter must aim at the player.** The port fired straight along the
+   wall. `eshot_fire_aimed()` now sends the missile toward the player (full
+   speed on the dominant axis, proportional on the other; the PC only knows
+   45-degree steps). The art stays upright — no rotation on the MD — which is
+   the accepted part of the report.
+4. **Enemies ~30% faster than the PC.** `enemy.c` now scales every enemy
+   movement through `enemy_step()` = 70% of the old rate (AI steps, wall
+   walking, the auto-hop). Start point for the report's "slow them down a bit".
+5. **Boss door animation.** The old "slide the door down" was wrong (the PC
+   paints the door on the map layer and opens it from the CENTRE outward) and
+   glitchy. `res/resources.res` now declares the door art as 16x16 slices (one
+   animation per slice) and `object.c` draws it as 3/4 slice sprites, hiding
+   them centre-out on open and showing them borders-in on close. Collision is
+   unchanged (solid until opened).
+
+**Status**: code complete, needs a play-test of all five (door: reach a boss
+room; shooter: find a wall-walker).
+
 # Known bugs / deviations — RockBot → Mega Drive
 
 Things that are wrong or worse than the original. Track here, fix later.

@@ -351,9 +351,24 @@ extern const ObjectSpawn {PFX}_object_spawns[{UP}_OBJECT_SPAWN_COUNT];
         if p["res_name"] in seen_res:
             continue
         seen_res.add(p["res_name"])
+        cw, ch = p["cw"], p["ch"]
+        frames = p["frames"]
+        if p["d"]["type"] == OBJ_BOSS_DOOR:
+            # The boss door opens from its centre outward (PC draws it as map
+            # tiles; object.c animates 16x16 slices instead). Declaring the
+            # art as 16x16 cells makes rescomp cut the strip into one frame per
+            # slice, so SPR_setFrame(i) picks slice i.
+            cw, ch = 16, 16
+            frames = p["fh"] // 16 if p["fh"] >= 16 else 3
+            # one ANIMATION per slice: object.c picks slice i with
+            # SPR_setAnim, which is how rescomp lays out a 1-frame-per-anim
+            # door strip
+            print(f'SPRITE {p["res_name"]}_sprite "{p["res_name"]}.png" '
+                  f'{cw}p {ch}p FAST [' + "".join("[0]" for _ in range(frames)) + ']')
+            continue
         t = ",".join(str(p["frame_t"]) for _ in range(p["frames"]))
         print(f'SPRITE {p["res_name"]}_sprite "{p["res_name"]}.png" '
-              f'{p["cw"]}p {p["ch"]}p FAST [[{t}]]')
+              f'{cw}p {ch}p FAST [[{t}]]')
     return 0
 
 

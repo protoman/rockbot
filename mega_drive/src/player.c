@@ -690,9 +690,19 @@ static void handle_fire(u16 pad, s16 ix, s16 iy)
         charge_sfx_timer = 0;
     } else if (fire_ok && player_can_charge()) {
         if (player.charge_frames < 60000) player.charge_frames++;
-        if ((player.charge_frames & 7) == 0) {
-            PAL_setPalette(PLAYER_PAL,
-                           flash_pal[(player.charge_frames >> 3) & 1], DMA_QUEUE);
+        // Charge feedback: the PC switches to a brighter/flashing armour
+        // colour set. PAL2 cannot spare a second highlight (the HUD bar owns
+        // entries 2/3/4), so the existing two-step flash runs FASTER once the
+        // shot is full: 8-frame strobe while charging, 2-frame when ready
+        // (report 2026-10-24: no full-charge indication).
+        {
+            const u16 period = (player.charge_frames >= CHARGE_FULL_FRAMES)
+                                   ? 2 : 8;
+            if ((player.charge_frames % period) == 0) {
+                PAL_setPalette(PLAYER_PAL,
+                               flash_pal[(player.charge_frames / period) & 1],
+                               DMA_QUEUE);
+            }
         }
         // PC character.cpp:631/656 loops SFX_CHARGING1 from
         // CHARGED_SHOT_INITIAL_TIME (1000ms) and switches to SFX_CHARGING2 at

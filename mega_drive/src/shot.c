@@ -224,7 +224,10 @@ void shot_charge_fire(s16 x, s16 y, s16 dir, u8 level)
     s->on = TRUE;
     // Only the full charged projectile is permanent on hit; normal weapon
     // projectiles (including damage-3 Desert Storm) vanish on contact.
-    s->pierce = (level >= 2);
+    // Report 2026-10-24: a charged shot must be CONSUMED by the enemy it
+    // hits. It used to pierce for level >= 2, so a full charge flew through
+    // the whole row.
+    s->pierce = FALSE;
     s->reflected = FALSE;
     s->weapon = w;
     cooldown = SHOT_COOLDOWN;

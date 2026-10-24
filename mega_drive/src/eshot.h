@@ -13,6 +13,8 @@ void eshots_reset(void);
 // Fire projectile proj_id from (x, y) moving dir (-1/+1). FALSE if the
 // per-type max_shots limit is reached (PC throw_projectile).
 bool eshot_fire(s16 x, s16 y, s16 dir, u8 proj_id);
+// Aimed variant (PC TARGET_DIRECTION): travels toward the player diagonally.
+bool eshot_fire_aimed(s16 x, s16 y, u8 proj_id);
 
 // Move, tile/edge culling, player collision -> player_take_damage.
 // Call once per frame after enemies_update().

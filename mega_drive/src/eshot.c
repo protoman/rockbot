@@ -95,7 +95,22 @@ static void eshot_flip(EShot *s)
     if (s->spr) SPR_setHFlip(s->spr, s->dx < 0);
 }
 
+static bool fire_impl(s16 x, s16 y, s16 dir, u8 proj_id, bool aim);
+
 bool eshot_fire(s16 x, s16 y, s16 dir, u8 proj_id)
+{
+    return fire_impl(x, y, dir, proj_id, FALSE);
+}
+
+// PC WALL_WALK_SHOOT: the shot is a TARGET_DIRECTION missile, i.e. it leaves
+// toward the player instead of straight ahead. The MD art cannot rotate, so it
+// stays upright, but the path is the PC's (report 2026-10-24).
+bool eshot_fire_aimed(s16 x, s16 y, u8 proj_id)
+{
+    return fire_impl(x, y, 1, proj_id, TRUE);
+}
+
+static bool fire_impl(s16 x, s16 y, s16 dir, u8 proj_id, bool aim)
 {
     if (proj_id >= stage_def->enemy_proj_max) proj_id = 0;
     const EnemyProj *p = &stage_def->enemy_proj[proj_id];
@@ -146,6 +161,24 @@ bool eshot_fire(s16 x, s16 y, s16 dir, u8 proj_id)
                 s->traj = TRAJ_LINEAR;
             }
             s->dx = (pcx < s->x) ? -(s16)p->speed : (s16)p->speed;
+            eshot_flip(s);
+        }
+        if (aim) {
+            // True 2-D aim: full speed on the dominant axis, proportional on
+            // the other (the PC's TARGET_DIRECTION only knows 45 degrees).
+            s16 pcx, pcy;
+            player_center(&pcx, &pcy);
+            s16 adx = (s16)(pcx - (s->x + s->w / 2));
+            s16 ady = (s16)(pcy - (s->y + s->h / 2));
+            s16 ax = (adx < 0) ? -adx : adx;
+            s16 ay = (ady < 0) ? -ady : ady;
+            const s16 m = (ax > ay) ? ax : ay;
+            if (m > 0) {
+                s->dx = (s16)((s32)adx * p->speed / m);
+                s->dy = (s16)((s32)ady * p->speed / m);
+            }
+            s->traj = TRAJ_LINEAR;
+            s->dir = (s->dx < 0) ? -1 : 1;
             eshot_flip(s);
         }
         return TRUE;

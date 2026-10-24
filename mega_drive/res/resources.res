@@ -521,8 +521,10 @@ SPRITE object_disappearing_block_orange_sprite "object_disappearing_block_orange
 
 # ---- remaining object types (audit) ----
 SPRITE object_armor_body_sprite "object_armor_body.png" 24p 16p FAST [[566]]
-SPRITE object_door_4_sprite "object_door_4.png" 16p 64p FAST [[1]]
-SPRITE object_door_3_sprite "object_door_3.png" 16p 48p FAST [[1]]
+# boss doors: 16x16 slices, ONE ANIMATION PER SLICE (object.c picks slice i
+# from the centre outward; the PC paints the door as map tiles)
+SPRITE object_door_4_sprite "object_door_4.png" 16p 16p FAST [[0][0][0][0]]
+SPRITE object_door_3_sprite "object_door_3.png" 16p 16p FAST [[0][0][0]]
 SPRITE object_armor_legs_sprite "object_armor_legs.png" 24p 16p FAST [[566]]
 SPRITE object_block003_sprite "object_block003.png" 32p 32p FAST [[1]]
 SPRITE object_special_tank_sprite "object_special_tank.png" 16p 16p FAST [[566,566]]

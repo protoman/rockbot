@@ -459,6 +459,19 @@ static void ai_action_init(Enemy *e)
     }
 }
 
+// Movement scale. The port multiplied the PC's 50 Hz AI step by 5/6, which
+// reproduces speed*50 px/s exactly - but the enemies still read as faster than
+// the PC in play (report 2026-10-24), so every enemy movement runs at 70% of
+// that rate. One place, so steps, wall-walkers and the auto-hop stay in sync.
+#define ENEMY_SPEED_NUM 7
+#define ENEMY_SPEED_DEN 10
+
+static s16 enemy_step(u8 speed)
+{
+    s16 v = (s16)(((u16)speed * ENEMY_SPEED_NUM) / ENEMY_SPEED_DEN);
+    return v ? v : 1;
+}
+
 // Move one axis toward dest; TRUE when reached or blocked. The PC runs the
 // AI step every 20ms (50Hz, artificial_inteligence.cpp:276) so one "speed"
 // pixel lands every 20ms — moving speed px per 60fps frame would be 20%
@@ -468,7 +481,7 @@ static bool step_axis(Enemy *e, s16 *pos, s16 dest, bool horizontal, bool can_fa
     const EnemyDef *d = e->def;
     // DASH_TO_PLAYER runs at twice the enemy's speed (artificial_inteligence
     // .cpp:1517 passes move_speed*2 to move_to_point).
-    e->move_acc += (s16)d->speed * 5 * (e->dash_ai ? 2 : 1);
+    e->move_acc += enemy_step(d->speed) * 5 * (e->dash_ai ? 2 : 1);
     s16 step = e->move_acc / 6;
     e->move_acc %= 6;
     if (*pos == dest) return TRUE;
@@ -873,7 +886,7 @@ static bool ai_action_run(Enemy *e)
                                 : e->x + d->box_l;
         if (!box_hits_solid(lead, e->y + d->box_t,
                             lead, e->y + d->box_t + d->box_h))
-            e->x += e->dir * (s16)d->speed;
+            e->x += e->dir * enemy_step(d->speed);
         if (e->act_t == 8 && st->param >= 0) {
             eshot_fire(e->x + d->box_l + d->box_w / 2,
                        e->y + d->box_t + d->box_h / 2, e->dir, (u8)st->param);
@@ -1016,16 +1029,18 @@ static bool ai_action_run(Enemy *e)
         }
         if (st->action != AI_JUMP_ATTACK_AHEAD) e->no_gravity = 1;
         e->moving = 1;
-        s16 nx = (s16)(e->x + e->dir * (s16)d->speed);
+        s16 nx = (s16)(e->x + e->dir * enemy_step(d->speed));
         s16 lead = (e->dir > 0) ? nx + d->box_l + d->box_w - 1 : nx + d->box_l;
         if (box_hits_solid(lead, e->y + d->box_t,
                            lead, e->y + d->box_t + d->box_h))
             e->dir = -e->dir;                       // bounce off the end
         else
             e->x = nx;
+        // PC WALL_WALK_SHOOT fires a TARGET_DIRECTION missile: it has to
+        // head for the player, not straight out of the wall.
         if (st->action == AI_WALL_WALK_SHOOT && (e->act_t % 40) == 0)
-            eshot_fire(e->x + d->box_l + d->box_w / 2,
-                       e->y + d->box_t + d->box_h / 2, e->dir, d->shot);
+            eshot_fire_aimed(e->x + d->box_l + d->box_w / 2,
+                             e->y + d->box_t + d->box_h / 2, d->shot);
         if (st->action == AI_JUMP_ATTACK_AHEAD) {
             if (e->act_t == 8 && st->param >= 0)
                 eshot_fire(e->x + d->box_l + d->box_w / 2,
