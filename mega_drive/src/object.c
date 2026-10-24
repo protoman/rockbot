@@ -785,9 +785,16 @@ bool objects_boss_door_present(s16 tile_x)
 
 bool objects_boss_door_locked(s16 tile_x)
 {
+    // PC classmap.cpp:171-191 builds wall_scroll_lock[] ONCE at map load from
+    // the door's start position, with no regard for whether the door has
+    // opened since. That is what keeps the camera from scrolling back over a
+    // door the player already walked through: the door closes behind him and
+    // the room must not pan back (report 2026-10-24: after the door transition
+    // the screen scrolled back a bit). The `|| o->started` test here disabled
+    // the lock the moment the door opened.
     for (u8 i = 0; i < obj_count; i++) {
         const MapObj *o = &objs[i];
-        if (o->def->type != 30 || o->started) continue;
+        if (o->def->type != 30) continue;
         const s16 x0 = o->x >> 4;
         const s16 x1 = (o->x + o->def->w - 1) >> 4;
         if (tile_x >= x0 && tile_x <= x1) return TRUE;

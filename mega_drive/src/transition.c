@@ -285,7 +285,12 @@ return FALSE; }
     VDP_setScrollingMode(HSCROLL_LINE, VSCROLL_PLANE);
     VDP_setVerticalScroll(STAGE_PLANE, 0);
     VDP_setVerticalScroll(BG_B, 0);
-    s16 bg_filled = -1;          // last screen row moved to the incoming half
+    // Rows of BG_B already moved to the incoming half. The incoming band grows
+    // UPWARD for T2B and DOWNWARD for B2T, so a single "last row" marker left
+    // the far side of the band holding the outgoing room's art - the stray
+    // tiles seen on ladder transitions (report 2026-10-24).
+    s16 bg_filled_lo = TRANS_ROWS;
+    s16 bg_filled_hi = -1;
 
     const s16 player_sx = player_x - dcam;
     const u16 span = TRANS_LINES;                 // one screen in pixels
@@ -328,21 +333,43 @@ return FALSE; }
                     if ((s16)r > hi) hi = (s16)r;
                 }
             }
-            if (hi >= lo && hi > bg_filled) {
+            if (hi >= lo) {
                 static u16 bgrow[64];
-                for (s16 r = (s16)((bg_filled < lo) ? lo : bg_filled + 1);
-                     r <= hi; r++) {
-                    if (dest_bg) {
-                        bg_row_cells(bgrow, to_map, r, bg_tiles_new, 0);
-                    } else {
-                        for (u16 x = 0; x < 64; x++)
-                            bgrow[x] = TILE_ATTR_FULL(BG_PAL, FALSE, FALSE,
-                                                      FALSE, TILE_FONT_INDEX);
+                // Fill the two ends the band grew into since the last frame.
+                s16 from = lo, to = (s16)((bg_filled_lo - 1 > hi)
+                                          ? hi : bg_filled_lo - 1);
+                if (from <= to) {
+                    for (s16 r = from; r <= to; r++) {
+                        if (dest_bg) {
+                            bg_row_cells(bgrow, to_map, r, bg_tiles_new, 0);
+                        } else {
+                            for (u16 x = 0; x < 64; x++)
+                                bgrow[x] = TILE_ATTR_FULL(
+                                    BG_PAL, FALSE, FALSE, FALSE,
+                                    TILE_FONT_INDEX);
+                        }
+                        VDP_setTileMapData(BG_B, bgrow, (u16)(r * 64), 64, 1,
+                                           DMA_QUEUE);
                     }
-                    VDP_setTileMapData(BG_B, bgrow, (u16)(r * 64), 64, 1,
-                                       DMA_QUEUE);
                 }
-                bg_filled = hi;
+                from = (s16)((bg_filled_hi + 1 > lo) ? bg_filled_hi + 1 : lo);
+                to = hi;
+                if (from <= to) {
+                    for (s16 r = from; r <= to; r++) {
+                        if (dest_bg) {
+                            bg_row_cells(bgrow, to_map, r, bg_tiles_new, 0);
+                        } else {
+                            for (u16 x = 0; x < 64; x++)
+                                bgrow[x] = TILE_ATTR_FULL(
+                                    BG_PAL, FALSE, FALSE, FALSE,
+                                    TILE_FONT_INDEX);
+                        }
+                        VDP_setTileMapData(BG_B, bgrow, (u16)(r * 64), 64, 1,
+                                           DMA_QUEUE);
+                    }
+                }
+                if (lo < bg_filled_lo) bg_filled_lo = lo;
+                if (hi > bg_filled_hi) bg_filled_hi = hi;
             }
         }
 

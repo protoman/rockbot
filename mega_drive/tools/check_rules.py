@@ -50,6 +50,33 @@ RULES = [
      [("src/object.c", r"if \(ty == 22 && !bomb\) continue;"),
       ("src/shot.c", r"objects_try_hit\(s->x - 20, s->y - 20, s->x \+ 20, s->y \+ 20,\s*\n?\s*s->dmg, TRUE\);")],
      []),
+    ("air-walk-arrival",
+     "AI_AIR_WALK finishes when the enemy reaches the target X (PC), so the APE "
+     "BOT leaves the ceiling instead of parking there",
+     [("src/enemy.c", r"return step_axis\(e, &e->x, e->dest_x, TRUE, TRUE\);")],
+     [("src/enemy.c", r"case AI_AIR_WALK:[\s\S]{0,400}return on_ground\(e, d\);")]),
+    ("door-locks-forever",
+     "a boss door's columns stay camera-locked after it opens (PC "
+     "wall_scroll_lock is built at map load)",
+     [("src/object.c", r"if \(o->def->type != 30\) continue;")],
+     [("src/object.c", r"if \(o->def->type != 30 \|\| o->started\) continue;")]),
+    ("dialog-keeps-parallax",
+     "the dialog panel borrows PAL0, never PAL3 (the stage parallax), so the "
+     "background behind the box keeps its colours",
+     [("src/dialogs.c", r"#define DLG_CRAM 0"),
+      ("src/dialogs.c", r"PAL_setPalette\(PAL0, pal, DMA_QUEUE\);")],
+     [("src/dialogs.c", r"PAL_setPalette\(PAL3"),
+      ("src/dialogs.c", r"#define PAL3_CRAM 48")]),
+    ("weapon-menu-linear",
+     "the weapon menu walks the linear weapon list with wrap (PC "
+     "class_config.cpp:419), so every owned weapon is reachable",
+     [("src/menu.c", r"while \(w < 0\) w = \(s16\)\(w \+ WEAPON_SWITCH_N\);")],
+     [("src/menu.c", r"const u8 row = \(u8\)\(cur / 4\);")]),
+    ("ladder-semi-at-top",
+     "the half-body ladder pose is the TOP-of-ladder state (feet on a rung, "
+     "body middle past it - PC character.cpp:396/426), not a grab animation",
+     [("src/player.c", r"if \(!mid_stair && feet_stair\) stair_frame = 1;")],
+     [("src/player.c", r"ladder_semi\s*=\s*12;")]),
     ("arrival-band-nudge",
      "a stair arrival on the top/bottom row steps out of the return link's band "
      "so the latch can clear (BUG-005 regression: the call was lost)",

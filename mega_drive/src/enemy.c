@@ -911,12 +911,19 @@ static bool ai_action_run(Enemy *e)
     }
 
     case AI_AIR_WALK:
+        // PC ia_action_air_walk (artificial_inteligence.cpp:826): latch the
+        // player's X once, walk there and finish on ARRIVAL. The port waited
+        // for `on_ground`, which never happens while the enemy hangs under the
+        // ceiling after AI_JUMP TO_ROOF - the APE BOT parked on the roof for
+        // the rest of the stage and could not be reached or killed (report
+        // 2026-10-24).
+        if (e->act_t == 0) {
+            e->dest_x = player.x;
+            e->dir = sign16(e->dest_x - e->x);
+            if (e->dir == 0) e->dir = (player.x > e->x) ? 1 : -1;
+        }
         e->moving = 1;
-        if (st->param == 0) e->dir = -1;
-        else if (st->param == 1) e->dir = 1;
-        else e->dir = (player.x > e->x) ? 1 : -1;
-        e->x += e->dir * (s16)d->speed;
-        return on_ground(e, d);
+        return step_axis(e, &e->x, e->dest_x, TRUE, TRUE);
 
     case AI_FALL:
         e->no_gravity = 0;                 // coming down off the ceiling

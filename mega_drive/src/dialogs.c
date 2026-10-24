@@ -7,6 +7,7 @@
 #include "player.h"
 #include "enemy.h"
 #include "hud.h"
+#include "object.h"
 #include "config.h"
 #include "resources.h"
 #include "dlg_panel_tiles.h"
@@ -22,8 +23,8 @@
 // Only the boss block (30..59) is displayed here.
 
 // PC graphicsLib::show_dialog: the 310x65 panel at x=5, y=3 (top side). The
-// port draws it on BG_A with the camera's tile offset, in PAL3 with its own
-// palette (the stage colourcycle band is re-applied when the dialog closes).
+// port draws it on BG_A with the camera's tile offset, in PAL0 with its own
+// palette (see dlg_pal_save/restore below for why PAL0 and not PAL3).
 // Below the sprite pool, next to the tooltip's block (src/stage.h owns the
 // layout): a fixed index inside the pool overwrote live sprite tiles.
 #define DLG_PANEL_TILE_BASE SPR_DLG_TILE_BASE
@@ -80,24 +81,25 @@ static void wait_button(void)
 // PAL3 gives teal text cells instead of black ones (the reported "dialog text
 // background" bug). Entry 15 is the font's ink index, which the panel palette
 // leaves black - force it white.
-// The panel palette lives on PAL3, which is also the stage's PARALLAX palette
-// (BG_PAL) plus the colourcycle band. dlg_palette_load() rewrites entries 0 and
-// 15 of it, so the whole line is saved before the first page and put back
-// afterwards - otherwise the stage background came back with the panel's teal
-// and font white in place of the parallax colours (the "background colours
-// changed after the boss dialog" report; opening the menu reloaded them).
-static u16 pal3_saved[16];
+// The panel needs a whole palette line for its teal/grey shades. It used to
+// take PAL3, which is the stage's PARALLAX line plus the colourcycle band, so
+// the background behind the box changed colours for the length of the dialog
+// (report 2026-10-24). PAL1 is the tileset and PAL2 holds the dialog faces, so
+// the panel now borrows PAL0 - the line the font, enemies, objects and HUD use.
+// Everything on that line is hidden for the duration of the dialog
+// (dialog_show_boss / dialog_show_armor), and the line is saved and restored.
+static u16 dlg_pal_saved[16];
 
-#define PAL3_CRAM 48
+#define DLG_CRAM 0
 
-static void pal3_save(void)
+static void dlg_pal_save(void)
 {
-    for (u8 i = 0; i < 16; i++) pal3_saved[i] = PAL_getColor(PAL3_CRAM + i);
+    for (u8 i = 0; i < 16; i++) dlg_pal_saved[i] = PAL_getColor(DLG_CRAM + i);
 }
 
-static void pal3_restore(void)
+static void dlg_pal_restore(void)
 {
-    PAL_setColors(PAL3_CRAM, pal3_saved, 16, DMA_QUEUE);
+    PAL_setColors(DLG_CRAM, dlg_pal_saved, 16, DMA_QUEUE);
 }
 
 static void dlg_palette_load(void)
@@ -106,7 +108,7 @@ static void dlg_palette_load(void)
     for (u8 i = 0; i < 16; i++) pal[i] = dlg_panel_pal.data[i];
     pal[0] = dlg_panel_pal.data[2];     // panel fill (0,36,36)
     pal[15] = 0x0EEE;                  // font white
-    PAL_setPalette(PAL3, pal, DMA_QUEUE);
+    PAL_setPalette(PAL0, pal, DMA_QUEUE);
 }
 
 static void dlg_panel_draw(u8 y0)
@@ -120,7 +122,7 @@ static void dlg_panel_draw(u8 y0)
         for (u8 col = 0; col < DLG_PANEL_MAP_W; col++) {
             u16 t = dlg_panel_map[row * DLG_PANEL_MAP_W + col];
             VDP_setTileMapXY(BG_A,
-                             TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE,
+                             TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE,
                                             DLG_PANEL_TILE_BASE + t),
                              (u16)((base + col) & 63), (u16)(top + row));
         }
@@ -137,7 +139,7 @@ static void dlg_button_draw(u8 y0)
 {
     const u16 base = (u16)((camera.x >> 3) & 63);
     const u8 top = (y0 > 0) ? (u8)(y0 - 1) : 0;
-    VDP_setTextPalette(PAL3);       // white ink (15), panel-fill background (0)
+    VDP_setTextPalette(PAL0);       // white ink (15), panel-fill background (0)
     VDP_drawTextBG(BG_A, "A", (u16)((base + 36) & 63), (u16)(top + 6));
     VDP_setTextPalette(PAL0);
 }
@@ -170,10 +172,10 @@ static void show_page(const char *const *lines, u8 first, u8 y0,
     }
 
     // The glyph cells carry palette index 0 as their background, so the text
-    // must be written with the panel palette (PAL3): its entry 0 is the panel
+    // must be written with the panel palette (PAL0): its entry 0 is the panel
     // fill, which paints the cell background in the panel colour and entry 15
     // (the ink) white. Drawn with the default PAL0 it painted black boxes.
-    VDP_setTextPalette(PAL3);
+    VDP_setTextPalette(PAL0);
     for (u8 i = 0; i < 3; i++) {
         const char *line = lines[first + i];
         if (!line[0]) continue;
@@ -229,10 +231,18 @@ void dialog_show_armor(u8 kind)
         else                   lines[2] = "SHOURUYKEN (UP+DASH)";
     }
 
-    pal3_save();
+    // The panel borrows PAL0 (font/enemies/objects/HUD): hide those users so
+    // nothing on screen is left drawn with the panel's colours.
+    enemies_set_visible(FALSE);
+    objects_set_visible(FALSE);
+    hud_set_visible(FALSE);
+    dlg_pal_save();
     show_page(lines, 0, 1, &dlg_face_armor_sprite, &dlg_face_armor_pal,
               FALSE, 0);
-    pal3_restore();
+    dlg_pal_restore();
+    enemies_set_visible(TRUE);
+    objects_set_visible(TRUE);
+    hud_set_visible(TRUE);
     player_restore_palette();
     stage_force_redraw();
     player_sync_sprite();
@@ -249,6 +259,7 @@ void dialog_show_boss(u8 stage, u8 player)
 
     player_set_visible(FALSE);
     enemies_set_visible(FALSE);
+    objects_set_visible(FALSE);   // shares PAL0 with the panel
     hud_set_visible(FALSE);
 
     // top side (all converted stages have dialog_top_side = true)
@@ -257,7 +268,7 @@ void dialog_show_boss(u8 stage, u8 player)
     const Palette *bp = (stage < 9) ? boss_face_pal[stage] : NULL;
     const SpriteDefinition *pf = player_face[player & 3];
     const Palette *pp = pf->palette;
-    pal3_save();               // the panel borrows the parallax line
+    dlg_pal_save();               // the panel borrows the parallax line
     show_page(d, boss0, y0, bf, bp, FALSE, player);
     show_page(d, ply0, y0, pf, pp, TRUE, player);
     if (d[boss0 + 3][0])
@@ -265,12 +276,13 @@ void dialog_show_boss(u8 stage, u8 player)
     if (d[ply0 + 3][0])
         show_page(d, (u8)(ply0 + 3), y0, pf, pp, TRUE, player);
 
-    pal3_restore();            // whole parallax line back (entries 0 and 15)
+    dlg_pal_restore();            // whole parallax line back (entries 0 and 15)
     player_restore_palette();  // PAL2 held the last face
     stage_restore_cycle();     // re-apply the colourcycle band on top
     stage_force_redraw();      // the panel overwrote map cells on BG_A
     player_set_visible(TRUE);
     enemies_set_visible(TRUE);
+    objects_set_visible(TRUE);
     hud_set_visible(TRUE);
     player_sync_sprite();
     SYS_doVBlankProcess();

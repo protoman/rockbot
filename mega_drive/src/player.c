@@ -114,7 +114,6 @@ static u16 current_anim;
 static bool in_water;       // previous water state (enter/leave SFX)
 static bool ladder_flip;    // climb pose desired (cycle/turn driven)
 static bool ladder_shown;   // last pose baked into the sprite VRAM
-static u8 ladder_semi;      // frames of the half-body grab pose left
 static u8 ladder_frame;     // STAIRS frame last baked (0 climb, 1 half body)
 static s16 climb_flip_dist;
 // Sub-pixel remainders for quicksand's 0.2 px/frame sink and for the slowed
@@ -859,10 +858,11 @@ void player_update(u16 pad)
     if (player.on_ladder && current_anim != ANIM_STAIRS) {
         ladder_flip = (player.facing < 0);
         climb_flip_dist = 0;
-        // PC character.cpp:402/444: grabbing (or leaving) a ladder goes through
-        // ANIM_TYPE_STAIRS_SEMI (frame 18) - the half-body pose - before the
-        // climb pose. 12 frames matches its 200ms transition.
-        ladder_semi = 12;
+        // NOTE: no timed half-body pose on grab. PC only uses
+        // ANIM_TYPE_STAIRS_SEMI at the TOP of a ladder, while the body is
+        // half on / half off it (character.cpp:387-410 leaving upward,
+        // :426-446 entering downward). The pose is picked from the terrain
+        // every frame in the draw block below.
     }
 
     if (player.on_ladder) {
@@ -944,13 +944,27 @@ void player_update(u16 pad)
             // PC keeps the stairs pose; firing mid-climb uses
             // ANIM_TYPE_STAIRS_ATTACK (classplayer.cpp:482).
             u16 stair_anim = (attack_timer > 0) ? ANIM_STAIRS_ATTACK : ANIM_STAIRS;
-            // The half-body pose is frame 1 of the STAIRS animation (frames 17
-            // and 18 of the sheet); it used to be a separate animation, which
-            // ROCKBOT's sheet did not have (BUG-043).
+            // PC ANIM_TYPE_STAIRS_SEMI = the half-body pose, used ONLY at the
+            // top of a ladder while the player is half on / half off it:
+            //   climbing UP and stepping out (character.cpp:396-405: the body
+            //     middle no longer samples a stair, the feet still do), and
+            //   climbing DOWN into a ladder from above (character.cpp:426-446:
+            //     same test, then switch to the climb pose once the middle is
+            //     over the stairs).
+            // Frame 1 of the STAIRS animation is that art (sheet frame 18);
+            // it used to be a separate animation, which ROCKBOT's sheet did
+            // not have (BUG-043).
             u8 stair_frame = 0;
-            if (attack_timer == 0 && ladder_semi) {
-                stair_frame = 1;
-                if (--ladder_semi == 0) current_anim = ANIM_STAIRS;  // force relock
+            if (attack_timer == 0) {
+                const s16 mid_row = ((iy + box_t) + (iy + box_b)) >> 5;
+                const s16 feet_row = (iy + box_b) >> 4;
+                const bool mid_stair =
+                    stage_terrain_at(stage_current_map, ctx, mid_row)
+                    == TERRAIN_STAIR;
+                const bool feet_stair =
+                    stage_terrain_at(stage_current_map, ctx, feet_row)
+                    == TERRAIN_STAIR;
+                if (!mid_stair && feet_stair) stair_frame = 1;
             }
             // Rebuild the sprite when the pose changes: the VRAM tiles are
             // (re)built on anim changes and both rows are static (time 0)
