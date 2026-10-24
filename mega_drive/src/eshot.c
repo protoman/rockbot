@@ -312,6 +312,28 @@ void eshots_update(void)
                 s->status++;
             }
             break;
+        case TRAJ_BOUNCING: {
+            // PC projectilelib.cpp:876: horizontal speed, gravity on Y, bounce
+            // off the ground (and walls) until it expires.
+            s->x += s->dx;
+            s->dy = (s16)(s->dy + 1);
+            s->y += s->dy;
+            const bool wall = eshot_solid((s->dx > 0) ? s->x + s->w : s->x,
+                                          s->y + s->h / 2);
+            if (wall) {
+                s->dx = (s16)-s->dx;
+                s->dir = (s8)-s->dir;
+                eshot_flip(s);
+            }
+            if (s->dy > 0 && eshot_solid(s->x + s->w / 2, s->y + s->h)) {
+                s->y = (s16)(s->y - s->dy);
+                s->dy = (s16)-(s->dy / 2 + 2);      // bounce, losing energy
+            } else if (s->dy < 0 && eshot_solid(s->x + s->w / 2, s->y)) {
+                s->dy = (s16)(-s->dy / 2);
+            }
+            if (s->age > 240) { kill(s); continue; }
+            break;
+        }
         case TRAJ_FALL_BOMB:
             s->y += s->speed;
             if (eshot_solid(s->x + s->w / 2, s->y + s->h) ||

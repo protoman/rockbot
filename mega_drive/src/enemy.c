@@ -82,6 +82,15 @@
 #define AI_FLY_DASH         19
 
 // PC AI_ACTION_JUMP_OPTION_LIST (defines.h:833)
+// PC AI_ACTION_TELEPORT_OPTION_LIST (defines.h)
+#define AI_TELEPORT_LEFT        0
+#define AI_TELEPORT_RIGHT       1
+#define AI_TELEPORT_TO_PLAYER   2
+#define AI_TELEPORT_RANDOM_X    3
+#define AI_TELEPORT_RANDOM_Y    4
+#define AI_TELEPORT_RANDOM_POINT 5
+#define AI_TELEPORT_AHEAD       6
+
 #define AI_JUMP_AHEAD          0
 #define AI_JUMP_RANDOM         1
 #define AI_JUMP_UP             2
@@ -609,15 +618,52 @@ static void enemy_die(Enemy *e)
 
 // Find the def with this PC npc id (the converter puts it in the bundle for
 // AI SPAWN_NPC / REPLACE_NPC / MORPH targets) and place it near the parent.
+// PC classMap::get_first_lock_in_direction: walk `dir` from the enemy's side
+// along its own row and stop before the first solid tile, at most `limit` px
+// (default: the enemy's walk_range). Y is untouched, which is what keeps a
+// teleporting enemy on its floor.
+static s16 ai_first_wall_x(const Enemy *e, s8 dir, s16 limit)
+{
+    const EnemyDef *d = e->def;
+    if (limit <= 0) limit = d->range ? (s16)d->range : 32;
+    const s16 y = (s16)(e->y + d->box_t + d->box_h / 2);
+    s16 x = e->x;
+    const s16 step = (dir < 0) ? -4 : 4;
+    for (s16 moved = 0; moved < limit; moved += 4) {
+        const s16 probe = (dir < 0) ? (s16)(x - 4 + d->box_l)
+                                    : (s16)(x + d->box_w + 4);
+        if (stage_terrain_at(stage_current_map, probe >> 4, y >> 4)
+            != TERRAIN_UNBLOCKED &&
+            stage_terrain_at(stage_current_map, probe >> 4, y >> 4)
+            != TERRAIN_WATER)
+            break;
+        x = (s16)(x + step);
+    }
+    return x;
+}
+
 static Enemy *ai_spawn_npc(Enemy *e, u8 npc_id, bool at_self)
 {
     for (u8 i = 0; i < stage_def->enemy_def_count; i++) {
-        if (stage_def->enemy_defs[i].npc_id != npc_id) continue;
+        const EnemyDef *cd = &stage_def->enemy_defs[i];
+        if (cd->npc_id != npc_id) continue;
+        const s16 cx = at_self ? e->x : (s16)(e->x + e->dir * 24);
+        // The child is a FRESH NPC on the PC (classMap::spawn_map_npc builds a
+        // classnpc from the map), so it must not inherit the spawner's patrol
+        // span: TOP HAT's span pinned the ANGRY BUNNY it spawns to a few pixels,
+        // and every AHEAD move clamped back -> it hopped straight up in place
+        // (report 2026-10-24).
+        const s16 half = cd->range ? (s16)cd->range : 48;
+        const s16 max_x = (s16)(stage_def->map_w * stage_def->tile) - cd->box_w;
+        s16 lo = (s16)(cx - half);
+        s16 hi = (s16)(cx + half);
+        if (lo < 0) lo = 0;
+        if (hi > max_x) hi = max_x;
+        if (lo > hi) lo = hi;
         // enemy_add() takes the DATA direction byte (0 = left, 1 = right),
         // not the signed runtime dir: passing -1 became 255, i.e. "right", so
         // every child of a left-facing parent spawned facing right.
-        return enemy_add(i, at_self ? e->x : e->x + e->dir * 24, e->y,
-                         e->x_min, e->x_max, (e->dir < 0) ? 0 : 1);
+        return enemy_add(i, cx, e->y, lo, hi, (e->dir < 0) ? 0 : 1);
     }
     return NULL;
 }
@@ -920,14 +966,41 @@ static bool ai_action_run(Enemy *e)
     }
 
     case AI_TELEPORT:
-        // PC teleports around the player; keep it close but on the parent's
-        // patrol span so it cannot end up inside a wall far away.
+        // PC artificial_inteligence.cpp:2457 ia_action_teleport: the option
+        // decides the destination and Y NEVER CHANGES for the horizontal ones
+        // (the PC reuses the same row, stopping at the first wall within
+        // walk_range). The port teleported next to the player at
+        // `player.y - 16`, which put GAMBIT inside the floor and dropped it
+        // through the ground after two shots (report 2026-10-24).
         if (e->act_t == 1) {
-            s16 nx = player.x + ((random() & 1) ? 56 : -56);
-            if (nx < e->x_min) nx = e->x_min;
-            if (nx > e->x_max) nx = e->x_max;
-            e->x = nx;
-            e->y = player.y - 16;
+            switch ((s8)st->param) {
+            case AI_TELEPORT_LEFT:
+                e->x = ai_first_wall_x(e, -1, 0);
+                break;
+            case AI_TELEPORT_RIGHT:
+                e->x = ai_first_wall_x(e, 1, 0);
+                break;
+            case AI_TELEPORT_AHEAD:
+                e->x = ai_first_wall_x(e, e->dir, 0);
+                break;
+            case AI_TELEPORT_TO_PLAYER:
+                e->x = (s16)(player.x + PLAYER_BOX_L + PLAYER_BOX_R) / 2
+                       - (s16)(d->box_l + d->box_w / 2);
+                break;
+            case AI_TELEPORT_RANDOM_X: {
+                const s16 off = ai_rand_off((s16)d->range);
+                e->x = ai_first_wall_x(e, (off < 0) ? -1 : 1, off);
+                break;
+            }
+            default:
+                // RANDOM_Y / RANDOM_POINT: pick a nearby point, then slide the
+                // blocked axis back to the first wall.
+                e->x = ai_first_wall_x(e, (random() & 1) ? 1 : -1,
+                                       (s16)(d->range ? d->range : 32));
+                break;
+            }
+            if (e->x < e->x_min) e->x = e->x_min;
+            if (e->x > e->x_max) e->x = e->x_max;
             // PC teleport lands facing the player; without this the boss kept
             // the old facing after reappearing behind the player (BUG-010).
             e->dir = (player.x >= e->x) ? 1 : -1;

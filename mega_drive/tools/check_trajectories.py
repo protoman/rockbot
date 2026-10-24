@@ -27,7 +27,6 @@ KNOWN_FALLBACK = {
     "CHAIN": "follows its owner like a flail (projectilelib.cpp:643); flies straight",
     "BOMB_RAIN": "spawns child bombs across the screen (projectilelib.cpp:927)",
     "LARGE_BEAM": "3-frame growing beam (projectilelib.cpp:162)",
-    "BOUNCING": "gravity arc + bounce (projectilelib.cpp:876); flies straight",
 }
 
 PC_NAMES = [

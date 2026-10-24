@@ -589,6 +589,13 @@ static RunResult runStage(u8 stage)
                 px = col * tile + tile / 2
                      - (PLAYER_BOX_L + PLAYER_BOX_R) / 2;
             }
+#ifdef MD_LINK_TRACE
+            // Offline-first rule then one emulator run: print exactly what the
+            // arrival computes for the ladder / room-change reports.
+            kprintf("LINK map %d->%d trans %d dst(%d,%d) stair %d px %d py %d cam %d latch_off %d",
+                    stage_current_map, to_map, to_trans, dst_tx, to_y / tile,
+                    stair_col, px, py, cam_x, stage_link_band_off);
+#endif
             // The arrival camera must be known before the destination map is
             // loaded, so the transition knows which screen to slide in.
             const s16 cam_x = stage_arrival_camera_x(

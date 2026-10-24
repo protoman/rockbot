@@ -99,6 +99,34 @@ static void load_screen(Map *m, s16 cam, u16 *buf, s16 *hs, u16 *mt0_out)
     *mt0_out = mt0;
 }
 
+// Parallax offset for a camera position (same formula as stage_update_camera).
+static s16 bg_offset(u8 map, s16 cam)
+{
+    const StageBgInfo *info = &stage_def->bg_info[map];
+    if (!info->present || !info->speed) return 0;
+    s32 v = -((s32)cam * info->speed) / 10;
+    v %= 512;
+    if (v > 0) v -= 512;
+    return (s16)v;
+}
+
+// One BG_B plane row (64 cells) showing screen row `srow` of map `map`, whose
+// tiles live at `tile_base`. `vscroll` rotates the plane so the row lands where
+// the stage would have drawn it with its own vertical scroll.
+static void bg_row_cells(u16 *row, u8 map, s16 srow, u16 tile_base, s16 vscroll)
+{
+    const s16 plane_row = (s16)((srow + vscroll) & 31);
+    const s16 h = (s16)stage_def->bg_map_h[map];
+    const u16 *m = stage_def->bg_maps[map];
+    const u16 sky = TILE_ATTR_FULL(BG_PAL, FALSE, FALSE, FALSE, TILE_FONT_INDEX);
+    for (u16 x = 0; x < 64; x++) {
+        row[x] = (plane_row >= 0 && plane_row < h)
+                     ? TILE_ATTR_FULL(BG_PAL, FALSE, FALSE, FALSE,
+                                      tile_base + m[plane_row * 64 + x])
+                     : sky;
+    }
+}
+
 // OR the above-player (tile3) priority bit into a screen's cells. The MAP
 // resource does not carry it; the live plane gets it from stage_map_patch.
 static void apply_tile3(u16 *buf, u8 map, u16 mt0)
@@ -214,23 +242,50 @@ return FALSE; }
     }
 
 
-    // ---- slide ------------------------------------------------------------
-    // BG_B reads the same table in this mode, so it is filled with the
-    // parallax offset on every line.
-    {
-        const StageBgInfo *info = &stage_def->bg_info[from_map];
-        s16 bg = 0;
-        if (info->present && info->speed) {
-            s32 s = -((s32)camera.x * info->speed) / 10;
-            s %= 512;
-            if (s > 0) s -= 512;
-            bg = (s16)s;
+    // ---- destination parallax --------------------------------------------
+    // The incoming screen must arrive with ITS room's background: the old code
+    // left BG_B with the outgoing room's art and scroll for the whole slide, so
+    // the next room was painted over the previous room's sky (report
+    // 2026-10-24). Both halves share PAL3, so the destination art can only be
+    // shown when the two bg palettes are identical - otherwise the incoming
+    // half is left as sky (the backdrop colour) instead of the wrong art.
+    u16 bg_tiles_new = 0;
+    bool dest_bg = FALSE;
+    const s16 vscroll = (s16)(-((s16)stage_def->bg_info[from_map].adjust_y - 16));
+    const s16 vscroll_new = (s16)(-((s16)stage_def->bg_info[to_map].adjust_y - 16));
+    if (stage_def->bg_info[to_map].present && stage_def->bg_pal[to_map] &&
+        stage_def->bg_pal[from_map] && vscroll == vscroll_new) {
+        const Palette *pa = stage_def->bg_pal[from_map];
+        const Palette *pb = stage_def->bg_pal[to_map];
+        bool same = TRUE;
+        for (u8 i = 0; i < 16 && same; i++) same = (pa->data[i] == pb->data[i]);
+        const u16 need = stage_def->bg_tiles_n[to_map];
+        if (same && spare + used + need <= TILE_SPRITE_INDEX) {
+            bg_tiles_new = (u16)(spare + used);
+            VDP_loadTileData(stage_def->bg_tiles[to_map], bg_tiles_new, need,
+                             DMA_QUEUE);
+            used = (u16)(used + need);
+            dest_bg = TRUE;
         }
-        for (u16 y = 0; y < TRANS_LINES; y++) trans_hs_b[y] = bg;
-        VDP_setHorizontalScrollLine(BG_B, 0, trans_hs_b, TRANS_LINES, DMA_QUEUE);
     }
+
+    // Rewrite the outgoing half so it looks the same with BG_B's vertical
+    // scroll taken out (rows for the incoming half are filled as they arrive).
+    if (stage_def->bg_info[from_map].present) {
+        static u16 bgrow[64];
+        for (s16 r = 0; r < TRANS_ROWS; r++) {
+            bg_row_cells(bgrow, from_map, r, stage_bg_tile_base, vscroll);
+            VDP_setTileMapData(BG_B, bgrow, (u16)(r * 64), 64, 1, CPU);
+        }
+    }
+    const s16 bg_old = bg_offset(from_map, camera.x);
+    const s16 bg_new = bg_offset(to_map, dcam);
+    for (u16 y = 0; y < TRANS_LINES; y++) trans_hs_b[y] = bg_old;
+
     VDP_setScrollingMode(HSCROLL_LINE, VSCROLL_PLANE);
     VDP_setVerticalScroll(STAGE_PLANE, 0);
+    VDP_setVerticalScroll(BG_B, 0);
+    s16 bg_filled = -1;          // last screen row moved to the incoming half
 
     const s16 player_sx = player_x - dcam;
     const u16 span = TRANS_LINES;                 // one screen in pixels
@@ -241,22 +296,54 @@ return FALSE; }
         VDP_setTileMapDataRect(STAGE_PLANE, &trans_buf[off / 8][0], 0, 0,
                                TRANS_COLS, TRANS_ROWS, TRANS_COLS, DMA_QUEUE);
 
-        // The tilemap slice boundary and the scroll split are the same line.
+        // Which source row every scanline shows, derived from the same index
+        // the tilemap write above used (base = off/8 into the stacked buffer).
+        // T2B puts the incoming screen BELOW the outgoing one, B2T ABOVE, so
+        // the answer differs per direction - the old `y < split` split applied
+        // the outgoing offset to the incoming half on B2T, which is the 1..15px
+        // horizontal jump seen in upward room changes (report 2026-10-24).
         {
-            const s16 split = (s16)(span - off);
-            // The stacked tilemap always has the outgoing screen above the
-            // incoming one, in BOTH directions: T2B grows the incoming slice
-            // from the bottom, B2T grows it from the top. So the top half of
-            // the scanlines keeps the old offset and the bottom half the new
-            // one, regardless of the slide direction. (The old conditional
-            // swapped them for B2T, shifting the incoming screen horizontally
-            // by up to 15px during the Mummy-stair transitions.)
-            const s16 top_hs = old_hs;
-            const s16 bot_hs = new_hs;
-            for (u16 y = 0; y < TRANS_LINES; y++)
-                trans_hs_a[y] = (y < (u16)split) ? top_hs : bot_hs;
+            const u16 base = (u16)(off / 8);
+            const bool new_on_top = !top_to_bottom;
+            for (u16 y = 0; y < TRANS_LINES; y++) {
+                const u16 prow = (u16)(base + (y >> 3));
+                const bool is_new = new_on_top ? (prow < TRANS_ROWS)
+                                               : (prow >= TRANS_ROWS);
+                trans_hs_a[y] = is_new ? new_hs : old_hs;
+                trans_hs_b[y] = is_new ? bg_new : bg_old;
+            }
             VDP_setHorizontalScrollLine(STAGE_PLANE, 0, trans_hs_a,
                                         TRANS_LINES, DMA_QUEUE);
+            VDP_setHorizontalScrollLine(BG_B, 0, trans_hs_b, TRANS_LINES,
+                                        DMA_QUEUE);
+            // Parallax rows that just became incoming: the destination art (or
+            // sky when its palette could not be shown).
+            s16 lo = TRANS_ROWS, hi = -1;
+            for (u16 r = 0; r < TRANS_ROWS; r++) {
+                const u16 prow = (u16)(base + r);
+                const bool is_new = new_on_top ? (prow < TRANS_ROWS)
+                                               : (prow >= TRANS_ROWS);
+                if (is_new) {
+                    if ((s16)r < lo) lo = (s16)r;
+                    if ((s16)r > hi) hi = (s16)r;
+                }
+            }
+            if (hi >= lo && hi > bg_filled) {
+                static u16 bgrow[64];
+                for (s16 r = (s16)((bg_filled < lo) ? lo : bg_filled + 1);
+                     r <= hi; r++) {
+                    if (dest_bg) {
+                        bg_row_cells(bgrow, to_map, r, bg_tiles_new, 0);
+                    } else {
+                        for (u16 x = 0; x < 64; x++)
+                            bgrow[x] = TILE_ATTR_FULL(BG_PAL, FALSE, FALSE,
+                                                      FALSE, TILE_FONT_INDEX);
+                    }
+                    VDP_setTileMapData(BG_B, bgrow, (u16)(r * 64), 64, 1,
+                                       DMA_QUEUE);
+                }
+                bg_filled = hi;
+            }
         }
 
         // The outgoing screen takes its sprites with it (PC copies a bitmap);
@@ -279,5 +366,6 @@ return FALSE; }
 
     // back to one offset per plane; the caller's stage_load re-scrolls both
     VDP_setScrollingMode(HSCROLL_PLANE, VSCROLL_PLANE);
+    VDP_setVerticalScroll(BG_B, vscroll);
     return TRUE;
 }
