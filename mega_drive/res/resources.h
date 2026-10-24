@@ -411,5 +411,15 @@ extern const SpriteDefinition object_deathray_small_horz_sprite;
 extern const SpriteDefinition object_platform_sprite;
 extern const SpriteDefinition object_teleporter_sprite;
 extern const SpriteDefinition object_teleport_base_sprite;
+extern const SpriteDefinition proj_7_sprite;
+extern const SpriteDefinition proj_23_sprite;
+extern const SpriteDefinition proj_24_sprite;
+extern const SpriteDefinition proj_25_sprite;
+extern const SpriteDefinition proj_26_sprite;
+extern const SpriteDefinition proj_30_sprite;
+extern const SpriteDefinition proj_31_sprite;
+extern const SpriteDefinition proj_32_sprite;
+extern const SpriteDefinition proj_33_sprite;
+extern const SpriteDefinition proj_34_sprite;
 
 #endif // _RES_RESOURCES_H_
