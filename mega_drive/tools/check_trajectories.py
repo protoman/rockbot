@@ -22,12 +22,7 @@ SRC = os.path.join(ROOT, "src")
 SHOT_ACTIONS = (5, 6, 7)        # AHEAD / PLAYER_DIRECTION / INVERT
 
 # Trajectories knowingly not implemented yet: (name, why).
-KNOWN_FALLBACK = {
-    "LASER": "bounces off walls (PC projectilelib.cpp:791); flies straight",
-    "CHAIN": "follows its owner like a flail (projectilelib.cpp:643); flies straight",
-    "BOMB_RAIN": "spawns child bombs across the screen (projectilelib.cpp:927)",
-    "LARGE_BEAM": "3-frame growing beam (projectilelib.cpp:162)",
-}
+KNOWN_FALLBACK = {}
 
 PC_NAMES = [
     "LINEAR", "ARC", "SIN", "CHAIN", "QUAKE", "BOMB", "FOLLOW", "PROGRESSIVE",

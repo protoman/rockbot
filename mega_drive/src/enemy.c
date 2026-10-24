@@ -744,6 +744,7 @@ static void ai_reaction_end(Enemy *e)
 // Run one frame of the current action. TRUE = action finished.
 static bool ai_action_run(Enemy *e)
 {
+    eshot_current_owner = (u8)(e - enemies);   // CHAIN/BOMB_RAIN owner
     const EnemyDef *d = e->def;
     const EnemyAi *st = ai_state(e);
 
@@ -1687,6 +1688,21 @@ void enemies_boss_death_pos(s16 *x, s16 *y)
     const EnemyDef *d = enemies[boss_i].def;
     *x = enemies[boss_i].x + d->box_l + d->box_w / 2;
     *y = enemies[boss_i].y + d->box_t + d->box_h / 2;
+}
+
+// Body box + facing of enemy `index` (CHAIN projectiles follow their owner)
+bool enemies_get_box(u8 index, s16 *x, s16 *y, s16 *w, s16 *h, s8 *dir)
+{
+    if (index >= enemy_count) return FALSE;
+    const Enemy *e = &enemies[index];
+    if (!e->alive || e->dying) return FALSE;
+    const EnemyDef *d = e->def;
+    *x = (s16)(e->x + d->box_l);
+    *y = (s16)(e->y + d->box_t);
+    *w = (s16)d->box_w;
+    *h = (s16)d->box_h;
+    *dir = e->dir;
+    return TRUE;
 }
 
 bool enemies_nearest(s16 x, s16 y, s16 *tx, s16 *ty)

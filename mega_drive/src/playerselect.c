@@ -104,8 +104,15 @@ u8 player_select_run(void)
     VDP_setReg(17, 0);
     VDP_setReg(18, 0);
 
-    // PC select_player: only two players until game_finished.
+    // PC select_player (sceneslib.cpp:547): only two players until the game
+    // has been finished once (game_config.game_finished), which the ending
+    // sets. The port also spells out why the other two are missing - the PC
+    // just stops the cursor, which reads as a broken screen.
     const u8 max = config.game_finished ? PSEL_MAX : 2;
+    if (!config.game_finished) {
+        draw_centered("FINISH THE GAME TO UNLOCK", 23);
+        draw_centered("PLAYERS 3 AND 4", 24);
+    }
     u16 prev = JOY_readJoypad(JOY_1);
     while (TRUE) {
         u16 pad = JOY_readJoypad(JOY_1);

@@ -44,6 +44,8 @@ bool enemies_boss_on_screen(void);
 bool enemies_boss_died(void);
 // Centre of the boss body (for the death explosion).
 void enemies_boss_death_pos(s16 *x, s16 *y);
+// Body box + facing of enemy `index` (CHAIN projectiles follow their owner).
+bool enemies_get_box(u8 index, s16 *x, s16 *y, s16 *w, s16 *h, s8 *dir);
 // Nearest live on-screen enemy centre (DESERT STORM FOLLOW shots).
 bool enemies_nearest(s16 x, s16 y, s16 *tx, s16 *ty);
 // PC classMap::subboss_alive_on_left: boss/sub-boss alive in the screen-wide

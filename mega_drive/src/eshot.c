@@ -5,6 +5,7 @@
 #include "resources.h"
 #include "stage_data.h"
 #include "explosion.h"
+#include "enemy.h"
 
 // PROJECTILE_TRAJECTORIES (PC defines.h) live in stage_data.h (shared with the
 // player shots in shot.c).
@@ -20,6 +21,9 @@ typedef struct {
     u8 dmg, w, h;
     u8 traj;
     u8 proj_id;
+    u8 owner;            // enemy index that fired it (0xFF = world/player)
+    u8 w0;               // art width (LARGE_BEAM growth)
+    u8 step_t;           // frame counter for the spawning trajectories
     s8 dir;
     u8 status;
     u16 effect_t;
@@ -29,6 +33,7 @@ typedef struct {
 } EShot;
 
 static EShot shots[ESHOT_MAX];
+u8 eshot_current_owner = 0xFF;
 static u16 spr_seen;    // sprite-engine generation of the handles below
 
 static u8 count_proj(u8 proj_id)
@@ -39,11 +44,50 @@ static u8 count_proj(u8 proj_id)
     return n;
 }
 
+// Spawn one projectile from an existing one (BOMB_RAIN children), ignoring the
+// per-projectile max_shots gate, with a different trajectory.
+static bool spawn_child(s16 x, s16 y, s8 dir, u8 proj_id, u8 traj);
+
 static void kill(EShot *s)
 {
     if (s->spr) SPR_releaseSprite(s->spr);
     s->spr = NULL;
     s->on = FALSE;
+}
+
+static bool spawn_child(s16 x, s16 y, s8 dir, u8 proj_id, u8 traj)
+{
+    if (proj_id >= stage_def->enemy_proj_max) return FALSE;
+    const EnemyProj *p = &stage_def->enemy_proj[proj_id];
+    for (u8 i = 0; i < ESHOT_MAX; i++) {
+        EShot *s = &shots[i];
+        if (s->on) continue;
+        s->spr = SPR_addSprite(p->spr, x - camera.x, y - camera.y,
+                               TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
+        spr_seen = spr_gen;
+        if (!s->spr) return FALSE;
+        s->x = s->x0 = (s16)(x - p->w / 2);
+        s->y = s->y0 = (s16)(y - p->h / 2);
+        s->dx = (dir < 0) ? -(s16)p->speed : (s16)p->speed;
+        s->dy = 0;
+        s->speed = p->speed;
+        s->dmg = p->dmg;
+        s->w = p->w;
+        s->h = p->h;
+        s->w0 = p->w;
+        s->proj_id = proj_id;
+        s->traj = traj;
+        s->owner = 0xFF;
+        s->step_t = 0;
+        s->dir = dir;
+        s->status = 0;
+        s->effect_t = 0;
+        s->age = 0;
+        s->reflected = FALSE;
+        s->on = TRUE;
+        return TRUE;
+    }
+    return FALSE;
 }
 
 // PC trajectory_parabola for a RES_W/3 arc: y = (v*n - (n^2+n)/2)/rf with
@@ -99,7 +143,9 @@ static bool fire_impl(s16 x, s16 y, s16 dir, u8 proj_id, bool aim);
 
 bool eshot_fire(s16 x, s16 y, s16 dir, u8 proj_id)
 {
-    return fire_impl(x, y, dir, proj_id, FALSE);
+    const bool ok = fire_impl(x, y, dir, proj_id, FALSE);
+    eshot_current_owner = 0xFF;     // AI frame scope ends with the call
+    return ok;
 }
 
 // PC WALL_WALK_SHOOT: the shot is a TARGET_DIRECTION missile, i.e. it leaves
@@ -137,6 +183,9 @@ static bool fire_impl(s16 x, s16 y, s16 dir, u8 proj_id, bool aim)
         s->w = p->w;
         s->h = p->h;
         s->proj_id = proj_id;
+        s->owner = eshot_current_owner;
+        s->w0 = p->w;
+        s->step_t = 0;
         s->traj = p->traj;
         s->dir = (s8)dir;
         s->status = 0;
@@ -332,6 +381,62 @@ void eshots_update(void)
                 s->dy = (s16)(-s->dy / 2);
             }
             if (s->age > 240) { kill(s); continue; }
+            break;
+        }
+        case TRAJ_CHAIN: {
+            // PC projectilelib.cpp:643: the chain is attached to its owner and
+            // extends/retracts; it only damages while it is out, so the hitbox
+            // follows the art width instead of a fixed 6x6 cell.
+            s16 ox, oy, ow, oh;
+            s8 odir;
+            if (s->owner < 32 &&
+                enemies_get_box(s->owner, &ox, &oy, &ow, &oh, &odir)) {
+                s->dir = odir;
+                s->x = (s->dir > 0) ? (s16)(ox + ow) : (s16)(ox - s->w);
+                s->y = (s16)(oy + oh / 2 - s->h / 2);
+            }
+            // extend to the art width, then retract and expire
+            if (s->status == 0) {
+                if ((s16)(s->w + 4) >= (s16)s->w0) s->status = 1;
+                else s->w = (u8)(s->w + 4);
+            } else {
+                if (s->w <= 8) { kill(s); continue; }
+                s->w = (u8)(s->w - 4);
+            }
+            break;
+        }
+        case TRAJ_BOMB_RAIN: {
+            // PC projectilelib.cpp:927: the shooter drops BOMB_RAIN_N bombs,
+            // spaced across the screen, one every BOMB_RAIN_DELAY (1600ms).
+            if (s->owner >= 32) { kill(s); continue; }
+            if (++s->step_t >= 96) {                    // 1600ms at 60 Hz
+                s->step_t = 0;
+                const s16 spacing = (320 - 32) / 4;     // BOMB_RAIN_N = 4
+                const s16 nx = (s->dir > 0)
+                                   ? (s16)(s->x0 + spacing * (s16)(s->status + 1))
+                                   : (s16)(s->x0 - spacing * (s16)(s->status + 1));
+                spawn_child(nx, (s16)(s->y0 - 96), s->dir, s->proj_id,
+                            TRAJ_FALL_BOMB);
+                if (++s->status >= 4) { kill(s); continue; }
+            }
+            break;
+        }
+        case TRAJ_LARGE_BEAM: {
+            // PC projectilelib.cpp:162/239: 3-frame beam that grows one frame
+            // width every LARGE_BEAM_DELAY (20ms, i.e. per frame here). The MD
+            // art is a single 48x29 sheet, so the hitbox grows while the
+            // sprite already shows the full width.
+            if (s->step_t++ >= 1) {
+                s->step_t = 0;
+                s->status++;
+                const s16 fw = (s16)(s->w0 / 3);
+                if (s->dir < 0) s->x = (s16)(s->x - fw);
+                s->w = (u8)(fw * (2 + s->status));
+                if ((s16)s->status > (320 / (fw ? fw : 16))) {
+                    kill(s);
+                    continue;
+                }
+            }
             break;
         }
         case TRAJ_FALL_BOMB:

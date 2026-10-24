@@ -39,10 +39,20 @@ Still open, with evidence:
   `VERTICAL_TURN`, `LOOK_UP`, `GRAB_WALL`, `HIT_SPECIAL`, `HOLDING_HAND`,
   `ATTACK_SPECIAL`, the `EFFECT_*` placeholders. `tools/audit_pc.py` now checks
   the PC's `set_animation_type()` calls before reporting a pose as missing.
-- [ ] **Trophies screen + the "characters unlocked" warning** before players 3/4
-      (PC gates the warning on `game_config.game_finished`).
-- [ ] Trajectories CHAIN / BOMB_RAIN / LARGE_BEAM (stage 13 only) remain linear;
-      `check_trajectories.py` prints them as known.
+- [x] **Players 3/4 lock is explained on screen**: the select still limits to
+      two until `game_config.game_finished` (PC `sceneslib.cpp:547`), and now
+      says "FINISH THE GAME TO UNLOCK PLAYERS 3 AND 4" instead of looking
+      broken. `check_rules.py unlock-hint`.
+- [x] **Trajectories CHAIN / BOMB_RAIN / LARGE_BEAM implemented** (the last
+      known fallbacks; `check_trajectories.py` KNOWN_FALLBACK is now empty):
+      CHAIN is attached to its owner (the firing enemy is published as
+      `eshot_current_owner`, queried per frame through `enemies_get_box`) and
+      extends/retracts; BOMB_RAIN drops 4 FALL_BOMB children 1600 ms apart,
+      spaced across the screen; LARGE_BEAM grows one frame width per step up to
+      the screen edge. The MD art cannot clip, so CHAIN/LARGE_BEAM show the
+      full sprite while their hitbox grows.
+- [ ] **Trophies screen** (PC `game_config.game_finished` extras screen): not
+      started; the unlock hint above covers the gameplay-relevant half.
 
 # PC features the MD port is missing (source audit)
 

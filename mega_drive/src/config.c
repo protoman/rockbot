@@ -36,7 +36,7 @@ void config_init(void)
         return;
     }
     config.sound = SRAM_readByte(CFG_OFF + 2);
-    config.music_vol = SRAM_readByte(CFG_OFF + 8) & 3;
+    config.music_vol = SRAM_readByte(CFG_OFF + 9) & 3;
     config.turbo = SRAM_readByte(CFG_OFF + 3);
     config.autocharge = SRAM_readByte(CFG_OFF + 4);
     config.b_jump = SRAM_readByte(CFG_OFF + 5) & 3;
@@ -54,7 +54,7 @@ void config_save(void)
 {
     SRAM_writeWord(CFG_OFF, CFG_MAGIC);
     SRAM_writeByte(CFG_OFF + 2, config.sound);
-    SRAM_writeByte(CFG_OFF + 8, config.music_vol);
+    SRAM_writeByte(CFG_OFF + 9, config.music_vol);
     SRAM_writeByte(CFG_OFF + 3, config.turbo);
     SRAM_writeByte(CFG_OFF + 4, config.autocharge);
     SRAM_writeByte(CFG_OFF + 5, config.b_jump);

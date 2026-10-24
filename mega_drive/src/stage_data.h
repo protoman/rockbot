@@ -63,6 +63,8 @@
 // TARGET_DIRECTION only knows. The wall shooter's SMALL MISSILE EXACT uses it
 // (report 2026-10-24).
 #define TRAJ_TARGET_EXACT     15
+#define TRAJ_BOMB_RAIN        27   // drops BOMB_RAIN_N child bombs (PC)
+#define TRAJ_LARGE_BEAM       28   // beam that grows one frame width per step
 #define TRAJ_BOUNCING         23   // gravity arc, bounces off floor and walls
 
 // Shared stage types + the StageDef the runtime reads. The per-stage arrays

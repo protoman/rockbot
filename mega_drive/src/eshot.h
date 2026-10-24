@@ -15,6 +15,10 @@ void eshots_reset(void);
 bool eshot_fire(s16 x, s16 y, s16 dir, u8 proj_id);
 // Aimed variant (PC TARGET_DIRECTION): travels toward the player diagonally.
 bool eshot_fire_aimed(s16 x, s16 y, u8 proj_id);
+// Index of the enemy whose AI is running: every eshot_fire() call made from it
+// tags the projectile with this owner, which CHAIN (follows its owner, PC
+// projectilelib.cpp:643) and BOMB_RAIN (spawns children from it) need.
+extern u8 eshot_current_owner;
 
 // Move, tile/edge culling, player collision -> player_take_damage.
 // Call once per frame after enemies_update().

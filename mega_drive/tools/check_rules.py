@@ -60,6 +60,11 @@ RULES = [
      "wall_scroll_lock is built at map load)",
      [("src/object.c", r"if \(o->def->type != 30\) continue;")],
      [("src/object.c", r"if \(o->def->type != 30 \|\| o->started\) continue;")]),
+    ("unlock-hint",
+     "players 3/4 are limited until the game is finished, and the screen says "
+     "so (PC select_player + game_config.game_finished)",
+     [("src/playerselect.c", r"FINISH THE GAME TO UNLOCK")],
+     []),
     ("menu-armor-icons",
      "the in-game menu draws the PC armor-piece art (draw.cpp:1021)",
      [("src/menu.c", r"VDP_loadTileData\(menu_armor_tiles\[p\]\[mask\]")],
