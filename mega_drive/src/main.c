@@ -376,7 +376,13 @@ static RunResult runStage(u8 stage)
     static const u16 black_pal[16] = {0};
     PAL_setPalette(PAL2, black_pal, DMA_QUEUE);
 
+#ifdef MD_TEST_TILE
+    // Test build: start on a specific map so a link can be reproduced without
+    // walking the whole stage (MD_TEST_MAP/MD_TEST_TX/MD_TEST_TY).
+    stage_load((u8)MD_TEST_MAP);
+#else
     stage_load(0);
+#endif
     if (!stage_map_ready()) {
         // BUG-040: no heap for MAP_create. Entering the stage loop with a NULL
         // map crashed while drawing it; go back to the title instead.
@@ -439,6 +445,15 @@ static RunResult runStage(u8 stage)
         player_sync_sprite();
         SYS_doVBlankProcess();
     }
+
+#ifdef MD_TEST_TILE
+    // Test build: drop the player on the requested tile, centred in it.
+    player_place((s16)(MD_TEST_TX * stage_def->tile + stage_def->tile / 2
+                       - (PLAYER_BOX_L + PLAYER_BOX_R) / 2),
+                 (s16)(MD_TEST_TY * stage_def->tile + stage_def->tile / 2
+                       - (PLAYER_BOX_T + PLAYER_BOX_B) / 2));
+    player_sync_sprite();
+#endif
 
     // NOTE: the old "clear BG_B here" block is gone — stage_load now draws
     // the parallax background on BG_B, and clearing it afterwards wiped the
@@ -589,6 +604,10 @@ static RunResult runStage(u8 stage)
                 px = col * tile + tile / 2
                      - (PLAYER_BOX_L + PLAYER_BOX_R) / 2;
             }
+            // The arrival camera must be known before the destination map is
+            // loaded, so the transition knows which screen to slide in.
+            const s16 cam_x = stage_arrival_camera_x(
+                to_map, px + (PLAYER_BOX_L + PLAYER_BOX_R) / 2);
 #ifdef MD_LINK_TRACE
             // Offline-first rule then one emulator run: print exactly what the
             // arrival computes for the ladder / room-change reports.
@@ -596,10 +615,7 @@ static RunResult runStage(u8 stage)
                     stage_current_map, to_map, to_trans, dst_tx, to_y / tile,
                     stair_col, px, py, cam_x, stage_link_band_off);
 #endif
-            // The arrival camera must be known before the destination map is
-            // loaded, so the transition knows which screen to slide in.
-            const s16 cam_x = stage_arrival_camera_x(
-                to_map, px + (PLAYER_BOX_L + PLAYER_BOX_R) / 2);
+
 
             // PC removes all projectiles before the room change
             // (game.cpp:679 remove_all_projectiles).
@@ -625,6 +641,27 @@ static RunResult runStage(u8 stage)
             // intermediate frames on the downward Mummy stair.
             stage_load_in_place = FALSE;
             stage_load(to_map);
+            // BUG-005 regression (2026-10-24 report: "the old bug returned in
+            // this ladder"): the arrival nudge lost its caller when the
+            // ladder-scan arrival landed - stage_link_band_hit() was dead
+            // code. A stair link arrives on the top/bottom map row, inside the
+            // return link's band, so the latch never clears and the room
+            // cannot be left the way it was entered. Step along the ladder in
+            // 8px steps until the box is out of every band (PC keeps the
+            // player's screen position and lets him re-enter instead).
+            if (py == 0 || py == py_max) {
+                const s16 step = (py == 0) ? 8 : -8;
+                for (u8 i = 0; i < 4; i++) {
+                    if (!stage_link_band_hit(px + PLAYER_BOX_L,
+                                             py + PLAYER_BOX_T,
+                                             px + PLAYER_BOX_R,
+                                             py + PLAYER_BOX_B))
+                        break;
+                    const s16 ny = (s16)(py + step);
+                    if (ny < 0 || ny > py_max) break;
+                    py = ny;
+                }
+            }
             player_place(px, py);
             if (on_stair) player.on_ladder = TRUE;   // arrive hanging on it
             if (!scrolled) player_restore_palette();  // fade blacked out PAL2

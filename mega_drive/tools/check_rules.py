@@ -50,6 +50,11 @@ RULES = [
      [("src/object.c", r"if \(ty == 22 && !bomb\) continue;"),
       ("src/shot.c", r"objects_try_hit\(s->x - 20, s->y - 20, s->x \+ 20, s->y \+ 20,\s*\n?\s*s->dmg, TRUE\);")],
      []),
+    ("arrival-band-nudge",
+     "a stair arrival on the top/bottom row steps out of the return link's band "
+     "so the latch can clear (BUG-005 regression: the call was lost)",
+     [("src/main.c", r"stage_link_band_hit\(px \+ PLAYER_BOX_L,")],
+     []),
     ("transition-row-split",
      "each transition scanline takes its source row (both planes) from the same "
      "tilemap index, so B2T does not apply the outgoing offset to the incoming "
