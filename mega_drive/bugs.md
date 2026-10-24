@@ -1,3 +1,53 @@
+## Batch 2026-10-24 (b) — fifteen play-test reports, offline reproductions
+
+Standing rule from here on (AGENTS.md): a bug is reproduced by an offline
+check **before** the fix, and the same check proves the fix.
+
+Fixed (each with its check):
+
+- **HUD showed no gauge at 1 HP** — `set_bar()` clamps a non-zero percentage to
+  `HUD_BAR_MIN_FRAME` (3), the first frame that shows a whole segment.
+  `tools/check_hud_bars.py`.
+- **Boss door re-opened when walking left into it** — the PC only starts a door
+  once (`is_started()`), inside the player's vertical span. The port never set
+  `started`, so the whole sequence (and the screen move) ran again.
+- **Door stayed at its old screen position during a room scroll** — a door is a
+  stack of slice sprites and `objects_sync_sprites()` only moved `o->spr`.
+- **Knockback pushed the player inside a door** (stuck off-screen) — the hit
+  push applied the terrain column rule only; it now also consults
+  `objects_block_x()`.
+- **Slide passed a horizontal scroll lock** — `player_check_scroll_lock()`
+  returned early while sliding and probed a fixed 2 px ahead. It now runs while
+  sliding and sweeps every column the leading edge crossed.
+- **WOOD SHIELDER walked through the destructible block** — enemy movement
+  (`step_axis`) stopped only at terrain; it now stops at solid map objects
+  (`objects_block_box`), like the player.
+- **Charged shot destroyed the destructible block** — the PC
+  (`classplayer.cpp:800 object_is_affected_by_projectile`) lets *only an
+  exploding bomb* break `OBJ_DESTRUCTIBLE_WALL` (and no RockDroid1 projectile
+  sets the `is_explosive` data flag), so the block types 36/37/42 are the ones
+  any shot may break. `objects_try_hit()` takes a `bomb` flag; a bomb's
+  explosion passes it.
+- **Wall shooter fired a straight normal shot** — the converters read the stale
+  30-record `game_projectile_list.dat` at the data root instead of
+  `data/game_projectile_list_v3.dat` (36 records, what the PC loads), and
+  `PROJ_MAX` was 23; the data asks for ids up to 34 (SMALL MISSILE EXACT,
+  `TRAJECTORY_TARGET_EXACT`). `eshot_fire()` clamped those to projectile 0.
+  Fixed: v3 table, `PROJ_MAX 35`, `TRAJ_TARGET_EXACT` aiming, 128 px projectile
+  art guard (CHAIN is 70x7 and used to be dropped entirely).
+  `tools/check_projectiles.py` (was 13 bad references), `tools/check_trajectories.py`.
+- **Children of a left-facing spawner faced right** — `ai_spawn_npc()` passed the
+  signed runtime dir (-1) where `enemy_add()` wants the data byte (0 = left).
+- **Airborne hops 20% fast and through walls** — the jump moved `d->speed` per
+  60 Hz frame instead of the shared 50 Hz stepper; it now uses `step_axis()`.
+
+Open (next session, see HANDOFF.md): ladder arrivals (stage 5 + APE), the room
+transition drawing the current room's background behind the incoming screen, the
+death when climbing back down the stage-5 second ladder, GAMBIT falling through
+the floor after two cart throws, the ANGRY BUNNY hopping in place, and the
+"YOU GOT" screen text over the player. Known trajectory fallbacks: CHAIN,
+BOUNCING, BOMB_RAIN, LARGE_BEAM, LASER (stages 7/10/13 only).
+
 ## Batch 2026-10-24 — six reports (charge, shots, enemy speed, door, shooter)
 
 1. **Charged shot must be consumed by the enemy it hits.** It pierced for

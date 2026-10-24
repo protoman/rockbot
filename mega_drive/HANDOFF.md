@@ -1,102 +1,77 @@
-# Handoff — Mega Drive port (2026-10-23)
+# Handoff — Mega Drive port (2026-10-24, second session)
 
 Start here in a new session. `bugs.md` has the entries, `pc_gaps.md` is the
 PC-parity backlog, `PLAN.md` the roadmap.
 
+## Standing rule added this session
+
+**Every reported bug gets an offline reproduction first** (see `AGENTS.md` →
+"Bug workflow"). It must fail on the tree before the fix and pass after. The
+emulator is only for things no check can see (feel, colour, timing).
+
 ## Where the tree is
 
-- ROM built, `make` exit 0, `make assets` clean, ROM fresh. Checks green:
-  `check_palettes`, `check_vram` (unchanged), `audit_data` (`option gaps: 0`,
-  `animation index problems: 0`).
-- Last commits: `mega drive:` series ending with the AI/anim + scene-music
-  batch. Only dirty files are the user's own (parent `game.cpp`,
-  `build/games/RockDroid1/stages_v301.dat`, `TODO.txt`).
+- `make` exit 0, ROM ~2.25 MB, no emulator left running.
+- Checks, all green: `check_rules.py`, `check_hud_bars.py`,
+  `check_projectiles.py`, `check_trajectories.py` (known fallbacks listed),
+  `check_palettes.py`, `check_vram.py`, `check_fx.py`, `audit_data.py`,
+  `audit_links.py` (57 pre-existing NO-FLOOR notes, every `LADDER@` ok),
+  `audit_ai.py` (prints option usage).
+- Commits this session: report batch 2 (`e3607e58`), wall shooter projectile
+  table + TARGET_EXACT (`a16e65bc`), AI spawn dir + hop stepper (`07c533f2`).
 
-## Done this session (2026-10-23, all offline)
+## Fixed this session (each with its offline reproduction)
 
-1. **Walk-attack / jump-attack** player rows + pose selection; **STAIRS_SEMI**
-   (frame 18) half-body pose when grabbing a ladder.
-2. **Boss door** opening: the PC art has one frame, so the sprite slides into
-   the floor and back around the scroll.
-3. **Dialog palette leak**: the panel borrows PAL3 (also the parallax line) —
-   the whole line is saved/restored now, so the stage colours no longer change
-   after a boss dialog.
-4. **YOU GOT screen**: real `config_bg.png` background + text at the PC's x.
-5. **Sprite lifetime**: `sprites_begin/sprites_end` bump `spr_gen` and every
-   module releases only same-generation handles. This fixed the invisible
-   player + `SPR_update` crash after re-entering a stage (`SPR_end` leaves the
-   freed Sprite structs in the heap block the new pool reuses).
-6. **AI parity**: AI_JUMP options (incl. TO_ROOF → ceiling walk for APE),
-   AI_FLY options (TO_RANDOM/DRILL_DOWN/PLAYER_DIR/OPPOSITE_WALL/OPPOSITE_SHOOT/
-   RANDOM_X/RANDOM_Y), the twelve AI actions that had no code, and enemy
-   ANIM_TYPE_TURN rows (BLUE SHIELDER's rotating shield).
-7. **SPIKED CHAIN** (TRAJECTORY_CHAIN) extends/retracts instead of flying on.
-8. **Scene PLAY_MUSIC / STOP_MUSIC** wired (converter emits `scene_music_ids[]`).
-9. Quake screen shake for enemy QUAKE projectiles; boss-death ring (earlier).
+| report | fix | reproduction |
+|---|---|---|
+| HUD showed no bar at 1 HP | `set_bar` clamps to `HUD_BAR_MIN_FRAME` when pct > 0 | `check_hud_bars.py` |
+| boss door re-opened when walking left into it | `o->started` set/checked + PC's vertical-span test | `check_rules.py` door-once |
+| door stayed at its old screen position during a room scroll | `objects_sync_sprites` syncs the slice sprites (`door_sync`) | `check_rules.py` door-scroll-sync |
+| knockback pushed the player inside a door | pushback applies `objects_block_x` | `check_rules.py` pushback-collision |
+| slide passed a horizontal scroll lock | the lock probe runs while sliding and sweeps every column crossed | `check_rules.py` slide-scroll-lock |
+| WOOD SHIELDER walked through the destructible block | enemies stop at solid map objects (`objects_block_box` in `step_axis`) | `check_rules.py` enemy-object-collision |
+| charged shot broke the destructible block | only an exploding BOMB breaks type 22 (PC classplayer.cpp:800) | `check_rules.py` wall-bomb-only |
+| wall shooter fired a straight normal shot | converters read the **v3** projectile table (36 records), `PROJ_MAX` 35, `TRAJ_TARGET_EXACT` implemented | `check_projectiles.py`, `check_trajectories.py` |
+| spawned children always faced right; airborne hops 20% fast and through walls | `ai_spawn_npc` passes a data dir byte, airborne hop uses `step_axis` | `audit_ai.py` (context) |
 
-10. **Transient effects** (`src/effects.c`): dash dust, water splash, water
-    bubble, teleport beam — art converted by `tools/convert_assets.py`, frame
-    sizes verified by `tools/check_fx.py` (run it after touching either). Water
-    only exists in stages 3 and 13, which is where splash/bubble can be seen.
-    Effects are cosmetic: when the 768-tile sprite pool is full `SPR_addSprite`
-    returns NULL and the effect is skipped, never a crash.
+## Open from the 2026-10-24 report (in the order I would take them)
 
-11. **Weapon tooltip** (`src/tooltip.c` + `src/tooltip_data.*`): the
-    START-menu pick arms the PC's box + weapon icon + name, the stage loop
-    draws them at the PC's lower-left spot for 1.5 s and then calls
-    `stage_force_redraw()` once to restore the map cells. Nothing is drawn
-    while the menu is open. Art: `tools/convert_tooltip.py` (box 300x32 ->
-    8 tiles + a 38x4 map; icons 18 x 16x16, per-icon 11-colour palette).
-    RAM/VRAM cost: 12 tiles at 912..923 (the dialog panel window) and PAL3 for
-    the 90 frames (saved/restored, colourcycle paused). `convert_tooltip.py
-    --preview N` rebuilds the box + icon N from the emitted data; the
-    converter also round-trips its own packed tile bytes on every run.
+1. **Ladder arrival unaligned (stage 5 room 0, first descent; APE too)** and
+   **death when going back down the second ladder**. `audit_links.py` says the
+   landing box is legal for every stage-5 ladder, so the model and the game
+   disagree somewhere the audit does not cover: next step is to log the actual
+   `px/py` and `cam_x` the link handler computes on the first descent (KDEBUG
+   one-liner in main.c's link block, one emulator run) and compare with
+   `audit_links.arrival()`. Suspects: the ±2 stair scan picking a column that
+   belongs to a *different* ladder when two ladders are close, and
+   `player.on_ladder = TRUE` being forced on an arrival whose stair column is
+   not the one the climb code later uses.
+2. **Transition draws the CURRENT room's parallax behind the incoming screen.**
+   Known design: `transition_scroll()` sets BG_B's per-line scroll from
+   `bg_info[from_map]`, and BG_B's *tiles* are the current map's, so the
+   incoming half shows the old room's art. Each map has its own bg tiles/palette
+   (`bg_tiles[map]`, `bg_pal[map]`) and both halves share PAL3, so the fix must
+   be: copy the destination bg tiles into the transition's spare VRAM, fill the
+   newly-claimed rows of BG_B with the destination bg map row-by-row as the
+   split moves (rows < split keep the old art), and use the destination
+   `bg_info[to_map].speed` for those rows via HSCROLL_LINE. When the two bg
+   palettes differ (compare the 16 CRAM words) fill those rows with tile 0
+   instead, so the wrong art never shows. `stage_load(to_map)` rebuilds BG_B
+   afterwards, so only the slide frames need this.
+3. **GAMBIT falls through the floor after two cart throws** (stage 5).
+   `AI_THROW_ITEM` is the only path not covered by the 50 Hz stepper audit;
+   check whether it leaves `no_gravity`/`jumping` set, or moves `e->y` without
+   re-probing the floor.
+4. **ANGRY BUNNY spawned by TOP HAT jumps straight up.** The spawn direction is
+   fixed, but confirm the chain: TOP HAT `{100,13,1,5000,54}` → child def 54,
+   whose chain starts `{100,2,1,800,0}` = JUMP option 0 (AHEAD). If it still
+   hops in place, log `e->dir`, `e->jump_opt`, `e->dest_x` on the first jump.
+5. **"YOU GOT <weapon>" screen draws its text over the player** (stage 5 pickup
+   screen). Layout only: move the text block out of the player's column.
+6. Known trajectory fallbacks (`check_trajectories.py` prints them):
+   CHAIN, BOUNCING, BOMB_RAIN, LARGE_BEAM, LASER. Only stages 7/10/13 use them.
 
-## Next, in order (see pc_gaps.md for evidence per item)
+## Never launch the emulator without asking
 
-1. **Quicksand is in the engine** (2026-10-23): terrain 9 sinks the player at
-   0.2 px/frame and caps the walk at 0.4, water's 0.7 walk cap landed on the
-   same path, and `tools/check_terrain.py` fails if a map uses a terrain id the
-   engine does not handle. Nothing paints terrain 9 yet, and there is no
-   converted map to try it on, so it is code-verified only.
-1b. **Tooltip verified** (2026-10-23): box + icon + name render correctly
-   (BUG-041/042 closed): the plane redraw is flushed before drawing, the fixed
-   tile blocks sit outside the sprite pool, and the box is backed with a solid
-   tile on the parallax plane (scroll-compensated).
-1c. **Sprite guard** (2026-10-23, BUG-043): every `SPR_setAnim`/`SPR_setFrame`
-   in the port goes through `sprite_guard.c`, which rejects an out-of-range
-   index and prints it over KDEBUG instead of letting `SPR_update` read a
-   garbage frame pointer. The slide crash that started this is still not
-   reproduced on stage 0/1; with the guard it will log instead of crashing.
-   `make EXTRA_FLAGS=-DMD_TEST_STAGE=<n>` boots straight into a stage.
-2. **RockDroid2 readiness** (`pc_gaps.md` -> "RockDroid2"): its AI_FLY options
-   13/14/19, the slim/damaging platforms (27/28), the crusher (33) and the
-   foreground layer (`backgrounds[1]`, composited into bg0) are implemented.
-   Left: bg0 `auto_scroll` modes (stage 3 uses LEFT), and its 15 extra enemies,
-   which need `tools/import_pc_art.py` run over RockDroid2's art first.
-   `audit_data.py --game RockDroid2` lists what each stage needs.
-3. **Small real leftovers** (`pc_gaps.md`): the PC's special tooltip names for
-   the tanks/COIL/JET, and the "characters unlocked" warning before players 3/4.
-4. Play-test everything above (ask before launching BlastEm; one run covers:
-   walking shots, door slide, dialog → stage colours, YOU GOT screen, stage
-   re-entry (no invisible player / no crash), APE ceiling jump, BLUE SHIELDER
-   turn animation, SPIKED CHAIN, cutscene music, dash dust on every slide,
-   water splash + rising bubble in stage 3 (the only early stage with water;
-   13 also has it), teleport beam when a boss/castle teleporter warps, and the
-   weapon tooltip after picking a weapon in the START menu — check the box,
-   the icon and the name appear in the lower left for ~1.5 s, that the name
-   sits on the box interior (not in black boxes) and that the map under it is
-   clean again afterwards (the tooltip itself belongs to the map while it is
-   up, and the background palette is the tooltip's for those 1.5 s).
-   Effects are best effort on VRAM: if the 768-tile sprite pool is full the
-   effect is silently skipped (SPR_addSprite NULL) — worth watching that the
-   splash and the beam do appear rather than assuming.
-
-## Reminders
-
-- **Verify builds by `make`'s exit code** — the toolchain reports `erro:` in
-  Portuguese, lowercase (lesson 26 in `lessons_learned.md`).
-- `tools/audit_data.py` now prints AI **options**, object types, terrain and
-  sprite animation indices: run it before claiming a feature is complete.
-- A fully transparent sprite frame is fine (rescomp emits 0 VDP sprites).
-- Sprite pool 768 tiles; ring explosion uses 72 of them.
+See `AGENTS.md` → Emulator. One permission = one launch; `tools/emu.sh stop`
+afterwards.
