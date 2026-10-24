@@ -42,6 +42,21 @@ static const u8 *const music_tracks[MUSIC_COUNT] = {
 static const u8 *current_track;
 static bool playing;
 
+// PC file_config volume_music (0..100). Here 4 steps: XGM2 takes 0..100 for
+// the FM and PSG halves of the track, and it resets both when a track starts,
+// so every play re-applies the level.
+static u8 music_level = 3;
+
+void music_set_volume(u8 level)
+{
+    music_level = (level > 3) ? 3 : level;
+    const u16 v = (u16)(music_level * 33);      // 0 / 33 / 66 / 99
+    XGM2_setFMVolume(v);
+    XGM2_setPSGVolume(v);
+}
+
+u8 music_get_volume(void) { return music_level; }
+
 void music_stop(void)
 {
     if (!playing) return;
@@ -68,6 +83,7 @@ void music_play(MusicId id)
     if (playing && track == current_track) return;
     current_track = track;
     XGM2_play(track);
+    music_set_volume(music_level);
     playing = TRUE;
 }
 

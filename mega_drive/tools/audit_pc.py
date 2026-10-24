@@ -61,13 +61,13 @@ ANIM_MAP = {
     "ANIM_TYPE_SPECIAL_ATTACK": "ANIM_SPECIAL",
     "ANIM_TYPE_GOT_WEAPON": "ANIM_GOT_WEAPON",
     "ANIM_TYPE_THROW": None,
-    "ANIM_TYPE_TURN": None,
+    "ANIM_TYPE_TURN": "turn_anim",       # EnemyDef.turn_anim (enemy sheet row)
     "ANIM_TYPE_MOVE_SEMI": None,
-    "ANIM_TYPE_WALK_AIR": None,
-    "ANIM_TYPE_INTRO": None,             # EnemyDef.intro_anim
+    "ANIM_TYPE_WALK_AIR": None,          # flyers use their walk row
+    "ANIM_TYPE_INTRO": "intro_anim",     # EnemyDef.intro_anim (bosses)
     "ANIM_TYPE_VERTICAL_TURN": None,
     "ANIM_TYPE_ATTACK_THROW": None,
-    "ANIM_TYPE_ATTACK_DIAGONAL_UP": None,
+    "ANIM_TYPE_ATTACK_DIAGONAL_UP": None,   # diagonal shot, normal attack art
     "ANIM_TYPE_ATTACK_DIAGONAL_DOWN": None,
     "ANIM_TYPE_ATTACK_UP": None,
     "ANIM_TYPE_ATTACK_DOWN": None,
@@ -97,20 +97,41 @@ def check_anims():
     pc = read(os.path.join(PC, "defines.h"))
     block = re.search(r"enum ANIM_TYPE \{(.*?)\};", pc, re.S)
     names = re.findall(r"\b(ANIM_TYPE_[A-Z0-9_]+)\b", block.group(1)) if block else []
-    port = read(os.path.join(SRC, "player.h")) + read(os.path.join(SRC, "defines.h"))
+    # Evidence first: the PC DECLARES 40+ types but only SETS a subset. A type
+    # that is never set is a placeholder, not a missing feature (the first
+    # version of this check listed ATTACK_UP/THROW/GRAB_WALL/HOLDING_HAND as
+    # gaps; the PC source never sets any of them).
+    code = ""
+    for f in glob.glob(os.path.join(PC, "character/*.cpp")) + \
+             glob.glob(os.path.join(PC, "graphic/*.cpp")) + \
+             glob.glob(os.path.join(PC, "*.cpp")) + \
+             glob.glob(os.path.join(PC, "objects/*.cpp")):
+        code += read(f)
+    port = (read(os.path.join(SRC, "player.h")) +
+            read(os.path.join(SRC, "defines.h")) +
+            read(os.path.join(SRC, "stage_data.h")) +
+            read(os.path.join(SRC, "enemy.h")))
     section("1. player animation types")
-    missing = 0
+    used = missing = declared_only = 0
     for n in names:
-        if n.startswith(("ANIM_TYPE_PLACEHOLDER",)):
+        if n.startswith("ANIM_TYPE_PLACEHOLDER") or n == "ANIM_TYPE_COUNT":
             continue
-        target = ANIM_MAP.get(n, None)
-        if target and re.search(r"#define\s+" + target + r"\b", port):
+        sets = len(re.findall(r"set_animation_type\(\s*" + n + r"\s*\)", code))
+        if sets == 0:
+            declared_only += 1
+            continue
+        used += 1
+        if n in ANIM_MAP and ANIM_MAP[n] is None:
+            continue        # the port folds it into another pose/art row
+        target = ANIM_MAP.get(n)
+        if target and re.search(r"\b" + target + r"\b", port):
             continue
         missing += 1
         impact = ANIM_IMPACT.get(n)
-        note = f"  -> {impact}" if impact else ""
-        print(f"   absent: {n}{note}")
-    print(f"   {len(names)} PC anim types, {missing} with no port pose")
+        note = f"  -> {impact}" if impact else "  -> pose/art only"
+        print(f"   absent: {n} (PC sets it {sets}x){note}")
+    print(f"   {len(names)} declared, {declared_only} never set by the PC "
+          f"(not gaps), {used} really used, {missing} of those without a port pose")
 
 
 # --- 2. weapons -----------------------------------------------------------
@@ -165,12 +186,19 @@ def check_config():
               "volume_music", "selected_language"]
     mapping = {"game_finished": "game_finished", "turbo_mode": "turbo",
                "auto_charge_mode": "autocharge", "volume_sfx": None,
-               "volume_music": None, "selected_language": None}
+               "volume_music": "music_vol", "selected_language": None}
+    # Decided scope (do not re-report these as gaps):
+    out_of_scope = {
+        "volume_sfx": "XGM2 has no runtime PCM/SFX volume (only FM+PSG)",
+        "selected_language": "user decision: this port is English only",
+    }
     for f in fields:
         in_pc = re.search(r"\b" + f + r"\b", pc) is not None
         target = mapping[f]
         in_port = bool(target) and re.search(r"\b" + target + r"\b", port)
-        if in_pc and not in_port:
+        if in_pc and not in_port and f in out_of_scope:
+            print(f"   out of scope: {f} ({out_of_scope[f]})")
+        elif in_pc and not in_port:
             print(f"   MISSING: {f}")
         elif in_pc:
             print(f"   ok:      {f}")

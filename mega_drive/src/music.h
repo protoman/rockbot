@@ -50,6 +50,10 @@ void music_play_stage(u8 stage);
 // Stop the current music; the track is remembered for music_resume().
 void music_stop(void);
 
+// PC volume_music: 0..3 steps (0 = silent ... 3 = full).
+void music_set_volume(u8 level);
+u8 music_get_volume(void);
+
 // Re-start the remembered track (used when sound is re-enabled in CONFIG).
 void music_resume(void);
 

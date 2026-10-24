@@ -24,6 +24,7 @@ void config_init(void)
 {
     if (SRAM_readWord(CFG_OFF) != CFG_MAGIC) {
         config.sound = 1;
+        config.music_vol = 3;
         config.turbo = 0;
         config.autocharge = 0;
         config.b_jump = 2;     // C
@@ -35,6 +36,7 @@ void config_init(void)
         return;
     }
     config.sound = SRAM_readByte(CFG_OFF + 2);
+    config.music_vol = SRAM_readByte(CFG_OFF + 8) & 3;
     config.turbo = SRAM_readByte(CFG_OFF + 3);
     config.autocharge = SRAM_readByte(CFG_OFF + 4);
     config.b_jump = SRAM_readByte(CFG_OFF + 5) & 3;
@@ -45,12 +47,14 @@ void config_init(void)
     if (config.b_fire > 2) config.b_fire = 1;
     if (config.b_dash > 2) config.b_dash = 0;
     sfx_set_enabled(config.sound != 0);   // music is gated at stage start
+    music_set_volume(config.music_vol);
 }
 
 void config_save(void)
 {
     SRAM_writeWord(CFG_OFF, CFG_MAGIC);
     SRAM_writeByte(CFG_OFF + 2, config.sound);
+    SRAM_writeByte(CFG_OFF + 8, config.music_vol);
     SRAM_writeByte(CFG_OFF + 3, config.turbo);
     SRAM_writeByte(CFG_OFF + 4, config.autocharge);
     SRAM_writeByte(CFG_OFF + 5, config.b_jump);
@@ -148,16 +152,38 @@ static s8 menu_list(const char *title, const char *const *items, u8 n, u8 *sel)
 
 static void audio_menu(void)
 {
-    u8 sel = 0;
+    // PC config has volume_music and volume_sfx. XGM2 exposes a master volume
+    // for the music halves only (XGM2_setFMVolume / setPSGVolume); the PCM
+    // effects have no runtime volume, so SFX stay on/off.
+    u8 row = 0;
     for (;;) {
+        char music[20] = "MUSIC VOL: 3";
         char sound[24] = "SOUND: ";
+        music[11] = (char)('0' + config.music_vol);
         strcat(sound, config.sound ? "ON" : "OFF");
-        const char *items[1] = { sound };
-        s8 r = menu_list("AUDIO", items, 1, &sel);
-        if (r < 0) return;
-        config.sound = !config.sound;
-        apply_sound();
-        config_save();
+        const char *items[2] = { music, sound };
+        draw_list("AUDIO", items, 2, row);
+        VDP_drawText("A:CHANGE  B:BACK", 2, 26);
+        u16 pad;
+        do {
+            SYS_doVBlankProcess();
+            pad = JOY_readJoypad(JOY_1);
+        } while (!(pad & (BUTTON_UP | BUTTON_DOWN | BUTTON_A | BUTTON_B)));
+        while (JOY_readJoypad(JOY_1) & (BUTTON_A | BUTTON_B))
+            SYS_doVBlankProcess();
+        if (pad & BUTTON_B) return;
+        if (pad & BUTTON_UP)   row = (row == 0) ? 1 : row - 1;
+        if (pad & BUTTON_DOWN) row = (row + 1) % 2;
+        if (pad & BUTTON_A) {
+            if (row == 0) {
+                config.music_vol = (u8)((config.music_vol + 1) & 3);
+                music_set_volume(config.music_vol);
+            } else {
+                config.sound = !config.sound;
+                apply_sound();
+            }
+            config_save();
+        }
     }
 }
 

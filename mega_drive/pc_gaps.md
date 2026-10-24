@@ -22,23 +22,25 @@ Closed by this sweep:
 
 Still open, with evidence:
 
-- [ ] **Armor piece ICONS** in the menu (PC art
-      `images/backgrounds/player_armor_pieces.png`, 4 frames x 4 players of
-      28x29). Needs 16 tiles of fixed VRAM outside the sprite pool (the layout
-      below the pool is full: 672..702 tooltip/dialog/config, 703..1439 pool).
-- [ ] **Straight up/down player shots**: the port shoots diagonally with Up/Down
-      held (`dy = +-3`); the PC also has `ANIM_TYPE_ATTACK_UP/DOWN` (weapons
-      whose projectile is a vertical trajectory). Diagonal art is also absent
-      (the port reuses the normal attack pose - accepted).
-- [ ] **Separate SFX/music volume** (PC `volume_sfx`/`volume_music`): the port
-      has a single on/off. XGM2 exposes both, so this is mostly menu work.
-- [ ] **Language selection** (PC ships EN + PT strings; the port ships EN only).
+- [x] **Armor piece ICONS** in the menu: `tools/convert_menu_armor.py` pre-
+      composites the PC art (`player_armor_pieces.png`, 4 players x 8 masks of
+      28x29) into 4x4 plane tiles quantised to the player's PAL2 and the menu
+      draws them at the PC position (x=284, y=157) using the dialog-panel tile
+      block (685..700), which is free while the menu is open.
+      `check_rules.py menu-armor-icons`.
+- [x] **Music volume** (PC `volume_music`): 4 steps in the AUDIO menu, applied
+      with `XGM2_setFMVolume`/`XGM2_setPSGVolume`, persisted in SRAM and
+      re-applied on every track start. `check_rules.py music-volume`.
+      SFX volume stays on/off: XGM2 has no PCM volume (see AGENTS.md scope).
+- OUT OF SCOPE (owner's decision, recorded in AGENTS.md): language selection
+  (English only), separate SFX volume.
+- NOT GAPS (the PC declares these animation types but never sets them):
+  `ATTACK_UP`, `ATTACK_DOWN`, `THROW`, `ATTACK_THROW`, `MOVE_SEMI`,
+  `VERTICAL_TURN`, `LOOK_UP`, `GRAB_WALL`, `HIT_SPECIAL`, `HOLDING_HAND`,
+  `ATTACK_SPECIAL`, the `EFFECT_*` placeholders. `tools/audit_pc.py` now checks
+  the PC's `set_animation_type()` calls before reporting a pose as missing.
 - [ ] **Trophies screen + the "characters unlocked" warning** before players 3/4
       (PC gates the warning on `game_config.game_finished`).
-- [ ] **Throw / carried object** (`ANIM_TYPE_THROW`, `ANIM_TYPE_HOLDING_HAND`):
-      no PC stage data uses them in RockDroid1; they matter if a sequel does.
-- [ ] **Wall grab** (`ANIM_TYPE_GRAB_WALL`): PC action AI_GRAB_WALL exists in
-      `enemy.c`, the *player* grab does not.
 - [ ] Trajectories CHAIN / BOMB_RAIN / LARGE_BEAM (stage 13 only) remain linear;
       `check_trajectories.py` prints them as known.
 

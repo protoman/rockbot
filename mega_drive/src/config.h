@@ -10,6 +10,7 @@
 // Persisted in SRAM right after the 5 save slots (bytes 48..56).
 typedef struct {
     u8 sound;       // 1 = SFX+music on
+    u8 music_vol;   // PC volume_music, 4 steps (0..3)
     u8 turbo;       // hold fire = repeat shot (PC turbo_mode)
     u8 autocharge;  // default weapon auto-fires (PC auto_charge_mode)
     u8 b_jump;      // 0=A 1=B 2=C

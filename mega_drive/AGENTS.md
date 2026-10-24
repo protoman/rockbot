@@ -211,6 +211,15 @@ user's desktop. Ask before launching. Never launch repeatedly to explore — one
 deliberate run per question, then `tools/emu.sh stop`. Prefer deriving answers
 from already-captured screenshots/assets over running the emulator again.
 
+## Out of scope (do not report as a gap)
+
+- **Localisation / language selection.** The PC ships EN + PT strings; this
+  port is **English only** (owner's decision, asked three times). `tools/audit_pc.py`
+  lists `selected_language` as out of scope for that reason.
+- **Separate SFX volume.** XGM2 exposes a master volume for the FM/PSG music
+  only; PCM effects have no runtime volume control, so the port keeps SFX on/off
+  and a 4-step MUSIC VOL. Revisit only if the driver changes.
+
 ## Editable stage data (source of truth)
 
 - `data/games/RockDroid1/` is the **master** game data and is what every

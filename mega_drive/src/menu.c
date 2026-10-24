@@ -1,4 +1,5 @@
 #include "menu.h"
+#include "menu_armor_data.h"
 #include "sprite_guard.h"
 #include "sfx.h"
 
@@ -319,6 +320,26 @@ static void draw_tank_line(void)
     VDP_drawText(buf, 5, 22);
 }
 
+// PC weapon_menu_show_player (draw.cpp:1021-1040): the installed armor pieces
+// are drawn as icons at the panel's right edge (x = RES_W-36, y = 157). The PC
+// art is 4x4 tiles (28x29 padded), so it fits the dialog-panel tile block,
+// which is unused while the menu is open.
+static void draw_armor_icons(void)
+{
+    const u8 p = player_number() & 3;
+    const u8 mask = (u8)(player.armor & 7);
+    VDP_loadTileData(menu_armor_tiles[p][mask], SPR_DLG_TILE_BASE,
+                     MENU_ARMOR_TILES, DMA_QUEUE);
+    for (u8 r = 0; r < 4; r++) {
+        for (u8 c = 0; c < 4; c++) {
+            VDP_setTileMapXY(BG_A,
+                             TILE_ATTR_FULL(PLAYER_PAL, FALSE, FALSE, FALSE,
+                                            SPR_DLG_TILE_BASE + r * 4 + c),
+                             (u16)(35 + c), (u16)(19 + r));
+        }
+    }
+}
+
 // PC weapon_menu_show_player (draw.cpp:1021) also shows which armor pieces
 // are installed, as icons at the panel's right edge. The MD port has no free
 // VRAM block for that 28x29 art yet, so the state is a text line on the same
@@ -382,6 +403,7 @@ static void menu_draw_panel(void)
     VDP_drawText("A: LEAVE STAGE", 2, 26);
     draw_tank_line();
     draw_armor_line();
+    draw_armor_icons();
     // PC weapon_menu_show_player (draw.cpp:1021): lives next to the portrait
     {
         char buf[6] = { 'x', '[', '0', ']', 0, 0 };
@@ -475,6 +497,7 @@ bool menu_open(u16 weapon_mask)
                 draw_tank_entry();
                 draw_tank_line();
     draw_armor_line();
+    draw_armor_icons();
             }
             continue;
         }
