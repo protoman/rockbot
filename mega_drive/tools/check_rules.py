@@ -60,6 +60,11 @@ RULES = [
      "wall_scroll_lock is built at map load)",
      [("src/object.c", r"if \(o->def->type != 30\) continue;")],
      [("src/object.c", r"if \(o->def->type != 30 \|\| o->started\) continue;")]),
+    ("menu-tank-use",
+     "the in-game menu can use a reserve tank (PC class_config.cpp:218 row 6 "
+     "+ BTN_ATTACK); player_use_tank() used to have no caller",
+     [("src/menu.c", r"player_use_tank\(menu_entry == MENU_ENTRY_ETANK\)")],
+     []),
     ("dialog-keeps-parallax",
      "the dialog panel borrows PAL0, never PAL3 (the stage parallax), so the "
      "background behind the box keeps its colours",

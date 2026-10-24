@@ -72,6 +72,77 @@ static u8 find_next_weapon(u8 cur, s8 dir)
 static Sprite *wicon[WEAPON_SWITCH_N];
 static Sprite *wicon_gray[WEAPON_SWITCH_N];
 static Sprite *selected_icon;
+// Cursor position: a weapon index (0..WEAPON_SWITCH_N-1) or one of the three
+// reserve tanks appended after them. The PC puts the tanks in an extra row of
+// the weapon grid (class_config.cpp:174/201/218): the cursor moves into them
+// and BTN_ATTACK uses one. The port showed the counts but had no way to use a
+// tank at all (player_use_tank had no caller).
+#define MENU_ENTRY_ETANK WEAPON_SWITCH_N
+#define MENU_ENTRY_WTANK (WEAPON_SWITCH_N + 1)
+#define MENU_ENTRY_STANK (WEAPON_SWITCH_N + 2)
+#define MENU_ENTRY_N     (WEAPON_SWITCH_N + 3)
+static u8 menu_entry;
+
+static void menu_restore_strip(u16 col, u16 row, u16 count);
+
+static u8 tank_count(u8 entry)
+{
+    if (entry == MENU_ENTRY_ETANK) return player.tanks_hp;
+    if (entry == MENU_ENTRY_WTANK) return player.tanks_wp;
+    return player.tanks_sp;
+}
+
+static bool entry_selectable(u8 entry)
+{
+    if (entry < WEAPON_SWITCH_N) return (owned & (1u << entry)) != 0;
+    return tank_count(entry) > 0;
+}
+
+// Move `dir` entries (1 for LEFT/RIGHT, 4 for UP/DOWN), skipping everything
+// that cannot be selected, wrapping like the PC's linear find_next_weapon.
+static u8 entry_step(u8 cur, s8 dir)
+{
+    u8 e = cur;
+    for (u8 i = 0; i < MENU_ENTRY_N; i++) {
+        e = (u8)(((s16)e + dir + MENU_ENTRY_N) % MENU_ENTRY_N);
+        if (entry_selectable(e)) return e;
+    }
+    return cur;
+}
+
+// "ITEM:  E-TANK [2]   B:USE" line while the cursor is on a tank.
+static void draw_tank_entry(void)
+{
+    static const char *const names[3] = { "E-TANK", "W-TANK", "S-TANK" };
+    const u8 t = (u8)(menu_entry - MENU_ENTRY_ETANK);
+    char buf[24];
+    menu_restore_strip(13, 19, 27);
+    menu_restore_strip(13, 20, 27);
+    VDP_drawText("ITEM:", 13, 19);
+    const u8 n = tank_count(menu_entry);
+    buf[0] = names[t][0];
+    buf[1] = names[t][1];
+    buf[2] = names[t][2];
+    buf[3] = names[t][3];
+    buf[4] = names[t][4];
+    buf[5] = names[t][5];
+    buf[6] = ' ';
+    buf[7] = '[';
+    buf[8] = (char)('0' + (n % 10));
+    buf[9] = ']';
+    buf[10] = ' ';
+    buf[11] = 'B';
+    buf[12] = ':';
+    buf[13] = 'U';
+    buf[14] = 'S';
+    buf[15] = 'E';
+    buf[16] = 0;
+    VDP_drawText(buf, 13, 20);
+    if (selected_icon) {
+        SPR_setVisibility(selected_icon, VISIBLE);
+        spr_set_frame(selected_icon, 0);
+    }
+}
 
 static void icons_release(void)
 {
@@ -362,6 +433,7 @@ bool menu_open(u16 weapon_mask)
         pad = JOY_readJoypad(JOY_1);
     } while (pad & (BUTTON_START | BUTTON_A | BUTTON_C));
 
+    menu_entry = player_weapon();
     bool leave = FALSE;
     u16 prev = pad;
     while (TRUE) {
@@ -372,6 +444,15 @@ bool menu_open(u16 weapon_mask)
         pad = JOY_readJoypad(JOY_1);
         if (pad & (BUTTON_START | BUTTON_C)) break;   // resume (PC START/JUMP)
         if (pad & BUTTON_A) { leave = TRUE; break; }  // PC BTN_DASH
+        if ((pad & BUTTON_B) && menu_entry >= MENU_ENTRY_ETANK) {
+            // PC class_config.cpp:218 use_tank(): BTN_ATTACK on a tank slot.
+            if (player_use_tank(menu_entry == MENU_ENTRY_ETANK)) {
+                sfx_play(SFX_PILL);   // PC SFX_GOT_ENERGY (closest PCM here)
+                draw_tank_entry();
+                draw_tank_line();
+            }
+            continue;
+        }
         if (pad & BUTTON_B) {                         // options (PC BTN_R)
             if (portrait) {
                 SPR_releaseSprite(portrait);
@@ -388,37 +469,22 @@ bool menu_open(u16 weapon_mask)
         // weapon switching (PC find_next_weapon / the weapon grid)
         u16 pressed = pad & ~prev;
         prev = pad;
-        if (pressed & BUTTON_RIGHT) {
-            u8 w = find_next_weapon(player_weapon(), 1);
-            if (w != player_weapon()) {
-                player_set_weapon(w);
-                tooltip_show(w);       // PC set_weapon(..., show_tooltip)
-                draw_weapon_line();
-                sfx_play(SFX_CURSOR);
-            }
-        } else if (pressed & BUTTON_LEFT) {
-            u8 w = find_next_weapon(player_weapon(), -1);
-            if (w != player_weapon()) {
-                player_set_weapon(w);
-                tooltip_show(w);       // PC set_weapon(..., show_tooltip)
-                draw_weapon_line();
-                sfx_play(SFX_CURSOR);
-            }
-        } else if (pressed & BUTTON_UP) {
-            // PC matrix navigation: up/down move one row (4 columns).
-            u8 w = find_next_weapon(player_weapon(), -4);
-            if (w != player_weapon()) {
-                player_set_weapon(w);
-                tooltip_show(w);       // PC set_weapon(..., show_tooltip)
-                draw_weapon_line();
-                sfx_play(SFX_CURSOR);
-            }
-        } else if (pressed & BUTTON_DOWN) {
-            u8 w = find_next_weapon(player_weapon(), 4);
-            if (w != player_weapon()) {
-                player_set_weapon(w);
-                tooltip_show(w);       // PC set_weapon(..., show_tooltip)
-                draw_weapon_line();
+        s8 move = 0;
+        if (pressed & BUTTON_RIGHT)      move = 1;
+        else if (pressed & BUTTON_LEFT)  move = -1;
+        else if (pressed & BUTTON_UP)    move = -4;   // PC matrix: one row
+        else if (pressed & BUTTON_DOWN)  move = 4;
+        if (move) {
+            const u8 e = entry_step(menu_entry, move);
+            if (e != menu_entry) {
+                menu_entry = e;
+                if (e < WEAPON_SWITCH_N) {
+                    player_set_weapon(e);
+                    tooltip_show(e);   // PC set_weapon(..., show_tooltip)
+                    draw_weapon_line();
+                } else {
+                    draw_tank_entry();
+                }
                 sfx_play(SFX_CURSOR);
             }
         }
