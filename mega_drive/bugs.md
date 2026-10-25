@@ -1,3 +1,18 @@
+## BUG-044 follow-up — CRAM write race: fixed
+
+Every CPU-method CRAM write now goes through `src/pal_safe.h`
+(`pal_load`/`pal_load_n`/`pal_color`): wait the DMA out, keep interrupts off for
+the whole address-write + data-words sequence, then write. `tools/check_pal_writes.py`
+(`make check-pal`) fails if a bare `PAL_set*(.., CPU)` reappears in `src/*.c`.
+`showIntro()` also re-asserts PAL0 = `pal_ui` before it draws, so a boot where
+CRAM came back shifted can no longer be visible.
+
+Why it was needed: a CPU-method palette write is a VDP address-port write
+followed by data words, and the boot CRAM readback showed the grey ramp sitting
+at entries 8..15 on one boot and 10..15 on the next - the destination slid by a
+different amount each time, which is a redirection, not a torn frame. The same
+mechanism can drop CRAM data into VRAM at whatever address the VDP last held.
+
 ## BUG-044 follow-up — the stripes are NOT the fill tiles (open)
 
 Measured on the emulator with `EXTRA_FLAGS=-DMD_TILE_DUMP` (`src/tdump.c`,

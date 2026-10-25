@@ -153,6 +153,11 @@ static void waitFrames(u16 n)
 static void showIntro(void)
 {
     VDP_clearPlane(BG_A, FALSE);
+    // Boot CRAM is not trustworthy: the grey ramp read back shifted to a
+    // different CRAM entry on every boot (BUG-044 follow-up: a CRAM write whose
+    // destination is redirected mid-transfer). Assert the UI/line-0 palette
+    // here, race-free, before anything of this screen is drawn.
+    pal_load(PAL0, pal_ui.data);
     tdump_vdp("intro-clear");
     tdump_cram("intro-clear");
 
@@ -828,7 +833,7 @@ static void textScreenBegin(void)
     // Reload the font/UI palette: the stage may have left CRAM 0 (the backdrop,
     // written per map by apply_bg_color) on a stage colour, which would tint
     // every transparent pixel of the text screen (BUG-030).
-    PAL_setPalette(PAL0, pal_ui.data, CPU);
+    pal_load(PAL0, pal_ui.data);
     VDP_setHorizontalScroll(BG_A, 0);
     VDP_setVerticalScroll(BG_A, 0);
     VDP_setHorizontalScroll(BG_B, 0);

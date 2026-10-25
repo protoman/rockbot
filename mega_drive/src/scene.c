@@ -204,7 +204,7 @@ static bool show_image(u8 rec)
     if (!im->tiles || !im->map_w || !im->map_h) return TRUE;
 
     u16 line = (scene_img_line == 0) ? SCENE_IMG_PAL0 : SCENE_IMG_PAL1;
-    PAL_setPalette(line, im->pal->data, CPU);   // CRAM DMA does not land here
+    pal_load(line, im->pal->data);   // CRAM DMA does not land here
     VDP_loadTileData(im->tiles, scene_tile_next, im->tiles_n, DMA);
     u16 base = scene_tile_next;
     scene_tile_next += im->tiles_n;

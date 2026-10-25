@@ -1,4 +1,5 @@
 #include "stage.h"
+#include "pal_safe.h"
 #include "sfx.h"
 
 #include "resources.h"
@@ -97,7 +98,7 @@ static void bg_upload_tiles_maps(u8 map_index)
 {
     if (!stage_def->bg_pal[map_index]) return;
     stage_sky_tile_load();
-    PAL_setPalette(BG_PAL, stage_def->bg_pal[map_index]->data, CPU);
+    pal_load(BG_PAL, stage_def->bg_pal[map_index]->data);
     VDP_loadTileData(stage_def->bg_tiles[map_index], stage_bg_tile_base,
                      stage_def->bg_tiles_n[map_index], DMA);
 
@@ -435,13 +436,19 @@ void stage_load(u8 map_index)
     // and work; PAL0 used a queued DMA that does not land in this window
     // (the CRAM readback showed the enemies/objects/HUD line still holding
     // another, one-step-darker palette).
-    PAL_setPalette(STAGE_PAL, stage_def->palettes[map_index]->data,
-                   in_place ? DMA_QUEUE : CPU);
+    if (in_place)
+        PAL_setPalette(STAGE_PAL, stage_def->palettes[map_index]->data,
+                       DMA_QUEUE);
+    else
+        pal_load(STAGE_PAL, stage_def->palettes[map_index]->data);
     // PAL0 = shared font + enemy/object/HUD palette. Loaded from the
     // rescomp PALETTE resource (same mechanism as the working PAL1/PAL3
     // lines) instead of the C array, which did not stick: the CRAM readback
     // showed PAL0 holding another palette while PAL1 decoded exactly.
-    PAL_setPalette(PAL0, pal_ui.data, in_place ? DMA_QUEUE : CPU);
+    if (in_place)
+        PAL_setPalette(PAL0, pal_ui.data, DMA_QUEUE);
+    else
+        pal_load(PAL0, pal_ui.data);
     apply_bg_color(map_index);
 
     // Flush anything the previous map queued, then drop it BEFORE the tileset
@@ -832,7 +839,7 @@ void stage_restore_cycle(void)
 
 void stage_restore_palette(void)
 {
-    PAL_setPalette(STAGE_PAL, stage_def->palettes[stage_current_map]->data, CPU);
+    pal_load(STAGE_PAL, stage_def->palettes[stage_current_map]->data);
     apply_bg_color(stage_current_map);
 }
 

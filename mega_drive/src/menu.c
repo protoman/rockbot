@@ -451,9 +451,9 @@ bool menu_open(u16 weapon_mask)
     }
     const u8 old_bg_index = VDP_getBackgroundColor();
     VDP_setEnable(FALSE);
-    PAL_setPalette(PAL0, menu_pal0, CPU);
-    PAL_setPalette(PAL1, menu_pal.data, CPU);
-    PAL_setPalette(PAL3, menu_icons_pal.data, CPU);
+    pal_load(PAL0, menu_pal0);
+    pal_load(PAL1, menu_pal.data);
+    pal_load(PAL3, menu_icons_pal.data);
     VDP_setEnable(TRUE);
 
     // The font has transparent background pixels. BG_A holds the panel, but

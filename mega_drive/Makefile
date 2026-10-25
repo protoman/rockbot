@@ -145,6 +145,14 @@ check-vram: all
 check-fills:
 	$(PYTHON) tools/check_fill_tiles.py
 
+# A bare PAL_set*(.., CPU) can be redirected to the wrong CRAM entry by a DMA or
+# the vblank handler between its address write and its data words (BUG-044
+# follow-up: the boot grey ramp landed 8 or 10 entries down). All CPU-method
+# writes must go through src/pal_safe.h.
+.PHONY: check-pal
+check-pal:
+	$(PYTHON) tools/check_pal_writes.py
+
 # Run the built ROM in BlastEm (native binary, see tools/emu.sh EMU_BIN).
 # This goes through tools/emu.sh instead of launching the emulator directly:
 # that kills a previous instance and relaunches while the window comes up

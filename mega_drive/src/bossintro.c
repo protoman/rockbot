@@ -1,4 +1,5 @@
 #include "bossintro.h"
+#include "pal_safe.h"
 #include "sprite_guard.h"
 
 #include "music.h"
@@ -33,7 +34,7 @@ static void castle_screen(void)
     VDP_loadTileData(castle64_tiles_data, TILE_USER_INDEX,
                      CASTLE64_TILE_COUNT, DMA);
     for (u8 L = 0; L < 4; L++)
-        PAL_setPalette((u16)(PAL0 + L), castle64_pal[L], CPU);
+        pal_load((u16)(PAL0 + L), castle64_pal[L]);
     VDP_setBackgroundColor(0);
     VDP_fillTileMapRect(BG_B,
                         TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, TILE_FONT_INDEX),
