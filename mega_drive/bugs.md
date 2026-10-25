@@ -1,3 +1,20 @@
+## Transition capture, 2026-10-25 — the slide is clean
+
+Captured with a **screenshot burst** (`tools/emu.sh emu_burst`, ~25 ms/frame,
+geometry-validated) while the player was sent down the CHAOS CITY ladder that
+links map 0 -> map 1 (`LINK map 0->1 trans 0 dst(198,0) px 3163 py 0 cam 2880`).
+24/24 frames usable, no video involved.
+
+The seam (row where the incoming screen takes over) advances 16 -> 22 -> 30 ->
+32 -> 36 -> 37 -> 59 -> 69 and is gone by frame 22: that is the whole slide,
+captured. Inspecting +/-20 rows around the seam in frames tr05/tr09/tr13/tr19:
+both halves match their own rooms, no white bands, no garbage tiles.
+
+Two things that earlier looked like artifacts and are not:
+- the striped block at the left edge (x = 1..8, y = 12..60) is the HUD gauge;
+- a burst recorded as a 1182x494 video frame was a resized window, not the game
+  (`tools/check_captures.py` now rejects those; `emu_shot`/`emu_burst` drop them).
+
 ## Batch 2026-10-25 — emulator verification (silent test builds)
 
 Test builds now run with audio off (`config_force_silent()`, applied when

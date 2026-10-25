@@ -95,6 +95,46 @@ emu_quit_menu() {
 }
 
 # ---------------------------------------------------------------- control
+# Record the game window as a lossless video, so a room transition (28 frames,
+# ~0.5 s) is captured densely instead of hoping a screenshot lands inside it.
+# emu_record NAME SECONDS [FPS]
+# Rapid per-WINDOW screenshots (import grabs the window contents, so nothing on
+# top of it matters - unlike x11grab, which filmed the terminal once). No sleep:
+# a 28-frame room slide at 60 fps needs a burst, not a paced loop.
+# emu_burst NAME COUNT
+emu_burst() {
+    local name=${1:-b} count=${2:-20} wid
+    wid=$(emu_window) || { echo "emu: no window" >&2; return 1; }
+    [ -z "$wid" ] && { echo "emu: no window" >&2; return 1; }
+    local i f size kept=0
+    for i in $(seq -w 1 "$count"); do
+        f="$EMU_WORK/${name}${i}.png"
+        import -window "$wid" "$f" 2>/dev/null || continue
+        size=$(identify -format "%wx%h" "$f" 2>/dev/null || echo "?")
+        case "$size" in
+            320x224|320x240|640x448|640x480) kept=$((kept+1)) ;;
+            *) rm -f "$f" ;;
+        esac
+    done
+    echo "emu_burst: $kept/${count} usable frames of ${name}"
+}
+
+emu_record() {
+    local name=${1:?name} secs=${2:-4} fps=${3:-60} wid geo x y w h
+    wid=$(emu_window) || { echo "emu: no window" >&2; return 1; }
+    [ -z "$wid" ] && { echo "emu: no window" >&2; return 1; }
+    geo=$(xdotool getwindowgeometry --shell "$wid")
+    x=$(echo "$geo" | sed -n 's/^X=//p')
+    y=$(echo "$geo" | sed -n 's/^Y=//p')
+    w=$(echo "$geo" | sed -n 's/^WIDTH=//p')
+    h=$(echo "$geo" | sed -n 's/^HEIGHT=//p')
+    # the X11 window carries a small border; grab the client area
+    ffmpeg -hide_banner -loglevel error -y \
+        -f x11grab -framerate "$fps" -video_size "${w}x${h}" -i "${DISPLAY}+${x},${y}" \
+        -t "$secs" -c:v ffv1 -pix_fmt bgr0 "$EMU_WORK/$name.mkv" || return 1
+    echo "$EMU_WORK/$name.mkv  (${w}x${h} @ ${fps}fps, ${secs}s)"
+}
+
 emu_stop() {
     # 1) normal exit first (flushes SRAM)
     emu_quit_menu || true
