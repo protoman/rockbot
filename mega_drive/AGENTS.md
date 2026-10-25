@@ -153,7 +153,8 @@ Hard rules, because they were broken twice in one session (2026-10-21):
   test builds run with audio off (`config_force_silent()`, applied automatically
   when `MD_NO_AUDIO`/`MD_PROFILE`/`MD_TEST_STAGE`/`MD_LINK_TRACE` is defined).
   Still binding: one instance at a time, never launch over a running one, stop
-  it when the test ends, and ask again for anything the owner should watch.
+  it when the test ends (close it in the same turn - never leave an instance
+  running between turns), and ask again for anything the owner should watch.
 - **Ask before every launch.** One explicit permission = one launch. A retry
   with different flags, a `stdbuf`, a different terminal — all new launches,
   all need a new ask. This includes a *verification* run that follows a test the
@@ -270,6 +271,15 @@ If a bug cannot be reproduced offline yet, that is the first task — build the
 harness for it (e.g. a headless driver of the physics/arrival math in Python
 mirroring the C, or a converter-side assertion) instead of guessing a fix.
 State the reproduction in the commit message.
+
+## Captures are evidence only if they are game frames
+
+`tools/emu_shot` records the window size next to every shot and **drops** any
+capture whose geometry is not a plain multiple of the 320x224 screen. Reason
+(2026-10-25): a burst of "transition" frames came out 1182x494 - the window
+manager had resized/dialog-focused something else - and they read as a black
+screen with garbage edges. `tools/check_captures.py <glob>` screens a batch
+before it is used as evidence.
 
 ## Performance work — host cost tests before the emulator
 

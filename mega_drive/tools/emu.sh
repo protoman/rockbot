@@ -183,7 +183,23 @@ emu_shot() {
     wid=$(emu_window) || { echo "emu: no window" >&2; return 1; }
     [ -z "$wid" ] && { echo "emu: no window" >&2; return 1; }
     sleep 0.3
-    timeout 8 import -window "$wid" "$EMU_WORK/$name.png" 2>/dev/null && echo "$EMU_WORK/$name.png"
+    timeout 8 import -window "$wid" "$EMU_WORK/$name.png" 2>/dev/null || return 1
+    # A capture is only usable as game evidence if the window still has the
+    # game's aspect: the window manager can resize it, and `import` then happily
+    # grabs whatever geometry exists - a batch of frames in 2026-10-25 came out
+    # 1182x494 (a resized/dialog window) and looked like a black screen with
+    # garbage edges. Record the size next to every shot and refuse alien ones.
+    local size
+    size=$(identify -format "%wx%h" "$EMU_WORK/$name.png" 2>/dev/null || echo "?")
+    echo "$size" > "$EMU_WORK/$name.size"
+    case "$size" in
+        320x224|320x240|640x448|640x480|960x672|960x720)
+            echo "$EMU_WORK/$name.png  ($size)" ;;
+        *)
+            echo "emu: BAD CAPTURE $name ($size) - window geometry changed, frame not game data" >&2
+            rm -f "$EMU_WORK/$name.png"
+            return 2 ;;
+    esac
 }
 
 # Release every mapped key. BlastEm can miss a keyup, which leaves a pad button
