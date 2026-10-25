@@ -1,6 +1,7 @@
 #include <genesis.h>
 
 #include "scene.h"
+#include "pal_safe.h"
 #include "scenes_data.h"
 #include "music.h"
 #include "stage.h"
@@ -81,7 +82,7 @@ static void clear_screen(void)
 static void bg_upload_plane(const SceneLayer *l, u16 plane_addr, u16 pal_line,
                             u16 tile_base)
 {
-    PAL_setPalette(pal_line, l->pal->data, CPU);   // CRAM DMA does not land
+    pal_load(pal_line, l->pal->data);   // CRAM DMA does not land
     VDP_loadTileData(l->tiles, tile_base, l->tiles_n, DMA);
 
     u16 row[64];
@@ -263,7 +264,7 @@ static void clear_area_play(u8 rec)
     const SceneClear *c = &scene_clear[rec];
     // Fill colour lives on PAL1 entry 1 (PAL_setColor takes the global CRAM
     // index: PAL1 entry 1 = 16 + 1). Text stays on PAL0.
-    PAL_setColor((SCENE_BG_PAL0 << 4) + 1, c->color);
+    pal_color((SCENE_BG_PAL0 << 4) + 1, c->color);
     const u16 fill = TILE_ATTR_FULL(SCENE_BG_PAL0, FALSE, FALSE, FALSE,
                                     SCENE_BLACK_TILE);
     VDP_fillTileMapRect(BG_B, fill,
@@ -285,9 +286,9 @@ void scene_play(u8 index)
     sprites_end();                 // the intro logos used the sprite pool
 
     VDP_setTextPlane(BG_A);
-    PAL_setColor(0, 0x0000);   // backdrop / font background
-    PAL_setColor(1, 0x0000);   // black tile
-    PAL_setColor(15, 0x0EEE);  // font white
+    pal_color(0, 0x0000);   // backdrop / font background
+    pal_color(1, 0x0000);   // black tile
+    pal_color(15, 0x0EEE);  // font white
     VDP_setBackgroundColor(0);
     VDP_loadTileData(black_tile, SCENE_BLACK_TILE, 1, DMA);
     SYS_doVBlankProcess();

@@ -1,4 +1,6 @@
 #include "config.h"
+#include "tdump.h"
+#include "pal_safe.h"
 #include "music.h"
 
 #include <genesis.h>
@@ -116,10 +118,14 @@ static const u32 cfg_black[8] = {
 
 static void clear_screen(void)
 {
-    VDP_loadTileData(cfg_black, CFG_BLACK_TILE, 1, DMA);
+    // CPU upload, not DMA: this screen is entered with the display ON (in-game
+    // menu), and an immediate DMA started outside vblank is the same class of
+    // illegal transfer as a CPU-method CRAM write (debugging.md FIND-08) - the
+    // tile ends up holding something other than cfg_black.
+    VDP_loadTileData(cfg_black, CFG_BLACK_TILE, 1, CPU);
     // index 1 has to BE black: this screen inherits PAL0 from whoever opened it
     // (title logo line 1 is white, the stage line 1 is a stage colour).
-    PAL_setColor(1, 0x0000);
+    pal_color(1, 0x0000);
     VDP_setHorizontalScroll(BG_A, 0);
     VDP_setVerticalScroll(BG_A, 0);
     // opaque background: the font's space tile is transparent and would show
@@ -128,6 +134,8 @@ static void clear_screen(void)
                         TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE,
                                        CFG_BLACK_TILE),
                         0, 0, 40, 28);
+    tdump_vdp("config-fill");
+    tdump_cram("config-fill");
 }
 
 static void wait_release(void)

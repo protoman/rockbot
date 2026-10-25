@@ -1,4 +1,5 @@
 #include "menu.h"
+#include "pal_safe.h"
 #include "menu_armor_data.h"
 #include "sprite_guard.h"
 #include "sfx.h"
@@ -548,9 +549,9 @@ bool menu_open(u16 weapon_mask)
     icons_release();
 
     VDP_setBackgroundColor(old_bg_index);
-    PAL_setPalette(PAL0, old_pal0, CPU);
-    PAL_setPalette(PAL1, old_pal1, CPU);
-    PAL_setPalette(PAL3, old_pal3, CPU);
+    pal_load(PAL0, old_pal0);
+    pal_load(PAL1, old_pal1);
+    pal_load(PAL3, old_pal3);
 
     if (leave) {
         // The stage is over: do NOT restore it (a map redraw would leave the

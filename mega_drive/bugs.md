@@ -1,3 +1,32 @@
+## BUG-044 follow-up — the stripes are NOT the fill tiles (open)
+
+Measured on the emulator with `EXTRA_FLAGS=-DMD_TILE_DUMP` (`src/tdump.c`,
+registers + CRAM readback through kprintf, log only, no screenshots):
+
+    intro: reg11=00 (plane scroll, NOT per-column VScroll), reg12=81 (H40),
+           reg17=reg18=00 (window plane off), BG_A=E000 BG_B=C000,
+           text plane=BG_A, text palette=PAL0
+    intro PAL0: 0C00 0E00 x9 then 0000 0222 0444 0666 0888 0AAA   (run 1)
+    intro PAL0: 0E00 x8 then 0000 0222 ... 0CCC 0EEE              (run 2)
+
+So CRAM is corrupted at boot and the offset MOVES between runs (ramp at entries
+10..15 one boot, 8..15 the next): a palette transfer whose destination address
+is redirected mid-way, i.e. the FIND-08 class but in the boot path, before any
+of our own palette calls. Making our CPU-method CRAM writes CRAM-safe
+(src/pal_safe.h: wait for DMA + interrupts off) did not change it.
+
+Fixed by that change and verified by the reporter: the stripes that ran through
+TEXT are gone. Still striped after the change: intro, CONFIG, room transition.
+The stage playfield is clean (screenshots/bugs/items_after_menu.png), and both
+CONFIG and the transition band point their cells at the shared tile 702 while
+the stage playfield points at the stage tileset - so the next measurement must
+be the tile data itself.
+
+Attempted and reverted: reading VRAM from the 68k (control-port address +
+data-port words) to dump tiles 0/702 - it faults the ROM (address error at
+0x318CE right after the first tile read). Do it with the display disabled at a
+known point, or with the emulator debugger, not from a live frame.
+
 ## BUG-044 — white stripes: the "solid black" fill tiles were stripe patterns
 
 Symptom: vertical white (or lightest-palette) stripes, whole-screen on the

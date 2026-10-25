@@ -4,6 +4,8 @@
 #include "sprite_guard.h"
 
 #include "stage.h"
+#include "tdump.h"
+#include "pal_safe.h"
 #include "player.h"
 #include "enemy.h"
 #include "object.h"
@@ -151,6 +153,8 @@ static void waitFrames(u16 n)
 static void showIntro(void)
 {
     VDP_clearPlane(BG_A, FALSE);
+    tdump_vdp("intro-clear");
+    tdump_cram("intro-clear");
 
     sprUpper = SPR_addSprite(&upperland_sprite, UPPER_X, UPPER_Y, TILE_ATTR(PAL_UPPER, FALSE, FALSE, FALSE));
     sprBober = SPR_addSprite(&boberatu_sprite, BOBER_X, BOBER_Y, TILE_ATTR(PAL_BOBER, FALSE, FALSE, FALSE));
@@ -167,6 +171,8 @@ static void showIntro(void)
     drawCentered("PRESENTS", 22);
 
     waitFrames(24); // ~400ms
+    tdump_vdp("intro-24f");
+    tdump_cram("intro-24f");
 
     // upperland strip animation: 30ms per frame (~2 frames at 60Hz)
     for (u16 i = 1; i < FRAME_COUNT; i++) {
@@ -192,6 +198,7 @@ static void showIntro(void)
 
 static s16 showTitle(void)
 {
+    tdump_vdp("title");
     sprites_end();                 // release sprite VRAM so the image fits
     // Let any scheduled MAP update flush BEFORE we take over the planes,
     // then drop the map so nothing repaints them afterwards.
@@ -217,7 +224,7 @@ static s16 showTitle(void)
     // and palettes go in before the planes are written (probe order).
     VDP_loadTileData(title64_tiles_data, TITLE_TILE_BASE, TITLE64_TILE_COUNT, DMA);
     for (u8 L = 0; L < 4; L++)
-        PAL_setPalette((u16)(PAL0 + L), title64_pal[L], CPU);
+        pal_load((u16)(PAL0 + L), title64_pal[L]);
     // The logo's colorkey background is the title backdrop; on MD it comes
     // from the font-space tile sheet behind it (PAL0 entry 0), which is
     // black. PC fills the title with CONFIG_BGCOLOR (5,29,65) -> RGB333
@@ -225,8 +232,8 @@ static s16 showTitle(void)
     // Line 0 slot 0 is the backdrop (PC CONFIG_BGCOLOR) seen through the logo's
     // transparent pixels; slot 15 is the font's white (emitted as such by
     // tools/title64.py), so VDP_drawText keeps working.
-    PAL_setColor(0, 0x0420);   // PC CONFIG_BGCOLOR (5,29,65) -> (0,36,73)
-    PAL_setColor(15, 0x0EEE);   // font white: the art keeps its own white at slot 1
+    pal_color(0, 0x0420);   // PC CONFIG_BGCOLOR (5,29,65) -> (0,36,73)
+    pal_color(15, 0x0EEE);   // font white: the art keeps its own white at slot 1
     // Pixels at index 0 are transparent on a plane and show CRAM's backdrop
     // entry, so point it at PAL0 slot 0 (the PC CONFIG_BGCOLOR) - otherwise the
     // logo's background is black instead of the title's navy.
