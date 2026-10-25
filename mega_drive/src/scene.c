@@ -35,10 +35,12 @@ static bool scene_bg_set;
 static u16 scene_bg_entry;
 
 // 8x8 tile filled with palette index 1 (index 0 would be transparent and let
-// the other plane show through).
+// the other plane show through). 0xFF000000 = all 8 pixels of the row are
+// bitplane 0, i.e. value 1; the old 0x11111111 set all four planes, so only
+// pixels 3 and 7 lit up as index 0xF - two white stripes per tile (BUG-044).
 static const u32 black_tile[8] = {
-    0x11111111, 0x11111111, 0x11111111, 0x11111111,
-    0x11111111, 0x11111111, 0x11111111, 0x11111111,
+    0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+    0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
 };
 
 static bool wait_frames(u16 n)

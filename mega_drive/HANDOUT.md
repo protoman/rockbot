@@ -470,3 +470,9 @@ first row is discarded.
   *spatially* (parts), not by colour clustering.
 - Emulator palette readback differs from the MD ramp by ±10-15 grey levels
   (BlastEm's 3->8-bit expansion) — that is not a bug.
+- **BUG-044 (white stripes)**: the two hand-written "solid black" fill tiles were
+  `0x11111111` — that is bitplanes 0..3 on pixels 3 and 7, i.e. index 15 bars, not
+  a fill. `0xFF000000` per row is a solid index 1. They are `scene.c:black_tile`
+  and `config.c:cfg_black`; the latter shares tile 702 with `stage_sky_tile()`, so
+  it also striped the stage sky and the transition bands. Repro/fix check:
+  `make check-fills` (`tools/check_fill_tiles.py`).

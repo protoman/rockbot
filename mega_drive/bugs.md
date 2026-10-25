@@ -1,3 +1,49 @@
+## BUG-044 — white stripes: the "solid black" fill tiles were stripe patterns
+
+Symptom: vertical white (or lightest-palette) stripes, whole-screen on the
+options screen and the opening cutscene, and over the stage's parallax sky and
+the room-transition band fills — reported as "white stripes/spread, visible
+during the stairs/ladder transitions but broader than that".
+
+Cause: Mega Drive 4bpp tile data holds one byte per **bitplane** in each row, so
+a fill tile must be `0xFF000000` per row for a solid palette index 1. Both
+hand-written "black" tiles used `0x11111111`, which decodes to pixel index 0xF
+(15) on pixels 3 and 7 only — two vertical bars per tile, and index 15 is the
+lightest entry of *any* palette (white in PAL0). The comments even said "filled
+with palette index 1", which is what the author meant:
+
+    src/scene.c  black_tile[8]  -> cutscene BG_B fill        (stripes)
+    src/config.c cfg_black[8]   -> options screen BG_A fill  (stripes)
+
+They spread because config loads its fill at `SPR_CFG_BLACK_TILE` (702), which
+is the same index `stage_sky_tile()` returns: after a visit to the options
+screen (title CONFIG or the in-game menu) every parallax row the bg art does not
+cover, and every band the transition writes, pointed at an opaque striped tile
+until the next map load. `bg_upload_tiles_maps()` only reloaded the blank sky
+tile when the map had parallax art, and only on a map load.
+
+Reproduction (offline, fails before the fix): `tools/check_fill_tiles.py`
+(`make check-fills`) decodes every `static const u32 NAME[8]` tile literal in
+`src/*.c` and requires one value on every pixel. Pre-fix output:
+
+    config.c: cfg_black is not a solid fill
+        0 0 0 F 0 0 0 F   ... (8 rows)
+    scene.c: black_tile is not a solid fill
+    2 fill tile(s) are accidental patterns (BUG-044)        exit 1
+
+Fix: both constants are now `{0xFF000000, x8}`; `config.c:clear_screen()` sets
+`PAL_setColor(1, 0x0000)` because the screen inherits PAL0 from whoever opened
+it (title line 1 is white, the stage line 1 is a stage colour); and
+`stage.c:bg_load()` reloads the blank sky tile at 702 on EVERY map load,
+before the "no parallax art" early return.
+
+Evidence caveat: the frames in `screenshots/bugs/stripes/` are 642x471 and the
+ones in `screenshots/bugs/transition/` 644x476 — `tools/check_captures.py`
+rejects both batches as non-game window sizes, so they are not used as proof
+here; the tile decode above is. Stripes still unexplained by this bug: the
+full-screen ones behind the intro logos (001/002) and the player-select band
+(003), whose cells point at tiles 16..48, not 702.
+
 ## Transition capture, 2026-10-25 — the slide is clean
 
 Captured with a **screenshot burst** (`tools/emu.sh emu_burst`, ~25 ms/frame,

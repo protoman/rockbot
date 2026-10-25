@@ -138,6 +138,13 @@ assets: $(ASSET_STAMP)
 check-vram: all
 	$(PYTHON) tools/check_vram.py
 
+# The hand-written fill tiles (scene/config "solid black") are 8 longwords of
+# 4bpp tile data, where a wrong constant silently becomes a stripe pattern
+# (BUG-044: 0x11111111 instead of 0xFF000000 = two white bars per tile).
+.PHONY: check-fills
+check-fills:
+	$(PYTHON) tools/check_fill_tiles.py
+
 # Run the built ROM in BlastEm (native binary, see tools/emu.sh EMU_BIN).
 # This goes through tools/emu.sh instead of launching the emulator directly:
 # that kills a previous instance and relaunches while the window comes up

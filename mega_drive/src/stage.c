@@ -167,6 +167,12 @@ static void bg_load(u8 map_index)
     bg_tick = 0;
     VDP_setHorizontalScroll(BG_B, 0);
 
+    // The blank sky tile is shared with the config screen (SPR_CFG_BLACK_TILE,
+    // see stage.h): config loads its own opaque fill there, so it must be put
+    // back on EVERY map load - not only when this map has parallax art, and not
+    // only when the map is entered from the transition (BUG-044).
+    stage_sky_tile_load();
+
     const StageBgInfo *info = &stage_def->bg_info[map_index];
     if (!info->present || !stage_def->bg_pal[map_index]) return;
     bg_upload_tiles_maps(map_index);
