@@ -44,6 +44,25 @@ here; the tile decode above is. Stripes still unexplained by this bug: the
 full-screen ones behind the intro logos (001/002) and the player-select band
 (003), whose cells point at tiles 16..48, not 702.
 
+Emulator follow-up (one `-e` event-log run, boot -> intro -> cutscene, no
+screenshots, decoded with `tools/evtlog_planes.py`):
+
+- the backdrop entry CRAM[0] goes 0x0000 -> 0xE307 -> 0xB6C0 (title navy) and
+  is never 0x0EEE, so the intro's white field cannot be the backdrop colour;
+- the planes' final state is the cutscene's blank BG_A (every cell tile 0 =
+  transparent) over a filled BG_B, i.e. nothing striped;
+- 196 CRAM writes do land inside visible scanlines (the illegal-active-display
+  class from FIND-08) - still present, see `scene.c:86`/`stage.c` CPU palette
+  loads, worth its own fix;
+- the player-select map is in range (1120 cells, max index 32 of 33 tiles), so
+  its cells cannot reach tile 702 either.
+
+Conclusion: BUG-044 explains the options screen, the stage parallax sky after a
+visit to it, and the transition band fills. The intro/player-select frames
+stay unexplained *and* are geometry-rejected, so nothing in the ROM's VDP state
+found offline (plane cells, backdrop) produces them.
+
+
 ## Transition capture, 2026-10-25 — the slide is clean
 
 Captured with a **screenshot burst** (`tools/emu.sh emu_burst`, ~25 ms/frame,
