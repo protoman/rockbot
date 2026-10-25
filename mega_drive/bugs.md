@@ -1,3 +1,31 @@
+## Batch 2026-10-25 — emulator verification (silent test builds)
+
+Test builds now run with audio off (`config_force_silent()`, applied when
+`MD_NO_AUDIO`/`MD_PROFILE`/`MD_TEST_STAGE`/`MD_LINK_TRACE` is defined), so the
+numbers below have no Z80/PCM noise.
+
+- **Room 2 of the intro stage (stage 0 map 1, 21 objects) — fixed, measured.**
+  `objupd` 308…418 and total busy **1037…1219** subticks of 1280 with `wait`
+  400-450: the loop holds 60 fps. Before this batch the same room sat at ~1230
+  busy / 40 fps. One 6801-subtick spike per session remains and lines up with
+  the boss teleporter's `stage_teleport_boss`, not with per-frame work.
+  `hot=` reported the fall platforms (type 10) as the most expensive single
+  object while the player rides one, and pills at ~35.
+- **Stairs half-body pose — verified by trace.** `MD_LADDER_TRACE` on the
+  CHAOS CITY ladder printed, over 57 samples of climbing, exactly one
+  `frame=1`: `mid_stair=0 feet_stair=1 y=136` (leaving the top rung), and
+  `frame=0` while grabbing and during the whole climb — the PC condition
+  (character.cpp:396/426) and nothing else.
+- **Dropped items fall — verified by host test.** `tools/run_host_tests.sh`
+  spawns a drop in mid-air and asserts the gravity flag and the descent:
+  `y 35 -> 115, flags 0x0E (falls)`.
+- **BUG-033 (SEAHORSE half speed)** — see its entry: 642 of 1280 subticks, the
+  animated-tile bucket down from 1135 to 61.
+- Menu (in-game): weapon grid, lives, ammo, ARMOR and ITEMS lines all render;
+  the ITEMS line was too wide for the panel and is shortened.
+- Graphics: no white stripes or palette damage in the Seahorse or CHAOS CITY
+  captures taken during these runs.
+
 ## Batch 2026-10-24 (c) — the rest of the fifteen reports
 
 Fixed, each with its offline reproduction:

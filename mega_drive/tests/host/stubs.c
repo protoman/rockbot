@@ -130,7 +130,8 @@ void SYS_doVBlankProcess(void) {}
 void VDP_setReg(u16 r, u8 v) { (void)r; (void)v; }
 void kprintf(const char *fmt, ...) { (void)fmt; }
 void VDP_drawText(const char *str, u16 x, u16 y) { (void)str; (void)x; (void)y; }
-u16 sdk_random(void) { return 0; }
+u16 host_random_value;         /* tests set this to pick a drop type */
+u16 sdk_random(void) { return host_random_value; }
 u32 getSubTick(void) { return 0; }
 
 /* The generated object art symbols object.c references (one per def it can

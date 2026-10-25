@@ -28,6 +28,8 @@ extern u32 host_obj_terr[];
 extern u32 host_obj_spr[];
 extern void host_terrain_fill(u8 value);
 extern void host_terrain_set(const unsigned char *src, s16 w, s16 h);
+extern u16 host_random_value;
+extern u32 host_obj_work[];
 
 static ObjectDef defs[8];
 static ObjectSpawn spawns[OBJECT_MAX];
@@ -225,13 +227,47 @@ static void run_fixture(void)
     }
 }
 
+/* ---- dropped items must fall ----------------------------------------- *
+ * Report 2026-10-25: enemy drops hung in the air. Cause: objects_drop_item()
+ * filled the object by hand, so `flags` (which carries the gravity answer) and
+ * the resting-cache stayed 0. This spawns a drop in mid-air over open space and
+ * asserts it descends. */
+extern s16 host_obj_y(u8 i);
+extern u8 host_obj_flags(u8 i);
+extern u8 host_obj_count(void);
+
+static void run_drops(void)
+{
+    build_stage(0);                       /* one pill def, no spawns */
+    host_terrain_fill(TERRAIN_UNBLOCKED); /* nothing to land on */
+    objects_reset();
+    host_random_value = 70;               /* forces a small weapon pill */
+    objects_drop_item(80, 40, FALSE);
+    if (!host_obj_count()) {
+        printf("\nFAIL: no drop was spawned\n");
+        exit(1);
+    }
+    const s16 y0 = host_obj_y(0);
+    const u8 flags = host_obj_flags(0);
+    for (u16 f = 0; f < 20; f++) objects_update();
+    const s16 y1 = host_obj_y(0);
+    printf("\ndropped item: y %d -> %d, flags 0x%02X%s\n", y0, y1, flags,
+           (y1 > y0) ? " (falls)" : " (HUNG IN THE AIR)");
+    if (!(flags & 0x02) || y1 <= y0) {
+        printf("FAIL: a dropped item must carry the gravity flag and fall\n");
+        exit(1);
+    }
+}
+
 int main(int argc, char **argv)
 {
     if (argc > 1 && strcmp(argv[1], "--fixture") == 0) {
         run_fixture();
+        run_drops();
         return 0;
     }
     run_scaling();
     run_fixture();
+    run_drops();
     return 0;
 }

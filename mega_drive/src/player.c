@@ -978,6 +978,23 @@ void player_update(u16 pad)
                 spr_set_anim(player.spr, stair_anim);
                 spr_set_frame(player.spr, stair_frame);
             }
+#ifdef MD_LADDER_TRACE
+            // Deterministic proof for the stairs pose: the half-body frame is
+            // only valid while the feet are on a rung and the body middle has
+            // left it (PC character.cpp:396/426). Printed once every 8 frames.
+            static u8 trace_t;
+            if ((trace_t++ & 7) == 0) {
+                const s16 mr = ((iy + box_t) + (iy + box_b)) >> 5;
+                const s16 fr = (iy + box_b) >> 4;
+                kprintf("LAD anim=%d frame=%d mid_stair=%d feet_stair=%d y=%d\n",
+                        (int)stair_anim, (int)stair_frame,
+                        (int)(stage_terrain_at(stage_current_map, ctx, mr) ==
+                              TERRAIN_STAIR),
+                        (int)(stage_terrain_at(stage_current_map, ctx, fr) ==
+                              TERRAIN_STAIR),
+                        (int)iy);
+            }
+#endif
             SPR_setPosition(player.spr,
                             ix - camera.x + flip_dx() + ladder_art_dx(),
                             iy - camera.y);

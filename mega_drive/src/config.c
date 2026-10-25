@@ -65,6 +65,17 @@ void config_save(void)
 
 bool config_is_sound_on(void) { return config.sound != 0; }
 
+// Test builds run silent (owner's request, 2026-10-25): the XGM2 driver and the
+// PCM effects cost Z80/68k time that muddies profile numbers, and an automated
+// run should not need the host's audio path at all. The option itself stays in
+// the config screen, so a human run can turn sound back on.
+void config_force_silent(void)
+{
+    config.sound = 0;
+    sfx_set_enabled(0);
+    music_stop();
+}
+
 static u16 button_of(u8 idx)
 {
     return (idx == 0) ? BUTTON_A : (idx == 1) ? BUTTON_B : BUTTON_C;

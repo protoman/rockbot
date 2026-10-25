@@ -113,6 +113,10 @@ u32 host_pred_calls;
 extern u32 host_terrain_calls;
 extern u32 host_spr_calls;
 u32 host_obj_work[OBJECT_MAX];
+// Host test accessors: the drop test must see the spawned object's state.
+s16 host_obj_y(u8 i) { return (i < obj_count) ? objs[i].y : -1; }
+u8 host_obj_flags(u8 i) { return (i < obj_count) ? objs[i].flags : 0; }
+u8 host_obj_count(void) { return obj_count; }
 u32 host_obj_terr[OBJECT_MAX];
 u32 host_obj_spr[OBJECT_MAX];
 #define HOST_WORK() (host_pred_calls + host_terrain_calls + host_spr_calls)

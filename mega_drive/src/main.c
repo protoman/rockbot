@@ -94,6 +94,10 @@ static void drawCentered(const char *text, u16 tileY)
 #define PROF_N       10
 static u32 prof_last;
 static u32 prof_acc[PROF_N];
+// object.c traces its most expensive object of the second (see objects_update)
+extern u8 prof_obj_hot_i;
+extern u16 prof_obj_hot_cost;
+extern u8 prof_obj_hot_type;
 static u16 prof_frames;
 static inline void prof_tick(u8 i)
 {
@@ -104,10 +108,13 @@ static inline void prof_tick(u8 i)
 static void prof_report(void)
 {
     if (++prof_frames < 60) return;
-    kprintf("PROF map=%d obj=%d npc=%d setup=%lu objupd=%lu plr=%lu hud=%lu "
+    kprintf("PROF map=%d obj=%d npc=%d hot=%d/t%d/%d px=%d py=%d "
+            "setup=%lu objupd=%lu plr=%lu hud=%lu "
             "cam=%lu anim=%lu npcs=%lu shot=%lu spr=%lu wait=%lu "
             "(subticks/frame, 1280 = 60fps)\n",
             (int)stage_current_map, (int)objects_live(), (int)enemies_live(),
+            (int)prof_obj_hot_i, (int)prof_obj_hot_type,
+            (int)prof_obj_hot_cost, (int)player.x, (int)player.y,
             (unsigned long)(prof_acc[PROF_SETUP] / 60),
             (unsigned long)(prof_acc[PROF_OBJ] / 60),
             (unsigned long)(prof_acc[PROF_PLAYER] / 60),
@@ -119,6 +126,9 @@ static void prof_report(void)
             (unsigned long)(prof_acc[PROF_SPRITE] / 60),
             (unsigned long)(prof_acc[PROF_VBLANK] / 60));
     for (u8 i = 0; i < PROF_N; i++) prof_acc[i] = 0;
+    prof_obj_hot_cost = 0;
+    prof_obj_hot_i = 0xFF;
+    prof_obj_hot_type = 0xFF;
     prof_frames = 0;
 }
 #endif
@@ -1043,6 +1053,10 @@ int main(bool hardReset)
 
     save_init();
     config_init();
+#if defined(MD_NO_AUDIO) || defined(MD_PROFILE) || defined(MD_TEST_STAGE) || \
+    defined(MD_LINK_TRACE)
+    config_force_silent();      // see config.c: silent test builds
+#endif
     stage_set_data(0);   // valid stage_def before anything reads it
 
 #ifdef MD_PROFILE

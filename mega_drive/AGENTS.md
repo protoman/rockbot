@@ -148,6 +148,12 @@ backup/restore steps and the list of what is not reachable on this machine.
 
 Hard rules, because they were broken twice in one session (2026-10-21):
 
+- **Standing permission for TEST runs (granted 2026-10-25).** The owner allows
+  the agent to launch the emulator for tests without asking each time, provided
+  test builds run with audio off (`config_force_silent()`, applied automatically
+  when `MD_NO_AUDIO`/`MD_PROFILE`/`MD_TEST_STAGE`/`MD_LINK_TRACE` is defined).
+  Still binding: one instance at a time, never launch over a running one, stop
+  it when the test ends, and ask again for anything the owner should watch.
 - **Ask before every launch.** One explicit permission = one launch. A retry
   with different flags, a `stdbuf`, a different terminal — all new launches,
   all need a new ask. This includes a *verification* run that follows a test the

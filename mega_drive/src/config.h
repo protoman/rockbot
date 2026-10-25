@@ -24,6 +24,8 @@ extern Config config;
 void config_init(void);            // load (defaults on first boot)
 void config_save(void);
 bool config_is_sound_on(void);
+// Test builds: sound off regardless of what SRAM says.
+void config_force_silent(void);
 
 // Button masks for the player input (config.h: 0=A, 1=B, 2=C).
 u16 config_jump_mask(void);
