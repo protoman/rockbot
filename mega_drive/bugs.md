@@ -1172,6 +1172,18 @@ all. `TILE_ANIM_STRIDE` 24 -> 4 also frees 260 tiles of VRAM: `check_vram` now
 reports `OK (14 stages, 0 transition fallbacks)` (the three stage-2 fade
 fallbacks are gone too).
 
+## BUG-033 — SEAHORSE runs at half speed (animated tiles) — VERIFIED FIXED
+
+**Re-measured in the emulator 2026-10-25** (profile build, stage 3): the busy
+time per frame is **642 subticks of 1280** (was 2460, i.e. one frame every other
+vblank) and the animated-tile bucket (`anim`) is **61** (was 1135). The stage
+holds 60 fps.
+
+Two spikes remain in that run, both in `objects_update`: 2028 subticks twice and
+14637 once, at the stage-start position — they line up with the respawn/teleport
+path (`stage_teleport_boss` reloads the stage, and `dialog_show_armor` runs its
+own blocking input loop), so they are transitions, not per-frame cost.
+
 ## BUG-034 — Death respawns at the wrong checkpoint (SEAHORSE)
 
 **Report**: activated the second SEAHORSE checkpoint, died, and came back at

@@ -312,11 +312,14 @@ static void draw_weapon_line(void)
 // Stored tanks (OBJ_ENERGY_TANK / OBJ_WEAPON_TANK), PC game_save.items.
 static void draw_tank_line(void)
 {
-    menu_restore_strip(5, 22, 35);
-    char buf[40] = "ITEMS  E-TANK:0  W-TANK:0  S-TANK:0";
-    buf[14] = (char)('0' + player.tanks_hp);
-    buf[24] = (char)('0' + player.tanks_wp);
-    buf[34] = (char)('0' + player.tanks_sp);
+    // Kept inside the panel's right border: the old "ITEMS  E-TANK:0  W-TANK:0
+    // S-TANK:0" ran to column 39 and lost its tail on the border (seen in the
+    // 2026-10-25 emulator run).
+    menu_restore_strip(5, 22, 33);
+    char buf[40] = "ITEMS E-TANK:0 W-TANK:0 S-TANK:0";
+    buf[13] = (char)('0' + player.tanks_hp);
+    buf[23] = (char)('0' + player.tanks_wp);
+    buf[32] = (char)('0' + player.tanks_sp);
     VDP_drawText(buf, 5, 22);
 }
 
