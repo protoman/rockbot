@@ -7,6 +7,12 @@ the whole address-write + data-words sequence, then write. `tools/check_pal_writ
 `showIntro()` also re-asserts PAL0 = `pal_ui` before it draws, so a boot where
 CRAM came back shifted can no longer be visible.
 
+Verified with the CRAM readback (log-only run, `-DMD_TILE_DUMP`): intro frame 0
+reads `0000 0000 0EEE 0EC8 08AA 048E 0E08 006E 0666 0880 002E 002C 0622 0260
+0024 0CCC`, which is `pal_ui` word for word, and it is unchanged 24 frames later.
+Before the fix the same dump returned the boot grey ramp shifted by 8 or 10
+entries, a different offset per boot.
+
 Why it was needed: a CPU-method palette write is a VDP address-port write
 followed by data words, and the boot CRAM readback showed the grey ramp sitting
 at entries 8..15 on one boot and 10..15 on the next - the destination slid by a
