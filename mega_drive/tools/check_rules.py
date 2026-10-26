@@ -70,6 +70,13 @@ RULES = [
      [("src/transition.c", r"const s16 ocam = clamp_cam_x\(clamp_cam_x\(camera\.x\) - old_shift\);"),
       ("src/main.c", r"- cam_x\) - keep_sx\)\);")],
      [("src/transition.c", r"const s16 ocam = clamp_cam_x\(camera\.x\);")]),
+    ("menu-restores-visible-sprites",
+     "closing the menu restores the sprites that were visible: off-screen objects "
+     "(spr_vis cache) and dead enemies must not be shown (frozen items on screen)",
+     [("src/object.c", r"const bool show = visible && objs\[i\]\.spr_vis != 0;"),
+      ("src/enemy.c", r"const bool show = visible && e->alive &&")],
+     [("src/object.c", r"SPR_setVisibility\(objs\[i\]\.spr, visible \? VISIBLE : HIDDEN\);"),
+      ("src/enemy.c", r"SPR_setVisibility\(enemies\[i\]\.spr, visible \? VISIBLE : HIDDEN\);")]),
     ("wall-bomb-only",
      "only an exploding bomb breaks a destructible wall (type 22)",
      [("src/object.c", r"if \(ty == 22 && !bomb\) continue;"),

@@ -28,6 +28,7 @@ Sprite *SPR_addSprite(const SpriteDefinition *def, s16 x, s16 y, u16 attr)
     s->definition = def;
     s->x = x;
     s->y = y;
+    s->vis = VISIBLE;
     host_sprite_adds++;
     return s;
 }
@@ -44,7 +45,23 @@ void SPR_setPosition(Sprite *s, s16 x, s16 y)
     if (s) { s->x = x; s->y = y; }
 }
 
-void SPR_setVisibility(Sprite *s, u16 v) { (void)s; (void)v; host_spr_calls++; }
+void SPR_setVisibility(Sprite *s, u16 v)
+{
+    host_spr_calls++;
+    if (s) s->vis = v;
+}
+
+/* forget every sprite (each test case starts with a free pool) */
+void host_sprites_reset(void) { sprite_used = 0; }
+
+/* number of live sprites currently VISIBLE (the menu-visibility test) */
+u16 host_sprites_visible(void)
+{
+    u16 n = 0;
+    for (u16 i = 0; i < sprite_used; i++)
+        if (sprites[i].definition && sprites[i].vis == VISIBLE) n++;
+    return n;
+}
 void SPR_setHFlip(Sprite *s, bool f) { (void)s; (void)f; }
 void SPR_setAutoAnimation(Sprite *s, bool on) { (void)s; (void)on; }
 void SPR_update(void) {}

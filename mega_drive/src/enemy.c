@@ -1522,9 +1522,19 @@ void enemies_update(void)
 
 void enemies_set_visible(bool visible)
 {
-    for (u8 i = 0; i < enemy_count; i++)
-        if (enemies[i].spr)
-            SPR_setVisibility(enemies[i].spr, visible ? VISIBLE : HIDDEN);
+    for (u8 i = 0; i < enemy_count; i++) {
+        Enemy *e = &enemies[i];
+        if (!e->spr) continue;
+        // On "show" only live, on-screen enemies come back. A dead enemy keeps
+        // its (hidden) sprite and enemies_update() skips it, so showing it here
+        // left it frozen on screen after the in-game menu (same hole as the
+        // objects, items_after_menu.png).
+        const s16 sx = e->x - camera.x;
+        const s16 sy = e->y - camera.y;
+        const bool show = visible && e->alive &&
+                          sx >= -40 && sx < 336 && sy >= -40 && sy < 248;
+        SPR_setVisibility(e->spr, show ? VISIBLE : HIDDEN);
+    }
 }
 
 // Room transition (see transition.c): the outgoing screen is a frozen copy of

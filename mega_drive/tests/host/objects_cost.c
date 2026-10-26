@@ -22,6 +22,8 @@
 
 extern u32 host_terrain_calls;
 extern u32 host_spr_calls;
+extern u16 host_sprites_visible(void);
+extern void host_sprites_reset(void);
 extern u32 host_pred_calls;
 extern u32 host_obj_work[];
 extern u32 host_obj_terr[];
@@ -259,15 +261,51 @@ static void run_drops(void)
     }
 }
 
+/* The in-game menu hides every sprite on open and shows them again on close
+ * (menu.c stage_sprites_visible). objects_update() keeps a per-object cache of
+ * the visibility it last sent and only talks to the sprite when it changes, so
+ * "show everything" on close made every OFF-SCREEN object visible for good: they
+ * stayed at their stale position, fixed on screen while the room scrolled
+ * (items_after_menu.png, 2026-10-26). After a menu round trip the set of visible
+ * sprites must be the one from before the menu. */
+static void run_menu_visibility(void)
+{
+    host_sprites_reset();
+    build_fixture();
+    camera.x = 480;                      /* part of the room is off screen */
+    camera.y = 0;
+    player.x = 560;
+    player.y = 160;
+    player.hp = 28;
+    objects_reset();
+    for (u16 f = 0; f < 10; f++) objects_update();
+    const u16 before = host_sprites_visible();
+
+    objects_set_visible(FALSE);          /* menu opens */
+    objects_set_visible(TRUE);           /* menu closes */
+    for (u16 f = 0; f < 3; f++) objects_update();
+    const u16 after = host_sprites_visible();
+
+    printf("\nmenu round trip: visible sprites %u -> %u%s\n", before, after,
+           after == before ? "" : "   (OFF-SCREEN OBJECTS SHOWN)");
+    if (after != before) {
+        printf("FAIL: closing the menu must restore the sprites that were "
+               "visible, not show every object\n");
+        exit(1);
+    }
+}
+
 int main(int argc, char **argv)
 {
     if (argc > 1 && strcmp(argv[1], "--fixture") == 0) {
         run_fixture();
         run_drops();
+        run_menu_visibility();
         return 0;
     }
     run_scaling();
     run_fixture();
     run_drops();
+    run_menu_visibility();
     return 0;
 }

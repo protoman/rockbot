@@ -896,9 +896,17 @@ u8 objects_live(void)
 
 void objects_set_visible(bool visible)
 {
-    for (u8 i = 0; i < obj_count; i++)
-        if (objs[i].spr)
-            SPR_setVisibility(objs[i].spr, visible ? VISIBLE : HIDDEN);
+    for (u8 i = 0; i < obj_count; i++) {
+        if (!objs[i].spr) continue;
+        // On "show" restore what objects_update() last sent (spr_vis), not
+        // "everything visible": it only talks to the sprite when its answer
+        // changes, so an off-screen object forced VISIBLE here was never hidden
+        // again and sat at its stale position, fixed on screen while the room
+        // scrolled (items_after_menu.png). 0xFF = never updated (doors keep
+        // their own state in door_sync): show it as before.
+        const bool show = visible && objs[i].spr_vis != 0;
+        SPR_setVisibility(objs[i].spr, show ? VISIBLE : HIDDEN);
+    }
 }
 
 // Room transition (see transition.c): the outgoing screen is a frozen copy of

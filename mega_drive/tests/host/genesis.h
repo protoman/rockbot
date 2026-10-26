@@ -85,6 +85,7 @@ struct Sprite {
     s16 x, y;
     s16 animInd, frameInd;
     u16 status;
+    u16 vis;        /* host test: last SPR_setVisibility value (VISIBLE until set) */
 };
 
 /* player controls (only the masks src/ uses at compile time) */
