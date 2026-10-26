@@ -54,6 +54,35 @@ Still open, with evidence:
 - OUT OF SCOPE (owner's decision, recorded in AGENTS.md): the trophies/extras
       screen is not in this version.
 
+## Audit 2026-10-26 (room changes, AI options, menu state)
+
+Closed (each with its offline reproduction, see `git log`):
+- [x] FLY option `DOWN` (3) had no case in `enemy.c` and flew horizontally; used by
+      8 stages. `FALL` (7) now heads for the screen bottom like the PC
+      (`artificial_inteligence.cpp:1372/1375`). `audit_ai.py` now FAILS when an
+      option the data uses has no `#define`/case in `enemy.c` - the earlier
+      "option gaps: 0" in `audit_data.py` only checked that a constant existed.
+- [x] Room change: teleporter-type links fade (PC `game.cpp:709`), the destination
+      camera keeps the player's screen X (`game.cpp:716`), the outgoing screen
+      absorbs what the destination camera cannot, the ladder scan starts at the
+      real arrival column of wide links, the slide draws the player with the
+      same sprite offset as normal play. Models: `tools/check_link_align.py`,
+      `tools/check_link_arrival.py`; rules in `check_rules.py`.
+- [x] In-game menu close showed off-screen objects (and dead enemies) frozen on
+      screen: it restored "everything visible" while `objects_update` caches the
+      visibility it last sent. Host test `run_menu_visibility`.
+
+Still open (PC does it, the port does not):
+- [ ] The slide shows only the incoming TILES: the PC also draws the incoming
+      map's objects, enemies and above-player layer during it
+      (`game.cpp:1090` onward, `show_objects`/`show_above_objects`).
+- [ ] Incoming parallax is replaced by sky whenever the two maps' background
+      palettes differ (PAL3 is shared): 12 links incl. CHAOS CITY map 0 -> 1.
+- [ ] Slide speed: 8 px/frame here, 4 px per step with delays on the PC.
+- [ ] Owner's TODO.txt BUGS list (charged shot consumed on hit, full-charge
+      indicator, wall-shooter diagonal aim, door opening from the centre, enemy
+      speed vs the PC) is NOT audited against the PC source yet.
+
 # PC features the MD port is missing (source audit)
 
 Purpose: the list of things the PC does that the port does not, found by reading
