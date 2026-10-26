@@ -107,6 +107,15 @@ static s16 box_t = PLAYER_BOX_T;   // hitbox offsets (see update_hitbox)
 static s16 box_b = PLAYER_BOX_B;
 static s16 coyote_timer;
 static s16 jump_timer;
+#define TRAIL_FRAMES 12
+#define GHOST_N 3
+static Sprite *ghost_spr[GHOST_N];
+static s16 trail_x[TRAIL_FRAMES], trail_y[TRAIL_FRAMES];
+static u8 trail_len;
+static u8 trail_tick;
+static const u8 GHOST_LAG[GHOST_N]  = { 3, 6, 9 };
+static const u8 GHOST_MASK[GHOST_N] = { 0x7, 0x5, 0x1 };   // visible on (tick & 3) bit set
+
 static s16 attack_timer;
 static u16 charge_sfx_timer;   // re-trigger countdown for the charge loop
 static u16 prev_pad;
@@ -561,6 +570,7 @@ void player_place(s16 px, s16 py)
 {
     player.x = px;
     player.y = py;
+    trail_len = 0;            // a teleport/arrival must not drag the old trail along
     player.vx = 0;
     player.vy = 0;
     player.on_ground = FALSE;
@@ -576,6 +586,48 @@ void player_place(s16 px, s16 py)
     player.hit_push = 0;
     player.hit_acc = 0;
     player.hit_dir = 0;
+}
+
+// ---- slide trail (PC character::show_previous_sprites, character.cpp:899) ----
+// While sliding/dashing the PC keeps the last PREVIOUS_FRAMES_MAX (12) positions and
+// draws a translucent copy of the current frame at every second one, alpha rising
+// towards the player. The MD has no alpha: GHOST_N extra player sprites follow the
+// player GHOST_LAG[k] frames behind, flickered at a different density each (3/4,
+// 2/4, 1/4 of the frames) which reads as the same fade.
+static void trail_hide(void)
+{
+    for (u8 k = 0; k < GHOST_N; k++)
+        if (ghost_spr[k]) SPR_setVisibility(ghost_spr[k], HIDDEN);
+    trail_len = 0;
+}
+
+static void trail_update(s16 ix, s16 iy)
+{
+    if (!player.sliding || death_timer > 0) {
+        if (trail_len) trail_hide();
+        return;
+    }
+    for (u8 i = TRAIL_FRAMES - 1; i > 0; i--) {
+        trail_x[i] = trail_x[i - 1];
+        trail_y[i] = trail_y[i - 1];
+    }
+    trail_x[0] = ix;
+    trail_y[0] = iy;
+    if (trail_len < TRAIL_FRAMES) trail_len++;
+    trail_tick++;
+    for (u8 k = 0; k < GHOST_N; k++) {
+        Sprite *g = ghost_spr[k];
+        if (!g) continue;
+        const u8 lag = GHOST_LAG[k];
+        if (trail_len <= lag || !((GHOST_MASK[k] >> (trail_tick & 3)) & 1)) {
+            SPR_setVisibility(g, HIDDEN);
+            continue;
+        }
+        SPR_setHFlip(g, player.facing < 0);
+        SPR_setPosition(g, trail_x[lag] - camera.x + flip_dx(),
+                        trail_y[lag] - camera.y);
+        SPR_setVisibility(g, VISIBLE);
+    }
 }
 
 void player_init(void)
@@ -617,6 +669,16 @@ void player_init(void)
                                TILE_ATTR(PLAYER_PAL, FALSE, FALSE, FALSE));
     PAL_setPalette(PLAYER_PAL, base_pal, DMA_QUEUE);
     spr_set_anim(player.spr, ANIM_STAND);
+    // slide trail: created right after the player so they sort BELOW him
+    for (u8 k = 0; k < GHOST_N; k++) {
+        ghost_spr[k] = SPR_addSprite(player_defs[player_n], -64, -64,
+                                     TILE_ATTR(PLAYER_PAL, FALSE, FALSE, FALSE));
+        if (ghost_spr[k]) {
+            spr_set_anim(ghost_spr[k], ANIM_SLIDE);
+            SPR_setVisibility(ghost_spr[k], HIDDEN);
+        }
+    }
+    trail_len = 0;
     // player.y is the ground row spawn_ground_y() found, which is only row 10
     // (SPAWN_Y) in CHAOS CITY. Without this the sprite sat at SPAWN_Y for the
     // whole stage-start teleport and snapped up one tile on the first
@@ -1449,6 +1511,7 @@ void player_update(u16 pad)
         spr_set_anim(player.spr, want);
     }
     SPR_setPosition(player.spr, ix - camera.x + flip_dx(), iy - camera.y);
+    trail_update(ix, iy);
 
     invuln_blink();
 }
@@ -1456,6 +1519,7 @@ void player_update(u16 pad)
 void player_set_visible(bool visible)
 {
     if (player.spr) SPR_setVisibility(player.spr, visible ? VISIBLE : HIDDEN);
+    if (!visible) trail_hide();
 }
 
 // PC classPlayer::death() (classplayer.cpp:951): one life per death; running
