@@ -43,16 +43,25 @@ void tdump_cram(const char *tag)
 // the CPU; SGDK's own macro does the 32-bit control-port write correctly.
 static void vram_read_words(u16 byte_addr, u16 *dst, u16 words)
 {
-    // VDP address register takes a WORD address in its low 14 bits, and the
-    // two high bits in the second control word. SGDK's VDP_READ_VRAM_ADDR()
-    // macro does not shift the byte address, so anything at or above 0x4000
-    // (tile 512 upward, i.e. every plane and most of the tile area) came back
-    // through a WRITE-mode port - the values read earlier were meaningless.
+    // The VDP command takes the BYTE address (A13..A0 in the first word, A15/A14
+    // in bits 1..0 of the second) with CD5..CD0 = 0 for a VRAM read. This is
+    // exactly SGDK's VDP_READ_VRAM_ADDR(); an earlier "fix" here shifted it to a
+    // word address and read the wrong place for every tile and plane.
     volatile u16 *ctrl = (volatile u16 *)VDP_CTRL_PORT;
-    u16 wa = (u16)(byte_addr >> 1);
-    *ctrl = (u16)(wa & 0x3FFF);
-    *ctrl = (u16)((wa >> 14) & 0x3);
+    *ctrl = (u16)(byte_addr & 0x3FFF);
+    *ctrl = (u16)((byte_addr >> 14) & 0x3);
     for (u16 i = 0; i < words; i++) dst[i] = *((vu16 *)VDP_DATA_PORT);
+}
+
+void tdump_read(u16 byte_addr, u16 *dst, u16 words)
+{
+    VDP_waitDMACompletion();
+    SYS_disableInts();
+    const u8 inc = VDP_getAutoInc();
+    VDP_setAutoInc(2);
+    vram_read_words(byte_addr, dst, words);
+    VDP_setAutoInc(inc);
+    SYS_enableInts();
 }
 
 void tdump_tile(const char *tag, u16 tile)

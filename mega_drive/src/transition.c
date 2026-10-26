@@ -185,6 +185,104 @@ static void apply_tile3(u16 *buf, u8 map, u16 mt0)
     }
 }
 
+#ifdef MD_TRANS_DEBUG
+// Debug probes (build: make clean && make EXTRA_FLAGS="-DMD_TRANS_DEBUG").
+// They compare what the VDP really holds (VRAM readback, tdump_read) with what
+// the code meant to put there, and print one line per check on the KDEBUG
+// console, so a single log answers "RAM right, VRAM wrong?" without pictures.
+// Log lines start with "TR" and are parsed by tools/trans_log.py.
+#include "tdump.h"
+
+static u8 dbg_slot_local[TRANS_TILES];   // incoming slot -> tileset tile
+static u16 dbg_tile_used;                // incoming tile slots (no parallax)
+
+// 16 VRAM words of tile `vt` against 32 bytes at `ram`; returns differing words
+static u16 dbg_tile_bad(u16 vt, const u32 *ram, u16 *vram_out)
+{
+    u16 w[16];
+    tdump_read((u16)(vt * 32), w, 16);
+    const u16 *r = (const u16 *)ram;
+    u16 bad = 0;
+    for (u16 k = 0; k < 16; k++) if (w[k] != r[k]) bad++;
+    if (vram_out) for (u16 k = 0; k < 4; k++) vram_out[k] = w[k];
+    return bad;
+}
+
+// Outgoing map tileset: resident since stage_load, ROM copy is the reference.
+static void dbg_check_out(const char *tag, u8 from_map)
+{
+    const TileSet *t = stage_def->tile_sets[from_map];
+    u16 bad = 0, first = 0xFFFF;
+    if (t->compression != COMPRESSION_NONE) {
+        kprintf("TR %s out: tileset compressed, skipped\n", tag);
+        return;
+    }
+    for (u16 n = 0; n < t->numTile; n++) {
+        if (dbg_tile_bad((u16)(TILE_USER_INDEX + n), &t->tiles[n * 8], NULL)) {
+            if (!bad) first = n;
+            bad++;
+        }
+    }
+    kprintf("TR %s out_bad=%u/%u first=%u\n", tag, bad, t->numTile, first);
+}
+
+// Incoming tile slots: trans_tiles (RAM) is the reference.
+static void dbg_check_in(const char *tag, u16 spare)
+{
+    u16 bad = 0, shown = 0, v[4];
+    for (u16 sl = 0; sl < dbg_tile_used; sl++) {
+        const u32 *r = &trans_tiles[dbg_slot_local[sl] * 8];
+        if (dbg_tile_bad((u16)(spare + sl), r, v)) {
+            bad++;
+            if (shown < 4) {
+                const u16 *rw = (const u16 *)r;
+                kprintf("TR %s in slot=%u tile=%u vram=%04X %04X %04X %04X "
+                        "ram=%04X %04X %04X %04X\n", tag, spare + sl,
+                        dbg_slot_local[sl], v[0], v[1], v[2], v[3],
+                        rw[0], rw[1], rw[2], rw[3]);
+                shown++;
+            }
+        }
+    }
+    kprintf("TR %s in_bad=%u/%u\n", tag, bad, dbg_tile_used);
+}
+
+// Per slide frame: VDP registers, queue state, the whole visible plane A
+// window against trans_buf, and a sample of resident tiles.
+static void dbg_frame(u16 i, u16 base, u16 spare, u8 from_map)
+{
+    u16 row[TRANS_COLS];
+    u16 pbad = 0, fr = 0, fc = 0, fv = 0, fe = 0;
+    for (u16 r = 0; r < TRANS_ROWS; r++) {
+        tdump_read((u16)(VDP_getBGAAddress() + r * 128), row, TRANS_COLS);
+        const u16 *want = &trans_buf[base + r][0];
+        for (u16 c = 0; c < TRANS_COLS; c++) {
+            if (row[c] != want[c]) {
+                if (!pbad) { fr = r; fc = c; fv = row[c]; fe = want[c]; }
+                pbad++;
+            }
+        }
+    }
+    u16 ibad = 0, obad = 0;
+    const TileSet *t = stage_def->tile_sets[from_map];
+    for (u16 k = 0; k < 8; k++) {
+        if (dbg_tile_used)
+            ibad += dbg_tile_bad((u16)(spare + (k * dbg_tile_used) / 8),
+                &trans_tiles[dbg_slot_local[(k * dbg_tile_used) / 8] * 8],
+                NULL) ? 1 : 0;
+        if (t->compression == COMPRESSION_NONE)
+            obad += dbg_tile_bad((u16)(TILE_USER_INDEX + (k * t->numTile) / 8),
+                &t->tiles[((k * t->numTile) / 8) * 8], NULL) ? 1 : 0;
+    }
+    kprintf("TRF i=%u base=%u r15=%02X r16=%02X r17=%02X r18=%02X r11=%02X "
+            "q=%u\n", i, base, VDP_getReg(15), VDP_getReg(16), VDP_getReg(17),
+            VDP_getReg(18), VDP_getReg(11), DMA_getQueueSize());
+    kprintf("TRF i=%u plane_bad=%u first r=%u c=%u vram=%04X want=%04X "
+            "in_bad=%u/8 out_bad=%u/8\n", i, pbad, fr, fc, fv, fe, ibad,
+            obad);
+}
+#endif
+
 u8 transition_fail_code;
 u8 transition_fail_map;
 u16 transition_fail_free_kb;
@@ -200,6 +298,12 @@ bool transition_scroll(u8 from_map, u8 to_map, s16 to_cam_x,
 return FALSE; }
 
     const s16 dcam = clamp_cam_x(to_cam_x);
+#ifdef MD_TRANS_DEBUG
+    kprintf("TRS from=%u to=%u spare=%u cam=%d dcam=%d t2b=%u qmax=%u\n",
+            from_map, to_map, spare, camera.x, dcam, top_to_bottom,
+            DMA_getMaxQueueSize());
+    dbg_check_out("pre", from_map);
+#endif
 
     u16 *newbuf = top_to_bottom ? trans_buf[TRANS_ROWS] : trans_buf[0];
     u16 *oldbuf = top_to_bottom ? trans_buf[0] : trans_buf[TRANS_ROWS];
@@ -259,6 +363,9 @@ return FALSE; }
                         if (spare + used >= TRANS_VRAM_END) { transition_fail_code = 6;
 return FALSE; }
                         trans_remap[local] = (u8)used;
+#ifdef MD_TRANS_DEBUG
+                        dbg_slot_local[used] = (u8)local;
+#endif
                         trans_dma_room(1);
                         VDP_loadTileData(&trans_tiles[local * 8], spare + used,
                                          1, DMA_QUEUE);
@@ -271,6 +378,10 @@ return FALSE; }
         }
     }
 
+
+#ifdef MD_TRANS_DEBUG
+    dbg_tile_used = used;
+#endif
 
     // ---- destination parallax --------------------------------------------
     // The incoming screen must arrive with ITS room's background: the old code
@@ -308,6 +419,12 @@ return FALSE; }
 
     // drain whatever tile transfers are still queued before the slide starts
     SYS_doVBlankProcess();
+#ifdef MD_TRANS_DEBUG
+    kprintf("TRS tiles_used=%u numTile=%u dest_bg=%u bg_new=%u\n", used,
+            ts.numTile, dest_bg, bg_tiles_new);
+    dbg_check_in("post-load", spare);
+    dbg_check_out("post-load", from_map);
+#endif
 
     // Rewrite the outgoing half so it looks the same with BG_B's vertical
     // scroll taken out (rows for the incoming half are filled as they arrive).
@@ -429,6 +546,9 @@ return FALSE; }
         SYS_doVBlankProcess();
         VDP_setReg(17, 0);   // see main.c: DMA clobbers the window regs
         VDP_setReg(18, 0);
+#ifdef MD_TRANS_DEBUG
+        dbg_frame(i, (u16)(off / 8), spare, from_map);
+#endif
 #ifdef MD_TRANS_FREEZE
         // Debug: single-step the slide. It holds at frame MD_TRANS_FREEZE and
         // every press of A runs 3 more frames, so BlastEm's own `p` screenshot
@@ -440,6 +560,10 @@ return FALSE; }
 #endif
     }
 
+#ifdef MD_TRANS_DEBUG
+    dbg_check_in("end", spare);
+    dbg_check_out("end", from_map);
+#endif
     // back to one offset per plane; the caller's stage_load re-scrolls both
     VDP_setScrollingMode(HSCROLL_PLANE, VSCROLL_PLANE);
     VDP_setVerticalScroll(BG_B, vscroll);
