@@ -430,9 +430,13 @@ return FALSE; }
         VDP_setReg(17, 0);   // see main.c: DMA clobbers the window regs
         VDP_setReg(18, 0);
 #ifdef MD_TRANS_FREEZE
-        // Debug: hold the slide at frame MD_TRANS_FREEZE so BlastEm's own `p`
-        // screenshot (a faithful framebuffer) can be taken of one exact frame.
-        if (i == MD_TRANS_FREEZE) for (;;) SYS_doVBlankProcess();
+        // Debug: single-step the slide. It holds at frame MD_TRANS_FREEZE and
+        // every press of A runs 3 more frames, so BlastEm's own `p` screenshot
+        // (a faithful framebuffer) can be taken at each stage of one transition.
+        if (i >= MD_TRANS_FREEZE && ((i - MD_TRANS_FREEZE) % 3) == 0) {
+            while (JOY_readJoypad(JOY_1) & BUTTON_A) SYS_doVBlankProcess();
+            while (!(JOY_readJoypad(JOY_1) & BUTTON_A)) SYS_doVBlankProcess();
+        }
 #endif
     }
 
