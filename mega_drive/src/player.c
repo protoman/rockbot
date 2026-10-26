@@ -516,6 +516,16 @@ static s8 ladder_art_dx(void)
     return (current_anim == ANIM_STAIRS_ATTACK) ? -3 : -2;
 }
 
+// Sprite offset against the hitbox for the current pose, exactly what the
+// ladder branch of player_update() adds: flip_dx() for hardware-flipped art and
+// the ladder art correction. The room-change slide draws the player itself and
+// must use the same value, or he is shifted ~2-5px off the ladder for the whole
+// slide (and snaps back when it ends).
+s16 player_sprite_dx(void)
+{
+    return (s16)(flip_dx() + (player.on_ladder ? ladder_art_dx() : 0));
+}
+
 // Re-place the player sprite for the CURRENT camera. player_place() moves the
 // player but the sprite's screen position is only set in player_update(), so
 // after a map link the sprite is drawn once at its old screen position while

@@ -58,6 +58,12 @@ RULES = [
      [("src/main.c", r"s16 arr_tx = \(s16\)\(\(to_x \+ stage_link_band_off\) / tile\);"),
       ("src/main.c", r"const s16 bases\[2\] = \{ arr_tx, dst_tx \};")],
      []),
+    ("transition-player-sprite-offset",
+     "the slide draws the player with the same sprite offset as player_update "
+     "(flip + ladder art), otherwise he is ~5px off the ladder for the whole slide",
+     [("src/transition.c", r"SPR_setPosition\(player\.spr, \(s16\)\(player_sx \+ player_sprite_dx\(\)\), py\);"),
+      ("src/player.c", r"s16 player_sprite_dx\(void\)")],
+     [("src/transition.c", r"SPR_setPosition\(player\.spr, player_sx, py\);")]),
     ("wall-bomb-only",
      "only an exploding bomb breaks a destructible wall (type 22)",
      [("src/object.c", r"if \(ty == 22 && !bomb\) continue;"),

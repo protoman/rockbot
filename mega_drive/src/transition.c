@@ -546,7 +546,7 @@ return FALSE; }
         if (player.spr) {
             const s16 py = player_y + (top_to_bottom ? (s16)(span - off)
                                                      : (s16)-off);
-            SPR_setPosition(player.spr, player_sx, py);
+            SPR_setPosition(player.spr, (s16)(player_sx + player_sprite_dx()), py);
         }
 
         SPR_update();

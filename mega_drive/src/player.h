@@ -161,6 +161,8 @@ void player_place(s16 worldX, s16 worldY);
 // Re-place the player sprite for the current camera (after player_place +
 // stage_arrival_camera, so it does not flash at its old screen position).
 void player_sync_sprite(void);
+// Sprite X offset against the hitbox for the current pose (flip + ladder art).
+s16 player_sprite_dx(void);
 
 // Reload the player palette (PAL2). Needed after a full-palette fade, which
 // blacks out PAL2 as well and nothing else restores it.
