@@ -64,6 +64,13 @@ def main():
                 continue        # padding slots
             used.setdefault((action, param), set()).add(stage)
 
+    # Option VALUES the port really handles: every `#define AI_<ACTION>_<NAME> n`
+    # in enemy.c, plus 0 (the default/"ahead" branch). An option the data uses
+    # that is in neither set falls into a default branch and silently does the
+    # wrong thing (FLY DOWN flew horizontally; JUMP TO_ROOF was a plain hop).
+    enemy_c = open(os.path.join(SRC, "enemy.c")).read()
+    gaps = []
+
     missing = []
     for (action, param), stages in sorted(used.items()):
         if action not in ACTIONS:
@@ -80,14 +87,24 @@ def main():
             continue            # id/range parameter, not an option
         prefix = OPTION_ACTIONS[action]
         names = [k for k in known if k.startswith(prefix)]
+        handled = {int(n) for n in re.findall(
+            rf"#define {prefix}\w+\s+(\d+)", enemy_c)}
+        if handled and param != 0 and param not in handled:
+            gaps.append((ACTIONS[action], param, sorted(stages)))
         # The port names options without the ACTION_ part; accept any constant
         # that ends with the option index name is impossible, so just report
         # which option VALUES the data uses per action and let the human check.
         print(f"     {ACTIONS[action]:18s} option {param:2d} used by "
               f"{', '.join(sorted(stages))}")
 
+    for name, param, stages in gaps:
+        print(f"GAP  {name} option {param}: used by {', '.join(stages)} but "
+              f"enemy.c has no case (falls into the default branch)")
     if missing:
         print(f"\naudit_ai: {len(missing)} unknown action(s)")
+        return 1
+    if gaps:
+        print(f"\naudit_ai: {len(gaps)} option(s) used by the data are not handled")
         return 1
     print("\naudit_ai: option usage listed (compare with enemy.c's handling)")
     return 0

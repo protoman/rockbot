@@ -64,6 +64,7 @@
 #define AI_WALK_TURN_PLYR 4
 #define AI_FLY_TURN       1
 #define AI_FLY_UP         2
+#define AI_FLY_DOWN       3
 #define AI_FLY_TO_PLAYER  4
 #define AI_FLY_TO_SAVED   5
 #define AI_FLY_FALL       7
@@ -424,8 +425,16 @@ static void ai_action_init(Enemy *e)
             e->dir = sign16(e->dest_x - e->x);
         } else if (st->param == AI_FLY_UP) {
             e->dest_y = e->y - (s16)d->range;
-        } else if (st->param == AI_FLY_FALL) {
+        } else if (st->param == AI_FLY_DOWN) {
+            // PC FLY_OPTION_DOWN: dest_y = y + walk_range
+            // (artificial_inteligence.cpp:1372). It had no case here, so the 8
+            // stages that use it flew horizontally ahead instead.
             e->dest_y = e->y + (s16)d->range;
+        } else if (st->param == AI_FLY_FALL) {
+            // PC FLY_OPTION_FALL: "fall until out of screen or hitting ground
+            // (ignores distance)": dest_y = RES_H + height + 2 (:1375); the
+            // stepper stops at solid ground on the way.
+            e->dest_y = (s16)(stage_def->map_h * stage_def->tile + d->box_h + 2);
         } else if (st->param == AI_FLY_TO_RANDOM) {
             // PC create_rand_X/Y_point within walk_range of the current spot.
             e->dest_x = e->x + ai_rand_off((s16)d->range);
