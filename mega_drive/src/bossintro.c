@@ -58,7 +58,7 @@ static void castle_screen(void)
 void boss_intro_run(u8 stage)
 {
     sprites_end();
-    sprites_begin(768);
+    sprites_begin(SPRITE_VRAM_TILES);
     stage_release_map();
 
     VDP_setHorizontalScroll(BG_A, 0);

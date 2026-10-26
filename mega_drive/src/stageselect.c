@@ -130,7 +130,7 @@ static void draw_names(void)
 
 u8 stage_select_run(u8 player, u16 stage_mask)
 {
-    sprites_begin(768);
+    sprites_begin(SPRITE_VRAM_TILES);
     stage_release_map();
     music_play(MUSIC_SELECTOR);
 

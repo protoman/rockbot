@@ -153,6 +153,10 @@ static void waitFrames(u16 n)
 static void showIntro(void)
 {
     VDP_clearPlane(BG_A, FALSE);
+    // Diagnostic (stripes, BUG-044 follow-up): the plane BELOW must not be
+    // showing through. BG_A cells here are tile 0 with priority 0, so anything
+    // BG_B holds wins the pixel; if BG_B is striped, the whole screen is.
+    VDP_clearPlane(BG_B, FALSE);
     // Boot CRAM is not trustworthy: the grey ramp read back shifted to a
     // different CRAM entry on every boot (BUG-044 follow-up: a CRAM write whose
     // destination is redirected mid-transfer). Assert the UI/line-0 palette
@@ -178,6 +182,11 @@ static void showIntro(void)
     waitFrames(24); // ~400ms
     tdump_vdp("intro-24f");
     tdump_cram("intro-24f");
+    tdump_tile("intro-24f", 0);
+    tdump_tile("intro-24f", 702);
+    tdump_cell("intro-24f", VDP_getBGAAddress(), 0, 0);
+    tdump_cell("intro-24f", VDP_getBGAAddress(), 12, 10);
+    tdump_cell("intro-24f", VDP_getBGBAddress(), 12, 10);
 
     // upperland strip animation: 30ms per frame (~2 frames at 60Hz)
     for (u16 i = 1; i < FRAME_COUNT; i++) {
@@ -1093,6 +1102,11 @@ int main(bool hardReset)
     playSession((u8)MD_TEST_STAGE);
 #endif
 
+#ifdef MD_TILE_DUMP
+    // Diagnostics only: go straight to the options screen instead of relying on
+    // scripted key presses to walk the title menu.
+    config_run(FALSE);
+#endif
     showIntro();
     // PC game_scenes_show_unbeaten_intro(): scene list 0 (scenes_data.c)
     music_play(MUSIC_INTRO_SCENE);

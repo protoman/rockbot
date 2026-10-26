@@ -109,7 +109,7 @@ s16 save_selector(bool is_new_game)
     // NULL (SPR_addSprite fails with the engine ended), which is exactly what
     // happened — the slot rows came up empty. The stage select re-inits the
     // same way.
-    sprites_begin(768);
+    sprites_begin(SPRITE_VRAM_TILES);
     VDP_setHorizontalScroll(BG_A, 0);
     VDP_setVerticalScroll(BG_A, 0);
     VDP_setHorizontalScroll(BG_B, 0);

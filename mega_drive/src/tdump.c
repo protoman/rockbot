@@ -36,3 +36,44 @@ void tdump_cram(const char *tag)
 
 #endif
 
+
+#ifdef MD_TILE_DUMP
+// Tile/plane readback, display OFF. The first attempt (hand-rolled control
+// writes) left the VDP address register at 0x10003/CD=0xC0 and BlastEm froze
+// the CPU; SGDK's own macro does the 32-bit control-port write correctly.
+static void vram_read_words(u16 byte_addr, u16 *dst, u16 words)
+{
+    *((vu32 *)VDP_CTRL_PORT) = VDP_READ_VRAM_ADDR((u32)byte_addr);
+    for (u16 i = 0; i < words; i++) dst[i] = *((vu16 *)VDP_DATA_PORT);
+}
+
+void tdump_tile(const char *tag, u16 tile)
+{
+    u16 w[16];
+    u16 was = VDP_isEnable();
+    VDP_setEnable(FALSE);
+    SYS_disableInts();
+    VDP_setAutoInc(2);
+    vram_read_words(tile * 32, w, 16);
+    SYS_enableInts();
+    VDP_setEnable(was);
+    kprintf("TDUMP %s tile %u: %04X %04X %04X %04X %04X %04X %04X %04X "
+            "%04X %04X %04X %04X %04X %04X %04X %04X\n", tag, tile,
+            w[0], w[1], w[2], w[3], w[4], w[5], w[6], w[7],
+            w[8], w[9], w[10], w[11], w[12], w[13], w[14], w[15]);
+}
+
+void tdump_cell(const char *tag, u16 plane, u16 col, u16 row)
+{
+    u16 w = 0;
+    u16 was = VDP_isEnable();
+    VDP_setEnable(FALSE);
+    SYS_disableInts();
+    VDP_setAutoInc(2);
+    vram_read_words((u16)(plane + (row * 64 + col) * 2), &w, 1);
+    SYS_enableInts();
+    VDP_setEnable(was);
+    kprintf("TDUMP %s cell(%u,%u) = %04X tile=%u pal=%u prio=%u\n",
+            tag, col, row, w, w & 0x7FF, (w >> 13) & 3, (w >> 15) & 1);
+}
+#endif

@@ -130,12 +130,20 @@ static void clear_screen(void)
     VDP_setVerticalScroll(BG_A, 0);
     // opaque background: the font's space tile is transparent and would show
     // the stage parallax through the options screen
+    // priority TRUE on purpose: the options screen must win against whatever
+    // BG_B still holds (the stage parallax / the title logo). With priority
+    // FALSE this fill loses every pixel to a BG_B cell and the screen shows the
+    // plane below instead of black (stripes, BUG-044 follow-up).
     VDP_fillTileMapRect(BG_A,
-                        TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE,
+                        TILE_ATTR_FULL(PAL0, TRUE, FALSE, FALSE,
                                        CFG_BLACK_TILE),
                         0, 0, 40, 28);
     tdump_vdp("config-fill");
     tdump_cram("config-fill");
+    tdump_tile("config-fill", CFG_BLACK_TILE);
+    tdump_cell("config-fill", VDP_getBGAAddress(), 0, 0);
+    tdump_cell("config-fill", VDP_getBGAAddress(), 12, 12);
+    tdump_cell("config-fill", VDP_getBGBAddress(), 12, 12);
 }
 
 static void wait_release(void)
