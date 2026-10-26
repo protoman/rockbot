@@ -77,6 +77,15 @@ RULES = [
       ("src/enemy.c", r"const bool show = visible && e->alive &&")],
      [("src/object.c", r"SPR_setVisibility\(objs\[i\]\.spr, visible \? VISIBLE : HIDDEN\);"),
       ("src/enemy.c", r"SPR_setVisibility\(enemies\[i\]\.spr, visible \? VISIBLE : HIDDEN\);")]),
+    ("enemy-shot-at-attack-frame",
+     "an enemy's shot spawns when its attack animation reaches the data's "
+     "attack_frame (PC ai.cpp:1185), not at a flat 30% of the animation "
+     "(HELMUT shot ~440ms early)",
+     [("src/enemy.c", r"static u16 ai_shot_frame\(const EnemyDef \*d, u16 dur\)"),
+      ("src/enemy.c", r"e->act_t == 1 \+ ai_shot_frame\(d, dur\)"),
+      ("src/stage_data.h", r"u16 attack_shot_ms;"),
+      ("tools/convert_enemies.py", r"\"attack_frame\": b\[6034\]")],
+     [("src/enemy.c", r"e->act_t == 1 \+ \(dur \* 3\) / 10")]),
     ("wall-bomb-only",
      "only an exploding bomb breaks a destructible wall (type 22)",
      [("src/object.c", r"if \(ty == 22 && !bomb\) continue;"),

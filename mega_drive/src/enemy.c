@@ -494,6 +494,19 @@ static s16 enemy_step(u8 speed)
 // AI step every 20ms (50Hz, artificial_inteligence.cpp:276) so one "speed"
 // pixel lands every 20ms — moving speed px per 60fps frame would be 20%
 // faster than the PC. The accumulator reproduces speed*50 px/s exactly.
+// Frame (60 Hz) of a shot action at which the projectile spawns. The PC fires
+// when the attack animation reaches the enemy's attack_frame (else its last
+// frame): artificial_inteligence.cpp:1185. The data carries that as the time to
+// reach it (attack_shot_ms); an enemy with no attack art keeps 30% of the flat
+// action. The old flat 30% made every HELMUT (attack_frame 3 = 800ms of 1200)
+// shoot ~440ms before the PC does.
+static u16 ai_shot_frame(const EnemyDef *d, u16 dur)
+{
+    if (!d->attack_n) return (u16)((dur * 3) / 10);
+    u16 f = (u16)(((u32)d->attack_shot_ms * 6) / 100);
+    return (f < dur) ? f : (u16)(dur - 1);
+}
+
 static bool step_axis(Enemy *e, s16 *pos, s16 dest, bool horizontal, bool can_fall)
 {
     const EnemyDef *d = e->def;
@@ -895,7 +908,7 @@ static bool ai_action_run(Enemy *e)
         // direction (the flipped_enemy bug).
         if (st->action == AI_SHOT_DIR && d->speed && e->act_t == 1)
             e->dir = (player.x + 14 > e->x + d->box_l + d->box_w / 2) ? 1 : -1;
-        if (e->act_t == 1 + (dur * 3) / 10) {
+        if (e->act_t == 1 + ai_shot_frame(d, dur)) {
             u8 pid = (st->param >= 0) ? (u8)st->param : d->shot;
             eshot_fire(e->x + d->box_l + d->box_w / 2,
                        e->y + d->box_t + d->box_h / 2, e->dir, pid);
@@ -912,7 +925,7 @@ static bool ai_action_run(Enemy *e)
             if (dur < AI_SHOT_FRAMES) dur = AI_SHOT_FRAMES;
             e->shooting = 1;
         }
-        if (e->act_t == 1 + (dur * 3) / 10) {
+        if (e->act_t == 1 + ai_shot_frame(d, dur)) {
             u8 pid = (st->param >= 0) ? (u8)st->param : d->shot;
             eshot_fire(e->x + d->box_l + d->box_w / 2,
                        e->y + d->box_t + d->box_h / 2, -e->dir, pid);
@@ -1166,10 +1179,15 @@ static bool ai_action_run(Enemy *e)
     }
 
     case AI_SHOT_MULTIPLE: {
-        // PC SHOT_MULTIPLE_PROJECTILE: three shots in a small vertical spread.
+        // PC SHOT_MULTIPLE_PROJECTILE: three shots in a small vertical spread,
+        // spawned at the attack frame like the single shots (ai.cpp:1214).
         u16 dur = AI_SHOT_FRAMES;
+        if (d->attack_n) {
+            dur = (u16)(((u32)d->attack_ms * 6) / 100);
+            if (dur < AI_SHOT_FRAMES) dur = AI_SHOT_FRAMES;
+        }
         e->shooting = 1;
-        if (e->act_t == 1 + (dur * 3) / 10) {
+        if (e->act_t == 1 + ai_shot_frame(d, dur)) {
             u8 pid = (st->param >= 0) ? (u8)st->param : d->shot;
             s16 cx = (s16)(e->x + d->box_l + d->box_w / 2);
             s16 cy = (s16)(e->y + d->box_t + d->box_h / 2);

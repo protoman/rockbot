@@ -107,6 +107,9 @@ typedef struct {
     u8 turn_anim;       // sheet row of ANIM_TYPE_TURN (255 = none): the enemy
                         // turns by playing it (the flying shielder rotates)
     u16 turn_ms;        // its total duration in ms
+    u16 attack_shot_ms; // ms from the start of the attack animation to the frame
+                        // that spawns the projectile (PC file_npc.attack_frame,
+                        // else the last frame; character.cpp:936 / ai.cpp:1185)
 } EnemyDef;
 
 typedef struct {

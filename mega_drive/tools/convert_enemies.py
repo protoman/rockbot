@@ -160,6 +160,9 @@ def read_enemy_defs(blob, ids):
             "bgy": struct.unpack_from("<h", b, 6024)[0],
             "is_boss": is_boss,
             "is_sub_boss": b[6027],
+            # PC file_npc_v3_1_1.attack_frame (after respawn_delay and
+            # attack_arm_pos): the attack-animation frame that spawns the shot
+            "attack_frame": b[6034],
             "respawn_delay": struct.unpack_from("<i", b, 6028)[0],
             "stand": stand,
             "walk": walk,
@@ -574,6 +577,14 @@ def main():
             "jump_t": times(jump) if jump else [1],
             "teleport_t": times(teleport) if teleport else [1],
             "attack_ms": sum(du for _, du in attack),
+            # Time to the frame that fires the projectile: the PC shoots when
+            # the animation reaches attack_frame (or its LAST frame when that
+            # index is not a used frame, e.g. 255) - ai.cpp:1185. The port used
+            # a flat 30% of the animation, which made every HELMUT shoot ~440ms
+            # early (attack_frame 3 of [150,150,500,100,150,150] = 800ms).
+            "attack_shot_ms": sum(du for _, du in attack[:(
+                d["attack_frame"] if d["attack_frame"] < len(attack)
+                else max(len(attack) - 1, 0))]),
             "cells": cells,
             "box": (bl, bt, br - bl, bb - bt),
             "res_name": "enemy_" + os.path.splitext(d["gfx"])[0],
@@ -782,7 +793,7 @@ extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
             f"{p['intro_anim']}, {p['intro_ms']}, "
             f"{p['attack_ms']}, {d['shield_type']}, "
             f"{{ {', '.join(str(x & 0xFF) for x in d['weak'])} }}, "
-            f"{p['turn_anim']}, {p['turn_ms']} }},"
+            f"{p['turn_anim']}, {p['turn_ms']}, {p['attack_shot_ms']} }},"
             f"  // {d['name']}\n")
     lines.append("};\n\n")
     lines.append(f"const EnemySpawn {PFX}_enemy_spawns[{UP}_ENEMY_SPAWN_COUNT] = {{\n")
