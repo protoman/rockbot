@@ -9,9 +9,16 @@
 #define DBG_SRAM_END  0x7F00
 static u16 dbg_pos;
 
+// vsprintf has no bound: the buffer must hold the longest line. The first
+// version had 160 bytes and the ~280-char "LK" line overran it, smashing the
+// stack (address error the instant a link fired). tools/check_dbglog.py bounds
+// every format string against DBG_LINE_MAX. Static so it never sits on the
+// (small) 68k stack.
+#define DBG_LINE_MAX 384
+
 void dbg_log(const char *fmt, ...)
 {
-    char buf[160];
+    static char buf[DBG_LINE_MAX];
     va_list ap;
     va_start(ap, fmt);
     vsprintf(buf, fmt, ap);
