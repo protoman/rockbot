@@ -180,6 +180,23 @@ def main():
                 for y in range(FRAME):
                     for x in range(FRAME):
                         data[(oy + y) * cols * CELL + ox + x] = idxs[y * FRAME + x]
+        # rescomp DROPS an animation whose frames are all transparent, and every
+        # later animation then shifts down by one at runtime (players 1 and 3
+        # have no SPECIAL art: WALK_ATTACK played the JUMP_ATTACK art, GOT_WEAPON
+        # the walk-attack one, JUMP_ATTACK (13) was out of range). Keep the slot
+        # alive with a copy of the first STAND frame; the pose is only reachable
+        # through the shoryuken, where an invisible player would be worse anyway.
+        for r, (name, frames, _) in enumerate(ANIMS):
+            cells = range(len(frames))
+            if any(data[(r * CELL + y) * cols * CELL + c * CELL + x]
+                   for c in cells for y in range(CELL) for x in range(CELL)):
+                continue
+            for y in range(CELL):
+                for x in range(CELL):
+                    data[(r * CELL + y) * cols * CELL + x] = data[y * cols * CELL + x]
+            row_dx[r] = row_dx[0]
+            print(f"  player {n}: animation {r} {name} has no art - placeholder "
+                  f"(copy of STAND) so rescomp keeps the slot")
         flip_rows.append(row_dx)
         out.putdata(data)
         os.makedirs(RES, exist_ok=True)
