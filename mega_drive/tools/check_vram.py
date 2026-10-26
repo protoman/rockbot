@@ -171,7 +171,9 @@ def main():
     links = read_links()
     # TILE_FONT_INDEX - SPRITE_VRAM_TILES (src/stage.h): the 30 tiles
     # below the pool hold the tooltip art, the dialog panel and the config tile.
-    sprite_base = 1440 - 737
+    # Transition tiles must stay BELOW the tooltip block (672): 672..702 hold
+    # tooltip, dialog panel and the sky tile (702), not free VRAM.
+    sprite_base = 672
 
     def layout_end(s, m):
         """First free tile after tileset + bg + anim (runtime derives the same

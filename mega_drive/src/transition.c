@@ -44,6 +44,10 @@
 #define TRANS_ROWS 28     // plane rows (224px screen)
 #define TRANS_MROWS 14    // metatile rows = map_h
 #define TRANS_STEP 8      // pixels per frame (PC uses 4 at 6ms/step)
+// Transition tiles must stay BELOW the tooltip block: 672..702 hold the tooltip
+// art, the dialog panel and the sky tile (702, which BG_B cells point at), and
+// 703.. is the sprite pool. TILE_SPRITE_INDEX (703) is not a free-VRAM limit.
+#define TRANS_VRAM_END SPR_TOOLTIP_TILE_BASE
 #define TRANS_TILES 256   // FROZEN LAIR map 1 has 202 unique 8x8 tiles
 
 // per-map tile3 bit mask stride (same as stage.c)
@@ -192,7 +196,7 @@ bool transition_scroll(u8 from_map, u8 to_map, s16 to_cam_x,
     if (from_map == to_map) { transition_fail_code = 1; return FALSE; }
 
     const u16 spare = vram_free_base(from_map);
-    if (spare >= TILE_SPRITE_INDEX) { transition_fail_code = 2;
+    if (spare >= TRANS_VRAM_END) { transition_fail_code = 2;
 return FALSE; }
 
     const s16 dcam = clamp_cam_x(to_cam_x);
@@ -252,7 +256,7 @@ return FALSE; }
                     u16 local = (*e & TILE_INDEX_MASK) - TILE_USER_INDEX;
                     if (local >= ts.numTile) continue;
                     if (trans_remap[local] == 0xFF) {
-                        if (spare + used >= TILE_SPRITE_INDEX) { transition_fail_code = 6;
+                        if (spare + used >= TRANS_VRAM_END) { transition_fail_code = 6;
 return FALSE; }
                         trans_remap[local] = (u8)used;
                         trans_dma_room(1);
@@ -286,7 +290,7 @@ return FALSE; }
         bool same = TRUE;
         for (u8 i = 0; i < 16 && same; i++) same = (pa->data[i] == pb->data[i]);
         const u16 need = stage_def->bg_tiles_n[to_map];
-        if (same && spare + used + need <= TILE_SPRITE_INDEX) {
+        if (same && spare + used + need <= TRANS_VRAM_END) {
             bg_tiles_new = (u16)(spare + used);
             // one entry per 32-tile block, so a big parallax set is chunked too
             for (u16 t = 0; t < need; t += TRANS_DMA_CHUNK) {
