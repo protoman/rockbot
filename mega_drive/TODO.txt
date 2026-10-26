@@ -1,74 +1,142 @@
-Still open:
-BUG-021 (GAMBIT facing),
-BUG-022/023/024 (Seahorse tileset / fade / after-ladder),
-BUG-028 (boss dialog panel — well-defined: quantize dialog.png into PAL0),
-BUG-029 (YOU GOT).
+=====================================================================================================================================================================
+BUGS
+=====================================================================================================================================================================
+items_after_menu.png
 
 
-MAGE
-- jogador de cartas a carta não está flipped na direção correta
-
-SEAHORSE
-- ao iniciar fase do seahorse, tileset está errado/incompleto
-- todos os links da case estão com fade. Talvez porque joguei na sequência após a fase do mage?
-- após sair pelo segundo, o tileset fica corrompido/incompleto
-- porta de sub boss faz o scroll muito rápido, e mantém o player para o lado direto da tela (deveria mover ele para a esquerda)
-- peixe deixa a água, ele não pode fazer isto, a versão PC tem uma checagem isso
+2. The slowdown needs one measurement.
 
 
-GERAL:
-- checkpoint não está mostrando animação ao ser ativado
-- velocidade do slide está igual à de andar, deveria ser 1.5x
-- background de diálogo de chefes ainda está ausente
-- implementar "you got" screen
-- font após vencer um estágio fica corrompida
+- wall shooter - the projectile should be in a diagonal in the direction of the player
+  # while it is correct the do not use the missile because we do not have image rotation,
+  # thje direction part still should still work the same as in PC version
 
+- there is no indicator on charging when you reach the full-charged shot
+  # because we have limited colors, we should do something like blinking faster instead.
 
+- charged shot should be consumed once hitting an enemy
 
+- all enemies speed are faster than on pc, we need to slow them down a bit (let's start with 30 percent)
 
+- the door animation works differently on PC. It does not slide down like you did (and it broken by the way)
+  # while it if very fast to see well on PC (a bug in speed there), I remember the code
+  # the idea is that the door starts opening from the center to the borders
+  # and close from the borders to the center
+  # something like this (opening):
+    # # # .
+    # # . .
+    # . . .
+    # . . .
+    # # . .
+    # # # .
 
+=====================================================================================================================================================================
 
+1. A bug, root cause unknown — BUG-043 (slide crash in APE)
+- What: your crash_slide.png. Sprite.frame held garbage (0x02400EEE) and SPR_update dereferenced it → ADDRESS ERROR.
+- Known: the trigger is an out-of-range frame/animation index that release builds don't check.
+- Done so far: sprite_guard.c now wraps every SPR_setAnim/SPR_setFrame in the port — it refuses the bad index and prints it over KDEBUG instead of crashing.
+- Still needed: a reproduction at your spot. My attempts (stage 0, and stage 1 via -DMD_TEST_STAGE=1, several slide/fire passes) produced no report. With the guard in, the next crash becomes a log line naming the art definition — that's the missing piece.
+- What would help from you: where in APE it happened (near the boss? a specific ledge/enemy?) and roughly what was on screen.
 
-1. In stage 13, kill the DESTRIN TANK normally — the port should replace it with DESTRIN SHIP (small flying ship), not leave a corpse or crash. Tell me what you see.
-2. Hit a DYNAMITE BOT (stage 6 or 13) once — it should do a short dash on the hit frame.
-3. Hit a WASPER (stage 12) once — it should switch to its flying pattern.
+2. A missing engine feature, nothing broken today — bg0 auto_scroll
+- What: PC maps can set a background scroll mode (UP/DOWN/LEFT/RIGHT) so the backdrop moves by itself, independent of the camera. The port stores StageBgInfo.auto_scroll and ignores it — the bg always follows the camera.
+- Who needs it: only RockDroid2 stage 3 (mode 3 = LEFT, 1.8 px/frame). No converted RockDroid1 stage uses it, so this is preparation, not a current defect. UP/DOWN/DIAGONAL would also need the plane's vertical scroll and its 256 px wrap.
 
+3. Two small PC-parity gaps (cosmetic/UI)
+- Tooltip special names: on the PC, COIL/JET/E-TANK/W-TANK/S-TANK replace the weapon name with item text and counts (e.g. E-TANK [3]). The port always shows weapon_data[].name.
+- "Characters unlocked" warning: on the PC, picking player 3/4 before unlocking shows a warning; the port silently refuses.
 
-
-Handover:
-State
-- Rockbot tree clean for our work; make and make check-vram green.
-- Emulator stopped. Test SRAM restored to the original save.
-- No changes were made in the Atari project.
-Recent commits
-- a45ea63c menu text stripes: hide BG_B while menu is open.
-- dfad13e1 weapon grid aligned to tile bars; restore animated tiles + all palettes on close.
-- 300d61d6 docs/play-test notes.
-- 361cc530 stage select: defeated boss faces greyed via PAL1 grey ramp; cursor moved to PAL0.
-Verified
-- Menu text, icons/bars, alignment, selected/unselected colours, close restoration.
-- Stage 1, 3 (water), 4, 6 start correctly.
-- Grey faces with partial save: stages 1/3/6 grey, others coloured.
-- Castle/Dr Destrin centre slot still works.
-Open / next
-- Reported Ape crash and Dynamite later-room tile/fall bugs were not reproduced in a short pass; need the exact rooms.
-- Mummy stair fade/sub-boss door reports are likely fixed but not re-tested in-room.
-- Music/audio integration still not validated on emulator.
-- mega_drive/HANDOUT.md has the current notes.
-- Do not commit user files: game.cpp, mega_drive/TODO.txt, art/title_rock_and_beta.png, src/title64_*.
-Trap worth passing on
-- BlastEm SRAM is at ~/.local/share/blastem/rom/save.sram; the game’s slot record for slot 0 is at file byte 8 (RB, stages at byte 10), not byte 16. Writing test saves at 16 silently fails.
+4. Housekeeping worth remembering
+- src/save.c still carries a temporary test hack (seeds slot 1 with the intro cleared so runs can reach the stage select) — marked BUG-T01, meant to be deleted before content-complete.
+- RockDroid2's object types 27/28/33, quicksand and the foreground-layer composite are implemented but untested against real RockDroid2 data (its stages aren't converted yet).
+So: one real bug needing a repro (1), one feature for future data (2), two small parity items (3), and cleanup (4). Nothing there is urgent for RockDroid1 play.
 
 
 
-Waterfall physics and HUD polish remain
 
 
 
-/home/iuri/Desenvolvimento/rockbot/mega_drive/tools/mod2vgm/build/mod2vgm /home/iuri/Desenvolvimento/rockbot/build/games/RockDroid1/music/rockbot_daisy_bot.mod /home/iuri/Desenvolvimento/rockbot/mega_drive/tools/mod2vgm/rockbot_daisy_bot.vgm
 
-- dropping from a ladder that has a teleporter link on the bottom part, does not start the teleporter, player stands over the bottom of the screen instead.
-- dropping from a ladder pressing jump, still makes player sdand over the bottom of the ladder.
+
+
+- Effects batch (dash dust, water splash, bubble, teleport flash): each needs converted art + a sprite-effect pool. Queued, not stubbed.
+- Weapon tooltip: no clean text path over the scrolling stage yet — plan is draw‑then‑stage_force_redraw().
+- Quicksand: no converted stage uses terrain 9 (audit_data shows the per‑stage terrain sets), so implementing physics blind risks the player collision for zero visible gain. Documented with the PC constants for when a map uses it.
+
+========================================================================================================================================================
+
+Not done — and why, not hand-waved
+- SHOW_ANIMATION (used exactly once, scene 0): needs the images/scenes/animations/ art converted from scenes_show_animation.dat (6 records with frame_w/h/delay) plus a timed BG_B loop. Real work, next session's first item.
+
+
+- Not gaps at all (recorded so the list stops growing): boss "ground shake" has no PC shake (boss_hit_ground() is an animation switch) and TERRAIN_DOOR only exists for the PC's tile3 door redraw — the port draws doors as objects.
+
+
+
+#########################################################################################################################################################
+
+
+
+
+
+
+
+
+
+That's the next chunk: implement the jump options, starting with TO_ROOF; it needs a careful pass on gravity/landing in enemy.c, so I'd rather not rush it into this batch blindly — say the word and I take it next.
+
+
+mega_drive/HANDOFF.md
+
+
+Beta bot colors are all wrong (no, he is not charging shot or anything like that). Check screnshots/bugs/playtest/betabot_colors.png.
+  # The HP bar is also broken
+
+Checkpoint still does not start animation/change-frame when activated. Check PC version for the mechanism.
+
+Slowdown in intro-stage on the part with several objects (up or down active platforms plus small hp).
+
+Boss dialog font backgrpound should be of same color the the dialog background, check boss_dialog_text_bg.png.
+  # the arrow should be white with a transparent background, something went wrong with that image.
+
+Boss and player explosion are not correct. Check PC version. The explosion animations should move away from the center.
+
+Here is the bad font in stage-select screenshot you asked for: stage_select_bad_font.png (same as before, I will not give new ones until I see changes).
+
+I did start a new game, defeated Milonga, then went to Seahorse, and his intro, before the stage start, did not play at all, only the music, as I had reported before.
+  # After I enter Seahorse stage, the player is nowhere to be found on screen.
+  # I could see his projectiles, but not the sprite.
+  # after doing some jumping and shooting, got this: crash_seahorse_second_played_stage.png
+
+
+
+In, waiting for a play-test
+- BUG-006 — sub-boss door opens but the screen never scrolls to the boss room (fixes in)
+- BUG-021 — MAGE enemy shot not flipped when fired left
+- BUG-025 — door scroll: 2.5-tile push + objects/enemies now follow the scroll
+- BUG-028 — dialog panel opaque (art padded to 320×72)
+- BUG-029 — "YOU GOT" screen (PC sequence)
+- BUG-030 — font after winning a stage (PAL0 reload)
+- BUG-034 — checkpoint respawn is now stage-wide (loads the checkpoint room)
+
+Open bugs
+- BUG-010 — Mummy keeps facing away from the player (analysis done, fix needs a decision)
+- BUG-011 — enemies never switch to the teleport/jump animation rows (probably global; blocks BUG-010)
+- BUG-012 — projectiles not cleared when the boss dies (needs a reproduction)
+- BUG-013 — "YOU GOT" layout still differs from the PC
+- BUG-014 — stage select shows garbage text after beating Mummy
+- MAGE — card thrower sprite not flipped toward the player
+- DYNAMITE BOT — should do a short dash on the hit frame
+
+Features from PLAN.md
+- Ending / scene player ops: MOVE_VIEWPOINT, SHOW_ANIMATION, SUBSCENE, music/sfx ops
+- Boss: intro sprites (fall-in), ground shake on landing, sub-boss revive, teleport/jump animation rows
+- Small: weapon tooltip (needs sprite art), water bubbles, teleport-small flash, dark mode, autoscroll out-of-screen damage, quake block_jump
+- Enemy AI actions the shipped data does not use (low priority)
+
+Say the word and I'll sweep the stale **Status** lines in bugs.md to match this list.
+
 
 ========================================================================================================================================================
 Dynamite Stage Bugs
