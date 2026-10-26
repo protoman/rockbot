@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 """Verdict from a MD_TRANS_DEBUG run (src/transition.c probes), no pictures.
 
-Usage: tools/trans_log.py LOGFILE      (BlastEm stdout / KDEBUG console text)
+Usage: tools/trans_log.py LOGFILE      (text log, or BlastEm's save.sram: the
+                                        probes write ASCII at byte 0x4000)
        tools/trans_log.py --selftest
+
+The game cannot be read through KDEBUG here, so a run writes its lines to SRAM
+and the file ~/.local/share/blastem/rom/save.sram is read after a NORMAL exit.
 
 Reads the `TRS` / `TR` / `TRF` lines of every transition and answers, in order:
   1. Did the outgoing tileset survive?   (out_bad at pre / post-load / end)
@@ -76,6 +80,20 @@ def verdict(run):
     return out
 
 
+def sram_text(raw):
+    """Text of the probe log from a text file or a raw SRAM image."""
+    if b"TRS" in raw and len(raw) < 1 << 20 and raw[:4] != b"\0\0\0\0":
+        txt = raw.decode("latin1")
+        if "TRS from=" in txt:
+            return txt
+    region = raw[0x4000:0x8000]
+    for cand in (region, region.replace(b"\x00", b""),
+                 raw[0x4000::2], raw[0x4001::2]):
+        if b"TRS from=" in cand:
+            return cand.replace(b"\x00", b"\n").decode("latin1")
+    return ""
+
+
 SELF = """TRS from=0 to=1 spare=387 cam=2880 dcam=0 t2b=1 qmax=80
 TR pre out_bad=0/131 first=65535
 TRS tiles_used=77 numTile=77 dest_bg=0 bg_new=0
@@ -91,7 +109,11 @@ TRF i=1 plane_bad=5 first r=10 c=7 vram=5E60 want=21A3 in_bad=1/8 out_bad=0/8
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print(__doc__); sys.exit(2)
-    text = SELF if sys.argv[1] == "--selftest" else open(sys.argv[1], errors="replace").read()
+    if sys.argv[1] == "--selftest":
+        text = SELF
+    else:
+        raw = open(sys.argv[1], "rb").read()
+        text = sram_text(raw)
     runs = parse(text)
     if not runs:
         print("no TRS/TR/TRF lines found (is this a MD_TRANS_DEBUG run?)")

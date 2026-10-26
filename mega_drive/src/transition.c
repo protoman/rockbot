@@ -192,6 +192,28 @@ static void apply_tile3(u16 *buf, u8 map, u16 mt0)
 // console, so a single log answers "RAM right, VRAM wrong?" without pictures.
 // Log lines start with "TR" and are parsed by tools/trans_log.py.
 #include "tdump.h"
+#include <stdarg.h>
+
+// KDEBUG output is not capturable on this machine (blastem_debug.md), so the
+// probe lines go to a spare SRAM region as ASCII, 0x4000.., and are read from
+// ~/.local/share/blastem/rom/save.sram after a NORMAL exit (SRAM is flushed
+// only then). The save code uses bytes 0..~130, nothing near 0x4000.
+#define DBG_SRAM_BASE 0x4000
+#define DBG_SRAM_END  0x7F00
+static u16 dbg_pos;
+
+static void dbg_log(const char *fmt, ...)
+{
+    char buf[160];
+    va_list ap;
+    va_start(ap, fmt);
+    vsprintf(buf, fmt, ap);
+    va_end(ap);
+    SRAM_enable();
+    for (const char *c = buf; *c && DBG_SRAM_BASE + dbg_pos < DBG_SRAM_END; c++)
+        SRAM_writeByte(DBG_SRAM_BASE + dbg_pos++, (u8)*c);
+    SRAM_writeByte(DBG_SRAM_BASE + dbg_pos, 0);   // terminator after the last line
+}
 
 static u8 dbg_slot_local[TRANS_TILES];   // incoming slot -> tileset tile
 static u16 dbg_tile_used;                // incoming tile slots (no parallax)
@@ -214,7 +236,7 @@ static void dbg_check_out(const char *tag, u8 from_map)
     const TileSet *t = stage_def->tile_sets[from_map];
     u16 bad = 0, first = 0xFFFF;
     if (t->compression != COMPRESSION_NONE) {
-        kprintf("TR %s out: tileset compressed, skipped\n", tag);
+        dbg_log("TR %s out: tileset compressed, skipped\n", tag);
         return;
     }
     for (u16 n = 0; n < t->numTile; n++) {
@@ -223,7 +245,7 @@ static void dbg_check_out(const char *tag, u8 from_map)
             bad++;
         }
     }
-    kprintf("TR %s out_bad=%u/%u first=%u\n", tag, bad, t->numTile, first);
+    dbg_log("TR %s out_bad=%u/%u first=%u\n", tag, bad, t->numTile, first);
 }
 
 // Incoming tile slots: trans_tiles (RAM) is the reference.
@@ -236,7 +258,7 @@ static void dbg_check_in(const char *tag, u16 spare)
             bad++;
             if (shown < 4) {
                 const u16 *rw = (const u16 *)r;
-                kprintf("TR %s in slot=%u tile=%u vram=%04X %04X %04X %04X "
+                dbg_log("TR %s in slot=%u tile=%u vram=%04X %04X %04X %04X "
                         "ram=%04X %04X %04X %04X\n", tag, spare + sl,
                         dbg_slot_local[sl], v[0], v[1], v[2], v[3],
                         rw[0], rw[1], rw[2], rw[3]);
@@ -244,7 +266,7 @@ static void dbg_check_in(const char *tag, u16 spare)
             }
         }
     }
-    kprintf("TR %s in_bad=%u/%u\n", tag, bad, dbg_tile_used);
+    dbg_log("TR %s in_bad=%u/%u\n", tag, bad, dbg_tile_used);
 }
 
 // Per slide frame: VDP registers, queue state, the whole visible plane A
@@ -274,10 +296,10 @@ static void dbg_frame(u16 i, u16 base, u16 spare, u8 from_map)
             obad += dbg_tile_bad((u16)(TILE_USER_INDEX + (k * t->numTile) / 8),
                 &t->tiles[((k * t->numTile) / 8) * 8], NULL) ? 1 : 0;
     }
-    kprintf("TRF i=%u base=%u r15=%02X r16=%02X r17=%02X r18=%02X r11=%02X "
+    dbg_log("TRF i=%u base=%u r15=%02X r16=%02X r17=%02X r18=%02X r11=%02X "
             "q=%u\n", i, base, VDP_getReg(15), VDP_getReg(16), VDP_getReg(17),
             VDP_getReg(18), VDP_getReg(11), DMA_getQueueSize());
-    kprintf("TRF i=%u plane_bad=%u first r=%u c=%u vram=%04X want=%04X "
+    dbg_log("TRF i=%u plane_bad=%u first r=%u c=%u vram=%04X want=%04X "
             "in_bad=%u/8 out_bad=%u/8\n", i, pbad, fr, fc, fv, fe, ibad,
             obad);
 }
@@ -299,7 +321,7 @@ return FALSE; }
 
     const s16 dcam = clamp_cam_x(to_cam_x);
 #ifdef MD_TRANS_DEBUG
-    kprintf("TRS from=%u to=%u spare=%u cam=%d dcam=%d t2b=%u qmax=%u\n",
+    dbg_log("TRS from=%u to=%u spare=%u cam=%d dcam=%d t2b=%u qmax=%u\n",
             from_map, to_map, spare, camera.x, dcam, top_to_bottom,
             DMA_getMaxQueueSize());
     dbg_check_out("pre", from_map);
@@ -420,7 +442,7 @@ return FALSE; }
     // drain whatever tile transfers are still queued before the slide starts
     SYS_doVBlankProcess();
 #ifdef MD_TRANS_DEBUG
-    kprintf("TRS tiles_used=%u numTile=%u dest_bg=%u bg_new=%u\n", used,
+    dbg_log("TRS tiles_used=%u numTile=%u dest_bg=%u bg_new=%u\n", used,
             ts.numTile, dest_bg, bg_tiles_new);
     dbg_check_in("post-load", spare);
     dbg_check_out("post-load", from_map);
