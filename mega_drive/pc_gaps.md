@@ -96,9 +96,19 @@ Checked against the PC source; the older `pc_features_vs_md.md` is stale for the
       (only reachable from `ia_action_quake_attack`, which has no caller),
       `classnpc::boss_move` (generic boss intro; the attack patterns are the
       data-driven AI the port already runs).
-- [ ] Still open, cosmetic: the castle-path line animation between castle stages
-      (`draw_castle_path`, `sceneslib.cpp:880`), the teleport after-image trail,
-      drop-table difficulty rows (the port has one difficulty).
+- [x] Castle-path line animation between castle stages (2026-10-26): `castle_path.c`
+      overlays the PC's path (`draw_castle_path`, `sceneslib.cpp:871-901`) on BG_A over
+      the art, earlier segments at once and the current one over 1000ms, a marker on
+      each reached point. `tests/host/castle_path_test.c` checks all 7 segments
+      against a Python transliteration of the PC code.
+- [x] After-image trail (2026-10-26): it is the PC's slide/dash effect
+      (`character::show_previous_sprites`), NOT the teleport - the old table
+      mislabelled it. Three flickering ghost sprites; the enemy variant
+      (`FLY DASH_TO_PLAYER`) is not used by any converted stage.
+- DROPPED by the owner (2026-10-26): drop-table difficulty rows - the port has one
+      difficulty.
+- Boss door: the port opens centre-out, the PC retracts bottom-up one tile per
+      100ms (`classMap::redraw_boss_door`). Owner's decision: ours is better, keep it.
 - Kept as documented deviations: slide speed (4px steps need sub-tile vertical
       scrolling of both planes), charge indicator (owner asked for a faster blink
       instead of the PC's 3-colour cycle).
