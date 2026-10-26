@@ -11,6 +11,7 @@
 #include "boss_intro_bg_tiles.h"
 #include "boss_intro_bg_map.h"
 #include "castle64_map.h"
+#include "castle_path.h"
 #include "castle64_tiles.h"
 #include "castle64_pal.h"
 
@@ -29,30 +30,38 @@
 // PC stage_select::classic_style_castle_intro (stage_select.cpp:600), shown
 // before a castle #1 stage. Full-screen art through the four-line pipeline
 // (tools/title64.py), same drawing path as the title.
-static void castle_screen(void)
+static void castle_screen(u8 stage)
 {
     VDP_loadTileData(castle64_tiles_data, TILE_USER_INDEX,
                      CASTLE64_TILE_COUNT, DMA);
     for (u8 L = 0; L < 4; L++)
         pal_load((u16)(PAL0 + L), castle64_pal[L]);
     VDP_setBackgroundColor(0);
-    VDP_fillTileMapRect(BG_B,
-                        TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, TILE_FONT_INDEX),
-                        0, 0, 64, 32);
+    // The art goes on BG_B so BG_A is free for the path overlay (castle_path.c).
+    VDP_clearPlane(BG_A, TRUE);
     static u16 cells[CASTLE64_W * CASTLE64_H];
     for (u16 i = 0; i < CASTLE64_W * CASTLE64_H; i++) {
         u16 e = castle64_map[i];
         cells[i] = (u16)((e & ~TILE_INDEX_MASK) |
                          (TILE_USER_INDEX + (e & TILE_INDEX_MASK)));
     }
-    VDP_setTileMapDataRect(BG_A, cells, 0, 0, CASTLE64_W, CASTLE64_H,
+    VDP_setTileMapDataRect(BG_B, cells, 0, 0, CASTLE64_W, CASTLE64_H,
                            CASTLE64_W, CPU);
     music_play(MUSIC_CASTLE_INTRO);
+    // PC classic_style_castle_intro: the path to this stage is drawn first (the
+    // last segment animated), then the screen holds for 6.5s. Stage 9 is the
+    // first castle stage.
+    castle_path_run((u8)(stage - 9));
     for (u16 f = 0; f < CASTLE_FRAMES; f++) {
         SYS_doVBlankProcess();
         VDP_setReg(17, 0);
         VDP_setReg(18, 0);
     }
+    // leave the planes as boss_intro_run expects: BG_A clear, BG_B blank
+    VDP_clearPlane(BG_A, TRUE);
+    VDP_fillTileMapRect(BG_B,
+                        TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, TILE_FONT_INDEX),
+                        0, 0, 64, 32);
 }
 
 void boss_intro_run(u8 stage)
@@ -67,7 +76,7 @@ void boss_intro_run(u8 stage)
     VDP_setVerticalScroll(BG_B, 0);
     VDP_clearPlane(BG_B, TRUE);
 
-    if (stage >= 9) castle_screen();
+    if (stage >= 9) castle_screen(stage);
 
     music_play(MUSIC_BOSS_INTRO);
     VDP_loadTileData(boss_intro_bg_tiles_data, BOSS_INTRO_TILE_BASE,
