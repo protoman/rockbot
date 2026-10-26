@@ -3,6 +3,11 @@
 #include "resources.h"
 #include "sprite_guard.h"
 
+#include "dbglog.h"
+
+#ifdef MD_LINK_DEBUG
+static u8 lk_dbg_frames;   // frames still logged after a room change
+#endif
 #include "stage.h"
 #include "tdump.h"
 #include "pal_safe.h"
@@ -590,6 +595,18 @@ static RunResult runStage(u8 stage)
         prof_tick(PROF_HUD);
 #endif
 
+#ifdef MD_LINK_DEBUG
+        if (lk_dbg_frames) {
+            lk_dbg_frames--;
+            if ((lk_dbg_frames % 6) == 0)
+                dbg_log("LKF t=%u x=%d y=%d vy=%d ladder=%u cam=%d under=%u\n",
+                        120 - lk_dbg_frames, player.x, player.y,
+                        (s16)F16_toInt(player.vy), player.on_ladder, camera.x,
+                        stage_terrain_at(stage_current_map,
+                            (player.x + (PLAYER_BOX_L + PLAYER_BOX_R) / 2) / 16,
+                            (player.y + PLAYER_BOX_B) / 16));
+        }
+#endif
         s16 bl, bt, br, bb;
         player_get_box(&bl, &bt, &br, &bb);
 
@@ -656,11 +673,25 @@ static RunResult runStage(u8 stage)
             // PC keeps the player at the same SCREEN X across the slide (the
             // two link tiles line up): place the destination camera so the
             // arrival point lands where the player stands now.
-            s16 keep_sx = player.x + (PLAYER_BOX_L + PLAYER_BOX_R) / 2 - camera.x;
+            // Teleporter links (type >= 2) jump across the map: the PC fades
+            // instead of sliding (game.cpp:709) and centres the camera on the
+            // arrival, so only the scroll links keep the screen X.
+            const bool teleporter = stage_link_type >= 2;
+            s16 keep_sx = teleporter ? 160
+                : player.x + (PLAYER_BOX_L + PLAYER_BOX_R) / 2 - camera.x;
             if (keep_sx < 0) keep_sx = 0;
             if (keep_sx > 319) keep_sx = 319;
             const s16 cam_x = stage_arrival_camera_keep(
                 to_map, px + (PLAYER_BOX_L + PLAYER_BOX_R) / 2, keep_sx);
+#ifdef MD_LINK_DEBUG
+            dbg_log("LK from=%u to=%u trans=%u type=%u old_x=%d old_y=%d "
+                    "cam_old=%d keep_sx=%d band_off=%d to_x=%d to_y=%d "
+                    "stair_col=%d on_stair=%u px=%d py=%d cam_new=%d\n",
+                    stage_current_map, to_map, to_trans, stage_link_type,
+                    player.x, player.y, camera.x, keep_sx,
+                    stage_link_band_off, to_x, to_y, stair_col, on_stair, px,
+                    py, cam_x);
+#endif
 #ifdef MD_LINK_TRACE
             // Offline-first rule then one emulator run: print exactly what the
             // arrival computes for the ladder / room-change reports.
@@ -679,9 +710,9 @@ static RunResult runStage(u8 stage)
             // in vertically (game.cpp:1067). Where the destination screen's
             // tiles do not fit in the free VRAM block the palette fade is
             // still used (see transition.c).
-            const bool scrolled = transition_scroll(stage_current_map, to_map,
-                                                    cam_x, px, py,
-                                                    to_trans == TRANS_T2B);
+            const bool scrolled = !teleporter &&
+                transition_scroll(stage_current_map, to_map, cam_x, px, py,
+                                  to_trans == TRANS_T2B);
             if (!scrolled) PAL_fadeOutAll(10, FALSE);
 
             // Show the destination at its arrival camera on the first drawn
@@ -721,6 +752,14 @@ static RunResult runStage(u8 stage)
             player_get_box(&bl, &bt, &br, &bb);
             stage_arrival_camera_at(cam_x, (bt + bb) / 2);
             player_sync_sprite();   // else it flashes at the old screen spot
+#ifdef MD_LINK_DEBUG
+            dbg_log("LKA scrolled=%u x=%d y=%d on_ladder=%u cam=%d under=%u\n",
+                    scrolled, player.x, player.y, player.on_ladder, camera.x,
+                    stage_terrain_at(stage_current_map,
+                        (player.x + (PLAYER_BOX_L + PLAYER_BOX_R) / 2) / 16,
+                        (player.y + PLAYER_BOX_B) / 16));
+            lk_dbg_frames = 120;
+#endif
 
             if (!scrolled) {
                 // fade back in: PAL_fadeInAll needs all 64 CRAM entries, so

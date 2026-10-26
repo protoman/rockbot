@@ -613,6 +613,7 @@ bool stage_link_band_hit(s16 left, s16 top, s16 right, s16 bottom)
 }
 
 s16 stage_link_band_off;   // player centre minus trigger band start (px)
+u8 stage_link_type;        // PC LINK_TYPES of the link that just fired (>=2: teleporter)
 
 bool stage_check_link(s16 left, s16 top, s16 right, s16 bottom,
                       u8 *to_map, s16 *to_x, s16 *to_y, u8 *to_trans)
@@ -677,6 +678,7 @@ bool stage_check_link(s16 left, s16 top, s16 right, s16 bottom,
             // land at the same relative place instead of snapping to the
             // destination tile centre.
             stage_link_band_off = px - (s16)tx * stage_def->tile;
+            stage_link_type = lk->type;
             *to_map = dst_map;
             *to_x   = (s16)dst_x * stage_def->tile;
             *to_y   = (s16)dst_y * stage_def->tile;

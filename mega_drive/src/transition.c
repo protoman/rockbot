@@ -192,28 +192,7 @@ static void apply_tile3(u16 *buf, u8 map, u16 mt0)
 // console, so a single log answers "RAM right, VRAM wrong?" without pictures.
 // Log lines start with "TR" and are parsed by tools/trans_log.py.
 #include "tdump.h"
-#include <stdarg.h>
-
-// KDEBUG output is not capturable on this machine (blastem_debug.md), so the
-// probe lines go to a spare SRAM region as ASCII, 0x4000.., and are read from
-// ~/.local/share/blastem/rom/save.sram after a NORMAL exit (SRAM is flushed
-// only then). The save code uses bytes 0..~130, nothing near 0x4000.
-#define DBG_SRAM_BASE 0x4000
-#define DBG_SRAM_END  0x7F00
-static u16 dbg_pos;
-
-static void dbg_log(const char *fmt, ...)
-{
-    char buf[160];
-    va_list ap;
-    va_start(ap, fmt);
-    vsprintf(buf, fmt, ap);
-    va_end(ap);
-    SRAM_enable();
-    for (const char *c = buf; *c && DBG_SRAM_BASE + dbg_pos < DBG_SRAM_END; c++)
-        SRAM_writeByte(DBG_SRAM_BASE + dbg_pos++, (u8)*c);
-    SRAM_writeByte(DBG_SRAM_BASE + dbg_pos, 0);   // terminator after the last line
-}
+#include "dbglog.h"
 
 static u8 dbg_slot_local[TRANS_TILES];   // incoming slot -> tileset tile
 static u16 dbg_tile_used;                // incoming tile slots (no parallax)

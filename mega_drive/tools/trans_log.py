@@ -82,14 +82,14 @@ def verdict(run):
 
 def sram_text(raw):
     """Text of the probe log from a text file or a raw SRAM image."""
-    if b"TRS" in raw and len(raw) < 1 << 20 and raw[:4] != b"\0\0\0\0":
+    if (b"TRS" in raw or b"LK from=" in raw) and len(raw) < 1 << 20 and raw[:4] != b"\0\0\0\0":
         txt = raw.decode("latin1")
-        if "TRS from=" in txt:
+        if "TRS from=" in txt or "LK from=" in txt:
             return txt
     region = raw[0x4000:0x8000]
     for cand in (region, region.replace(b"\x00", b""),
                  raw[0x4000::2], raw[0x4001::2]):
-        if b"TRS from=" in cand:
+        if b"TRS from=" in cand or b"LK from=" in cand:
             return cand.replace(b"\x00", b"\n").decode("latin1")
     return ""
 
