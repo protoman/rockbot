@@ -454,7 +454,7 @@ return FALSE; }
         static u16 bgrow[64];
         for (s16 r = 0; r < TRANS_ROWS; r++) {
             bg_row_cells(bgrow, from_map, r, stage_bg_tile_base, vscroll);
-            VDP_setTileMapData(BG_B, bgrow, (u16)(r * 64), 64, 1, CPU);
+            VDP_setTileMapData(VDP_BG_B, bgrow, (u16)(r * 64), 64, 2, CPU);
         }
     }
     const s16 bg_old = bg_offset(from_map, camera.x);
@@ -527,7 +527,7 @@ return FALSE; }
                                     BG_PAL, FALSE, FALSE, FALSE,
                                     stage_sky_tile());
                         }
-                        VDP_setTileMapData(BG_B, bgrow, (u16)(r * 64), 64, 1,
+                        VDP_setTileMapData(VDP_BG_B, bgrow, (u16)(r * 64), 64, 2,
                                            DMA_QUEUE);
                     }
                 }
@@ -543,7 +543,7 @@ return FALSE; }
                                     BG_PAL, FALSE, FALSE, FALSE,
                                     stage_sky_tile());
                         }
-                        VDP_setTileMapData(BG_B, bgrow, (u16)(r * 64), 64, 1,
+                        VDP_setTileMapData(VDP_BG_B, bgrow, (u16)(r * 64), 64, 2,
                                            DMA_QUEUE);
                     }
                 }

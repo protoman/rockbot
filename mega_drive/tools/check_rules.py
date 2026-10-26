@@ -45,6 +45,13 @@ RULES = [
      "enemies stop at solid map objects instead of walking through them",
      [("src/enemy.c", r"objects_block_box\(lead, e->y \+ d->box_t")],
      []),
+    ("transition-plane-address",
+     "VDP_setTileMapData takes the plane ADDRESS (VDP_BG_B) and a byte step of 2; "
+     "passing the BG_B enum wrote the parallax rows over VRAM 0.. (the outgoing "
+     "tileset) and left the auto-increment at 1 (the transition artifacts)",
+     [("src/transition.c", r"VDP_setTileMapData\(VDP_BG_B, bgrow, \(u16\)\(r \* 64\), 64, 2,")],
+     [("src/transition.c", r"VDP_setTileMapData\(\s*(BG_[AB]|WINDOW)\b"),
+      ("src/transition.c", r"VDP_setTileMapData\([^;]*,\s*64,\s*1,")]),
     ("wall-bomb-only",
      "only an exploding bomb breaks a destructible wall (type 22)",
      [("src/object.c", r"if \(ty == 22 && !bomb\) continue;"),
