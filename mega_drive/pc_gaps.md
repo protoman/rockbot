@@ -83,6 +83,26 @@ Still open (PC does it, the port does not):
       indicator, wall-shooter diagonal aim, door opening from the centre, enemy
       speed vs the PC) is NOT audited against the PC source yet.
 
+### Verification pass 2026-10-26 (the "unverified" part of the list above)
+
+Checked against the PC source; the older `pc_features_vs_md.md` is stale for these:
+- [x] BEAM / disappearing-block / wall-break SFX already existed. Three PC sounds
+      had NO counterpart and were added: shot reflected (`projectilelib.cpp:1232/
+      1248`), shoryuken voice (`classplayer.cpp:222`, replaces the jump sound),
+      big energy pill `recharge.wav` (`character.cpp:2721`).
+- [x] Autoscroll out-of-screen damage exists (`player_screen_edge_update`).
+- NOT GAPS (PC dead code, verified by grep): `show_in_memorian` (defined, never
+      called), `set_screen_shake` (no callers), `block_jump` / `ground_damage_players`
+      (only reachable from `ia_action_quake_attack`, which has no caller),
+      `classnpc::boss_move` (generic boss intro; the attack patterns are the
+      data-driven AI the port already runs).
+- [ ] Still open, cosmetic: the castle-path line animation between castle stages
+      (`draw_castle_path`, `sceneslib.cpp:880`), the teleport after-image trail,
+      drop-table difficulty rows (the port has one difficulty).
+- Kept as documented deviations: slide speed (4px steps need sub-tile vertical
+      scrolling of both planes), charge indicator (owner asked for a faster blink
+      instead of the PC's 3-colour cycle).
+
 # PC features the MD port is missing (source audit)
 
 Purpose: the list of things the PC does that the port does not, found by reading
