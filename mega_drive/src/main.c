@@ -653,8 +653,14 @@ static RunResult runStage(u8 stage)
             }
             // The arrival camera must be known before the destination map is
             // loaded, so the transition knows which screen to slide in.
-            const s16 cam_x = stage_arrival_camera_x(
-                to_map, px + (PLAYER_BOX_L + PLAYER_BOX_R) / 2);
+            // PC keeps the player at the same SCREEN X across the slide (the
+            // two link tiles line up): place the destination camera so the
+            // arrival point lands where the player stands now.
+            s16 keep_sx = player.x + (PLAYER_BOX_L + PLAYER_BOX_R) / 2 - camera.x;
+            if (keep_sx < 0) keep_sx = 0;
+            if (keep_sx > 319) keep_sx = 319;
+            const s16 cam_x = stage_arrival_camera_keep(
+                to_map, px + (PLAYER_BOX_L + PLAYER_BOX_R) / 2, keep_sx);
 #ifdef MD_LINK_TRACE
             // Offline-first rule then one emulator run: print exactly what the
             // arrival computes for the ladder / room-change reports.

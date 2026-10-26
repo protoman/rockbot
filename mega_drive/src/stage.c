@@ -904,11 +904,22 @@ void stage_arrival_camera_at(s16 cam_x, s16 focusY)
 // column_locked() must see the destination map's scroll locks).
 s16 stage_arrival_camera_x(u8 map, s16 focus_x)
 {
+    return stage_arrival_camera_keep(map, focus_x, 160);
+}
+
+// Same, but the camera is placed so `focus_x` lands at screen column
+// `screen_x` instead of the middle. A room change keeps the player at the SAME
+// screen X on both halves of the slide (PC game.cpp:716: new scroll = old scroll
+// - teleporter_dist, i.e. the two link tiles line up); centring the destination
+// instead left the halves up to 152px apart whenever the origin camera was
+// clamped by a map edge or a scroll lock.
+s16 stage_arrival_camera_keep(u8 map, s16 focus_x, s16 screen_x)
+{
     const u8 save_map = stage_current_map;
     const s16 save_x = camera.x;
     const s16 save_y = camera.y;
     stage_current_map = map;
-    camera.x = focus_x - 160;
+    camera.x = focus_x - screen_x;
     clamp_camera();
     scroll_lock_span(focus_x);
     // scroll_lock_span can push the camera negative: a locked column `c`

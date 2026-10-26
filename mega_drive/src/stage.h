@@ -168,6 +168,9 @@ void stage_arrival_camera_at(s16 cam_x, s16 focusY);
 // touching the plane. The room transition needs it before the destination
 // map is loaded, to know which screen to slide in.
 s16 stage_arrival_camera_x(u8 map, s16 focus_x);
+// ... with `focus_x` at screen column `screen_x` (room changes keep the
+// player's screen X, see stage.c).
+s16 stage_arrival_camera_keep(u8 map, s16 focus_x, s16 screen_x);
 
 // Boss teleporter (OBJ_STAGE_BOSS_TELEPORTER, PC game::object_teleport_boss
 // game.cpp:2199 with must_return=false): reload dest_map, drop the player on
