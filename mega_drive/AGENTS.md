@@ -4,6 +4,17 @@ Working dir: `mega_drive/` (SGDK/MarsDev project). Game source: **parent dir** `
 
 Language: **English** for all code, comments and docs.
 
+## Git (owner rules, 2026-10-26)
+
+- **Commit after every fix or feature**, as soon as it builds - one commit per
+  unit, message with the reproduction/measurement when there is one.
+- **Only `mega_drive/` goes into commits.** The parent repository (the PC game:
+  `../game.cpp`, `../build/...`, ...) is read-only reference: never stage it,
+  even when `git status` shows it modified. Stage files by path
+  (`git add src/foo.c tools/bar.py`), never `git add -A` / `git add .`.
+- Files the owner edits by hand (`TODO.txt`, `tools/emu.sh`) are committed only
+  when asked.
+
 ## SDK (already installed, do not rebuild)
 
 - SDK root: `/mnt/ExtraData/Devel/SDK/MegaDrive/`

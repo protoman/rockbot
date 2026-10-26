@@ -119,6 +119,24 @@ emu_burst() {
     echo "emu_burst: $kept/${count} usable frames of ${name}"
 }
 
+# Burst that starts the instant a pattern appears in the emulator's KDEBUG log.
+# A room transition is ~28 frames: waiting for the LINK trace line (printed just
+# before transition_scroll) puts the whole slide inside the burst, instead of
+# guessing a delay.  emu_burst_on LOG PATTERN NAME COUNT
+emu_burst_on() {
+    local log=${1:?log} pat=${2:?pattern} name=${3:-b} count=${4:-30}
+    local i
+    for i in $(seq 1 400); do
+        if grep -aq -- "$pat" "$log" 2>/dev/null; then
+            emu_burst "$name" "$count"
+            return $?
+        fi
+        sleep 0.02
+    done
+    echo "emu_burst_on: pattern '$pat' never appeared in $log" >&2
+    return 1
+}
+
 emu_record() {
     local name=${1:?name} secs=${2:-4} fps=${3:-60} wid geo x y w h
     wid=$(emu_window) || { echo "emu: no window" >&2; return 1; }
