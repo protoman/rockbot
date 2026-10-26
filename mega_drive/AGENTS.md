@@ -157,7 +157,20 @@ Hard rules, because they were broken twice in one session (2026-10-21):
   running between turns), and ask again for anything the owner should watch.
 - **Ask before every launch.** One explicit permission = one launch. A retry
   with different flags, a `stdbuf`, a different terminal — all new launches,
-  all need a new ask. This includes a *verification* run that follows a test the
+  all need a new ask.
+- **Prepare everything BEFORE asking (owner rule, 2026-10-26).** The ask has to
+  arrive with the work already done: instrumentation compiled in, probes and
+  dumps written, the analysis script ready, the exact launch command decided,
+  and the ROM already built. A launch is one step — the owner must never wait
+  while the build or the probe is still being written. If a run answers nothing,
+  report and prepare the next one; do not rebuild-then-relaunch under the same
+  permission.
+- **A run is ONLY the run (owner rule, 2026-10-26).** The launch step contains the
+  launch (and, if the capture is part of the prepared plan, the capture) and
+  nothing else: no writing scripts, no building, no analysis, no source edits in
+  that step. Scripts, probes, build and the exact commands are ready beforehand;
+  the log/screenshot analysis is a separate step after the emulator is closed.
+  This includes a *verification* run that follows a test the
   user just played, and any run where the agent drives the pad itself: a
   session-long "let's profile" authorises exactly the launch that was asked for,
   not the ones the agent invents afterwards (broken on 2026-10-24: two
