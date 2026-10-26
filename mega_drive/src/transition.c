@@ -72,6 +72,23 @@ static u16 vram_free_base(u8 map)
            (u16)stage_def->anim_slot_n[map] * TILE_ANIM_STRIDE;
 }
 
+// The SGDK DMA queue holds DMA_QUEUE_SIZE_DEFAULT (80) transfers and silently
+// DROPS the rest (dma.c). A window needs 45..200 single-tile transfers plus the
+// parallax block, so queueing them all before the first vblank lost tiles: the
+// VRAM kept whatever it held (noise bands, broken tiles, stray dots). Load in
+// chunks and let a vblank drain the queue between them.
+#define TRANS_DMA_CHUNK 32
+static u16 trans_queued;
+
+static void trans_dma_room(u16 entries)
+{
+    if (trans_queued + entries > TRANS_DMA_CHUNK) {
+        SYS_doVBlankProcess();
+        trans_queued = 0;
+    }
+    trans_queued += entries;
+}
+
 static s16 clamp_cam_x(s16 x)
 {
     s16 max = stage_def->map_w * stage_def->tile - 320;
@@ -221,6 +238,7 @@ return FALSE; }
 return FALSE; }
 
     memset(trans_remap, 0xFF, ts.numTile);
+    trans_queued = 0;
 
     const u8 *t3 = stage_def->tile3_mask + to_map * TRANS_MASK_BYTES;
     u16 used = 0;
@@ -237,6 +255,7 @@ return FALSE; }
                         if (spare + used >= TILE_SPRITE_INDEX) { transition_fail_code = 6;
 return FALSE; }
                         trans_remap[local] = (u8)used;
+                        trans_dma_room(1);
                         VDP_loadTileData(&trans_tiles[local * 8], spare + used,
                                          1, DMA_QUEUE);
                         used++;
@@ -269,12 +288,22 @@ return FALSE; }
         const u16 need = stage_def->bg_tiles_n[to_map];
         if (same && spare + used + need <= TILE_SPRITE_INDEX) {
             bg_tiles_new = (u16)(spare + used);
-            VDP_loadTileData(stage_def->bg_tiles[to_map], bg_tiles_new, need,
-                             DMA_QUEUE);
+            // one entry per 32-tile block, so a big parallax set is chunked too
+            for (u16 t = 0; t < need; t += TRANS_DMA_CHUNK) {
+                const u16 n = (u16)((need - t > TRANS_DMA_CHUNK)
+                                        ? TRANS_DMA_CHUNK : need - t);
+                trans_queued = TRANS_DMA_CHUNK;   // force a drain before it
+                trans_dma_room(1);
+                VDP_loadTileData(stage_def->bg_tiles[to_map] + t * 8,
+                                 (u16)(bg_tiles_new + t), n, DMA_QUEUE);
+            }
             used = (u16)(used + need);
             dest_bg = TRUE;
         }
     }
+
+    // drain whatever tile transfers are still queued before the slide starts
+    SYS_doVBlankProcess();
 
     // Rewrite the outgoing half so it looks the same with BG_B's vertical
     // scroll taken out (rows for the incoming half are filled as they arrive).
