@@ -30,6 +30,7 @@
 //     stage 3 map 0 -> map 1: 104 free, 85 needed).
 
 #include "transition.h"
+#include "dbglog.h"
 
 #include <string.h>
 
@@ -335,6 +336,11 @@ return FALSE; }
     s16 new_hs;
     load_screen(dm, dcam, newbuf, &new_hs, &nmt0);
     MAP_release(dm);
+#if defined(MD_LINK_DEBUG) && !defined(MD_TRANS_DEBUG)
+    dbg_log("TRL ocam=%d dcam=%d old_hs=%d new_hs=%d omt0=%u nmt0=%u "
+            "player_x=%d player_y=%d t2b=%u\n", ocam, dcam, old_hs, new_hs,
+            omt0, nmt0, player_x, player_y, top_to_bottom);
+#endif
 
     // ---- destination tiles: unpack, copy the ones the window uses ---------
     TileSet ts;

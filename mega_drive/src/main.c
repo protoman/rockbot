@@ -599,12 +599,13 @@ static RunResult runStage(u8 stage)
         if (lk_dbg_frames) {
             lk_dbg_frames--;
             if ((lk_dbg_frames % 6) == 0)
-                dbg_log("LKF t=%u x=%d y=%d vy=%d ladder=%u cam=%d under=%u\n",
+                dbg_log("LKF t=%u x=%d y=%d vy=%d ladder=%u cam=%d under=%u pad=%u\n",
                         120 - lk_dbg_frames, player.x, player.y,
                         (s16)F16_toInt(player.vy), player.on_ladder, camera.x,
                         stage_terrain_at(stage_current_map,
                             (player.x + (PLAYER_BOX_L + PLAYER_BOX_R) / 2) / 16,
-                            (player.y + PLAYER_BOX_B) / 16));
+                            (player.y + PLAYER_BOX_B) / 16),
+                        JOY_readJoypad(JOY_1));
         }
 #endif
         s16 bl, bt, br, bb;
@@ -686,11 +687,14 @@ static RunResult runStage(u8 stage)
 #ifdef MD_LINK_DEBUG
             dbg_log("LK from=%u to=%u trans=%u type=%u old_x=%d old_y=%d "
                     "cam_old=%d keep_sx=%d band_off=%d to_x=%d to_y=%d "
-                    "stair_col=%d on_stair=%u px=%d py=%d cam_new=%d\n",
+                    "stair_col=%d on_stair=%u px=%d py=%d cam_new=%d "
+                    "was_ladder=%u dst_tx=%d t_dst=%u\n",
                     stage_current_map, to_map, to_trans, stage_link_type,
                     player.x, player.y, camera.x, keep_sx,
                     stage_link_band_off, to_x, to_y, stair_col, on_stair, px,
-                    py, cam_x);
+                    py, cam_x, player.on_ladder, dst_tx,
+                    stage_terrain_at(to_map, (stair_col >= 0) ? stair_col : dst_tx,
+                                     to_y / tile));
 #endif
 #ifdef MD_LINK_TRACE
             // Offline-first rule then one emulator run: print exactly what the
@@ -753,6 +757,22 @@ static RunResult runStage(u8 stage)
             stage_arrival_camera_at(cam_x, (bt + bb) / 2);
             player_sync_sprite();   // else it flashes at the old screen spot
 #ifdef MD_LINK_DEBUG
+            {
+                const s16 cx_ = (player.x + (PLAYER_BOX_L + PLAYER_BOX_R) / 2) / 16;
+                const s16 cy_ = (player.y + PLAYER_BOX_B) / 16;
+                dbg_log("LKN %u%u%u/%u%u%u/%u%u%u fail=%u failmap=%u freekb=%u\n",
+                    stage_terrain_at(stage_current_map, cx_ - 1, cy_ - 1),
+                    stage_terrain_at(stage_current_map, cx_, cy_ - 1),
+                    stage_terrain_at(stage_current_map, cx_ + 1, cy_ - 1),
+                    stage_terrain_at(stage_current_map, cx_ - 1, cy_),
+                    stage_terrain_at(stage_current_map, cx_, cy_),
+                    stage_terrain_at(stage_current_map, cx_ + 1, cy_),
+                    stage_terrain_at(stage_current_map, cx_ - 1, cy_ + 1),
+                    stage_terrain_at(stage_current_map, cx_, cy_ + 1),
+                    stage_terrain_at(stage_current_map, cx_ + 1, cy_ + 1),
+                    transition_fail_code, transition_fail_map,
+                    transition_fail_free_kb);
+            }
             dbg_log("LKA scrolled=%u x=%d y=%d on_ladder=%u cam=%d under=%u\n",
                     scrolled, player.x, player.y, player.on_ladder, camera.x,
                     stage_terrain_at(stage_current_map,

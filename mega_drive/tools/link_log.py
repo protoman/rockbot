@@ -29,6 +29,12 @@ def main():
         if line.startswith("LK from="):
             cur = {"lk": kv(line), "a": None, "f": []}
             runs.append(cur)
+        elif line.startswith("TRL") and cur:
+            cur["trl"] = kv(line)
+        elif line.startswith("LKN") and cur:
+            m = re.match(r"LKN (\S+) fail=(\d+) failmap=(\d+) freekb=(\d+)", line)
+            if m:
+                cur["n"] = (m.group(1), int(m.group(2)), int(m.group(3)), int(m.group(4)))
         elif line.startswith("LKA") and cur:
             cur["a"] = kv(line)
         elif line.startswith("LKF") and cur:
@@ -48,6 +54,21 @@ def main():
         print(f"   stair_col={k['stair_col']} on_stair={k['on_stair']} "
               f"to=({k['to_x']},{k['to_y']}) band_off={k['band_off']} "
               f"keep_sx={k['keep_sx']}")
+        if "was_ladder" in k:
+            print(f"   before: on_ladder={k['was_ladder']} dst_tx={k['dst_tx']} "
+                  f"terrain at the arrival cell={k['t_dst']} (2 = stair)")
+        t = r.get("trl")
+        if t:
+            print(f"   slide: ocam={t['ocam']} dcam={t['dcam']} old_hs={t['old_hs']} "
+                  f"new_hs={t['new_hs']} (screen x of an origin column c = c*16-"
+                  f"ocam; of a dest column = c*16-dcam)")
+        elif k["type"] < 2:
+            print("   slide: no TRL line -> transition_scroll did not reach the "
+                  "destination load (fade fallback?)")
+        if r.get("n"):
+            rows, fc, fm, fk = r["n"]
+            print(f"   terrain around the feet (rows above/at/below): {rows}; "
+                  f"transition fail code={fc} map={fm} free={fk}KB")
         if a:
             print(f"   arrival: x={a['x']} y={a['y']} on_ladder={a['on_ladder']} "
                   f"cam={a['cam']} under={a['under']}"
@@ -55,6 +76,8 @@ def main():
         if r["f"]:
             lad = [f["ladder"] for f in r["f"]]
             drop = next((f for f in r["f"] if not f["ladder"]), None)
+            pads = sorted({f.get('pad', 0) for f in r['f']})
+            print(f"   pad values seen: {[hex(x) for x in pads]}")
             print(f"   follow-up: {len(r['f'])} samples, y {r['f'][0]['y']} -> "
                   f"{r['f'][-1]['y']}, ladder flag {lad[:12]}")
             if drop:
