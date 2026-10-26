@@ -30,6 +30,9 @@ typedef enum {
     SFX_BLOCK_APPEAR,   // disappearing block becoming visible
     SFX_OBJECT_BREAK,   // destructible wall destroyed
     SFX_BEAM,           // ray / lava beam firing
+    SFX_REFLECT,        // shot reflected by a shield (PC SFX_SHOT_REFLECTED)
+    SFX_SHORYUKEN,      // shoryuken start (PC SFX_SHORYUKEN_GIRL)
+    SFX_RECHARGE,       // big energy pill (PC SFX_GOT_ENERGY_BIG, recharge.wav)
     SFX_COUNT
 } SfxId;
 

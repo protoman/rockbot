@@ -407,6 +407,7 @@ void shot_update(void)
             // turns the shot into a diagonal (up/down by Y parity), then
             // is_reflected stops further collisions.
             s->reflected = TRUE;
+            sfx_play(SFX_REFLECT);          // PC projectilelib.cpp:1248
             s->dx = -s->dx;
             s16 vy = (s->dx < 0) ? -s->dx : s->dx;
             s->dy = (s->y & 1) ? -vy : vy;

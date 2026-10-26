@@ -1077,7 +1077,7 @@ void player_update(u16 pad)
         jump_timer = 0;
         pad &= ~(BUTTON_LEFT | BUTTON_RIGHT | BUTTON_UP | BUTTON_DOWN |
                  JUMP_BUTTONS | SLIDE_BUTTON | FIRE_BUTTON);
-        sfx_play(SFX_JUMP);
+        sfx_play(SFX_SHORYUKEN);   // PC classplayer.cpp:222 (not the jump sound)
     }
     if (shoryuken_active) {
         player.vx = 0;

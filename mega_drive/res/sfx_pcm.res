@@ -21,4 +21,7 @@ WAV sfx_stage_selected "sfx/stage_selected.wav" XGM2
 WAV sfx_disappearning_block "sfx/disappearning_block.wav" XGM2
 WAV sfx_object_break "sfx/object_break.wav" XGM2
 WAV sfx_beam "sfx/beam.wav" XGM2
+WAV sfx_shot_reflected "sfx/shot_reflected.wav" XGM2
+WAV sfx_shoryuken_girl "sfx/shoryuken_girl.wav" XGM2
+WAV sfx_recharge "sfx/recharge.wav" XGM2
 WAV sfx_cursor "sfx/cursor.wav" XGM2

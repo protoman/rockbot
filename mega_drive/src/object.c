@@ -1304,7 +1304,7 @@ void objects_update(void)
                      pt < o->y + d->h && pb > o->y);
         if (touch) {
             if (d->type == 5) {                     // big energy pill (+8)
-                sfx_play(SFX_PILL);
+                sfx_play(SFX_RECHARGE);   // PC character.cpp:2721 (value > small)
                 u8 hp = player.hp + 8;
                 player.hp = (hp > PLAYER_INITIAL_HP) ? PLAYER_INITIAL_HP : hp;
                 obj_release(o);

@@ -45,6 +45,9 @@ SOUNDS = [
     "door_open", "got_weapon", "stage_selected",
     # objects: block appearing, destructible break, beams
     "disappearning_block", "object_break", "beam",
+    # PC plays these too (soundlib.cpp:170/242/251): shot reflected by a shield,
+    # the shoryuken voice, the big energy pill (recharge.wav)
+    "shot_reflected", "shoryuken_girl", "recharge",
     # UI
     "cursor",
 ]

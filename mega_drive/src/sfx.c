@@ -38,6 +38,9 @@ static const SfxDef sfx_def[SFX_COUNT] = {
     [SFX_BLOCK_APPEAR]  = { sfx_disappearning_block, sizeof(sfx_disappearning_block), SOUND_PCM_CH2, 7 },
     [SFX_OBJECT_BREAK]  = { sfx_object_break,      sizeof(sfx_object_break),       SOUND_PCM_CH2, 6 },
     [SFX_BEAM]          = { sfx_beam,              sizeof(sfx_beam),               SOUND_PCM_CH2, 6 },
+    [SFX_REFLECT]       = { sfx_shot_reflected,    sizeof(sfx_shot_reflected),     SOUND_PCM_CH3, 5 },
+    [SFX_SHORYUKEN]     = { sfx_shoryuken_girl,    sizeof(sfx_shoryuken_girl),     SOUND_PCM_CH2, 6 },
+    [SFX_RECHARGE]      = { sfx_recharge,          sizeof(sfx_recharge),           SOUND_PCM_CH3, 6 },
     [SFX_CURSOR]       = { sfx_cursor,             sizeof(sfx_cursor),             SOUND_PCM_CH3, 6 },
 };
 
