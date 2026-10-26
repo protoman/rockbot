@@ -727,7 +727,11 @@ static RunResult runStage(u8 stage)
             // still used (see transition.c).
             const bool scrolled = !teleporter &&
                 transition_scroll(stage_current_map, to_map, cam_x, px, py,
-                                  to_trans == TRANS_T2B);
+                                  to_trans == TRANS_T2B,
+                                  // residual the destination camera could not
+                                  // absorb: move the outgoing screen by it
+                                  (s16)((px + (PLAYER_BOX_L + PLAYER_BOX_R) / 2
+                                         - cam_x) - keep_sx));
             if (!scrolled) PAL_fadeOutAll(10, FALSE);
 
             // Show the destination at its arrival camera on the first drawn

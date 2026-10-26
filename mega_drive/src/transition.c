@@ -290,7 +290,8 @@ u8 transition_fail_map;
 u16 transition_fail_free_kb;
 
 bool transition_scroll(u8 from_map, u8 to_map, s16 to_cam_x,
-                       s16 player_x, s16 player_y, bool top_to_bottom)
+                       s16 player_x, s16 player_y, bool top_to_bottom,
+                       s16 old_shift)
 {
     transition_fail_code = 0;
     if (from_map == to_map) { transition_fail_code = 1; return FALSE; }
@@ -315,7 +316,12 @@ return FALSE; }
     // destination Map needs: with the stage loaded, MEM_getFree() can be as low
     // as ~7 KB, which made MAP_create fail and every SEAHORSE link fall back
     // to the fade (BUG-023), leaving a half-loaded room behind (BUG-022/024).
-    const s16 ocam = clamp_cam_x(camera.x);
+    // The outgoing screen is shown as if its camera were ocam - old_shift, so the
+    // old ladder lands on the destination ladder's screen column (see
+    // transition.h). camera.x follows because the old half's enemies/objects
+    // take their X from it every frame; stage_load() sets the real camera next.
+    const s16 ocam = clamp_cam_x(clamp_cam_x(camera.x) - old_shift);
+    camera.x = ocam;
     u16 omt0;
     s16 old_hs;
     load_screen(stage_map, ocam, oldbuf, &old_hs, &omt0);

@@ -25,8 +25,15 @@
 // destination screen is the one on screen and the caller must finish the room
 // change: stage_load(to_map), player_place(player_x, player_y),
 // stage_arrival_camera(), player_sync_sprite().
+//
+// `old_shift`: the destination camera cannot always put the arrival where the
+// player stands (map edge, scroll lock), so the OUTGOING screen is moved by the
+// residual instead (dest screen X of the player minus his old screen X): the two
+// ladders stay on one column through the slide. The outgoing screen is leaving
+// and the player belongs to the incoming one, so only the old half moves.
 bool transition_scroll(u8 from_map, u8 to_map, s16 to_cam_x,
-                       s16 player_x, s16 player_y, bool top_to_bottom);
+                       s16 player_x, s16 player_y, bool top_to_bottom,
+                       s16 old_shift);
 
 // Diagnostic: why the last transition fell back to the fade.
 // 1 same map, 2 no VRAM, 3 MAP_create, 4 unpack, 5 >256 tiles, 6 no room.

@@ -64,6 +64,12 @@ RULES = [
      [("src/transition.c", r"SPR_setPosition\(player\.spr, \(s16\)\(player_sx \+ player_sprite_dx\(\)\), py\);"),
       ("src/player.c", r"s16 player_sprite_dx\(void\)")],
      [("src/transition.c", r"SPR_setPosition\(player\.spr, player_sx, py\);")]),
+    ("transition-outgoing-shift",
+     "the slide moves the OUTGOING screen by the residual the destination camera "
+     "cannot absorb, so both ladders share one screen column (3px off at map edges)",
+     [("src/transition.c", r"const s16 ocam = clamp_cam_x\(clamp_cam_x\(camera\.x\) - old_shift\);"),
+      ("src/main.c", r"- cam_x\) - keep_sx\)\);")],
+     [("src/transition.c", r"const s16 ocam = clamp_cam_x\(camera\.x\);")]),
     ("wall-bomb-only",
      "only an exploding bomb breaks a destructible wall (type 22)",
      [("src/object.c", r"if \(ty == 22 && !bomb\) continue;"),
