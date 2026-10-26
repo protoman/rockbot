@@ -106,15 +106,15 @@ static void apply_sound(void)
 // the in-game menu, so a fixed tile inside the pool would overwrite a
 // live sprite's art.
 #define CFG_BLACK_TILE SPR_CFG_BLACK_TILE
-// Solid black fill (BUG-044). 0xFF000000 sets bitplane 0 on all 8 pixels of
+// Solid black fill (BUG-044). 0x11111111 sets bitplane 0 on all 8 pixels of
 // the row = palette index 1; the old 0x11111111 set bitplane 0..3 on pixels 3
 // and 7 only, which draws index 0xF - the lightest entry of whatever palette
 // the screen inherited - i.e. two bright stripes per tile. This tile is loaded
 // at SPR_CFG_BLACK_TILE, which is also stage_sky_tile(), so the stripes leaked
 // into the stage sky and the room-transition band fills.
 static const u32 cfg_black[8] = {
-    0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
-    0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000,
+    0x11111111, 0x11111111, 0x11111111, 0x11111111,
+    0x11111111, 0x11111111, 0x11111111, 0x11111111,
 };
 
 static void clear_screen(void)

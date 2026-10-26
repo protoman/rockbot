@@ -1,17 +1,11 @@
 #!/usr/bin/env python3
 """Verify the hand-written 8x8 fill tiles really are the fill they claim.
 
-A tile literal is easy to get wrong: Mega Drive 4bpp stores one byte per
-bitplane inside every row, so "all bytes = 0x11" is NOT "solid colour 1" - it
-sets bit 0 of all four planes on pixels 3 and 7 only, i.e. a STRIPE pattern of
-pixel index 0xF (the lightest entry of any palette = white in PAL0).
-
-That is exactly BUG-044: src/scene.c `black_tile` and src/config.c `cfg_black`
-were both declared "filled with palette index 1" as 0x11111111, so the cutscene
-background and the options screen showed white stripes, and because config.c
-loads that tile at SPR_CFG_BLACK_TILE - the index src/stage.c returns from
-stage_sky_tile() - the stage's parallax sky and the room-transition band fills
-turned into the same stripes after a visit to the options screen.
+Mega Drive tiles are packed 4bpp (one nibble per pixel, NOT bitplanes), so a
+solid fill of index N is 0xNNNNNNNN. A bitplane-style literal such as
+0xFF000000 paints index 15 on pixels 0-1 only: white stripes 2 px wide every
+8 px. BUG-044 "fixed" the solid 0x11111111 into exactly that, by decoding the
+tile as bitplanes; this checker now decodes nibbles.
 
 A fill tile must decode to a single value on every pixel (0 = transparent,
 1..15 = a solid colour). Any other pattern is a bug.
@@ -30,19 +24,12 @@ ARRAY = re.compile(
 
 
 def decode(words):
-    """8 longwords (big-endian) -> 8 rows of 8 pixel indices."""
-    rows = []
-    for w in words:
-        planes = [(w >> 24) & 0xFF, (w >> 16) & 0xFF, (w >> 8) & 0xFF, w & 0xFF]
-        row = []
-        for x in range(8):
-            v = 0
-            for p in range(4):
-                if planes[p] & (0x80 >> x):
-                    v |= 1 << p
-            row.append(v)
-        rows.append(row)
-    return rows
+    """8 longwords -> 8 rows of 8 pixel indices.
+
+    Mega Drive tiles are PACKED 4bpp: each longword is one row, one nibble per
+    pixel, leftmost pixel in the top nibble (0x11111111 = solid index 1).
+    """
+    return [[(w >> (28 - 4 * x)) & 0xF for x in range(8)] for w in words]
 
 
 def describe(rows):
