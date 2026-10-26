@@ -8,6 +8,12 @@
 // quit-game entries; the PC analog/digital + joystick input rows are gone.
 //
 // Persisted in SRAM right after the 5 save slots (bytes 48..56).
+#ifdef MD_MINIMAL
+// Bisection build: a hand-drawn options screen with nothing else initialised
+// (no stage, no sprites, no music, no SRAM). Never returns.
+void config_minimal_app(void);
+#endif
+
 typedef struct {
     u8 sound;       // 1 = SFX+music on
     u8 music_vol;   // PC volume_music, 4 steps (0..3)

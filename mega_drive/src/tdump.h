@@ -12,11 +12,13 @@ void tdump_vdp(const char *tag);
 void tdump_cram(const char *tag);
 void tdump_tile(const char *tag, u16 tile);
 void tdump_cell(const char *tag, u16 plane, u16 col, u16 row);
+void tdump_sprites(const char *tag);
 #else
 #define tdump_vdp(tag)  do {} while (0)
 #define tdump_cram(tag) do {} while (0)
 #define tdump_tile(tag,tile) do {} while (0)
 #define tdump_cell(tag,pl,c,r) do {} while (0)
+#define tdump_sprites(tag) do {} while (0)
 
 #endif
 

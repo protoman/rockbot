@@ -1102,10 +1102,10 @@ int main(bool hardReset)
     playSession((u8)MD_TEST_STAGE);
 #endif
 
-#ifdef MD_TILE_DUMP
-    // Diagnostics only: go straight to the options screen instead of relying on
-    // scripted key presses to walk the title menu.
-    config_run(FALSE);
+#ifdef MD_MINIMAL
+    // Bisection build: normal init has run (font + boot palettes in place), then
+    // a hand-drawn options screen with no stage, sprites, music or SRAM.
+    config_minimal_app();       // never returns
 #endif
     showIntro();
     // PC game_scenes_show_unbeaten_intro(): scene list 0 (scenes_data.c)

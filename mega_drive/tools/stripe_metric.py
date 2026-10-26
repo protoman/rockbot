@@ -25,7 +25,7 @@ def main(argv):
     # integer downscale to the game's 320x224 when the capture is a clean multiple
     h, w = a.shape[:2]
     for s in (3, 2):
-        if w % s == 0 and h % s == 0 and w // s <= 400:
+        if (w, h) in ((320 * s, 224 * s), (320 * s, 240 * s)):
             a = a[::s, ::s]
             break
     h, w = a.shape[:2]

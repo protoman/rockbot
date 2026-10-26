@@ -2,6 +2,7 @@
 #include "tdump.h"
 #include "pal_safe.h"
 #include "music.h"
+#include "resources.h"
 
 #include <genesis.h>
 
@@ -134,10 +135,16 @@ static void clear_screen(void)
     // BG_B still holds (the stage parallax / the title logo). With priority
     // FALSE this fill loses every pixel to a BG_B cell and the screen shows the
     // plane below instead of black (stripes, BUG-044 follow-up).
+    // Split fill: LEFT half = tile 0 (known blank -> shows the black backdrop),
+    // RIGHT half = our solid tile. If only the right half stripes, the tile's
+    // content is wrong; if both do, the plane fill itself is not landing.
+    VDP_fillTileMapRect(BG_A,
+                        TILE_ATTR_FULL(PAL0, TRUE, FALSE, FALSE, 0),
+                        0, 0, 20, 28);
     VDP_fillTileMapRect(BG_A,
                         TILE_ATTR_FULL(PAL0, TRUE, FALSE, FALSE,
                                        CFG_BLACK_TILE),
-                        0, 0, 40, 28);
+                        20, 0, 20, 28);
     tdump_vdp("config-fill");
     tdump_cram("config-fill");
     tdump_tile("config-fill", CFG_BLACK_TILE);
@@ -164,6 +171,23 @@ static void draw_list(const char *title, const char *const *items, u8 n,
         VDP_drawText(items[i], 5, 6 + i * 2);
     VDP_drawText(">", 3, 6 + sel * 2);
     VDP_drawText("A:SELECT  B:BACK", 2, 26);
+#ifdef MD_TILE_DUMP
+    {
+        static bool dumped;
+        if (!dumped) {
+            dumped = TRUE;
+            SYS_doVBlankProcess();          // flush the queued text writes
+            tdump_vdp("config-drawn");
+            tdump_cram("config-drawn");
+            tdump_tile("config-drawn", CFG_BLACK_TILE);
+            tdump_tile("config-drawn", 0);
+            tdump_cell("config-drawn", VDP_getBGAAddress(), 0, 6);
+            tdump_cell("config-drawn", VDP_getBGAAddress(), 2, 2);
+            tdump_cell("config-drawn", VDP_getBGBAddress(), 12, 12);
+            tdump_sprites("config-drawn");
+        }
+    }
+#endif
 }
 
 // Returns the picked row, or -1 on BACK.
@@ -360,3 +384,50 @@ bool config_run(bool in_game)
         }
     }
 }
+
+#ifdef MD_MINIMAL
+// Plain menu app: only what the screen itself needs. Boot lands here and stays.
+void config_minimal_app(void)
+{
+    VDP_setScrollingMode(HSCROLL_PLANE, VSCROLL_PLANE);
+    VDP_setHorizontalScroll(BG_A, 0);
+    VDP_setVerticalScroll(BG_A, 0);
+    VDP_setHorizontalScroll(BG_B, 0);
+    VDP_setVerticalScroll(BG_B, 0);
+    VDP_setBackgroundColor(0);
+
+    // Everything that writes CRAM/VRAM happens with the display OFF: a
+    // transfer whose address port is taken by the vblank handler mid-way lands
+    // at the wrong destination (proved for CRAM: the boot ramp slid 8 or 10
+    // entries down). If the stripes are this class, this screen comes out clean.
+    VDP_setEnable(FALSE);
+    pal_load(PAL0, pal_ui.data);          // the ONLY palette load in this build
+    VDP_setTextPlane(BG_A);
+    VDP_setTextPalette(PAL0);
+    VDP_clearPlane(BG_B, TRUE);
+
+    VDP_loadTileData(cfg_black, CFG_BLACK_TILE, 1, CPU);
+    VDP_fillTileMapRect(BG_A,
+                        TILE_ATTR_FULL(PAL0, TRUE, FALSE, FALSE,
+                                       CFG_BLACK_TILE),
+                        0, 0, 40, 28);
+    VDP_drawText("OPTIONS", 2, 2);
+    VDP_drawText("> AUDIO", 5, 6);
+    VDP_drawText("  INPUT", 5, 8);
+    VDP_drawText("  EXTRAS", 5, 10);
+    VDP_drawText("A:SELECT  B:BACK", 2, 26);
+    VDP_setEnable(TRUE);
+
+    SYS_doVBlankProcess();
+    tdump_vdp("minimal");
+    tdump_cram("minimal");
+    tdump_tile("minimal", CFG_BLACK_TILE);
+    tdump_tile("minimal", 0);
+    tdump_cell("minimal", VDP_getBGAAddress(), 0, 0);
+    tdump_cell("minimal", VDP_getBGAAddress(), 2, 2);
+    tdump_cell("minimal", VDP_getBGBAddress(), 12, 12);
+    tdump_sprites("minimal");
+
+    for (;;) SYS_doVBlankProcess();
+}
+#endif
