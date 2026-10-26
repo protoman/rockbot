@@ -52,6 +52,12 @@ RULES = [
      [("src/transition.c", r"VDP_setTileMapData\(VDP_BG_B, bgrow, \(u16\)\(r \* 64\), 64, 2,")],
      [("src/transition.c", r"VDP_setTileMapData\(\s*(BG_[AB]|WINDOW)\b"),
       ("src/transition.c", r"VDP_setTileMapData\([^;]*,\s*64,\s*1,")]),
+    ("link-ladder-arrival-column",
+     "the ladder scan on a room change starts at the real arrival column "
+     "(dst_x + band offset), not only at dst_x: wide links land far from dst_x",
+     [("src/main.c", r"s16 arr_tx = \(s16\)\(\(to_x \+ stage_link_band_off\) / tile\);"),
+      ("src/main.c", r"const s16 bases\[2\] = \{ arr_tx, dst_tx \};")],
+     []),
     ("wall-bomb-only",
      "only an exploding bomb breaks a destructible wall (type 22)",
      [("src/object.c", r"if \(ty == 22 && !bomb\) continue;"),

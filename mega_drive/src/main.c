@@ -638,14 +638,25 @@ static RunResult runStage(u8 stage)
             s16 stair_col = -1;
             if (to_trans == TRANS_T2B || to_trans == TRANS_B2T) {
                 const s16 row0 = to_y / tile;
-                for (s16 d = 0; d <= 2 && stair_col < 0; d++) {
-                    for (s16 sgn = -1; sgn <= 1; sgn += 2) {
-                        const s16 c = (s16)(dst_tx + (d ? d * sgn : 0));
-                        if (c < 0 || c >= stage_def->map_w) continue;
-                        if (stage_terrain_at(to_map, c, row0) == TERRAIN_STAIR ||
-                            stage_terrain_at(to_map, c, row0 + 1) == TERRAIN_STAIR) {
-                            stair_col = c;
-                            break;
+                // The player lands at dst_x PLUS his offset inside the link band
+                // (stage_link_band_off), so on a wide link (size up to 18) the
+                // ladder he arrives on is far from dst_x: DEEP JUNGLE map 0 col
+                // 98 and map 1 col 17 (measured: stair -1, he arrived on the
+                // ladder cell but not hanging, and fell). Scan around the real
+                // arrival column first, then around dst_x as before.
+                s16 arr_tx = (s16)((to_x + stage_link_band_off) / tile);
+                if (arr_tx >= stage_def->map_w) arr_tx = stage_def->map_w - 1;
+                const s16 bases[2] = { arr_tx, dst_tx };
+                for (u8 bi = 0; bi < 2 && stair_col < 0; bi++) {
+                    for (s16 d = 0; d <= 2 && stair_col < 0; d++) {
+                        for (s16 sgn = -1; sgn <= 1; sgn += 2) {
+                            const s16 c = (s16)(bases[bi] + (d ? d * sgn : 0));
+                            if (c < 0 || c >= stage_def->map_w) continue;
+                            if (stage_terrain_at(to_map, c, row0) == TERRAIN_STAIR ||
+                                stage_terrain_at(to_map, c, row0 + 1) == TERRAIN_STAIR) {
+                                stair_col = c;
+                                break;
+                            }
                         }
                     }
                 }
