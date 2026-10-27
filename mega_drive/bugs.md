@@ -1591,5 +1591,5 @@ Reports, in the user's order, with what is known so far:
 - [x] bomb / fall-bomb: now the PC 56x56 7-frame explosion (3.6 s / 1.6 s), damaging only while exploding, with the big-explosion sound
 - [ ] after respawning at a checkpoint the player cannot walk right until he jumps
 - [ ] MUMMY link 5 scrolls left ignoring the wall-lock
-- [ ] helmets leave "stand" a second time, after shooting and also without shooting
+- [x] helmets: attack row looped, re-showing its first (stand) frame when the SHOT action ran a tick past the animation; shot attacks now hold the last frame (unverified: needs a play-test)
 - [x] PHARAOH vanished: e->teleporting was only cleared on a fall landing (stray line), so after the first TELEPORT he kept the dissolve frame forever; cleared when the action ends

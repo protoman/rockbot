@@ -1100,7 +1100,7 @@ static bool ai_action_run(Enemy *e)
         if (d->attack_n) {
             dur = (u16)(((u32)d->attack_ms * 6) / 100);
             if (dur < AI_SHOT_FRAMES) dur = AI_SHOT_FRAMES;
-            e->shooting = 1;
+            e->shooting = 2;        // 2 = one-shot attack (holds its last frame)
         }
         // PC execute_ai_action_trow_projectile: only a MOVING enemy turns to
         // face the player. A stationary shooter keeps the editor-placed
@@ -1122,7 +1122,7 @@ static bool ai_action_run(Enemy *e)
         if (d->attack_n) {
             dur = (u16)(((u32)d->attack_ms * 6) / 100);
             if (dur < AI_SHOT_FRAMES) dur = AI_SHOT_FRAMES;
-            e->shooting = 1;
+            e->shooting = 2;
         }
         if (e->act_t == 1 + ai_shot_frame(d, dur)) {
             u8 pid = (st->param >= 0) ? (u8)st->param : d->shot;
@@ -1395,7 +1395,7 @@ static bool ai_action_run(Enemy *e)
             dur = (u16)(((u32)d->attack_ms * 6) / 100);
             if (dur < AI_SHOT_FRAMES) dur = AI_SHOT_FRAMES;
         }
-        e->shooting = 1;
+        e->shooting = 2;
         if (e->act_t == 1 + ai_shot_frame(d, dur)) {
             u8 pid = (st->param >= 0) ? (u8)st->param : d->shot;
             s16 cx = (s16)(e->x + d->box_l + d->box_w / 2);
@@ -1730,10 +1730,16 @@ void enemies_update(void)
             // (PC ANIM_TYPE_*; BUG-011 - teleporting/jumping used to keep
             // the previous row, which is what made the Mummy look like he
             // faced the wrong way while repositioning).
+            SPR_setAnimationLoop(e->spr, TRUE);
             if (e->turn_t && d->turn_anim != 255)
                 spr_set_anim(e->spr, d->turn_anim);
-            else if (d->attack_n > 0 && e->shooting)
+            else if (d->attack_n > 0 && e->shooting) {
+                // The attack plays once and holds its last frame until the
+                // action ends; looping it re-showed the first (stand) frame
+                // whenever the action ran a tick longer than the animation.
                 spr_set_anim(e->spr, 2);
+                SPR_setAnimationLoop(e->spr, e->shooting != 2);
+            }
             else if (e->teleporting && d->teleport_anim != 255)
                 spr_set_anim(e->spr, d->teleport_anim);
             else if (e->intro_t && d->intro_anim != 255)
