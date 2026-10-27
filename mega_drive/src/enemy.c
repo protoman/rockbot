@@ -531,6 +531,33 @@ static void ai_action_init(Enemy *e)
             e->base_y = e->y;
         }
         break;
+    case AI_GRAB_WALL: {
+        // PC execute_ai_step_jump_to_wall: face the player, find the wall on
+        // that side and leap to it, landing at mid-screen height (RES_H/2)
+        // with gravity off. No wall: the action ends at once.
+        e->dir = (player.x > e->x) ? 1 : -1;
+        s16 wall = -1;
+        const s16 row0 = (e->y + d->box_t) >> 4;
+        const s16 row1 = (e->y + d->box_t + d->box_h - 1) >> 4;
+        for (s16 col = (e->x + d->box_l + d->box_w / 2) >> 4;
+             col >= 0 && col < stage_def->map_w; col += e->dir) {
+            bool hit = FALSE;
+            for (s16 r = row0; r <= row1; r++)
+                if (stage_terrain_at(stage_current_map, col, r) == TERRAIN_SOLID)
+                    hit = TRUE;
+            if (hit) { wall = col; break; }
+        }
+        if (wall < 0) {
+            e->dest_x = e->x;
+            e->dest_y = e->y;
+        } else {
+            e->dest_x = (e->dir > 0) ? (s16)(wall * 16 - d->box_l - d->box_w)
+                                     : (s16)((wall + 1) * 16 - d->box_l);
+            e->dest_y = (s16)(112 - d->box_h / 2 - d->box_t);
+        }
+        e->dash_ai = 1;                        // PC leaps at move_speed*2
+        break;
+    }
     case AI_DASH: {
         // PC execute_ai_step_dash: a run at 2x speed toward a point
         // walk_range away from the frame centre; the option picks the side.
@@ -1148,14 +1175,18 @@ static bool ai_action_run(Enemy *e)
         return step_axis(e, &e->x, e->dest_x, TRUE, TRUE);
     }
 
-    case AI_GRAB_WALL:
-        // Cling in place (no gravity) for the action's duration.
-        e->jumping = 1;
-        if (e->act_t >= 30) {
-            e->jumping = 0;
+    case AI_GRAB_WALL: {
+        e->moving = 1;
+        e->no_gravity = 1;                      // PC _ignore_gravity
+        const bool gx = step_axis(e, &e->x, e->dest_x, TRUE, TRUE);
+        const bool gy = step_axis(e, &e->y, e->dest_y, FALSE, TRUE);
+        if (gx && gy) {
+            e->dir = -e->dir;                   // PC: face away from the wall
+            e->moving = 0;
             return TRUE;
         }
         return FALSE;
+    }
 
     case AI_SPAWN_NPC:
         if (e->act_t == 1) ai_spawn_npc(e, (u8)st->param, FALSE);
@@ -1415,6 +1446,7 @@ static Enemy *enemy_add(u8 def_i, s16 x, s16 y, s16 x_min, s16 x_max, u8 dir)
     e->drop_target = e->y;
     e->always_ahead = 0;
     e->auto_jump = 0;
+    e->no_gravity = 0;
     if (d->is_boss && boss_i < 0) boss_i = idx;
     spr_seen = spr_gen;
     e->spr = SPR_addSprite(d->spr, e->x - camera.x, e->y - camera.y,
@@ -1487,6 +1519,7 @@ void enemies_update(void)
                 e->frozen = 0;
                 e->always_ahead = 0;
                 e->auto_jump = 0;
+                e->no_gravity = 0;
                 e->alive = (e->spr != NULL);
                 if (e->spr) SPR_setVisibility(e->spr, VISIBLE);
             }

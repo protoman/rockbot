@@ -1517,3 +1517,14 @@ Reports, in the user's order, with what is known so far:
       it only hopped up; destinations now follow PC for every option.
 - [ ] AI audit (in progress): audit_data.py marks an option "ok" when code
       exists, not when it behaves like PC (that hid the JUMP one).
+- [x] AI audit, round 1 (PC artificial_inteligence.cpp vs enemy.c, only the
+      options the data uses): FLY AHEAD no longer drifts to the spawn y (ZIGZAG
+      oscillates around its start y), UP/DOWN/FALL keep x, OPPOSITE_SHOOT fires
+      every 120 px (not once at the end), OPPOSITE_WALL turns on arrival, DASH
+      honours its option (TO_PLAYER / OPPOSITE / LEFT / RIGHT / AHEAD) at 2x speed
+      instead of a fixed 20-frame burst forward, WALK TURN_TO_PLAYER is instant,
+      GRAB_WALL leaps to the wall at mid-screen height (gravity off until FALL).
+      Not ported (no data uses them): FLY VERTICAL_CENTER, SIN_AHEAD,
+      DOWN_RANDOM_DIAGONAL, UP_UNTIL_GROUND, DOWN_INTO_GROUND, DIAGONAL_UP/DOWN;
+      JUMP TO_SAVED is a no-op on PC (the port hops back to the spawn).
+      Still to review: WAIT_RANGE, SHOT_*, SPAWN_NPC, CHANGE_MOVE, JUMP_ATTACK_UP.
