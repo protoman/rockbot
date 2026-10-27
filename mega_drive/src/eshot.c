@@ -191,6 +191,9 @@ static bool fire_impl(s16 x, s16 y, s16 dir, u8 proj_id, bool aim)
         s->w0 = p->w;
         s->step_t = 0;
         s->traj = p->traj;
+        // PC DIAGONAL_UP/DOWN: one speed step on y per move, on top of the x step
+        if (s->traj == TRAJ_DIAG_UP) s->dy = -(s16)p->speed;
+        else if (s->traj == TRAJ_DIAG_DOWN) s->dy = (s16)p->speed;
         // PC TRAJECTORY_FREEZE fired by an enemy: freeze_weapon_effect =
         // FREEZE_EFFECT_PLAYER, the player cannot act for FREEZE_DURATION.
         if (s->traj == TRAJ_FREEZE) player_freeze();
