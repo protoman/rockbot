@@ -728,11 +728,9 @@ static void handle_fire(u16 pad, s16 ix, s16 iy)
         return;
     }
 
-    // PC turbo_mode / auto_charge_mode: no charging, repeat the shot while
-    // the button is held (auto-charge applies to the default weapon only,
-    // character.cpp:585 / classplayer.cpp:313).
+    // PC turbo_mode: no charging, repeat the shot while the button is held.
     bool fire_raw = (pad & FIRE_BUTTON) != 0;
-    if (config.turbo || (config.autocharge && player_weapon() == 0)) {
+    if (config.turbo) {
         if (fire_raw && !player.sliding && attack_timer == 0) {
             s16 sx = (player.facing > 0) ? ix + PLAYER_BOX_R
                                          : ix + PLAYER_BOX_L - 8;
@@ -740,6 +738,30 @@ static void handle_fire(u16 pad, s16 ix, s16 iy)
             attack_timer = ATTACK_FRAMES;
         }
         player.charge_frames = 0;
+        player.fire_prev = fire_raw;
+        if (attack_timer > 0) attack_timer--;
+        return;
+    }
+    // PC auto_charge_mode (classplayer.cpp:313, default weapon only): the
+    // attack command is inverted every frame, so the shot charges while the
+    // button is NOT held and pressing it releases whatever was charged.
+    if (config.autocharge && player_weapon() == 0 && !player.sliding) {
+        if (!fire_raw) {
+            if (player.charge_frames < 60000) player.charge_frames++;
+        } else if (!player.fire_prev) {
+            s16 sx = (player.facing > 0) ? ix + 21 : ix - 6;
+            if (player.charge_frames >= CHARGE_FULL_FRAMES) {
+                shot_charge_fire(sx, iy + 8, player.facing, 2);
+                attack_timer = ATTACK_FRAMES;
+            } else if (player.charge_frames >= CHARGE_SEMI_FRAMES) {
+                shot_charge_fire(sx, iy + 8, player.facing, 1);
+                attack_timer = ATTACK_FRAMES;
+            } else if (attack_timer == 0) {
+                shot_fire(sx, iy + 10, player.facing, 0);
+                attack_timer = ATTACK_FRAMES;
+            }
+            player.charge_frames = 0;
+        }
         player.fire_prev = fire_raw;
         if (attack_timer > 0) attack_timer--;
         return;

@@ -202,7 +202,8 @@ static s8 menu_list(const char *title, const char *const *items, u8 n, u8 *sel)
             pad = JOY_readJoypad(JOY_1);
         } while (!(pad & (BUTTON_UP | BUTTON_DOWN | BUTTON_A | BUTTON_B |
                           BUTTON_START)));
-        while (JOY_readJoypad(JOY_1) & (BUTTON_A | BUTTON_B | BUTTON_START))
+        while (JOY_readJoypad(JOY_1) & (BUTTON_UP | BUTTON_DOWN | BUTTON_A |
+                                        BUTTON_B | BUTTON_START))
             SYS_doVBlankProcess();
         if (pad & BUTTON_B) return -1;
         if (pad & (BUTTON_A | BUTTON_START)) return (s8)*sel;
@@ -230,7 +231,8 @@ static void audio_menu(void)
             SYS_doVBlankProcess();
             pad = JOY_readJoypad(JOY_1);
         } while (!(pad & (BUTTON_UP | BUTTON_DOWN | BUTTON_A | BUTTON_B)));
-        while (JOY_readJoypad(JOY_1) & (BUTTON_A | BUTTON_B))
+        while (JOY_readJoypad(JOY_1) & (BUTTON_UP | BUTTON_DOWN | BUTTON_A |
+                                        BUTTON_B))
             SYS_doVBlankProcess();
         if (pad & BUTTON_B) return;
         if (pad & BUTTON_UP)   row = (row == 0) ? 1 : row - 1;
@@ -268,7 +270,8 @@ static void buttons_menu(void)
             SYS_doVBlankProcess();
             pad = JOY_readJoypad(JOY_1);
         } while (!(pad & (BUTTON_UP | BUTTON_DOWN | BUTTON_A | BUTTON_B)));
-        while (JOY_readJoypad(JOY_1) & (BUTTON_A | BUTTON_B))
+        while (JOY_readJoypad(JOY_1) & (BUTTON_UP | BUTTON_DOWN | BUTTON_A |
+                                        BUTTON_B))
             SYS_doVBlankProcess();
         if (pad & BUTTON_B) return;
         if (pad & BUTTON_UP) row = (row == 0) ? 2 : row - 1;
@@ -320,7 +323,8 @@ static void music_test(void)
             SYS_doVBlankProcess();
             pad = JOY_readJoypad(JOY_1);
         } while (!(pad & (BUTTON_A | BUTTON_B)));
-        while (JOY_readJoypad(JOY_1) & (BUTTON_A | BUTTON_B))
+        while (JOY_readJoypad(JOY_1) & (BUTTON_UP | BUTTON_DOWN | BUTTON_A |
+                                        BUTTON_B))
             SYS_doVBlankProcess();
         if (pad & BUTTON_B) return;
         if (config.sound) {
@@ -343,7 +347,8 @@ static void sfx_test(void)
             SYS_doVBlankProcess();
             pad = JOY_readJoypad(JOY_1);
         } while (!(pad & (BUTTON_UP | BUTTON_DOWN | BUTTON_A | BUTTON_B)));
-        while (JOY_readJoypad(JOY_1) & (BUTTON_A | BUTTON_B))
+        while (JOY_readJoypad(JOY_1) & (BUTTON_UP | BUTTON_DOWN | BUTTON_A |
+                                        BUTTON_B))
             SYS_doVBlankProcess();
         if (pad & BUTTON_B) return;
         if (pad & BUTTON_A) sfx_play((SfxId)sel);
