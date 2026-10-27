@@ -397,7 +397,11 @@ static RunResult runStage(u8 stage)
 
     // PC boss intro (sceneslib.cpp:681) before the stage; skipped once the
     // stage is beaten (game_save.stages[stage] != 0).
+#ifndef MD_TEST_STAGE      // test builds boot straight into the stage
     if (!(save_slot_stages(current_save_slot) & (1u << stage))) {
+#else
+    if (0) {
+#endif
         boss_intro_run(stage);
     } else {
         // Skip the intro and make sure its jingle did not carry over from a
@@ -965,10 +969,6 @@ static void showGameOver(void)
 
 static void got_weapon_bg(void)
 {
-    VDP_loadTileData(gotbg_tiles_data, GOTBG_TILE_BASE, GOTBG_TILE_COUNT,
-                     DMA_QUEUE);
-    PAL_setPalette(PAL3, gotbg_pal.data, DMA_QUEUE);
-    static u16 cells[GOTBG_MAP_W * GOTBG_MAP_H];
     // The stage leaves its camera scroll in both planes; the framed art and
     // the text are laid out from tile 0, so any leftover offset shifts them.
     VDP_setScrollingMode(HSCROLL_PLANE, VSCROLL_PLANE);
@@ -976,6 +976,10 @@ static void got_weapon_bg(void)
     VDP_setVerticalScroll(BG_A, 0);
     VDP_setHorizontalScroll(BG_B, 0);
     VDP_setVerticalScroll(BG_B, 0);
+    VDP_loadTileData(gotbg_tiles_data, GOTBG_TILE_BASE, GOTBG_TILE_COUNT,
+                     DMA_QUEUE);
+    PAL_setPalette(PAL3, gotbg_pal.data, DMA_QUEUE);
+    static u16 cells[GOTBG_MAP_W * GOTBG_MAP_H];
     for (u16 i = 0; i < GOTBG_MAP_W * GOTBG_MAP_H; i++)
         cells[i] = TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE,
                                   GOTBG_TILE_BASE + gotbg_map[i]);
