@@ -799,7 +799,7 @@ bool objects_block_x(s16 nx, s16 t, s16 b, s16 dx, s16 *out_x)
 
 s16 objects_head_block(s16 l, s16 r, s16 head_new, s16 feet)
 {
-    s16 best = -1;
+    s16 best = OBJ_NO_HEAD_BLOCK;
     for (u8 i = 0; i < obj_count; i++) {
         MapObj *o = &objs[i];
         if (!solid_now(o)) continue;

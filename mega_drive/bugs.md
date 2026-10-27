@@ -1480,8 +1480,11 @@ Reports, in the user's order, with what is known so far:
       re-grabbed the arrival ladder (link arrival always hung him on a stair) and
       a held UP re-grabbed once the 12-frame lock ran out. Arrival now hangs only
       if he left on a ladder; a dropped ladder needs UP/DOWN released first.
-- [ ] Jump interrupted when the head reaches the top of the room (owner report;
-      no ceiling check in player.c explains it - investigating, not reproduced).
+- [x] Jump interrupted when the head reaches the top of the room (any room with
+      open sky): objects_head_block() returned -1 for "no block", and the caller
+      took any value above the new y as a ceiling, so once the head passed y -2
+      the player was snapped to y -1 with vy 0. Sentinel is now OBJ_NO_HEAD_BLOCK
+      (-32768).
 - [x] Slide ended inside a 1-tile tunnel (button released / wall / distance) and
       stood the player up into the ceiling. The slide now cannot end while a
       solid tile is in the strip between the standing and the slide head.

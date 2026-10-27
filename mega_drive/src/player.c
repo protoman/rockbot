@@ -1442,7 +1442,7 @@ void player_update(u16 pad)
             // (lower) of terrain vs platform wins
             s16 pny = objects_head_block(l, r, ny + box_t,
                                          iy + box_b);
-            if (pny > ny) {
+            if (pny != OBJ_NO_HEAD_BLOCK && pny > ny) {
                 ny = pny;
                 player.vy = 0;
             }

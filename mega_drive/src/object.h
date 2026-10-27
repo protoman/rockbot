@@ -71,6 +71,9 @@ bool objects_block_x(s16 nx, s16 t, s16 b, s16 dx, s16 *out_x);
 
 // Rising into a platform bottom: returns the player-y that stops the head
 // flush under it, or -1 when free. feet = current (pre-move) player bottom.
+// Returned by objects_head_block() when nothing stops the head. It must be below
+// any reachable y: the room top is 0 and a jump may carry the head above it.
+#define OBJ_NO_HEAD_BLOCK (-32768)
 s16 objects_head_block(s16 l, s16 r, s16 head_new, s16 feet);
 
 // Debug: row tile_y = "PXnnnn PYnnn CXnnnn", row tile_y+1 =
