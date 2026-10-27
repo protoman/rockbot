@@ -7,6 +7,8 @@
 #include "explosion.h"
 #include "enemy.h"
 #include "shot.h"
+#include "sfx.h"
+#include "sprite_guard.h"
 
 // PROJECTILE_TRAJECTORIES (PC defines.h) live in stage_data.h (shared with the
 // player shots in shot.c).
@@ -31,6 +33,7 @@ typedef struct {
     u16 age;
     bool on;
     bool reflected;     // PC projectile.is_reflected: harmless after shield
+    bool boom;          // BOMB / FALL_BOMB: now the 56x56 explosion (the only damaging phase)
 } EShot;
 
 static EShot shots[ESHOT_MAX];
@@ -51,6 +54,30 @@ static u8 count_proj(u8 proj_id)
 // Spawn one projectile from an existing one (BOMB_RAIN children), ignoring the
 // per-projectile max_shots gate, with a different trajectory.
 static bool spawn_child(s16 x, s16 y, s8 dir, u8 proj_id, u8 traj);
+
+// PC projectile::transform_into_explosion / FALL_BOMB landing: the bomb becomes
+// a 56x56 animation (graphicsLib::draw_explosion, 100 ms per frame) that hurts
+// for 3600 ms (BOMB) / 1600 ms (FALL_BOMB). Before that it deals no damage.
+#define BOOM_FRAMES_BOMB 216
+#define BOOM_FRAMES_FALL 96
+
+static void start_boom(EShot *s, bool fall)
+{
+    if (s->spr) SPR_releaseSprite(s->spr);
+    s->spr = SPR_addSprite(&bomb_explosion_sprite, 0, 0,
+                           TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
+    spr_seen = spr_gen;
+    if (s->spr) {
+        SPR_setAutoAnimation(s->spr, FALSE);
+        spr_set_frame(s->spr, 0);
+    }
+    s->x -= 28 - s->w / 2;                 // PC: x -= 28, y -= 28 (48 for FALL_BOMB)
+    s->y -= (fall ? 48 : 28) - s->h / 2;
+    s->w = s->h = 56;
+    s->boom = TRUE;
+    s->age = 0;
+    sfx_play(SFX_EXPLOSION);
+}
 
 static void kill(EShot *s)
 {
@@ -85,6 +112,7 @@ static bool spawn_child(s16 x, s16 y, s8 dir, u8 proj_id, u8 traj)
         s->step_t = 0;
         s->dir = dir;
         s->status = 0;
+        s->boom = FALSE;
         s->effect_t = 0;
         s->age = 0;
         s->reflected = FALSE;
@@ -199,6 +227,7 @@ static bool fire_impl(s16 x, s16 y, s16 dir, u8 proj_id, bool aim)
         if (s->traj == TRAJ_FREEZE) player_freeze();
         s->dir = (s8)dir;
         s->status = 0;
+        s->boom = FALSE;
         s->effect_t = 0;
         s->age = 0;
         s->on = TRUE;
@@ -340,8 +369,16 @@ void eshots_update(void)
             s->y = (s16)(s->y0 + sin48[(s->age >> 1) & 31]);
             break;
         case TRAJ_BOMB:
+            if (!s->boom) {
+                if (s->age > 60) start_boom(s, FALSE);
+            } else {
+                if (s->age >= BOOM_FRAMES_BOMB) { kill(s); continue; }
+                if (s->spr) spr_set_frame(s->spr, (s->age / 6) % 7);
+                if (s->age == 72 || s->age == 144) sfx_play(SFX_EXPLOSION);   // play_repeated_sfx x3
+            }
+            break;
         case TRAJ_FREEZE:
-            // BOMB/FREEZE: stationary fuse, then a puff and disappear.
+            // FREEZE: stationary fuse, then a puff and disappear.
             if (s->age > 60) {
                 explosion_spawn(s->x, s->y);
                 kill(s);
@@ -460,12 +497,13 @@ void eshots_update(void)
             break;
         }
         case TRAJ_FALL_BOMB:
-            s->y += s->speed;
-            if (eshot_solid(s->x + s->w / 2, s->y + s->h) ||
-                s->y > 240) {
-                explosion_spawn(s->x, s->y);
-                kill(s);
-                continue;
+            if (!s->boom) {
+                s->y += s->speed;
+                if (eshot_solid(s->x + s->w / 2, s->y + s->h) || s->y > 240)
+                    start_boom(s, TRUE);
+            } else {
+                if (s->age >= BOOM_FRAMES_FALL) { kill(s); continue; }
+                if (s->spr) spr_set_frame(s->spr, (s->age / 6) % 7);
             }
             break;
         default:                    // LINEAR / DIAG_UP / DIAG_DOWN / fallback
@@ -490,8 +528,11 @@ void eshots_update(void)
             continue;
         }
 
+        // bombs only hurt once they are exploding (PC get_damage: 0 before)
+        const bool bomb_fuse = (s->traj == TRAJ_BOMB || s->traj == TRAJ_FALL_BOMB) && !s->boom;
+
         // player collision (PC projectile vs player)
-        if (pl < r && pr > l && pt < b && pb > t) {
+        if (!bomb_fuse && pl < r && pr > l && pt < b && pb > t) {
             // PC classnpc.cpp:518: a shielded player reflects the shot (except
             // bombs/lightning/slash); otherwise it damages and vanishes.
             if (player_is_shielding() && s->traj != TRAJ_BOMB &&
@@ -508,6 +549,10 @@ void eshots_update(void)
                 continue;
             }
             player_take_damage(s->dmg);
+            if (s->boom) {                  // the explosion stays and keeps hurting
+                if (s->spr) SPR_setPosition(s->spr, s->x - camera.x, s->y - camera.y);
+                continue;
+            }
             kill(s);
             continue;
         }

@@ -156,6 +156,8 @@ SPRITE shot_charge_full_sprite "shot_charge_full.png" 32p 32p FAST [[6,6]]
 SPRITE explosion_sprite "explosion.png" 32p 32p FAST [[5]]
 # boss-death ring (PC game::classic_style_draw_boss_death): 5 frames of 24x24,
 # 8 sprites travel outward from the centre. tools/convert_assets.py.
+# bomb / fall-bomb explosion (PC graphicsLib::draw_explosion): 7 frames of 56x56, 100ms
+SPRITE bomb_explosion_sprite "bomb_explosion.png" 56p 56p FAST [[6,6,6,6,6,6,6]]
 SPRITE death_explosion_sprite "death_explosion.png" 24p 24p FAST [[3,3,3,3,3]]
 
 // Transient effects (src/effects.c), PAL0, art from the PC's images/:

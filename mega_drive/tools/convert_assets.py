@@ -241,6 +241,35 @@ def convert_hud_ball(src_name="hp_ball.png", out_name="hud_hp_ball.png"):
     return True
 
 
+def convert_bomb_explosion():
+    """PC graphicsLib::draw_explosion art (images/animations/big_boss_explosion.png:
+    7 frames of 56x56, 100ms each) -> PAL0 strip for the bomb explosion sprite."""
+    src = os.path.join(ROCKBOT, "build/games/RockDroid1/images/animations/"
+                       "big_boss_explosion.png")
+    if not os.path.exists(src):
+        print(f"  SKIP bomb_explosion: {src} not found")
+        return False
+    img = load_rgba(src)
+    fw = 56
+    n = img.size[0] // fw
+    px = img.load()
+    out = Image.new("P", (n * fw, fw))
+    out.putpalette([v for c in PAL_UI_RGB for v in c] + [0] * (768 - 16 * 3))
+    data = [0] * (n * fw * fw)
+    for f in range(n):
+        for y in range(fw):
+            for x in range(fw):
+                p = px[f * fw + x, y]
+                idx = 0 if p[3] == 0 else nearest_index(
+                    (md_round(p[0]), md_round(p[1]), md_round(p[2])))
+                data[y * n * fw + f * fw + x] = idx
+    out.putdata(data)
+    os.makedirs(OUT_DIR, exist_ok=True)
+    out.save(os.path.join(OUT_DIR, "bomb_explosion.png"))
+    print(f"  OK bomb_explosion.png: {img.size} -> {out.size} ({n} frames, PAL0)")
+    return True
+
+
 def convert_death_explosion():
     """Boss-death ring art (PC game::classic_style_draw_boss_death):
     images/backgrounds/classic_style_death_explosion.png = 5 frames of 24x24.
@@ -346,6 +375,8 @@ def main():
     n = len(targets)
     if not explicit or "death_explosion" in explicit:
         ok += convert_death_explosion()
+    if not explicit or "bomb_explosion" in explicit:
+        ok += convert_bomb_explosion()
         n += 1
     if not explicit or "hud_hp_ball" in explicit:
         ok += convert_hud_ball()

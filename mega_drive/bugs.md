@@ -1588,7 +1588,7 @@ Reports, in the user's order, with what is known so far:
 - [x] wall shooter must not shoot backwards (PC fires along facing side, down from ceiling, up from floor; the port aimed at the player anywhere)
 - [x] diagonal shots: enemy projectiles with trajectory DIAGONAL_UP/DOWN never got a dy (flew straight)
 - [ ] many slowdowns in the TECHNO stage
-- [ ] techno bomb: no sound, explosion animation wrong (and smaller)
+- [x] bomb / fall-bomb: now the PC 56x56 7-frame explosion (3.6 s / 1.6 s), damaging only while exploding, with the big-explosion sound
 - [ ] after respawning at a checkpoint the player cannot walk right until he jumps
 - [ ] MUMMY link 5 scrolls left ignoring the wall-lock
 - [ ] helmets leave "stand" a second time, after shooting and also without shooting
