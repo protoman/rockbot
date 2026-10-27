@@ -1582,3 +1582,14 @@ Reports, in the user's order, with what is known so far:
       always_move_ahead) stopped at gaps: PC skips the hole test for such walkers
       so they march on and fall; the port kept the ledge stop (and the patrol
       leash). Both are skipped while always_ahead is set.
+
+## Report 2026-10-27 (batch of 9, to be worked one at a time)
+- [x] disappearing blocks: hidden countdown was cancelled one frame later by the visible-branch (vis_t != 0 re-entered the countdown); hidden phase now counts down from BLOCK_HIDDEN_FRAMES
+- [ ] wall shooter must not shoot backwards
+- [ ] diagonal shots missing from the small red enemy
+- [ ] many slowdowns in the TECHNO stage
+- [ ] techno bomb: no sound, explosion animation wrong (and smaller)
+- [ ] after respawning at a checkpoint the player cannot walk right until he jumps
+- [ ] MUMMY link 5 scrolls left ignoring the wall-lock
+- [ ] helmets leave "stand" a second time, after shooting and also without shooting
+- [ ] PHARAOH vanishes after the boss dialog and cannot be fought

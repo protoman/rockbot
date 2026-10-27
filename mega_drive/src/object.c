@@ -1216,20 +1216,21 @@ void objects_update(void)
         // 14 stays up until the player stands on it once, then cycles
         // (OBJ_ACTIVE_DISAPPEARING_BLOCK).
         if (d->type == 2) {
-            if (!o->visible && o->vis_t) {
-                if (--o->vis_t == 0) {
+            // vis_t counts down while hidden (it also carries the initial
+            // delay) and up while visible
+            if (!o->visible) {
+                if (!o->vis_t) {
+                    o->vis_t = BLOCK_HIDDEN_FRAMES;
+                } else if (--o->vis_t == 0) {
                     o->visible = TRUE;
                     o->anim_play = 1;      // PC reset_animation() + SFX
                     o->frame = 0;
                     o->anim_t = 0;
                     sfx_play(SFX_BLOCK_APPEAR);
                 }
-            } else {
-                u8 lim = o->visible ? BLOCK_VISIBLE_FRAMES : BLOCK_HIDDEN_FRAMES;
-                if (++o->vis_t >= lim) {
-                    o->vis_t = 0;
-                    o->visible = !o->visible;
-                }
+            } else if (++o->vis_t >= BLOCK_VISIBLE_FRAMES) {
+                o->vis_t = BLOCK_HIDDEN_FRAMES;
+                o->visible = FALSE;
             }
         } else if (d->type == 14) {
             u8 visible_lim = d->timer ? obj_ms_frames(d->timer)
