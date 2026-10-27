@@ -1485,3 +1485,5 @@ Reports, in the user's order, with what is known so far:
 - [x] Slide ended inside a 1-tile tunnel (button released / wall / distance) and
       stood the player up into the ceiling. The slide now cannot end while a
       solid tile is in the strip between the standing and the slide head.
+- [x] APE QUAKE left a static projectile image: it is an effect, its slot is now
+      never shown (also kept hidden by shots_set_visible).

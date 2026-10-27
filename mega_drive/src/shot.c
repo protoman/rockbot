@@ -131,6 +131,9 @@ void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
         // The projectile art faces RIGHT (the charged shot's tail is on the
         // left), so mirror it when firing left.
         SPR_setHFlip(s->spr, dir < 0);
+        // QUAKE is an effect (ground damage + screen shake), not a body: the
+        // slot only carries its timer, so it never shows art.
+        if (pd->traj == TRAJ_QUAKE) SPR_setVisibility(s->spr, HIDDEN);
         s->x = ox;
         s->y = oy;
         s->x0 = ox;
@@ -256,7 +259,8 @@ void shots_set_visible(bool visible)
 {
     for (u8 i = 0; i < SHOT_MAX; i++)
         if (shots[i].spr)
-            SPR_setVisibility(shots[i].spr, visible ? VISIBLE : HIDDEN);
+            SPR_setVisibility(shots[i].spr, (visible && shots[i].traj != TRAJ_QUAKE)
+                                            ? VISIBLE : HIDDEN);
 }
 
 static bool shot_solid(s16 x, s16 y)
