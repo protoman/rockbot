@@ -16,6 +16,7 @@
 // of stage_def->enemy_proj. Weapon 0 is the buster (projectile 0).
 #define SHOT_CHARGE_SPEED 5   // fallback; the table's value (5) is used
 #define SHOT_COOLDOWN 10   // frames between shots (design choice, not in data)
+#define SHOT_CIRCLE_FRAMES 216 // PC _effect_timer 3600 ms for CENTERED
 #define SHOT_QUAKE_LIFE 60 // ~1s for the stationary QUAKE shot
 #define SHOT_CHAIN_FRAMES 12   // chain out / chain back, ~0.2s each way
 
@@ -97,6 +98,24 @@ void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
     // Some ids have no art in the port (e.g. 7 SPIKED CHAIN is skipped by the
     // converter) — fall back to the buster so the weapon still shoots.
     if (!pd->spr || !pd->speed) pd = &stage_def->enemy_proj[0];
+    // PC classplayer.cpp:355 / inc_effect_weapon_status(): with a MAGIC STAR
+    // held around the player, the next press releases it instead of making a
+    // new one.
+    if (pd->traj == TRAJ_CENTERED) {
+        for (u8 i = 0; i < SHOT_MAX; i++) {
+            Shot *h = &shots[i];
+            if (h->on && h->traj == TRAJ_CENTERED && h->status == 0 &&
+                h->age < SHOT_CIRCLE_FRAMES) {
+                h->status = 1;
+                h->dir = (s8)dir;
+                h->dx = (dir < 0) ? -(s16)((h->dx < 0) ? -h->dx : h->dx)
+                                  : (s16)((h->dx < 0) ? -h->dx : h->dx);
+                cooldown = SHOT_COOLDOWN;
+                sfx_play(SFX_SHOT);
+                return;
+            }
+        }
+    }
     // PC classplayer.cpp:348: while a FREEZE effect runs the weapon button
     // shoots the normal projectile (no ammo); once it ends the next press
     // starts the effect again.
@@ -305,8 +324,10 @@ void shot_update(void)
             s->y = s->y0 - arc_offset(s->x - s->x0);
             break;
         case TRAJ_CENTERED:
-            // MAGIC STAR: held around the player, then released as linear.
-            if (s->age < 30) {
+            // MAGIC STAR: held around the player until the next attack press
+            // (status) or the 3.6 s effect timer, then released as linear
+            // (PC projectilelib.cpp:700).
+            if (s->age < SHOT_CIRCLE_FRAMES && s->status == 0) {
                 s16 l, t, r, b;
                 player_get_box(&l, &t, &r, &b);
                 s->x = (s16)((l + r) / 2 - s->w / 2);
@@ -454,4 +475,19 @@ void shot_update(void)
 
         SPR_setPosition(s->spr, s->x - camera.x, s->y - camera.y);
     }
+}
+
+// PC character::is_using_circle_weapon() for the player: a held MAGIC STAR eats
+// one enemy projectile (both vanish, classnpc.cpp:534). TRUE = absorbed.
+bool shots_circle_absorb(void)
+{
+    for (u8 i = 0; i < SHOT_MAX; i++) {
+        Shot *h = &shots[i];
+        if (h->on && h->traj == TRAJ_CENTERED && h->status == 0 &&
+            h->age < SHOT_CIRCLE_FRAMES) {
+            shot_kill(h);
+            return TRUE;
+        }
+    }
+    return FALSE;
 }

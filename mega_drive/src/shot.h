@@ -23,6 +23,8 @@ s16 shot_shake_x(void);
 
 // Move shots, wall/screen cull, enemy hit tests. After enemies_update().
 void shot_update(void);
+// TRUE (and the held MAGIC STAR is consumed) when it absorbs an enemy shot.
+bool shots_circle_absorb(void);
 
 // Hide/show every live shot sprite (in-game menu overlay).
 void shots_set_visible(bool visible);

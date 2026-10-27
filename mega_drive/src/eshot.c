@@ -6,6 +6,7 @@
 #include "stage_data.h"
 #include "explosion.h"
 #include "enemy.h"
+#include "shot.h"
 
 // PROJECTILE_TRAJECTORIES (PC defines.h) live in stage_data.h (shared with the
 // player shots in shot.c).
@@ -497,6 +498,10 @@ void eshots_update(void)
                 s16 vy = (s->dx < 0) ? -s->dx : s->dx;
                 s->dy = (s->y & 1) ? -vy : vy;
                 s->traj = (s->y & 1) ? TRAJ_DIAG_UP : TRAJ_DIAG_DOWN;
+                continue;
+            }
+            if (shots_circle_absorb()) {        // star shield: both vanish
+                kill(s);
                 continue;
             }
             player_take_damage(s->dmg);

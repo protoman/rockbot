@@ -1554,3 +1554,7 @@ Reports, in the user's order, with what is known so far:
       destination column (map 2, col 43) is water down to the floor and
       first_lock_on_bottom() counted WATER as a lock/obstacle, so it found no
       ground. PC treats WATER as passable. Offline: result row 0 -> 11.
+- [x] MAGIC STAR was released by itself after 0.5 s (looked like it fired on one
+      press). PC: the first press creates the star circle around the player, it
+      stays until the next press (or 3.6 s), which releases it. A held star also
+      absorbs one enemy projectile (both vanish), like the NPC rule.
