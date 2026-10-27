@@ -32,7 +32,8 @@ typedef struct {
     s8 dir;
     u8 status;
     bool on;
-    bool pierce;        // full charged shot: PC vanishes_on_hit=false
+    bool pierce;        // continues through the target (no shot does today)
+    bool charged;       // semi/full/armor charge: shields do not reflect it
     u8 weapon;          // weapon that fired it (PC projectile.get_weapon_id)
     bool reflected;     // PC projectile.is_reflected: no more hits
 } Shot;
@@ -147,6 +148,7 @@ void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
         s->status = 0;
         s->on = TRUE;
         s->pierce = FALSE;
+        s->charged = FALSE;
         s->reflected = FALSE;
         s->weapon = w;      // PC: damage uses the projectile's weapon id
         live++;
@@ -228,6 +230,7 @@ void shot_charge_fire(s16 x, s16 y, s16 dir, u8 level)
     // hits. It used to pierce for level >= 2, so a full charge flew through
     // the whole row.
     s->pierce = FALSE;
+    s->charged = TRUE;      // vanishes on hit, but is never reflected by a shield
     s->reflected = FALSE;
     s->weapon = w;
     cooldown = SHOT_COOLDOWN;
@@ -400,8 +403,8 @@ void shot_update(void)
         // PC character.cpp:742 permanent projectiles). Charged shots also
         // ignore shields: PC only reflects when vanishes_on_hit is true.
         u8 hit = enemies_try_hit(s->x, s->y, s->x + s->w - 1, s->y + s->h - 1,
-                                 s->dmg, (s->dx < 0) ? -1 : 1, s->pierce,
-                                 s->weapon);
+                                 s->dmg, (s->dx < 0) ? -1 : 1,
+                                 s->pierce || s->charged, s->weapon);
         if (hit == 2) {
             // Shielded enemy: PC projectile::reflect() flips direction and
             // turns the shot into a diagonal (up/down by Y parity), then
