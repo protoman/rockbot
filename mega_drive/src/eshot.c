@@ -204,6 +204,7 @@ static bool fire_impl(s16 x, s16 y, s16 dir, u8 proj_id, bool aim)
                                TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
         spr_seen = spr_gen;
         if (!s->spr) return FALSE;
+        if (p->traj == TRAJ_CHAIN) SPR_setAutoAnimation(s->spr, FALSE);   // frame = current length
         s->x = x - p->w / 2;
         s->y = y - p->h / 2;
         s->x0 = s->x;
@@ -212,7 +213,7 @@ static bool fire_impl(s16 x, s16 y, s16 dir, u8 proj_id, bool aim)
         s->dy = 0;
         s->speed = p->speed;
         s->dmg = p->dmg;
-        s->w = p->w;
+        s->w = (p->traj == TRAJ_CHAIN) ? p->speed : p->w;   // a chain grows from nothing
         s->h = p->h;
         s->proj_id = proj_id;
         s->owner = eshot_current_owner;
@@ -441,9 +442,16 @@ void eshots_update(void)
             break;
         }
         case TRAJ_CHAIN: {
-            // PC projectilelib.cpp:643: the chain is attached to its owner and
-            // extends/retracts; it only damages while it is out, so the hitbox
-            // follows the art width instead of a fixed 6x6 cell.
+            // PC projectilelib.cpp:643: the chain is attached to its owner,
+            // grows by `speed` per update until the art is fully out, then
+            // retracts the same way. Only the visible slice hurts.
+            if (s->status == 0) {
+                s->w = (u8)(s->w + s->speed);
+                if (s->w >= s->w0) { s->w = s->w0; s->status = 1; }
+            } else {
+                if (s->w <= s->speed) { kill(s); continue; }
+                s->w = (u8)(s->w - s->speed);
+            }
             s16 ox, oy, ow, oh;
             s8 odir;
             if (s->owner < 32 &&
@@ -452,13 +460,12 @@ void eshots_update(void)
                 s->x = (s->dir > 0) ? (s16)(ox + ow) : (s16)(ox - s->w);
                 s->y = (s16)(oy + oh / 2 - s->h / 2);
             }
-            // extend to the art width, then retract and expire
-            if (s->status == 0) {
-                if ((s16)(s->w + 4) >= (s16)s->w0) s->status = 1;
-                else s->w = (u8)(s->w + 4);
-            } else {
-                if (s->w <= 8) { kill(s); continue; }
-                s->w = (u8)(s->w - 4);
+            if (s->spr) {
+                // frame k = the spiked head plus 8k columns of chain (converter)
+                s16 f = (s16)((s->w + 7) / 8) - 1;
+                if (f < 0) f = 0;
+                spr_set_frame(s->spr, f);
+                SPR_setHFlip(s->spr, s->dir < 0);
             }
             break;
         }
@@ -558,7 +565,10 @@ void eshots_update(void)
         }
 
         if (s->spr) {
-            SPR_setPosition(s->spr, s->x - camera.x, s->y - camera.y);
+            s16 px = s->x;
+            if (s->traj == TRAJ_CHAIN && s->dir < 0)
+                px = (s16)(px - (((s16)s->w0 + 7 & ~7) - s->w));   // flipped slice hugs the cell's right edge
+            SPR_setPosition(s->spr, px - camera.x, s->y - camera.y);
         }
     }
 }

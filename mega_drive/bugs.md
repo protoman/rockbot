@@ -1593,3 +1593,9 @@ Reports, in the user's order, with what is known so far:
 - [ ] MUMMY link 5 scrolls left ignoring the wall-lock
 - [x] helmets: attack row looped, re-showing its first (stand) frame when the SHOT action ran a tick past the animation; shot attacks now hold the last frame (unverified: needs a play-test)
 - [x] PHARAOH vanished: e->teleporting was only cleared on a fall landing (stray line), so after the first TELEPORT he kept the dissolve frame forever; cleared when the action ends
+
+## Report 2026-10-27 (follow-ups)
+- [x] SPIKE BOT wall grab: JUMP pose while leaping, WALK_AIR pose clinging (new air row in the enemy sheet; GRAB_WALL leap also forces the jump row)
+- [ ] SPIKE BOT projectile while on the wall is a CHAIN in the PC
+- [x] CHAIN projectile grows from nothing and retracts (frames = slices of the art; hitbox follows)
+- [x] enemies act only while in the same room as the player (no scroll-lock column between them)

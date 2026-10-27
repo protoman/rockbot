@@ -110,6 +110,7 @@ typedef struct {
     u16 attack_shot_ms; // ms from the start of the attack animation to the frame
                         // that spawns the projectile (PC file_npc.attack_frame,
                         // else the last frame; character.cpp:936 / ai.cpp:1185)
+    u8 air_anim;        // sheet row of ANIM_TYPE_WALK_AIR (255 = none): the clinging pose after GRAB_WALL
 } EnemyDef;
 
 typedef struct {

@@ -90,6 +90,7 @@ AI_GOTO_CHANCE = 0
 
 ANIM_STAND, ANIM_WALK, ANIM_JUMP, ANIM_ATTACK, ANIM_TELEPORT = 0, 1, 2, 3, 4
 ANIM_TURN = 13       # PC ANIM_TYPE_TURN: the turn-around animation
+ANIM_WALK_AIR = 15   # PC ANIM_TYPE_WALK_AIR: the pose after GRAB_WALL (clinging)
 ANIM_INTRO = 16     # bosses only (PC classMap::boss_show_intro_sprites)
 COLORKEY = (75, 125, 125)
 MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)
@@ -119,11 +120,11 @@ def read_enemy_defs(blob, ids):
         # 0xFF in the id byte but are still real entries — trust the index.
         assert b[0] == eid or b[0] == 0xFF, f"record {eid}: id byte {b[0]} != {eid}"
         stand, walk, attack, jump, teleport, intro = [], [], [], [], [], []
-        turn = []
+        turn, air = [], []
         for anim, out in ((ANIM_STAND, stand), (ANIM_WALK, walk),
                           (ANIM_ATTACK, attack), (ANIM_JUMP, jump),
                           (ANIM_TELEPORT, teleport), (ANIM_INTRO, intro),
-                          (ANIM_TURN, turn)):
+                          (ANIM_TURN, turn), (ANIM_WALK_AIR, air)):
             for f in range(10):
                 o = 78 + (anim * 10 + f) * 14
                 used, dur, px = b[o], struct.unpack_from("<H", b, o + 2)[0], b[o + 4]
@@ -171,6 +172,7 @@ def read_enemy_defs(blob, ids):
             "teleport": teleport,
             "intro": intro,
             "turn": turn,
+            "air": air,
         }
     return defs
 
@@ -386,6 +388,25 @@ def emit_proj_sprite(rec, palette, save=True):
     else:
         frames, vert = 1, False
     cw, ch = ceil8(w), ceil8(h)
+    if rec["traj"] == 3:
+        # CHAIN grows and retracts (PC projectile.cpp draws a growing slice):
+        # frame k holds the last 8k columns of the art, the spiked head, at the
+        # left of its cell; eshot.c picks the frame from the current width.
+        frames, vert = (w + 7) // 8, False
+        out = Image.new("P", (frames * cw, ch))
+        out.putpalette([v for c in palette for v in c])
+        data = [0] * (frames * cw * ch)
+        src = im.load()
+        for k in range(frames):
+            show = min(w, 8 * (k + 1))
+            for y in range(min(h, ah)):
+                for x in range(show):
+                    data[y * frames * cw + k * cw + x] = src[w - show + x, y]
+        out.putdata(data)
+        name = "proj_%d" % rec["id"]
+        if save:
+            out.save(os.path.join(RES, name + ".png"))
+        return name, cw, ch, frames, [6] * frames
     out = Image.new("P", (frames * cw, ch))
     out.putpalette([v for c in palette for v in c])
     data = [0] * (frames * cw * ch)
@@ -512,7 +533,7 @@ def main():
         # while a normal enemy sheet with 5 rows pushed crowded rooms past the
         # sprite VRAM pool (invisible player + garbage frame pointers).
         boss_or_sub = bool(d["is_boss"] or d["is_sub_boss"])
-        needs_jump = boss_or_sub and 2 in acts
+        needs_jump = boss_or_sub and (2 in acts or 12 in acts)   # GRAB_WALL leaps with the JUMP pose
         needs_tele = boss_or_sub and 10 in acts
         jump = frames_of(d["jump"]) if needs_jump else []
         teleport = frames_of(d["teleport"]) if needs_tele else []
@@ -524,9 +545,12 @@ def main():
         # ANIM_TYPE_TURN: the flying shielder turns by rotating its shield, so
         # the row matters for the AI turn options (WALK TURN / FLY TURN).
         turn = frames_of(d["turn"])
+        # GRAB_WALL ends in the WALK_AIR pose (PC execute_ai_step_jump_to_wall)
+        air = frames_of(d["air"]) if (boss_or_sub and 12 in acts) else []
         nrows = 3 + (1 if needs_jump else 0) + (1 if needs_tele else 0)
         intro_anim = nrows if intro else 255
         turn_anim = (nrows + (1 if intro else 0)) if turn else 255
+        air_anim = (nrows + (1 if intro else 0) + (1 if turn else 0)) if air else 255
         turn_ms = sum(du for _, du in turn)
         intro_ms = sum(du for _, du in intro)
         # all stand frames / all walk frames, times in 1/60s
@@ -541,7 +565,7 @@ def main():
         bb = max(r[1] + r[3] for r in rects)
 
         cols = max(len(stand), len(walk), len(attack), len(jump),
-                   len(teleport), len(intro), 1)
+                   len(teleport), len(intro), len(air), 1)
         src = sheet.load()
         cells = []
         rows = [stand, walk, attack]
@@ -553,6 +577,8 @@ def main():
             rows.append(intro)
         if turn:
             rows.append(turn)
+        if air:
+            rows.append(air)
         for row_frames in rows:
             row = []
             for (fcol, _dur) in row_frames:
@@ -570,8 +596,9 @@ def main():
             "jump_anim": jump_anim, "teleport_anim": teleport_anim,
             "intro_anim": intro_anim, "intro_ms": intro_ms,
             "turn_anim": turn_anim, "turn_ms": turn_ms,
+            "air_anim": air_anim, "air_t": times(air) if air else [1],
             "turn_t": times(turn) if turn else [1],
-            "nrows": nrows + (1 if intro else 0) + (1 if turn else 0),
+            "nrows": nrows + (1 if intro else 0) + (1 if turn else 0) + (1 if air else 0),
             "stand_t": times(stand), "walk_t": times(walk),
             "attack_t": times(attack),
             "jump_t": times(jump) if jump else [1],
@@ -793,7 +820,7 @@ extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
             f"{p['intro_anim']}, {p['intro_ms']}, "
             f"{p['attack_ms']}, {d['shield_type']}, "
             f"{{ {', '.join(str(x & 0xFF) for x in d['weak'])} }}, "
-            f"{p['turn_anim']}, {p['turn_ms']}, {p['attack_shot_ms']} }},"
+            f"{p['turn_anim']}, {p['turn_ms']}, {p['attack_shot_ms']}, {p['air_anim']} }},"
             f"  // {d['name']}\n")
     lines.append("};\n\n")
     lines.append(f"const EnemySpawn {PFX}_enemy_spawns[{UP}_ENEMY_SPAWN_COUNT] = {{\n")
@@ -851,6 +878,8 @@ extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
                                            for _, du, _r in p["d"]["intro"]]) + "]")
         if p["turn_anim"] != 255:
             anims.append("[" + ",".join(str(t) for t in p["turn_t"]) + "]")
+        if p["air_anim"] != 255:
+            anims.append("[" + ",".join(str(t) for t in p["air_t"]) + "]")
         line = (f'SPRITE {p["res_name"]}_sprite "{p["res_name"]}.png" '
                 f'{p["cw"]}p {p["ch"]}p FAST [' + "".join(anims) + ']')
         print(line)

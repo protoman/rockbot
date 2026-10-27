@@ -387,7 +387,7 @@ PALETTE stage6_bg1_pal "stage6_bg1_tiles.png"
 PALETTE stage6_bg2_pal "stage6_bg2_tiles.png"
 
 # ---- STAGE 7 ----
-SPRITE enemy_spikebot_sprite "enemy_spikebot.png" 40p 40p FAST [[12,12][6,6][120][120][18,18,36]]
+SPRITE enemy_spikebot_sprite "enemy_spikebot.png" 40p 40p FAST [[12,12][6,6][120][120][18,18,36][120]]
 SPRITE enemy_driller_sprite "enemy_driller.png" 32p 24p FAST [[6,6][6,6][0]]
 SPRITE enemy_metal_metool_sprite "enemy_metal_metool.png" 24p 24p FAST [[120][12,12][9,9,30,6,9,9]]
 TILESET stage7_tiles0 "stage7_map0.png"  NONE ALL
@@ -539,7 +539,7 @@ SPRITE object_deathray_small_horz_sprite "object_deathray_small_horz.png" 64p 16
 SPRITE object_platform_sprite "object_platform.png" 16p 16p FAST [[6]]
 SPRITE object_teleporter_sprite "object_teleporter.png" 32p 64p FAST [[9,9,9,9]]
 SPRITE object_teleport_base_sprite "object_teleport_base.png" 32p 16p FAST [[4,4,4,4,4]]
-SPRITE proj_7_sprite "proj_7.png" 72p 8p FAST [[0]]
+SPRITE proj_7_sprite "proj_7.png" 72p 8p FAST [[6,6,6,6,6,6,6,6,6]]
 SPRITE proj_23_sprite "proj_23.png" 16p 8p FAST [[0]]
 SPRITE proj_24_sprite "proj_24.png" 32p 16p FAST [[6,6]]
 SPRITE proj_25_sprite "proj_25.png" 8p 8p FAST [[0]]
