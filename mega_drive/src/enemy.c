@@ -193,6 +193,15 @@ static s16 boss_i = -1;      // index of the is_boss enemy, -1 = none
 static bool boss_died;
 static bool boss_screen;     // boss visible this frame (gates the HP row)
 
+// What an NPC cannot walk through. PC check_map_collision_point blocks NPCs on
+// every terrain except UNBLOCKED / STAIR / the difficulty blocks (water has its
+// own rule): conveyors, ice, sand and spikes are FLOORS for them. The port only
+// knew TERRAIN_SOLID, so a LARVA spawned on a conveyor row (FLOWER FIELDS map 1)
+// sat inside the belt art.
+#define ENEMY_SOLID(t) ((t) == TERRAIN_SOLID || (t) == TERRAIN_ICE || \
+                        (t) == TERRAIN_MOVE_LEFT || (t) == TERRAIN_MOVE_RIGHT || \
+                        (t) == TERRAIN_QUICKSAND || (t) == TERRAIN_SPIKE)
+
 // PC character.cpp:1921-1923: a non-boss NPC may not leave water, and may not
 // enter it either - the water enemies (SEAHORSE fish) stayed on land in the
 // port (BUG-018). Bosses are exempt, as on the PC.
@@ -231,7 +240,7 @@ static bool box_hits_solid(s16 l, s16 t, s16 r, s16 b)
 {
     for (s16 ty = t >> 4; ty <= (b - 1) >> 4; ty++) {
         for (s16 tx = l >> 4; tx <= (r - 1) >> 4; tx++) {
-            if (stage_terrain_at(stage_current_map, tx, ty) == TERRAIN_SOLID)
+            if (ENEMY_SOLID(stage_terrain_at(stage_current_map, tx, ty)))
                 return TRUE;
         }
     }
@@ -255,7 +264,7 @@ static void snap_out_of_floor(Enemy *e)
     s16 top_solid = -1;
     for (s16 row = t >> 4; row <= (b - 1) >> 4; row++) {
         for (s16 col = l >> 4; col <= (r - 1) >> 4; col++) {
-            if (stage_terrain_at(stage_current_map, col, row) == TERRAIN_SOLID) {
+            if (ENEMY_SOLID(stage_terrain_at(stage_current_map, col, row))) {
                 if (top_solid < 0) top_solid = row;
                 break;
             }
@@ -276,12 +285,12 @@ static bool feet_solid(const Enemy *e, s16 row)
         // PC hit_ground (character.cpp:1399): stairs are floor for NPCs, so a
         // walker crossing a ladder column does not fall through it.
         if (t == TERRAIN_STAIR) return TRUE;
-        if (t != TERRAIN_SOLID)
+        if (!ENEMY_SOLID(t))
             continue;
         // side wall? solid for the full box height (some open row = floor)
         bool wall = TRUE;
         for (s16 ry = top; ry <= row; ry++) {
-            if (stage_terrain_at(stage_current_map, tx, ry) != TERRAIN_SOLID) {
+            if (!ENEMY_SOLID(stage_terrain_at(stage_current_map, tx, ry))) {
                 wall = FALSE;
                 break;
             }
@@ -342,7 +351,7 @@ static s16 ai_roof_y(const Enemy *e)
     s16 top = e->y + d->box_t;
     for (s16 row = (top >> 4) - 1; row >= 0; row--) {
         for (s16 tx = l >> 4; tx <= r >> 4; tx++) {
-            if (stage_terrain_at(stage_current_map, tx, row) == TERRAIN_SOLID)
+            if (ENEMY_SOLID(stage_terrain_at(stage_current_map, tx, row)))
                 return (s16)((row + 1) * 16 - d->box_t);
         }
     }
@@ -554,7 +563,7 @@ static void ai_action_init(Enemy *e)
              col >= 0 && col < stage_def->map_w; col += e->dir) {
             bool hit = FALSE;
             for (s16 r = row0; r <= row1; r++)
-                if (stage_terrain_at(stage_current_map, col, r) == TERRAIN_SOLID)
+                if (ENEMY_SOLID(stage_terrain_at(stage_current_map, col, r)))
                     hit = TRUE;
             if (hit) { wall = col; break; }
         }
@@ -737,7 +746,7 @@ static bool ceiling_clip(const Enemy *e, s16 *ny)
     for (s16 row = ((e->y + d->box_t) >> 4) - 1;
          row >= ((*ny + d->box_t) >> 4); row--) {
         for (s16 tx = l; tx <= r; tx++) {
-            if (stage_terrain_at(stage_current_map, tx, row) == TERRAIN_SOLID) {
+            if (ENEMY_SOLID(stage_terrain_at(stage_current_map, tx, row))) {
                 *ny = (s16)(((row + 1) << 4) - d->box_t);
                 return TRUE;
             }

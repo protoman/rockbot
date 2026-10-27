@@ -1573,3 +1573,8 @@ Reports, in the user's order, with what is known so far:
       never finished (probably the real cause behind the BAT / MECHAFISHER /
       DOLGOLPHIN reports). The leash now applies to walkers only, and as a block
       inside step_axis.
+- [x] LARVA (FLOWER FIELDS map 1, left) sat inside the ground: the room's floor
+      has conveyor tiles (terrain 8) in the row above the solid floor, and enemy
+      collision only knew TERRAIN_SOLID. PC blocks NPCs on every terrain but
+      UNBLOCKED/STAIR/difficulty blocks, so conveyors, ice, sand and spikes are
+      floors for enemies now (ENEMY_SOLID in enemy.c): spawn y 161 -> 145.
