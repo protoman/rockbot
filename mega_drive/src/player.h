@@ -179,6 +179,10 @@ const Palette *player_palette_def(void);
 // starts the death sequence (player hidden, world frozen by the caller).
 void player_take_damage(u8 amount);
 
+// Enemy FREEZE weapon (DYNAMITE FLASH): no input for 3500 ms, except while the
+// post-hit invulnerability runs (PC classPlayer::execute).
+void player_freeze(void);
+
 // Death sequence: player_is_dying() while dead; player_death_update() ticks
 // it and respawns at the checkpoint when lives remain, returning FALSE when
 // the sequence ended (then check player_out_of_lives for game over).

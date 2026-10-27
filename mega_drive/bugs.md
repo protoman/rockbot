@@ -1490,3 +1490,7 @@ Reports, in the user's order, with what is known so far:
 - [x] Dynamite (stage 6) / stage 1 clear screen named E-TANK / W-TANK: PC
       player_items = [16, 17] = object ids COIL FROG / JET EAGLE (checked in
       game_object_list.dat); the tank ids are 5/6. Text now COIL FROG / JET EAGLE.
+- [x] Enemy DYNAMITE FLASH (FREEZE projectile) did not freeze the player: the
+      eshot treated it as a bomb. PC freeze_weapon_effect=PLAYER: no input for
+      3500 ms (210 frames) unless the post-hit invulnerability runs. White
+      screen blink not ported.

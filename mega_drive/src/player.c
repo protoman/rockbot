@@ -94,6 +94,7 @@
 Player player;
 
 static bool air_jump_used;
+static u16 freeze_frames;      // enemy FREEZE weapon: frames of lost control
 static bool ladder_need_release; // dropped off a ladder: UP/DOWN must be let go before it grabs again
 static u8 ladder_lock;      // frames left before a released ladder can grab again
 static bool air_dash_used;
@@ -677,6 +678,7 @@ void player_init(void)
     current_anim = ANIM_STAND;
     ladder_flip = FALSE;
     ladder_need_release = FALSE;
+    freeze_frames = 0;
     in_water = FALSE;
     rebuild_player_palette();
 
@@ -898,8 +900,14 @@ void player_check_scroll_lock(u16 pad)
     }
 }
 
+void player_freeze(void) { freeze_frames = 210; }
+
 void player_update(u16 pad)
 {
+    if (freeze_frames) {
+        freeze_frames--;
+        if (player.invuln == 0) pad = 0;
+    }
     if (ladder_lock) ladder_lock--;
     if (!(pad & (BUTTON_UP | BUTTON_DOWN))) ladder_need_release = FALSE;
     update_hitbox();   // box_t/box_b from the slide state so far

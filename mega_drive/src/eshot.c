@@ -187,6 +187,9 @@ static bool fire_impl(s16 x, s16 y, s16 dir, u8 proj_id, bool aim)
         s->w0 = p->w;
         s->step_t = 0;
         s->traj = p->traj;
+        // PC TRAJECTORY_FREEZE fired by an enemy: freeze_weapon_effect =
+        // FREEZE_EFFECT_PLAYER, the player cannot act for FREEZE_DURATION.
+        if (s->traj == TRAJ_FREEZE) player_freeze();
         s->dir = (s8)dir;
         s->status = 0;
         s->effect_t = 0;
