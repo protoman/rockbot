@@ -566,10 +566,13 @@ static bool step_axis(Enemy *e, s16 *pos, s16 dest, bool horizontal, bool can_fa
         }
         e->dir = dir;
     } else {
-        // simple vertical block: stop just at the solid tile
-        s16 b = n + d->box_t + d->box_h;
-        if (box_hits_solid(e->x + d->box_l, b - (dir > 0 ? 0 : d->box_h),
-                           e->x + d->box_l + d->box_w, b))
+        // Only the LEADING edge can block a vertical move: the old test took
+        // the whole box at the new position when going up, so a bat resting
+        // beside/on a pillar top was "blocked" while moving AWAY from it and
+        // its return flight ended on the spot (BAT BALL, DARK MINE).
+        s16 edge = (dir > 0) ? n + d->box_t + d->box_h : n + d->box_t;
+        if (box_hits_solid(e->x + d->box_l, edge,
+                           e->x + d->box_l + d->box_w, edge + 1))
             return TRUE;
     }
     *pos = n;

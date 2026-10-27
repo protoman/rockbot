@@ -1502,3 +1502,10 @@ Reports, in the user's order, with what is known so far:
       3 frames / 260 ms, while the freeze runs); during the freeze the weapon
       button shoots the normal buster shot (no ammo), and the first press after
       it ends starts the effect again (PC classplayer.cpp:348).
+- [x] BAT BALL (DARK MINE) did not return to its origin: step_axis' vertical
+      test took the WHOLE box at the new position when moving up, so a bat
+      resting on/next to a pillar top was "blocked" while moving away and the
+      FLY TO_SAVED state ended on the spot. Only the leading edge blocks now.
+      Reproduced with tools/sim_bat_return.py: 43 of 858 chase/return pairs
+      ended away from the spawn, 22 after the fix (the rest are real walls
+      between the bat and its origin on one axis, as on PC).
