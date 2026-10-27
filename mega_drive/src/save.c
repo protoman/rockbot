@@ -1,4 +1,5 @@
 #include "save.h"
+#include "sram_safe.h"
 
 // SRAM is declared by the ROM header (src/rom_header.c: "RA", 0xF820,
 // 0x00200000-0x0020FFFF). SGDK's SRAM_readWord/writeWord take a byte offset
@@ -29,7 +30,7 @@ static u16 items_off(u8 slot)
 
 void save_init(void)
 {
-    SRAM_enable();
+    SRAM_disable();     // reset state; see sram_safe.h (ROM shares the window)
 
     // ---- TEMPORARY TEST HACK (see bugs.md, BUG-T01) ----------------------
     // Seed slot 1 — only when it is EMPTY, so a real save is never clobbered —

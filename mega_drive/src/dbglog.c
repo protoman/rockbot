@@ -3,6 +3,7 @@
 #if defined(MD_TRANS_DEBUG) || defined(MD_LINK_DEBUG)
 
 #include <stdarg.h>
+#include "sram_safe.h"
 
 // The save code uses bytes 0..~130, nothing near 0x4000.
 #define DBG_SRAM_BASE 0x4000

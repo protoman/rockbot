@@ -145,6 +145,10 @@ check-vram: all
 check-fills:
 	$(PYTHON) tools/check_fill_tiles.py
 
+.PHONY: check-sram
+check-sram:
+	$(PYTHON) tools/check_sram_window.py
+
 # A bare PAL_set*(.., CPU) can be redirected to the wrong CRAM entry by a DMA or
 # the vblank handler between its address write and its data words (BUG-044
 # follow-up: the boot grey ramp landed 8 or 10 entries down). All CPU-method

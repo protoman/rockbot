@@ -5,6 +5,7 @@
 #include "resources.h"
 
 #include <genesis.h>
+#include "sram_safe.h"
 
 #include "sfx.h"
 #include "ending.h"
