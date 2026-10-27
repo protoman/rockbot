@@ -162,6 +162,8 @@ typedef struct {
     u16 intro_t;      // frames of ANIM_TYPE_INTRO left (boss landing)
     u8 moving;        // walk anim while the action moves the enemy
     u8 shooting;      // attack anim while a SHOT action runs
+    u8 leaping;       // GRAB_WALL flight (JUMP pose)
+    u8 clinging;      // hanging on the wall after GRAB_WALL (WALK_AIR pose)
     s16 move_acc;     // 50Hz movement accumulator (PC AI step throttle)
     u16 respawn_t;    // PC respawn_delay countdown (frames)
     u8 frozen;        // hidden by the DYNAMITE freeze effect
@@ -236,6 +238,22 @@ static bool enemy_water_ok(const Enemy *e, s16 ox, s16 oy,
 }
 
 // TRUE if any tile of the box [l..r) x [t..b) is solid.
+// PC throw_projectile: an enemy that cannot turn (move_speed 0) does not fire a
+// targeted projectile (TARGET_DIRECTION / ARC_TO_TARGET / TARGET_EXACT) while
+// the player is behind it - SIDERSHOOTER shot backwards.
+static bool eshot_fire_e(const Enemy *e, const EnemyDef *d, s16 x, s16 y, s16 dir, u8 pid)
+{
+    if (d->speed == 0 && pid < stage_def->enemy_proj_max) {
+        const u8 t = stage_def->enemy_proj[pid].traj;
+        if (t == TRAJ_TARGET_DIRECTION || t == 14 || t == TRAJ_TARGET_EXACT) {
+            const s16 ex = e->x + d->box_l + d->box_w / 2;
+            const bool right = player.x + 14 >= ex;
+            if (right ? e->dir < 0 : e->dir > 0) return FALSE;
+        }
+    }
+    return eshot_fire(x, y, dir, pid);
+}
+
 static bool box_hits_solid(s16 l, s16 t, s16 r, s16 b)
 {
     for (s16 ty = t >> 4; ty <= (b - 1) >> 4; ty++) {
@@ -380,6 +398,8 @@ static void ai_action_init(Enemy *e)
 
     e->moving = 0;
     e->shooting = 0;
+    e->leaping = 0;
+    e->clinging = 0;
     e->ghost = 0;
     e->dash_ai = 0;
     e->rand_t = 0;
@@ -1009,7 +1029,7 @@ static bool ai_action_run(Enemy *e)
             if (dist < 0) dist = -dist;
             if (dist > 120 * (s16)e->shot_n) {
                 e->shot_n++;
-                eshot_fire(e->x + d->box_l + d->box_w / 2,
+                eshot_fire_e(e, d, e->x + d->box_l + d->box_w / 2,
                            e->y + d->box_t + d->box_h / 2, e->dir, d->shot);
             }
         }
@@ -1109,7 +1129,7 @@ static bool ai_action_run(Enemy *e)
             e->dir = (player.x + 14 > e->x + d->box_l + d->box_w / 2) ? 1 : -1;
         if (e->act_t == 1 + ai_shot_frame(d, dur)) {
             u8 pid = (st->param >= 0) ? (u8)st->param : d->shot;
-            eshot_fire(e->x + d->box_l + d->box_w / 2,
+            eshot_fire_e(e, d, e->x + d->box_l + d->box_w / 2,
                        e->y + d->box_t + d->box_h / 2, e->dir, pid);
         }
         return e->act_t >= dur;
@@ -1126,7 +1146,7 @@ static bool ai_action_run(Enemy *e)
         }
         if (e->act_t == 1 + ai_shot_frame(d, dur)) {
             u8 pid = (st->param >= 0) ? (u8)st->param : d->shot;
-            eshot_fire(e->x + d->box_l + d->box_w / 2,
+            eshot_fire_e(e, d, e->x + d->box_l + d->box_w / 2,
                        e->y + d->box_t + d->box_h / 2, -e->dir, pid);
         }
         return e->act_t >= dur;
@@ -1171,7 +1191,7 @@ static bool ai_action_run(Enemy *e)
                             lead, e->y + d->box_t + d->box_h))
             e->x += e->dir * enemy_step(d->speed);
         if (e->act_t == 8 && st->param >= 0) {
-            eshot_fire(e->x + d->box_l + d->box_w / 2,
+            eshot_fire_e(e, d, e->x + d->box_l + d->box_w / 2,
                        e->y + d->box_t + d->box_h / 2, e->dir, (u8)st->param);
         }
         e->vy += ENEMY_GRAVITY;
@@ -1254,12 +1274,15 @@ static bool ai_action_run(Enemy *e)
 
     case AI_GRAB_WALL: {
         e->moving = 1;
+        e->leaping = 1;
         e->no_gravity = 1;                      // PC _ignore_gravity
         const bool gx = step_axis(e, &e->x, e->dest_x, TRUE, TRUE);
         const bool gy = step_axis(e, &e->y, e->dest_y, FALSE, TRUE);
         if (gx && gy) {
             e->dir = -e->dir;                   // PC: face away from the wall
             e->moving = 0;
+            e->leaping = 0;
+            e->clinging = 1;                    // PC sets ANIM_TYPE_WALK_AIR here
             return TRUE;
         }
         return FALSE;
@@ -1362,7 +1385,7 @@ static bool ai_action_run(Enemy *e)
                              e->y + d->box_t + d->box_h / 2, d->shot);
         if (st->action == AI_JUMP_ATTACK_AHEAD) {
             if (e->act_t == 8 && st->param >= 0)
-                eshot_fire(e->x + d->box_l + d->box_w / 2,
+                eshot_fire_e(e, d, e->x + d->box_l + d->box_w / 2,
                            e->y + d->box_t + d->box_h / 2, e->dir, (u8)st->param);
             e->vy += ENEMY_GRAVITY;
             s16 dy = F16_toInt(e->vy);
@@ -1400,9 +1423,9 @@ static bool ai_action_run(Enemy *e)
             u8 pid = (st->param >= 0) ? (u8)st->param : d->shot;
             s16 cx = (s16)(e->x + d->box_l + d->box_w / 2);
             s16 cy = (s16)(e->y + d->box_t + d->box_h / 2);
-            eshot_fire(cx, cy, e->dir, pid);
-            eshot_fire(cx, (s16)(cy - 16), e->dir, pid);
-            eshot_fire(cx, (s16)(cy + 16), e->dir, pid);
+            eshot_fire_e(e, d, cx, cy, e->dir, pid);
+            eshot_fire_e(e, d, cx, (s16)(cy - 16), e->dir, pid);
+            eshot_fire_e(e, d, cx, (s16)(cy + 16), e->dir, pid);
         }
         return e->act_t >= dur;
     }
@@ -1744,7 +1767,9 @@ void enemies_update(void)
                 spr_set_anim(e->spr, d->teleport_anim);
             else if (e->intro_t && d->intro_anim != 255)
                 spr_set_anim(e->spr, d->intro_anim);
-            else if (e->jumping && d->jump_anim != 255)
+            else if (e->clinging && d->air_anim != 255)
+                spr_set_anim(e->spr, d->air_anim);
+            else if ((e->jumping || e->leaping) && d->jump_anim != 255)
                 spr_set_anim(e->spr, d->jump_anim);
             else if (d->walk_n > 0)
                 spr_set_anim(e->spr, e->moving ? 1 : 0);
