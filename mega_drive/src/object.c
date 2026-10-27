@@ -1226,7 +1226,7 @@ void objects_update(void)
                     o->anim_play = 1;      // PC reset_animation() + SFX
                     o->frame = 0;
                     o->anim_t = 0;
-                    sfx_play(SFX_BLOCK_APPEAR);
+                    if (on_screen) sfx_play(SFX_BLOCK_APPEAR);   // silent off-screen
                 }
             } else if (++o->vis_t >= BLOCK_VISIBLE_FRAMES) {
                 o->vis_t = BLOCK_HIDDEN_FRAMES;
@@ -1248,7 +1248,7 @@ void objects_update(void)
                 o->anim_play = 1;          // PC reset_animation() + SFX
                 o->frame = 0;
                 o->anim_t = 0;
-                sfx_play(SFX_BLOCK_APPEAR);
+                if (on_screen) sfx_play(SFX_BLOCK_APPEAR);   // silent off-screen
             }
         } else if (d->type == 27) {
             // PC object.cpp:1039 (OBJ_ACTIVE_OPENING_SLIM_PLATFORM): once the
