@@ -20,6 +20,8 @@
 //   32 boss teleporter, looping anim; non-solid trigger (PC consumes the
 //       object block for this type): capsule-centre -> stage_teleport_boss
 
+#define OBJ_JUMP_Y_ADJUST 6    // PC defines.h:1384: COIL FROG collision top offset
+
 typedef struct {
     const ObjectDef *def;
     Sprite *spr;
@@ -41,6 +43,7 @@ typedef struct {
     u16 duration;    // frames left before release (0 = permanent)
     s8 dir;          // COIL/JET facing
     u8 drain;        // JET ammo drain counter
+    u8 anim_rev;     // COIL FROG: playing back toward frame 0
     fix16 fall_speed;// crusher (33) accelerating fall
     u8 door;         // boss door slice slot + 1 (0 = not a door)
     u8 flags;        // ODF_*: type tests precomputed at spawn (hot loop)
@@ -72,19 +75,19 @@ u8 prof_obj_hot_type;
 // frame; the answer never changes for an object, so it is cached at spawn.
 #define ODF_PLATFORM 0x01    // is_platform()
 #define ODF_GRAVITY  0x02    // object_has_gravity()
-#define ODF_AUTOANIM 0x04    // auto_anim()
+#define ODF_AUTOANIM 0x04    // def->anim_auto (PC animation_auto_start)
 #define ODF_LOOPING  0x08    // is_looping()
 
 static bool is_platform(u8 type);
 static bool object_has_gravity(u8 type);
-static bool auto_anim(u8 type);
 
-static u8 obj_flags_for(u8 type)
+static u8 obj_flags_for(const ObjectDef *d)
 {
+    const u8 type = d->type;
     u8 f = 0;
     if (is_platform(type)) f |= ODF_PLATFORM;
     if (object_has_gravity(type)) f |= ODF_GRAVITY;
-    if (auto_anim(type)) f |= ODF_AUTOANIM;
+    if (d->anim_auto) f |= ODF_AUTOANIM;
     if (type != 28) f |= ODF_LOOPING;      // 28's frames are its two states
     return f;
 }
@@ -96,7 +99,7 @@ static u8 obj_flags_for(u8 type)
 static void obj_init_cached(MapObj *o, const ObjectDef *d)
 {
     o->def = d;
-    o->flags = obj_flags_for(d->type);
+    o->flags = obj_flags_for(d);
     o->spr_vis = 0xFF;
     o->grounded = FALSE;
     o->rest_y = o->y;
@@ -117,6 +120,9 @@ u32 host_obj_work[OBJECT_MAX];
 s16 host_obj_y(u8 i) { return (i < obj_count) ? objs[i].y : -1; }
 u8 host_obj_flags(u8 i) { return (i < obj_count) ? objs[i].flags : 0; }
 u8 host_obj_count(void) { return obj_count; }
+s16 host_obj_x(u8 i) { return (i < obj_count) ? objs[i].x : -1; }
+u8 host_obj_frame(u8 i) { return (i < obj_count) ? objs[i].frame : 0; }
+bool host_obj_started(u8 i) { return (i < obj_count) ? objs[i].started : FALSE; }
 u32 host_obj_terr[OBJECT_MAX];
 u32 host_obj_spr[OBJECT_MAX];
 #define HOST_WORK() (host_pred_calls + host_terrain_calls + host_spr_calls)
@@ -125,16 +131,6 @@ u32 host_obj_spr[OBJECT_MAX];
 #define HOST_PRED() do { } while (0)
 #define HOST_WORK() 0
 #endif
-
-static bool auto_anim(u8 type)
-{
-    HOST_PRED();
-    // pickups (small/big pills), 1UP, boss teleporter, COIL/JET items
-    return type == 5 || type == 6 || type == 7 || type == 8 || type == 9 ||
-           type == 12 || type == 13 ||
-           type == 18 || type == 19 || type == 21 || type == 24 ||
-           type == 25 || type == 26 || type == 31 || type == 32;
-}
 
 static bool is_platform(u8 type)
 {
@@ -504,10 +500,10 @@ void objects_drop_item(s16 cx, s16 cy, bool subboss)
 
 // Player item weapons (PC player_items 16/17: COIL FROG type 13, JET EAGLE
 // type 12). Art is emitted once by convert_objects.py stage 0.
-static const ObjectDef coil_def =
-    { &object_item_jump_sprite, 13, 5, 2, 28, 18, 0, 0, 0 };
-static const ObjectDef jet_def =
-    { &object_item_jet_sprite, 12, 4, 18, 37, 9, 2, 0, 0 };
+static const ObjectDef coil_def =     // PC id 16: auto_start 0, loop 0, reverse 1
+    { &object_item_jump_sprite, 13, 5, 2, 28, 18, 0, 0, 0, 0, 0 };
+static const ObjectDef jet_def =      // PC id 17: auto_start 1, loop 1
+    { &object_item_jet_sprite, 12, 4, 18, 37, 9, 3, 0, 0, 1, 1 };   // PC: speed 0 -> 3
 
 bool objects_spawn_weapon_item(bool jet)
 {
@@ -543,6 +539,7 @@ bool objects_spawn_weapon_item(bool jet)
     o->frame = 0;
     o->dest_x = o->dest_y = o->dest_map = 0;
     o->started = FALSE;
+    o->anim_rev = 0;
     o->active = TRUE;
     o->visible = TRUE;
     o->vis_t = 0;
@@ -692,19 +689,31 @@ void objects_player_land(s16 l, s16 r, s16 top)
     }
 }
 
+// COIL FROG trigger (PC classmap.cpp:1595-1600): the player is descending, its
+// feet were at or above the frog's top (+OBJ_JUMP_Y_ADJUST) and now touch it.
+// The frog stays (it plays its animation and times out); only the player jumps.
+bool objects_spring_check(s16 l, s16 r, s16 feet_old, s16 feet_new)
+{
+    for (u8 i = 0; i < obj_count; i++) {
+        MapObj *o = &objs[i];
+        if (!o->active || o->def->type != 13) continue;
+        s16 top = o->y + OBJ_JUMP_Y_ADJUST;
+        if (feet_old <= top + 1 && feet_new >= top &&
+            l <= o->x + o->def->w && r >= o->x) {
+            o->started = TRUE;
+            o->anim_rev = 0;
+            o->anim_t = 0;
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 s16 objects_land_check(s16 l, s16 r, s16 head_new, s16 feet_new)
 {
     for (u8 i = 0; i < obj_count; i++) {
         MapObj *o = &objs[i];
-        if (o->active && o->def->type == 13) {   // COIL FROG: spring trigger
-            if (head_new <= o->y && feet_new > o->y &&
-                l <= o->x + o->def->w && r >= o->x) {
-                player_super_jump();
-                obj_release(o);
-                return -1;
-            }
-            continue;
-        }
+        if (o->active && o->def->type == 13) continue;   // COIL FROG: see objects_spring_check
         if (!solid_now(o)) continue;
         // PC classmap.cpp:1654 — descending with the head at/above the top
         // and any horizontal touch. X is inclusive: the side clamp can leave
@@ -1072,7 +1081,7 @@ void objects_update(void)
         // even when the object is off screen (PC arms every object against the
         // same global timer). Doing it here, before the visibility gate, keeps
         // identical objects in lockstep without any per-object division.
-        if ((o->flags & ODF_LOOPING) && !o->anim_play &&
+        if ((o->flags & ODF_LOOPING) && !o->anim_play && d->type != 13 &&
             ((o->flags & ODF_AUTOANIM) || o->started) &&
             d->frame_t && d->frames > 1) {
             if (++o->anim_t >= d->frame_t) {
@@ -1080,6 +1089,24 @@ void objects_update(void)
                 o->frame = (u8)((o->frame + 1) % d->frames);
                 if (o->spr) spr_set_frame(o->spr, o->frame);
             }
+        }
+
+        // COIL FROG (PC auto_start=0, loop=0, reverse=1): frame 0 until stepped
+        // on, then 0..last and back to 0 once, then idle again.
+        if (d->type == 13 && o->started && d->frames > 1 && d->frame_t &&
+            ++o->anim_t >= d->frame_t) {
+            o->anim_t = 0;
+            if (!o->anim_rev) {
+                if (o->frame + 1 < d->frames) o->frame++;
+                else o->anim_rev = 1;
+            } else if (o->frame > 0) {
+                o->frame--;
+            }
+            if (o->anim_rev && o->frame == 0) {
+                o->anim_rev = 0;
+                o->started = FALSE;
+            }
+            if (o->spr) spr_set_frame(o->spr, o->frame);
         }
 
         // Dropped items live for a limited time (PC object duration); an
@@ -1093,13 +1120,20 @@ void objects_update(void)
         // ---- JET EAGLE: horizontal flight carrying the player ---------------
         if (d->type == 12 && o->started) {
             s16 dx = (s16)d->speed * o->dir;
+            // PC object.cpp:998: the rider's UP / DOWN move the jet vertically
+            // by the same speed (_command_up / _command_down -> yinc).
+            const u16 pad = player_pad();
+            s16 dy = 0;
+            if (pad & BUTTON_UP)   dy = -(s16)d->speed;
+            if (pad & BUTTON_DOWN) dy = (s16)d->speed;
             bool carry = player_on_top(o);
             s16 nx = o->x + dx;
-            bool blocked = terrain_box_blocked(nx, o->y, d->w, d->h);
+            s16 ny = o->y + dy;
+            bool blocked = terrain_box_blocked(nx, ny, d->w, d->h);
             if (!blocked && carry) {
                 s16 l, t, r, b;
                 player_get_box(&l, &t, &r, &b);
-                blocked = terrain_box_blocked(l + dx, t, r - l, b - t);
+                blocked = terrain_box_blocked(l + dx, t + dy, r - l, b - t);
             }
             if (blocked) {
                 // PC JET EAGLE is destroyed on any wall/terrain contact; do
@@ -1108,7 +1142,8 @@ void objects_update(void)
                 continue;
             }
             o->x = nx;
-            if (carry) player.x += dx;
+            o->y = ny;
+            if (carry) { player.x += dx; player.y += dy; }
             if (++o->drain >= 15) {          // PC consumes 1 unit/240ms
                 o->drain = 0;
                 if (player_weapon() == 10) {

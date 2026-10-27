@@ -52,6 +52,10 @@ bool objects_block_box(s16 l, s16 t, s16 r, s16 b);
 // wins against the terrain landing.
 s16 objects_land_check(s16 l, s16 r, s16 head_new, s16 feet_new);
 
+// COIL FROG spring: TRUE when a descending player (feet_old -> feet_new) steps
+// on a frog; the caller then calls player_super_jump().
+bool objects_spring_check(s16 l, s16 r, s16 feet_old, s16 feet_new);
+
 // The player landed on the platform whose top is at `top`: start it
 // (STAND -> MOVE + activation delay), as PC does on the landing collision.
 void objects_player_land(s16 left, s16 right, s16 top);

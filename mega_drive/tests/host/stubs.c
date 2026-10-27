@@ -128,6 +128,8 @@ void player_get_box(s16 *l, s16 *t, s16 *r, s16 *b)
 void player_take_damage(u8 d) { (void)d; }
 void player_crush(void) {}
 void player_super_jump(void) {}
+u16 host_pad;
+u16 player_pad(void) { return host_pad; }
 void player_add_life(void) {}
 void player_add_tank(bool hp) { (void)hp; }
 void player_add_special_tank(void) {}

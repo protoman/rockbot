@@ -261,6 +261,87 @@ static void run_drops(void)
     }
 }
 
+/* ---- COIL FROG (player item, PC object id 16) -------------------------- *
+ * Report 2026-10-27: the frog animated constantly (the port treated type 13 as
+ * auto-animating; PC auto_start=0) and stepping on it did not give the big jump.
+ * PC: frame 0 until stepped on, then 0..last and back to 0 once; the trigger is
+ * a DESCENDING player whose feet were at/above the frog top (+6) and now touch
+ * it (classmap.cpp:1595). Walking into it at floor level must not fire. */
+extern s16 host_obj_x(u8 i);
+extern u8 host_obj_frame(u8 i);
+extern bool host_obj_started(u8 i);
+
+static void run_frog(void)
+{
+    build_stage(0);
+    host_terrain_fill(TERRAIN_UNBLOCKED);
+    objects_reset();
+    player.x = 100; player.y = 100; player.facing = 1;
+    if (!objects_spawn_weapon_item(FALSE)) {
+        printf("\nFAIL: frog was not spawned\n");
+        exit(1);
+    }
+    u8 idle_max = 0;
+    for (u16 f = 0; f < 60; f++) {
+        objects_update();
+        if (host_obj_frame(0) > idle_max) idle_max = host_obj_frame(0);
+    }
+    const s16 fx = host_obj_x(0), fy = host_obj_y(0);   /* no floor here: it fell */
+    const s16 l = fx + 2, r = fx + 20;
+    const bool from_side = objects_spring_check(l, r, fy + 18, fy + 19);
+    const bool from_above = objects_spring_check(l, r, fy + 3, fy + 8);
+    u8 peak = 0, last = 0;
+    u16 ticks = 0;
+    while (host_obj_started(0) && ticks < 200) {
+        objects_update();
+        last = host_obj_frame(0);
+        if (last > peak) peak = last;
+        ticks++;
+    }
+    printf("\nCOIL FROG: idle frames max %u, side-trigger %d, top-trigger %d, "
+           "anim peak %u, end frame %u after %u ticks\n",
+           idle_max, from_side, from_above, peak, last, ticks);
+    if (idle_max != 0) { printf("FAIL: an idle frog must stay on frame 0\n"); exit(1); }
+    if (from_side)     { printf("FAIL: walking into the frog must not spring\n"); exit(1); }
+    if (!from_above)   { printf("FAIL: a descending player on the frog must spring\n"); exit(1); }
+    if (peak < 4 || last != 0 || host_obj_started(0)) {
+        printf("FAIL: the frog must play 0..last..0 once and go idle\n");
+        exit(1);
+    }
+}
+
+/* ---- JET EAGLE (player item, PC object id 17) -------------------------- *
+ * PC object.cpp:998: data speed 0 -> 3 px/step; the rider's UP/DOWN move the
+ * jet vertically by the same speed. The port flew at 2 px and only sideways. */
+extern u16 host_pad;
+static void run_jet(void)
+{
+    build_stage(0);
+    host_terrain_fill(TERRAIN_UNBLOCKED);
+    objects_reset();
+    player.x = 100; player.y = 100; player.facing = 1; host_pad = 0;
+    if (!objects_spawn_weapon_item(TRUE)) {
+        printf("\nFAIL: jet was not spawned\n");
+        exit(1);
+    }
+    const s16 x0 = host_obj_x(0), y0 = host_obj_y(0);
+    objects_player_land(x0 + 2, x0 + 20, y0);          /* rider lands: starts it */
+    for (u16 f = 0; f < 10; f++) objects_update();
+    const s16 x1 = host_obj_x(0), y1 = host_obj_y(0);
+    host_pad = BUTTON_UP;
+    for (u16 f = 0; f < 10; f++) objects_update();
+    const s16 y2 = host_obj_y(0);
+    host_pad = BUTTON_DOWN;
+    for (u16 f = 0; f < 10; f++) objects_update();
+    const s16 y3 = host_obj_y(0);
+    host_pad = 0;
+    printf("\nJET EAGLE: 10 frames dx %d dy %d; UP dy %d; DOWN dy %d\n",
+           x1 - x0, y1 - y0, y2 - y1, y3 - y2);
+    if (x1 - x0 != 30 || y1 != y0) { printf("FAIL: jet must fly 3 px/frame, level\n"); exit(1); }
+    if (y2 - y1 != -30)            { printf("FAIL: UP must lift the jet 3 px/frame\n"); exit(1); }
+    if (y3 - y2 != 30)             { printf("FAIL: DOWN must lower the jet 3 px/frame\n"); exit(1); }
+}
+
 /* The in-game menu hides every sprite on open and shows them again on close
  * (menu.c stage_sprites_visible). objects_update() keeps a per-object cache of
  * the visibility it last sent and only talks to the sprite when it changes, so
@@ -307,5 +388,7 @@ int main(int argc, char **argv)
     run_fixture();
     run_drops();
     run_menu_visibility();
+    run_frog();
+    run_jet();
     return 0;
 }

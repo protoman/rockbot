@@ -144,6 +144,9 @@ void player_force_anim(u8 anim);
 
 // pad = JOY_readJoypad(JOY_1)
 void player_update(u16 pad);
+
+// The pad state the player last processed (JET EAGLE reads UP/DOWN from it).
+u16 player_pad(void);
 // Walked into a SCROLL_LOCK column? (PC process_special_map_points)
 void player_check_scroll_lock(u16 pad);
 

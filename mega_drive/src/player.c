@@ -107,6 +107,7 @@ static s16 box_t = PLAYER_BOX_T;   // hitbox offsets (see update_hitbox)
 static s16 box_b = PLAYER_BOX_B;
 static s16 coyote_timer;
 static s16 jump_timer;
+static bool force_jump;    // PC _force_jump: COIL FROG jump ignores the button release
 #define TRAIL_FRAMES 12
 #define GHOST_N 3
 static Sprite *ghost_spr[GHOST_N];
@@ -1232,7 +1233,8 @@ void player_update(u16 pad)
     if ((pad & JUMP_BUTTONS) && !(prev_pad & JUMP_BUTTONS)) {
         jump_timer = JUMP_BUFFER_FRAMES;
     }
-    if (!(pad & JUMP_BUTTONS) && player.vy < 0) {
+    if (player.vy >= 0 || player.on_ladder) force_jump = FALSE;
+    if (!(pad & JUMP_BUTTONS) && player.vy < 0 && !force_jump) {
         player.vy = F16_mul(player.vy, FIX16(0.5));   // variable jump height
     }
     prev_pad = pad;
@@ -1322,6 +1324,13 @@ void player_update(u16 pad)
     // step as "landed": on_ground would latch, gravity would stop and the
     // player would freeze mid-air. See lessons_learned.md #23.
     player.on_ground = FALSE;
+
+    // COIL FROG: stepping on it (descending) starts a 1.4x jump this frame.
+    if (dy > 0 && objects_spring_check(ix + PLAYER_BOX_L, ix + PLAYER_BOX_R,
+                                       iy + box_b, iy + dy + box_b)) {
+        player_super_jump();
+        dy = 0;
+    }
 
     if (dy != 0) {
         s16 ny = iy + dy;
@@ -1610,7 +1619,10 @@ void player_super_jump(void)
     player.sliding = FALSE;
     player.vy = -SUPER_JUMP_VEL;
     jump_timer = 0;
+    force_jump = TRUE;
 }
+
+u16 player_pad(void) { return prev_pad; }
 
 u8 player_lives(void) { return lives; }
 
