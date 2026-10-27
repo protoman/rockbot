@@ -1476,3 +1476,9 @@ Reports, in the user's order, with what is known so far:
       (objects_sync_sprites -> door_sync re-showed the slices). Added
       MapObj.door_open: slices stay hidden through the scroll, then the close
       animation (borders in, reverse of the opening) runs.
+- [x] Dropping off a ladder with JUMP, then changing room mid-fall: the player
+      re-grabbed the arrival ladder (link arrival always hung him on a stair) and
+      a held UP re-grabbed once the 12-frame lock ran out. Arrival now hangs only
+      if he left on a ladder; a dropped ladder needs UP/DOWN released first.
+- [ ] Jump interrupted when the head reaches the top of the room (owner report;
+      no ceiling check in player.c explains it - investigating, not reproduced).

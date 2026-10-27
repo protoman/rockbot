@@ -667,6 +667,9 @@ static RunResult runStage(u8 stage)
             }
             const bool on_stair = stair_col >= 0 ||
                 stage_terrain_at(to_map, dst_tx, to_y / tile) == TERRAIN_STAIR;
+            // Hang on the arrival ladder only when the player left on one; a
+            // fall (jump off a ladder) keeps falling until he presses UP.
+            const bool hang = player.on_ladder;
             // Keep the player's offset inside the link band (PC keeps his
             // screen X and scrolls the map instead of snapping to the tile
             // centre, which made wide links jump sideways).
@@ -770,7 +773,7 @@ static RunResult runStage(u8 stage)
                 }
             }
             player_place(px, py);
-            if (on_stair) player.on_ladder = TRUE;   // arrive hanging on it
+            if (on_stair && hang) player.on_ladder = TRUE;   // arrive hanging on it
             if (!scrolled) player_restore_palette();  // fade blacked out PAL2
             player_get_box(&bl, &bt, &br, &bb);
             stage_arrival_camera_at(cam_x, (bt + bb) / 2);

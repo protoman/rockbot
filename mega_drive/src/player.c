@@ -94,6 +94,7 @@
 Player player;
 
 static bool air_jump_used;
+static bool ladder_need_release; // dropped off a ladder: UP/DOWN must be let go before it grabs again
 static u8 ladder_lock;      // frames left before a released ladder can grab again
 static bool air_dash_used;
 static u8 lives;            // PC game_save.items.lifes (5 = normal difficulty)
@@ -663,6 +664,7 @@ void player_init(void)
     prev_pad = 0;
     current_anim = ANIM_STAND;
     ladder_flip = FALSE;
+    ladder_need_release = FALSE;
     in_water = FALSE;
     rebuild_player_palette();
 
@@ -887,6 +889,7 @@ void player_check_scroll_lock(u16 pad)
 void player_update(u16 pad)
 {
     if (ladder_lock) ladder_lock--;
+    if (!(pad & (BUTTON_UP | BUTTON_DOWN))) ladder_need_release = FALSE;
     update_hitbox();   // box_t/box_b from the slide state so far
     {
         bool water_now = terrain_under_feet() == TERRAIN_WATER;
@@ -921,7 +924,7 @@ void player_update(u16 pad)
     // of the body width), not just the centre column; grabbing only when the
     // centre tile is a stair missed ladders the body was partly over.
     s16 stair_col = -1;
-    if (!player.on_ladder && ladder_lock == 0) {
+    if (!player.on_ladder && ladder_lock == 0 && !ladder_need_release) {
         if (pad & BUTTON_UP) {
             s16 sy = (iy + 14 - 2) >> 4;
             s16 c1 = stage_terrain_at(stage_current_map, (ix + 9) >> 4, sy);
@@ -1100,6 +1103,9 @@ void player_update(u16 pad)
                 player.on_ladder = FALSE;
                 player.vy = 0;
                 ladder_lock = 12;    // PC STAIRS_GRAB_TIMEOUT 200ms
+                // A held UP/DOWN must not re-grab when the lock runs out (or
+                // after a room change mid-fall): grab again only on a new press.
+                ladder_need_release = TRUE;
                 prev_pad = pad;
             } else {
                 prev_pad = pad;
