@@ -199,20 +199,31 @@ static bool boss_screen;     // boss visible this frame (gates the HP row)
 // `ox, oy` is where the enemy was before this frame's AI: the old code read
 // e->x/e->y for the "was" probe too, but that was already the new position, so
 // the comparison was always true and the rule never fired.
+// TRUE when any probe of the body at (x, y) stands in water: the centre for a
+// flyer / swimmer, the two feet corners and the centre of the feet line for a
+// walker (SPINNASTER used to wade in up to its centre before being stopped).
+static bool enemy_in_water(const EnemyDef *d, s16 x, s16 y)
+{
+    const s16 cx = x + d->box_l + d->box_w / 2;
+    if (d->fly) {
+        return stage_terrain_at(stage_current_map, cx >> 4,
+                                (y + d->box_t + d->box_h / 2) >> 4)
+               == TERRAIN_WATER;
+    }
+    const s16 fy = (y + d->box_t + d->box_h - 1) >> 4;
+    const s16 l = (x + d->box_l) >> 4;
+    const s16 r = (x + d->box_l + d->box_w - 1) >> 4;
+    return stage_terrain_at(stage_current_map, l, fy) == TERRAIN_WATER ||
+           stage_terrain_at(stage_current_map, cx >> 4, fy) == TERRAIN_WATER ||
+           stage_terrain_at(stage_current_map, r, fy) == TERRAIN_WATER;
+}
+
 static bool enemy_water_ok(const Enemy *e, s16 ox, s16 oy,
                            s16 nx, s16 ny)
 {
     const EnemyDef *d = e->def;
     if (d->is_boss) return TRUE;
-    const bool now = stage_terrain_at(stage_current_map,
-                                      (nx + d->box_l + d->box_w / 2) >> 4,
-                                      (ny + d->box_t + d->box_h / 2) >> 4)
-                     == TERRAIN_WATER;
-    const bool was = stage_terrain_at(stage_current_map,
-                                      (ox + d->box_l + d->box_w / 2) >> 4,
-                                      (oy + d->box_t + d->box_h / 2) >> 4)
-                     == TERRAIN_WATER;
-    return now == was;
+    return enemy_in_water(d, nx, ny) == enemy_in_water(d, ox, oy);
 }
 
 // TRUE if any tile of the box [l..r) x [t..b) is solid.
@@ -682,6 +693,15 @@ static bool step_axis(Enemy *e, s16 *pos, s16 dest, bool horizontal, bool can_fa
         if (box_hits_solid(e->x + d->box_l, edge,
                            e->x + d->box_l + d->box_w, edge + 1))
             return TRUE;
+    }
+    // The water line is a wall for non-boss NPCs (PC character.cpp:1921). Seen
+    // from the AI it must be a BLOCK, like a solid tile: reverting the move
+    // afterwards left the state unfinished forever (fish chasing a player above
+    // the surface stood still).
+    {
+        const s16 nx = horizontal ? n : e->x;
+        const s16 ny = horizontal ? e->y : n;
+        if (!enemy_water_ok(e, e->x, e->y, nx, ny)) return TRUE;
     }
     *pos = n;
     return *pos == dest;

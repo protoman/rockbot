@@ -1542,3 +1542,11 @@ Reports, in the user's order, with what is known so far:
       water, rising (leaving) and only after having been in water, latched until
       the three probe points agree again. Entering the water no longer splashes
       (owner: splash only when leaving) - say if entering should splash too.
+- [x] Fish (MECHAFISHER, DOLGOLPHIN) and a bat stood still; SPINNASTER waded into
+      water and stuck. The water-line rule (non-boss NPCs never enter/leave water)
+      reverted the move AFTER the AI step, so the AI never saw a block and its
+      state never finished (e.g. a fish chasing a player above the surface). It is
+      now a block inside step_axis (state finishes like against a wall), and
+      walkers test their feet line (both corners + centre) instead of only the
+      body centre. Likely exposed by the vertical leading-edge change (flyers now
+      reach the water line instead of stopping early).
