@@ -52,12 +52,20 @@ public:
 	 */
 	void mark_loop_point();
 
+	/// Moves the stream to `time` (44.1 kHz samples, may be fractional) by
+	/// emitting whole 60 Hz frame waits only, so XGM2 (frame based) plays the
+	/// timing the converter computed instead of re-rounding it itself.
+	void advance_to(double time);
+
+	uint32_t frame() const { return frame_; }
+
 private:
 	uint32_t ym_clock_ = 7670453;
 	uint32_t psg_clock_ = 3579545;
 	uint32_t total_samples_ = 0;
 	uint32_t loop_samples_ = 0;
 	uint32_t loop_offset_byte_ = 0;
+	uint32_t frame_ = 0;
 	std::vector<uint8_t> data_;
 };
 

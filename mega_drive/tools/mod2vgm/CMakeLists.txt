@@ -10,6 +10,14 @@ add_executable(mod2vgm
 	vgm_writer.cpp
 	fm_patch.cpp
 	converter_engine.cpp
+	replayer.cpp
+	sample_analysis.cpp
+)
+
+add_executable(mod_render
+	mod_render.cpp
+	mod_parser.cpp
+	replayer.cpp
 )
 
 add_executable(vgm_render

@@ -3,7 +3,9 @@
 #include <vector>
 #include <cstdint>
 #include <cmath>
-#include "ym3438.h"
+#include <cstdlib>
+#include <string>
+#include "ym_player.h"
 
 static void write_wav(const std::string& path, const std::vector<int16_t>& pcm, int sample_rate) {
 	std::ofstream out(path, std::ios::binary);
@@ -34,89 +36,50 @@ static void write_wav(const std::string& path, const std::vector<int16_t>& pcm, 
 
 int main(int argc, char* argv[]) {
 	if (argc < 3) {
-		std::cout << "Usage: vgm_render <input.vgm> <output.wav>\n";
+		std::cout << "Usage: vgm_render <input.vgm> <output.wav> [max_seconds]\n";
 		return 1;
 	}
-
+	const double max_secs = (argc > 3) ? atof(argv[3]) : 1e9;
 	std::ifstream file(argv[1], std::ios::binary);
-	if (!file.is_open()) {
-		std::cerr << "Failed to open VGM: " << argv[1] << std::endl;
-		return 1;
-	}
+	if (!file.is_open()) { std::cerr << "Failed to open VGM: " << argv[1] << std::endl; return 1; }
+	std::vector<uint8_t> vgm((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+	if (vgm.size() < 0x40) { std::cerr << "Invalid VGM file.\n"; return 1; }
 
-	std::vector<uint8_t> vgm((std::istreambuf_iterator<char>(file)),
-	                         std::istreambuf_iterator<char>());
-	file.close();
-
-	if (vgm.size() < 0x40) {
-		std::cerr << "Invalid VGM file.\n";
-		return 1;
-	}
-
-	uint32_t data_offset = *reinterpret_cast<uint32_t*>(&vgm[0x34]) + 0x34;
-	ym3438_t chip;
-	OPN2_Reset(&chip);
-
-	std::vector<int16_t> output_pcm;
-	size_t pos = data_offset;
-	int16_t buffer[2];
-
-	double fm_sample_accum = 0.0;
-	const double fm_rate = 7670453.0 / 144.0; // 53267.0347 Hz native YM2612 rate
-	const double vgm_rate = 44100.0;
-	const double fm_per_vgm_sample = fm_rate / vgm_rate;
-
-	auto clock_chip = [&](uint32_t samples_44k) {
-		fm_sample_accum += samples_44k * fm_per_vgm_sample;
-		while (fm_sample_accum >= 1.0) {
-			for (int cycle = 0; cycle < 24; ++cycle) {
-				OPN2_Clock(&chip, buffer);
-			}
-			output_pcm.push_back(buffer[0]);
-			output_pcm.push_back(buffer[1]);
-			fm_sample_accum -= 1.0;
-		}
+	size_t pos = *reinterpret_cast<uint32_t*>(&vgm[0x34]) + 0x34;
+	mod2vgm::YmPlayer ym;
+	std::vector<int16_t> pcm;
+	std::vector<uint8_t> bank;
+	size_t bank_pos = 0;
+	const size_t max_samples = static_cast<size_t>(max_secs * 44100.0);
+	auto wait = [&](uint32_t n) {
+		if (pcm.size() / 2 + n > max_samples) n = static_cast<uint32_t>(max_samples - pcm.size() / 2);
+		ym.run(n, pcm);
 	};
 
-	auto ym_write = [&](uint32_t port, uint8_t reg, uint8_t val) {
-		OPN2_Write(&chip, port, reg);
-		for (int c = 0; c < 4; ++c) {
-			OPN2_Clock(&chip, buffer);
-		}
-		OPN2_Write(&chip, port + 1, val);
-		for (int c = 0; c < 4; ++c) {
-			OPN2_Clock(&chip, buffer);
-		}
-	};
-
-	while (pos < vgm.size()) {
-		uint8_t cmd = vgm[pos++];
-		if (cmd == 0x66) { // End of sound
-			break;
-		} else if (cmd == 0x52) { // YM2612 Port 0
-			uint8_t reg = vgm[pos++];
-			uint8_t val = vgm[pos++];
-			ym_write(0, reg, val);
-		} else if (cmd == 0x53) { // YM2612 Port 1
-			uint8_t reg = vgm[pos++];
-			uint8_t val = vgm[pos++];
-			ym_write(2, reg, val);
-		} else if (cmd == 0x50) { // PSG write (ignored in pure YM renderer)
-			pos++;
-		} else if (cmd == 0x61) { // Wait n samples
-			uint16_t n = vgm[pos] | (vgm[pos+1] << 8);
+	while (pos < vgm.size() && pcm.size() / 2 < max_samples) {
+		const uint8_t cmd = vgm[pos++];
+		if (cmd == 0x66) break;
+		else if (cmd == 0x52 || cmd == 0x53) { ym.write_ym(cmd - 0x52, vgm[pos], vgm[pos + 1]); pos += 2; }
+		else if (cmd == 0x50) ym.write_psg(vgm[pos++]);
+		else if (cmd == 0x61) { wait(vgm[pos] | (vgm[pos + 1] << 8)); pos += 2; }
+		else if (cmd == 0x62) wait(735);
+		else if (cmd == 0x63) wait(882);
+		else if ((cmd & 0xF0) == 0x70) wait((cmd & 0x0F) + 1);
+		else if (cmd == 0x67) {
 			pos += 2;
-			clock_chip(n);
-		} else if (cmd == 0x62) { // Wait 735 samples
-			clock_chip(735);
-		} else if (cmd == 0x63) { // Wait 882 samples
-			clock_chip(882);
-		} else if ((cmd & 0xF0) == 0x70) { // Wait 1..16 samples
-			clock_chip((cmd & 0x0F) + 1);
+			uint32_t sz = vgm[pos] | (vgm[pos + 1] << 8) | (vgm[pos + 2] << 16) | ((uint32_t)vgm[pos + 3] << 24);
+			pos += 4;
+			bank.assign(vgm.begin() + pos, vgm.begin() + pos + sz);
+			pos += sz;
+		} else if (cmd == 0xE0) {
+			bank_pos = vgm[pos] | (vgm[pos + 1] << 8) | (vgm[pos + 2] << 16) | ((size_t)vgm[pos + 3] << 24);
+			pos += 4;
+		} else if ((cmd & 0xF0) == 0x80) {
+			if (bank_pos < bank.size()) ym.write_ym(0, 0x2A, bank[bank_pos++]);
+			wait(cmd & 0x0F);
 		}
 	}
-
-	write_wav(argv[2], output_pcm, 53267);
-	std::cout << "Rendered " << output_pcm.size() / 2 << " stereo samples to " << argv[2] << std::endl;
+	write_wav(argv[2], pcm, 44100);
+	std::cout << "Rendered " << pcm.size() / 2 << " stereo samples to " << argv[2] << std::endl;
 	return 0;
 }

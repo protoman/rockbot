@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <cstring>
+#include <cmath>
 
 namespace mod2vgm {
 
@@ -74,7 +75,16 @@ void VgmWriter::wait_samples(uint32_t samples) {
 
 void VgmWriter::mark_loop_point() {
 	loop_offset_byte_ = static_cast<uint32_t>(data_.size() - 0x1C);
-	loop_samples_ = 0;
+	loop_samples_ = total_samples_;
+}
+
+void VgmWriter::advance_to(double time) {
+	const uint32_t target = static_cast<uint32_t>(std::floor(time / 735.0 + 0.5));
+	while (frame_ < target) {
+		data_.push_back(0x62);
+		total_samples_ += 735;
+		++frame_;
+	}
 }
 
 bool VgmWriter::write_to_file(const std::string& file_path) {
