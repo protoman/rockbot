@@ -792,7 +792,6 @@ static bool ai_auto_jump(Enemy *e)
                 e->y = (row << 4) - bottom;
                 e->vy = 0;
                 e->jumping = 0;
-    e->teleporting = 0;
                 e->auto_jump = 0;
                 e->moving = 0;
                 return TRUE;
@@ -1238,7 +1237,11 @@ static bool ai_action_run(Enemy *e)
             e->teleporting = 1;
             sfx_play(SFX_TELEPORT);
         }
-        return e->act_t >= 20;
+        if (e->act_t >= 20) {
+            e->teleporting = 0;     // back to the normal pose (it stayed on the dissolve frame)
+            return TRUE;
+        }
+        return FALSE;
 
     case AI_DASH: {
         // Ends on arrival or within a tile of the target (PC :1782).

@@ -1592,4 +1592,4 @@ Reports, in the user's order, with what is known so far:
 - [ ] after respawning at a checkpoint the player cannot walk right until he jumps
 - [ ] MUMMY link 5 scrolls left ignoring the wall-lock
 - [ ] helmets leave "stand" a second time, after shooting and also without shooting
-- [ ] PHARAOH vanishes after the boss dialog and cannot be fought
+- [x] PHARAOH vanished: e->teleporting was only cleared on a fall landing (stray line), so after the first TELEPORT he kept the dissolve frame forever; cleared when the action ends
