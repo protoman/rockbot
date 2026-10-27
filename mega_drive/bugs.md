@@ -1558,3 +1558,12 @@ Reports, in the user's order, with what is known so far:
       press). PC: the first press creates the star circle around the player, it
       stays until the next press (or 3.6 s), which releases it. A held star also
       absorbs one enemy projectile (both vanish), like the NPC rule.
+- [x] Audit sweep (owner: "those bugs should not be there in the first place"):
+      enemy hops / jump attacks had no ceiling check (only landing), so they
+      rose through ceilings; added ceiling_clip(). Reviewed and found OK:
+      act_t==0 latches (none left), menus' edge detection (all other screens
+      use pressed-edge), WAIT_RANGE, AI stale dest_x/dest_y per action.
+      Known remaining gaps, not bugs of the same kind: SHOT_MULTIPLE ignores
+      PC's pattern options (no data uses it); flyers' step_axis shares one
+      accumulator between x and y (a one-axis flyer moves ~25% slower than a
+      walker of the same speed).

@@ -722,6 +722,27 @@ static bool ai_wall_ahead(const Enemy *e)
            (above == TERRAIN_UNBLOCKED || above == TERRAIN_WATER);
 }
 
+// Rising enemies (hops, jump attacks) used to pass through ceilings: only the
+// landing scan existed. Clip the move so the box top rests under the first
+// solid row it would enter.
+static bool ceiling_clip(const Enemy *e, s16 *ny)
+{
+    const EnemyDef *d = e->def;
+    if (*ny >= e->y) return FALSE;
+    const s16 l = (e->x + d->box_l) >> 4;
+    const s16 r = (e->x + d->box_l + d->box_w - 1) >> 4;
+    for (s16 row = ((e->y + d->box_t) >> 4) - 1;
+         row >= ((*ny + d->box_t) >> 4); row--) {
+        for (s16 tx = l; tx <= r; tx++) {
+            if (stage_terrain_at(stage_current_map, tx, row) == TERRAIN_SOLID) {
+                *ny = (s16)(((row + 1) << 4) - d->box_t);
+                return TRUE;
+            }
+        }
+    }
+    return FALSE;
+}
+
 // Horizontal arc used by the automatic wall hop (same physics as AI_JUMP).
 // Returns TRUE on landing so the walk action can continue.
 static bool ai_auto_jump(Enemy *e)
@@ -751,6 +772,7 @@ static bool ai_auto_jump(Enemy *e)
             }
         }
     }
+    if (dy < 0 && ceiling_clip(e, &ny)) e->vy = 0;
     e->y = ny;
     return FALSE;
 }
@@ -1028,6 +1050,7 @@ static bool ai_action_run(Enemy *e)
                 }
             }
         }
+        if (dy < 0 && ceiling_clip(e, &ny)) e->vy = 0;
         e->y = ny;
         return FALSE;
     }
@@ -1138,6 +1161,7 @@ static bool ai_action_run(Enemy *e)
                 }
             }
         }
+        if (dy < 0 && ceiling_clip(e, &ny)) e->vy = 0;
         e->y = ny;
         return FALSE;
     }
@@ -1320,6 +1344,7 @@ static bool ai_action_run(Enemy *e)
                     }
                 }
             }
+            if (dy < 0 && ceiling_clip(e, &ny)) e->vy = 0;
             e->y = ny;
             return FALSE;
         }
