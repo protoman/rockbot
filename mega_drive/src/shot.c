@@ -14,7 +14,7 @@
 // game_projectile_list.dat: the player shot's sprite/speed/damage/size come
 // from the projectile the SELECTED weapon fires (weapon_data[].proj), read out
 // of stage_def->enemy_proj. Weapon 0 is the buster (projectile 0).
-#define SHOT_CHARGE_SPEED 3
+#define SHOT_CHARGE_SPEED 5   // fallback; the table's value (5) is used
 #define SHOT_COOLDOWN 10   // frames between shots (design choice, not in data)
 #define SHOT_QUAKE_LIFE 60 // ~1s for the stationary QUAKE shot
 #define SHOT_CHAIN_FRAMES 12   // chain out / chain back, ~0.2s each way
@@ -164,6 +164,21 @@ void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
     }
 }
 
+// PC projectiles 10 (CHARGED) and 11 (SEMI-CHARGED): speed, hitbox and damage
+// come from game_projectile_list_v3.dat (5 px/frame, 31x25 / 16x16, 3 / 2).
+// The fallbacks are those same values, for a stage table that stops short.
+#define CHARGE_FULL_PROJ 10
+#define CHARGE_SEMI_PROJ 11
+static void charge_proj(u8 id, Shot *s, u8 *speed, u8 w, u8 h, u8 dmg)
+{
+    const EnemyProj *p = (id < stage_def->enemy_proj_max)
+                             ? &stage_def->enemy_proj[id] : NULL;
+    s->w = (p && p->w) ? p->w : w;
+    s->h = (p && p->h) ? p->h : h;
+    s->dmg = (p && p->dmg) ? p->dmg : dmg;
+    if (p && p->speed) *speed = p->speed;
+}
+
 void shot_charge_fire(s16 x, s16 y, s16 dir, u8 level)
 {
     if (cooldown) return;
@@ -199,13 +214,11 @@ void shot_charge_fire(s16 x, s16 y, s16 dir, u8 level)
             cost = (s->traj == TRAJ_QUAKE) ? 4 : 1;
         } else {
             spr = &shot_charge_full_sprite;
-            s->w = 31; s->h = 30;
-            s->dmg = 3;
+            charge_proj(CHARGE_FULL_PROJ, s, &speed, 31, 25, 3);
         }
     } else {
         spr = &enemy_shot_semi_sprite;
-        s->w = 16; s->h = 16;
-        s->dmg = 2;
+        charge_proj(CHARGE_SEMI_PROJ, s, &speed, 16, 16, 2);
     }
     s->spr = SPR_addSprite(spr, x - camera.x, y - camera.y,
                            TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
