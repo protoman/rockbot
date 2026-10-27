@@ -652,6 +652,9 @@ static bool step_axis(Enemy *e, s16 *pos, s16 dest, bool horizontal, bool can_fa
         return *pos == dest;
     }
     if (horizontal) {
+        // A walker's patrol limit is a wall for the AI (the state ends there)
+        // instead of being enforced after the fact.
+        if (!d->fly && (n < e->x_min || n > e->x_max)) return TRUE;
         s16 lead = (dir > 0) ? n + d->box_l + d->box_w - 1 : n + d->box_l;
         if (box_hits_solid(lead, e->y + d->box_t,
                            lead, e->y + d->box_t + d->box_h) ||
@@ -1674,8 +1677,13 @@ void enemies_update(void)
                 }
             }
         }
-        if (e->x < e->x_min) { e->x = e->x_min; }
-        if (e->x > e->x_max) { e->x = e->x_max; }
+        // Patrol limits are a walker's leash. Flyers and swimmers chase the
+        // player wherever he is (PC has no such limit): clamping them left a
+        // chasing fish/bat pinned at the border with its state never finishing.
+        if (!d->fly) {
+            if (e->x < e->x_min) { e->x = e->x_min; }
+            if (e->x > e->x_max) { e->x = e->x_max; }
+        }
 
         // ---- draw ----------------------------------------------------------
         if (e->spr) {

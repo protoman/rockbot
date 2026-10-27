@@ -1567,3 +1567,9 @@ Reports, in the user's order, with what is known so far:
       PC's pattern options (no data uses it); flyers' step_axis shares one
       accumulator between x and y (a one-axis flyer moves ~25% slower than a
       walker of the same speed).
+- [x] Fish / bats pinned in place while chasing: every enemy was clamped to the
+      converter's patrol limits (spawn +- range) after the AI step, so a flyer
+      chasing a player further away than that stayed at the border and its state
+      never finished (probably the real cause behind the BAT / MECHAFISHER /
+      DOLGOLPHIN reports). The leash now applies to walkers only, and as a block
+      inside step_axis.
