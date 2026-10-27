@@ -5,6 +5,7 @@
 
 #include "resources.h"
 #include "stage.h"
+#include "enemy.h"
 
 // PC timings in frames at 60 fps.
 #define DUST_TICKS     10          // 160 ms (character.cpp:1681)
@@ -54,6 +55,15 @@ static s16 bubble_wob;             // half pixels, BUBBLE_WOBBLE..0
 static s8 bubble_wdir;
 static u16 bubble_life, bubble_cd;
 static u16 bubble_seen;
+
+// DYNAMITE FLASH stars (PC draw::show_flash): 10 fixed random screen points,
+// 8x8 art of 3 frames stepped every 260 ms, shown while the freeze runs.
+#define STAR_N        10
+#define STAR_TICKS    16           // FLASH_DELAY 260 ms
+static Sprite *star_spr[STAR_N];
+static s16 star_x[STAR_N], star_y[STAR_N];
+static u16 star_seen, star_age;
+static bool star_placed;
 
 static Sprite *add(const SpriteDefinition *def, s16 x, s16 y, bool flip)
 {
@@ -153,8 +163,45 @@ static void bubble_update(void)
     SPR_setPosition(bubble_spr, sx - camera.x, sy - camera.y);
 }
 
+static void stars_release(void)
+{
+    for (u8 i = 0; i < STAR_N; i++) spr_release_guarded(&star_spr[i], star_seen);
+    star_age = 0;
+}
+
+static void stars_update(void)
+{
+    if (!enemies_freeze_active()) {
+        if (star_spr[0]) stars_release();
+        return;
+    }
+    if (star_spr[0] && star_seen != spr_gen) {      // pool recreated
+        for (u8 i = 0; i < STAR_N; i++) star_spr[i] = NULL;
+    }
+    if (!star_placed) {
+        star_placed = TRUE;
+        for (u8 i = 0; i < STAR_N; i++) {
+            star_x[i] = (s16)(random() % 312);
+            star_y[i] = (s16)(random() % 216);
+        }
+    }
+    if (!star_spr[0]) {
+        star_seen = spr_gen;
+        for (u8 i = 0; i < STAR_N; i++) {
+            star_spr[i] = SPR_addSprite(&fx_flash_sprite, star_x[i], star_y[i],
+                                        TILE_ATTR(PAL0, TRUE, FALSE, FALSE));
+            if (star_spr[i]) SPR_setAutoAnimation(star_spr[i], FALSE);
+        }
+        star_age = 0;
+    }
+    const s16 frame = (s16)((star_age++ / STAR_TICKS) % 3);
+    for (u8 i = 0; i < STAR_N; i++)
+        if (star_spr[i]) spr_set_frame(star_spr[i], frame);
+}
+
 void effects_update(void)
 {
+    stars_update();
     for (u8 i = 0; i < FX_MAX; i++) {
         Fx *f = &fx[i];
         if (!f->spr) continue;
@@ -174,6 +221,7 @@ void effects_update(void)
 
 void effects_reset(void)
 {
+    stars_release();
     for (u8 i = 0; i < FX_MAX; i++) {
         spr_release_guarded(&fx[i].spr, fx[i].seen);
         fx[i].age = fx[i].life = 0;

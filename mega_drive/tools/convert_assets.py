@@ -293,6 +293,8 @@ EFFECT_STRIPS = [
     ("fx_teleport", "build/games/RockDroid1/images/sprites/teleport_small.png", 32,
      [((55, 255, 0), (112, 110, 110)), ((255, 0, 255), (235, 235, 235))]),
     ("fx_bubble", "build/games/RockDroid1/images/animations/bubble.png", 4, None),
+    # DYNAMITE FLASH stars (draw::show_flash): 3 frames of 8x8
+    ("fx_flash", "build/shared/images/flash.png", 8, None),
 ]
 
 

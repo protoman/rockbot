@@ -119,6 +119,8 @@
 static u16 freeze_t;
 static u8 freeze_wpn;
 
+bool enemies_freeze_active(void) { return freeze_t != 0; }
+
 void enemies_freeze(u8 weapon)
 {
     freeze_t = FREEZE_FRAMES;

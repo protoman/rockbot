@@ -29,6 +29,8 @@ void enemies_update(void);
 // direction (1 = right, -1 = left). Returns 0 = miss, 1 = hit (damage
 // applied), 2 = blocked by a shield (the caller reflects the shot).
 void enemies_freeze(u8 weapon);
+// TRUE while a player FREEZE effect (DYNAMITE FLASH) is running.
+bool enemies_freeze_active(void);
 // QUAKE: damages every on-screen enemy standing on the ground (PC
 // damage_ground_npcs); called each frame while the quake shot lives.
 void enemies_quake_hit(u8 weapon);

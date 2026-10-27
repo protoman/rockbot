@@ -1498,3 +1498,7 @@ Reports, in the user's order, with what is known so far:
       rows flattened (frames 0,1 = LEFT, 2,3 = RIGHT) and the loop cycled all
       four. Now it stays on the spawn-direction pair (and no hardware flip,
       which also showed the wrong facing for a left spawn).
+- [x] DYNAMITE FLASH (player): stars effect added (10 fixed random 8x8 points,
+      3 frames / 260 ms, while the freeze runs); during the freeze the weapon
+      button shoots the normal buster shot (no ammo), and the first press after
+      it ends starts the effect again (PC classplayer.cpp:348).

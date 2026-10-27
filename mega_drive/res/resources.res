@@ -165,6 +165,7 @@ SPRITE fx_dust_sprite "fx_dust.png" 8p 8p FAST [[4,4,4]]
 SPRITE fx_splash_sprite "fx_splash.png" 32p 24p FAST [[5,5,5,5]]
 SPRITE fx_teleport_sprite "fx_teleport.png" 32p 32p FAST [[6,6]]
 SPRITE fx_bubble_sprite "fx_bubble.png" 8p 8p FAST [[1]]
+SPRITE fx_flash_sprite "fx_flash.png" 8p 8p FAST [[4,4,4]]
 
 SPRITE enemy_rhino_sprite "enemy_rhino.png" 96p 72p FAST [[540][540][0]]
 # ---- ENEMY PROJECTILES (tools/convert_enemies.py): one SPRITE per

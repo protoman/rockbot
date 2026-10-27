@@ -97,6 +97,13 @@ void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
     // Some ids have no art in the port (e.g. 7 SPIKED CHAIN is skipped by the
     // converter) — fall back to the buster so the weapon still shoots.
     if (!pd->spr || !pd->speed) pd = &stage_def->enemy_proj[0];
+    // PC classplayer.cpp:348: while a FREEZE effect runs the weapon button
+    // shoots the normal projectile (no ammo); once it ends the next press
+    // starts the effect again.
+    if (pd->traj == TRAJ_FREEZE && enemies_freeze_active()) {
+        w = 0;
+        pd = &stage_def->enemy_proj[0];
+    }
     const SpriteDefinition *spr = pd->spr ? pd->spr : &shot_sprite;
 
     // DYNAMITE FLASH is an instant screen-wide freeze, not a travelling
