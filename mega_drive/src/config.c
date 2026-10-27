@@ -89,6 +89,13 @@ u16 config_jump_mask(void) { return button_of(config.b_jump); }
 u16 config_fire_mask(void) { return button_of(config.b_fire); }
 u16 config_dash_mask(void) { return button_of(config.b_dash); }
 
+// Buttons that pick a menu item: A, plus the player's JUMP button (B stays
+// BACK even when jump is mapped to it).
+static u16 sel_mask(void)
+{
+    return BUTTON_A | (config_jump_mask() & ~BUTTON_B);
+}
+
 static void apply_sound(void)
 {
     sfx_set_enabled(config.sound != 0);
@@ -200,13 +207,13 @@ static s8 menu_list(const char *title, const char *const *items, u8 n, u8 *sel)
         do {
             SYS_doVBlankProcess();
             pad = JOY_readJoypad(JOY_1);
-        } while (!(pad & (BUTTON_UP | BUTTON_DOWN | BUTTON_A | BUTTON_B |
+        } while (!(pad & (BUTTON_UP | BUTTON_DOWN | sel_mask() | BUTTON_B |
                           BUTTON_START)));
-        while (JOY_readJoypad(JOY_1) & (BUTTON_UP | BUTTON_DOWN | BUTTON_A |
+        while (JOY_readJoypad(JOY_1) & (BUTTON_UP | BUTTON_DOWN | sel_mask() |
                                         BUTTON_B | BUTTON_START))
             SYS_doVBlankProcess();
         if (pad & BUTTON_B) return -1;
-        if (pad & (BUTTON_A | BUTTON_START)) return (s8)*sel;
+        if (pad & (sel_mask() | BUTTON_START)) return (s8)*sel;
         if (pad & BUTTON_UP) *sel = (*sel == 0) ? n - 1 : *sel - 1;
         if (pad & BUTTON_DOWN) *sel = (*sel + 1) % n;
     }
@@ -230,14 +237,14 @@ static void audio_menu(void)
         do {
             SYS_doVBlankProcess();
             pad = JOY_readJoypad(JOY_1);
-        } while (!(pad & (BUTTON_UP | BUTTON_DOWN | BUTTON_A | BUTTON_B)));
-        while (JOY_readJoypad(JOY_1) & (BUTTON_UP | BUTTON_DOWN | BUTTON_A |
+        } while (!(pad & (BUTTON_UP | BUTTON_DOWN | sel_mask() | BUTTON_B)));
+        while (JOY_readJoypad(JOY_1) & (BUTTON_UP | BUTTON_DOWN | sel_mask() |
                                         BUTTON_B))
             SYS_doVBlankProcess();
         if (pad & BUTTON_B) return;
         if (pad & BUTTON_UP)   row = (row == 0) ? 1 : row - 1;
         if (pad & BUTTON_DOWN) row = (row + 1) % 2;
-        if (pad & BUTTON_A) {
+        if (pad & sel_mask()) {
             if (row == 0) {
                 config.music_vol = (u8)((config.music_vol + 1) & 3);
                 music_set_volume(config.music_vol);
@@ -269,14 +276,14 @@ static void buttons_menu(void)
         do {
             SYS_doVBlankProcess();
             pad = JOY_readJoypad(JOY_1);
-        } while (!(pad & (BUTTON_UP | BUTTON_DOWN | BUTTON_A | BUTTON_B)));
-        while (JOY_readJoypad(JOY_1) & (BUTTON_UP | BUTTON_DOWN | BUTTON_A |
+        } while (!(pad & (BUTTON_UP | BUTTON_DOWN | sel_mask() | BUTTON_B)));
+        while (JOY_readJoypad(JOY_1) & (BUTTON_UP | BUTTON_DOWN | sel_mask() |
                                         BUTTON_B))
             SYS_doVBlankProcess();
         if (pad & BUTTON_B) return;
         if (pad & BUTTON_UP) row = (row == 0) ? 2 : row - 1;
         if (pad & BUTTON_DOWN) row = (row + 1) % 3;
-        if (pad & BUTTON_A) {
+        if (pad & sel_mask()) {
             // Cycle A->B->C; if another action owns that button, swap so two
             // actions never share a button.
             u8 *slot = (row == 0) ? &config.b_jump
@@ -322,8 +329,8 @@ static void music_test(void)
         do {
             SYS_doVBlankProcess();
             pad = JOY_readJoypad(JOY_1);
-        } while (!(pad & (BUTTON_A | BUTTON_B)));
-        while (JOY_readJoypad(JOY_1) & (BUTTON_UP | BUTTON_DOWN | BUTTON_A |
+        } while (!(pad & (sel_mask() | BUTTON_B)));
+        while (JOY_readJoypad(JOY_1) & (BUTTON_UP | BUTTON_DOWN | sel_mask() |
                                         BUTTON_B))
             SYS_doVBlankProcess();
         if (pad & BUTTON_B) return;
@@ -346,12 +353,12 @@ static void sfx_test(void)
         do {
             SYS_doVBlankProcess();
             pad = JOY_readJoypad(JOY_1);
-        } while (!(pad & (BUTTON_UP | BUTTON_DOWN | BUTTON_A | BUTTON_B)));
-        while (JOY_readJoypad(JOY_1) & (BUTTON_UP | BUTTON_DOWN | BUTTON_A |
+        } while (!(pad & (BUTTON_UP | BUTTON_DOWN | sel_mask() | BUTTON_B)));
+        while (JOY_readJoypad(JOY_1) & (BUTTON_UP | BUTTON_DOWN | sel_mask() |
                                         BUTTON_B))
             SYS_doVBlankProcess();
         if (pad & BUTTON_B) return;
-        if (pad & BUTTON_A) sfx_play((SfxId)sel);
+        if (pad & sel_mask()) sfx_play((SfxId)sel);
         if (pad & BUTTON_UP) sel = (sel == 0) ? SFX_COUNT - 1 : sel - 1;
         if (pad & BUTTON_DOWN) sel = (u8)((sel + 1) % SFX_COUNT);
     }

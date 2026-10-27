@@ -1531,3 +1531,5 @@ Reports, in the user's order, with what is known so far:
       DOWN_RANDOM_DIAGONAL, UP_UNTIL_GROUND, DOWN_INTO_GROUND, DIAGONAL_UP/DOWN;
       JUMP TO_SAVED is a no-op on PC (the port hops back to the spawn).
       Still to review: WAIT_RANGE, SHOT_*, SPAWN_NPC, CHANGE_MOVE, JUMP_ATTACK_UP.
+- [x] Config menus now accept the JUMP button (as mapped in CONFIG BUTTONS) to
+      select, besides A / START; B stays BACK even when jump is mapped to it.
