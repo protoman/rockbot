@@ -1585,7 +1585,7 @@ Reports, in the user's order, with what is known so far:
 
 ## Report 2026-10-27 (batch of 9, to be worked one at a time)
 - [x] disappearing blocks: hidden countdown was cancelled one frame later by the visible-branch (vis_t != 0 re-entered the countdown); hidden phase now counts down from BLOCK_HIDDEN_FRAMES
-- [ ] wall shooter must not shoot backwards
+- [x] wall shooter must not shoot backwards (PC fires along facing side, down from ceiling, up from floor; the port aimed at the player anywhere)
 - [ ] diagonal shots missing from the small red enemy
 - [ ] many slowdowns in the TECHNO stage
 - [ ] techno bomb: no sound, explosion animation wrong (and smaller)

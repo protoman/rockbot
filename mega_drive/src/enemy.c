@@ -247,6 +247,20 @@ static bool box_hits_solid(s16 l, s16 t, s16 r, s16 b)
     return FALSE;
 }
 
+// True when the player is on the side a wall walker may shoot at.
+static bool wall_shot_ahead(const Enemy *e, const EnemyDef *d)
+{
+    const s16 cy = e->y + d->box_t + d->box_h / 2;
+    const s16 top = e->y + d->box_t, bot = top + d->box_h;
+    const s16 l = e->x + d->box_l, r = l + d->box_w - 1;
+    if (box_hits_solid(l, top - 1, r, top))     // on a ceiling: shoots down
+        return player.y + 14 > cy;
+    if (box_hits_solid(l, bot, r, bot + 1))     // on a floor: shoots up
+        return player.y + 14 < cy;
+    return (player.x > e->x) ? e->dir > 0 : e->dir < 0;
+}
+
+
 // Floor probe for landing/standing, inset 2px per side. A column solid
 // across the whole box height is a SIDE WALL (map divider, right map edge),
 // not floor: the boss used to "land" on the divider mid-air and re-launch,
@@ -1337,7 +1351,10 @@ static bool ai_action_run(Enemy *e)
             e->x = nx;
         // PC WALL_WALK_SHOOT fires a TARGET_DIRECTION missile: it has to
         // head for the player, not straight out of the wall.
-        if (st->action == AI_WALL_WALK_SHOOT && (e->act_t % 40) == 0)
+        // PC fires along shoot_direction: facing side, or down from a ceiling
+        // ([TOP]) / up from a floor ([BOTTOM]) - never behind the walker.
+        if (st->action == AI_WALL_WALK_SHOOT && (e->act_t % 40) == 0 &&
+            wall_shot_ahead(e, d))
             eshot_fire_aimed(e->x + d->box_l + d->box_w / 2,
                              e->y + d->box_t + d->box_h / 2, d->shot);
         if (st->action == AI_JUMP_ATTACK_AHEAD) {
