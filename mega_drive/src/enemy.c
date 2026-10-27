@@ -1700,7 +1700,7 @@ void enemies_update(void)
         s16 sy = e->y - camera.y;
         bool vis = (sx >= -40 && sx < 336 && sy >= -40 && sy < 248);
 
-        if (vis) {
+        if (vis && stage_same_room(e->x + d->box_l + d->box_w / 2, player.x + 14)) {
             ai_tick(e);
             if (!e->alive) continue;    // AI_REPLACE_NPC removed it
             // boss hit blink (PC shows a white flash via palette; the boss
