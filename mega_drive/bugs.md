@@ -1596,6 +1596,6 @@ Reports, in the user's order, with what is known so far:
 
 ## Report 2026-10-27 (follow-ups)
 - [x] SPIKE BOT wall grab: JUMP pose while leaping, WALK_AIR pose clinging (new air row in the enemy sheet; GRAB_WALL leap also forces the jump row)
-- [ ] SPIKE BOT projectile while on the wall is a CHAIN in the PC
+- [x] SPIKE BOT wall shot: not a bug - the PC data fires DIAGONAL DOWN (id 13); the chain shot was lost in the PC long ago (owner confirmed)
 - [x] CHAIN projectile grows from nothing and retracts (frames = slices of the art; hitbox follows)
 - [x] enemies act only while in the same room as the player (no scroll-lock column between them)
