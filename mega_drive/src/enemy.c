@@ -1633,6 +1633,74 @@ static bool enemy_is_shielded(const Enemy *e, s8 shot_dir)
 
 // Returns: 0 = miss, 1 = hit (damage applied), 2 = blocked by a shield
 // (the caller reflects the shot, PC classplayer.cpp:708).
+// Damage one enemy (shield, hit window, weakness, death). Returns what
+// enemies_try_hit() documents.
+static u8 enemy_hit(u8 i, Enemy *e, u8 damage, s8 shot_dir, bool charged,
+                    u8 weapon)
+{
+    const EnemyDef *d = e->def;
+    const bool stage_boss = ((s16)i == boss_i);
+    if (stage_boss && e->dropping) return 1;
+
+    // shielded enemy: a vanishing shot is reflected, no damage. Charged
+    // shots (vanishes_on_hit = false) pass through the shield and damage
+    // the enemy, as in PC classplayer.cpp:708.
+    if (!charged && enemy_is_shielded(e, shot_dir)) return 2;
+
+    // Intangible window after a hit (PC hit_duration): the shot is
+    // consumed but deals no damage.
+    if (e->hurt_timer) return 1;
+
+    // PC classplayer.cpp:747 uses weakness[weapon].damage_multiplier;
+    // 0 = immune to that weapon. The PC then `continue`s, so the shot is
+    // NOT consumed and keeps travelling. Item weapons (9/10) have no
+    // weakness slot and use the buster's entry.
+    u8 mul = d->weak[(weapon < 9) ? weapon : 0];
+    if (mul == 0) return 0;
+    u8 dmg = damage * mul;
+
+    e->hp = (dmg >= e->hp) ? 0 : e->hp - dmg;
+    e->hurt_timer = stage_boss ? BOSS_HURT_FRAMES : NPC_HURT_FRAMES;
+    e->was_hit = 1;                 // PC _was_hit -> AI_REACTION_HIT
+    sfx_play(SFX_NPC_HIT);
+    if (e->hp == 0) {
+        // PC REACTION_DEAD (artificial_inteligence.cpp:184): if the
+        // enemy has a death reaction (DESTRIN TANK -> DESTRIN SHIP), play
+        // it first; the reaction removes the enemy when it finishes and a
+        // stage boss's replacement inherits the boss status, so the fight
+        // continues.
+        const bool dead_react = (stage_def->enemy_react &&
+            stage_def->enemy_react[e->def_i][REACT_DEAD].action);
+        sfx_play(stage_boss ? SFX_EXPLOSION : SFX_NPC_KILLED);
+        if (stage_boss) {
+            if (!dead_react) boss_died = TRUE;
+        } else {
+            // PC classmap.cpp:2232: a regular enemy's death adds the 32x32
+            // explosion puff at its position (the stage boss has its own
+            // death sequence). Dead enemies also drop an item, but only
+            // while on screen (classMap::drop_item).
+            s16 cx = e->x + d->box_l + d->box_w / 2;
+            s16 cy = e->y + d->box_t + d->box_h / 2;
+            s16 sx = cx - camera.x;
+            s16 sy = cy - camera.y;
+            if (sx >= 0 && sx < 320 && sy >= 0 && sy < 224)
+                objects_drop_item(cx, cy, d->is_sub_boss != 0);
+            explosion_spawn(e->x, e->y);
+        }
+        if (dead_react) {
+            e->dying = 1;
+            e->was_hit = 0;
+            e->react = REACT_DEAD + 1;
+            e->act_t = 0;
+            e->ai_phase = AI_RUN;
+            ai_action_init(e);
+        } else {
+            enemy_die(e);
+        }
+    }
+    return 1;
+}
+
 u8 enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage, s8 shot_dir,
                    bool charged, u8 weapon)
 {
@@ -1640,74 +1708,36 @@ u8 enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage, s8 shot_dir,
         Enemy *e = &enemies[i];
         if (!e->alive || e->dying) continue;
         const EnemyDef *d = e->def;
-        // A replacement NPC can become the stage boss, so the live index (not
-        // the def flag) decides.
-        const bool stage_boss = ((s16)i == boss_i);
-        if (stage_boss && e->dropping) return 1;
         s16 el = e->x + d->box_l;
         s16 et = e->y + d->box_t;
         if (l >= el + d->box_w || r <= el || t >= et + d->box_h || b <= et)
             continue;
-
-        // shielded enemy: a vanishing shot is reflected, no damage. Charged
-        // shots (vanishes_on_hit = false) pass through the shield and damage
-        // the enemy, as in PC classplayer.cpp:708.
-        if (!charged && enemy_is_shielded(e, shot_dir)) return 2;
-
-        // Intangible window after a hit (PC hit_duration): the shot is
-        // consumed but deals no damage.
-        if (e->hurt_timer) return 1;
-
-        // PC classplayer.cpp:747 uses weakness[weapon].damage_multiplier;
-        // 0 = immune to that weapon. The PC then `continue`s, so the shot is
-        // NOT consumed and keeps travelling. Item weapons (9/10) have no
-        // weakness slot and use the buster's entry.
-        u8 mul = d->weak[(weapon < 9) ? weapon : 0];
-        if (mul == 0) return 0;
-        u8 dmg = damage * mul;
-
-        e->hp = (dmg >= e->hp) ? 0 : e->hp - dmg;
-        e->hurt_timer = stage_boss ? BOSS_HURT_FRAMES : NPC_HURT_FRAMES;
-        e->was_hit = 1;                 // PC _was_hit -> AI_REACTION_HIT
-        sfx_play(SFX_NPC_HIT);
-        if (e->hp == 0) {
-            // PC REACTION_DEAD (artificial_inteligence.cpp:184): if the
-            // enemy has a death reaction (DESTRIN TANK -> DESTRIN SHIP), play
-            // it first; the reaction removes the enemy when it finishes and a
-            // stage boss's replacement inherits the boss status, so the fight
-            // continues.
-            const bool dead_react = (stage_def->enemy_react &&
-                stage_def->enemy_react[e->def_i][REACT_DEAD].action);
-            sfx_play(stage_boss ? SFX_EXPLOSION : SFX_NPC_KILLED);
-            if (stage_boss) {
-                if (!dead_react) boss_died = TRUE;
-            } else {
-                // PC classmap.cpp:2232: a regular enemy's death adds the 32x32
-                // explosion puff at its position (the stage boss has its own
-                // death sequence). Dead enemies also drop an item, but only
-                // while on screen (classMap::drop_item).
-                s16 cx = e->x + d->box_l + d->box_w / 2;
-                s16 cy = e->y + d->box_t + d->box_h / 2;
-                s16 sx = cx - camera.x;
-                s16 sy = cy - camera.y;
-                if (sx >= 0 && sx < 320 && sy >= 0 && sy < 224)
-                    objects_drop_item(cx, cy, d->is_sub_boss != 0);
-                explosion_spawn(e->x, e->y);
-            }
-            if (dead_react) {
-                e->dying = 1;
-                e->was_hit = 0;
-                e->react = REACT_DEAD + 1;
-                e->act_t = 0;
-                e->ai_phase = AI_RUN;
-                ai_action_init(e);
-            } else {
-                enemy_die(e);
-            }
-        }
-        return 1;
+        return enemy_hit(i, e, damage, shot_dir, charged, weapon);
     }
     return 0;
+}
+
+// PC classPlayer::damage_ground_npcs(): while the QUAKE projectile lives, every
+// enemy on screen that stands on solid ground takes the weapon's weakness
+// multiplier as damage (a 0 multiplier = immune; the hit window still applies).
+void enemies_quake_hit(u8 weapon)
+{
+    for (u8 i = 0; i < enemy_count; i++) {
+        Enemy *e = &enemies[i];
+        if (!e->alive || e->dying) continue;
+        const EnemyDef *d = e->def;
+        const s16 sx = e->x + d->box_l - camera.x;
+        const s16 sy = e->y + d->box_t - camera.y;
+        if (sx + d->box_w <= 0 || sx >= 320 || sy + d->box_h <= 0 || sy >= 224)
+            continue;
+        const s16 tx = (e->x + d->box_l + d->box_w / 2) >> 4;
+        const s16 ty = (e->y + d->box_t + d->box_h) >> 4;
+        const u16 lock = stage_terrain_at(stage_current_map, tx, ty);
+        if (lock == TERRAIN_UNBLOCKED || lock == TERRAIN_STAIR ||
+            lock == TERRAIN_WATER)
+            continue;
+        enemy_hit(i, e, 1, e->dir, TRUE, weapon);
+    }
 }
 
 u8 enemies_boss_hp(void)

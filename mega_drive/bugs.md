@@ -1468,3 +1468,7 @@ Reports, in the user's order, with what is known so far:
       stage not reset in got_weapon_bg). Screenshot named by the owner was not
       on disk (only the older screenshots/bugs/you_got_screen.png); cause
       inferred from code, not seen. Needs a re-check.
+- [x] APE QUAKE did no damage (quake shot had no collision path of its own and
+      the generic box test never matched). Now PC damage_ground_npcs: every
+      on-screen enemy standing on solid ground takes the weakness multiplier per
+      frame while the quake lives (hit window still limits the rate).

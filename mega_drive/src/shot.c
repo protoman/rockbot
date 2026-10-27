@@ -287,6 +287,7 @@ void shot_update(void)
         case TRAJ_QUAKE:
             // PC shakes the screen; the projectile itself stays put (~1s).
             if (s->age > SHOT_QUAKE_LIFE) { shot_kill(s); continue; }
+            enemies_quake_hit(s->weapon);
             break;
         case TRAJ_ARC:
             s->x += s->dx;
@@ -399,8 +400,11 @@ void shot_update(void)
             SPR_setPosition(s->spr, s->x - camera.x, s->y - camera.y);
             continue;
         }
-        // Bomb/freeze fuses do not collide before they explode.
-        if (s->traj == TRAJ_BOMB || s->traj == TRAJ_FREEZE) {
+        // Bomb/freeze fuses do not collide before they explode; QUAKE never
+        // collides (PC `continue`s after damage_ground_npcs()): its damage is
+        // dealt from the ground check in the TRAJ_QUAKE case above.
+        if (s->traj == TRAJ_BOMB || s->traj == TRAJ_FREEZE ||
+            s->traj == TRAJ_QUAKE) {
             SPR_setPosition(s->spr, s->x - camera.x, s->y - camera.y);
             continue;
         }
