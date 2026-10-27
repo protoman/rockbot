@@ -379,22 +379,52 @@ static void ai_action_init(Enemy *e)
         // It used to be ignored, so TO_ROOF (APE BOT) became a plain hop and
         // his ceiling walk never happened.
         e->jump_opt = (u8)st->param;
-        if (e->jump_opt == AI_JUMP_TO_PLAYER)
-            e->dest_x = player.x;
-        else if (e->jump_opt == AI_JUMP_TO_SAVED)
+        // Destinations follow PC artificial_inteligence.cpp (jump_to_player /
+        // jump_once / jump_ahead / jump_long_ahead / jump_to_random).
+        switch (e->jump_opt) {
+        case AI_JUMP_TO_PLAYER: {
+            // Latched once: the player's centre, skipped under 3 tiles away.
+            const s16 mid = e->x + d->box_l + d->box_w / 2;
+            const s16 pc = player.x + 14;
+            s16 dist = pc - mid;
+            if (dist < 0) dist = -dist;
+            e->dest_x = (dist < 48) ? e->x : (s16)(e->x + (pc - mid));
+            break;
+        }
+        case AI_JUMP_TO_SAVED:
             e->dest_x = e->spawn_x;
-        else if (e->jump_opt == AI_JUMP_RANDOM)
-            e->dest_x = e->x + ai_rand_off((s16)d->range);
-        else if (e->jump_opt == AI_JUMP_TO_PLAYER_DIR)
-            e->dir = sign16(player.x - e->x);
-        else if (e->jump_opt == AI_JUMP_LONG_AHEAD)
-            e->dest_x = e->x + e->dir * (s16)(d->range * 2);
-        else if (e->jump_opt == AI_JUMP_AHEAD || e->jump_opt == AI_JUMP_ONCE ||
-                 e->jump_opt == AI_JUMP_TELEPORT_IN ||
-                 e->jump_opt == AI_JUMP_TELEPORT_OUT)
-            e->dest_x = e->x + e->dir * (s16)(d->box_w / 2 + d->range);
-        else
+            break;
+        case AI_JUMP_RANDOM: {
+            // A point on the visible screen at least 4 tiles away.
+            s16 rx = e->x;
+            for (u8 n = 0; n < 100; n++) {
+                rx = (s16)(camera.x + (random() % 320));
+                s16 dd = rx - e->x;
+                if (dd < 0) dd = -dd;
+                if (dd >= 64) break;
+            }
+            e->dest_x = rx;
+            break;
+        }
+        case AI_JUMP_TO_PLAYER_DIR:
+            // jump_once: face the player, then 4 tiles that way.
+            e->dir = (player.x > e->x) ? 1 : -1;
+            e->dest_x = e->x + e->dir * 64;
+            break;
+        case AI_JUMP_ONCE:
+        case AI_JUMP_TELEPORT_IN:
+        case AI_JUMP_TELEPORT_OUT:
+            e->dest_x = e->x + e->dir * 64;
+            break;
+        case AI_JUMP_LONG_AHEAD:
+            e->dest_x = e->x + e->dir * 16 * 7;     // LONG_JUMP_DIST tiles
+            break;
+        case AI_JUMP_AHEAD:
+            e->dest_x = e->x + e->dir * 16 * (d->speed ? d->speed : 1);
+            break;
+        default:
             e->dest_x = e->x;                       // UP / TO_ROOF: no drift
+        }
         break;
     case AI_FLY:
         e->dash_ai = (st->param == AI_FLY_DASH) ? 1 : 0;
@@ -838,6 +868,9 @@ static bool ai_action_run(Enemy *e)
     case AI_JUMP: {
         if (!e->jumping) {
             if (!on_ground(e, d)) return FALSE;         // wait for the floor
+            // PC jump_to_player: under 3 tiles away the action is skipped.
+            if (e->jump_opt == AI_JUMP_TO_PLAYER && e->dest_x == e->x)
+                return TRUE;
             e->jumping = 1;
             e->moving = 1;
             if (e->jump_opt == AI_JUMP_TO_ROOF) {
@@ -867,7 +900,6 @@ static bool ai_action_run(Enemy *e)
         // the shared 50 Hz stepper, so an airborne enemy moves at the same
         // rate as a walking one (the old per-frame `d->speed` was 20% fast)
         // and still stops at walls and map objects.
-        if (e->jump_opt == AI_JUMP_TO_PLAYER) e->dest_x = player.x;
         if (e->jump_opt != AI_JUMP_UP) {
             e->dir = sign16(e->dest_x - e->x);
             if (e->dir == 0) e->dir = (player.x > e->x) ? 1 : -1;
