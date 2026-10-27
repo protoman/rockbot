@@ -1472,3 +1472,7 @@ Reports, in the user's order, with what is known so far:
       the generic box test never matched). Now PC damage_ground_npcs: every
       on-screen enemy standing on solid ground takes the weakness multiplier per
       frame while the quake lives (hit window still limits the rate).
+- [x] Boss door closed again the moment the transition scroll started
+      (objects_sync_sprites -> door_sync re-showed the slices). Added
+      MapObj.door_open: slices stay hidden through the scroll, then the close
+      animation (borders in, reverse of the opening) runs.

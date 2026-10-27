@@ -46,6 +46,7 @@ typedef struct {
     u8 anim_rev;     // COIL FROG: playing back toward frame 0
     fix16 fall_speed;// crusher (33) accelerating fall
     u8 door;         // boss door slice slot + 1 (0 = not a door)
+u8 door_open;    // slices hidden: the door is open (stays so while the room scrolls)
     u8 flags;        // ODF_*: type tests precomputed at spawn (hot loop)
     u8 spr_vis;      // last visibility sent to the sprite (0xFF = unknown)
     u8 grounded;     // resting on static terrain at rest_y
@@ -328,7 +329,7 @@ static void door_sync(MapObj *o, bool on_screen)
     if (!o->door) return;
     const u8 slot = (u8)(o->door - 1);
     const u8 n = door_slice_count(o);
-    const bool vis = on_screen && o->visible;
+    const bool vis = on_screen && o->visible && !o->door_open;
     for (u8 i = 0; i < n; i++) {
         Sprite *sp = door_slices[slot][i];
         if (!sp) continue;
@@ -346,6 +347,10 @@ static void door_anim(MapObj *o, bool open)
     const u8 slot = (u8)(o->door - 1);
     const u8 n = door_slice_count(o);
     const u8 *order = door_order[n - 1];
+    // door_sync() (every frame, and during the door scroll) keeps the slices
+    // hidden while the door is open; the flag is cleared before the close
+    // animation so its own visibility changes are the last word.
+    if (!open) o->door_open = FALSE;
     for (u8 k = 0; k < n; k++) {
         const u8 i = open ? order[k] : order[n - 1 - k];
         Sprite *sp = door_slices[slot][i];
@@ -360,6 +365,7 @@ static void door_anim(MapObj *o, bool open)
             VDP_setReg(18, 0);
         }
     }
+    o->door_open = open;
     door_sync(o, TRUE);
 }
 
@@ -404,6 +410,7 @@ void objects_reset(void)
         o->duration = 0;
         o->fall_speed = 0;
         o->door = 0;
+        o->door_open = FALSE;
         obj_init_cached(o, d);
         o->spr = door_spawn(o) ? NULL
                                : SPR_addSprite(d->spr, o->x - camera.x,
@@ -856,6 +863,7 @@ void objects_reset_doors(void)
         MapObj *o = &objs[i];
         if (o->def->type != 30 || !o->started) continue;
         o->started = FALSE;
+        o->door_open = FALSE;
         o->frame = 0;
         if (o->spr) spr_set_frame(o->spr, 0);
     }
