@@ -1578,3 +1578,7 @@ Reports, in the user's order, with what is known so far:
       collision only knew TERRAIN_SOLID. PC blocks NPCs on every terrain but
       UNBLOCKED/STAIR/difficulty blocks, so conveyors, ice, sand and spikes are
       floors for enemies now (ENEMY_SOLID in enemy.c): spawn y 161 -> 145.
+- [x] PAMPA METALEMA (WALK AHEAD whose state loops on itself = PC
+      always_move_ahead) stopped at gaps: PC skips the hole test for such walkers
+      so they march on and fall; the port kept the ledge stop (and the patrol
+      leash). Both are skipped while always_ahead is set.

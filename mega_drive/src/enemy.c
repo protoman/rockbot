@@ -663,7 +663,8 @@ static bool step_axis(Enemy *e, s16 *pos, s16 dest, bool horizontal, bool can_fa
     if (horizontal) {
         // A walker's patrol limit is a wall for the AI (the state ends there)
         // instead of being enforced after the fact.
-        if (!d->fly && (n < e->x_min || n > e->x_max)) return TRUE;
+        if (!d->fly && !e->always_ahead && (n < e->x_min || n > e->x_max))
+            return TRUE;
         s16 lead = (dir > 0) ? n + d->box_l + d->box_w - 1 : n + d->box_l;
         if (box_hits_solid(lead, e->y + d->box_t,
                            lead, e->y + d->box_t + d->box_h) ||
@@ -962,8 +963,11 @@ static bool ai_action_run(Enemy *e)
             return FALSE;
         }
         e->moving = 1;
+        // PC check_can_move_to_point skips the hole test entirely while the
+        // state loops on itself (_always_move_ahead): such a walker marches on
+        // over gaps and falls (PAMPA METALEMA).
         return step_axis(e, &e->x, e->dest_x, TRUE,
-                             st->param == AI_WALK_FALLING);
+                         st->param == AI_WALK_FALLING || e->always_ahead);
 
     case AI_FLY: {
         if (st->param == AI_FLY_TURN) {
@@ -1689,7 +1693,7 @@ void enemies_update(void)
         // Patrol limits are a walker's leash. Flyers and swimmers chase the
         // player wherever he is (PC has no such limit): clamping them left a
         // chasing fish/bat pinned at the border with its state never finishing.
-        if (!d->fly) {
+        if (!d->fly && !e->always_ahead) {
             if (e->x < e->x_min) { e->x = e->x_min; }
             if (e->x > e->x_max) { e->x = e->x_max; }
         }
