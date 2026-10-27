@@ -379,6 +379,18 @@ static bool column_hits_solid(s16 col, s16 t, s16 b)
     return FALSE;
 }
 
+// TRUE when the standing box would not fit where the (lower) slide box is: a
+// solid tile sits in the strip between the standing head and the slide head.
+static bool no_room_to_stand(s16 ix, s16 iy)
+{
+    if (SLIDE_TOP_ADJUST <= 0) return FALSE;
+    const s16 t = iy + PLAYER_BOX_T;
+    const s16 b = iy + PLAYER_BOX_T + SLIDE_TOP_ADJUST;
+    for (s16 tx = (ix + PLAYER_BOX_L) >> 4; tx <= (ix + PLAYER_BOX_R - 1) >> 4; tx++)
+        if (column_hits_solid(tx, t, b)) return TRUE;
+    return FALSE;
+}
+
 // Move the box horizontally from ix by dx and stop flush against the FIRST
 // solid column the leading edge crosses, scanning outwards from the old
 // leading edge. Clamping against the column the new edge *lands* in puts a
@@ -1461,7 +1473,13 @@ void player_update(u16 pad)
         s16 adx = (dx < 0) ? -dx : dx;
         player.slide_dist += adx;
         bool no_ground_ends = !player_can_air_dash();
-        if (!(pad & SLIDE_BUTTON) ||
+        // In a one-tile tunnel the slide cannot end (button released, wall,
+        // distance): standing up would put the head inside the ceiling. It
+        // goes on, even without moving, until there is room above.
+        if (player_can_slide() && player.on_ground &&
+            no_room_to_stand(ix, iy)) {
+            player.slide_dist = 0;
+        } else if (!(pad & SLIDE_BUTTON) ||
             (no_ground_ends && !player.on_ground) ||
             player.slide_dist > SLIDE_MAX_DIST || player.vx == 0) {
             player.sliding = FALSE;

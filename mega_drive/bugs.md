@@ -1482,3 +1482,6 @@ Reports, in the user's order, with what is known so far:
       if he left on a ladder; a dropped ladder needs UP/DOWN released first.
 - [ ] Jump interrupted when the head reaches the top of the room (owner report;
       no ceiling check in player.c explains it - investigating, not reproduced).
+- [x] Slide ended inside a 1-tile tunnel (button released / wall / distance) and
+      stood the player up into the ceiling. The slide now cannot end while a
+      solid tile is in the strip between the standing and the slide head.
