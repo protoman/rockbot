@@ -1536,3 +1536,9 @@ Reports, in the user's order, with what is known so far:
 - [x] Auto-charge showed no charge flash/sound (my auto-charge branch skipped the
       feedback). Extracted charge_feedback(); also gated on player_can_charge()
       and the palette/sound timer reset on release.
+- [x] Water splash appeared where the player jumped / entered (it fired when the
+      "feet in water" flag flipped, at the feet). It now follows PC
+      character.cpp:2283 at the water surface: head and body in air, feet in
+      water, rising (leaving) and only after having been in water, latched until
+      the three probe points agree again. Entering the water no longer splashes
+      (owner: splash only when leaving) - say if entering should splash too.

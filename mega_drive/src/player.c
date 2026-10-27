@@ -123,6 +123,7 @@ static s16 attack_timer;
 static u16 charge_sfx_timer;   // re-trigger countdown for the charge loop
 static u16 prev_pad;
 static u16 current_anim;
+static bool water_splash_latch;   // PC _water_splash: one splash per crossing
 static bool in_water;       // previous water state (enter/leave SFX)
 static bool ladder_flip;    // climb pose desired (cycle/turn driven)
 static bool ladder_shown;   // last pose baked into the sprite VRAM
@@ -680,6 +681,7 @@ void player_init(void)
     ladder_need_release = FALSE;
     freeze_frames = 0;
     in_water = FALSE;
+    water_splash_latch = FALSE;
     rebuild_player_palette();
 
     player.spr = SPR_addSprite(player_defs[player_n], SPAWN_X - camera.x, SPAWN_Y - camera.y,
@@ -927,11 +929,29 @@ void player_update(u16 pad)
         bool water_now = terrain_under_feet() == TERRAIN_WATER;
         if (water_now != in_water) {
             sfx_play(water_now ? SFX_WATER_ENTER : SFX_WATER_LEAVE);
-            // PC art images/animations/water_splash.png: the splash sits on
-            // the surface the player just broke.
-            if (water_now)
-                fx_splash(player.x - 2, player.y + box_b, player.facing);
             in_water = water_now;
+        }
+        // PC character.cpp:2283: the splash plays at the water SURFACE when
+        // head and body are in air and only the feet are still in water. Owner
+        // report: it is for LEAVING the water (rising through the surface), not
+        // for jumps or entering. It is latched until all three points agree
+        // again, so one crossing gives one splash.
+        if (player.vy != 0) {
+            const s16 cx = (player.x + (PLAYER_BOX_L + PLAYER_BOX_R) / 2) >> 4;
+            const s16 rt = (player.y + box_t) >> 4;
+            const s16 rm = (player.y + (box_t + box_b) / 2) >> 4;
+            const s16 rb = (player.y + box_b - 1) >> 4;
+            const u16 pt = stage_terrain_at(stage_current_map, cx, rt);
+            const u16 pm = stage_terrain_at(stage_current_map, cx, rm);
+            const u16 pb = stage_terrain_at(stage_current_map, cx, rb);
+            if (pt == TERRAIN_UNBLOCKED && pm == TERRAIN_UNBLOCKED &&
+                pb == TERRAIN_WATER && !water_splash_latch && player.vy < 0 &&
+                in_water) {
+                water_splash_latch = TRUE;
+                fx_splash(player.x - 2, rb * 16, player.facing);
+            } else if (pt == pb && pt == pm && water_splash_latch) {
+                water_splash_latch = FALSE;
+            }
         }
         // PC character.cpp:158 — a bubble rises from the player while he is
         // inside water (one at a time, 3 s apart).
