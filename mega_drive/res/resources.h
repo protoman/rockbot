@@ -113,6 +113,7 @@ extern const SpriteDefinition fx_dust_sprite;
 extern const SpriteDefinition fx_splash_sprite;
 extern const SpriteDefinition fx_teleport_sprite;
 extern const SpriteDefinition fx_bubble_sprite;
+extern const SpriteDefinition fx_flash_sprite;
 extern const SpriteDefinition enemy_rhino_sprite;
 extern const SpriteDefinition proj_0_sprite;
 extern const SpriteDefinition proj_1_sprite;
