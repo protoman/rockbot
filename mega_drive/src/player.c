@@ -191,6 +191,24 @@ static s16 spawn_ground_y(s16 x)
     return SPAWN_Y;
 }
 
+static bool column_hits_solid(s16 col, s16 t, s16 b);
+
+// The checkpoint object settles 1px INTO the floor (PC platform_can_move tests
+// the row 2px above its bottom), so its bottom edge is no standing height:
+// respawning there put the feet one pixel inside the ground and every walk
+// step was blocked until a jump lifted him out.
+static s16 lift_out_of_floor(s16 sx, s16 sy)
+{
+    for (u8 i = 0; i < 8; i++) {
+        bool hit = FALSE;
+        for (s16 tx = (sx + PLAYER_BOX_L) >> 4; tx <= (sx + PLAYER_BOX_R - 1) >> 4 && !hit; tx++)
+            hit = column_hits_solid(tx, sy + PLAYER_BOX_T, sy + PLAYER_BOX_B);
+        if (!hit) break;
+        sy--;
+    }
+    return sy;
+}
+
 static void respawn_player(bool invuln)
 {
     objects_reset_doors();   // a new life starts with the doors shut
@@ -211,7 +229,7 @@ static void respawn_player(bool invuln)
             stage_load(cp_map);
         }
         sx = cp_x;
-        sy = cp_y - box_b;
+        sy = lift_out_of_floor(sx, cp_y - PLAYER_BOX_B);
     }
     player_place(sx, sy);
     player.on_ground = TRUE;

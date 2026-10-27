@@ -1589,7 +1589,7 @@ Reports, in the user's order, with what is known so far:
 - [x] diagonal shots: enemy projectiles with trajectory DIAGONAL_UP/DOWN never got a dy (flew straight)
 - [ ] many slowdowns in the TECHNO stage
 - [x] bomb / fall-bomb: now the PC 56x56 7-frame explosion (3.6 s / 1.6 s), damaging only while exploding, with the big-explosion sound
-- [ ] after respawning at a checkpoint the player cannot walk right until he jumps
+- [x] checkpoint respawn: the object settles 1px into the floor (PC platform_can_move tests y+h-2), so feet spawned 1px inside the ground in 39/39 checkpoints; respawn now lifts him out
 - [ ] MUMMY link 5 scrolls left ignoring the wall-lock
 - [x] helmets: attack row looped, re-showing its first (stand) frame when the SHOT action ran a tick past the animation; shot attacks now hold the last frame (unverified: needs a play-test)
 - [x] PHARAOH vanished: e->teleporting was only cleared on a fall landing (stray line), so after the first TELEPORT he kept the dissolve frame forever; cleared when the action ends
