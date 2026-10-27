@@ -96,7 +96,48 @@ SampleInfo analyze_sample(const ModSample& s) {
 		if (std::fabs(den) > 1e-12) best_lag += 0.5 * (a - c) / den;
 	}
 	info.confidence = best;
-	if (best >= 0.6) { info.pitched = true; info.cycle_len = best_lag; }
+	if (best >= 0.6) { info.pitched = true; info.cycle_len = best_lag; return info; }
+
+	// Distorted / chordal material has no single repeating cycle: look for a
+	// harmonic series instead (harmonic product spectrum on the body).
+	if (info.centroid < 0.2) {
+		const size_t N = 16384, M = std::min<size_t>(n, 4096);
+		std::vector<double> re(N, 0.0), im(N, 0.0);
+		for (size_t i = 0; i < M; ++i) re[i] = x[begin + i] * (0.5 - 0.5 * std::cos(2 * M_PI * i / M));
+		// naive in-place radix-2 FFT
+		for (size_t i = 1, j = 0; i < N; ++i) {
+			size_t bit = N >> 1;
+			for (; j & bit; bit >>= 1) j ^= bit;
+			j ^= bit;
+			if (i < j) { std::swap(re[i], re[j]); std::swap(im[i], im[j]); }
+		}
+		for (size_t len2 = 2; len2 <= N; len2 <<= 1) {
+			const double ang = -2 * M_PI / len2;
+			for (size_t i = 0; i < N; i += len2)
+				for (size_t k = 0; k < len2 / 2; ++k) {
+					const double wr = std::cos(ang * k), wi = std::sin(ang * k);
+					const size_t a = i + k, b2 = i + k + len2 / 2;
+					const double tr = re[b2] * wr - im[b2] * wi, ti = re[b2] * wi + im[b2] * wr;
+					re[b2] = re[a] - tr; im[b2] = im[a] - ti; re[a] += tr; im[a] += ti;
+				}
+		}
+		std::vector<double> mag(N / 2);
+		for (size_t k = 0; k < N / 2; ++k) mag[k] = std::sqrt(re[k] * re[k] + im[k] * im[k]);
+		// f0 between 1/700 and 1/8 cycles per byte
+		const size_t klo = N / 700, khi = N / 8;
+		double bestp = 0, meanp = 0; size_t bestk = 0, cnt = 0;
+		for (size_t k = klo; k < khi && 4 * k < N / 2; ++k) {
+			const double p = mag[k] * mag[2 * k] * mag[3 * k] * mag[4 * k];
+			meanp += p; ++cnt;
+			if (p > bestp) { bestp = p; bestk = k; }
+		}
+		meanp /= std::max<size_t>(cnt, 1);
+		if (bestk && bestp > 30.0 * meanp) {
+			info.pitched = true;
+			info.cycle_len = static_cast<double>(N) / bestk;
+			info.confidence = 0.5;
+		}
+	}
 	return info;
 }
 

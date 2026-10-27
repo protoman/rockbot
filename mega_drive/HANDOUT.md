@@ -476,3 +476,4 @@ first row is discarded.
   and `config.c:cfg_black`; the latter shares tile 702 with `stage_sky_tile()`, so
   it also striped the stage sky and the transition bands. Repro/fix check:
   `make check-fills` (`tools/check_fill_tiles.py`).
+- 2026-10-27 music: mod2vgm rewritten (replayer, fitted FM voices from tools/mod2vgm/voice_table.inc via fit_voices, percussion as real samples on the DAC, frame-quantised VGM). Score vs libxmp over 30 modules: chroma 0.80 mel 0.72 env 0.73 onset 0.63 (was 0.49/0.21/0.37/0.32). ROM 2.0 -> 3.54 MB. Re-fit: tools/mod2vgm/build/fit_voices out.inc -b 1200 <mods>; score: tools/mod2vgm/evaluate_all.sh

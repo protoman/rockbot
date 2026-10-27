@@ -3,6 +3,8 @@
 // the voice fitter its target waveforms.
 #include "mod_parser.h"
 #include "replayer.h"
+#include "sample_analysis.h"
+#include <string>
 #include <cmath>
 #include <cstdlib>
 #include <fstream>
@@ -17,6 +19,10 @@ int main(int argc, char** argv) {
 	ModFile mod;
 	if (!mod.load_from_file(argv[1])) return 1;
 	const Song song = replay(mod);
+	const char* only = std::getenv("MR_ONLY"); // "unpitched": render just the percussive samples
+	bool keep[32];
+	for (int i = 0; i < 32; ++i) keep[i] = true;
+	if (only) for (int i = 1; i <= 31; ++i) keep[i] = (analyze_sample(mod.samples[i]).pitched == (std::string(only) == "pitched"));
 	std::vector<int16_t> out;
 	struct Voice { const ModSample* s = nullptr; double pos = 0; bool on = false; } v[4];
 	for (size_t i = 0; i < song.ticks.size(); ++i) {
@@ -25,7 +31,7 @@ int main(int argc, char** argv) {
 		const size_t n0 = static_cast<size_t>(tk.time), n1 = static_cast<size_t>(t1);
 		for (int c = 0; c < 4; ++c) {
 			const ChannelTick& ct = tk.ch[c];
-			if (ct.trigger && ct.sample) { v[c].s = &mod.samples[ct.sample]; v[c].pos = 0; v[c].on = true; }
+			if (ct.trigger && ct.sample && keep[ct.sample]) { v[c].s = &mod.samples[ct.sample]; v[c].pos = 0; v[c].on = true; }
 		}
 		for (size_t n = n0; n < n1; ++n) {
 			double mix = 0;
@@ -47,7 +53,7 @@ int main(int argc, char** argv) {
 				mix += (a * (1 - f) + b * f) * ct.volume / 64.0;
 				vc.pos += step;
 			}
-			out.push_back(static_cast<int16_t>(std::max(-32768.0, std::min(32767.0, mix * 64.0))));
+			out.push_back(static_cast<int16_t>(std::max(-32768.0, std::min(32767.0, mix * 32.0))));
 			if (out.size() >= max_secs * 44100) goto done;
 		}
 	}

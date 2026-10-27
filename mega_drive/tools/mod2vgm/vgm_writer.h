@@ -7,66 +7,51 @@
 namespace mod2vgm {
 
 /**
- * @brief Handles generation of standard VGM files (v1.50).
+ * @brief Minimal VGM 1.50 writer for YM2612 + SN76489 with a YM2612 PCM bank.
+ *
+ * Time is tracked in exact 44.1 kHz samples. Callers quantise event times to
+ * the 60 Hz frame grid themselves (XGM2 is frame based); while a PCM sample
+ * streams, waits are spent on the DAC bytes (0x8n commands) so the stream
+ * keeps its rate and other events interleave between them.
  */
 class VgmWriter {
 public:
 	VgmWriter();
 
-	/**
-	 * @brief Set the hardware chip clocks.
-	 * @param ym2612_clock Clock frequency in Hz (typically 7670453).
-	 * @param sn76489_clock Clock frequency in Hz (typically 3579545).
-	 */
 	void set_clocks(uint32_t ym2612_clock, uint32_t sn76489_clock);
 
-	/**
-	 * @brief Write a register to YM2612.
-	 * @param port 0 for channels 1-3, 1 for channels 4-6.
-	 * @param reg Register address.
-	 * @param val Value to write.
-	 */
 	void write_ym2612(uint8_t port, uint8_t reg, uint8_t val);
-
-	/**
-	 * @brief Write a byte to the SN76489 PSG.
-	 * @param val Register / data byte.
-	 */
 	void write_psg(uint8_t val);
 
-	/**
-	 * @brief Wait for a specific number of 44100Hz samples.
-	 * @param samples Number of samples to wait.
-	 */
-	void wait_samples(uint32_t samples);
+	/// Emits the YM2612 PCM data block. Call once, before the loop point.
+	void set_pcm_bank(const std::vector<uint8_t>& bank);
 
-	/**
-	 * @brief End sound data and save to file.
-	 * @param file_path Path where .vgm will be written.
-	 * @return True on success.
-	 */
-	bool write_to_file(const std::string& file_path);
+	/// Starts streaming `len` bytes of the bank from `offset` at `rate` Hz.
+	/// A stream already running is cut.
+	void play_pcm(uint32_t offset, uint32_t len, double rate);
 
-	/**
-	 * @brief Mark current write position as loop point.
-	 */
-	void mark_loop_point();
-
-	/// Moves the stream to `time` (44.1 kHz samples, may be fractional) by
-	/// emitting whole 60 Hz frame waits only, so XGM2 (frame based) plays the
-	/// timing the converter computed instead of re-rounding it itself.
+	/// Moves the stream to `time` (44.1 kHz samples), feeding PCM bytes on the way.
 	void advance_to(double time);
 
-	uint32_t frame() const { return frame_; }
+	void mark_loop_point();
+	bool write_to_file(const std::string& file_path);
+
+	int64_t now() const { return now_; }
 
 private:
+	void wait_idle(int64_t samples);
+
 	uint32_t ym_clock_ = 7670453;
 	uint32_t psg_clock_ = 3579545;
-	uint32_t total_samples_ = 0;
-	uint32_t loop_samples_ = 0;
+	int64_t now_ = 0;
+	int64_t loop_start_ = 0;
 	uint32_t loop_offset_byte_ = 0;
-	uint32_t frame_ = 0;
 	std::vector<uint8_t> data_;
+	std::vector<uint8_t> bank_;
+
+	bool pcm_active_ = false;
+	uint32_t pcm_offset_ = 0, pcm_len_ = 0, pcm_idx_ = 0;
+	double pcm_rate_ = 13300.0, pcm_t0_ = 0.0;
 };
 
 } // namespace mod2vgm

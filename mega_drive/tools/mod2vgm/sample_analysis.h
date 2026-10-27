@@ -20,4 +20,10 @@ struct SampleInfo {
 
 SampleInfo analyze_sample(const ModSample& s);
 
+/// Percussion goes through the DAC as real sample data: a one-shot that the
+/// song plays at only a few different pitches. Anything melodic stays FM.
+inline bool is_percussion(const SampleInfo& info, size_t length_bytes, size_t distinct_periods) {
+	return !info.looped && distinct_periods <= 3 && length_bytes <= 8000;
+}
+
 } // namespace mod2vgm
