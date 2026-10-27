@@ -969,6 +969,13 @@ static void got_weapon_bg(void)
                      DMA_QUEUE);
     PAL_setPalette(PAL3, gotbg_pal.data, DMA_QUEUE);
     static u16 cells[GOTBG_MAP_W * GOTBG_MAP_H];
+    // The stage leaves its camera scroll in both planes; the framed art and
+    // the text are laid out from tile 0, so any leftover offset shifts them.
+    VDP_setScrollingMode(HSCROLL_PLANE, VSCROLL_PLANE);
+    VDP_setHorizontalScroll(BG_A, 0);
+    VDP_setVerticalScroll(BG_A, 0);
+    VDP_setHorizontalScroll(BG_B, 0);
+    VDP_setVerticalScroll(BG_B, 0);
     for (u16 i = 0; i < GOTBG_MAP_W * GOTBG_MAP_H; i++)
         cells[i] = TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE,
                                   GOTBG_TILE_BASE + gotbg_map[i]);
