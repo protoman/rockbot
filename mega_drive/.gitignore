@@ -11,3 +11,4 @@ editor/CMakeFiles/
 
 # transient backup made by tools/import_pc_data.py
 data/backup_pre_import_*/
+res/.assets.cache.json

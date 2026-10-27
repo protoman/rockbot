@@ -7,7 +7,7 @@ export GDK ?= /opt/toolchains/mars/m68k-elf
 # Every file in res/ is generated from the PC game data by tools/*.py. A
 # plain `make` regenerates whatever changed (stamp vs converter scripts and
 # PC source assets) before rescomp runs, so resources are never stale.
-# Force a full regeneration with `make assets` after touching res/.
+# Force a full regeneration with `make assets` (tools/build_assets.py --force).
 PYTHON   ?= /home/iuri/python3/bin/python3
 PCROOT   := ..
 # Editable game data: a COPY of the PC build/games/RockDroid1 that the editor
@@ -16,23 +16,6 @@ PCROOT   := ..
 GAMEDATA := data/games/RockDroid1
 IMAGES   := images
 ASSET_STAMP := res/.assets.stamp
-ASSET_TOOLS := $(wildcard tools/*.py)
-ASSET_DATA  := $(shell find $(GAMEDATA) \
-                            $(PCROOT)/build/shared/images \
-                            -type f \( -name '*.png' -o -name '*.dat' \) \
-                            2>/dev/null)
-# hand-owned art: the sprite converters read images/, so a hand edit must
-# invalidate the asset stamp too
-ASSET_DATA  += $(shell find $(IMAGES) -type f -name '*.png' 2>/dev/null)
-ASSET_DATA  += $(shell find art -type f -name '*.png' 2>/dev/null)
-# PC music sources: the MOD/S3M files are converted to VGM before rescomp
-# turns them into XGM2 resources. The binary is a prerequisite so a rebuilt
-# converter invalidates the asset stamp as well.
-MUSIC_DIR   := $(GAMEDATA)/music
-MUSIC_DATA  := $(wildcard $(MUSIC_DIR)/*.mod $(MUSIC_DIR)/*.s3m)
-MUSIC_TOOL  := tools/mod2vgm/build/mod2vgm
-ASSET_DATA  += $(MUSIC_DATA)
-
 # Converted stages, in index order (tools/add_stage.py appends here).
 STAGES := 0 1 2 3 4 5 6 7 8 9 10 11 12 13
 
@@ -43,92 +26,18 @@ editor:
 	cmake -S editor -B editor/build -DCMAKE_BUILD_TYPE=Release
 	cmake --build editor/build -j4
 
-$(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA) $(MUSIC_TOOL) Makefile
-	$(PYTHON) tools/convert_assets.py
-	@for s in $(STAGES); do \
-	    $(PYTHON) tools/convert_stage.py $$s || exit 1; \
-	    $(PYTHON) tools/convert_enemies.py $$s || exit 1; \
-	    $(PYTHON) tools/convert_objects.py $$s || exit 1; \
-	    for m in 0 1 2; do \
-	        if [ -f res/stage$${s}_bg$${m}.png ]; then \
-	            $(PYTHON) tools/img2tiles.py res/stage$${s}_bg$${m}.png --name stage$${s}_bg$${m} || exit 1; \
-	        fi; \
-	    done; \
-	done
-	$(PYTHON) tools/convert_players.py
-	$(PYTHON) tools/convert_weapons.py
-	$(PYTHON) tools/convert_menu_icons.py
-	$(PYTHON) tools/convert_menu_icons_gray.py
-	# weapon tooltip box + icons (src/tooltip_data.*, PAL3 art)
-	$(PYTHON) tools/convert_tooltip.py
-	$(PYTHON) tools/convert_hud_icons.py
-	$(PYTHON) tools/convert_credits.py
-	$(PYTHON) tools/convert_player.py
-	$(PYTHON) tools/convert_save_icons.py
-	# boss dialog panel (PAL3, drawn on BG_A by dialogs.c). The A-button icon
-	# is a font glyph now: the 12x12 art went through img2tiles' quantizer and
-	# its white landed on a PAL3 border index, drawing a black box.
-	$(PYTHON) tools/img2tiles.py $(IMAGES)/shared/config_bg.png \
-	    --name gotbg --crop-h 224
-	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/dialog.png --name dlg_panel
-	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/boss_intro/boss_intro_bg.png \
-	    --name boss_intro_bg --crop-h 224
-	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/player_selection.png \
-	    --name psel_bg --crop-h 224
-	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/player_select_p1.png --name psel_p1
-	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/player_select_p2.png --name psel_p2
-	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/player_select_p3.png --name psel_p3
-	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/player_select_p4.png --name psel_p4
-	$(PYTHON) tools/convert_stage_select.py
-	$(PYTHON) tools/img2tiles.py $(PCROOT)/build/games/RockDroid1/images/ending/player_walking_layer1.png --name end_l1 --colors 15
-	$(PYTHON) tools/img2tiles.py $(PCROOT)/build/games/RockDroid1/images/ending/player_walking_layer2.png --name end_l2 --colors 15
-	$(PYTHON) tools/img2tiles.py $(PCROOT)/build/games/RockDroid1/images/ending/player_walking_layer3.png --name end_l3 --colors 15
-	$(PYTHON) tools/convert_save_selector.py
-	$(PYTHON) tools/img2tiles.py \
-	    $(PCROOT)/build/games/RockDroid1/images/backgrounds/classic_style_weapon_menu.png \
-	    --name menu --crop-top 16
-	$(PYTHON) tools/title64.py --name title64 --crop-h 224 \
-	    --rekey 219,36,182=255,36,182 \
-	    --rekey 219,109,73=255,146,36 \
-	    --rekey 219,182,146=182,109,73 \
-	    --part art/title.png:18,4:0:1 \
-	    --part art/sub_title.png:162,38:0:1 \
-	    --part art/title_rock_and_beta.png:148,48:1:1
-	$(PYTHON) tools/crop_image.py \
-	    $(PCROOT)/build/games/RockDroid1/images/backgrounds/classic_style_castle.png \
-	    res/castle_b0.png 0 8 320 56
-	$(PYTHON) tools/crop_image.py \
-	    $(PCROOT)/build/games/RockDroid1/images/backgrounds/classic_style_castle.png \
-	    res/castle_b1.png 0 64 320 56
-	$(PYTHON) tools/crop_image.py \
-	    $(PCROOT)/build/games/RockDroid1/images/backgrounds/classic_style_castle.png \
-	    res/castle_b2.png 0 120 320 56
-	$(PYTHON) tools/crop_image.py \
-	    $(PCROOT)/build/games/RockDroid1/images/backgrounds/classic_style_castle.png \
-	    res/castle_b3.png 0 176 320 56
-	$(PYTHON) tools/title64.py --name castle64 --crop-h 224 \
-	    --part res/castle_b0.png:0,0:0:1 \
-	    --part res/castle_b1.png:0,56:1:1 \
-	    --part res/castle_b2.png:0,112:2:1 \
-	    --part res/castle_b3.png:0,168:3:1
-	$(PYTHON) tools/convert_dialogs.py
-	$(PYTHON) tools/convert_scenes.py
-	$(PYTHON) tools/img2tiles.py res/scene_par0_l0.png --name scene_par0_l0
-	$(PYTHON) tools/img2tiles.py res/scene_par0_l1.png --name scene_par0_l1
-	@for f in res/scene_img*.png; do \
-	    case "$$f" in *_tiles.png|*_tiles_rgba.png) continue;; esac; \
-	    [ -e "$$f" ] || continue; \
-	    n=$$(basename $$f .png); \
-	    $(PYTHON) tools/img2tiles.py $$f --name $$n || exit 1; \
-	done
-	$(PYTHON) tools/convert_sfx.py
-	$(PYTHON) tools/convert_energy_bars.py
-	$(PYTHON) tools/convert_music.py
-	$(PYTHON) tools/gen_gpl.py
-	@touch $@
+# tools/build_assets.py decides by CONTENT which converters have to run (the
+# editor rewrites every .dat on save, so mtimes say nothing) and gives
+# unchanged outputs their old mtime back; it touches the stamp only when some
+# generated file really changed, so rescomp / gcc rebuild just what moved.
+$(ASSET_STAMP): FORCE
+	$(PYTHON) tools/build_assets.py
+
+FORCE:
 
 .PHONY: assets editor
-assets: $(ASSET_STAMP)
+assets:
+	$(PYTHON) tools/build_assets.py --force
 
 # Verify the tile layout still fits the fixed VRAM blocks (tileset / parallax
 # / animated slots / sprite pool) and list the room transitions that fall back
