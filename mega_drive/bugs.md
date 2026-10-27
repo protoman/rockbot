@@ -1464,3 +1464,7 @@ Reports, in the user's order, with what is known so far:
       `act_t == 0`, but the tick increments act_t before the action runs, so the
       latch never happened and he walked to a stale dest_x (usually already
       reached) until FALL.
+- [x] YOU GOT screen: background and text shifted right (plane scroll from the
+      stage not reset in got_weapon_bg). Screenshot named by the owner was not
+      on disk (only the older screenshots/bugs/you_got_screen.png); cause
+      inferred from code, not seen. Needs a re-check.
