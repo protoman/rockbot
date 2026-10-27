@@ -239,15 +239,25 @@ static void scroll_lock_camera(s16 prev_x)
 
 static void scroll_lock_span(s16 focus_x)
 {
-    s16 cl = (camera.x + 14) >> 4;
-    s16 cr = (camera.x + 306) >> 4;
-    for (s16 c = cl + 1; c < cr; c++) {
-        if (!column_locked(c)) continue;
-        if (focus_x >= ((s16)c << 4) + 8) {
-            if (camera.x < ((c << 4) + 2)) camera.x = (c << 4) + 2;
-        } else {
-            if (camera.x > ((c << 4) - 307)) camera.x = (c << 4) - 307;
+    // The camera must stay >= (c<<4)+2 for the nearest locked column c on the
+    // player's left and <= (c<<4)-307 for the nearest one on his right (the
+    // runtime scroll_lock_camera() limits). The old version looked only at the
+    // columns strictly inside the view it started from, so a lock a few pixels
+    // outside it (or one that only became relevant after the first push) let
+    // the arrival camera sit beyond the lock - tools/check_arrival_locks.py.
+    for (u8 pass = 0; pass < 4; pass++) {
+        const s16 old = camera.x;
+        const s16 c0 = (camera.x >> 4) - 2, c1 = ((camera.x + 320) >> 4) + 2;
+        for (s16 c = c0; c <= c1; c++) {
+            if (!column_locked(c)) continue;
+            if (focus_x >= ((s16)c << 4) + 8) {
+                if (camera.x < ((c << 4) + 2) && ((c << 4) + 2) <= focus_x)
+                    camera.x = (c << 4) + 2;
+            } else {
+                if (camera.x > ((c << 4) - 307)) camera.x = (c << 4) - 307;
+            }
         }
+        if (camera.x == old) break;
     }
 }
 
