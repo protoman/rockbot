@@ -33,6 +33,9 @@ typedef struct {
 } EShot;
 
 static EShot shots[ESHOT_MAX];
+
+// PC CENTERED projectiles stay on their owner for 3600 ms (_effect_timer).
+#define CIRCLE_FRAMES 216
 u8 eshot_current_owner = 0xFF;
 static u16 spr_seen;    // sprite-engine generation of the handles below
 
@@ -342,9 +345,19 @@ void eshots_update(void)
             }
             break;
         case TRAJ_CENTERED:
-            if (s->age < 30) {
-                s->x = s->x0;
-                s->y = s->y0;
+            if (s->age < CIRCLE_FRAMES) {
+                // PC projectilelib.cpp:700: held on its owner until the 3.6 s
+                // effect timer runs out, then it flies off as LINEAR.
+                s16 ox, oy, ow, oh;
+                s8 odir;
+                if (s->owner < 32 &&
+                    enemies_get_box(s->owner, &ox, &oy, &ow, &oh, &odir)) {
+                    s->x = (s16)(ox + ow / 2 - s->w / 2);
+                    s->y = (s16)(oy + oh / 2 - s->h / 2);
+                } else {
+                    s->x = s->x0;
+                    s->y = s->y0;
+                }
             } else {
                 s->x += s->dx;
                 s->y += s->dy;
@@ -495,4 +508,20 @@ void eshots_update(void)
             SPR_setPosition(s->spr, s->x - camera.x, s->y - camera.y);
         }
     }
+}
+
+// PC character::is_using_circle_weapon(): the owner has exactly one projectile
+// alive and it is a CENTERED one still held around him. While it is, the
+// owner takes no damage from the player's shots (classplayer.cpp:738).
+bool eshot_owner_has_circle(u8 owner)
+{
+    u8 n = 0;
+    bool circle = FALSE;
+    for (u8 i = 0; i < ESHOT_MAX; i++) {
+        const EShot *s = &shots[i];
+        if (!s->on || s->owner != owner) continue;
+        n++;
+        circle = (s->traj == TRAJ_CENTERED && s->age < CIRCLE_FRAMES);
+    }
+    return n == 1 && circle;
 }

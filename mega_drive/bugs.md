@@ -1509,3 +1509,11 @@ Reports, in the user's order, with what is known so far:
       Reproduced with tools/sim_bat_return.py: 43 of 858 chase/return pairs
       ended away from the spawn, 22 after the fix (the rest are real walls
       between the bat and its origin on one axis, as on PC).
+- [x] MAGE BOT with his star circle up took damage. PC: an NPC whose only
+      projectile is a held CENTERED one is invulnerable (shots are consumed,
+      classplayer.cpp:738). The stars now also stay on the owner for 3.6 s
+      (PC _effect_timer) instead of staying at the firing point for 0.5 s.
+- [x] AI JUMP options: TO_PLAYER_DIRECTION (MAGE HELMUT) kept a stale dest_x so
+      it only hopped up; destinations now follow PC for every option.
+- [ ] AI audit (in progress): audit_data.py marks an option "ok" when code
+      exists, not when it behaves like PC (that hid the JUMP one).

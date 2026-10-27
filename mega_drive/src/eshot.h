@@ -20,6 +20,9 @@ bool eshot_fire_aimed(s16 x, s16 y, u8 proj_id);
 // projectilelib.cpp:643) and BOMB_RAIN (spawns children from it) need.
 extern u8 eshot_current_owner;
 
+// TRUE while enemy `owner` is shielded by its own held CENTERED projectile.
+bool eshot_owner_has_circle(u8 owner);
+
 // Move, tile/edge culling, player collision -> player_take_damage.
 // Call once per frame after enemies_update().
 void eshots_update(void);

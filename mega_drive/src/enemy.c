@@ -1678,6 +1678,9 @@ static u8 enemy_hit(u8 i, Enemy *e, u8 damage, s8 shot_dir, bool charged,
     const EnemyDef *d = e->def;
     const bool stage_boss = ((s16)i == boss_i);
     if (stage_boss && e->dropping) return 1;
+    // PC classplayer.cpp:738: an NPC with its circle weapon up takes no damage;
+    // the shot is just consumed.
+    if (eshot_owner_has_circle(i)) return 1;
 
     // shielded enemy: a vanishing shot is reflected, no damage. Charged
     // shots (vanishes_on_hit = false) pass through the shield and damage
