@@ -558,7 +558,14 @@ bool objects_spawn_weapon_item(bool jet)
                            TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
     if (o->spr) {
         SPR_setAutoAnimation(o->spr, FALSE);
-        SPR_setHFlip(o->spr, o->dir < 0);
+        if (jet) {
+            // The jet sheet is PC's two direction rows flattened: frames 0,1
+            // face LEFT, 2,3 face RIGHT. The facing is fixed at spawn.
+            o->frame = (o->dir > 0) ? 2 : 0;
+            spr_set_frame(o->spr, o->frame);
+        } else {
+            SPR_setHFlip(o->spr, o->dir < 0);
+        }
         SPR_setVisibility(o->spr, VISIBLE);
     }
     return TRUE;
@@ -1094,7 +1101,10 @@ void objects_update(void)
             d->frame_t && d->frames > 1) {
             if (++o->anim_t >= d->frame_t) {
                 o->anim_t = 0;
-                o->frame = (u8)((o->frame + 1) % d->frames);
+                if (d->type == 12)      // stay on the spawn-direction pair
+                    o->frame = (u8)(((o->dir > 0) ? 2 : 0) + ((o->frame + 1) & 1));
+                else
+                    o->frame = (u8)((o->frame + 1) % d->frames);
                 if (o->spr) spr_set_frame(o->spr, o->frame);
             }
         }

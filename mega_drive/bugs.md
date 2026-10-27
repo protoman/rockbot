@@ -1494,3 +1494,7 @@ Reports, in the user's order, with what is known so far:
       eshot treated it as a bomb. PC freeze_weapon_effect=PLAYER: no input for
       3500 ms (210 frames) unless the post-hit invulnerability runs. White
       screen blink not ported.
+- [x] JET EAGLE flipped left/right while flying: its art is PC's two direction
+      rows flattened (frames 0,1 = LEFT, 2,3 = RIGHT) and the loop cycled all
+      four. Now it stays on the spawn-direction pair (and no hardware flip,
+      which also showed the wrong facing for a left spawn).
