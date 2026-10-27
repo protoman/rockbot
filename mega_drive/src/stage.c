@@ -962,13 +962,19 @@ static s16 first_lock_on_bottom(s16 tilex, s16 w, s16 h)
 
     for (s16 i = stage_def->map_h - 1; i >= above + 1; i--) {
         u16 t = stage_terrain_at(stage_current_map, tilex, i);
-        if (t == TERRAIN_UNBLOCKED || t == TERRAIN_EASYBLOCK || t == TERRAIN_HARDBLOCK)
+        // PC classmap.cpp:get_first_lock_on_bottom: WATER is not a lock, here or
+        // in the tiles above. Treating it as one made the SEAHORSE boss
+        // teleporter (a water column) find no ground and drop the player at
+        // row 0, inside the ceiling.
+        if (t == TERRAIN_UNBLOCKED || t == TERRAIN_WATER ||
+            t == TERRAIN_EASYBLOCK || t == TERRAIN_HARDBLOCK)
             continue;
         bool bad = FALSE;
         for (s16 j = i - 1; j >= i - above && !bad; j--) {
             for (s16 k = 0; k < right; k++) {
                 if (tilex + k >= stage_def->map_w) { bad = TRUE; break; }
-                if (stage_terrain_at(stage_current_map, tilex + k, j) != TERRAIN_UNBLOCKED) {
+                const u16 t2 = stage_terrain_at(stage_current_map, tilex + k, j);
+                if (t2 != TERRAIN_UNBLOCKED && t2 != TERRAIN_WATER) {
                     bad = TRUE;
                     break;
                 }

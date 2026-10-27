@@ -1550,3 +1550,7 @@ Reports, in the user's order, with what is known so far:
       walkers test their feet line (both corners + centre) instead of only the
       body centre. Likely exposed by the vertical leading-edge change (flyers now
       reach the water line instead of stopping early).
+- [x] SEAHORSE boss teleporter dropped RockBot at row 0 (in the ceiling): the
+      destination column (map 2, col 43) is water down to the floor and
+      first_lock_on_bottom() counted WATER as a lock/obstacle, so it found no
+      ground. PC treats WATER as passable. Offline: result row 0 -> 11.
