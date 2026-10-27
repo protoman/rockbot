@@ -945,7 +945,7 @@ static bool ai_action_run(Enemy *e)
         // ceiling after AI_JUMP TO_ROOF - the APE BOT parked on the roof for
         // the rest of the stage and could not be reached or killed (report
         // 2026-10-24).
-        if (e->act_t == 0) {
+        if (e->act_t == 1) {
             e->dest_x = player.x;
             e->dir = sign16(e->dest_x - e->x);
             if (e->dir == 0) e->dir = (player.x > e->x) ? 1 : -1;

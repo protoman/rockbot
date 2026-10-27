@@ -1455,3 +1455,12 @@ Reports, in the user's order, with what is known so far:
    (ADDRESS ERROR). Fixed by shipping those rows for bosses/sub-bosses only and
    growing the pool to 768 tiles (`SPR_initEx(768)`, stage data ends at 573).
    Needs a re-test.
+
+## Session 2026-10-27 (owner reports, worked one at a time)
+
+- [x] Config menus auto-repeat UP/DOWN (waited only for A/B/START release) - f15f4f21
+- [x] Auto-charge behaved like turbo (PC inverts the attack command) - f15f4f21
+- [x] APE BOT does not walk on the ceiling: AIR_WALK latched its target at
+      `act_t == 0`, but the tick increments act_t before the action runs, so the
+      latch never happened and he walked to a stale dest_x (usually already
+      reached) until FALL.
