@@ -97,6 +97,14 @@
 #define AI_TELEPORT_RANDOM_POINT 5
 #define AI_TELEPORT_AHEAD       6
 
+// PC AI_ACTION_DASH_OPTION_LIST
+#define AI_DASH_LEFT        0
+#define AI_DASH_RIGHT       1
+#define AI_DASH_TO_PLAYER   2
+#define AI_DASH_OPPOSITE    3
+#define AI_DASH_AHEAD       4
+#define AI_DASH_NEAR_PLAYER 5
+
 #define AI_JUMP_AHEAD          0
 #define AI_JUMP_RANDOM         1
 #define AI_JUMP_UP             2
@@ -141,6 +149,9 @@ typedef struct {
     // --- game_ai_list.dat state machine -----------------------------------
     u8 def_i;         // index into enemy_defs / enemy_ai
     s16 spawn_x, spawn_y;   // FLY TO_SAVED_POINT target
+    s16 base_y;             // FLY AHEAD / ZIGZAG: y at the start of the action
+    s16 origin_x;           // FLY OPPOSITE_SHOOT: x where the action began
+    u8 shot_n;              // FLY OPPOSITE_SHOOT: volleys fired so far
     u8 ai_phase;      // AI_FIRST / AI_RUN / AI_WAIT
     u8 ai_chain;      // current state (0..19)
     u16 ai_wait;      // frames left in AI_WAIT (state go_to_delay)
@@ -348,7 +359,9 @@ static void ai_action_init(Enemy *e)
             // flip instantly, as before.
             s16 nd = (st->param == AI_WALK_TURN) ? (s16)-e->dir
                      : ((player.x > e->x) ? 1 : -1);
-            if (d->turn_anim != 255 && d->turn_ms) {
+            // TURN_TO_PLAYER flips at once on PC (:1099); only HORIZONTAL_TURN
+            // waits for the animation.
+            if (st->param == AI_WALK_TURN && d->turn_anim != 255 && d->turn_ms) {
                 e->turn_dir = (s8)nd;
                 e->turn_t = (u16)(((u32)d->turn_ms * 6) / 100);
             } else {
@@ -461,13 +474,16 @@ static void ai_action_init(Enemy *e)
             e->dest_y = e->spawn_y;
             e->dir = sign16(e->dest_x - e->x);
         } else if (st->param == AI_FLY_UP) {
+            e->dest_x = e->x;                           // speed_x 0 on PC
             e->dest_y = e->y - (s16)d->range;
         } else if (st->param == AI_FLY_DOWN) {
             // PC FLY_OPTION_DOWN: dest_y = y + walk_range
             // (artificial_inteligence.cpp:1372). It had no case here, so the 8
             // stages that use it flew horizontally ahead instead.
+            e->dest_x = e->x;
             e->dest_y = e->y + (s16)d->range;
         } else if (st->param == AI_FLY_FALL) {
+            e->dest_x = e->x;
             // PC FLY_OPTION_FALL: "fall until out of screen or hitting ground
             // (ignores distance)": dest_y = RES_H + height + 2 (:1375); the
             // stepper stops at solid ground on the way.
@@ -504,11 +520,46 @@ static void ai_action_init(Enemy *e)
             e->dest_x = e->x + e->dir * (s16)d->range;
             e->dest_y = e->y;
             e->shooting = (st->param == AI_FLY_OPPOSITE_SHOOT);
+            e->origin_x = e->x;
+            e->shot_n = 0;
         } else {                                        // ahead (+ zig-zag)
+            // PC HORIZONTAL_AHEAD keeps the CURRENT y (move_to_point speed_y
+            // 0); ZIGZAG oscillates around the y it started at. It used the
+            // spawn y, pulling a flyer that had moved up/down back to it.
             e->dest_x = e->x + e->dir * (half);
-            e->dest_y = e->spawn_y;
+            e->dest_y = e->y;
+            e->base_y = e->y;
         }
         break;
+    case AI_DASH: {
+        // PC execute_ai_step_dash: a run at 2x speed toward a point
+        // walk_range away from the frame centre; the option picks the side.
+        const s16 mid = d->box_l + d->box_w / 2;
+        s16 side = e->dir;
+        switch ((s8)st->param) {
+        case AI_DASH_LEFT:      side = -1; break;
+        case AI_DASH_RIGHT:     side = 1;  break;
+        case AI_DASH_TO_PLAYER:
+        case AI_DASH_NEAR_PLAYER:
+            side = (player.x > e->x + mid) ? 1 : -1;
+            break;
+        case AI_DASH_OPPOSITE:  side = ((e->x - camera.x) > 160) ? -1 : 1; break;
+        default: {              // AHEAD: turn when the way ahead is shut
+            const s16 probe = e->x + e->dir * 8;
+            const s16 lead = (e->dir > 0) ? probe + d->box_l + d->box_w - 1
+                                          : probe + d->box_l;
+            if (box_hits_solid(lead, e->y + d->box_t, lead,
+                               e->y + d->box_t + d->box_h))
+                side = -e->dir;
+        }
+        }
+        e->dir = (s8)side;
+        e->dest_x = e->x + mid + side * (s16)d->range;
+        if ((s8)st->param == AI_DASH_OPPOSITE)
+            e->dest_x = e->x + side * (s16)d->range;
+        e->dash_ai = 1;
+        break;
+    }
     default:
         break;
     }
@@ -841,7 +892,7 @@ static bool ai_action_run(Enemy *e)
         }
         e->moving = 1;
         if (st->param == AI_FLY_ZIGZAG)
-            e->dest_y = e->spawn_y + (((e->act_t >> 5) & 1) ? 12 : -12);
+            e->dest_y = e->base_y + (((e->act_t >> 5) & 1) ? 12 : -12);
         else if (st->param == AI_FLY_TO_PLAYER_X) {
             // PC re-reads the player every step and finishes within half a
             // tile (artificial_inteligence.cpp:1569).
@@ -853,15 +904,22 @@ static bool ai_action_run(Enemy *e)
         } else if (st->param == AI_FLY_TO_PLAYER_Y) {
             e->dest_y = player.y;
         }
+        // PC OPOSITE_SHOOT_1: a shot every 120 px travelled from where the
+        // action began (the first one right away), not one at the end.
+        if (st->param == AI_FLY_OPPOSITE_SHOOT) {
+            s16 dist = e->x - e->origin_x;
+            if (dist < 0) dist = -dist;
+            if (dist > 120 * (s16)e->shot_n) {
+                e->shot_n++;
+                eshot_fire(e->x + d->box_l + d->box_w / 2,
+                           e->y + d->box_t + d->box_h / 2, e->dir, d->shot);
+            }
+        }
         bool dx = step_axis(e, &e->x, e->dest_x, TRUE, TRUE);
         bool dy = step_axis(e, &e->y, e->dest_y, FALSE, TRUE);
-        if (st->param == AI_FLY_OPPOSITE_SHOOT && dx && dy) {
-            u8 pid = (st->param >= 0) ? d->shot : d->shot;
-            eshot_fire(e->x + d->box_l + d->box_w / 2,
-                       e->y + d->box_t + d->box_h / 2, -e->dir, pid);
-            e->shooting = 0;
-            return TRUE;
-        }
+        if (st->param == AI_FLY_OPPOSITE_SHOOT && dx && dy) e->shooting = 0;
+        // PC OPOSITE_WALL: turn around on arrival so he does not face the wall.
+        if (st->param == AI_FLY_OPPOSITE_WALL && dx && dy) e->dir = -e->dir;
         return dx && dy;
     }
 
@@ -1082,15 +1140,12 @@ static bool ai_action_run(Enemy *e)
         return e->act_t >= 20;
 
     case AI_DASH: {
-        // Quick burst in the facing direction (PC dash action).
-        if (e->act_t == 1) e->dest_x = e->x + e->dir * 64;
+        // Ends on arrival or within a tile of the target (PC :1782).
         e->moving = 1;
-        s16 nx = e->x + e->dir * 3;
-        s16 lead = (e->dir > 0) ? nx + d->box_l + d->box_w - 1 : nx + d->box_l;
-        if (!box_hits_solid(lead, e->y + d->box_t,
-                            lead, e->y + d->box_t + d->box_h))
-            e->x = nx;
-        return e->act_t >= 20;
+        s16 left = e->dest_x - e->x;
+        if (left < 0) left = -left;
+        if (left < 16) return TRUE;
+        return step_axis(e, &e->x, e->dest_x, TRUE, TRUE);
     }
 
     case AI_GRAB_WALL:
