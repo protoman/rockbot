@@ -1533,3 +1533,6 @@ Reports, in the user's order, with what is known so far:
       Still to review: WAIT_RANGE, SHOT_*, SPAWN_NPC, CHANGE_MOVE, JUMP_ATTACK_UP.
 - [x] Config menus now accept the JUMP button (as mapped in CONFIG BUTTONS) to
       select, besides A / START; B stays BACK even when jump is mapped to it.
+- [x] Auto-charge showed no charge flash/sound (my auto-charge branch skipped the
+      feedback). Extracted charge_feedback(); also gated on player_can_charge()
+      and the palette/sound timer reset on release.

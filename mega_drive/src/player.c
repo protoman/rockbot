@@ -733,6 +733,40 @@ void player_reset_lives(void)
 // Fire (B) + charge shot, shared by the ground and ladder paths.
 // Edge-triggered like the PC (one shot per press); holding charges and
 // the release fires the semi/full charge shot (character.cpp:597).
+// Charge feedback shared by the button-held and auto-charge paths: the armour
+// colour flash and the looping charge sound.
+static void charge_feedback(void)
+{
+    // Charge feedback: the PC switches to a brighter/flashing armour
+    // colour set. PAL2 cannot spare a second highlight (the HUD bar owns
+    // entries 2/3/4), so the existing two-step flash runs FASTER once the
+    // shot is full: 8-frame strobe while charging, 2-frame when ready
+    // (report 2026-10-24: no full-charge indication).
+    {
+        const u16 period = (player.charge_frames >= CHARGE_FULL_FRAMES)
+                               ? 2 : 8;
+        if ((player.charge_frames % period) == 0) {
+            PAL_setPalette(PLAYER_PAL,
+                           flash_pal[(player.charge_frames / period) & 1],
+                           DMA_QUEUE);
+        }
+    }
+    // PC character.cpp:631/656 loops SFX_CHARGING1 from
+    // CHARGED_SHOT_INITIAL_TIME (1000ms) and switches to SFX_CHARGING2 at
+    // CHARGED_SHOT_TIME (2200ms). The MD has no looping PCM here, so the
+    // (0.47s) sample is re-triggered every 27 frames while it applies.
+    if (player.charge_frames >= CHARGE_SEMI_FRAMES) {
+        const SfxId id = (player.charge_frames >= CHARGE_FULL_FRAMES)
+                         ? SFX_CHARGING2 : SFX_CHARGING1;
+        if (charge_sfx_timer == 0) {
+            sfx_play(id);
+            charge_sfx_timer = CHARGE_SFX_RETRIGGER;
+        } else {
+            charge_sfx_timer--;
+        }
+    }
+}
+
 static void handle_fire(u16 pad, s16 ix, s16 iy)
 {
     // PC attack() returns early while the shield is up (classplayer.cpp:300).
@@ -763,7 +797,10 @@ static void handle_fire(u16 pad, s16 ix, s16 iy)
     // button is NOT held and pressing it releases whatever was charged.
     if (config.autocharge && player_weapon() == 0 && !player.sliding) {
         if (!fire_raw) {
-            if (player.charge_frames < 60000) player.charge_frames++;
+            if (player_can_charge()) {
+                if (player.charge_frames < 60000) player.charge_frames++;
+                charge_feedback();
+            }
         } else if (!player.fire_prev) {
             s16 sx = (player.facing > 0) ? ix + 21 : ix - 6;
             if (player.charge_frames >= CHARGE_FULL_FRAMES) {
@@ -777,6 +814,8 @@ static void handle_fire(u16 pad, s16 ix, s16 iy)
                 attack_timer = ATTACK_FRAMES;
             }
             player.charge_frames = 0;
+            charge_sfx_timer = 0;
+            PAL_setPalette(PLAYER_PAL, base_pal, DMA_QUEUE);
         }
         player.fire_prev = fire_raw;
         if (attack_timer > 0) attack_timer--;
@@ -800,34 +839,7 @@ static void handle_fire(u16 pad, s16 ix, s16 iy)
         charge_sfx_timer = 0;
     } else if (fire_ok && player_can_charge()) {
         if (player.charge_frames < 60000) player.charge_frames++;
-        // Charge feedback: the PC switches to a brighter/flashing armour
-        // colour set. PAL2 cannot spare a second highlight (the HUD bar owns
-        // entries 2/3/4), so the existing two-step flash runs FASTER once the
-        // shot is full: 8-frame strobe while charging, 2-frame when ready
-        // (report 2026-10-24: no full-charge indication).
-        {
-            const u16 period = (player.charge_frames >= CHARGE_FULL_FRAMES)
-                                   ? 2 : 8;
-            if ((player.charge_frames % period) == 0) {
-                PAL_setPalette(PLAYER_PAL,
-                               flash_pal[(player.charge_frames / period) & 1],
-                               DMA_QUEUE);
-            }
-        }
-        // PC character.cpp:631/656 loops SFX_CHARGING1 from
-        // CHARGED_SHOT_INITIAL_TIME (1000ms) and switches to SFX_CHARGING2 at
-        // CHARGED_SHOT_TIME (2200ms). The MD has no looping PCM here, so the
-        // (0.47s) sample is re-triggered every 27 frames while it applies.
-        if (player.charge_frames >= CHARGE_SEMI_FRAMES) {
-            const SfxId id = (player.charge_frames >= CHARGE_FULL_FRAMES)
-                             ? SFX_CHARGING2 : SFX_CHARGING1;
-            if (charge_sfx_timer == 0) {
-                sfx_play(id);
-                charge_sfx_timer = CHARGE_SFX_RETRIGGER;
-            } else {
-                charge_sfx_timer--;
-            }
-        }
+        charge_feedback();
     } else if (player.fire_prev && !fire_raw) {
         if (!player.sliding) {
             // PC get_attack_position: right = position.x + 29 - 8 (= +21
