@@ -1487,3 +1487,6 @@ Reports, in the user's order, with what is known so far:
       solid tile is in the strip between the standing and the slide head.
 - [x] APE QUAKE left a static projectile image: it is an effect, its slot is now
       never shown (also kept hidden by shots_set_visible).
+- [x] Dynamite (stage 6) / stage 1 clear screen named E-TANK / W-TANK: PC
+      player_items = [16, 17] = object ids COIL FROG / JET EAGLE (checked in
+      game_object_list.dat); the tank ids are 5/6. Text now COIL FROG / JET EAGLE.

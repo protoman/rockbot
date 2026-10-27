@@ -1094,8 +1094,8 @@ static void showStageClear(u8 stage, bool first_clear)
     // (game_data.player_items -> the object's name, uppercased): the port used
     // to print weapons 9/10 here, which are not the items at all.
     const char *item = NULL;
-    if (stage == COIL_GOT_STAGE)      item = "E-TANK";
-    if (stage == JET_GOT_STAGE)       item = "W-TANK";
+    if (stage == COIL_GOT_STAGE)      item = "COIL FROG";
+    if (stage == JET_GOT_STAGE)       item = "JET EAGLE";
 
     u16 typed = draw_progressive(weapon_data[stage].name, 9, 14);
     u8 line3 = 16;
