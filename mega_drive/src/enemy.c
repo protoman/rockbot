@@ -16,6 +16,11 @@
 // Boss intangibility between hits: PC BOSS_HIT_DURATION = 1500ms
 // (defines.h:959, enforced in character.cpp:3395), 1500ms = 90 frames @60fps.
 #define BOSS_HURT_FRAMES 90
+// PC character::damage(): a hit only lands if the last one is older than the
+// NPC's hit_duration - HIT_BLINK_ANIMATION_LAPSE (80ms) for every NPC and
+// sub-boss, BOSS_HIT_DURATION (1500ms) for the stage boss (classnpc.cpp:41/707).
+// Without it a piercing charged shot hit a normal enemy on every frame.
+#define NPC_HURT_FRAMES 5
 // PC ia_action_jump_ahead arcs to a point; simplified to an impulse hop.
 #define ENEMY_JUMP_VY FIX16(-4)
 // Stand-in for the attack animation PC waits before firing.
@@ -129,7 +134,7 @@ typedef struct {
     s16 dir;          // -1 / +1 (data 0 = left, 1 = right)
     fix16 vy;
     u8 hp;
-    u16 hurt_timer;   // frames of intangibility after a hit (boss only)
+    u16 hurt_timer;   // frames of intangibility after a hit (80ms NPC / 1500ms stage boss)
     bool alive;
     // --- game_ai_list.dat state machine -----------------------------------
     u8 def_i;         // index into enemy_defs / enemy_ai
@@ -1649,7 +1654,7 @@ u8 enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage, s8 shot_dir,
         // the enemy, as in PC classplayer.cpp:708.
         if (!charged && enemy_is_shielded(e, shot_dir)) return 2;
 
-        // Boss intangible window (PC BOSS_HIT_DURATION): the shot is
+        // Intangible window after a hit (PC hit_duration): the shot is
         // consumed but deals no damage.
         if (e->hurt_timer) return 1;
 
@@ -1662,7 +1667,7 @@ u8 enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage, s8 shot_dir,
         u8 dmg = damage * mul;
 
         e->hp = (dmg >= e->hp) ? 0 : e->hp - dmg;
-        if (stage_boss) e->hurt_timer = BOSS_HURT_FRAMES;
+        e->hurt_timer = stage_boss ? BOSS_HURT_FRAMES : NPC_HURT_FRAMES;
         e->was_hit = 1;                 // PC _was_hit -> AI_REACTION_HIT
         sfx_play(SFX_NPC_HIT);
         if (e->hp == 0) {
