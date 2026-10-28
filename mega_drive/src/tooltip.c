@@ -198,13 +198,10 @@ static void back_fill_draw(void)
     // uniform tile, so a sub-tile offset only means one extra row/column of
     // coverage, never a seam.
     const u16 tile = (u16)(TOOLTIP_TILE_BASE + TOOLTIP_FILL_TILE);
-    // The WHOLE parallax plane goes black, not just the box: the parallax art
-    // is drawn with PAL3, which the tooltip borrows for its own colours, so
-    // leaving it in place showed the background in the tooltip's blues.
-    const s16 hx = (s16)(-stage_bg_hscroll);
-    const s16 vy = (s16)(-stage_bg_vscroll);
-    const u16 c0 = (u16)((hx - 8) >> 3), c1 = (u16)((hx + 40 * 8) >> 3);
-    const u16 r0 = (u16)((vy - 8) >> 3), r1 = (u16)((vy + 28 * 8) >> 3);
+    const s16 hx = (s16)(TOOLTIP_COL * 8 - stage_bg_hscroll);
+    const s16 vy = (s16)(TOOLTIP_ROW * 8 - stage_bg_vscroll);
+    const u16 c0 = (u16)((hx - 8) >> 3), c1 = (u16)((hx + TOOLTIP_FRAME_W * 8) >> 3);
+    const u16 r0 = (u16)((vy - 8) >> 3), r1 = (u16)((vy + TOOLTIP_FRAME_H * 8) >> 3);
     for (u16 c = c0; c <= c1; c++)
         for (u16 r = r0; r <= r1; r++)
             VDP_setTileMapXY(BG_B,
