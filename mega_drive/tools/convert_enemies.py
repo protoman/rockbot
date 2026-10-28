@@ -159,6 +159,9 @@ def read_enemy_defs(blob, ids):
             "fw": struct.unpack_from("<b", b, 5958)[0],
             "fh": struct.unpack_from("<b", b, 5959)[0],
             "ia": struct.unpack_from("<b", b, 5962)[0],
+            # PC vulnerable_area (st_rectangle of shorts after attack_frame): the
+            # part of the frame player shots can hit (character.cpp:2520)
+            "vul": struct.unpack_from("<4h", b, 6036),
             "fly": b[5963],
             "bgx": struct.unpack_from("<h", b, 6022)[0],
             "bgy": struct.unpack_from("<h", b, 6024)[0],
@@ -611,7 +614,7 @@ def main():
             cells.append(row)
 
         plans[eid] = {
-            "d": d, "cw": cw, "ch": ch, "fw": fw, "fh": fh, "cols": cols,
+            "d": d, "cw": cw, "ch": ch, "fw": fw, "fh": fh, "cols": cols, "vul": d["vul"],
             "stand": stand, "walk": walk, "attack": attack,
             "jump": jump, "teleport": teleport,
             "jump_anim": jump_anim, "teleport_anim": teleport_anim,
@@ -843,7 +846,7 @@ extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
             f"{p['intro_anim']}, {p['intro_ms']}, "
             f"{p['attack_ms']}, {d['shield_type']}, "
             f"{{ {', '.join(str(x & 0xFF) for x in d['weak'])} }}, "
-            f"{p['turn_anim']}, {p['turn_ms']}, {p['attack_shot_ms']}, {p['air_anim']}, {p['slide_anim']}, {p['jatk_anim']}, {p['fh']} }},"
+            f"{p['turn_anim']}, {p['turn_ms']}, {p['attack_shot_ms']}, {p['air_anim']}, {p['slide_anim']}, {p['jatk_anim']}, {p['fh']}, {p['fw']}, {p['vul'][0] & 0xFF}, {p['vul'][1] & 0xFF}, {p['vul'][2] & 0xFF}, {p['vul'][3] & 0xFF} }},"
             f"  // {d['name']}\n")
     lines.append("};\n\n")
     lines.append(f"const EnemySpawn {PFX}_enemy_spawns[{UP}_ENEMY_SPAWN_COUNT] = {{\n")

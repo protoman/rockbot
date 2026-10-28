@@ -1967,9 +1967,16 @@ u8 enemies_try_hit(s16 l, s16 t, s16 r, s16 b, u8 damage, s8 shot_dir,
         Enemy *e = &enemies[i];
         if (!e->alive || e->dying) continue;
         const EnemyDef *d = e->def;
-        s16 el = e->x + d->box_l;
-        s16 et = e->y + d->box_t;
-        if (l >= el + d->box_w || r <= el || t >= et + d->box_h || b <= et)
+        s16 el = e->x + d->box_l, et = e->y + d->box_t;
+        s16 ew = d->box_w, eh = d->box_h;
+        if (d->vul_w && d->vul_h) {            // PC get_vulnerable_area(): only that part takes hits
+            el = (e->dir > 0) ? (s16)(e->x + d->vul_x)
+                              : (s16)(e->x + d->frame_w - d->vul_x - d->vul_w);
+            et = e->y + d->vul_y;
+            ew = d->vul_w;
+            eh = d->vul_h;
+        }
+        if (l >= el + ew || r <= el || t >= et + eh || b <= et)
             continue;
         return enemy_hit(i, e, damage, shot_dir, charged, weapon);
     }
