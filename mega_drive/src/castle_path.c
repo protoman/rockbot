@@ -10,14 +10,25 @@
 #define CELLS_H 28
 #define OVL_SLOTS (CASTLE_OVL_CELLS + 8)
 #define ANIM_FRAMES 60              // PC CASTLE_PATH_DURATION 1000ms at 60Hz
-#define UPLOAD_CHUNK 32             // tiles per vblank: the DMA queue holds 80 entries
 
-static u32 *ovl_tiles;              // OVL_SLOTS tiles, built in RAM
-static u16 *ovl_cells;              // BG_A plane entries, 40x28
+// The heap is tiny on this screen (about 8 KB free in fragments, measured from a
+// loaded save), so the tile data is built in small chunks, there is no RAM copy of
+// the plane (cells are written to the VDP when their tile is uploaded) and
+// everything goes to the VDP with CPU writes.
+#define CHUNK_SLOTS 44
+#define CHUNKS ((OVL_SLOTS + CHUNK_SLOTS - 1) / CHUNK_SLOTS)
+
+static u32 *chunk[CHUNKS];          // CHUNK_SLOTS tiles each, built in RAM
+static u16 *cell_of_slot;           // slot -> plane cell index
 static u8 *slot_of;                 // cell -> slot + 1 (0 = none)
 static u16 slots_used;
+static u16 cells_written;           // slots whose plane cell is already on the VDP
 static s16 dirty_lo, dirty_hi;      // tile slots changed since the last flush
-static bool map_dirty;
+
+static inline u32 *slot_rows(u16 slot)
+{
+    return &chunk[slot / CHUNK_SLOTS][(slot % CHUNK_SLOTS) * 8];
+}
 
 static void ovl_pixel(s16 x, s16 y, u8 color)
 {
@@ -29,12 +40,11 @@ static void ovl_pixel(s16 x, s16 y, u8 color)
         if (slots_used >= OVL_SLOTS) return;
         slot = slots_used++;
         slot_of[cell] = (u8)(slot + 1);
-        ovl_cells[cell] = TILE_ATTR_FULL(PAL0, TRUE, FALSE, FALSE, OVL_TILE_BASE + slot);
-        map_dirty = TRUE;
+        cell_of_slot[slot] = cell;
     } else {
         slot = (u16)(slot_of[cell] - 1);
     }
-    u32 *row = &ovl_tiles[slot * 8 + (y & 7)];
+    u32 *row = &slot_rows(slot)[y & 7];
     const u8 sh = (u8)(28 - 4 * (x & 7));
     *row = (*row & ~(0xFUL << sh)) | ((u32)color << sh);
     if (dirty_hi < dirty_lo) dirty_lo = dirty_hi = (s16)slot;
@@ -64,37 +74,25 @@ static void stamp(const u32 *bmp, u8 wpr, s16 x, s16 y)
     }
 }
 
+// Upload every changed tile, then the plane cells of the slots that are new (tile
+// first, so a cell never shows an unwritten tile).
 static void ovl_flush(void)
 {
-    if (dirty_hi >= dirty_lo) {
-        VDP_loadTileData(&ovl_tiles[dirty_lo * 8], (u16)(OVL_TILE_BASE + dirty_lo),
-                         (u16)(dirty_hi - dirty_lo + 1), DMA_QUEUE);
-        dirty_lo = 0;
-        dirty_hi = -1;
-    }
-    if (map_dirty) {
-        VDP_setTileMapDataRect(BG_A, ovl_cells, 0, 0, CELLS_W, CELLS_H, CELLS_W, DMA_QUEUE);
-        map_dirty = FALSE;
+    for (s16 sl = dirty_lo; sl <= dirty_hi; sl++)
+        VDP_loadTileData(slot_rows((u16)sl), (u16)(OVL_TILE_BASE + sl), 1, CPU);
+    dirty_lo = 0;
+    dirty_hi = -1;
+    for (; cells_written < slots_used; cells_written++) {
+        const u16 cell = cell_of_slot[cells_written];
+        VDP_setTileMapXY(BG_A, TILE_ATTR_FULL(PAL0, TRUE, FALSE, FALSE,
+                                              OVL_TILE_BASE + cells_written),
+                         (u16)(cell % CELLS_W), (u16)(cell / CELLS_W));
     }
 }
 
-// Upload everything changed, chunked so the DMA queue never overflows, and show it.
 static void ovl_commit_all(void)
 {
-    s16 lo = dirty_lo;
-    const s16 hi = dirty_hi;
-    dirty_lo = 0;
-    dirty_hi = -1;
-    for (; hi >= lo; lo = (s16)(lo + UPLOAD_CHUNK)) {
-        const s16 end = (s16)((hi < lo + UPLOAD_CHUNK - 1) ? hi : lo + UPLOAD_CHUNK - 1);
-        VDP_loadTileData(&ovl_tiles[lo * 8], (u16)(OVL_TILE_BASE + lo), (u16)(end - lo + 1),
-                         DMA_QUEUE);
-        SYS_doVBlankProcess();
-    }
-    if (map_dirty) {
-        VDP_setTileMapDataRect(BG_A, ovl_cells, 0, 0, CELLS_W, CELLS_H, CELLS_W, DMA_QUEUE);
-        map_dirty = FALSE;
-    }
+    ovl_flush();
     SYS_doVBlankProcess();
 }
 
@@ -107,24 +105,28 @@ static void marker(u8 point)
 
 void castle_path_run(u8 idx)
 {
-    ovl_tiles = MEM_alloc(OVL_SLOTS * 32);
-    ovl_cells = MEM_alloc(CELLS_W * CELLS_H * sizeof(u16));
+    MEM_pack();
+    u8 got = 0;
+    cell_of_slot = MEM_alloc(OVL_SLOTS * sizeof(u16));
     slot_of = MEM_alloc(CELLS_W * CELLS_H);
-    if (!ovl_tiles || !ovl_cells || !slot_of) {         // no heap: the castle shows without its path
+    for (; got < CHUNKS; got++) {
+        chunk[got] = MEM_alloc(CHUNK_SLOTS * 32);
+        if (!chunk[got]) break;
+    }
+    if (!cell_of_slot || !slot_of || got < CHUNKS) {    // no heap: the castle shows without its path
         kprintf("castle_path: out of heap (free=%u largest=%u)\n",
                 (unsigned)MEM_getFree(), (unsigned)MEM_getLargestFreeBlock());
-        if (ovl_tiles) MEM_free(ovl_tiles);
-        if (ovl_cells) MEM_free(ovl_cells);
+        for (u8 i = 0; i < got; i++) MEM_free(chunk[i]);
+        if (cell_of_slot) MEM_free(cell_of_slot);
         if (slot_of) MEM_free(slot_of);
         return;
     }
-    memset(ovl_tiles, 0, OVL_SLOTS * 32);
-    memset(ovl_cells, 0, CELLS_W * CELLS_H * sizeof(u16));
+    for (u8 i = 0; i < CHUNKS; i++) memset(chunk[i], 0, CHUNK_SLOTS * 32);
     memset(slot_of, 0, CELLS_W * CELLS_H);
     slots_used = 0;
+    cells_written = 0;
     dirty_lo = 0;
     dirty_hi = -1;
-    map_dirty = FALSE;
 
     const u8 last = (idx < CASTLE_POINTS - 1) ? idx : (u8)(CASTLE_POINTS - 2);
     stamp(castle_point_bmp, 1, castle_points[0].x, castle_points[0].y);
@@ -152,6 +154,6 @@ void castle_path_run(u8 idx)
         }
     }
     MEM_free(slot_of);
-    MEM_free(ovl_cells);
-    MEM_free(ovl_tiles);
+    MEM_free(cell_of_slot);
+    for (u8 i = 0; i < CHUNKS; i++) MEM_free(chunk[i]);
 }

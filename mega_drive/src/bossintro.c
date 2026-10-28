@@ -66,9 +66,12 @@ static void castle_screen(u8 stage)
 
 void boss_intro_run(u8 stage)
 {
-    sprites_end();
-    sprites_begin(SPRITE_VRAM_TILES);
+    sprites_end();      // restarted below: the castle path needs the heap the engine takes
     stage_release_map();
+#ifdef MD_HEAP_TRACE
+    kprintf("HEAP boss_intro free=%u largest=%u\n", (unsigned)MEM_getFree(),
+            (unsigned)MEM_getLargestFreeBlock());
+#endif
 
     VDP_setHorizontalScroll(BG_A, 0);
     VDP_setVerticalScroll(BG_A, 0);
@@ -77,6 +80,7 @@ void boss_intro_run(u8 stage)
     VDP_clearPlane(BG_B, TRUE);
 
     if (stage >= 9) castle_screen(stage);
+    sprites_begin(SPRITE_VRAM_TILES);
 
     music_play(MUSIC_BOSS_INTRO);
     VDP_loadTileData(boss_intro_bg_tiles_data, BOSS_INTRO_TILE_BASE,

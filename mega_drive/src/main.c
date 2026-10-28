@@ -425,8 +425,16 @@ static void load_progress(void)
     }
 }
 
+#ifdef MD_HEAP_TRACE
+#define HEAP_PROBE(tag) kprintf("HEAP %s free=%u largest=%u\n", tag, \
+                                (unsigned)MEM_getFree(), (unsigned)MEM_getLargestFreeBlock())
+#else
+#define HEAP_PROBE(tag) ((void)0)
+#endif
+
 static RunResult runStage(u8 stage)
 {
+    HEAP_PROBE("runStage");
     // Pick the stage's data bundle (clamped to the converted stages), then
     // load its map 0. Links/map changes stay within the current stage.
     stage_set_data(stage);
@@ -1300,6 +1308,7 @@ int main(bool hardReset)
     music_play(MUSIC_INTRO_SCENE);
     scene_play(SCENE_OPENING_UNBEATEN);
     while (TRUE) {
+        HEAP_PROBE("title");
         s16 action = showTitle();
         if (action == 0) {                       // NEW GAME
             s16 slot = save_selector(TRUE);
@@ -1322,6 +1331,7 @@ int main(bool hardReset)
             current_save_slot = (u8)slot;
             current_player = save_slot_player(current_save_slot);
             load_progress();
+            HEAP_PROBE("loaded");
             // PC scenesLib::pick_stage (sceneslib.cpp:529): the intro stage
             // is played first; once it is beaten the stage select appears.
             u8 stage = 0;
@@ -1329,6 +1339,7 @@ int main(bool hardReset)
                 stage = stage_select_run(current_player,
                                          save_slot_stages(current_save_slot));
             }
+            HEAP_PROBE("after select");
             playSession(stage);
         }
     }
