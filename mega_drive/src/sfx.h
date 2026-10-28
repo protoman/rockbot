@@ -33,6 +33,7 @@ typedef enum {
     SFX_REFLECT,        // shot reflected by a shield (PC SFX_SHOT_REFLECTED)
     SFX_SHORYUKEN,      // shoryuken start (PC SFX_SHORYUKEN_GIRL)
     SFX_RECHARGE,       // big energy pill (PC SFX_GOT_ENERGY_BIG, recharge.wav)
+    SFX_AXE,            // KITTY CLAW enemy projectile (axe.wav)
     SFX_COUNT
 } SfxId;
 

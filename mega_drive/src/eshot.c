@@ -259,6 +259,10 @@ static bool fire_impl(s16 x, s16 y, s16 dir, u8 proj_id, bool aim)
         s->on = TRUE;
         s->reflected = FALSE;
         eshot_flip(s);          // art faces right: mirror when flying left
+        // PC projectile::play_sfx(true): the projectile table's own sound (enemies
+        // play no default shot sound)
+        if (proj_id == 33) sfx_play(SFX_BEAM);        // LARGE BEAM: beam.wav
+        else if (proj_id == 35) sfx_play(SFX_AXE);    // KITTY CLAW: axe.wav
 
         // Trajectories that resolve at fire time (PC set_target_position).
         if (p->traj == TRAJ_TARGET_DIRECTION) {
