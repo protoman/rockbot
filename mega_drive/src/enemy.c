@@ -1941,7 +1941,8 @@ static u8 enemy_hit(u8 i, Enemy *e, u8 damage, s8 shot_dir, bool charged,
             s16 sy = cy - camera.y;
             if (sx >= 0 && sx < 320 && sy >= 0 && sy < 224)
                 objects_drop_item(cx, cy, d->is_sub_boss != 0);
-            explosion_spawn(e->x, e->y);
+            if (d->is_sub_boss) explosion_spawn_big(e->x, e->y);
+            else explosion_spawn(e->x, e->y);
         }
         if (dead_react) {
             e->dying = 1;

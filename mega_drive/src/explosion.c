@@ -7,6 +7,7 @@
 
 #include "resources.h"
 #include "stage.h"
+#include "sfx.h"
 
 #define FRAME_TIME 5                 // 80ms at 60fps (PC add_animation)
 #define REPEATS    2                 // PC repeat_times
@@ -16,6 +17,7 @@ typedef struct {
     Sprite *spr;
     s16 x, y;                        // world position (the enemy's)
     s16 age;                         // frames lived; -1 = free
+    u8 big;                          // 56x56 sub-boss explosion (7 frames)
 } Puff;
 
 static Puff puffs[EXPLOSION_MAX];
@@ -48,6 +50,7 @@ void explosion_spawn(s16 x, s16 y)
         puffs[i].x = x - 8;
         puffs[i].y = y - 8;
         puffs[i].age = 0;
+        puffs[i].big = FALSE;
         // manual frames: the sheet's own timing is only used as a fallback
         SPR_setAutoAnimation(s, FALSE);
         spr_set_frame(s, 0);
@@ -55,18 +58,45 @@ void explosion_spawn(s16 x, s16 y)
     }
 }
 
+// Sub-boss death (PC classmap.cpp:2223): two big bomb explosions, 56x56, 80 ms
+// per frame x 2 repeats, at (x+2, y+20) and 50 px right / 30 px up of that.
+void explosion_spawn_big(s16 x, s16 y)
+{
+    if (y >= 224) return;
+    for (u8 n = 0; n < 2; n++) {
+        const s16 px = (s16)(x + 2 + (n ? 50 : 0) - 8);
+        const s16 py = (s16)(y + 20 - (n ? 30 : 0) - 8);
+        for (u8 i = 0; i < EXPLOSION_MAX; i++) {
+            if (puffs[i].age >= 0) continue;
+            Sprite *s = SPR_addSprite(&bomb_explosion_sprite, px - camera.x, py - camera.y,
+                                      TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
+            if (!s) return;
+            puffs[i].spr = s;
+            spr_seen = spr_gen;
+            puffs[i].x = px;
+            puffs[i].y = py;
+            puffs[i].age = 0;
+            puffs[i].big = TRUE;
+            SPR_setAutoAnimation(s, FALSE);
+            spr_set_frame(s, 0);
+            break;
+        }
+    }
+    sfx_play(SFX_EXPLOSION);
+}
+
 void explosion_update(void)
 {
     for (u8 i = 0; i < EXPLOSION_MAX; i++) {
         Puff *p = &puffs[i];
         if (p->age < 0) continue;
-        if (++p->age >= LIFE) {
+        if (++p->age >= (p->big ? FRAME_TIME * 7 * REPEATS : LIFE)) {
             SPR_releaseSprite(p->spr);
             p->spr = NULL;
             p->age = -1;
             continue;
         }
-        spr_set_frame(p->spr, (p->age / FRAME_TIME) % 3);
+        spr_set_frame(p->spr, (p->age / FRAME_TIME) % (p->big ? 7 : 3));
         SPR_setPosition(p->spr, p->x - camera.x, p->y - camera.y);
     }
 }

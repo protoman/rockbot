@@ -13,6 +13,9 @@
 // pool is full or the position is off screen (PC checks position.y < RES_H).
 void explosion_spawn(s16 x, s16 y);
 
+// Sub-boss death: two 56x56 bomb explosions + the big explosion sound.
+void explosion_spawn_big(s16 x, s16 y);
+
 // Advance ages/frames and release finished puffs. Call once per frame before
 // SPR_update().
 void explosion_update(void);
