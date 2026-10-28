@@ -168,7 +168,32 @@ void eshots_reset(void)
 // always drawn facing right - BUG-021).
 static void eshot_flip(EShot *s)
 {
-    if (s->spr) SPR_setHFlip(s->spr, s->dx < 0);
+    if (!s->spr) return;
+    // Missiles ship 7 DIRECTION rows (PC projectile::draw): RIGHT, UP, DOWN,
+    // UP_LEFT, UP_RIGHT, DOWN_LEFT, DOWN_RIGHT. The converter lays them out as
+    // 7 frames; the frame follows the flight direction instead of cycling.
+    const SpriteDefinition *def = s->spr->definition;
+    if (def && def->numAnimation == 1 && def->animations[0]->numFrame == 7) {
+        const s16 ax = (s->dx < 0) ? -s->dx : s->dx;
+        const s16 ay = (s->dy < 0) ? -s->dy : s->dy;
+        u8 row;
+        bool flip = FALSE;
+        if (ay * 5 < ax * 2) {                       // flatter than ~22 degrees
+            row = 0;
+            flip = s->dx < 0;
+        } else if (ax * 5 < ay * 2) {                // steeper than ~68 degrees
+            row = (s->dy < 0) ? 1 : 2;
+        } else if (s->dy < 0) {
+            row = (s->dx < 0) ? 3 : 4;
+        } else {
+            row = (s->dx < 0) ? 5 : 6;
+        }
+        SPR_setAutoAnimation(s->spr, FALSE);
+        spr_set_frame(s->spr, row);
+        SPR_setHFlip(s->spr, flip);
+        return;
+    }
+    SPR_setHFlip(s->spr, s->dx < 0);
 }
 
 static bool fire_impl(s16 x, s16 y, s16 dir, u8 proj_id, bool aim);

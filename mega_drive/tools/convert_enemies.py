@@ -425,7 +425,10 @@ def emit_proj_sprite(rec, palette, save=True):
     name = "proj_%d" % rec["id"]
     if save:
         out.save(os.path.join(RES, name + ".png"))
-    times = [6] * frames if frames > 1 else [0]
+    # PC projectile::draw: frame period PROJECTILE_DEFAULT_ANIMATION_TIME (100 ms)
+    # except CENTERED (50 ms), LIGHTING (33 ms) and SPIRAL (25 ms)
+    period = {11: 3, 21: 2, 22: 2}.get(rec["traj"], 6)
+    times = [period] * frames if frames > 1 else [0]
     return name, cw, ch, frames, times
 
 
