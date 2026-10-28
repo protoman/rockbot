@@ -388,16 +388,26 @@ void player_set_weapon(u8 n)
     PAL_setPalette(PLAYER_PAL, base_pal, DMA_QUEUE);
 }
 
+// Tiles that stop the player from the sides and from below. The PC blocks on every
+// terrain except UNBLOCKED/WATER/STAIR/...: the belts (MOVE_LEFT/RIGHT) and ICE are
+// solid bodies, not just floors (jumping up into a belt from below used to pass
+// through it and land on top).
+static inline bool terr_solid(u16 t)
+{
+    return t == TERRAIN_SOLID || t == TERRAIN_MOVE_LEFT || t == TERRAIN_MOVE_RIGHT ||
+           t == TERRAIN_ICE;
+}
+
 static bool tile_blocks(s16 px, s16 py)
 {
-    return stage_terrain_at(stage_current_map, px >> 4, py >> 4) == TERRAIN_SOLID;
+    return terr_solid(stage_terrain_at(stage_current_map, px >> 4, py >> 4));
 }
 
 // TRUE if any tile in the column, spanning rows [t..b), is solid.
 static bool column_hits_solid(s16 col, s16 t, s16 b)
 {
     for (s16 ty = t >> 4; ty <= (b - 1) >> 4; ty++) {
-        if (stage_terrain_at(stage_current_map, col, ty) == TERRAIN_SOLID) return TRUE;
+        if (terr_solid(stage_terrain_at(stage_current_map, col, ty))) return TRUE;
     }
     return FALSE;
 }
@@ -500,7 +510,7 @@ static bool ground_pair(s16 tx, s16 feet_row, s16 centre_row, s16 middle_row)
 static bool support_col(s16 tx, s16 top_row, s16 feet_row)
 {
     for (s16 r = top_row; r <= feet_row; r++)
-        if (stage_terrain_at(stage_current_map, tx, r) != TERRAIN_SOLID)
+        if (!terr_solid(stage_terrain_at(stage_current_map, tx, r)))
             return TRUE;                // some open row: a real floor column
     return FALSE;                       // solid for the full height: a wall
 }
@@ -1509,7 +1519,7 @@ void player_update(u16 pad)
             for (s16 row = ((iy + box_t) >> 4) - 1;
                  row >= ((ny + box_t) >> 4) && !blocked; row--) {
                 for (s16 tx = x0; tx <= x1; tx++) {
-                    if (stage_terrain_at(stage_current_map, tx, row) == TERRAIN_SOLID) {
+                    if (terr_solid(stage_terrain_at(stage_current_map, tx, row))) {
                         ny = ((row + 1) << 4) - box_t;
                         player.vy = 0;
                         blocked = TRUE;
