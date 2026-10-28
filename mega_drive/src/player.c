@@ -94,7 +94,8 @@
 Player player;
 
 static bool air_jump_used;
-static u16 freeze_frames;      // enemy FREEZE weapon: frames of lost control
+static u16 freeze_frames;
+static u16 jump_lock;      // PC JUMP_LOCK_DURATION: jump refused (enemy ground quake)      // enemy FREEZE weapon: frames of lost control
 static bool ladder_need_release; // dropped off a ladder: UP/DOWN must be let go before it grabs again
 static u8 ladder_lock;      // frames left before a released ladder can grab again
 static bool air_dash_used;
@@ -698,6 +699,7 @@ void player_init(void)
     ladder_flip = FALSE;
     ladder_need_release = FALSE;
     freeze_frames = 0;
+    jump_lock = 0;
     in_water = FALSE;
     water_splash_latch = FALSE;
     rebuild_player_palette();
@@ -933,6 +935,9 @@ void player_check_scroll_lock(u16 pad)
 }
 
 void player_freeze(void) { freeze_frames = 210; }
+
+// PC classPlayer::block_jump: only while standing on the ground.
+void player_block_jump(u16 frames) { if (player.on_ground) jump_lock = frames; }
 
 void player_update(u16 pad)
 {
@@ -1331,6 +1336,7 @@ void player_update(u16 pad)
     if ((pad & JUMP_BUTTONS) && !(prev_pad & JUMP_BUTTONS)) {
         jump_timer = JUMP_BUFFER_FRAMES;
     }
+    if (jump_lock) { jump_lock--; jump_timer = 0; }     // locked by an enemy quake
     if (player.vy >= 0 || player.on_ladder) force_jump = FALSE;
     if (!(pad & JUMP_BUTTONS) && player.vy < 0 && !force_jump) {
         player.vy = F16_mul(player.vy, FIX16(0.5));   // variable jump height

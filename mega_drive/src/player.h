@@ -179,6 +179,9 @@ const Palette *player_palette_def(void);
 // starts the death sequence (player hidden, world frozen by the caller).
 void player_take_damage(u8 amount);
 
+// Refuse jumps for `frames` frames (enemy ground quake; PC block_jump).
+void player_block_jump(u16 frames);
+
 // Enemy FREEZE weapon (DYNAMITE FLASH): no input for 3500 ms, except while the
 // post-hit invulnerability runs (PC classPlayer::execute).
 void player_freeze(void);

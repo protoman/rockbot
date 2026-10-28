@@ -389,6 +389,13 @@ void eshots_update(void)
             // PC shakes the screen and the projectile stays put (no shake
             // ported yet); it expires after ~1s.
             if (s->age > QUAKE_LIFE) { kill(s); continue; }
+            // PC classnpc.cpp:519: every frame a live QUAKE shot hurts a player
+            // standing on the ground (3) and locks his jump for 1 s - jumping
+            // before it lands is the only way out.
+            if (!s->reflected && player.on_ground) {
+                player_take_damage(3);
+                player_block_jump(60);
+            }
             break;
         case TRAJ_SIN:
             s->x += s->dx;
