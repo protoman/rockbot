@@ -502,68 +502,8 @@ void objects_drop_item(s16 cx, s16 cy, bool subboss)
     spr_seen = spr_gen;
     if (o->spr) {
         SPR_setAutoAnimation(o->spr, FALSE);
-        const u8 beam_n = (u8)(d->frames / 4);                  // type 25: sizes per side/flicker
-        if (d->type == 25 && o->dir < 0) sx -= (s16)(beam_n - 1) * 16;
-        bool on_screen = (sx + ((d->type == 25) ? beam_n * 16 : d->w) > 0 && sx < 320 &&
+        bool on_screen = (sx + d->w > 0 && sx < 320 &&
                           sy + d->h > 0 && sy < 224);
-
-        // Vertical lava beam (type 24), PC object.cpp:1099: 30 ticks of 30 ms
-        // (head runs down for the first 15, then the tail follows), then a
-        // 1500 ms rest. `state` = tick (0 = only the base tile shows); the art is
-        // baked per (flicker, state) by tools/convert_objects.py, frame =
-        // flicker * 31 + state. It only kills while the head extends (the PC's
-        // second half tests a strip at the top of the map).
-        if (d->type == 24) {
-            if (!on_screen) {
-                o->delay = (u8)(((u16)(d->timer > 1000 ? 1000 : d->timer) * 6) / 100);
-            } else if (o->delay) {
-                o->delay--;
-            } else {
-                if (o->state == 0) sfx_play(SFX_BEAM);
-                if (++o->state > 30) { o->state = 0; o->delay = 90; }
-                else o->delay = 2;                      // 50 ms = a tick every 3rd frame
-            }
-            if (++o->anim_t >= 6) { o->anim_t = 0; o->vis_t ^= 1; }   // 100 ms flicker
-            const u8 f = (u8)((o->vis_t & 1) * 31 + o->state);
-            if (f != o->frame) {
-                o->frame = f;
-                if (o->spr) spr_set_frame(o->spr, f);
-            }
-        }
-
-        // Small horizontal lava beam (type 25), PC object.cpp:1117: after its
-        // start delay the beam grows one tile per 30 ms to the first wall (or
-        // 20 tiles), keeps counting to 40 ticks, then vanishes for 1500 ms.
-        // `state` = tick count, `distance` = beam length in tiles. The PC
-        // re-arms the start delay every frame the beam is off screen.
-        if (d->type == 25) {
-            if (!on_screen) {
-                o->delay = (u8)(((u16)(d->timer > 1000 ? 1000 : d->timer) * 6) / 100);
-            } else if (o->delay) {
-                o->delay--;
-            } else {
-                if (o->state == 0) sfx_play(SFX_BEAM);
-                o->state++;
-                const s16 gx = (o->dir < 0) ? (s16)(o->x - ((o->distance + 1) << 4))
-                                            : (s16)(o->x + ((o->distance + 1) << 4));
-                const u16 t = stage_terrain_at(stage_current_map, gx >> 4, (o->y + 8) >> 4);
-                if (t == TERRAIN_UNBLOCKED || t == TERRAIN_WATER)
-                    o->distance = (s16)((o->state < beam_n - 1) ? o->state : beam_n - 1);
-                if (o->state > 40) {
-                    o->state = 0;
-                    o->distance = 0;
-                    o->delay = 90;                      // DELAY_RAY 1500 ms
-                } else {
-                    o->delay = 2;                       // 50 ms: every 3rd frame
-                }
-            }
-            if (++o->anim_t >= 6) { o->anim_t = 0; o->vis_t ^= 1; }   // 100 ms flicker
-            const u8 f = (u8)((((o->dir > 0) ? 2 : 0) + (o->vis_t & 1)) * beam_n + (u8)o->distance);
-            if (f != o->frame) {
-                o->frame = f;
-                if (o->spr) spr_set_frame(o->spr, f);
-            }
-        }
         SPR_setVisibility(o->spr, on_screen ? VISIBLE : HIDDEN);
     }
 }
@@ -1296,8 +1236,70 @@ void objects_update(void)
         s16 sy = o->y - camera.y;
         if (d->type == 19) sy -= d->h - 16;                      // grows upward from its base tile
         else if (d->type == 18 && o->dir < 0) sx -= d->w - 16;   // ... or leftward
-        bool on_screen = (sx + d->w > 0 && sx < 320 &&
+        if (d->type == 25) {                                     // small horizontal beam: art extends leftward from its base
+            if (o->dir < 0) sx -= (s16)(d->frames / 4 - 1) * 16;
+        }
+        const u8 beam_n = (u8)(d->frames / 4);                  // type 25: sizes per side/flicker
+        bool on_screen = (sx + ((d->type == 25) ? beam_n * 16 : d->w) > 0 && sx < 320 &&
                           sy + d->h > 0 && sy < 224);
+
+        // Vertical lava beam (type 24), PC object.cpp:1099: 30 ticks of 30 ms
+        // (head runs down for the first 15, then the tail follows), then a
+        // 1500 ms rest. `state` = tick (0 = only the base tile shows); the art is
+        // baked per (flicker, state) by tools/convert_objects.py, frame =
+        // flicker * 31 + state. It only kills while the head extends (the PC's
+        // second half tests a strip at the top of the map).
+        if (d->type == 24) {
+            if (!on_screen) {
+                o->delay = (u8)(((u16)(d->timer > 1000 ? 1000 : d->timer) * 6) / 100);
+            } else if (o->delay) {
+                o->delay--;
+            } else {
+                if (o->state == 0) sfx_play(SFX_BEAM);
+                if (++o->state > 30) { o->state = 0; o->delay = 90; }
+                else o->delay = 2;                      // 50 ms = a tick every 3rd frame
+            }
+            if (++o->anim_t >= 6) { o->anim_t = 0; o->vis_t ^= 1; }   // 100 ms flicker
+            const u8 f = (u8)((o->vis_t & 1) * 31 + o->state);
+            if (f != o->frame) {
+                o->frame = f;
+                if (o->spr) spr_set_frame(o->spr, f);
+            }
+        }
+
+        // Small horizontal lava beam (type 25), PC object.cpp:1117: after its
+        // start delay the beam grows one tile per 30 ms to the first wall (or
+        // 20 tiles), keeps counting to 40 ticks, then vanishes for 1500 ms.
+        // `state` = tick count, `distance` = beam length in tiles. The PC
+        // re-arms the start delay every frame the beam is off screen.
+        if (d->type == 25) {
+            if (!on_screen) {
+                o->delay = (u8)(((u16)(d->timer > 1000 ? 1000 : d->timer) * 6) / 100);
+            } else if (o->delay) {
+                o->delay--;
+            } else {
+                if (o->state == 0) sfx_play(SFX_BEAM);
+                o->state++;
+                const s16 gx = (o->dir < 0) ? (s16)(o->x - ((o->distance + 1) << 4))
+                                            : (s16)(o->x + ((o->distance + 1) << 4));
+                const u16 t = stage_terrain_at(stage_current_map, gx >> 4, (o->y + 8) >> 4);
+                if (t == TERRAIN_UNBLOCKED || t == TERRAIN_WATER)
+                    o->distance = (s16)((o->state < beam_n - 1) ? o->state : beam_n - 1);
+                if (o->state > 40) {
+                    o->state = 0;
+                    o->distance = 0;
+                    o->delay = 90;                      // DELAY_RAY 1500 ms
+                } else {
+                    o->delay = 2;                       // 50 ms: every 3rd frame
+                }
+            }
+            if (++o->anim_t >= 6) { o->anim_t = 0; o->vis_t ^= 1; }   // 100 ms flicker
+            const u8 f = (u8)((((o->dir > 0) ? 2 : 0) + (o->vis_t & 1)) * beam_n + (u8)o->distance);
+            if (f != o->frame) {
+                o->frame = f;
+                if (o->spr) spr_set_frame(o->spr, f);
+            }
+        }
         // disappearing blocks (PC timings). Type 2 cycles on its own; type
         // 14 stays up until the player stands on it once, then cycles
         // (OBJ_ACTIVE_DISAPPEARING_BLOCK).
