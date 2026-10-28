@@ -82,6 +82,12 @@ void boss_intro_run(u8 stage)
     if (stage >= 9) castle_screen(stage);
     sprites_begin(SPRITE_VRAM_TILES);
 
+    // The castle track must be gone before this one starts: stop it and give the
+    // Z80 driver two frames to act on it, instead of swapping its sample table
+    // under a track that is still playing (heard as both playing at once).
+    music_stop();
+    SYS_doVBlankProcess();
+    SYS_doVBlankProcess();
     music_play(MUSIC_BOSS_INTRO);
     VDP_loadTileData(boss_intro_bg_tiles_data, BOSS_INTRO_TILE_BASE,
                      BOSS_INTRO_BG_TILE_COUNT, DMA_QUEUE);
