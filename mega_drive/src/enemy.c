@@ -1770,7 +1770,8 @@ void enemies_update(void)
 
         EP_MARK(0);   // pre: respawn, drop, visibility
         // ---- gravity (walkers only; AI JUMP manages its own arc) ---------
-        if (!d->fly && !e->jumping && !e->no_gravity) {
+        // Parked (off-screen) enemies do not fall: they settle when first seen.
+        if (vis && !d->fly && !e->jumping && !e->no_gravity) {
             if (e->vy < ENEMY_MAX_FALL) e->vy += ENEMY_GRAVITY;
             s16 dy = F16_toInt(e->vy);
             if (dy > 0) {
