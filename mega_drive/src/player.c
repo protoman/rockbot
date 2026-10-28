@@ -525,7 +525,10 @@ static u16 terrain_at_chest(void)
 // at PC speeds; 1px/frame here) and spikes damage on contact
 // (PC character::damage_spikes; PC value 188 would be instant death with the
 // port's HP 28, so 4 = 2x contact damage).
-#define CONVEYOR_SPEED 1
+// PC character::check_platform_move: (move_speed 2.0 - 0.5) = 1.5 px per frame
+// (MOVING_GROUND 10 ms is shorter than a frame): alternate 1 and 2 px.
+static u8 conveyor_phase;
+#define CONVEYOR_SPEED ((conveyor_phase & 1) ? 2 : 1)
 #define SPIKE_DAMAGE   188
 
 void player_get_box(s16 *left, s16 *top, s16 *right, s16 *bottom)
@@ -1561,6 +1564,7 @@ void player_update(u16 pad)
         for (s16 cx = lx; cx <= rx; cx += 8) {
             u16 ft = stage_terrain_at(stage_current_map, cx >> 4, fcy);
             if (ft != TERRAIN_MOVE_LEFT && ft != TERRAIN_MOVE_RIGHT) continue;
+            conveyor_phase++;
             s16 nx = ix + ((ft == TERRAIN_MOVE_LEFT) ? -CONVEYOR_SPEED : CONVEYOR_SPEED);
             s16 t = iy + box_t, b = iy + box_b;
             s16 col = (ft == TERRAIN_MOVE_LEFT) ? ((nx + PLAYER_BOX_L) >> 4)
