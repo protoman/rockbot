@@ -111,6 +111,8 @@ typedef struct {
                         // that spawns the projectile (PC file_npc.attack_frame,
                         // else the last frame; character.cpp:936 / ai.cpp:1185)
     u8 air_anim;        // sheet row of ANIM_TYPE_WALK_AIR (255 = none): the clinging pose after GRAB_WALL
+    u8 slide_anim;      // sheet row of ANIM_TYPE_SLIDE (255 = none): the DASH pose
+    u8 jatk_anim;       // sheet row of ANIM_TYPE_JUMP_ATTACK (255 = none)
 } EnemyDef;
 
 typedef struct {

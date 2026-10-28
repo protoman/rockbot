@@ -164,6 +164,8 @@ typedef struct {
     u8 shooting;      // attack anim while a SHOT action runs
     u8 leaping;       // GRAB_WALL flight (JUMP pose)
     u8 clinging;      // hanging on the wall after GRAB_WALL (WALK_AIR pose)
+    u8 dashing;       // DASH action (SLIDE pose)
+    u8 jatk;          // jump attack action (JUMP_ATTACK pose)
     s16 move_acc;     // 50Hz movement accumulator (PC AI step throttle)
     u16 respawn_t;    // PC respawn_delay countdown (frames)
     u8 frozen;        // hidden by the DYNAMITE freeze effect
@@ -400,6 +402,8 @@ static void ai_action_init(Enemy *e)
     e->shooting = 0;
     e->leaping = 0;
     e->clinging = 0;
+    e->dashing = 0;
+    e->jatk = 0;
     e->ghost = 0;
     e->dash_ai = 0;
     e->rand_t = 0;
@@ -613,6 +617,7 @@ static void ai_action_init(Enemy *e)
         break;
     }
     case AI_DASH: {
+        e->dashing = 1;
         // PC execute_ai_step_dash: a run at 2x speed toward a point
         // walk_range away from the frame centre; the option picks the side.
         const s16 mid = d->box_l + d->box_w / 2;
@@ -1178,6 +1183,7 @@ static bool ai_action_run(Enemy *e)
         return e->y > (stage_def->map_h * stage_def->tile) + 32;
 
     case AI_JUMP_ATTACK_UP: {
+        e->jatk = 1;
         if (!e->jumping) {
             if (!on_ground(e, d)) return FALSE;
             e->vy = ENEMY_JUMP_VY;
@@ -1359,6 +1365,7 @@ static bool ai_action_run(Enemy *e)
         // PC WALL_WALK runs along the ceiling with gravity off (the same
         // _ignore_gravity the roof jump sets). JUMP_ATTACK_AHEAD is the
         // upward jump-attack variant that fires while airborne.
+        e->jatk = (st->action != AI_WALL_WALK && st->action != AI_WALL_WALK_SHOOT);
         if (st->action == AI_JUMP_ATTACK_AHEAD && !e->jumping) {
             if (!on_ground(e, d)) return FALSE;
             e->vy = ENEMY_JUMP_VY;
@@ -1756,6 +1763,10 @@ void enemies_update(void)
             SPR_setAnimationLoop(e->spr, TRUE);
             if (e->turn_t && d->turn_anim != 255)
                 spr_set_anim(e->spr, d->turn_anim);
+            else if (e->dashing && d->slide_anim != 255)
+                spr_set_anim(e->spr, d->slide_anim);
+            else if (d->jatk_anim != 255 && (e->jatk || ((e->jumping || e->leaping) && e->shooting)))
+                spr_set_anim(e->spr, d->jatk_anim);
             else if (d->attack_n > 0 && e->shooting) {
                 // The attack plays once and holds its last frame until the
                 // action ends; looping it re-showed the first (stand) frame
