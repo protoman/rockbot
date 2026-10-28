@@ -544,6 +544,8 @@ static RunResult runStage(u8 stage)
                        - (PLAYER_BOX_L + PLAYER_BOX_R) / 2),
                  (s16)(MD_TEST_TY * stage_def->tile + stage_def->tile / 2
                        - (PLAYER_BOX_T + PLAYER_BOX_B) / 2));
+    stage_update_camera(player.x, player.y);   // the camera follows the placed player
+    stage_force_redraw();
     player_sync_sprite();
 #endif
 
