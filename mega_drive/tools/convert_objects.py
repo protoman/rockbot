@@ -296,6 +296,53 @@ def main():
             }
             print(f"id={oid} {d['name']} baked deathray sheet: {frames} frames of {cw}x{ch} (maxlen {maxlen})")
             continue
+        if d["type"] == OBJ_DEATHRAY_V:
+            # PC object::show_deathray_vertical (object.cpp:619): a base tile at the
+            # top, then per tick `state` (1..30): the head runs down 15 tiles (state
+            # 1: point at row 1; 2: body row 1 + point row 2; >2: body rows
+            # 1..state-1 + point at `state`), then the tail follows (state 16..30:
+            # body rows state-14..state-1 and a tail piece at row state-15).
+            # Sheet pieces (16 px rows): 0 base, 1 tail, 2 body, 3 point; two
+            # flicker columns of `fw`. Frame = flicker * 31 + state. Rows past the
+            # 224 px screen are never visible, so the cell is 15 rows tall.
+            ROWS = 15
+            cw, ch = ceil8(fw), 16 * ROWS
+            uw, uh = fw, ch
+            for rs in range(2):
+                for st in range(31):
+                    art = [0] * (uw * uh)
+
+                    def put(row, piece):
+                        if not 0 <= row < ROWS:
+                            return
+                        for y in range(16):
+                            for x in range(fw):
+                                art[(row * 16 + y) * uw + x] = src[rs * fw + x, piece * 16 + y]
+                    put(0, 0)
+                    if st == 1:
+                        put(1, 3)
+                    elif st == 2:
+                        put(2, 3)
+                        put(1, 2)
+                    elif 2 < st <= 15:
+                        put(st, 3)
+                        for r in range(1, st):
+                            put(r, 2)
+                    elif st > 15:
+                        start = st - 15
+                        for r in range(start + 1, st):
+                            put(r, 2)
+                        put(start, 1)
+                    cells.append(art)
+            frames = len(cells)
+            plans[oid] = {
+                "d": d, "cw": cw, "ch": ch, "fw": fw, "fh": fh,
+                "frames": frames, "frame_t": 1, "cells": cells,
+                "uw": uw, "uh": uh,
+                "res_name": "object_" + os.path.splitext(d["gfx"])[0],
+            }
+            print(f"id={oid} {d['name']} baked vertical deathray sheet: {frames} frames of {cw}x{ch}")
+            continue
         if d["type"] in (OBJ_RAY_V, OBJ_RAY_H):
             # PC object::show_vertical_ray / show_horizontal_ray draw a SLICE of
             # the sheet that grows with `state` (0..limit) and flickers between

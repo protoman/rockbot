@@ -509,9 +509,10 @@ void objects_drop_item(s16 cx, s16 cy, bool subboss)
 
         // Vertical lava beam (type 24), PC object.cpp:1099: 30 ticks of 30 ms
         // (head runs down for the first 15, then the tail follows), then a
-        // 1500 ms rest. The MD cannot afford the per-tile sliding art, so the
-        // beam shows for the whole run; it only kills while the head extends
-        // (the PC's second half tests a strip at the top of the map).
+        // 1500 ms rest. `state` = tick (0 = only the base tile shows); the art is
+        // baked per (flicker, state) by tools/convert_objects.py, frame =
+        // flicker * 31 + state. It only kills while the head extends (the PC's
+        // second half tests a strip at the top of the map).
         if (d->type == 24) {
             if (!on_screen) {
                 o->delay = (u8)(((u16)(d->timer > 1000 ? 1000 : d->timer) * 6) / 100);
@@ -520,9 +521,14 @@ void objects_drop_item(s16 cx, s16 cy, bool subboss)
             } else {
                 if (o->state == 0) sfx_play(SFX_BEAM);
                 if (++o->state > 30) { o->state = 0; o->delay = 90; }
-                else o->delay = 2;
+                else o->delay = 1;                      // 30 ms = a tick every 2nd frame
             }
-            o->visible = (o->state != 0);
+            if (++o->anim_t >= 6) { o->anim_t = 0; o->vis_t ^= 1; }   // 100 ms flicker
+            const u8 f = (u8)((o->vis_t & 1) * 31 + o->state);
+            if (f != o->frame) {
+                o->frame = f;
+                if (o->spr) spr_set_frame(o->spr, f);
+            }
         }
 
         // Small horizontal lava beam (type 25), PC object.cpp:1117: after its
@@ -548,7 +554,7 @@ void objects_drop_item(s16 cx, s16 cy, bool subboss)
                     o->distance = 0;
                     o->delay = 90;                      // DELAY_RAY 1500 ms
                 } else {
-                    o->delay = 2;                       // FRAMETIMER_DEATHRAY 30 ms
+                    o->delay = 1;                       // FRAMETIMER_DEATHRAY 30 ms: every 2nd frame
                 }
             }
             if (++o->anim_t >= 6) { o->anim_t = 0; o->vis_t ^= 1; }   // 100 ms flicker
@@ -1265,16 +1271,16 @@ void objects_update(void)
                 o->delay--;
             } else if (!o->anim_rev) {                  // growing
                 o->state++;
-                o->delay = 2;
+                o->delay = 1;                           // 30 ms: every 2nd frame
                 if (o->state >= limit) { o->anim_rev = 1; o->delay = 90; }
             } else if (o->state == 0) {                 // rested: grow again
                 o->anim_rev = 0;
                 o->delay = 90;
             } else {
                 o->state--;
-                o->delay = 2;
+                o->delay = 1;
             }
-            if (++o->anim_t >= 4) {                     // 70 ms flicker
+            if (++o->anim_t >= 5) {                     // 70 ms flicker (first frame past 70 ms = 5th)
                 o->anim_t = 0;
                 o->vis_t ^= 1;
             }

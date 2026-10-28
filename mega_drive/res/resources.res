@@ -537,7 +537,7 @@ SPRITE object_armor_arms_sprite "object_armor_arms.png" 24p 16p FAST [[566]]
 # fire rays: every (flicker, length[, side]) slice baked as a frame (tools/convert_objects.py)
 SPRITE object_fire_ray_vertical_sprite "object_fire_ray_vertical.png" 16p 80p FAST [[1,1,1,1,1,1,1,1,1,1]]
 SPRITE object_fire_ray_horizontal_sprite "object_fire_ray_horizontal.png" 80p 16p FAST [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
-SPRITE object_lava_beam_sprite "object_lava_beam.png" 48p 64p FAST [[6,6,6]]
+SPRITE object_lava_beam_sprite "object_lava_beam.png" 48p 240p FAST [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
 SPRITE object_deathray_small_horz_sprite "object_deathray_small_horz.png" 240p 16p FAST [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
 SPRITE object_platform_sprite "object_platform.png" 16p 16p FAST [[6]]
 SPRITE object_teleporter_sprite "object_teleporter.png" 32p 64p FAST [[9,9,9,9]]
