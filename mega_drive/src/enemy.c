@@ -1801,7 +1801,9 @@ void enemies_update(void)
         s16 el = e->x + d->box_l;
         s16 et = e->y + d->box_t;
         if (pl < el + d->box_w && pr > el && pt < et + d->box_h && pb > et)
-            player_take_damage(TOUCH_DAMAGE_SMALL);
+            // PC character.cpp:2113: an NPC taller than the player's frame (29)
+            // hurts for TOUCH_DAMAGE_SMALL, anything else for TOUCH_DAMAGE_BIG
+            player_take_damage((d->frame_h > 29) ? TOUCH_DAMAGE_SMALL : TOUCH_DAMAGE_BIG);
     }
 }
 

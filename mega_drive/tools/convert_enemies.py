@@ -843,7 +843,7 @@ extern const EnemyProj {PFX}_enemy_proj[{UP}_ENEMY_PROJ_MAX];
             f"{p['intro_anim']}, {p['intro_ms']}, "
             f"{p['attack_ms']}, {d['shield_type']}, "
             f"{{ {', '.join(str(x & 0xFF) for x in d['weak'])} }}, "
-            f"{p['turn_anim']}, {p['turn_ms']}, {p['attack_shot_ms']}, {p['air_anim']}, {p['slide_anim']}, {p['jatk_anim']} }},"
+            f"{p['turn_anim']}, {p['turn_ms']}, {p['attack_shot_ms']}, {p['air_anim']}, {p['slide_anim']}, {p['jatk_anim']}, {p['fh']} }},"
             f"  // {d['name']}\n")
     lines.append("};\n\n")
     lines.append(f"const EnemySpawn {PFX}_enemy_spawns[{UP}_ENEMY_SPAWN_COUNT] = {{\n")

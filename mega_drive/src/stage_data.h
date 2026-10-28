@@ -113,6 +113,7 @@ typedef struct {
     u8 air_anim;        // sheet row of ANIM_TYPE_WALK_AIR (255 = none): the clinging pose after GRAB_WALL
     u8 slide_anim;      // sheet row of ANIM_TYPE_SLIDE (255 = none): the DASH pose
     u8 jatk_anim;       // sheet row of ANIM_TYPE_JUMP_ATTACK (255 = none)
+    u8 frame_h;         // PC frame height: touch damage is BIG unless the NPC is taller than the player (29)
 } EnemyDef;
 
 typedef struct {

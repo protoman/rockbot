@@ -10,6 +10,7 @@
 
 // PC shareddata: TOUCH_DAMAGE_SMALL (walk into an enemy).
 #define TOUCH_DAMAGE_SMALL 2
+#define TOUCH_DAMAGE_BIG   4
 
 // PC defines.h:438 (set by classnpc.cpp:707 for is_boss NPCs; the converter
 // already writes it into the boss EnemyDef.hp).
