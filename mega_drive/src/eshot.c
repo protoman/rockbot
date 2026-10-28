@@ -102,7 +102,7 @@ static bool spawn_child(s16 x, s16 y, s8 dir, u8 proj_id, u8 traj)
         s->dx = (dir < 0) ? -(s16)p->speed : (s16)p->speed;
         s->dy = 0;
         s->speed = p->speed;
-        s->dmg = p->dmg;
+        s->dmg = (p->dmg < 2) ? 2 : p->dmg;     // PC classnpc.cpp:538: enemy shots hurt for at least 2
         s->w = p->w;
         s->h = p->h;
         s->w0 = p->w;
@@ -237,7 +237,7 @@ static bool fire_impl(s16 x, s16 y, s16 dir, u8 proj_id, bool aim)
         s->dx = (dir < 0) ? -(s16)p->speed : (s16)p->speed;
         s->dy = 0;
         s->speed = p->speed;
-        s->dmg = p->dmg;
+        s->dmg = (p->dmg < 2) ? 2 : p->dmg;     // PC classnpc.cpp:538: enemy shots hurt for at least 2
         s->w = (p->traj == TRAJ_CHAIN) ? p->speed : p->w;   // a chain grows from nothing
         s->h = p->h;
         s->proj_id = proj_id;
@@ -588,7 +588,7 @@ void eshots_update(void)
                 continue;
             }
             player_take_damage(s->dmg);
-            if (s->boom) {                  // the explosion stays and keeps hurting
+            if (s->boom || s->traj == TRAJ_LARGE_BEAM) {   // vanishes_on_hit = 0 (BOMB RAIN, LARGE BEAM)                  // the explosion stays and keeps hurting
                 if (s->spr) SPR_setPosition(s->spr, s->x - camera.x, s->y - camera.y);
                 continue;
             }
