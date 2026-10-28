@@ -1599,3 +1599,4 @@ Reports, in the user's order, with what is known so far:
 - [x] SPIKE BOT wall shot: not a bug - the PC data fires DIAGONAL DOWN (id 13); the chain shot was lost in the PC long ago (owner confirmed)
 - [x] CHAIN projectile grows from nothing and retracts (frames = slices of the art; hitbox follows)
 - [x] enemies act only while in the same room as the player (no scroll-lock column between them)
+- [x] CASTLE 1 flame objects (fire rays 18/19, small horizontal beams 25): sprite origin was the base tile instead of the PC grow-from-base cell, art blinked fully on/off every 1.5 s instead of growing/shrinking tile by tile (30 ms steps, 1500 ms holds, 70 ms flicker), hit area ignored the length, damage was 4 for the deadly beams (PC 999). Baked slice frames per length/flicker/side; PC state machine ported. STILL OLD: vertical lava beam (24) blinks.

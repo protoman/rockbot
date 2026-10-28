@@ -238,6 +238,102 @@ def main():
         frame_t = max(1, round(d["fd"] * 6 / 100))
         src = sheet.load()
         cells = []
+        if d["type"] == OBJ_DEATHRAY_H:
+            # PC object::show_deathray_horizontal: base tile + `size` tiles of
+            # body ending in a point; the beam grows to the first wall, so the
+            # longest reach any spawn of this art can have bounds the sheet.
+            # Frame = [(side*2 + flicker)] * N + size, N = maxlen + 1.
+            maxlen = 2
+            for sp in spawns_all:
+                if sp["id"] not in defs or defs[sp["id"]]["gfx"] != d["gfx"]:
+                    continue
+                g = grids[sp["map"]]
+                step = 1 if sp["dir"] == 1 else -1
+                k = 1
+                while k < 21:
+                    tx = sp["x"] + step * k
+                    if tx < 0 or tx >= len(g) or g[tx][sp["y"]] not in (0, 5):
+                        break
+                    k += 1
+                maxlen = max(maxlen, min(14, k - 1))   # rescomp: frame width < 32 tiles
+            n_sizes = maxlen + 1
+            cw, ch = 16 * n_sizes, 16
+            uw, uh = cw, 16
+            for side in range(2):
+                for rs in range(2):
+                    for size in range(n_sizes):
+                        art = [0] * (uw * uh)
+                        # piece offsets inside a 64x16 art frame (row = side)
+                        if side == 0:      # LEFT
+                            base, body, point = 3, 1, 0
+                        else:
+                            base, body, point = 0, 2, 3
+
+                        def put(k, piece):
+                            cx = 16 * (maxlen - k) if side == 0 else 16 * k
+                            if not 0 <= cx <= uw - 16:
+                                return
+                            for y in range(16):
+                                for x in range(16):
+                                    art[y * uw + cx + x] = src[rs * fw + piece * 16 + x, side * fh + y]
+                        put(0, base)
+                        if size == 1:
+                            put(2, point)                  # PC draws the lone point 2 tiles out
+                        elif size == 2:
+                            put(2, point)
+                            put(1, body)
+                        elif size > 2:
+                            put(size, point)
+                            for k in range(1, size):
+                                put(k, body)
+                        cells.append(art)
+            frames = len(cells)
+            plans[oid] = {
+                "d": d, "cw": cw, "ch": ch, "fw": fw, "fh": fh,
+                "frames": frames, "frame_t": 1, "cells": cells,
+                "uw": uw, "uh": uh,
+                "res_name": "object_" + os.path.splitext(d["gfx"])[0],
+            }
+            print(f"id={oid} {d['name']} baked deathray sheet: {frames} frames of {cw}x{ch} (maxlen {maxlen})")
+            continue
+        if d["type"] in (OBJ_RAY_V, OBJ_RAY_H):
+            # PC object::show_vertical_ray / show_horizontal_ray draw a SLICE of
+            # the sheet that grows with `state` (0..limit) and flickers between
+            # two art columns every 70 ms. Bake every (flicker, state[, side])
+            # combination as a frame of the full-size cell, so the game only
+            # has to pick a frame number. Frame = [side*2+flicker]*5 + state.
+            steps = (fh if d["type"] == OBJ_RAY_V else fw) // 16
+            sides = 1 if d["type"] == OBJ_RAY_V else 2
+            cw, ch = ceil8(fw), ceil8(fh)
+            uw, uh = fw, fh
+            for side in range(sides):
+                for rs in range(2):
+                    for st in range(steps):
+                        art = [0] * (fw * fh)
+                        for y in range(fh):
+                            for x in range(fw):
+                                if d["type"] == OBJ_RAY_V:
+                                    if y < fh - 16 * (st + 1):
+                                        continue
+                                    art[y * fw + x] = src[rs * fw + x, y]
+                                elif side == 0:      # LEFT: right-aligned slice of row 0
+                                    if x < fw - 16 * (st + 1):
+                                        continue
+                                    art[y * fw + x] = src[rs * fw + x, y]
+                                else:                # RIGHT: left-aligned slice of row 1
+                                    if x >= 16 * (st + 1):
+                                        continue
+                                    art[y * fw + x] = src[rs * fw + x, fh + y]
+                        cells.append(art)
+            frames = len(cells)
+            plans[oid] = {
+                "d": d, "cw": cw, "ch": ch, "fw": fw, "fh": fh,
+                "frames": frames, "frame_t": 1, "cells": cells,
+                "uw": uw, "uh": uh,
+                "res_name": "object_" + os.path.splitext(d["gfx"])[0],
+            }
+            print(f"id={oid} {d['name']} baked ray sheet: {frames} frames of {cw}x{ch}")
+            continue
         for f in range(frames):
             art = []
             cx, cy = f % cols, f // cols
@@ -293,6 +389,8 @@ def main():
                 continue
         def_idx = sorted(defs).index(s["id"])
         dx, dy, dm = s["dx"] & 0xFF, s["dy"] & 0xFF, s["dm"] & 0xFF
+        if d["type"] in (OBJ_RAY_H, OBJ_DEATHRAY_H):
+            dx = 1 if s["dir"] == 1 else 0     # ANIM_DIRECTION_RIGHT = 1 (rays carry their side here)
         spawn_out.append((def_idx, s["map"], x, y, dx, dy, dm))
         print(f"spawn def={def_idx} id={s['id']} type={d['type']} map={s['map']} "
               f"px=({x},{y}) bottom={y + d['h']}"

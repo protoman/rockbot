@@ -411,6 +411,9 @@ void objects_reset(void)
         o->fall_speed = 0;
         o->door = 0;
         o->door_open = FALSE;
+        o->dir = ((d->type == 18 || d->type == 25) && sp->dest_x == 1) ? 1 : -1;   // ray side
+        if (d->type == 25) o->delay = (u8)(((u16)(d->timer > 1000 ? 1000 : d->timer) * 6) / 100);
+        o->anim_rev = 0;                  // fire ray: 0 = growing, 1 = shrinking
         obj_init_cached(o, d);
         o->spr = door_spawn(o) ? NULL
                                : SPR_addSprite(d->spr, o->x - camera.x,
@@ -499,8 +502,44 @@ void objects_drop_item(s16 cx, s16 cy, bool subboss)
     spr_seen = spr_gen;
     if (o->spr) {
         SPR_setAutoAnimation(o->spr, FALSE);
-        bool on_screen = (sx + d->w > 0 && sx < 320 &&
+        const u8 beam_n = (u8)(d->frames / 4);                  // type 25: sizes per side/flicker
+        if (d->type == 25 && o->dir < 0) sx -= (s16)(beam_n - 1) * 16;
+        bool on_screen = (sx + ((d->type == 25) ? beam_n * 16 : d->w) > 0 && sx < 320 &&
                           sy + d->h > 0 && sy < 224);
+
+        // Small horizontal lava beam (type 25), PC object.cpp:1117: after its
+        // start delay the beam grows one tile per 30 ms to the first wall (or
+        // 20 tiles), keeps counting to 40 ticks, then vanishes for 1500 ms.
+        // `state` = tick count, `distance` = beam length in tiles. The PC
+        // re-arms the start delay every frame the beam is off screen.
+        if (d->type == 25) {
+            if (!on_screen) {
+                o->delay = (u8)(((u16)(d->timer > 1000 ? 1000 : d->timer) * 6) / 100);
+            } else if (o->delay) {
+                o->delay--;
+            } else {
+                if (o->state == 0) sfx_play(SFX_BEAM);
+                o->state++;
+                const s16 gx = (o->dir < 0) ? (s16)(o->x - ((o->distance + 1) << 4))
+                                            : (s16)(o->x + ((o->distance + 1) << 4));
+                const u16 t = stage_terrain_at(stage_current_map, gx >> 4, (o->y + 8) >> 4);
+                if (t == TERRAIN_UNBLOCKED || t == TERRAIN_WATER)
+                    o->distance = (s16)((o->state < beam_n - 1) ? o->state : beam_n - 1);
+                if (o->state > 40) {
+                    o->state = 0;
+                    o->distance = 0;
+                    o->delay = 90;                      // DELAY_RAY 1500 ms
+                } else {
+                    o->delay = 2;                       // FRAMETIMER_DEATHRAY 30 ms
+                }
+            }
+            if (++o->anim_t >= 6) { o->anim_t = 0; o->vis_t ^= 1; }   // 100 ms flicker
+            const u8 f = (u8)((((o->dir > 0) ? 2 : 0) + (o->vis_t & 1)) * beam_n + (u8)o->distance);
+            if (f != o->frame) {
+                o->frame = f;
+                if (o->spr) spr_set_frame(o->spr, f);
+            }
+        }
         SPR_setVisibility(o->spr, on_screen ? VISIBLE : HIDDEN);
     }
 }
@@ -1097,6 +1136,7 @@ void objects_update(void)
         // same global timer). Doing it here, before the visibility gate, keeps
         // identical objects in lockstep without any per-object division.
         if ((o->flags & ODF_LOOPING) && !o->anim_play && d->type != 13 &&
+            d->type != 18 && d->type != 19 &&
             ((o->flags & ODF_AUTOANIM) || o->started) &&
             d->frame_t && d->frames > 1) {
             if (++o->anim_t >= d->frame_t) {
@@ -1196,10 +1236,39 @@ void objects_update(void)
             }
         }
 
-        // Fire/lava beams (types 18/19/24/25): visible for 90 frames, hidden
-        // for 90 (PC toggles the ray state). They damage on contact.
-        if (d->type == 18 || d->type == 19 || d->type == 24 ||
-            d->type == 25) {
+        // Fire rays (types 18 horizontal / 19 vertical), PC object.cpp:1069: the
+        // flame grows one tile per 30 ms up to its full length, holds for
+        // 1500 ms, shrinks back the same way and rests 1500 ms. `state` is how
+        // many tiles it extends past its base tile; the art flickers between
+        // two columns every 70 ms. Everything counts in frames (60 Hz).
+        if (d->type == 18 || d->type == 19) {
+            const u8 limit = (u8)(((d->type == 19) ? d->h : d->w) / 16 - 1);
+            if (o->delay) {
+                o->delay--;
+            } else if (!o->anim_rev) {                  // growing
+                o->state++;
+                o->delay = 2;
+                if (o->state >= limit) { o->anim_rev = 1; o->delay = 90; }
+            } else if (o->state == 0) {                 // rested: grow again
+                o->anim_rev = 0;
+                o->delay = 90;
+            } else {
+                o->state--;
+                o->delay = 2;
+            }
+            if (++o->anim_t >= 4) {                     // 70 ms flicker
+                o->anim_t = 0;
+                o->vis_t ^= 1;
+            }
+            const u8 side = (d->type == 18 && o->dir > 0) ? 1 : 0;
+            const u8 f = (u8)((side * 2 + (o->vis_t & 1)) * (limit + 1) + o->state);
+            if (f != o->frame) {
+                o->frame = f;
+                if (o->spr) spr_set_frame(o->spr, f);
+            }
+        }
+        // Lava beam (vertical, 24): still the old blink (visible 90 frames, hidden 90).
+        if (d->type == 24) {
             if (++o->vis_t >= 90) {
                 o->vis_t = 0;
                 o->visible = !o->visible;
@@ -1210,6 +1279,8 @@ void objects_update(void)
         // ---- screen visibility -------------------------------------------
         s16 sx = o->x - camera.x;
         s16 sy = o->y - camera.y;
+        if (d->type == 19) sy -= d->h - 16;                      // grows upward from its base tile
+        else if (d->type == 18 && o->dir < 0) sx -= d->w - 16;   // ... or leftward
         bool on_screen = (sx + d->w > 0 && sx < 320 &&
                           sy + d->h > 0 && sy < 224);
         // disappearing blocks (PC timings). Type 2 cycles on its own; type
@@ -1353,6 +1424,23 @@ void objects_update(void)
         // overlap for the door; all other objects keep the strict test.
         bool touch = (pl < o->x + d->w && pr > o->x &&
                       pt < o->y + d->h && pb > o->y);
+        if (d->type == 19) {                       // PC get_position/get_size: past the base tile only
+            const s16 rh = (s16)o->state * 16;
+            touch = rh > 0 && pl < o->x + d->w && pr > o->x &&
+                    pt < o->y && pb > o->y - rh;
+        } else if (d->type == 25) {
+            // PC get_position/get_size: a zero-height line at y+8, `distance`
+            // tiles long, tested with INCLUSIVE edges; deadly while state != 0.
+            const s16 rw = (s16)o->distance * 16;
+            const s16 rx = (o->dir < 0) ? o->x - rw + 16 : o->x + 16;
+            touch = o->state != 0 && pl <= rx + rw && pr >= rx &&
+                    pt <= o->y + 8 && pb >= o->y + 8;
+        } else if (d->type == 18) {
+            const s16 rw = (s16)o->state * 16;
+            const s16 rx = (o->dir < 0) ? o->x - rw : o->x + 16;
+            touch = rw > 0 && pl < rx + rw && pr > rx &&
+                    pt < o->y + 16 && pb > o->y + 4;
+        }
         if (!touch && d->type == 30)
             touch = (pr >= o->x && pl <= o->x + d->w &&
                      pt < o->y + d->h && pb > o->y);
@@ -1431,7 +1519,8 @@ void objects_update(void)
             }
             if (d->type == 18 || d->type == 19 || d->type == 24 ||
                 d->type == 25) {
-                if (o->visible) player_take_damage(4);
+                if (d->type == 25) player_take_damage(255);      // PC damage(999)
+                else if (o->visible) player_take_damage(4);      // TOUCH_DAMAGE_BIG
                 continue;
             }
             if (d->type == 9) {                     // 1UP
