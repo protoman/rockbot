@@ -572,6 +572,32 @@ static RunResult runStage(u8 stage)
         }
 
         u16 pad = JOY_readJoypad(JOY_1);
+#ifdef MD_AUTOPILOT
+        // Test build: a scripted player so a profile / trace run needs no input.
+        // Walks right (or DOWN/UP alternately with MD_AUTOPILOT_LADDER), jumps when
+        // stuck or every 80 frames, fires continuously, never dies.
+        {
+            static u16 ap_t, ap_stuck;
+            static s16 ap_x;
+            ap_t++;
+#ifdef MD_AUTOPILOT_LADDER
+            pad = ((ap_t / 600) & 1) ? BUTTON_UP : BUTTON_DOWN;
+#else
+            pad = BUTTON_RIGHT;
+            if (player.x == ap_x) ap_stuck++; else ap_stuck = 0;
+            ap_x = player.x;
+            if (ap_stuck > 30 || (ap_t % 80) < 14) pad |= config_jump_mask();
+#endif
+            if ((ap_t % 20) == 0) pad |= config_fire_mask();
+            if ((ap_t % 30) == 0 && player.hp < 28) player.hp = 28;
+#ifdef MD_LINK_TRACE
+            if ((ap_t % 20) == 0)
+                kprintf("AP t=%d map=%d px=%d py=%d cam=%d ladder=%d\n", (int)ap_t,
+                        (int)stage_current_map, (int)player.x, (int)player.y,
+                        (int)camera.x, (int)player.on_ladder);
+#endif
+        }
+#endif
 
         // START opens the paused in-game menu (PC class_config.cpp:295)
         if ((pad & BUTTON_START) && !(prev_pad & BUTTON_START)) {
