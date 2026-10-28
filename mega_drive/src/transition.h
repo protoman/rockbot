@@ -41,4 +41,8 @@ extern u8 transition_fail_code;
 extern u8 transition_fail_map;
 extern u16 transition_fail_free_kb;
 
+// Scratch RAM lent while no transition runs (contents are not preserved).
+void *transition_scratch_tiles(u16 *bytes);
+void *transition_scratch_cells(u16 *bytes);
+
 #endif

@@ -2,6 +2,7 @@
 
 #include "castle_path_data.h"
 #include "castle_path_draw.h"
+#include "transition.h"
 
 // Overlay tiles live above the castle art (castle64: tiles 16..713). No sprite is
 // alive on this screen, so the sprite pool region is free for them.
@@ -12,23 +13,18 @@
 #define ANIM_FRAMES 60              // PC CASTLE_PATH_DURATION 1000ms at 60Hz
 
 // The heap is tiny on this screen (about 8 KB free in fragments, measured from a
-// loaded save), so the tile data is built in small chunks, there is no RAM copy of
+// loaded save), so no heap is used at all: the tile data and the lookup tables live in
+// the room-transition scratch buffers, which are idle here. There is no RAM copy of
 // the plane (cells are written to the VDP when their tile is uploaded) and
 // everything goes to the VDP with CPU writes.
-#define CHUNK_SLOTS 44
-#define CHUNKS ((OVL_SLOTS + CHUNK_SLOTS - 1) / CHUNK_SLOTS)
-
-static u32 *chunk[CHUNKS];          // CHUNK_SLOTS tiles each, built in RAM
+static u32 *ovl_tiles;              // OVL_SLOTS tiles, built in RAM
 static u16 *cell_of_slot;           // slot -> plane cell index
 static u8 *slot_of;                 // cell -> slot + 1 (0 = none)
 static u16 slots_used;
 static u16 cells_written;           // slots whose plane cell is already on the VDP
 static s16 dirty_lo, dirty_hi;      // tile slots changed since the last flush
 
-static inline u32 *slot_rows(u16 slot)
-{
-    return &chunk[slot / CHUNK_SLOTS][(slot % CHUNK_SLOTS) * 8];
-}
+#define slot_rows(slot) (&ovl_tiles[(slot) * 8])
 
 static void ovl_pixel(s16 x, s16 y, u8 color)
 {
@@ -105,23 +101,16 @@ static void marker(u8 point)
 
 void castle_path_run(u8 idx)
 {
-    MEM_pack();
-    u8 got = 0;
-    cell_of_slot = MEM_alloc(OVL_SLOTS * sizeof(u16));
-    slot_of = MEM_alloc(CELLS_W * CELLS_H);
-    for (; got < CHUNKS; got++) {
-        chunk[got] = MEM_alloc(CHUNK_SLOTS * 32);
-        if (!chunk[got]) break;
-    }
-    if (!cell_of_slot || !slot_of || got < CHUNKS) {    // no heap: the castle shows without its path
-        kprintf("castle_path: out of heap (free=%u largest=%u)\n",
-                (unsigned)MEM_getFree(), (unsigned)MEM_getLargestFreeBlock());
-        for (u8 i = 0; i < got; i++) MEM_free(chunk[i]);
-        if (cell_of_slot) MEM_free(cell_of_slot);
-        if (slot_of) MEM_free(slot_of);
+    u16 tiles_bytes, cells_bytes;
+    ovl_tiles = transition_scratch_tiles(&tiles_bytes);
+    u8 *cb = transition_scratch_cells(&cells_bytes);
+    cell_of_slot = (u16 *)cb;
+    slot_of = cb + OVL_SLOTS * sizeof(u16);
+    if (tiles_bytes < OVL_SLOTS * 32 || cells_bytes < OVL_SLOTS * 2 + CELLS_W * CELLS_H) {
+        kprintf("castle_path: scratch too small\n");     // no path: the castle still shows
         return;
     }
-    for (u8 i = 0; i < CHUNKS; i++) memset(chunk[i], 0, CHUNK_SLOTS * 32);
+    memset(ovl_tiles, 0, OVL_SLOTS * 32);
     memset(slot_of, 0, CELLS_W * CELLS_H);
     slots_used = 0;
     cells_written = 0;
@@ -153,7 +142,4 @@ void castle_path_run(u8 idx)
             }
         }
     }
-    MEM_free(slot_of);
-    MEM_free(cell_of_slot);
-    for (u8 i = 0; i < CHUNKS; i++) MEM_free(chunk[i]);
 }

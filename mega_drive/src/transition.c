@@ -63,6 +63,11 @@ static u16 trans_buf[TRANS_ROWS * 2][TRANS_COLS];
 static u32 trans_tiles[TRANS_TILES * 8];
 // Destination tile index -> copied VRAM slot; 0xFF = not copied yet.
 static u8 trans_remap[TRANS_TILES];
+
+// The buffers above are rebuilt by every room transition and idle otherwise; screens
+// that run with almost no heap (the castle intro: 8 KB free in fragments) borrow them.
+void *transition_scratch_tiles(u16 *bytes) { *bytes = sizeof(trans_tiles); return trans_tiles; }
+void *transition_scratch_cells(u16 *bytes) { *bytes = sizeof(trans_buf); return trans_buf; }
 // Per-scanline horizontal scroll (HSCROLL_LINE): the outgoing and incoming
 // screens sit at different sub-tile offsets, so each half needs its own.
 static s16 trans_hs_a[TRANS_LINES];
