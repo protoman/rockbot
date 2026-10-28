@@ -181,6 +181,7 @@ def build_steps():
     for name, script in (("players", "convert_players.py"), ("weapons", "convert_weapons.py"),
                          ("menu_icons", "convert_menu_icons.py"),
                          ("menu_icons_gray", "convert_menu_icons_gray.py"),
+                         ("menu_tanks", "convert_menu_tanks.py"),
                          ("tooltip", "convert_tooltip.py"), ("hud_icons", "convert_hud_icons.py"),
                          ("credits", "convert_credits.py"), ("player", "convert_player.py"),
                          ("save_icons", "convert_save_icons.py")):

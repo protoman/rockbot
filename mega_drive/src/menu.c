@@ -79,13 +79,32 @@ static Sprite *selected_icon;
 // the weapon grid (class_config.cpp:174/201/218): the cursor moves into them
 // and BTN_ATTACK uses one. The port showed the counts but had no way to use a
 // tank at all (player_use_tank had no caller).
-#define MENU_ENTRY_ETANK WEAPON_SWITCH_N
-#define MENU_ENTRY_WTANK (WEAPON_SWITCH_N + 1)
-#define MENU_ENTRY_STANK (WEAPON_SWITCH_N + 2)
-#define MENU_ENTRY_N     (WEAPON_SWITCH_N + 3)
+// Entry WEAPON_SWITCH_N is an empty grid cell, so the three tanks start the
+// last grid row (4 columns: entries 12..14).
+#define MENU_ENTRY_ETANK (WEAPON_SWITCH_N + 1)
+#define MENU_ENTRY_WTANK (WEAPON_SWITCH_N + 2)
+#define MENU_ENTRY_STANK (WEAPON_SWITCH_N + 3)
+#define MENU_ENTRY_N     16                     // 4x4 grid; cell 15 is empty
 static u8 menu_entry;
 
+// Grid: entry e sits at row e/4, col e%4 (weapons 0..10, then the three tanks).
+// Rows are two tile rows apart and columns eight tiles apart: icon (8 px) +
+// 6-tile bar + a small gap.
+#define GRID_X0      38                       // icon x of column 0 (px)
+#define GRID_DX      64
+#define GRID_BAR_DX  10                       // bar starts this far right of the icon
+#define GRID_TILE_Y0 6                        // tile row of grid row 0
+#define GRID_ROWS    4
+static Sprite *tank_icon[3];
+static Sprite *tank_gray[3];
+
+static inline s16 grid_icon_x(u8 e) { return (s16)(GRID_X0 + (e % 4) * GRID_DX); }
+static inline u16 grid_tile_row(u8 e) { return (u16)(GRID_TILE_Y0 + (e / 4) * 2); }
+static inline s16 grid_icon_y(u8 e) { return (s16)(grid_tile_row(e) * 8 + 1); }
+static inline u16 grid_bar_col(u8 e) { return (u16)((GRID_X0 + GRID_BAR_DX) / 8 + (e % 4) * (GRID_DX / 8)); }
+
 static void menu_restore_strip(u16 col, u16 row, u16 count);
+static void tank_icons_select(void);
 
 static u8 tank_count(u8 entry)
 {
@@ -97,6 +116,7 @@ static u8 tank_count(u8 entry)
 static bool entry_selectable(u8 entry)
 {
     if (entry < WEAPON_SWITCH_N) return (owned & (1u << entry)) != 0;
+    if (entry < MENU_ENTRY_ETANK || entry > MENU_ENTRY_STANK) return FALSE;   // empty cells
     return tank_count(entry) > 0;
 }
 
@@ -144,6 +164,7 @@ static void draw_tank_entry(void)
         SPR_setVisibility(selected_icon, VISIBLE);
         spr_set_frame(selected_icon, 0);
     }
+    tank_icons_select();
 }
 
 static void icons_release(void)
@@ -152,9 +173,34 @@ static void icons_release(void)
         if (wicon[w]) { SPR_releaseSprite(wicon[w]); wicon[w] = NULL; }
         if (wicon_gray[w]) { SPR_releaseSprite(wicon_gray[w]); wicon_gray[w] = NULL; }
     }
+    for (u8 t = 0; t < 3; t++) {
+        if (tank_icon[t]) { SPR_releaseSprite(tank_icon[t]); tank_icon[t] = NULL; }
+        if (tank_gray[t]) { SPR_releaseSprite(tank_gray[t]); tank_gray[t] = NULL; }
+    }
     if (selected_icon) {
         SPR_releaseSprite(selected_icon);
         selected_icon = NULL;
+    }
+}
+
+// Tank count next to its icon, drawn in the bar slot ("x2").
+static void draw_tank_counts(void)
+{
+    for (u8 t = 0; t < 3; t++) {
+        const u8 e = (u8)(MENU_ENTRY_ETANK + t);
+        char buf[4] = { 'x', (char)('0' + (tank_count(e) % 10)), 0, 0 };
+        menu_restore_strip(grid_bar_col(e), grid_tile_row(e), 2);
+        VDP_drawText(buf, grid_bar_col(e), grid_tile_row(e));
+    }
+}
+
+// The tank under the cursor is coloured, the others grey (like the weapons).
+static void tank_icons_select(void)
+{
+    for (u8 t = 0; t < 3; t++) {
+        const bool sel = (menu_entry == MENU_ENTRY_ETANK + t);
+        if (tank_icon[t]) SPR_setVisibility(tank_icon[t], sel ? VISIBLE : HIDDEN);
+        if (tank_gray[t]) SPR_setVisibility(tank_gray[t], sel ? HIDDEN : VISIBLE);
     }
 }
 
@@ -173,14 +219,8 @@ static void icons_create(void)
     PAL_setPalette(PAL3, menu_icons_pal.data, DMA_QUEUE);
     for (u8 w = 0; w < WEAPON_SWITCH_N; w++) {
         if (!(owned & (1u << w))) continue;
-        u8 row = (u8)(w / 4);
-        u8 col = (u8)(w % 4);
-        // Keep the icons on the same 80x24 pixel grid as the BG tile bars:
-        // the panel draws the bars in 8px tiles, so a PC-style 76x20 grid
-        // drifts 4px per column (bar ends up far right of its icon) and the
-        // 20px rows cannot line up with 8px tile rows either.
-        s16 x = (s16)(14 + col * 80);
-        s16 y = (s16)(41 + row * 24);
+        const s16 x = grid_icon_x(w);
+        const s16 y = grid_icon_y(w);
         Sprite *sp = SPR_addSprite(&menu_icon_sprite, x, y,
                                    TILE_ATTR(PAL3, FALSE, FALSE, FALSE));
         Sprite *gr = SPR_addSprite(&menu_icon_gray_sprite, x, y,
@@ -198,6 +238,16 @@ static void icons_create(void)
         }
     }
     menu_icons_select();
+    for (u8 t = 0; t < 3; t++) {
+        const u8 e = (u8)(MENU_ENTRY_ETANK + t);
+        tank_icon[t] = SPR_addSprite(&menu_tank_sprite, grid_icon_x(e), grid_icon_y(e),
+                                     TILE_ATTR(PAL3, FALSE, FALSE, FALSE));
+        tank_gray[t] = SPR_addSprite(&menu_tank_gray_sprite, grid_icon_x(e), grid_icon_y(e),
+                                     TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
+        if (tank_icon[t]) { SPR_setAutoAnimation(tank_icon[t], FALSE); spr_set_frame(tank_icon[t], t); }
+        if (tank_gray[t]) { SPR_setAutoAnimation(tank_gray[t], FALSE); spr_set_frame(tank_gray[t], t); }
+    }
+    tank_icons_select();
     // Selected-weapon indicator at the bottom of the panel: icon + name.
     selected_icon = SPR_addSprite(&menu_icon_sprite, 96, 152,
                                   TILE_ATTR(PAL3, FALSE, FALSE, FALSE));
@@ -274,14 +324,8 @@ static void draw_grid_bars(void)
 {
     for (u8 w = 0; w < WEAPON_SWITCH_N; w++) {
         if (!(owned & (1u << w))) continue;
-        u8 row = (u8)(w / 4);
-        u8 col = (u8)(w % 4);
-        u16 x = (u16)(3 + col * 10);
-        // PC bar y=60+row*20; after the 16px crop it shares the icon line
-        // (icon y=41+row*24). Tile-row granularity: rows 5/8/11 keep the
-        // grid evenly spaced around the PC 44/64/84 positions.
-        static const u8 bar_row[3] = { 5, 8, 11 };
-        u16 y = bar_row[row];
+        const u16 x = grid_bar_col(w);
+        const u16 y = grid_tile_row(w);
         u8 value = (w == 0) ? PLAYER_INITIAL_HP : player.ammo[w];
         draw_weapon_bar(value, PLAYER_INITIAL_HP, x, y, 6, w,
                         w == player_weapon());
@@ -301,6 +345,7 @@ static void draw_weapon_line(void)
         SPR_setVisibility(selected_icon, VISIBLE);
     }
     menu_icons_select();
+    tank_icons_select();
     if (w != 0) {
         u8 a = player_weapon_ammo();
         char buf[4] = { '[', ' ', ' ', 0 };
@@ -308,20 +353,6 @@ static void draw_weapon_line(void)
         if (a >= 10) buf[1] = (char)('0' + ((a / 10) % 10));
         VDP_drawText(buf, 31, 20);
     }
-}
-
-// Stored tanks (OBJ_ENERGY_TANK / OBJ_WEAPON_TANK), PC game_save.items.
-static void draw_tank_line(void)
-{
-    // Kept inside the panel's right border: the old "ITEMS  E-TANK:0  W-TANK:0
-    // S-TANK:0" ran to column 39 and lost its tail on the border (seen in the
-    // 2026-10-25 emulator run).
-    menu_restore_strip(5, 22, 33);
-    char buf[40] = "ITEMS E-TANK:0 W-TANK:0 S-TANK:0";
-    buf[13] = (char)('0' + player.tanks_hp);
-    buf[23] = (char)('0' + player.tanks_wp);
-    buf[32] = (char)('0' + player.tanks_sp);
-    VDP_drawText(buf, 5, 22);
 }
 
 // PC weapon_menu_show_player (draw.cpp:1021-1040): the installed armor pieces
@@ -342,29 +373,6 @@ static void draw_armor_icons(void)
                              (u16)(35 + c), (u16)(19 + r));
         }
     }
-}
-
-// PC weapon_menu_show_player (draw.cpp:1021) also shows which armor pieces
-// are installed, as icons at the panel's right edge. The MD port has no free
-// VRAM block for that 28x29 art yet, so the state is a text line on the same
-// panel: ARMS/BODY/LEGS with the acquired ones spelled out.
-static void draw_armor_line(void)
-{
-    static const char *const names[3] = { "ARMS", "BODY", "LEGS" };
-    char buf[40];
-    u8 n = 0;
-    const char *head = "ARMOR: ";
-    while (*head) buf[n++] = *head++;
-    for (u8 i = 0; i < 3; i++) {
-        const bool on = (player.armor & (1u << i)) != 0;
-        for (const char *c = names[i]; *c; c++) buf[n++] = *c;
-        buf[n++] = ' ';
-        buf[n++] = on ? '+' : '-';
-        if (i < 2) { buf[n++] = ' '; buf[n++] = ' '; }
-    }
-    buf[n] = 0;
-    menu_restore_strip(2, 23, 36);
-    VDP_drawText(buf, 2, 23);
 }
 
 static void stage_sprites_visible(bool visible)
@@ -405,8 +413,7 @@ static void menu_draw_panel(void)
     VDP_drawText("B: CONFIG", 2, 25);
     menu_restore_strip(2, 26, 20);
     VDP_drawText("A: LEAVE STAGE", 2, 26);
-    draw_tank_line();
-    draw_armor_line();
+    draw_tank_counts();
     draw_armor_icons();
     // PC weapon_menu_show_player (draw.cpp:1021): lives next to the portrait
     {
@@ -465,6 +472,7 @@ bool menu_open(u16 weapon_mask)
     PAL_setColor(0, 0x0000);
     VDP_clearPlane(BG_B, TRUE);
 
+    menu_entry = player_weapon();
     stage_sprites_visible(FALSE);
     SYS_doVBlankProcess();     // apply PAL0/PAL1 before drawing text
     menu_draw_panel();
@@ -499,9 +507,7 @@ bool menu_open(u16 weapon_mask)
             if (player_use_tank(menu_entry == MENU_ENTRY_ETANK)) {
                 sfx_play(SFX_PILL);   // PC SFX_GOT_ENERGY (closest PCM here)
                 draw_tank_entry();
-                draw_tank_line();
-    draw_armor_line();
-    draw_armor_icons();
+                draw_tank_counts();
             }
             continue;
         }
