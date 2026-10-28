@@ -171,6 +171,7 @@ typedef struct {
     u8 frozen;        // hidden by the DYNAMITE freeze effect
     u8 dropping;      // PC map_present_boss drop from the top
     u8 drop_done;
+    u8 boss_wait;     // PC boss_move: 1500 ms before the AI starts once the boss has presented himself
     s16 drop_target;
     u8 always_ahead;  // PC always_move_ahead (AI state loops on itself)
     u8 auto_jump;     // stepping over a low wall (GOLD CART)
@@ -1488,6 +1489,7 @@ static void ai_pick(Enemy *e, bool initial)
 
 static void ai_tick(Enemy *e)
 {
+    if (e->boss_wait) { e->boss_wait--; return; }
     // a reaction interrupts whatever the state machine was doing
     if (e->react) {
         e->act_t++;
@@ -1551,7 +1553,8 @@ static Enemy *enemy_add(u8 def_i, s16 x, s16 y, s16 x_min, s16 x_max, u8 dir)
     e->moving = 0;
     e->move_acc = 0;
     e->respawn_t = 0;
-    e->frozen = 0;
+    e->drop_done = (d->is_boss == 0);
+    e->boss_wait = d->is_boss ? 90 : 0;      // 1500 ms
     e->dropping = 0;
     e->drop_done = (d->is_boss == 0);
     e->drop_target = e->y;
