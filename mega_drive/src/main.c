@@ -98,6 +98,9 @@ static void drawCentered(const char *text, u16 tileY)
 #define PROF_SHOT    4      // explosions, eshots, shots, boss HUD
 #define PROF_SPRITE  5      // SPR_update
 #define PROF_VBLANK  6      // SYS_doVBlankProcess (idle time if the frame fits)
+#define PROF_EXPL    7      // explosion_update + effects_update
+#define PROF_ESHOT   8      // eshots_update
+#define PROF_PSHOT   9      // shot_update (player shots)
 #define PROF_N       10
 static u32 prof_last;
 static u32 prof_acc[PROF_N];
@@ -108,6 +111,9 @@ extern u8 prof_obj_hot_type;
 static u16 prof_frames;
 #ifdef MD_PROFILE_ENEMY
 extern u32 enemy_prof[6];
+#endif
+#ifdef MD_PROFILE_PLAYER
+extern u32 player_prof[8];
 #endif
 static u32 prof_cur, prof_max, prof_over, prof_frames_n;
 static inline void prof_tick(u8 i)
@@ -130,7 +136,7 @@ static void prof_report(void)
     kprintf("PROF map=%d obj=%d npc=%d hot=%d/t%d/%d px=%d py=%d "
             "setup=%lu objupd=%lu plr=%lu hud=%lu "
             "cam=%lu anim=%lu npcs=%lu shot=%lu spr=%lu wait=%lu "
-            "over=%lu max=%lu (subticks/frame, 1280 = 60fps)\n",
+            "over=%lu max=%lu fx=%lu esh=%lu psh=%lu (subticks/frame, 1280 = 60fps)\n",
             (int)stage_current_map, (int)objects_live(), (int)enemies_live(),
             (int)prof_obj_hot_i, (int)prof_obj_hot_type,
             (int)prof_obj_hot_cost, (int)player.x, (int)player.y,
@@ -144,7 +150,16 @@ static void prof_report(void)
             (unsigned long)(prof_acc[PROF_SHOT] / 60),
             (unsigned long)(prof_acc[PROF_SPRITE] / 60),
             (unsigned long)(prof_acc[PROF_VBLANK] / 60),
-            (unsigned long)prof_over, (unsigned long)prof_max);
+            (unsigned long)prof_over, (unsigned long)prof_max,
+            (unsigned long)(prof_acc[PROF_EXPL] / 60), (unsigned long)(prof_acc[PROF_ESHOT] / 60),
+            (unsigned long)(prof_acc[PROF_PSHOT] / 60));
+#ifdef MD_PROFILE_PLAYER
+    kprintf("PPROF pre=%lu ladder=%lu shield=%lu slide=%lu horiz=%lu jump=%lu vert=%lu plat=%lu\n",
+            (unsigned long)(player_prof[0] / 60), (unsigned long)(player_prof[1] / 60), (unsigned long)(player_prof[2] / 60),
+            (unsigned long)(player_prof[3] / 60), (unsigned long)(player_prof[4] / 60), (unsigned long)(player_prof[5] / 60),
+            (unsigned long)(player_prof[6] / 60), (unsigned long)(player_prof[7] / 60));
+    for (u8 i = 0; i < 8; i++) player_prof[i] = 0;
+#endif
 #ifdef MD_PROFILE_ENEMY
     kprintf("EPROF pre=%lu ai=%lu rest=%lu grav=%lu draw=%lu water=%lu (subticks/frame)\n",
             (unsigned long)(enemy_prof[4] / 60), (unsigned long)(enemy_prof[5] / 60),
@@ -921,8 +936,17 @@ static RunResult runStage(u8 stage)
 #endif
         explosion_update(); // enemy death puffs (PC death animation)
         effects_update();   // dust / splash / teleport / bubble
+#ifdef MD_PROFILE
+        prof_tick(PROF_EXPL);
+#endif
         eshots_update();    // enemy AI projectiles -> player
+#ifdef MD_PROFILE
+        prof_tick(PROF_ESHOT);
+#endif
         shot_update();
+#ifdef MD_PROFILE
+        prof_tick(PROF_PSHOT);
+#endif
         hud_boss(enemies_boss_on_screen() ? (s16)enemies_boss_hp() : -1);
         tooltip_update();   // weapon name after a menu pick (PC 1.5 s)
 

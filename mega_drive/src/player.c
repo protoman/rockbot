@@ -944,8 +944,19 @@ void player_freeze(void) { freeze_frames = 210; }
 // PC classPlayer::block_jump: only while standing on the ground.
 void player_block_jump(u16 frames) { if (player.on_ground) jump_lock = frames; }
 
+#ifdef MD_PROFILE_PLAYER       // opt-in: each timer read costs ~20 subticks
+u32 player_prof[8];
+static u32 pp_last;
+#define PP_BEGIN() (pp_last = getSubTick())
+#define PP_MARK(n) do { const u32 t_ = getSubTick(); player_prof[n] += t_ - pp_last; pp_last = t_; } while (0)
+#else
+#define PP_BEGIN() do { } while (0)
+#define PP_MARK(n) do { } while (0)
+#endif
+
 void player_update(u16 pad)
 {
+    PP_BEGIN();
     if (freeze_frames) {
         freeze_frames--;
         if (player.invuln == 0) pad = 0;
@@ -994,6 +1005,7 @@ void player_update(u16 pad)
     s16 ctx = (bl + br) >> 5;   // centre tile X  ((bl+br)/2) >> 4
     s16 cty = (bt + bb) >> 5;   // centre tile Y
 
+    PP_MARK(0);
     // ---- ladder ------------------------------------------------------------
     // Grab clears on_ground so gravity cannot re-latch while climbing.
     // PC has no sideways let-go: horizontal input is gated while the ladder
@@ -1196,6 +1208,7 @@ void player_update(u16 pad)
         player.vy = 0;
     }
 
+    PP_MARK(1);
     // ---- hit pushback (PC ANIM_TYPE_HIT, character.cpp:191-215) -----------
     // While pushing back, movement/jump/slide input is ignored and the
     // player slides away from the direction he was facing.
@@ -1257,6 +1270,7 @@ void player_update(u16 pad)
                  JUMP_BUTTONS | SLIDE_BUTTON | FIRE_BUTTON);
     }
 
+    PP_MARK(2);
     // ---- slide / dash (start) ----------------------------------------------
     // Needs a FRESH press: the PC only starts a slide after the dash button
     // was released again (_dash_button_released, character.cpp:1668), so a
@@ -1338,6 +1352,7 @@ void player_update(u16 pad)
         else if (player.vx < -cap) player.vx = -cap;
     }
 
+    PP_MARK(3);
     // ---- jump (edge triggered, buffered + coyote time) ----------------------
     if ((pad & JUMP_BUTTONS) && !(prev_pad & JUMP_BUTTONS)) {
         jump_timer = JUMP_BUFFER_FRAMES;
@@ -1407,6 +1422,7 @@ void player_update(u16 pad)
     }
     s16 dy = F16_toInt(player.vy);
 
+    PP_MARK(4);
     // ---- horizontal move + resolve -----------------------------------------
     // Test only the column the leading edge enters and snap flush against its
     // face. The old whole-box test snapped by the rightmost/leftmost column
@@ -1428,6 +1444,7 @@ void player_update(u16 pad)
         ix = nx;
     }
 
+    PP_MARK(5);
     // ---- vertical move + resolve -------------------------------------------
     // Only the row the feet enter (falling) or the row the head enters (rising)
     // may block. Testing the whole box here would treat a side-hit against a
@@ -1556,6 +1573,7 @@ void player_update(u16 pad)
         }
     }
 
+    PP_MARK(6);
     // ---- moving-platform tiles (PC check_platform_move) --------------------
     // The belt is sampled across the FEET SPAN, not just the centre column:
     // with the centre test the push stopped the moment the middle left the
@@ -1610,6 +1628,7 @@ void player_update(u16 pad)
     // ---- fire (B) + charge shot ---------------------------------------------
     handle_fire(pad, ix, iy);
 
+    PP_MARK(7);
     // ---- animation + screen position ----------------------------------------
     u16 want;
     if (shoryuken_active)       want = ANIM_SPECIAL;

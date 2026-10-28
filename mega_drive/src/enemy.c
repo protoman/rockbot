@@ -668,8 +668,10 @@ static void ai_action_init(Enemy *e)
 
 static s16 enemy_step(u8 speed)
 {
-    s16 v = (s16)(((u16)speed * ENEMY_SPEED_NUM) / ENEMY_SPEED_DEN);
-    return v ? v : 1;
+    // speed * 7 / 10 (min 1): a table instead of a DIVU per call
+    static const u8 tab[16] = { 1, 1, 1, 2, 2, 3, 4, 4, 5, 6, 7, 7, 8, 9, 9, 10 };
+    if (speed < 16) return tab[speed];
+    return (s16)(((u16)speed * ENEMY_SPEED_NUM) / ENEMY_SPEED_DEN);
 }
 
 // Move one axis toward dest; TRUE when reached or blocked. The PC runs the
@@ -918,12 +920,19 @@ static s8 ai_reaction_pick(Enemy *e)
     if (!stage_def->enemy_react) return -1;
     const EnemyAi *r = stage_def->enemy_react[e->def_i];
     const EnemyDef *d = e->def;
+    // Most enemies have no reaction at all: skip the distance maths (three
+    // 32-bit multiplies, each a library call on the 68000) for them.
+    if (!(r[REACT_RANGE].action | r[REACT_DEAD].action | r[REACT_HIT].action |
+          r[REACT_SAME_Y].action | r[REACT_SAME_X].action | r[REACT_CLOSE].action)) {
+        e->was_hit = FALSE;
+        return -1;
+    }
     s16 pl, pt, pr, pb;
     player_get_box(&pl, &pt, &pr, &pb);
-    s32 dx = (s32)player.x - e->x;
-    s32 dy = (s32)player.y - e->y;
-    s32 dist2 = dx * dx + dy * dy;
-    s32 range2 = (s32)d->range * d->range;
+    const s16 dx = (s16)(player.x - e->x);
+    const s16 dy = (s16)(player.y - e->y);
+    s32 dist2 = (s32)dx * dx + (s32)dy * dy;           // muls.w: both factors fit 16 bits
+    s32 range2 = (s32)(s16)d->range * (s16)d->range;
     s16 diff_y = (pb) - (e->y + d->box_t + d->box_h);
     if (diff_y < 0) diff_y = -diff_y;
     s16 diff_x = (pl <= e->x)
