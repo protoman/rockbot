@@ -3,6 +3,7 @@
 #include "sfx.h"
 
 #include "stage.h"
+#include "enemy.h"
 #include "effects.h"
 #include "shot.h"
 #include "object.h"
@@ -219,6 +220,7 @@ static void respawn_player(bool invuln)
     player.fire_prev = FALSE;
     s16 sx = SPAWN_X;
     s16 sy = spawn_ground_y(SPAWN_X);
+    if (!cp_active) enemies_reset();   // PC: a death resets the stage maps, killed enemies return
     if (cp_active) {
         // PC game.cpp:395: the checkpoint is the STAGE-wide respawn point, and
         // a death sends the player back to it even from another room (the PC
@@ -230,6 +232,8 @@ static void respawn_player(bool invuln)
             stage_load_in_place = FALSE;
             stage_pending_camera_x = -1;
             stage_load(cp_map);
+        } else {
+            enemies_reset();    // same room: stage_load did not run, bring the killed enemies back
         }
         sx = cp_x;
         sy = lift_out_of_floor(sx, cp_y - PLAYER_BOX_B);
