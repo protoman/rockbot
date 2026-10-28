@@ -106,10 +106,22 @@ extern u8 prof_obj_hot_i;
 extern u16 prof_obj_hot_cost;
 extern u8 prof_obj_hot_type;
 static u16 prof_frames;
+#ifdef MD_PROFILE_ENEMY
+extern u32 enemy_prof[6];
+#endif
+static u32 prof_cur, prof_max, prof_over, prof_frames_n;
 static inline void prof_tick(u8 i)
 {
     const u32 t = getSubTick();
     prof_acc[i] += t - prof_last;
+    if (i != PROF_VBLANK) {
+        prof_cur += t - prof_last;
+    } else {                              // frame ends: did the work fit the 60 Hz budget?
+        if (prof_cur > 1150) prof_over++;
+        if (prof_cur > prof_max) prof_max = prof_cur;
+        prof_cur = 0;
+        prof_frames_n++;
+    }
     prof_last = t;
 }
 static void prof_report(void)
@@ -118,7 +130,7 @@ static void prof_report(void)
     kprintf("PROF map=%d obj=%d npc=%d hot=%d/t%d/%d px=%d py=%d "
             "setup=%lu objupd=%lu plr=%lu hud=%lu "
             "cam=%lu anim=%lu npcs=%lu shot=%lu spr=%lu wait=%lu "
-            "(subticks/frame, 1280 = 60fps)\n",
+            "over=%lu max=%lu (subticks/frame, 1280 = 60fps)\n",
             (int)stage_current_map, (int)objects_live(), (int)enemies_live(),
             (int)prof_obj_hot_i, (int)prof_obj_hot_type,
             (int)prof_obj_hot_cost, (int)player.x, (int)player.y,
@@ -131,7 +143,17 @@ static void prof_report(void)
             (unsigned long)(prof_acc[PROF_ENEMY] / 60),
             (unsigned long)(prof_acc[PROF_SHOT] / 60),
             (unsigned long)(prof_acc[PROF_SPRITE] / 60),
-            (unsigned long)(prof_acc[PROF_VBLANK] / 60));
+            (unsigned long)(prof_acc[PROF_VBLANK] / 60),
+            (unsigned long)prof_over, (unsigned long)prof_max);
+#ifdef MD_PROFILE_ENEMY
+    kprintf("EPROF pre=%lu ai=%lu rest=%lu grav=%lu draw=%lu water=%lu (subticks/frame)\n",
+            (unsigned long)(enemy_prof[4] / 60), (unsigned long)(enemy_prof[5] / 60),
+            (unsigned long)(enemy_prof[0] / 60), (unsigned long)(enemy_prof[1] / 60),
+            (unsigned long)(enemy_prof[2] / 60), (unsigned long)(enemy_prof[3] / 60));
+    for (u8 i = 0; i < 6; i++) enemy_prof[i] = 0;
+#endif
+    prof_over = 0;
+    prof_max = 0;
     for (u8 i = 0; i < PROF_N; i++) prof_acc[i] = 0;
     prof_obj_hot_cost = 0;
     prof_obj_hot_i = 0xFF;
@@ -587,6 +609,15 @@ static RunResult runStage(u8 stage)
             if (player.x == ap_x) ap_stuck++; else ap_stuck = 0;
             ap_x = player.x;
             if (ap_stuck > 30 || (ap_t % 80) < 14) pad |= config_jump_mask();
+#endif
+#ifdef MD_AUTOPILOT_TELEPORT
+            // sample the whole map: every 420 frames drop the player at the next column
+            if ((ap_t % 420) == 1) {
+                static u8 ap_i;
+                static const u8 cols[] = { 8, 24, 40, 56, 72, 88, 104, 120, 136, 152, 168, 184 };
+                player_place((s16)(cols[ap_i % 12] * 16), 0);
+                ap_i++;
+            }
 #endif
             if ((ap_t % 20) == 0) pad |= config_fire_mask();
             if ((ap_t % 30) == 0 && player.hp < 28) player.hp = 28;

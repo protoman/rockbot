@@ -172,8 +172,8 @@ s16 stage_arrival_camera_x(u8 map, s16 focus_x);
 // player's screen X, see stage.c).
 s16 stage_arrival_camera_keep(u8 map, s16 focus_x, s16 screen_x);
 
-// No scroll-locked column between two world X positions (same room).
-bool stage_same_room(s16 x1, s16 x2);
+// Room around world X: nearest scroll-locked tile columns on each side (exclusive).
+void stage_room_span(s16 x, s16 *lo, s16 *hi);
 
 // Boss teleporter (OBJ_STAGE_BOSS_TELEPORTER, PC game::object_teleport_boss
 // game.cpp:2199 with must_return=false): reload dest_map, drop the player on

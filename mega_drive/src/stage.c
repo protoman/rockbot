@@ -261,17 +261,21 @@ static void scroll_lock_span(s16 focus_x)
     }
 }
 
-// TRUE when no scroll-locked column (room wall / closed boss door) lies between
-// the two world X positions: both are in the same room. A room can be narrower
-// than the 320px view, so enemies of the room next door are on screen yet walled
-// off from the player; they must not act (or shoot) across the wall.
-bool stage_same_room(s16 x1, s16 x2)
+// The room around world X `x`: the nearest scroll-locked columns (room walls /
+// closed boss doors) on each side, exclusive bounds in tile columns. A room can
+// be narrower than the 320px view, so enemies of the room next door are on
+// screen yet walled off from the player; they must not act (or shoot) across
+// the wall. Computed once per frame by enemies_update, not per enemy.
+void stage_room_span(s16 x, s16 *lo, s16 *hi)
 {
-    s16 c1 = x1 >> 4, c2 = x2 >> 4;
-    if (c1 > c2) { s16 t = c1; c1 = c2; c2 = t; }
-    for (s16 c = c1 + 1; c < c2; c++)
-        if (column_locked(c)) return FALSE;
-    return TRUE;
+    const s16 col = x >> 4;
+    s16 l = -1, h = (s16)stage_def->map_w;
+    for (s16 c = col - 1; c >= 0; c--)
+        if (column_locked(c)) { l = c; break; }
+    for (s16 c = col + 1; c < h; c++)
+        if (column_locked(c)) { h = c; break; }
+    *lo = l;
+    *hi = h;
 }
 
 // ---- animated tiles + above-player tile3 ------------------------------

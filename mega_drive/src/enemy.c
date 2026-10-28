@@ -166,6 +166,9 @@ typedef struct {
     u8 clinging;      // hanging on the wall after GRAB_WALL (WALK_AIR pose)
     u8 dashing;       // DASH action (SLIDE pose)
     u8 jatk;          // jump attack action (JUMP_ATTACK pose)
+    s8 d_vis, d_flip; // last values sent to the sprite (-1 = unknown): the sprite calls cost ~15 subticks each
+    u8 d_row, d_loop;
+    s16 d_x, d_y;
     s16 move_acc;     // 50Hz movement accumulator (PC AI step throttle)
     u16 respawn_t;    // PC respawn_delay countdown (frames)
     u8 frozen;        // hidden by the DYNAMITE freeze effect
@@ -216,8 +219,12 @@ static bool boss_screen;     // boss visible this frame (gates the HP row)
 // TRUE when any probe of the body at (x, y) stands in water: the centre for a
 // flyer / swimmer, the two feet corners and the centre of the feet line for a
 // walker (SPINNASTER used to wade in up to its centre before being stopped).
+// Rooms without water tiles (most of them) skip every water probe.
+static bool map_has_water;
+
 static bool enemy_in_water(const EnemyDef *d, s16 x, s16 y)
 {
+    if (!map_has_water) return FALSE;
     const s16 cx = x + d->box_l + d->box_w / 2;
     if (d->fly) {
         return stage_terrain_at(stage_current_map, cx >> 4,
@@ -841,6 +848,7 @@ static void enemy_die(Enemy *e)
         // The sub-boss keeps its sprite: PC classmap.cpp:2201 revives it once
         // its body is off screen, so the door it guards never stays free.
         if (e->spr) SPR_setVisibility(e->spr, HIDDEN);
+        if (e->spr) { e->d_vis = -1; e->d_x = 32000; }   // sprite touched outside the draw cache
         const u16 t = d->respawn_delay
                           ? (u16)(((u32)d->respawn_delay * 6) / 100) : 1;
         e->respawn_t = t ? t : 1;
@@ -1553,6 +1561,10 @@ static Enemy *enemy_add(u8 def_i, s16 x, s16 y, s16 x_min, s16 x_max, u8 dir)
     e->moving = 0;
     e->move_acc = 0;
     e->respawn_t = 0;
+    e->d_vis = e->d_flip = -1;
+    e->d_row = 0xFF;
+    e->d_loop = 2;
+    e->d_x = e->d_y = 32000;
     e->drop_done = (d->is_boss == 0);
     e->boss_wait = d->is_boss ? 90 : 0;      // 1500 ms
     e->dropping = 0;
@@ -1568,6 +1580,7 @@ static Enemy *enemy_add(u8 def_i, s16 x, s16 y, s16 x_min, s16 x_max, u8 dir)
     e->alive = (e->spr != NULL);
     if (e->spr) {
         SPR_setVisibility(e->spr, HIDDEN);
+        if (e->spr) { e->d_vis = -1; e->d_x = 32000; }   // sprite touched outside the draw cache
         spr_set_anim(e->spr, d->walk_n > 0 ? 1 : 0);
         SPR_setHFlip(e->spr, e->dir < 0);
     }
@@ -1584,6 +1597,10 @@ void enemies_reset(void)
     boss_i = -1;
     boss_died = FALSE;
     boss_screen = FALSE;
+    map_has_water = FALSE;
+    for (s16 ty = 0; ty < stage_def->map_h && !map_has_water; ty++)
+        for (s16 tx = 0; tx < stage_def->map_w; tx++)
+            if (stage_terrain_at(stage_current_map, tx, ty) == TERRAIN_WATER) { map_has_water = TRUE; break; }
 
     for (u8 i = 0; i < stage_def->enemy_spawn_count && enemy_count < ENEMY_MAX; i++) {
         const EnemySpawn *sp = &stage_def->enemy_spawns[i];
@@ -1591,6 +1608,16 @@ void enemies_reset(void)
         enemy_add(sp->def, sp->x, sp->y, sp->x_min, sp->x_max, sp->dir);
     }
 }
+
+#ifdef MD_PROFILE_ENEMY       // opt-in: the timer reads alone triple the enemy cost
+u32 enemy_prof[6];                 // subticks per phase, printed by main.c
+static u32 ep_last;
+#define EP_BEGIN() (ep_last = getSubTick())
+#define EP_MARK(n) do { const u32 t_ = getSubTick(); enemy_prof[n] += t_ - ep_last; ep_last = t_; } while (0)
+#else
+#define EP_BEGIN() do { } while (0)
+#define EP_MARK(n) do { } while (0)
+#endif
 
 void enemies_update(void)
 {
@@ -1600,10 +1627,13 @@ void enemies_update(void)
     if (freeze_t) freeze_t--;
     const bool freeze_on = (freeze_t != 0);
 
+    s16 room_lo, room_hi;
+    stage_room_span(player.x + 14, &room_lo, &room_hi);
     for (u8 i = 0; i < enemy_count; i++) {
         Enemy *e = &enemies[i];
         const s16 pre_x = e->x;
         const s16 pre_y = e->y;
+        EP_BEGIN();
         if (!e->alive) {
             // PC classmap.cpp:2201: a dead sub-boss only revives while it is
             // off screen (the player must not see it pop back).
@@ -1636,6 +1666,7 @@ void enemies_update(void)
                 e->no_gravity = 0;
                 e->alive = (e->spr != NULL);
                 if (e->spr) SPR_setVisibility(e->spr, VISIBLE);
+                if (e->spr) { e->d_vis = -1; e->d_x = 32000; }   // sprite touched outside the draw cache
             }
             continue;
         }
@@ -1658,13 +1689,16 @@ void enemies_update(void)
                 SPR_setVisibility(e->spr,
                     (fx > -40 && fx < 336 && fy > -40 && fy < 248)
                     ? VISIBLE : HIDDEN);
+                    if (e->spr) { e->d_vis = -1; e->d_x = 32000; }   // sprite touched outside the draw cache
                 SPR_setPosition(e->spr, fx, fy);
+                if (e->spr) { e->d_vis = -1; e->d_x = 32000; }   // sprite touched outside the draw cache
             }
             continue;
         }
         if (e->frozen) {
             e->frozen = 0;
             if (e->spr) SPR_setVisibility(e->spr, VISIBLE);
+            if (e->spr) { e->d_vis = -1; e->d_x = 32000; }   // sprite touched outside the draw cache
         }
 
         // PC map_present_boss: when the stage boss first reaches the screen,
@@ -1694,7 +1728,9 @@ void enemies_update(void)
                     SPR_setVisibility(e->spr,
                         (dsx >= -40 && dsx < 336 && dsy >= -40 && dsy < 248)
                         ? VISIBLE : HIDDEN);
+                        if (e->spr) { e->d_vis = -1; e->d_x = 32000; }   // sprite touched outside the draw cache
                     SPR_setPosition(e->spr, dsx, dsy);
+                    if (e->spr) { e->d_vis = -1; e->d_x = 32000; }   // sprite touched outside the draw cache
                 }
                 boss_screen = FALSE;
                 continue;
@@ -1710,8 +1746,11 @@ void enemies_update(void)
         s16 sy = e->y - camera.y;
         bool vis = (sx >= -40 && sx < 336 && sy >= -40 && sy < 248);
 
-        if (vis && stage_same_room(e->x + d->box_l + d->box_w / 2, player.x + 14)) {
+        const s16 ecol = (s16)((e->x + d->box_l + d->box_w / 2) >> 4);
+        if (vis && ecol > room_lo && ecol < room_hi) {
+            EP_MARK(4);   // pre-AI (visibility, boss drop)
             ai_tick(e);
+            EP_MARK(5);   // the AI state machine
             if (!e->alive) continue;    // AI_REPLACE_NPC removed it
             // boss hit blink (PC shows a white flash via palette; the boss
             // shares PAL0 with the HUD, so blink instead).
@@ -1720,6 +1759,7 @@ void enemies_update(void)
             boss_screen = FALSE;
         }
 
+        EP_MARK(0);   // pre: respawn, drop, visibility
         // ---- gravity (walkers only; AI JUMP manages its own arc) ---------
         if (!d->fly && !e->jumping && !e->no_gravity) {
             if (e->vy < ENEMY_MAX_FALL) e->vy += ENEMY_GRAVITY;
@@ -1751,45 +1791,70 @@ void enemies_update(void)
             if (e->x > e->x_max) { e->x = e->x_max; }
         }
 
+        EP_MARK(1);   // gravity / fall
         // ---- draw ----------------------------------------------------------
+        // Every sprite call is cached against the last value sent: with 14
+        // enemies on screen the unconditional setVisibility / setHFlip /
+        // setAnim / setAnimationLoop / setPosition set cost ~230 subticks/frame.
         if (e->spr) {
-            bool vis2 = (sx >= -40 && sx < 336 && sy >= -40 && sy < 248);
+            s8 vis2 = (sx >= -40 && sx < 336 && sy >= -40 && sy < 248);
             // Boss hit blink (PC shows a white flash via palette; the boss
             // shares PAL0 with the HUD, so blink instead).
             if (e->hurt_timer && ((e->hurt_timer >> 3) & 1)) vis2 = FALSE;
-            SPR_setVisibility(e->spr, vis2 ? VISIBLE : HIDDEN);
-            SPR_setHFlip(e->spr, e->dir < 0);
+            if (vis2 != e->d_vis) {
+                SPR_setVisibility(e->spr, vis2 ? VISIBLE : HIDDEN);
+                e->d_vis = vis2;
+            }
+            const s8 flip = (e->dir < 0);
+            if (flip != e->d_flip) {
+                SPR_setHFlip(e->spr, flip);
+                e->d_flip = flip;
+            }
             // Sheet rows: 0 stand, 1 walk, 2 attack, 3 jump, 4 teleport
             // (PC ANIM_TYPE_*; BUG-011 - teleporting/jumping used to keep
             // the previous row, which is what made the Mummy look like he
             // faced the wrong way while repositioning).
-            SPR_setAnimationLoop(e->spr, TRUE);
+            u8 row = 0xFF, loop = TRUE;
             if (e->turn_t && d->turn_anim != 255)
-                spr_set_anim(e->spr, d->turn_anim);
+                row = d->turn_anim;
             else if (e->dashing && d->slide_anim != 255)
-                spr_set_anim(e->spr, d->slide_anim);
+                row = d->slide_anim;
             else if (d->jatk_anim != 255 && (e->jatk || ((e->jumping || e->leaping) && e->shooting)))
-                spr_set_anim(e->spr, d->jatk_anim);
+                row = d->jatk_anim;
             else if (d->attack_n > 0 && e->shooting) {
                 // The attack plays once and holds its last frame until the
                 // action ends; looping it re-showed the first (stand) frame
                 // whenever the action ran a tick longer than the animation.
-                spr_set_anim(e->spr, 2);
-                SPR_setAnimationLoop(e->spr, e->shooting != 2);
+                row = 2;
+                loop = (e->shooting != 2);
             }
             else if (e->teleporting && d->teleport_anim != 255)
-                spr_set_anim(e->spr, d->teleport_anim);
+                row = d->teleport_anim;
             else if (e->intro_t && d->intro_anim != 255)
-                spr_set_anim(e->spr, d->intro_anim);
+                row = d->intro_anim;
             else if (e->clinging && d->air_anim != 255)
-                spr_set_anim(e->spr, d->air_anim);
+                row = d->air_anim;
             else if ((e->jumping || e->leaping) && d->jump_anim != 255)
-                spr_set_anim(e->spr, d->jump_anim);
+                row = d->jump_anim;
             else if (d->walk_n > 0)
-                spr_set_anim(e->spr, e->moving ? 1 : 0);
-            SPR_setPosition(e->spr, e->x - camera.x, e->y - camera.y);
+                row = e->moving ? 1 : 0;
+            if (loop != e->d_loop) {
+                SPR_setAnimationLoop(e->spr, loop);
+                e->d_loop = loop;
+            }
+            if (row != 0xFF && row != e->d_row) {
+                spr_set_anim(e->spr, row);
+                e->d_row = row;
+            }
+            const s16 spx = e->x - camera.x, spy = e->y - camera.y;
+            if (spx != e->d_x || spy != e->d_y) {
+                SPR_setPosition(e->spr, spx, spy);
+                e->d_x = spx;
+                e->d_y = spy;
+            }
         }
 
+        EP_MARK(2);   // sprite calls
         // PC character.cpp:1921: a non-boss NPC never crosses the water line.
         if ((e->x != pre_x || e->y != pre_y) &&
             !enemy_water_ok(e, pre_x, pre_y, e->x, e->y)) {
@@ -1797,8 +1862,10 @@ void enemies_update(void)
             e->y = pre_y;
             e->moving = 0;
             if (e->spr) SPR_setPosition(e->spr, e->x - camera.x, e->y - camera.y);
+            if (e->spr) { e->d_vis = -1; e->d_x = 32000; }   // sprite touched outside the draw cache
         }
 
+        EP_MARK(3);   // water line
         // ---- contact damage ------------------------------------------------
         if (e->dying) continue;     // already dead, playing the reaction
         s16 el = e->x + d->box_l;
@@ -1824,6 +1891,7 @@ void enemies_set_visible(bool visible)
         const bool show = visible && e->alive &&
                           sx >= -40 && sx < 336 && sy >= -40 && sy < 248;
         SPR_setVisibility(e->spr, show ? VISIBLE : HIDDEN);
+        if (e->spr) { e->d_vis = -1; e->d_x = 32000; }   // sprite touched outside the draw cache
     }
 }
 
@@ -1841,7 +1909,9 @@ void enemies_sync_sprites(void)
         s16 sy = e->y - camera.y;
         SPR_setVisibility(e->spr, (sx >= -40 && sx < 336 &&
                                    sy >= -40 && sy < 248) ? VISIBLE : HIDDEN);
+                                   if (e->spr) { e->d_vis = -1; e->d_x = 32000; }   // sprite touched outside the draw cache
         SPR_setPosition(e->spr, sx, sy);
+        if (e->spr) { e->d_vis = -1; e->d_x = 32000; }   // sprite touched outside the draw cache
     }
 }
 
@@ -1854,7 +1924,9 @@ void enemies_shift_y(s16 dy)
         s16 sy = e->y - camera.y + dy;
         SPR_setVisibility(e->spr, (sx >= -40 && sx < 336 &&
                                    sy >= -40 && sy < 248) ? VISIBLE : HIDDEN);
+                                   if (e->spr) { e->d_vis = -1; e->d_x = 32000; }   // sprite touched outside the draw cache
         SPR_setPosition(e->spr, sx, sy);
+        if (e->spr) { e->d_vis = -1; e->d_x = 32000; }   // sprite touched outside the draw cache
     }
 }
 
