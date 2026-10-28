@@ -3,6 +3,8 @@
 
 #include "stage.h"
 #include "tooltip_data.h"
+#include "transition.h"
+#include "pal_safe.h"
 #include "weapon_data.h"
 
 // The box/icon tiles live in the 12 tiles the sprite pool leaves free at
@@ -31,13 +33,71 @@ static const char *text;
 static u8 weapon;                   // selected weapon, for the icon
 static u8 pending;                  // selected, not drawn yet
 static u8 drawn;                    // box + label are in the plane
-static u8 owns_pal3;                // PAL3 holds the tooltip palette
 static u8 frames;                   // frames left before the redraw
 static u16 pal3_saved[16];
+static u16 pal3_touched;            // PAL3 entries the tooltip wrote (restored at expiry)
+static u8 remap[16];                // tooltip palette index -> PAL3 entry
 
-bool tooltip_owns_pal3(void)
+// The tooltip does NOT take PAL3 over: the parallax is drawn with it, so
+// replacing the line recoloured the background for the whole 1.5 s. Instead the
+// art's colours are fitted into the line: a colour the parallax already has is
+// reused, otherwise it goes into an entry the parallax leaves free, and only
+// when there is none the nearest parallax colour stands in. The 9 box tiles and
+// the 4 icon tiles are remapped to those entries on the way to the VDP; the
+// name is drawn with PAL0 (ink = font white).
+static u16 bg_used_for;             // cache key: map the mask below belongs to
+static const void *bg_used_def;
+static u16 bg_used;                 // PAL3 entries the parallax art uses
+
+static u16 parallax_used_mask(void)
 {
-    return owns_pal3;
+    const u16 key = (u16)(stage_current_map + 1);
+    if (bg_used_def == stage_def && bg_used_for == key) return bg_used;
+    u16 used = 1;
+    if (stage_def->bg_pal[stage_current_map]) {
+        const u32 *t = stage_def->bg_tiles[stage_current_map];
+        const u16 n = (u16)(stage_def->bg_tiles_n[stage_current_map] * 8);
+        for (u16 i = 0; i < n && used != 0xFFFF; i++) {
+            u32 w = t[i];
+            for (u8 k = 0; k < 8; k++, w >>= 4) used |= (u16)(1u << (w & 15));
+        }
+    }
+    bg_used = used;
+    bg_used_for = key;
+    bg_used_def = stage_def;
+    return used;
+}
+
+static u16 art_used_mask(void)
+{
+    u16 used = 0;
+    const u32 *f = tooltip_frame_tiles;
+    for (u16 i = 0; i < TOOLTIP_FRAME_TILE_COUNT * 8; i++) {
+        u32 w = f[i];
+        for (u8 k = 0; k < 8; k++, w >>= 4) used |= (u16)(1u << (w & 15));
+    }
+    const u32 *ic = &tooltip_icon_tiles[weapon * TOOLTIP_ICON_TILES * 8];
+    for (u16 i = 0; i < TOOLTIP_ICON_TILES * 8; i++) {
+        u32 w = ic[i];
+        for (u8 k = 0; k < 8; k++, w >>= 4) used |= (u16)(1u << (w & 15));
+    }
+    return used & ~1u;              // index 0 is transparent
+}
+
+static u16 tooltip_color(u8 idx)
+{
+    if (idx >= TOOLTIP_ICON_PAL_FIRST && idx < TOOLTIP_ICON_PAL_FIRST + TOOLTIP_ICON_PAL_N &&
+        weapon < TOOLTIP_ICON_N)
+        return tooltip_icon_pal[weapon * TOOLTIP_ICON_PAL_N + (idx - TOOLTIP_ICON_PAL_FIRST)];
+    return tooltip_pal_fixed[idx];
+}
+
+static u16 color_dist(u16 a, u16 b)
+{
+    s16 dr = (s16)((a >> 1) & 7) - (s16)((b >> 1) & 7);
+    s16 dg = (s16)((a >> 5) & 7) - (s16)((b >> 5) & 7);
+    s16 db = (s16)((a >> 9) & 7) - (s16)((b >> 9) & 7);
+    return (u16)(dr * dr + dg * dg + db * db);
 }
 
 static void pal3_save(void)
@@ -47,19 +107,66 @@ static void pal3_save(void)
 
 static void pal3_restore(void)
 {
-    PAL_setColors(PAL3_CRAM, pal3_saved, 16, DMA_QUEUE);
+    for (u8 i = 1; i < 15; i++)
+        if (pal3_touched & (1u << i)) pal_color((u16)(PAL3_CRAM + i), pal3_saved[i]);
+    pal3_touched = 0;
 }
 
-static void pal3_load(void)
+static void pal3_fit(void)
 {
-    static u16 pal[16];
-    for (u8 i = 0; i < 16; i++) pal[i] = tooltip_pal_fixed[i];
-    if (weapon < TOOLTIP_ICON_N) {
-        for (u8 i = 0; i < TOOLTIP_ICON_PAL_N; i++)
-            pal[TOOLTIP_ICON_PAL_FIRST + i] =
-                tooltip_icon_pal[weapon * TOOLTIP_ICON_PAL_N + i];
+    const u16 used = parallax_used_mask();
+    const u16 art = art_used_mask();
+    // entries the colourcycle rotates or keeps stable are neither reusable nor free
+    u16 band = 1u << TILE_CYCLE_STABLE;
+    for (u8 i = 0; i < stage_def->cycle_n; i++)
+        band |= (u16)(1u << (stage_def->cycle_base + i));
+    u16 freemask = 0;
+    for (u8 i = 1; i < 15; i++)
+        if (!(used & (1u << i)) && !(band & (1u << i))) freemask |= (u16)(1u << i);
+    const u16 reuse = (u16)(used & ~band & 0x7FFE);
+
+    pal3_touched = 0;
+    for (u8 idx = 1; idx < 16; idx++) {
+        remap[idx] = 1;
+        if (!(art & (1u << idx))) continue;
+        const u16 c = tooltip_color(idx);
+        s8 pick = -1;
+        for (u8 e = 1; e < 15 && pick < 0; e++)
+            if ((reuse & (1u << e)) && pal3_saved[e] == c) pick = (s8)e;
+        if (pick < 0 && freemask) {
+            for (u8 e = 1; e < 15; e++) {
+                if (freemask & (1u << e)) {
+                    pick = (s8)e;
+                    freemask &= (u16)~(1u << e);
+                    pal3_touched |= (u16)(1u << e);
+                    pal_color((u16)(PAL3_CRAM + e), c);
+                    break;
+                }
+            }
+        }
+        if (pick < 0) {                 // nothing free: the nearest parallax colour
+            u16 best = 0xFFFF;
+            for (u8 e = 1; e < 15; e++) {
+                if (!(reuse & (1u << e))) continue;
+                const u16 d = color_dist(pal3_saved[e], c);
+                if (d < best) { best = d; pick = (s8)e; }
+            }
+        }
+        remap[idx] = (u8)((pick < 0) ? 1 : pick);
     }
-    PAL_setPalette(PAL3, pal, DMA_QUEUE);
+}
+
+// Copy `count` tiles through remap[] and put them in VRAM at `tile`.
+static void tiles_load_remapped(const u32 *src, u16 count, u16 tile)
+{
+    u16 bytes;
+    u32 *buf = transition_scratch_tiles(&bytes);     // idle outside a room change
+    for (u16 i = 0; i < count * 8; i++) {
+        u32 w = src[i], o = 0;
+        for (u8 k = 0; k < 8; k++, w >>= 4) o |= (u32)(w & 15 ? remap[w & 15] : 0) << (4 * k);
+        buf[i] = o;
+    }
+    VDP_loadTileData(buf, tile, count, CPU);
 }
 
 // Write one 8x8 cell of the box/icon art at screen cell (col,row). The plane
@@ -107,8 +214,7 @@ static void back_fill_draw(void)
 
 static void box_draw(void)
 {
-    VDP_loadTileData(tooltip_frame_tiles, TOOLTIP_TILE_BASE,
-                     TOOLTIP_FRAME_TILE_COUNT, DMA_QUEUE);
+    tiles_load_remapped(tooltip_frame_tiles, TOOLTIP_FRAME_TILE_COUNT, TOOLTIP_TILE_BASE);
     u16 i = 0;
     for (u8 r = 0; r < TOOLTIP_FRAME_H; r++)
         for (u8 c = 0; c < TOOLTIP_FRAME_W; c++, i++)
@@ -122,8 +228,8 @@ static void box_draw(void)
 static void icon_draw(void)
 {
     if (weapon >= TOOLTIP_ICON_N) return;
-    VDP_loadTileData(&tooltip_icon_tiles[weapon * TOOLTIP_ICON_TILES * 8],
-                     TOOLTIP_ICON_TILE, TOOLTIP_ICON_TILES, DMA_QUEUE);
+    tiles_load_remapped(&tooltip_icon_tiles[weapon * TOOLTIP_ICON_TILES * 8],
+                        TOOLTIP_ICON_TILES, TOOLTIP_ICON_TILE);
     for (u8 r = 0; r < 2; r++)
         for (u8 c = 0; c < 2; c++)
             cell_draw((u16)(TOOLTIP_ICON_TILE + r * 2 + c),
@@ -142,10 +248,7 @@ void tooltip_show(u8 weapon_n)
 
 void tooltip_hide(void)
 {
-    if (owns_pal3) {
-        pal3_restore();
-        owns_pal3 = FALSE;
-    }
+    pal3_restore();
     text = NULL;
     pending = FALSE;
     drawn = FALSE;
@@ -166,15 +269,14 @@ void tooltip_update(void)
         // "MISSION STARTED!". DmaQueue / vblank counters are unchanged by it.
         SYS_doVBlankProcess();
         pal3_save();
-        pal3_load();
-        owns_pal3 = TRUE;
+        pal3_fit();
         box_draw();
         back_fill_draw();   // opaque backing: see back_fill_draw()
         icon_draw();
         // The glyph cells carry palette index 0 as their background, which is
         // the box interior in PAL3, and entry 15 is the ink - drawn with the
         // default PAL0 the name painted black cells over the box.
-        VDP_setTextPalette(PAL3);
+        VDP_setTextPalette(PAL0);   // ink = font white; the cell background is transparent
         VDP_drawTextBG(STAGE_PLANE, text,
                        (u16)((((camera.x >> 3) & 63) + TOOLTIP_TILE_X) & 63),
                        (u16)((((camera.y >> 3) & 31) + TOOLTIP_TILE_Y) & 31));
@@ -189,7 +291,6 @@ void tooltip_update(void)
     // Gone: give PAL3 back and rebuild the plane so the box cells get their
     // map art back. One full redraw per tooltip, never per frame.
     pal3_restore();
-    owns_pal3 = FALSE;
     pending = FALSE;
     drawn = FALSE;
     text = NULL;
