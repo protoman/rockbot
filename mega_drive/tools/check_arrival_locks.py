@@ -36,17 +36,18 @@ def cur(locks, focus, cam):
     return max(0, min(cam, 200*16-320))
 
 def fix(locks, focus, cam):
+    """Mirror of scroll_lock_span() in src/stage.c (applied after every camera change)."""
     cam = max(0, min(cam, 200*16-320))
-    for _ in range(4):
-        old = cam
-        for c in sorted(locks):
-            if focus >= (c << 4) + 8:
-                if cam < (c << 4) + 2 and (c << 4) + 2 <= focus: cam = (c << 4) + 2
-            else:
-                if cam > (c << 4) - 307: cam = (c << 4) - 307
-        cam = max(0, min(cam, 200*16-320))
-        if cam == old: break
-    return cam
+    fc = (focus - 8) >> 4
+    lo, hi = -32000, 32000
+    for c in range(fc, max(fc - 25, -1), -1):
+        if c in locks: lo = (c << 4) + 2; break
+    for c in range(fc + 1, fc + 25):
+        if c in locks: hi = (c << 4) - 307; break
+    if lo > hi: cam = (lo + hi) >> 1
+    elif cam < lo: cam = lo
+    elif cam > hi: cam = hi
+    return max(0, min(cam, 200*16-320))
 
 def truth_ok(locks, focus, cam):
     left = [c for c in locks if focus >= (c << 4) + 8]

@@ -254,28 +254,26 @@ static void scroll_lock_camera(s16 prev_x)
     }
 }
 
+// The one rule every camera placement must satisfy (PC classmap.cpp:459/475,
+// which never lets the view cross a locked column): the camera stays >=
+// (c<<4)+2 for the nearest locked column c on the player's left and <=
+// (c<<4)-307 for the nearest one on his right. It is applied after EVERY camera
+// change (arrival, room slide, follow, respawn), not just where a bug was
+// reported: a camera set by any other path (kept screen X, teleport, boss
+// door) can no longer leave a lock inside the view - tools/check_arrival_locks.py.
+// A room narrower than the view has no camera satisfying both bounds; the
+// camera then centres in the gap so the lock edges show equally.
 static void scroll_lock_span(s16 focus_x)
 {
-    // The camera must stay >= (c<<4)+2 for the nearest locked column c on the
-    // player's left and <= (c<<4)-307 for the nearest one on his right (the
-    // runtime scroll_lock_camera() limits). The old version looked only at the
-    // columns strictly inside the view it started from, so a lock a few pixels
-    // outside it (or one that only became relevant after the first push) let
-    // the arrival camera sit beyond the lock - tools/check_arrival_locks.py.
-    for (u8 pass = 0; pass < 4; pass++) {
-        const s16 old = camera.x;
-        const s16 c0 = (camera.x >> 4) - 2, c1 = ((camera.x + 320) >> 4) + 2;
-        for (s16 c = c0; c <= c1; c++) {
-            if (!column_locked(c)) continue;
-            if (focus_x >= ((s16)c << 4) + 8) {
-                if (camera.x < ((c << 4) + 2) && ((c << 4) + 2) <= focus_x)
-                    camera.x = (c << 4) + 2;
-            } else {
-                if (camera.x > ((c << 4) - 307)) camera.x = (c << 4) - 307;
-            }
-        }
-        if (camera.x == old) break;
-    }
+    const s16 fc = (s16)((focus_x - 8) >> 4);       // last column "left of" the player
+    s16 lo = -32000, hi = 32000;
+    for (s16 c = fc; c >= fc - 24 && c >= 0; c--)
+        if (column_locked(c)) { lo = (s16)((c << 4) + 2); break; }
+    for (s16 c = fc + 1; c <= fc + 24 && c < stage_def->map_w; c++)
+        if (column_locked(c)) { hi = (s16)((c << 4) - 307); break; }
+    if (lo > hi) camera.x = (s16)((lo + hi) >> 1);
+    else if (camera.x < lo) camera.x = lo;
+    else if (camera.x > hi) camera.x = hi;
 }
 
 // The room around world X `x`: the nearest scroll-locked columns (room walls /
@@ -760,6 +758,8 @@ void stage_update_camera(s16 focusX, s16 focusY)
 
     clamp_camera();
     scroll_lock_camera(prev_x);
+    scroll_lock_span(focusX);   // the invariant, whatever moved the camera
+    clamp_camera();
     if (stage_map) MAP_scrollTo(stage_map, camera.x + shake, camera.y);
 
     // Parallax: horizontal scroll derived DIRECTLY from camera.x at
