@@ -62,15 +62,32 @@ u16 stage_layout_anim(u8 map)
 // on every call.
 static const u8 *terrain_cur;
 
+// Terrain lookups are the hottest primitive (hundreds per frame from the
+// player, enemies, shots and objects). The current map's geometry is cached in
+// plain statics and the row offset comes from a table: the 68000 has no fast
+// multiply (the old ty * map_w cost ~70 cycles per call).
+static u16 terr_row_off[32];
+static s16 terr_w, terr_h;
+
+static void stage_terrain_cache(void)
+{
+    terr_w = (s16)stage_def->map_w;
+    terr_h = (s16)stage_def->map_h;
+    for (s16 y = 0; y < 32 && y < terr_h; y++) terr_row_off[y] = (u16)(y * terr_w);
+}
+
 u16 stage_terrain_at(u8 map, s16 tileX, s16 tileY)
 {
+    if (map == stage_current_map && terrain_cur) {
+        if ((u16)tileX >= (u16)terr_w) return TERRAIN_SOLID;
+        if ((u16)tileY >= (u16)terr_h) return TERRAIN_UNBLOCKED;
+        return terrain_cur[terr_row_off[tileY] + tileX];
+    }
     if (map >= stage_def->map_count) return TERRAIN_SOLID;
     if (tileX < 0 || tileX >= stage_def->map_w) return TERRAIN_SOLID;
     if (tileY < 0 || tileY >= stage_def->map_h) return TERRAIN_UNBLOCKED;
-    const u8 *base = (map == stage_current_map && terrain_cur)
-                         ? terrain_cur
-                         : stage_def->terrain
-                               + (u16)map * stage_def->map_w * stage_def->map_h;
+    const u8 *base = stage_def->terrain
+                     + (u16)map * stage_def->map_w * stage_def->map_h;
     return base[tileY * stage_def->map_w + tileX];
 }
 
@@ -266,16 +283,25 @@ static void scroll_lock_span(s16 focus_x)
 // be narrower than the 320px view, so enemies of the room next door are on
 // screen yet walled off from the player; they must not act (or shoot) across
 // the wall. Computed once per frame by enemies_update, not per enemy.
+static u16 room_cache_gen;          // bumped by stage_load: the walls changed
+
 void stage_room_span(s16 x, s16 *lo, s16 *hi)
 {
+    static s16 c_col = -1, c_lo, c_hi;
+    static u16 c_gen = 0xFFFF;
+    const s16 col0 = x >> 4;
+    if (col0 == c_col && c_gen == room_cache_gen) { *lo = c_lo; *hi = c_hi; return; }
+    // Enemies only act within the camera window, so 24 columns each way is
+    // enough (an unbounded scan of a wide room cost a third of a frame).
     const s16 col = x >> 4;
-    s16 l = -1, h = (s16)stage_def->map_w;
-    for (s16 c = col - 1; c >= 0; c--)
+    s16 l = col - 24, h = col + 24;
+    for (s16 c = col - 1; c > l; c--)
         if (column_locked(c)) { l = c; break; }
     for (s16 c = col + 1; c < h; c++)
         if (column_locked(c)) { h = c; break; }
     *lo = l;
     *hi = h;
+    c_col = col0; c_lo = l; c_hi = h; c_gen = room_cache_gen;
 }
 
 // ---- animated tiles + above-player tile3 ------------------------------
@@ -444,10 +470,12 @@ bool stage_map_ready(void)
 
 void stage_load(u8 map_index)
 {
+    room_cache_gen++;
     if (map_index >= stage_def->map_count) map_index = 0;
     stage_current_map = map_index;
     terrain_cur = stage_def->terrain
                   + (u16)map_index * stage_def->map_w * stage_def->map_h;
+    stage_terrain_cache();
 
     bool wasEnabled = VDP_isEnable();
     const bool in_place = stage_load_in_place;

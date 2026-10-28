@@ -94,6 +94,8 @@
 Player player;
 
 static bool air_jump_used;
+static Sprite *flip_spr;            // sprite / flip last sent by the normal pose code
+static s8 flip_sent = -1;
 static u16 freeze_frames;
 static u16 jump_lock;      // PC JUMP_LOCK_DURATION: jump refused (enemy ground quake)      // enemy FREEZE weapon: frames of lost control
 static bool ladder_need_release; // dropped off a ladder: UP/DOWN must be let go before it grabs again
@@ -1151,6 +1153,7 @@ void player_update(u16 pad)
                 ladder_shown = ladder_flip;
                 ladder_frame = stair_frame;
                 SPR_setHFlip(player.spr, ladder_flip);
+                flip_sent = -1;                 // the pose code must re-send its own flip
                 spr_set_anim(player.spr, stair_anim);
                 spr_set_frame(player.spr, stair_frame);
             }
@@ -1628,7 +1631,15 @@ void player_update(u16 pad)
 
     // Flip before setAnim: the VRAM tiles are (re)built on anim changes, so
     // a flip set after a static/single-frame anim switch never reaches VRAM.
-    SPR_setHFlip(player.spr, player.facing < 0);
+    {
+        // only touch the sprite when the facing changed (or the sprite was recreated)
+        const s8 f = (player.facing < 0);
+        if (flip_spr != player.spr || flip_sent != f) {
+            SPR_setHFlip(player.spr, f);
+            flip_spr = player.spr;
+            flip_sent = f;
+        }
+    }
     if (want != current_anim) {
         current_anim = want;
         spr_set_anim(player.spr, want);
