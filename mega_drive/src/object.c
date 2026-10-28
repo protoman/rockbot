@@ -521,7 +521,7 @@ void objects_drop_item(s16 cx, s16 cy, bool subboss)
             } else {
                 if (o->state == 0) sfx_play(SFX_BEAM);
                 if (++o->state > 30) { o->state = 0; o->delay = 90; }
-                else o->delay = 1;                      // 30 ms = a tick every 2nd frame
+                else o->delay = 2;                      // 50 ms = a tick every 3rd frame
             }
             if (++o->anim_t >= 6) { o->anim_t = 0; o->vis_t ^= 1; }   // 100 ms flicker
             const u8 f = (u8)((o->vis_t & 1) * 31 + o->state);
@@ -554,7 +554,7 @@ void objects_drop_item(s16 cx, s16 cy, bool subboss)
                     o->distance = 0;
                     o->delay = 90;                      // DELAY_RAY 1500 ms
                 } else {
-                    o->delay = 1;                       // FRAMETIMER_DEATHRAY 30 ms: every 2nd frame
+                    o->delay = 2;                       // 50 ms: every 3rd frame
                 }
             }
             if (++o->anim_t >= 6) { o->anim_t = 0; o->vis_t ^= 1; }   // 100 ms flicker
@@ -1271,14 +1271,14 @@ void objects_update(void)
                 o->delay--;
             } else if (!o->anim_rev) {                  // growing
                 o->state++;
-                o->delay = 1;                           // 30 ms: every 2nd frame
+                o->delay = 2;                           // 50 ms: every 3rd frame (30 ms was too fast to cross)
                 if (o->state >= limit) { o->anim_rev = 1; o->delay = 90; }
             } else if (o->state == 0) {                 // rested: grow again
                 o->anim_rev = 0;
                 o->delay = 90;
             } else {
                 o->state--;
-                o->delay = 1;
+                o->delay = 2;
             }
             if (++o->anim_t >= 5) {                     // 70 ms flicker (first frame past 70 ms = 5th)
                 o->anim_t = 0;
