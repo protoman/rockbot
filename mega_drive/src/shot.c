@@ -31,6 +31,7 @@ typedef struct {
     u16 age;
     u16 effect_t;
     s8 dir;
+    s8 dir0;            // direction at fire time (SONAR WAVE returns to its origin)
     u8 status;
     bool on;
     bool pierce;        // continues through the target (no shot does today)
@@ -38,6 +39,9 @@ typedef struct {
     u8 weapon;          // weapon that fired it (PC projectile.get_weapon_id)
     bool reflected;     // PC projectile.is_reflected: no more hits
 } Shot;
+
+// game_projectile_list_v3: SONAR WAVE (trajectory ZIGZAG) has hp 3 = reversals before it ends.
+#define SONAR_BOUNCES 3
 
 static Shot shots[SHOT_MAX];
 static u16 spr_seen;   // sprite-engine generation of the handles below
@@ -174,6 +178,7 @@ void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
         s->age = 0;
         s->effect_t = 0;
         s->dir = (s8)dir;
+        s->dir0 = (s8)dir;
         s->status = 0;
         s->on = TRUE;
         s->pierce = FALSE;
@@ -264,6 +269,7 @@ void shot_charge_fire(s16 x, s16 y, s16 dir, u8 level)
     s->age = 0;
     s->effect_t = 0;
     s->dir = (s8)dir;
+    s->dir0 = (s8)dir;
     s->status = 0;
     s->on = TRUE;
     // Only the full charged projectile is permanent on hit; normal weapon
@@ -353,18 +359,23 @@ void shot_update(void)
             }
             break;
         }
-        case TRAJ_ZIGZAG:
+        case TRAJ_ZIGZAG: {
             s->x += s->dx;
             s->y += s->dy;
-            if (shot_solid((s->dx > 0) ? s->x + s->w : s->x, s->y + s->h / 2)) {
-                // PC TRAJECTORY_ZIGZAG (SONAR WAVE): linear until a wall,
-                // then reverse X only. It must not gain a vertical component.
+            // PC TRAJECTORY_ZIGZAG (SONAR WAVE): linear until a wall, then reverse
+            // X only (no vertical component). Each reversal is inc_zigzag_status():
+            // status++ and the wave ends once status > projectile hp. A wave fired
+            // to the right also counts its return to the fire point.
+            bool hit = shot_solid((s->dx > 0) ? s->x + s->w : s->x, s->y + s->h / 2);
+            if (s->dir0 != s->dir && s->dir < 0 && s->x <= s->x0) hit = TRUE;
+            if (hit) {
+                if (++s->status > SONAR_BOUNCES) { shot_kill(s); continue; }
                 s->dx = -s->dx;
                 s->dir = -s->dir;
                 SPR_setHFlip(s->spr, s->dir < 0);
-                s->status++;
             }
             break;
+        }
         case TRAJ_BOMB:
             // TIMED BOMB: stationary fuse, then explosion.
             if (s->age > 60) {

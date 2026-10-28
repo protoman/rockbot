@@ -665,6 +665,7 @@ static RunResult runStage(u8 stage)
                 persist_progress();     // PC leave_stage() saves
                 return RUN_LEFT;
             }
+            shots_reset();              // the shots thrown before the menu are gone
             pad = JOY_readJoypad(JOY_1);
         }
         prev_pad = pad;
