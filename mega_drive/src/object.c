@@ -412,7 +412,7 @@ void objects_reset(void)
         o->door = 0;
         o->door_open = FALSE;
         o->dir = ((d->type == 18 || d->type == 25) && sp->dest_x == 1) ? 1 : -1;   // ray side
-        if (d->type == 25) o->delay = (u8)(((u16)(d->timer > 1000 ? 1000 : d->timer) * 6) / 100);
+        if (d->type == 24 || d->type == 25) o->delay = (u8)(((u16)(d->timer > 1000 ? 1000 : d->timer) * 6) / 100);
         o->anim_rev = 0;                  // fire ray: 0 = growing, 1 = shrinking
         obj_init_cached(o, d);
         o->spr = door_spawn(o) ? NULL
@@ -506,6 +506,24 @@ void objects_drop_item(s16 cx, s16 cy, bool subboss)
         if (d->type == 25 && o->dir < 0) sx -= (s16)(beam_n - 1) * 16;
         bool on_screen = (sx + ((d->type == 25) ? beam_n * 16 : d->w) > 0 && sx < 320 &&
                           sy + d->h > 0 && sy < 224);
+
+        // Vertical lava beam (type 24), PC object.cpp:1099: 30 ticks of 30 ms
+        // (head runs down for the first 15, then the tail follows), then a
+        // 1500 ms rest. The MD cannot afford the per-tile sliding art, so the
+        // beam shows for the whole run; it only kills while the head extends
+        // (the PC's second half tests a strip at the top of the map).
+        if (d->type == 24) {
+            if (!on_screen) {
+                o->delay = (u8)(((u16)(d->timer > 1000 ? 1000 : d->timer) * 6) / 100);
+            } else if (o->delay) {
+                o->delay--;
+            } else {
+                if (o->state == 0) sfx_play(SFX_BEAM);
+                if (++o->state > 30) { o->state = 0; o->delay = 90; }
+                else o->delay = 2;
+            }
+            o->visible = (o->state != 0);
+        }
 
         // Small horizontal lava beam (type 25), PC object.cpp:1117: after its
         // start delay the beam grows one tile per 30 ms to the first wall (or
@@ -1267,15 +1285,6 @@ void objects_update(void)
                 if (o->spr) spr_set_frame(o->spr, f);
             }
         }
-        // Lava beam (vertical, 24): still the old blink (visible 90 frames, hidden 90).
-        if (d->type == 24) {
-            if (++o->vis_t >= 90) {
-                o->vis_t = 0;
-                o->visible = !o->visible;
-                if (o->visible) sfx_play(SFX_BEAM);   // PC object.cpp:1102
-            }
-        }
-
         // ---- screen visibility -------------------------------------------
         s16 sx = o->x - camera.x;
         s16 sy = o->y - camera.y;
@@ -1428,6 +1437,10 @@ void objects_update(void)
             const s16 rh = (s16)o->state * 16;
             touch = rh > 0 && pl < o->x + d->w && pr > o->x &&
                     pt < o->y && pb > o->y - rh;
+        } else if (d->type == 24) {
+            const s16 rh = (o->state <= 15) ? (s16)o->state * 16 : 0;
+            touch = o->state != 0 && o->state <= 15 && pl <= o->x + 8 + (d->w - 16) &&
+                    pr >= o->x + 8 && pt <= o->y + rh && pb >= o->y;
         } else if (d->type == 25) {
             // PC get_position/get_size: a zero-height line at y+8, `distance`
             // tiles long, tested with INCLUSIVE edges; deadly while state != 0.
@@ -1519,7 +1532,7 @@ void objects_update(void)
             }
             if (d->type == 18 || d->type == 19 || d->type == 24 ||
                 d->type == 25) {
-                if (d->type == 25) player_take_damage(255);      // PC damage(999)
+                if (d->type >= 24) player_take_damage(255);      // PC damage(999)
                 else if (o->visible) player_take_damage(4);      // TOUCH_DAMAGE_BIG
                 continue;
             }
