@@ -111,6 +111,8 @@ void castle_path_run(u8 idx)
     ovl_cells = MEM_alloc(CELLS_W * CELLS_H * sizeof(u16));
     slot_of = MEM_alloc(CELLS_W * CELLS_H);
     if (!ovl_tiles || !ovl_cells || !slot_of) {         // no heap: the castle shows without its path
+        kprintf("castle_path: out of heap (free=%u largest=%u)\n",
+                (unsigned)MEM_getFree(), (unsigned)MEM_getLargestFreeBlock());
         if (ovl_tiles) MEM_free(ovl_tiles);
         if (ovl_cells) MEM_free(ovl_cells);
         if (slot_of) MEM_free(slot_of);

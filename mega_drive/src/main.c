@@ -1250,7 +1250,7 @@ int main(bool hardReset)
     save_init();
     config_init();
 #if defined(MD_NO_AUDIO) || defined(MD_PROFILE) || defined(MD_TEST_STAGE) || \
-    defined(MD_LINK_TRACE)
+    defined(MD_LINK_TRACE) || defined(MD_TEST_CASTLE)
     config_force_silent();      // see config.c: silent test builds
 #endif
     stage_set_data(0);   // valid stage_def before anything reads it
@@ -1275,6 +1275,19 @@ int main(bool hardReset)
     current_player = 0;
     player_new_game();
     playSession((u8)MD_TEST_STAGE);
+#endif
+
+#ifdef MD_TEST_CASTLE
+    // Test build: the castle intro (stage MD_TEST_CASTLE, 9 = first castle stage).
+    current_save_slot = 0;
+    current_player = 0;
+    player_new_game();
+    stage_set_data((u8)MD_TEST_CASTLE);
+    kprintf("castle test: heap free=%u largest=%u\n", (unsigned)MEM_getFree(),
+            (unsigned)MEM_getLargestFreeBlock());
+    boss_intro_run((u8)MD_TEST_CASTLE);
+    kprintf("castle test: done\n");
+    for (;;) SYS_doVBlankProcess();
 #endif
 
 #ifdef MD_MINIMAL
