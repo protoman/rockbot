@@ -11,6 +11,8 @@
 #include "stage.h"
 #include "ssel_data.h"
 #include "credits_data.h"
+#include "parade_data.h"
+#include "starfield_data.h"
 #include "end_l1_tiles.h"
 #include "end_l1_map.h"
 #include "end_l2_tiles.h"
@@ -178,6 +180,20 @@ static void boss_parade(void)
     PAL_setPalette(PAL0, pal_ui.data, DMA_QUEUE);
     SYS_doVBlankProcess();
 
+    // PC show_enemies_ending: every enemy of the game list that is not a stage
+    // boss, 3 s each (sprite + name), before the bosses.
+    for (u8 i = 0; i < PARADE_COUNT; i++) {
+        const ParadeEnemy *pe = &parade_enemies[i];
+        Sprite *spr = SPR_addSprite(pe->spr, 160 - pe->w / 2, 104 - pe->h / 2,
+                                    TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
+        if (spr) spr_set_anim(spr, 0);
+        VDP_fillTileMapRect(BG_A, BLANK_TILE, 0, 0, 64, 32);
+        center_text(pe->name, 21);
+        wait_frames(180);
+        if (spr) SPR_releaseSprite(spr);
+        SPR_update();
+    }
+
     for (u8 stage = 0; stage < STAGE_DEFINED_COUNT; stage++) {
         stage_set_data(stage);
 
@@ -246,6 +262,10 @@ static void credits_set_palettes(void)
     for (u8 p = 0; p < 4; p++) {
         for (u8 i = 0; i < 16; i++) pal[i] = ink[p];
         pal[0] = 0;
+        // PAL3 also carries the star colours (entries 1..): the stars live on
+        // BG_B, the text only uses entry 15.
+        if (p == 3)
+            for (u8 i = 0; i < STARFIELD_COLORS; i++) pal[1 + i] = starfield_pal[i];
         PAL_setPalette(p, pal, DMA_QUEUE);
     }
     SYS_doVBlankProcess();
@@ -272,13 +292,47 @@ static void credits_put_row(s16 r)
     VDP_setTextPalette(PAL0);
 }
 
+#define STAR_BASE TILE_USER_INDEX
+
+// One frame of the credits screen: the text plane (BG_A) at the credits scroll
+// `s`, the two star layers on BG_B in alternating 16 px bands at the PC speeds
+// (star_field1 0.5 px and star_field2 3.5 px per 50 ms, both moving down).
+static void credits_frame(s16 s, u32 f)
+{
+    static s16 va[20], vb[20];
+    const s16 s1 = (s16)((f / 6) & 255);          // 1/6 px per frame
+    const s16 s2 = (s16)(((f * 7) / 6) & 255);    // 7/6 px per frame
+    for (u8 i = 0; i < 20; i++) {
+        va[i] = s;
+        vb[i] = (i & 1) ? (s16)-s2 : (s16)-s1;    // negative = the plane moves down
+    }
+    VDP_setVerticalScrollTile(BG_A, 0, va, 20, DMA_QUEUE);
+    VDP_setVerticalScrollTile(BG_B, 0, vb, 20, DMA_QUEUE);
+    SPR_update();
+    SYS_doVBlankProcess();
+    VDP_setReg(17, 0);
+    VDP_setReg(18, 0);
+}
+
 static void credits_scroll(bool new_characters)
 {
     music_play(MUSIC_END_CREDITS);
     black_screen();
+    VDP_setScrollingMode(HSCROLL_PLANE, VSCROLL_COLUMN);
     // PAL0 holds the walking-parade palette at this point; the text palettes
     // are written through the DMA queue and flushed before drawing.
     credits_set_palettes();
+
+    VDP_loadTileData(starfield_tiles, STAR_BASE, STARFIELD_TILES, DMA);
+    {
+        u16 row[40];
+        for (u16 y = 0; y < 32; y++) {
+            for (u16 x = 0; x < 40; x++)
+                row[x] = TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE,
+                                        STAR_BASE + starfield_map[y * 40 + x]);
+            VDP_setTileMapDataRow(BG_B, row, y, 0, 40, CPU);
+        }
+    }
 
     for (s16 r = 0; r < 32; r++) credits_put_row(r);
 
@@ -286,18 +340,14 @@ static void credits_scroll(bool new_characters)
     const s16 last_row = (s16)(CREDITS_FIRST_ROW + 2 * (CREDITS_LINES - 1));
     const s16 end_s = (s16)(((last_row * 8 - 104) + 7) & ~7);
 
+    u32 f = 0;
     for (s16 s = 0; s <= end_s; s++) {
         if ((s & 7) == 0 && s > 0) credits_put_row((s16)((s >> 3) + 31));
-        VDP_setVerticalScroll(BG_A, s);
-        for (u8 t = 0; t < CREDITS_TICK_FRAMES; t++) {
-            SPR_update();
-            SYS_doVBlankProcess();
-            VDP_setReg(17, 0);
-            VDP_setReg(18, 0);
-        }
+        for (u8 t = 0; t < CREDITS_TICK_FRAMES; t++) credits_frame(s, f++);
     }
 
-    // Frozen: the static messages go on the rows currently on screen.
+    // Frozen: the static messages go on the rows currently on screen, the stars
+    // keep falling (PC keeps showing both until the player continues).
     const s16 top = (s16)(end_s >> 3);
     if (new_characters) {
         const char *w = "NEW CHARACTERS AVAILABLE";
@@ -312,14 +362,11 @@ static void credits_scroll(bool new_characters)
         VDP_drawText(c, (40 - strlen(c)) / 2, ring);
     }
     // PC waits for JUMP; accept any face button or START here.
-    wait_frames(30);
+    for (u8 i = 0; i < 30; i++) credits_frame(end_s, f++);
     while (!(JOY_readJoypad(JOY_1) & (BUTTON_START | BUTTON_A | BUTTON_B |
-                                      BUTTON_C))) {
-        SPR_update();
-        SYS_doVBlankProcess();
-        VDP_setReg(17, 0);
-        VDP_setReg(18, 0);
-    }
+                                      BUTTON_C)))
+        credits_frame(end_s, f++);
+    VDP_setScrollingMode(HSCROLL_PLANE, VSCROLL_PLANE);
 }
 
 void ending_run(bool new_characters)

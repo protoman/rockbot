@@ -186,6 +186,11 @@ def build_steps():
                          ("credits", "convert_credits.py"), ("player", "convert_player.py"),
                          ("save_icons", "convert_save_icons.py")):
         add(name, ["tools/" + script], common(script) + img + shared)
+    add("starfield", ["tools/convert_starfield.py"],
+        common("convert_starfield.py") + [PCIMG + "/star_field1.png", PCIMG + "/star_field2.png"])
+    add("parade", ["tools/convert_parade.py"],
+        common("convert_parade.py", "convert_enemies.py") + img + shared +
+        [DATA + "/game_enemy_list_3_1_2.dat", DATA + "/stages_v301.dat"])
     tiles = [("gotbg", IMAGES + "/shared/config_bg.png", ["--crop-h", "224"]),
              ("dlg_panel", IMAGES + "/backgrounds/dialog.png", []),
              ("boss_intro_bg", IMAGES + "/backgrounds/boss_intro/boss_intro_bg.png", ["--crop-h", "224"]),

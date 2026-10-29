@@ -173,11 +173,23 @@ static bool text_play(u8 rec)
         if (x + len > max_x) max_x = x + len;
     }
 
-    // PC clears the text area black before typing.
+    // PC clears the text area black before typing. The area has to cover what
+    // the PREVIOUS page drew as well: its lines can be wider or sit on other
+    // rows than this page's, and only clearing this page's rectangle left
+    // stray letters at the edges (clear_text_001/002.png).
+    static u8 prev_x0 = 40, prev_x1 = 0, prev_y0 = 0, prev_y1 = 0;
+    u8 cx0 = min_x, cx1 = max_x, cy0 = yt, cy1 = (u8)(yt + rows);
+    if (prev_x1 > prev_x0) {
+        if (prev_x0 < cx0) cx0 = prev_x0;
+        if (prev_x1 > cx1) cx1 = prev_x1;
+        if (prev_y0 < cy0) cy0 = prev_y0;
+        if (prev_y1 > cy1) cy1 = prev_y1;
+    }
     VDP_fillTileMapRect(BG_A,
                         TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE,
                                        SCENE_BLACK_TILE),
-                        min_x, yt, max_x - min_x, rows);
+                        cx0, cy0, cx1 - cx0, cy1 - cy0);
+    prev_x0 = min_x; prev_x1 = max_x; prev_y0 = yt; prev_y1 = (u8)(yt + rows);
 
     for (u8 i = 0; i < SCENE_TEXT_LINES; i++) {
         const char *line = lines[i];
