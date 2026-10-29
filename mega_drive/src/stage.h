@@ -193,6 +193,7 @@ bool stage_link_band_hit(s16 left, s16 top, s16 right, s16 bottom);
 // same place relative to the destination band (PC game.cpp:762).
 extern s16 stage_link_band_off;
 extern u8 stage_link_type;       // PC LINK_TYPES of the link that just fired
+extern u8 stage_link_size;       // band width (tiles) of the link that just fired
 
 bool stage_check_link(s16 left, s16 top, s16 right, s16 bottom,
                       u8 *to_map, s16 *to_x, s16 *to_y, u8 *to_trans);

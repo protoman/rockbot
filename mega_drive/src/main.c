@@ -742,6 +742,13 @@ static RunResult runStage(u8 stage)
                         for (s16 sgn = -1; sgn <= 1; sgn += 2) {
                             const s16 c = (s16)(bases[bi] + (d ? d * sgn : 0));
                             if (c < 0 || c >= stage_def->map_w) continue;
+                            // Only a ladder inside the link's own destination
+                            // columns: CASTLE 4 link 6 (dst col 108, size 2)
+                            // captured the ladder at col 111, which is link
+                            // 10's mouth, and left through it.
+                            if (c < dst_tx - 2 ||
+                                c > dst_tx + (stage_link_size ? stage_link_size : 1))
+                                continue;
                             if (stage_terrain_at(to_map, c, row0) == TERRAIN_STAIR ||
                                 stage_terrain_at(to_map, c, row0 + 1) == TERRAIN_STAIR) {
                                 stair_col = c;
