@@ -1296,6 +1296,7 @@ static bool ai_action_run(Enemy *e)
         // `player.y - 16`, which put GAMBIT inside the floor and dropped it
         // through the ground after two shots (report 2026-10-24).
         if (e->act_t == 1) {
+            const s16 from_x = e->x;
             switch ((s8)st->param) {
             case AI_TELEPORT_LEFT:
                 e->x = ai_first_wall_x(e, -1, 0);
@@ -1324,6 +1325,20 @@ static bool ai_action_run(Enemy *e)
             }
             if (e->x < e->x_min) e->x = e->x_min;
             if (e->x > e->x_max) e->x = e->x_max;
+            // Never land inside a solid map object (the closed boss door) or a
+            // wall: walk the destination back toward where the NPC stood
+            // (boss_stuck_door.png: DESTRIN SHIP reappeared inside the door).
+            while (e->x != from_x &&
+                   (objects_block_box(e->x + d->box_l, e->y + d->box_t,
+                                      e->x + d->box_l + d->box_w,
+                                      e->y + d->box_t + d->box_h) ||
+                    box_hits_solid(e->x + d->box_l, e->y + d->box_t,
+                                   e->x + d->box_l + d->box_w,
+                                   e->y + d->box_t + d->box_h))) {
+                const s16 dxs = (from_x > e->x) ? 4 : -4;
+                e->x = ((dxs > 0 && e->x + dxs > from_x) || (dxs < 0 && e->x + dxs < from_x))
+                           ? from_x : (s16)(e->x + dxs);
+            }
             // PC teleport lands facing the player; without this the boss kept
             // the old facing after reappearing behind the player (BUG-010).
             e->dir = (player.x >= e->x) ? 1 : -1;
