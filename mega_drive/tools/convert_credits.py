@@ -1,12 +1,53 @@
 #!/usr/bin/env python3
-"""PC game_credits.txt -> src/credits_data.c/h for the ending scroll."""
+"""PC game_credits.txt + the engine credits (fio_strings.cpp, English) ->
+src/credits_data.c/h for the ending scroll: the PC list is game credits, 6 blank
+lines, engine credits (ends with PRESENTED BY / UPPERLAND STUDIOS)."""
 import os
+import re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
 SRC = os.path.join(ROOT, "data/games/RockDroid1/game_credits.txt")
 OUT = os.path.join(ROOT, "src")
+FIO = os.path.join(ROCKBOT, "file/fio_strings.cpp")
+
+
+def engine_credits():
+    """draw::create_engine_credits_text() tail: fio_strings::get_game_engine_credits
+    transcribed from the C++ (English strings, English branch of the language if)."""
+    src = open(FIO, encoding="utf-8", errors="replace").read().splitlines()
+    eng = {}
+    start = next(i for i, l in enumerate(src) if '"GAME ENGINE CREDITS"' in l)
+    for l in src[start - 2:start + 20]:
+        m = re.search(r"lines\[(strings_game_engine_credits_\w+)\].*?\"%s\", \"(.*?)\"\);", l)
+        if m:
+            eng[m.group(1)] = m.group(2)
+    a = next(i for i, l in enumerate(src) if "fio_strings::get_game_engine_credits" in l)
+    out, loop_n, skip = [], 0, False
+    for l in src[a:]:
+        if "return credits_list;" in l:
+            break
+        if "LANGUAGE_PORTUGUESE" in l:
+            skip = True
+            continue
+        if skip:
+            if "} else {" in l:
+                skip = False
+            continue
+        m = re.search(r"for \(int i=0; i<(\d+);", l)
+        if m:
+            loop_n = int(m.group(1))
+            continue
+        m = re.search(r"push_back\(\"- \" \+ .*?\((strings_game_engine_credits_\w+)\) \+ \" -\"\)", l)
+        if m:
+            out.append("- " + eng[m.group(1)] + " -")
+            continue
+        m = re.search(r'push_back\("(.*)"\);', l)
+        if m:
+            out.extend([m.group(1)] * (loop_n or 1))
+            loop_n = 0
+    return out
 
 
 def esc(s):
@@ -17,11 +58,11 @@ def main():
     lines = []
     for line in open(SRC, encoding="latin1"):
         line = line.rstrip("\r\n")
-        if line.startswith("#"):
-            continue
         if len(line) > 38:
             line = line[:38]
         lines.append(line)
+    lines.extend([""] * 6)
+    lines.extend(l[:38] for l in engine_credits())
     with open(os.path.join(OUT, "credits_data.h"), "w") as f:
         f.write("#ifndef CREDITS_DATA_H\n#define CREDITS_DATA_H\n\n"
                 "#include <genesis.h>\n\n"

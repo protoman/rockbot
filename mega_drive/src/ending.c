@@ -200,40 +200,103 @@ static void boss_parade(void)
     }
 }
 
-// The PC scrolls the credits 1 px per 50ms through the text list. On the MD
-// that means rewriting the 28 visible rows every step, which is what the old
-// port did and it corrupted the plane while scrolling. Paged instead: a fixed
-// page of lines, a readable hold, next page. Same information, stable screen.
-#define CREDITS_ROWS_PER_PAGE 26
-#define CREDITS_PAGE_FRAMES 600      // 10s per page (PC: ~30s for the full list)
+// PC draw::show_credits_text: the list scrolls up 1 px per 50 ms until the last
+// two lines ("PRESENTED BY" / "UPPERLAND STUDIOS") sit mid-screen, which then
+// stay while "NEW CHARACTERS AVAILABLE" (first completion only) and "PRESS A TO
+// CONTINUE" are shown. The MD scrolls BG_A with the vertical scroll register
+// over a 32-row ring: a line every 16 px (the PC uses 12), one new tile row
+// written per 8 px scrolled. Colours as the PC: "# " red, "- " blue, "@" mint.
+#define CREDITS_FIRST_ROW 28            // world row of the first line (just below the screen)
+#define CREDITS_TICK_FRAMES 2           // 1 px per 2 frames (PC: 1 px per 50 ms)
 
-static void credits_scroll(void)
+// TRUE when `line` contains the two-character marker `m` (PC std::string::find).
+static bool has_marker(const char *line, const char *m)
+{
+    for (; line[0] && line[1]; line++)
+        if (line[0] == m[0] && line[1] == m[1]) return TRUE;
+    return FALSE;
+}
+
+static u16 credits_ink(u16 r, u16 g, u16 b)
+{
+    return RGB24_TO_VDPCOLOR(((u32)r << 16) | ((u32)g << 8) | b);
+}
+
+static void credits_set_palettes(void)
+{
+    static u16 pal[16];
+    const u16 ink[4] = { credits_ink(250, 250, 250), credits_ink(102, 255, 181),
+                         credits_ink(249, 98, 98), credits_ink(95, 151, 255) };
+    for (u8 p = 0; p < 4; p++) {
+        for (u8 i = 0; i < 16; i++) pal[i] = ink[p];
+        pal[0] = 0;
+        PAL_setPalette(p, pal, DMA_QUEUE);
+    }
+    SYS_doVBlankProcess();
+}
+
+// World row r of the credits (text lines on even rows from CREDITS_FIRST_ROW)
+// into the ring row r % 32.
+static void credits_put_row(s16 r)
+{
+    const u16 ring = (u16)(r & 31);
+    VDP_fillTileMapRect(BG_A, BLANK_TILE, 0, ring, 64, 1);
+    const s16 k = (s16)(r - CREDITS_FIRST_ROW);
+    if (k < 0 || (k & 1) || (k >> 1) >= CREDITS_LINES) return;
+    const char *line = credits_lines[k >> 1];
+    u8 pal = 0;
+    if (line[0] == '@') { pal = 1; line++; }
+    else if (has_marker(line, "# ")) pal = 2;
+    else if (has_marker(line, "- ")) pal = 3;
+    if (!line[0]) return;
+    VDP_setTextPalette(pal);
+    u16 len = (u16)strlen(line);
+    if (len > 40) len = 40;
+    VDP_drawText(line, (40 - len) / 2, ring);
+    VDP_setTextPalette(PAL0);
+}
+
+static void credits_scroll(bool new_characters)
 {
     music_play(MUSIC_END_CREDITS);
     black_screen();
-    // PAL0 holds the walking-parade palette at this point; a CPU CRAM write
-    // outside vblank is illegal and corrupts the font colours (the "garbled
-    // credits" screen), so flush a vblank first and let the write land.
-    PAL_setPalette(PAL0, pal_ui.data, DMA_QUEUE);
-    SYS_doVBlankProcess();
+    // PAL0 holds the walking-parade palette at this point; the text palettes
+    // are written through the DMA queue and flushed before drawing.
+    credits_set_palettes();
 
-    u16 top = 0;
-    while (top < CREDITS_LINES) {
-        black_screen();
-        for (u16 row = 0; row < CREDITS_ROWS_PER_PAGE; row++) {
-            u16 i = (u16)(top + row);
-            if (i < CREDITS_LINES && credits_lines[i][0])
-                center_text(credits_lines[i], (u16)(row + 1));
+    for (s16 r = 0; r < 32; r++) credits_put_row(r);
+
+    // The last line ends mid-screen (PC: posY + 12 * i = 100 for the final line).
+    const s16 last_row = (s16)(CREDITS_FIRST_ROW + 2 * (CREDITS_LINES - 1));
+    const s16 end_s = (s16)(((last_row * 8 - 104) + 7) & ~7);
+
+    for (s16 s = 0; s <= end_s; s++) {
+        if ((s & 7) == 0 && s > 0) credits_put_row((s16)((s >> 3) + 31));
+        VDP_setVerticalScroll(BG_A, s);
+        for (u8 t = 0; t < CREDITS_TICK_FRAMES; t++) {
+            SPR_update();
+            SYS_doVBlankProcess();
+            VDP_setReg(17, 0);
+            VDP_setReg(18, 0);
         }
-        // Pages advance on their own (the PC scrolls on a timer); only the
-        // last page waits for the player.
-        wait_frames(CREDITS_PAGE_FRAMES);
-        top = (u16)(top + CREDITS_ROWS_PER_PAGE);
     }
 
-    // Final page: keep it and wait for the player like the PC does
-    // (draw::show_credits with can_leave == false waits for JUMP).
-    wait_frames(120);
+    // Frozen: the static messages go on the rows currently on screen.
+    const s16 top = (s16)(end_s >> 3);
+    if (new_characters) {
+        const char *w = "NEW CHARACTERS AVAILABLE";
+        const u16 ring = (u16)((top + 24) & 31);
+        VDP_fillTileMapRect(BG_A, BLANK_TILE, 0, ring, 64, 1);
+        VDP_drawText(w, (40 - strlen(w)) / 2, ring);
+    }
+    {
+        const char *c = "PRESS A TO CONTINUE";
+        const u16 ring = (u16)((top + 26) & 31);
+        VDP_fillTileMapRect(BG_A, BLANK_TILE, 0, ring, 64, 1);
+        VDP_drawText(c, (40 - strlen(c)) / 2, ring);
+    }
+    // PC waits for JUMP; accept any face button or START here.
+    wait_frames(30);
     while (!(JOY_readJoypad(JOY_1) & (BUTTON_START | BUTTON_A | BUTTON_B |
                                       BUTTON_C))) {
         SPR_update();
@@ -243,11 +306,11 @@ static void credits_scroll(void)
     }
 }
 
-void ending_run(void)
+void ending_run(bool new_characters)
 {
     walking_parade();
     boss_parade();
-    credits_scroll();
+    credits_scroll(new_characters);
 
     sprites_end();
     black_screen();
@@ -257,7 +320,7 @@ void ending_credits_run(void)
 {
     sprites_end();
     sprites_begin(SPRITE_VRAM_TILES);
-    credits_scroll();
+    credits_scroll(FALSE);
     sprites_end();
     black_screen();
 }

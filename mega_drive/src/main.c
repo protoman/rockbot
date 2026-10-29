@@ -1009,11 +1009,12 @@ static RunResult runStage(u8 stage)
         if (stage == 13) {
             // PC game::show_ending: game_config.game_finished unlocks players
             // 3/4 in the selection screen.
+            const bool first_finish = !config.game_finished;
             config.game_finished = 1;
             config_save();
             music_play(MUSIC_END_ANIMATION);
             scene_play((u8)(2 + (current_player & 3)));
-            ending_run();
+            ending_run(first_finish);
         }
         return RUN_CLEARED;
     }
