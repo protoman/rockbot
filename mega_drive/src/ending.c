@@ -15,6 +15,7 @@
 #include "parade_data.h"
 #include "tdump.h"
 #include "walkdiag.h"
+#include "pal_safe.h"
 #include "starfield_data.h"
 #include "boss_intro_bg_tiles.h"
 #include "boss_intro_bg_map.h"
@@ -102,8 +103,31 @@ static void layer_upload(u16 plane, const u16 *map, u16 w, u16 h,
 }
 
 // The walking scene's tiles and palettes, queued for the next vblank flush.
+#ifdef MD_WALK_DIAG
+// Source/length/destination of each transfer about to be queued (the queue itself
+// is private to SGDK): a source in RAM, a length of 0 or a transfer that crosses a
+// 128 KB ROM bank would explain a flush that lands nothing.
+static void wd_q(const char *what, const void *src, u16 bytes, u16 dst)
+{
+    const u32 a = (u32)src;
+    dbg_print("Q %s: src=%06X len=%u dst=%04X bank_cross=%u\n", what, (unsigned)a,
+              (unsigned)bytes, (unsigned)dst,
+              (unsigned)(((a & 0x1FFFF) + bytes) > 0x20000));
+}
+#define WD_Q(what, src, bytes, dst) wd_q(what, src, bytes, dst)
+#else
+#define WD_Q(what, src, bytes, dst) ((void)0)
+#endif
+
 static void walking_gfx_queue(void)
 {
+    WD_Q("tiles L3", end_l3_tiles_data, END_L3_TILE_COUNT * 32, END_BASE3 * 32);
+    WD_Q("tiles L2", end_l2_tiles_data, END_L2_TILE_COUNT * 32, END_BASE2 * 32);
+    WD_Q("tiles L1", end_l1_tiles_data, END_L1_TILE_COUNT * 32, END_BASE1 * 32);
+    WD_Q("pal L3", end_l3_pal.data, 32, END_PAL3 * 32);
+    WD_Q("pal L2", end_l2_pal.data, 32, END_PAL2 * 32);
+    WD_Q("pal L1", end_l1_pal.data, 32, END_PAL1 * 32);
+    WD_Q("pal player", player_palette_def()->data, 32, PAL2 * 32);
     VDP_loadTileData(end_l3_tiles_data, END_BASE3, END_L3_TILE_COUNT, DMA_QUEUE);
     VDP_loadTileData(end_l2_tiles_data, END_BASE2, END_L2_TILE_COUNT, DMA_QUEUE);
     VDP_loadTileData(end_l1_tiles_data, END_BASE1, END_L1_TILE_COUNT, DMA_QUEUE);
@@ -176,6 +200,63 @@ static void walk_verify(const char *tag)
 #define WALK_VERIFY(tag) ((void)0)
 #endif
 
+#ifdef MD_WALK_DIAG
+// BUG-045: both glitching boots showed the queued DMA flush taking 17 vblanks and
+// landing nothing (tiles/palettes unchanged), while CPU map writes verified fine.
+// Try each way of getting the same data into VRAM/CRAM in one boot and verify after
+// each, so the log says which ones work here.
+static void walk_dma_experiments(void)
+{
+    vu16 *ctrl = (vu16 *)VDP_CTRL_PORT;
+    VDP_waitVBlank(TRUE);
+    u32 t0 = vtimer;
+    u16 vc0 = GET_VCOUNTER;
+    const u32 stA0 = getSubTick();
+    const u16 busA0 = Z80_isBusTaken();
+    DMA_flushQueue();                       // A: the same flush SYS_doVBlankProcess does
+    dbg_print("EXP A subticks=%u bus %u->%u\n", (unsigned)(getSubTick() - stA0),
+              (unsigned)busA0, (unsigned)Z80_isBusTaken());
+    dbg_print("EXP A manual flush: dv=%u vc %u->%u status=%04X\n",
+              (unsigned)((u32)vtimer - t0), vc0, (unsigned)GET_VCOUNTER, (unsigned)*ctrl);
+    walk_verify("EXP A");
+
+    t0 = vtimer;                            // B: immediate DMA (tiles L3 + PAL0)
+    VDP_loadTileData(end_l3_tiles_data, END_BASE3, END_L3_TILE_COUNT, DMA);
+    PAL_setPalette(END_PAL3, end_l3_pal.data, DMA);
+    dbg_print("EXP B immediate DMA: dv=%u status=%04X\n", (unsigned)((u32)vtimer - t0),
+              (unsigned)*ctrl);
+    walk_verify("EXP B");
+
+    t0 = vtimer;                            // C: CPU copy (tiles L2 + PAL1)
+    VDP_loadTileData(end_l2_tiles_data, END_BASE2, END_L2_TILE_COUNT, CPU);
+    pal_load(END_PAL2, end_l2_pal.data);
+    dbg_print("EXP C CPU copy: dv=%u\n", (unsigned)((u32)vtimer - t0));
+    walk_verify("EXP C");
+
+    XGM2_pause();                           // D: queued flush with the music paused
+    SYS_doVBlankProcess();
+    SYS_doVBlankProcess();
+    VDP_loadTileData(end_l1_tiles_data, END_BASE1, END_L1_TILE_COUNT, DMA_QUEUE);
+    PAL_setPalette(END_PAL1, end_l1_pal.data, DMA_QUEUE);
+    PAL_setPalette(PAL2, player_palette_def()->data, DMA_QUEUE);
+    t0 = vtimer;
+    SYS_doVBlankProcess();
+    dbg_print("EXP D flush with music paused: dv=%u\n", (unsigned)((u32)vtimer - t0));
+    walk_verify("EXP D");
+    XGM2_resume();
+
+    // E: whatever did not land goes in by CPU so the screen is right regardless
+    VDP_loadTileData(end_l3_tiles_data, END_BASE3, END_L3_TILE_COUNT, CPU);
+    VDP_loadTileData(end_l2_tiles_data, END_BASE2, END_L2_TILE_COUNT, CPU);
+    VDP_loadTileData(end_l1_tiles_data, END_BASE1, END_L1_TILE_COUNT, CPU);
+    pal_load(END_PAL3, end_l3_pal.data);
+    pal_load(END_PAL2, end_l2_pal.data);
+    pal_load(END_PAL1, end_l1_pal.data);
+    pal_load(PAL2, player_palette_def()->data);
+    walk_verify("EXP E (all by CPU)");
+}
+#endif
+
 static void walking_parade(void)
 {
     wd_ck("walk enter");
@@ -198,7 +279,11 @@ static void walking_parade(void)
               (unsigned)MEM_getFree(), (unsigned)MEM_getLargestFreeBlock(),
               (unsigned)DMA_getQueueSize(), (unsigned)DMA_getMaxQueueSize(),
               (unsigned)DMA_getQueueTransferSize());
+#ifdef MD_WALK_DIAG
+    walk_dma_experiments();
+#else
     SYS_doVBlankProcess();
+#endif
     wd_ck("walk flushed");
     WALK_VERIFY("after flush");
 
@@ -237,8 +322,22 @@ static void walking_parade(void)
         VDP_setHorizontalScroll(BG_A, o1);
         VDP_setHorizontalScroll(BG_B, o3);
 
+#ifdef MD_WALK_DIAG
+        const u32 st0 = getSubTick();
+        const u16 bus0 = Z80_isBusTaken();
+#endif
         SPR_update();
+#ifdef MD_WALK_DIAG
+        const u32 st1 = getSubTick();
+#endif
         SYS_doVBlankProcess();
+#ifdef MD_WALK_DIAG
+        const u32 st2 = getSubTick();
+        if (frame < 12)
+            dbg_print("TIME f=%u spr=%u vblank=%u subticks (1280 = one frame) bus %u->%u\n",
+                      (unsigned)frame, (unsigned)(st1 - st0), (unsigned)(st2 - st1),
+                      (unsigned)bus0, (unsigned)Z80_isBusTaken());
+#endif
         VDP_setReg(17, 0);
         VDP_setReg(18, 0);
 #ifdef MD_WALK_DIAG
