@@ -40,6 +40,24 @@ its tiles/palettes, then flushes them at a vblank BEFORE the long CPU map writes
 and re-queues them at frames 2/8/30 (idempotent, ~5 KB) so a missed transfer
 shows for a couple of frames instead of for good.
 
+**Measured 2026-10-29 (diagnostic runs)**: immediate DMA (ROM and RAM source) and the CPU copy
+work at every step; the QUEUED flush (SYS_doVBlankProcess, manual DMA_flushQueue, music
+paused/stopped) lands nothing from the very start of main() and takes ~5.5 frames - the
+music/Z80/scene are not involved. `flushQueue` (src/dma_a.s) reads `dmaQueues` and executes
+16-byte entries, so a NULL/bad queue pointer would run garbage commands from address 0.
+`main()` reallocates the queue (`DMA_setMaxQueueSize(192)`) with the heap almost full.
+
+**After the cause is known (checklist, prepared in advance)**:
+1. fix is in the normal build (`make clean && make`, no MD_* flags): confirm the walking
+   scene and one stage start with the log build (`-DMD_WALK_DIAG`) showing `QCHK ... entry=OK`
+   and every `PROBE ... queued_rom=OK`;
+2. remove the walking scene's scaffolding that only existed to survive this (flush before the
+   map writes, re-queue at frames 2/8/30) - or keep it if the fix is not at the root;
+3. re-check the other screens that rely on queued DMA and were reported striped (BUG-044:
+   intro, CONFIG, room transitions) - they probably shared this cause;
+4. a heap-budget line in the boot log of normal builds when the queue is smaller than 192, so it
+   can never again be silent.
+
 **Next run** (one launch, log only, `script -qf`, `-DMD_TEST_ENDING -DMD_TILE_DUMP`):
 read the `WALK:` lines - heap free/largest, DMA queue size/bytes before the first
 flush, `SPR_isInitialized()` and whether the player sprite was created - on a good

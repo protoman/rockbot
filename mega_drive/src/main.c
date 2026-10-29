@@ -1254,7 +1254,9 @@ int main(bool hardReset)
     // The heap is tiny (BUG-040/BUG-045): if the bigger queue could not be allocated the
     // library is left with a NULL queue, and every queued transfer then reads garbage
     // commands from address 0 (slow flush, nothing lands). Fall back to a smaller one.
-    if (dmaQueues == NULL) DMA_setMaxQueueSize(80);
+    // Largest queue that fits first (the stage load needs ~190 entries; 80 overflows it,
+    // see the comment above), and only then the small one.
+    for (u16 q = 160; dmaQueues == NULL && q >= 80; q -= 32) DMA_setMaxQueueSize(q);
     DMA_setMaxTransferSize(0); // unlimited DMA transfer per frame
 #ifdef MD_TEST_ENDING
     dbg_print("=== BOOT: ending test hook ===\n");
