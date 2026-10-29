@@ -772,7 +772,11 @@ void stage_update_camera(s16 focusX, s16 focusY)
 
     clamp_camera();
     scroll_lock_camera(prev_x);
-    scroll_lock_span(focusX);   // the invariant, whatever moved the camera
+    // The invariant, whatever moved the camera - but only when it moved: the PC
+    // starts a stage at scroll 0 and only blocks the scroll while it moves, so a
+    // start inside a room narrower than the view (castle 5 map 0) stays at the
+    // far left instead of jumping to the room's left wall on the first frame.
+    if (camera.x != prev_x) scroll_lock_span(focusX);
     clamp_camera();
     if (stage_map) MAP_scrollTo(stage_map, camera.x + shake, camera.y);
 
