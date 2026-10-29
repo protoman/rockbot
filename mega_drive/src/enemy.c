@@ -264,6 +264,18 @@ static bool eshot_fire_e(const Enemy *e, const EnemyDef *d, s16 x, s16 y, s16 di
     return eshot_fire(x, y, dir, pid);
 }
 
+// PC character.cpp:1925: a non-player may not enter a scroll-lock tile (the
+// room wall), so a horizontal move stops there and the AI's next step (turn)
+// runs. Only horizontal moves test it: the tile is a wall, not a floor.
+static bool box_hits_lock(s16 l, s16 t, s16 r, s16 b)
+{
+    for (s16 ty = t >> 4; ty <= (b - 1) >> 4; ty++)
+        for (s16 tx = l >> 4; tx <= (r - 1) >> 4; tx++)
+            if (stage_terrain_at(stage_current_map, tx, ty) == TERRAIN_SCROLL_LOCK)
+                return TRUE;
+    return FALSE;
+}
+
 static bool box_hits_solid(s16 l, s16 t, s16 r, s16 b)
 {
     for (s16 ty = t >> 4; ty <= (b - 1) >> 4; ty++) {
@@ -717,6 +729,8 @@ static bool step_axis(Enemy *e, s16 *pos, s16 dest, bool horizontal, bool can_fa
         s16 lead = (dir > 0) ? n + d->box_l + d->box_w - 1 : n + d->box_l;
         if (box_hits_solid(lead, e->y + d->box_t,
                            lead, e->y + d->box_t + d->box_h) ||
+            box_hits_lock(lead, e->y + d->box_t,
+                          lead + 1, e->y + d->box_t + d->box_h) ||
             // solid map objects block NPCs exactly like walls (PC collision
             // loop runs for every character). WOOD SHIELDER used to walk
             // through the destructible block (report 2026-10-24).
