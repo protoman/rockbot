@@ -483,6 +483,12 @@ static RunResult runStage(u8 stage)
     }
     player_init();
     hud_init();
+    // The start camera obeys the same scroll-lock rule as every other camera
+    // placement: in a room narrower than the view (castle 5 map 0) the first
+    // gameplay frame used to pin it 18px right of the loaded one, a visible
+    // jump right after MISSION STARTED.
+    stage_arrival_camera(player.x + (PLAYER_BOX_L + PLAYER_BOX_R) / 2,
+                         player.y + (PLAYER_BOX_T + PLAYER_BOX_B) / 2);
 
     music_play_stage(stage);
 
