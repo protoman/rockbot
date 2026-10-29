@@ -895,6 +895,8 @@ bool objects_boss_door_present(s16 tile_x)
     return FALSE;
 }
 
+u8 objects_count(void) { return obj_count; }
+
 bool objects_boss_door_locked(s16 tile_x)
 {
     // PC classmap.cpp:171-191 builds wall_scroll_lock[] ONCE at map load from

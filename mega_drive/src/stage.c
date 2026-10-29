@@ -205,6 +205,8 @@ static void clamp_camera(void)
     if (camera.y > (stage_def->map_h * stage_def->tile) - 224) camera.y = (stage_def->map_h * stage_def->tile) - 224;
 }
 
+static u16 room_cache_gen;          // bumped by stage_load: the walls changed
+
 // ---- PC scroll lock (classmap.cpp:459/475) ------------------------------
 static bool column_locked(s16 tile_x)
 {
@@ -266,12 +268,21 @@ static void scroll_lock_camera(s16 prev_x)
 // camera then centres in the gap so the lock edges show equally.
 static void scroll_lock_span(s16 focus_x)
 {
+    // The scan costs ~700 subticks (every column check walks the lock list and
+    // the objects), so the result is kept until the player changes column, the
+    // stage reloads or the object set changes (profile 2026-10-28, castle 3).
+    static s16 key_fc = -32768, lo, hi;
+    static u16 key_gen;
+    static u8 key_objs;
     const s16 fc = (s16)((focus_x - 8) >> 4);       // last column "left of" the player
-    s16 lo = -32000, hi = 32000;
-    for (s16 c = fc; c >= fc - 24 && c >= 0; c--)
-        if (column_locked(c)) { lo = (s16)((c << 4) + 2); break; }
-    for (s16 c = fc + 1; c <= fc + 24 && c < stage_def->map_w; c++)
-        if (column_locked(c)) { hi = (s16)((c << 4) - 307); break; }
+    if (fc != key_fc || key_gen != room_cache_gen || key_objs != objects_count()) {
+        lo = -32000; hi = 32000;
+        for (s16 c = fc; c >= fc - 24 && c >= 0; c--)
+            if (column_locked(c)) { lo = (s16)((c << 4) + 2); break; }
+        for (s16 c = fc + 1; c <= fc + 24 && c < stage_def->map_w; c++)
+            if (column_locked(c)) { hi = (s16)((c << 4) - 307); break; }
+        key_fc = fc; key_gen = room_cache_gen; key_objs = objects_count();
+    }
     if (lo > hi) camera.x = (s16)((lo + hi) >> 1);
     else if (camera.x < lo) camera.x = lo;
     else if (camera.x > hi) camera.x = hi;
@@ -282,7 +293,6 @@ static void scroll_lock_span(s16 focus_x)
 // be narrower than the 320px view, so enemies of the room next door are on
 // screen yet walled off from the player; they must not act (or shoot) across
 // the wall. Computed once per frame by enemies_update, not per enemy.
-static u16 room_cache_gen;          // bumped by stage_load: the walls changed
 
 void stage_room_span(s16 x, s16 *lo, s16 *hi)
 {
