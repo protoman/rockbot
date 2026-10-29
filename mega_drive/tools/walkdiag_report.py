@@ -71,6 +71,15 @@ for bi, b in enumerate(boots, 1):
             if first_fail is None and "FAIL" in l:
                 first_fail = m.group(1)
     print(f"  => first step where a DMA probe fails: {first_fail or 'none'}")
+    print("  queue memory check (is the queued entry in RAM what the library says it wrote?):")
+    for l in b:
+        m = re.match(r"QCHK ([^:]+): dmaQueues=([0-9A-F]+) dmaDataBuffer=([0-9A-F]+) maxq=(\d+) "
+                     r"queued_ok=(\d) idx=(\d+) entry=(\w+)", l)
+        if m:
+            ptr = int(m.group(2), 16)
+            where = "NULL" if ptr == 0 else ("RAM" if ptr >= 0xFF0000 else "NOT RAM")
+            print(f"    {m.group(1):36s} dmaQueues={m.group(2)} ({where}) buf={m.group(3)} "
+                  f"maxq={m.group(4)} queued_ok={m.group(5)} entry={m.group(7)}")
     for l in b:
         if l.startswith("LAYER"):
             print("   ", l)
@@ -99,7 +108,7 @@ for bi, b in enumerate(boots, 1):
     items = {"A": ["tiles L3", "tiles L2", "tiles L1", "PAL0", "PAL1", "PAL2", "PAL3"],
              "B": ["tiles L3", "PAL0"], "C": ["tiles L2", "PAL1"],
              "D": ["tiles L1", "PAL3", "PAL2"], "F": ["tiles L1", "PAL3"], "G": ["PAL3"],
-             "H": ["tiles L1", "PAL3"], "I": ["tiles L1", "PAL3"],
+             "H": ["tiles L1", "PAL3"], "I": ["tiles L1", "PAL3"], "J": ["tiles L1", "PAL3"],
              "E (all by CPU)": ["tiles L3", "tiles L2", "tiles L1", "PAL0", "PAL1", "PAL2", "PAL3"]}
     for ex, cls in items.items():
         res = []

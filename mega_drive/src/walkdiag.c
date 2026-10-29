@@ -7,6 +7,8 @@
 #include <string.h>
 
 extern vu16 VBlankProcess;      // sys.c
+extern DMAOpInfo *dmaQueues;    // dma.c (global: the flush routine reads it)
+extern u16 *dmaDataBuffer;
 
 
 // Does a DMA land RIGHT NOW? A known 8-word pattern is DMA'd into an unused VRAM
@@ -45,7 +47,26 @@ static void wd_probe(const char *tag, bool queued)
     strcpy(r[2], "-");
     if (queued) {
         probe_clear();
-        DMA_queueDma(DMA_VRAM, (void *)rom_pat, PROBE_VRAM, 8, 2);
+        const u16 before = DMA_getQueueSize();
+        const bool queued_ok = DMA_queueDma(DMA_VRAM, (void *)rom_pat, PROBE_VRAM, 8, 2);
+        // Is the entry in the queue memory what the library says it wrote? (pointer in
+        // RAM? contents equal to the register values for this transfer?)
+        const u32 from = (u32)rom_pat;
+        const DMAOpInfo *e = &dmaQueues[before];
+        const u32 w_len = 0x93000008UL, w_len_h = 0x9400;
+        const u32 w_ms = 0x96008F00UL + ((from << 7) & 0xFF0000UL) + 2;
+        const u32 w_ha = 0x97009500UL + ((from >> 1) & 0x7F00FFUL);
+        const u32 w_ct = VDP_DMA_VRAM_ADDR((u32)PROBE_VRAM);
+        const bool entry_ok = ((u16)w_len == e->regLenL) && (w_len_h == e->regLenH) &&
+                              (w_ms == e->regAddrMStep) && (w_ha == e->regAddrHAddrL) &&
+                              (w_ct == e->regCtrlWrite);
+        dbg_print("QCHK %s: dmaQueues=%08X dmaDataBuffer=%08X maxq=%u queued_ok=%u idx=%u "
+                  "entry=%s got=%04X %04X %08X %08X %08X want=%04X %04X %08X %08X %08X\n",
+                  tag, (unsigned)dmaQueues, (unsigned)dmaDataBuffer,
+                  (unsigned)DMA_getMaxQueueSize(), (unsigned)queued_ok, (unsigned)before,
+                  entry_ok ? "OK" : "BAD", e->regLenL, e->regLenH, (unsigned)e->regAddrMStep,
+                  (unsigned)e->regAddrHAddrL, (unsigned)e->regCtrlWrite, (unsigned)(u16)w_len,
+                  (unsigned)w_len_h, (unsigned)w_ms, (unsigned)w_ha, (unsigned)w_ct);
         SYS_doVBlankProcess();
         strcpy(r[2], probe_ok() ? "OK" : "FAIL");
     }
@@ -75,6 +96,12 @@ void wd_ck(const char *tag)
     // Z80 driver view of DMA: how long its PCM waited for the 68k's DMA (the
     // protection handshake) and its CPU load, whether the flush delay option is on,
     // and the DMA limits.
+    {
+        u32 sp;
+        __asm__ volatile("move.l %%sp,%0" : "=r"(sp));
+        dbg_print("CK %s: sp=%08X dmaQueues=%08X dmaDataBuffer=%08X\n", tag, (unsigned)sp,
+                  (unsigned)dmaQueues, (unsigned)dmaDataBuffer);
+    }
     dbg_print("CK %s: xgm2 dmawait=%u/%u cpu=%u/%u forcedelay=%u z80drv=%d "
               "maxxfer=%u ignoreover=%u\n", tag,
               (unsigned)XGM2_getDMAWaitTime(FALSE), (unsigned)XGM2_getDMAWaitTime(TRUE),

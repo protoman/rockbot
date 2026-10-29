@@ -35,6 +35,7 @@ static u8 lk_dbg_frames;   // frames still logged after a room change
 #include "scene.h"
 #include "ending.h"
 #include "walkdiag.h"
+extern DMAOpInfo *dmaQueues;   // dma.c: global, read by the flush routine
 #include "config.h"
 #include "dialogs.h"
 #include "weapon_data.h"
@@ -1250,7 +1251,15 @@ int main(bool hardReset)
     // costs 3 KB instead of the old 8 KB, leaving the heap room for the
     // destination MAP allocated by a room transition (Mummy stairs).
     DMA_setMaxQueueSize(192);
+    // The heap is tiny (BUG-040/BUG-045): if the bigger queue could not be allocated the
+    // library is left with a NULL queue, and every queued transfer then reads garbage
+    // commands from address 0 (slow flush, nothing lands). Fall back to a smaller one.
+    if (dmaQueues == NULL) DMA_setMaxQueueSize(80);
     DMA_setMaxTransferSize(0); // unlimited DMA transfer per frame
+#ifdef MD_TEST_ENDING
+    dbg_print("=== BOOT: ending test hook ===\n");
+#endif
+    wd_ckq("main: after DMA_setMaxQueueSize");
 
     // Force known scroll/window state. SGDK's boot only writes the first
     // HScroll table word; if power-on VRAM differs (BlastEm vs Kega), the
@@ -1270,13 +1279,17 @@ int main(bool hardReset)
     // main() lands during active display, which is illegal for CRAM and
     // corrupts it on accurate emulators (white screen). See debugging.md.
 
+    wd_ckq("main: before save_init");
     save_init();
+    wd_ckq("main: after save_init");
     config_init();
+    wd_ckq("main: after config_init");
 #if defined(MD_NO_AUDIO) || defined(MD_PROFILE) || defined(MD_TEST_STAGE) || \
     defined(MD_LINK_TRACE) || defined(MD_TEST_CASTLE)
     config_force_silent();      // see config.c: silent test builds
 #endif
     stage_set_data(0);   // valid stage_def before anything reads it
+    wd_ckq("main: after stage_set_data(0)");
 
 #ifdef MD_PROFILE
     // Profiling build only: skip intro/menu and boot straight into the stage
@@ -1319,8 +1332,9 @@ int main(bool hardReset)
     current_save_slot = 0;
     current_player = 0;
     player_new_game();
+    wd_ckq("hook: after player_new_game");
     stage_set_data(13);
-    dbg_print("=== BOOT: ending test hook ===\n");
+    wd_ckq("hook: after stage_set_data(13)");
     wd_ckq("hook start");
     music_play(MUSIC_END_ANIMATION);
     wd_ck("hook after music");

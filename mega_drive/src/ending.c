@@ -317,6 +317,32 @@ static void walk_dma_experiments(void)
     SYS_enableInts();
     walk_verify("EXP I (interrupts off)");
 
+    // J: replay the queued entries with our own loop (same command order as SGDK's
+    // assembly flush): if this lands while A..I fail, the library flush routine or
+    // the way it is driven is the problem, not the queue content or the VDP.
+    VDP_loadTileData(end_l1_tiles_data, END_BASE1, END_L1_TILE_COUNT, DMA_QUEUE);
+    PAL_setPalette(END_PAL1, end_l1_pal.data, DMA_QUEUE);
+    {
+        const u16 n = DMA_getQueueSize();
+        vu32 *c32 = (vu32 *)VDP_CTRL_PORT;
+        vu16 *c16 = (vu16 *)VDP_CTRL_PORT;
+        VDP_waitVBlank(TRUE);
+        for (u16 i = 0; i < n; i++) {
+            const DMAOpInfo *e = &dmaQueues[i];
+            dbg_print("EXP J entry %u: %04X %04X %08X %08X %08X\n", i, e->regLenL, e->regLenH,
+                      (unsigned)e->regAddrMStep, (unsigned)e->regAddrHAddrL,
+                      (unsigned)e->regCtrlWrite);
+            *c16 = e->regLenL;
+            *c16 = e->regLenH;
+            *c32 = e->regAddrMStep;
+            *c32 = e->regAddrHAddrL;
+            *c16 = (u16)(e->regCtrlWrite >> 16);
+            *c16 = (u16)e->regCtrlWrite;    // word write triggers the DMA
+        }
+        DMA_clearQueue();
+    }
+    walk_verify("EXP J (own replay of the queue)");
+
     // E: whatever did not land goes in by CPU so the screen is right regardless
     VDP_loadTileData(end_l3_tiles_data, END_BASE3, END_L3_TILE_COUNT, CPU);
     VDP_loadTileData(end_l2_tiles_data, END_BASE2, END_L2_TILE_COUNT, CPU);
