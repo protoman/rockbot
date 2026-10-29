@@ -411,6 +411,17 @@ def background_exists(name):
     return os.path.exists(os.path.join(DATA, "images/map_backgrounds", name))
 
 
+def unkey(im):
+    """The PC colorkey (and any alpha-0 pixel) becomes fully transparent."""
+    px = im.load()
+    for y in range(im.height):
+        for x in range(im.width):
+            r, g, b, a = px[x, y]
+            if a == 0 or is_key((r, g, b)):
+                px[x, y] = (0, 0, 0, 0)
+    return im
+
+
 def convert_background(map_n, name, adjust_y, speed, over=None):
     """Bake one parallax background to 512px wide (art + first 192 cols
     appended) so the plane wraps naturally at its own width — no runtime
@@ -419,15 +430,15 @@ def convert_background(map_n, name, adjust_y, speed, over=None):
     `over` is the PC's backgrounds[1] (name, adjust_y, speed): a second layer
     composited on top of this one. It is a compromise, not a port - see the
     caller."""
-    src = Image.open(os.path.join(DATA, "images/map_backgrounds", name)).convert("RGBA")
+    src = unkey(Image.open(os.path.join(DATA, "images/map_backgrounds", name)).convert("RGBA"))
     h = (src.height + 7) & ~7   # SGDK wants height as a multiple of 8
-    bg = Image.new("RGBA", (BG_PLANE_W, h), (0, 0, 0, 255))
+    bg = Image.new("RGBA", (BG_PLANE_W, h), (0, 0, 0, 0))
     bg.paste(src, (0, 0))
     bg.paste(src.crop((0, 0, BG_PLANE_W - src.width, src.height)), (src.width, 0))
     if over:
         o_name, o_adj, o_speed = over
-        top = Image.open(os.path.join(DATA, "images/map_backgrounds",
-                                      o_name)).convert("RGBA")
+        top = unkey(Image.open(os.path.join(DATA, "images/map_backgrounds",
+                                            o_name)).convert("RGBA"))
         dy = o_adj - adjust_y
         for x in range(0, BG_PLANE_W, max(1, top.width)):
             bg.paste(top, (x, dy), top)
@@ -435,12 +446,15 @@ def convert_background(map_n, name, adjust_y, speed, over=None):
               f"dy={dy} (its own speed {o_speed} vs {speed} cannot be "
               f"independent on one plane)")
     px = bg.load()
+    # The colorkey is transparent (PC): those pixels are palette index 0, so the
+    # plane shows the map's background colour (CRAM 0) through them.
+    clear = [px[x, y][3] == 0 for y in range(bg.height) for x in range(bg.width)]
     rgbs = [(md_round(px[x, y][0]), md_round(px[x, y][1]), md_round(px[x, y][2]))
             for y in range(bg.height) for x in range(bg.width)]
-    pal, lut, _bg_err = build_palette(rgbs)
+    pal, lut, _bg_err = build_palette([c for c, t in zip(rgbs, clear) if not t])
     img = Image.new("P", (BG_PLANE_W, bg.height))
     img.putpalette([v for c in pal for v in c])
-    img.putdata([lut.get(c, 1) for c in rgbs])
+    img.putdata([0 if t else lut.get(c, 1) for c, t in zip(rgbs, clear)])
     out = os.path.join(RES, f"{PFX}_bg{map_n}.png")
     img.save(out)
     print(f"  bg{map_n}: {name} {src.size} -> {img.size} "
