@@ -57,11 +57,18 @@ void music_set_volume(u8 level)
 
 u8 music_get_volume(void) { return music_level; }
 
+// XGM2_load swaps the sample table under a playing track, and the Z80 driver
+// only acts on a stop a couple of frames later: starting another track in the
+// same frame as the stop left it silent (castle path -> boss intro, ending
+// scene -> walking parade). music_play waits those frames when a stop is fresh.
+static bool stop_pending;
+
 void music_stop(void)
 {
     if (!playing) return;
     XGM2_stop();
     playing = FALSE;
+    stop_pending = TRUE;
 }
 
 void music_play(MusicId id)
@@ -81,6 +88,16 @@ void music_play(MusicId id)
         return;
     }
     if (playing && track == current_track) return;
+    if (playing) {                      // another track is running: stop it first
+        XGM2_stop();
+        playing = FALSE;
+        stop_pending = TRUE;
+    }
+    if (stop_pending) {
+        SYS_doVBlankProcess();
+        SYS_doVBlankProcess();
+        stop_pending = FALSE;
+    }
     current_track = track;
     XGM2_play(track);
     music_set_volume(music_level);
