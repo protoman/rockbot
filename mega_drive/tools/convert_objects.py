@@ -41,7 +41,7 @@ from PIL import Image
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from pal_ui import PAL_UI_RGB  # noqa: E402
 from convert_enemies import (  # noqa: E402
-    MD_LEVELS, ceil8, load_indexed, read_terrain, solid,
+    MD_LEVELS, ceil8, load_indexed, read_terrain, solid, MAP_W, MAP_H,
 )
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -163,27 +163,32 @@ def read_spawns():
     return out
 
 
-def drop_to_ground(grid, x, y, w, h):
-    """PC object gravity at load: up to h steps of GRAV=4px.
+def blocks_fall(grid, tx, ty):
+    """What stops a falling object box: the same rule as platform_can_move()
+    in src/object.c (PC object::test_change_position) - everything except
+    UNBLOCKED, SPIKE and WATER, so ice, conveyors and stairs are floors too."""
+    if tx < 0 or tx >= MAP_W:
+        return True
+    if ty < 0 or ty >= MAP_H:
+        return False                  # the bottom edge does not block
+    return grid[tx][ty] not in (0, 4, 5)
 
-    Destination bottom corners must both be passable; when either hits
-    SOLID the object stops (may rest with a 1..GRAV-1 px hover, as PC).
-    Returns (y, fell_out).
-    """
-    for _ in range(h):
+
+def drop_to_ground(grid, x, y, w, h):
+    """PC object gravity, settled completely at conversion time: fall GRAV=4px
+    steps until a floor is under the box (it may rest with a 1..GRAV-1 px
+    hover, as PC). The ROM then finds every object already at rest instead of
+    dropping it in front of the player. Returns (y, fell_out)."""
+    while True:
         dest = y + GRAV
         row = (dest + h - 2) >> 4
         if row > RES_H:               # PC: falling out of screen is allowed
-            y = dest
-            continue
+            return dest, True
         c1 = (x + 2) >> 4
         c2 = (x + w - 2) >> 4
-        if solid(grid, c1, row) or solid(grid, c2, row):
-            break
+        if blocks_fall(grid, c1, row) or blocks_fall(grid, c2, row):
+            return y, False
         y = dest
-        if y > RES_H:
-            return y, True
-    return y, y > RES_H
 
 
 def main():
