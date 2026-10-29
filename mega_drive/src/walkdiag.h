@@ -11,8 +11,11 @@
 // One compact line of the state that could break VDP work: frame counter,
 // interrupt mask, queued DMA, vblank-process flags, heap, Z80/XGM2, VDP layout.
 void wd_ck(const char *tag);
+// Same plus a probe that goes through the DMA queue (costs one vblank).
+void wd_ckq(const char *tag);
 #else
 #define wd_ck(tag) ((void)0)
+#define wd_ckq(tag) ((void)0)
 #endif
 
 #endif

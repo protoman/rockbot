@@ -334,7 +334,7 @@ void scene_play(u8 index)
                 if (op->seek < SCENE_MUSIC_COUNT &&
                     scene_music_ids[op->seek] != MUSIC_NONE)
                     music_play(scene_music_ids[op->seek]);
-                wd_ck("scene PLAY_MUSIC after");
+                wd_ckq("scene PLAY_MUSIC after");
                 break;
             case SCENE_STOP_MUSIC:
                 wd_ck("scene STOP_MUSIC before");
@@ -362,5 +362,5 @@ void scene_play(u8 index)
         }
         if (!wait_ms(op->delay)) return;
     }
-    wd_ck("scene end");
+    wd_ckq("scene end");
 }

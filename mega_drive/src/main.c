@@ -1321,7 +1321,7 @@ int main(bool hardReset)
     player_new_game();
     stage_set_data(13);
     dbg_print("=== BOOT: ending test hook ===\n");
-    wd_ck("hook start");
+    wd_ckq("hook start");
     music_play(MUSIC_END_ANIMATION);
     wd_ck("hook after music");
     scene_play((u8)(2 + (current_player & 3)));

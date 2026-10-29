@@ -119,8 +119,26 @@ static void wd_q(const char *what, const void *src, u16 bytes, u16 dst)
 #define WD_Q(what, src, bytes, dst) ((void)0)
 #endif
 
+// Prepared fix for BUG-045 (switch on with -DMD_WALK_CPU_GFX once the experiment ladder
+// shows the CPU path lands where DMA does not): the same graphics by CPU copy and
+// CRAM-safe palette writes, nothing queued.
+static void walking_gfx_cpu(void)
+{
+    VDP_loadTileData(end_l3_tiles_data, END_BASE3, END_L3_TILE_COUNT, CPU);
+    VDP_loadTileData(end_l2_tiles_data, END_BASE2, END_L2_TILE_COUNT, CPU);
+    VDP_loadTileData(end_l1_tiles_data, END_BASE1, END_L1_TILE_COUNT, CPU);
+    pal_load(END_PAL3, end_l3_pal.data);
+    pal_load(END_PAL2, end_l2_pal.data);
+    pal_load(END_PAL1, end_l1_pal.data);
+    pal_load(PAL2, player_palette_def()->data);
+}
+
 static void walking_gfx_queue(void)
 {
+#ifdef MD_WALK_CPU_GFX
+    walking_gfx_cpu();
+    return;
+#endif
     WD_Q("tiles L3", end_l3_tiles_data, END_L3_TILE_COUNT * 32, END_BASE3 * 32);
     WD_Q("tiles L2", end_l2_tiles_data, END_L2_TILE_COUNT * 32, END_BASE2 * 32);
     WD_Q("tiles L1", end_l1_tiles_data, END_L1_TILE_COUNT * 32, END_BASE1 * 32);
@@ -194,6 +212,21 @@ static void walk_verify(const char *tag)
         dbg_print("VER %s map %s: bad=%u/%u first=(%u,%u) got=%04X want=%04X\n", tag,
                   L[k].name, bad, (unsigned)(L[k].h * 64), firstCol, firstRow, got, want);
     }
+    // Scroll table (the loop writes BG_A then BG_B plane scroll every frame) and the
+    // first sprite (the player): attribute words, then its first tile's data
+    // (sprite tiles are DMA'd by the sprite engine every frame too).
+    tdump_read(VDP_getHScrollTableAddress(), buf, 4);
+    dbg_print("VER %s hscroll words: %04X %04X %04X %04X (BG_A first, BG_B second)\n",
+              tag, buf[0], buf[1], buf[2], buf[3]);
+    tdump_read(VDP_getSpriteListAddress(), buf, 8);
+    const u16 stile = buf[2] & 0x7FF;
+    dbg_print("VER %s sprite0: y=%u size/link=%04X attr=%04X x=%u\n", tag,
+              (unsigned)(buf[0] & 0x3FF), buf[1], buf[2], (unsigned)(buf[3] & 0x1FF));
+    u16 nz = 0;
+    tdump_read((u16)(stile * 32), buf, 16);
+    for (u8 w = 0; w < 16; w++) if (buf[w]) nz++;
+    dbg_print("VER %s sprite0 tile %u: %u/16 non-zero words\n", tag, (unsigned)stile,
+              (unsigned)nz);
 }
 #define WALK_VERIFY(tag) walk_verify(tag)
 #else
@@ -266,6 +299,24 @@ static void walk_dma_experiments(void)
     dbg_print("EXP G DMA from RAM source: dv=%u\n", (unsigned)((u32)vtimer - t0));
     walk_verify("EXP G");
 
+    // H: queued flush with the Z80 bus held by us for the whole flush
+    VDP_loadTileData(end_l1_tiles_data, END_BASE1, END_L1_TILE_COUNT, DMA_QUEUE);
+    PAL_setPalette(END_PAL1, end_l1_pal.data, DMA_QUEUE);
+    VDP_waitVBlank(TRUE);
+    Z80_requestBus(TRUE);
+    DMA_flushQueue();
+    Z80_releaseBus();
+    walk_verify("EXP H (Z80 bus held)");
+
+    // I: queued flush with interrupts off for the whole flush
+    VDP_loadTileData(end_l1_tiles_data, END_BASE1, END_L1_TILE_COUNT, DMA_QUEUE);
+    PAL_setPalette(END_PAL1, end_l1_pal.data, DMA_QUEUE);
+    VDP_waitVBlank(TRUE);
+    SYS_disableInts();
+    DMA_flushQueue();
+    SYS_enableInts();
+    walk_verify("EXP I (interrupts off)");
+
     // E: whatever did not land goes in by CPU so the screen is right regardless
     VDP_loadTileData(end_l3_tiles_data, END_BASE3, END_L3_TILE_COUNT, CPU);
     VDP_loadTileData(end_l2_tiles_data, END_BASE2, END_L2_TILE_COUNT, CPU);
@@ -282,16 +333,16 @@ static void walk_dma_experiments(void)
 
 static void walking_parade(void)
 {
-    wd_ck("walk enter");
+    wd_ckq("walk enter");
     music_play(MUSIC_END_ANIMATION);
     wd_ck("walk after music");
     sprites_end();
     wd_ck("walk after sprites_end");
     sprites_begin(SPRITE_VRAM_TILES);
-    wd_ck("walk after sprites_begin");
+    wd_ckq("walk after sprites_begin");
 
     black_screen();
-    wd_ck("walk after black_screen");
+    wd_ckq("walk after black_screen");
     walking_gfx_queue();
     wd_ck("walk queued");
     // Flush the queued transfers at a vblank NOW. The map rows below are long CPU
@@ -310,13 +361,24 @@ static void walking_parade(void)
     wd_ck("walk flushed");
     WALK_VERIFY("after flush");
 
+#ifdef MD_WALK_DIAG
+    const u32 lt0 = getSubTick();
+#endif
     layer_upload(BG_B, end_l3_map, END_L3_MAP_W, END_L3_MAP_H,
                  END_BASE3, END_PAL3, END_L3_ROW);
+#ifdef MD_WALK_DIAG
+    const u32 lt1 = getSubTick();
+    dbg_print("LAYER L3 CPU map upload: %u subticks (%u rows x 64 words)\n",
+              (unsigned)(lt1 - lt0), (unsigned)END_L3_MAP_H);
+#endif
     wd_ck("walk after L3 map");
     layer_upload(BG_A, end_l2_map, END_L2_MAP_W, END_L2_MAP_H,
                  END_BASE2, END_PAL2, END_L2_ROW);
     layer_upload(BG_A, end_l1_map, END_L1_MAP_W, END_L1_MAP_H,
                  END_BASE1, END_PAL1, END_L1_ROW);
+#ifdef MD_WALK_DIAG
+    dbg_print("LAYER L2+L1 CPU map upload: %u subticks\n", (unsigned)(getSubTick() - lt1));
+#endif
     wd_ck("walk after maps");
     WALK_VERIFY("after maps");
 
