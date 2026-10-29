@@ -172,6 +172,14 @@ void player_set_checkpoint(s16 worldX, s16 worldY)
 // above it and stand him on it. Scanning top-down put him on the CEILING in
 // stages that have a roof (SPIKE), and could bury him (ATLANTIDA/FLOWER
 // FIELDS) so he fell out and respawned forever.
+// Ground for the start point: ice and the conveyors are floors as well (castle 5
+// starts on an ICE row above the solid one; counting only SOLID buried him).
+static bool spawn_floor(u16 t)
+{
+    return t == TERRAIN_SOLID || t == TERRAIN_ICE ||
+           t == TERRAIN_MOVE_LEFT || t == TERRAIN_MOVE_RIGHT;
+}
+
 static s16 spawn_ground_y(s16 x)
 {
     s16 l = x + PLAYER_BOX_L, r = x + PLAYER_BOX_R;
@@ -179,7 +187,7 @@ static s16 spawn_ground_y(s16 x)
     for (s16 row = stage_def->map_h - 1; row >= 1; row--) {
         bool solid = FALSE;
         for (s16 tx = tx0; tx <= tx1 && !solid; tx++)
-            if (stage_terrain_at(stage_current_map, tx, row) == TERRAIN_SOLID)
+            if (spawn_floor(stage_terrain_at(stage_current_map, tx, row)))
                 solid = TRUE;
         if (!solid) continue;
         // the player's box must fit in the rows above this one
@@ -187,7 +195,7 @@ static s16 spawn_ground_y(s16 x)
         bool fits = TRUE;
         for (s16 ry = top_row; ry <= row - 1 && fits; ry++)
             for (s16 tx = tx0; tx <= tx1; tx++)
-                if (stage_terrain_at(stage_current_map, tx, ry) == TERRAIN_SOLID) {
+                if (spawn_floor(stage_terrain_at(stage_current_map, tx, ry))) {
                     fits = FALSE;
                     break;
                 }
