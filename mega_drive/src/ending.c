@@ -160,6 +160,17 @@ static void walking_parade(void)
 // PC show_enemies_ending is a long line of normal enemies; the port shows the
 // bosses, which are the sprites every stage already carries. One boss per
 // stage, name under it, fixed 100-frame hold (the PC ending reads no input).
+// PC graphLib.draw_progressive_text: one character per ~60 ms (4 frames).
+static void typed_text(const char *s, u16 col, u16 row)
+{
+    char ch[2] = { 0, 0 };
+    for (u16 i = 0; s[i]; i++) {
+        ch[0] = s[i];
+        VDP_drawText(ch, col + i, row);
+        wait_frames(4);
+    }
+}
+
 static void boss_parade(void)
 {
     music_play(MUSIC_ENEMY_PARADE);
@@ -188,13 +199,18 @@ static void boss_parade(void)
         if (spr) spr_set_anim(spr, 0);
 
         VDP_fillTileMapRect(BG_A, BLANK_TILE, 0, 0, 64, 32);
-        if (stage < SSEL_STAGE_SLOTS) {
-            center_text(ssel_stage_names[stage], 1);
-            if (ssel_boss_names[stage][0])
-                center_text(ssel_boss_names[stage], 23);
+        if (stage < BOSS_CREDITS_COUNT) {
+            // PC show_bosses_ending: id + boss name, CONCEPT and DESIGN credits typed
+            // one character at a time (60 ms each), then a 2 s hold.
+            const char *const *bc = &boss_credits[stage * 4];
+            typed_text(bc[0], 1, 19);   typed_text(":", 1 + (u16)strlen(bc[0]), 19);
+            typed_text(bc[1], 11, 19);
+            typed_text("CONCEPT:", 1, 21);  typed_text(bc[2], 11, 21);
+            typed_text("DESIGN:", 1, 23);   typed_text(bc[3], 11, 23);
+            wait_frames(120);
+        } else {
+            wait_frames(180);
         }
-
-        wait_frames(100);
         if (spr) SPR_releaseSprite(spr);
         SPR_update();
     }

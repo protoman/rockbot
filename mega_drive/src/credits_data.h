@@ -7,4 +7,8 @@
 #define CREDITS_LINES 209
 extern const char *const credits_lines[CREDITS_LINES];
 
+// PC boss_credits.txt: 4 lines per stage (id, boss, concept, design).
+#define BOSS_CREDITS_COUNT 14
+extern const char *const boss_credits[BOSS_CREDITS_COUNT * 4];
+
 #endif
