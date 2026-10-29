@@ -12,6 +12,7 @@
 #include "ssel_data.h"
 #include "credits_data.h"
 #include "parade_data.h"
+#include "tdump.h"
 #include "starfield_data.h"
 #include "boss_intro_bg_tiles.h"
 #include "boss_intro_bg_map.h"
@@ -151,6 +152,13 @@ static void walking_parade(void)
         SYS_doVBlankProcess();
         VDP_setReg(17, 0);
         VDP_setReg(18, 0);
+        if (frame == 0 || frame == 1 || frame == 30) {      // diagnostics (MD_TILE_DUMP builds only)
+            tdump_vdp(frame == 0 ? "walk f0" : (frame == 1 ? "walk f1" : "walk f30"));
+            tdump_cram(frame == 0 ? "walk f0" : (frame == 1 ? "walk f1" : "walk f30"));
+            tdump_cell("walk f1 BG_B", BG_B, 5, 4);
+            tdump_cell("walk f1 BG_A", BG_A, 5, 10);
+            tdump_tile("walk f1 tile", END_BASE3 + 1);
+        }
 
         if (px < -48) break;
         frame++;
@@ -219,7 +227,7 @@ static void boss_parade(void)
         const ParadeEnemy *pe = &parade_enemies[i];
         Sprite *spr = SPR_addSprite(pe->spr, 160 - pe->w / 2, PARADE_SPR_Y - pe->h / 2,
                                     TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
-        if (spr) spr_set_anim(spr, 0);
+        if (spr) { spr_set_anim(spr, 0); SPR_setAnimationLoop(spr, FALSE); }   // intro frames play once
         parade_bg_draw();
         center_text(pe->name, PARADE_NAME_ROW);
         wait_frames(180);
@@ -245,7 +253,20 @@ static void boss_parade(void)
                                 160 - boss->spr->w / 2,
                                 PARADE_SPR_Y - boss->spr->h / 2,
                                 TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
-        if (spr) spr_set_anim(spr, 0);
+        if (spr) {
+            // PC show_boss_intro_sprites: more than one INTRO frame plays once with
+            // its own timing; otherwise frame 0 of the sheet, standing still.
+            const u8 ia = boss->intro_anim;
+            if (ia != 255 && ia < boss->spr->numAnimation &&
+                boss->spr->animations[ia]->numFrame > 1) {
+                spr_set_anim(spr, ia);
+                SPR_setAnimationLoop(spr, FALSE);
+            } else {
+                spr_set_anim(spr, 0);
+                spr_set_frame(spr, 0);
+                SPR_setAutoAnimation(spr, FALSE);
+            }
+        }
 
         parade_bg_draw();
         if (stage < BOSS_CREDITS_COUNT) {
@@ -289,17 +310,20 @@ static u16 credits_ink(u16 r, u16 g, u16 b)
 
 static void credits_set_palettes(void)
 {
-    static u16 pal[16];
+    // One buffer per line: DMA_QUEUE reads the source at the next vblank, so a
+    // shared buffer left all four lines with the last one's colours (the
+    // # / - / @ colours never showed).
+    static u16 pal[4][16];
     const u16 ink[4] = { credits_ink(250, 250, 250), credits_ink(102, 255, 181),
                          credits_ink(249, 98, 98), credits_ink(95, 151, 255) };
     for (u8 p = 0; p < 4; p++) {
-        for (u8 i = 0; i < 16; i++) pal[i] = ink[p];
-        pal[0] = 0;
+        for (u8 i = 0; i < 16; i++) pal[p][i] = ink[p];
+        pal[p][0] = 0;
         // PAL3 also carries the star colours (entries 1..): the stars live on
         // BG_B, the text only uses entry 15.
         if (p == 3)
-            for (u8 i = 0; i < STARFIELD_COLORS; i++) pal[1 + i] = starfield_pal[i];
-        PAL_setPalette(p, pal, DMA_QUEUE);
+            for (u8 i = 0; i < STARFIELD_COLORS; i++) pal[p][1 + i] = starfield_pal[i];
+        PAL_setPalette(p, pal[p], DMA_QUEUE);
     }
     SYS_doVBlankProcess();
 }

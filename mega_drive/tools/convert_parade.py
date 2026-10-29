@@ -60,23 +60,29 @@ def main():
         if fw > MAX_W or fh > MAX_H:
             print(f"  skip {eid} '{name}': frame {fw}x{fh} too big")
             continue
-        # first INTRO frame when the enemy has one, else frame 0
-        col = 0
+        # PC draw::show_boss_intro_sprites: with more than one INTRO frame they play
+        # in order with their own durations (the last one stays); otherwise the
+        # first frame of the sheet is shown (NOT the stand/intro frame by position).
+        intro = []
         for f in range(10):
             o = 78 + (ANIM_INTRO * 10 + f) * 14
             if b[o]:
-                col = b[o + 4]
-                break
+                intro.append((b[o + 4], struct.unpack_from("<H", b, o + 2)[0]))
         im, pal = C.load_indexed(path)
-        if (col + 1) * fw > im.width:
-            col = 0
+        if len(intro) > 1:
+            cols = [c for c, _ in intro]
+            ticks = [max(1, round(d * 60 / 1000)) for _, d in intro]
+        else:
+            cols, ticks = [0], [0]
+        cols = [c if (c + 1) * fw <= im.width else 0 for c in cols]
         cw, ch = C.ceil8(fw), C.ceil8(fh)
-        out = Image.new("P", (cw, ch), 0)
+        out = Image.new("P", (cw * len(cols), ch), 0)
         out.putpalette(im.getpalette())
-        out.paste(im.crop((col * fw, 0, col * fw + fw, fh)), (0, 0))
+        for i, c in enumerate(cols):
+            out.paste(im.crop((c * fw, 0, c * fw + fw, fh)), (i * cw, 0))
         fn = f"parade_{eid}.png"
         out.save(os.path.join(RES, fn), transparency=0)
-        res.append(f'SPRITE parade_{eid}_sprite "{fn}" {cw}p {ch}p FAST [[0]]')
+        res.append(f'SPRITE parade_{eid}_sprite "{fn}" {cw}p {ch}p FAST [[{",".join(map(str, ticks))}]]')
         rows.append((eid, name, fw, fh))
     open(os.path.join(RES, "parade.res"), "w").write("\n".join(res) + "\n")
     with open(os.path.join(SRC, "parade_data.h"), "w") as f:
