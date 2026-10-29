@@ -456,7 +456,7 @@ def convert_background(map_n, name, adjust_y, speed, over=None):
     img.putpalette([v for c in pal for v in c])
     img.putdata([0 if t else lut.get(c, 1) for c, t in zip(rgbs, clear)])
     out = os.path.join(RES, f"{PFX}_bg{map_n}.png")
-    img.save(out)
+    img.save(out, transparency=0)   # img2tiles must read index 0 as alpha 0, not black
     print(f"  bg{map_n}: {name} {src.size} -> {img.size} "
           f"(adjust_y={adjust_y} speed={speed}) -> res/{PFX}_bg{map_n}.png")
     return {"present": 1, "adjust_y": adjust_y, "speed": speed}
