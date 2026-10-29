@@ -13,6 +13,8 @@
 #include "credits_data.h"
 #include "parade_data.h"
 #include "starfield_data.h"
+#include "boss_intro_bg_tiles.h"
+#include "boss_intro_bg_map.h"
 #include "end_l1_tiles.h"
 #include "end_l1_map.h"
 #include "end_l2_tiles.h"
@@ -162,6 +164,36 @@ static void walking_parade(void)
 // PC show_enemies_ending is a long line of normal enemies; the port shows the
 // bosses, which are the sprites every stage already carries. One boss per
 // stage, name under it, fixed 100-frame hold (the PC ending reads no input).
+// PC draw::show_boss_intro_bg: the boss-intro backdrop behind every parade page
+// (same tiles/map/palette as bossintro.c). No enemy of the data carries a
+// backdrop art of its own (bg_graphic_filename is empty in all 61 records).
+#define PARADE_BG_PAL    PAL1
+#define PARADE_BG_BASE   TILE_USER_INDEX
+#define PARADE_SPR_Y     80             // BOSS_INTRO_BOSS_Y: sprite centre row
+#define PARADE_NAME_ROW  23
+
+static void parade_bg_load(void)
+{
+    VDP_loadTileData(boss_intro_bg_tiles_data, PARADE_BG_BASE,
+                     BOSS_INTRO_BG_TILE_COUNT, DMA);
+    PAL_setPalette(PARADE_BG_PAL, boss_intro_bg_pal.data, DMA_QUEUE);
+    VDP_setTextPlane(BG_A);
+    VDP_setTextPalette(PAL0);
+    SYS_doVBlankProcess();
+}
+
+// Redraws the backdrop (it also wipes the previous page's text).
+static void parade_bg_draw(void)
+{
+    static u16 cells[BOSS_INTRO_BG_MAP_W * BOSS_INTRO_BG_MAP_H];
+    for (u16 i = 0; i < BOSS_INTRO_BG_MAP_W * BOSS_INTRO_BG_MAP_H; i++)
+        cells[i] = TILE_ATTR_FULL(PARADE_BG_PAL, FALSE, FALSE, FALSE,
+                                  PARADE_BG_BASE + boss_intro_bg_map[i]);
+    VDP_fillTileMapRect(BG_A, BLANK_TILE, 0, 0, 64, 32);
+    VDP_setTileMapDataRect(BG_A, cells, 0, 0, BOSS_INTRO_BG_MAP_W,
+                           BOSS_INTRO_BG_MAP_H, BOSS_INTRO_BG_MAP_W, CPU);
+}
+
 // PC graphLib.draw_progressive_text: one character per ~60 ms (4 frames).
 static void typed_text(const char *s, u16 col, u16 row)
 {
@@ -179,16 +211,17 @@ static void boss_parade(void)
     black_screen();
     PAL_setPalette(PAL0, pal_ui.data, DMA_QUEUE);
     SYS_doVBlankProcess();
+    parade_bg_load();
 
     // PC show_enemies_ending: every enemy of the game list that is not a stage
     // boss, 3 s each (sprite + name), before the bosses.
     for (u8 i = 0; i < PARADE_COUNT; i++) {
         const ParadeEnemy *pe = &parade_enemies[i];
-        Sprite *spr = SPR_addSprite(pe->spr, 160 - pe->w / 2, 104 - pe->h / 2,
+        Sprite *spr = SPR_addSprite(pe->spr, 160 - pe->w / 2, PARADE_SPR_Y - pe->h / 2,
                                     TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
         if (spr) spr_set_anim(spr, 0);
-        VDP_fillTileMapRect(BG_A, BLANK_TILE, 0, 0, 64, 32);
-        center_text(pe->name, 21);
+        parade_bg_draw();
+        center_text(pe->name, PARADE_NAME_ROW);
         wait_frames(180);
         if (spr) SPR_releaseSprite(spr);
         SPR_update();
@@ -210,11 +243,11 @@ static void boss_parade(void)
         if (boss->spr)
             spr = SPR_addSprite(boss->spr,
                                 160 - boss->spr->w / 2,
-                                104 - boss->spr->h / 2,
+                                PARADE_SPR_Y - boss->spr->h / 2,
                                 TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
         if (spr) spr_set_anim(spr, 0);
 
-        VDP_fillTileMapRect(BG_A, BLANK_TILE, 0, 0, 64, 32);
+        parade_bg_draw();
         if (stage < BOSS_CREDITS_COUNT) {
             // PC show_bosses_ending: id + boss name, CONCEPT and DESIGN credits typed
             // one character at a time (60 ms each), then a 2 s hold.
