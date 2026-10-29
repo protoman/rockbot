@@ -245,6 +245,27 @@ static void walk_dma_experiments(void)
     walk_verify("EXP D");
     XGM2_resume();
 
+    // F: music fully stopped, then a queued flush (is it the Z80 driver at all?)
+    music_stop();
+    SYS_doVBlankProcess();
+    SYS_doVBlankProcess();
+    SYS_doVBlankProcess();
+    VDP_loadTileData(end_l1_tiles_data, END_BASE1, END_L1_TILE_COUNT, DMA_QUEUE);
+    PAL_setPalette(END_PAL1, end_l1_pal.data, DMA_QUEUE);
+    t0 = vtimer;
+    SYS_doVBlankProcess();
+    dbg_print("EXP F flush with music stopped: dv=%u xgm2=%u\n",
+              (unsigned)((u32)vtimer - t0), (unsigned)XGM2_isPlaying());
+    walk_verify("EXP F");
+
+    // G: DMA from a RAM source instead of ROM (palette PAL3 only)
+    static u16 ram_pal[16];
+    memcpy(ram_pal, end_l1_pal.data, 32);
+    t0 = vtimer;
+    PAL_setPalette(END_PAL1, ram_pal, DMA);
+    dbg_print("EXP G DMA from RAM source: dv=%u\n", (unsigned)((u32)vtimer - t0));
+    walk_verify("EXP G");
+
     // E: whatever did not land goes in by CPU so the screen is right regardless
     VDP_loadTileData(end_l3_tiles_data, END_BASE3, END_L3_TILE_COUNT, CPU);
     VDP_loadTileData(end_l2_tiles_data, END_BASE2, END_L2_TILE_COUNT, CPU);
@@ -254,6 +275,8 @@ static void walk_dma_experiments(void)
     pal_load(END_PAL1, end_l1_pal.data);
     pal_load(PAL2, player_palette_def()->data);
     walk_verify("EXP E (all by CPU)");
+    music_play(MUSIC_END_ANIMATION);        // restart what F stopped
+    wd_ck("after experiments");
 }
 #endif
 

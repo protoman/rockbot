@@ -330,9 +330,11 @@ void scene_play(u8 index)
                 // PC sceneShow::play_music -> playmusic_list[n]; the converter
                 // maps each record's filename to a MUSIC_* id (music.c owns the
                 // id -> resource table), so a cutscene can change the track.
+                wd_ck("scene PLAY_MUSIC before");
                 if (op->seek < SCENE_MUSIC_COUNT &&
                     scene_music_ids[op->seek] != MUSIC_NONE)
                     music_play(scene_music_ids[op->seek]);
+                wd_ck("scene PLAY_MUSIC after");
                 break;
             case SCENE_STOP_MUSIC:
                 wd_ck("scene STOP_MUSIC before");
