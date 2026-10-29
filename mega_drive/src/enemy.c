@@ -518,6 +518,7 @@ static void ai_action_init(Enemy *e)
         }
         break;
     case AI_FLY:
+        e->ghost = 0;                   // only DRILL_DOWN passes through walls, and only during it
         e->dash_ai = (st->param == AI_FLY_DASH) ? 1 : 0;
         if (st->param == AI_FLY_TURN) {
             if (d->turn_anim != 255 && d->turn_ms) {
@@ -582,7 +583,7 @@ static void ai_action_init(Enemy *e)
             // PC: ghostly descent to below the screen at 1/4 speed, walls
             // ignored (it is a drill).
             e->ghost = 1;
-            e->dest_x = e->x + ai_rand_off((s16)d->range);
+            e->dest_x = e->x;           // straight down: the x is re-rolled when it wraps to the top
             e->dest_y = (s16)((stage_def->map_h * stage_def->tile) + 64);
         } else if (st->param == AI_FLY_PLAYER_DIR) {
             // PC PLAYER_DIRECTION: face the player and travel walk_range that
@@ -718,6 +719,15 @@ static bool step_axis(Enemy *e, s16 *pos, s16 dest, bool horizontal, bool can_fa
     if ((dir > 0 && n > dest) || (dir < 0 && n < dest)) n = dest;
 
     if (e->ghost) {                     // DRILL_DOWN: pass through walls
+        // PC: inside a wall it moves at 1/4 speed (_ghost_move_speed_reducer 4).
+        if (!horizontal &&
+            box_hits_solid(e->x + d->box_l, n + d->box_t,
+                           e->x + d->box_l + d->box_w, n + d->box_t + d->box_h)) {
+            s16 slow = step / 4;
+            if (slow < 1) slow = 1;
+            n = *pos + dir * slow;
+            if ((dir > 0 && n > dest) || (dir < 0 && n < dest)) n = dest;
+        }
         *pos = n;
         return *pos == dest;
     }
@@ -1069,6 +1079,23 @@ static bool ai_action_run(Enemy *e)
                 eshot_fire_e(e, d, e->x + d->box_l + d->box_w / 2,
                            e->y + d->box_t + d->box_h / 2, e->dir, d->shot);
             }
+        }
+        if (st->param == AI_FLY_DRILL_DOWN) {
+            // PC (artificial_inteligence.cpp:1493): straight down only; once
+            // below the screen it reappears above it with its x re-rolled by
+            // up to 3 tiles and the action ends.
+            if (e->y >= (s16)(stage_def->map_h * stage_def->tile + stage_def->tile)) {
+                s16 nx = e->x + ai_rand_off(3 * stage_def->tile);
+                const s16 xmax = (s16)(stage_def->map_w * stage_def->tile - d->box_l - d->box_w);
+                if (nx < 0) nx = 0;
+                if (nx > xmax) nx = xmax;
+                e->x = nx;
+                e->y = (s16)(-2 * stage_def->tile);
+                e->ghost = 0;
+                return TRUE;
+            }
+            step_axis(e, &e->y, e->dest_y, FALSE, TRUE);
+            return FALSE;
         }
         bool dx = step_axis(e, &e->x, e->dest_x, TRUE, TRUE);
         bool dy = step_axis(e, &e->y, e->dest_y, FALSE, TRUE);
