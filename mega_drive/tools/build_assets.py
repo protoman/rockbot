@@ -124,6 +124,7 @@ STAGE_DATA = ["maps_v2.dat", "map_npc_data.dat", "map_object_data.dat",
 IMG_DIRS = [DATA + "/images", IMAGES, "art", PCIMG, PCGAME + "/images"]
 
 steps = []                                    # (name, [argv...], inputs[list])
+EXTERNAL_TOOL_STEPS = {"music", "players"}
 
 
 def add(name, argv, inputs):
@@ -203,8 +204,12 @@ def build_steps():
         add("tiles_" + name, ["tools/img2tiles.py", png, "--name", name] + extra,
             common("img2tiles.py") + [png])
     add("stage_select", ["tools/convert_stage_select.py"], common("convert_stage_select.py") + img + shared)
+    l2 = PCGAME + "/images/ending/player_walking_layer2.png"
+    add("end_l2_pad", ["tools/pad_top.py", l2, "res/end_l2_src.png"], common("pad_top.py") + [l2])
     for n in (1, 2, 3):
         png = PCGAME + "/images/ending/player_walking_layer%d.png" % n
+        if n == 2:
+            png = "res/end_l2_src.png"          # 53 px padded at the TOP (no gap above the ground)
         add("tiles_end_l%d" % n, ["tools/img2tiles.py", png, "--name", "end_l%d" % n, "--colors", "15"],
             common("img2tiles.py") + [png])
     add("save_selector", ["tools/convert_save_selector.py"], common("convert_save_selector.py") + img + shared)
@@ -290,19 +295,55 @@ def main():
     ran, failed = 0, None
     t0 = time.time()
 
+    def dir_digest(d):
+        try:
+            return hashlib.sha1("\n".join(sorted(os.listdir(d))).encode()).hexdigest()
+        except OSError:
+            return "-"
+
+    def deps_digest(files, dirs):
+        h = {}
+        for f in files:
+            h[f] = file_digest(f) if os.path.isfile(f) else "-"
+        for d in dirs:
+            h["dir:" + d] = dir_digest(d)
+        return h
+
     def run_step(name, cmd, inputs):
+        """Up to date when the command and the explicit slices are unchanged AND every file the
+        converter really opened last time (measured by tools/_trace) still has the same bytes.
+        The first run after a change of the command (or with no record) is a full run."""
         nonlocal ran
         if only and name not in only:
             return True
-        key = hash_inputs(inputs + [("text", " ".join(cmd))])
-        if cache.get(name) == key:
-            return True
+        sliced = {it[1] for it in inputs if isinstance(it, tuple) and it[0] == "slice"}
+        base = hash_inputs([it for it in inputs if isinstance(it, tuple)] + [("text", " ".join(cmd))])
+        entry = cache.get(name)
+        if isinstance(entry, dict) and entry.get("base") == base:
+            if deps_digest(entry["files"], entry["dirs"]) == entry["deps"]:
+                return True
         print("[assets] %s" % name, flush=True)
-        r = subprocess.run(cmd, stdout=subprocess.DEVNULL if "-v" not in argv else None)
+        trace = os.path.join("res", ".trace_%s.json" % name)
+        env = dict(os.environ, ASSETS_TRACE=trace, ASSETS_ROOT=ROOT,
+                   PYTHONPATH=os.path.join(ROOT, "tools", "_trace") + os.pathsep +
+                   os.environ.get("PYTHONPATH", ""))
+        r = subprocess.run(cmd, env=env, stdout=subprocess.DEVNULL if "-v" not in argv else None)
         if r.returncode != 0:
             print("[assets] %s FAILED (%d)" % (name, r.returncode), file=sys.stderr)
             return False
-        cache[name] = key
+        try:
+            t = json.load(open(trace))
+            os.remove(trace)
+            files = [f for f in t["files"] if os.path.normpath(f) not in {os.path.normpath(x) for x in sliced}]
+            dirs = t["dirs"]
+            if name in EXTERNAL_TOOL_STEPS:
+                # these run a child program (mod2vgm, g++) whose file reads the Python hook cannot
+                # see: keep the static input list for them as well
+                files = sorted(set(files) | {x for x in inputs if isinstance(x, str) and os.path.isfile(x)})
+            cache[name] = {"base": base, "files": files, "dirs": dirs,
+                           "deps": deps_digest(files, dirs)}
+        except Exception:
+            cache.pop(name, None)           # no trace (tool crashed late): run again next time
         ran += 1
         return True
 

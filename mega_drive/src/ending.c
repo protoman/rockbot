@@ -220,7 +220,7 @@ static void walk_verify(const char *tag)
     // middle band (L2) and the ground band (L1) must hold three different BG_A values
     for (u8 k = 0; k < 3; k++) {
         const u16 row = (k == 0) ? 0 : (k == 1) ? END_L2_ROW : END_L1_ROW;
-        tdump_read((u16)(VDP_getHScrollTableAddress() + row * 4), buf, 2);
+        tdump_read((u16)(VDP_getHScrollTableAddress() + row * 32), buf, 2);   // tile mode: one entry per 8 scanlines (32 B)
         dbg_print("VER %s hscroll row %u: BG_A=%04X BG_B=%04X\n", tag, (unsigned)row, buf[0],
                   buf[1]);
     }
@@ -491,6 +491,29 @@ static void walking_parade(void)
         // re-sends turn a persistent glitch into at most a couple of bad frames.
         if (frame == 2 || frame == 8 || frame == 30) walking_gfx_queue();
 
+#ifdef MD_WALK_TIME
+        {
+            // Frame pacing of the walk with NOTHING else running (no readback): every frame
+            // that took more than one vblank, and a summary at the end.
+            static u32 last_vt, n_slow, max_dv, first_vt;
+            const u32 dv = (u32)vtimer - last_vt;
+            if (frame == 0) first_vt = (u32)vtimer;
+            else if (dv != 1) {
+                n_slow++;
+                if (dv > max_dv) max_dv = dv;
+                dbg_print("SLOW f=%u dv=%u heap=%u dmaq=%u\n", (unsigned)frame, (unsigned)dv,
+                          (unsigned)MEM_getFree(), (unsigned)DMA_getQueueSize());
+            }
+            last_vt = (u32)vtimer;
+            if ((frame % 300) == 0)
+                dbg_print("WALKTIME f=%u vt=%u slow_so_far=%u max_dv=%u\n", (unsigned)frame,
+                          (unsigned)vtimer, (unsigned)n_slow, (unsigned)max_dv);
+            if (px < -48)
+                dbg_print("WALKTIME END frames=%u vblanks=%u slow=%u max_dv=%u (60 vblanks = 1 s)\n",
+                          (unsigned)(frame + 1), (unsigned)((u32)vtimer - first_vt), (unsigned)n_slow,
+                          (unsigned)max_dv);
+        }
+#endif
         if (px < -48) break;
         frame++;
     }
