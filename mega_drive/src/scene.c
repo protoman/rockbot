@@ -2,6 +2,7 @@
 #include <genesis.h>
 
 #include "scene.h"
+#include "walkdiag.h"
 #include "pal_safe.h"
 #include "scenes_data.h"
 #include "music.h"
@@ -334,7 +335,9 @@ void scene_play(u8 index)
                     music_play(scene_music_ids[op->seek]);
                 break;
             case SCENE_STOP_MUSIC:
+                wd_ck("scene STOP_MUSIC before");
                 music_stop();
+                wd_ck("scene STOP_MUSIC after");
                 break;
             case SCENE_PLAY_SFX:
                 // No converted scene uses this op; scenes_play_sfx.dat has two
@@ -357,4 +360,5 @@ void scene_play(u8 index)
         }
         if (!wait_ms(op->delay)) return;
     }
+    wd_ck("scene end");
 }

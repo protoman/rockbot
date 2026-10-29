@@ -14,6 +14,7 @@
 #include "credits_data.h"
 #include "parade_data.h"
 #include "tdump.h"
+#include "walkdiag.h"
 #include "starfield_data.h"
 #include "boss_intro_bg_tiles.h"
 #include "boss_intro_bg_map.h"
@@ -112,14 +113,83 @@ static void walking_gfx_queue(void)
     PAL_setPalette(PAL2, player_palette_def()->data, DMA_QUEUE);
 }
 
+#ifdef MD_WALK_DIAG
+// BUG-045: read VRAM/CRAM back and compare with what the walking scene put there
+// (tiles, the four palette lines, every plane row), and print one line per class
+// with the count of bad items and the first bad one. VRAM reads go through
+// tdump_read (DMA waited out, interrupts off), CRAM through PAL_getColors.
+static void walk_verify(const char *tag)
+{
+    static u16 buf[64];
+    struct { const u32 *data; u16 n; u16 base; const char *name; } sets[3] = {
+        { end_l3_tiles_data, END_L3_TILE_COUNT, END_BASE3, "L3" },
+        { end_l2_tiles_data, END_L2_TILE_COUNT, END_BASE2, "L2" },
+        { end_l1_tiles_data, END_L1_TILE_COUNT, END_BASE1, "L1" },
+    };
+    for (u8 k = 0; k < 3; k++) {
+        u16 bad = 0; s16 first = -1;
+        for (u16 t = 0; t < sets[k].n; t++) {
+            tdump_read((u16)((sets[k].base + t) * 32), buf, 16);
+            const u16 *exp = (const u16 *)(sets[k].data + (u32)t * 8);
+            for (u8 w = 0; w < 16; w++)
+                if (buf[w] != exp[w]) { bad++; if (first < 0) first = (s16)t; break; }
+        }
+        dbg_print("VER %s tiles %s: bad=%u/%u first=%d\n", tag, sets[k].name, bad,
+                  sets[k].n, (int)first);
+    }
+    const u16 *pals[4] = { end_l3_pal.data, end_l2_pal.data, player_palette_def()->data,
+                           end_l1_pal.data };          // PAL0, PAL1, PAL2, PAL3
+    for (u8 line = 0; line < 4; line++) {
+        PAL_getColors((u16)(line * 16), buf, 16);
+        u8 bad = 0; s8 first = -1;
+        for (u8 i = 0; i < 16; i++)
+            if ((buf[i] & 0x0EEE) != (pals[line][i] & 0x0EEE)) { bad++; if (first < 0) first = (s8)i; }
+        dbg_print("VER %s PAL%u: bad=%u/16 first=%d got=%04X want=%04X\n", tag, line, bad,
+                  (int)first, first >= 0 ? buf[(u8)first] : 0,
+                  first >= 0 ? pals[line][(u8)first] : 0);
+    }
+    struct { u16 plane; const u16 *map; u16 w, h, base, pal, row; const char *name; } L[3] = {
+        { BG_B, end_l3_map, END_L3_MAP_W, END_L3_MAP_H, END_BASE3, END_PAL3, END_L3_ROW, "BG_B L3" },
+        { BG_A, end_l2_map, END_L2_MAP_W, END_L2_MAP_H, END_BASE2, END_PAL2, END_L2_ROW, "BG_A L2" },
+        { BG_A, end_l1_map, END_L1_MAP_W, END_L1_MAP_H, END_BASE1, END_PAL1, END_L1_ROW, "BG_A L1" },
+    };
+    for (u8 k = 0; k < 3; k++) {
+        const u16 addr = (L[k].plane == BG_A) ? VDP_getBGAAddress() : VDP_getBGBAddress();
+        u16 bad = 0, firstRow = 0, firstCol = 0, got = 0, want = 0;
+        for (u16 y = 0; y < L[k].h; y++) {
+            tdump_read((u16)(addr + (L[k].row + y) * 128), buf, 64);
+            for (u16 x = 0; x < 64; x++) {
+                const u16 exp = TILE_ATTR_FULL(L[k].pal, FALSE, FALSE, FALSE,
+                                               L[k].base + L[k].map[y * L[k].w + (x % L[k].w)]);
+                if (buf[x] != exp) {
+                    if (!bad) { firstRow = L[k].row + y; firstCol = x; got = buf[x]; want = exp; }
+                    bad++;
+                }
+            }
+        }
+        dbg_print("VER %s map %s: bad=%u/%u first=(%u,%u) got=%04X want=%04X\n", tag,
+                  L[k].name, bad, (unsigned)(L[k].h * 64), firstCol, firstRow, got, want);
+    }
+}
+#define WALK_VERIFY(tag) walk_verify(tag)
+#else
+#define WALK_VERIFY(tag) ((void)0)
+#endif
+
 static void walking_parade(void)
 {
+    wd_ck("walk enter");
     music_play(MUSIC_END_ANIMATION);
+    wd_ck("walk after music");
     sprites_end();
+    wd_ck("walk after sprites_end");
     sprites_begin(SPRITE_VRAM_TILES);
+    wd_ck("walk after sprites_begin");
 
     black_screen();
+    wd_ck("walk after black_screen");
     walking_gfx_queue();
+    wd_ck("walk queued");
     // Flush the queued transfers at a vblank NOW. The map rows below are long CPU
     // writes; with the transfers still pending, whether the tiles and the first
     // palette lines landed (or got overtaken) depended on where the next vblank
@@ -129,19 +199,23 @@ static void walking_parade(void)
               (unsigned)DMA_getQueueSize(), (unsigned)DMA_getMaxQueueSize(),
               (unsigned)DMA_getQueueTransferSize());
     SYS_doVBlankProcess();
+    wd_ck("walk flushed");
+    WALK_VERIFY("after flush");
 
     layer_upload(BG_B, end_l3_map, END_L3_MAP_W, END_L3_MAP_H,
                  END_BASE3, END_PAL3, END_L3_ROW);
+    wd_ck("walk after L3 map");
     layer_upload(BG_A, end_l2_map, END_L2_MAP_W, END_L2_MAP_H,
                  END_BASE2, END_PAL2, END_L2_ROW);
     layer_upload(BG_A, end_l1_map, END_L1_MAP_W, END_L1_MAP_H,
                  END_BASE1, END_PAL1, END_L1_ROW);
+    wd_ck("walk after maps");
+    WALK_VERIFY("after maps");
 
     Sprite *ply = SPR_addSprite(player_definition(), END_WALK_X, END_WALK_Y,
                                 TILE_ATTR(PAL2, FALSE, FALSE, FALSE));
-    dbg_print("WALK: sprite engine=%d player sprite=%d heap free=%u largest=%u\n",
-              (int)SPR_isInitialized(), (int)(ply != NULL),
-              (unsigned)MEM_getFree(), (unsigned)MEM_getLargestFreeBlock());
+    dbg_print("WALK: sprite engine=%d player sprite=%d\n", (int)SPR_isInitialized(), (int)(ply != NULL));
+    wd_ck("walk sprite added");
     if (ply) {
         spr_set_anim(ply, ANIM_WALK);
         SPR_setHFlip(ply, TRUE);   // PC: ANIM_DIRECTION_LEFT
@@ -167,13 +241,23 @@ static void walking_parade(void)
         SYS_doVBlankProcess();
         VDP_setReg(17, 0);
         VDP_setReg(18, 0);
-        if (frame == 0 || frame == 1 || frame == 30) {      // diagnostics (MD_TILE_DUMP builds only)
-            tdump_vdp(frame == 0 ? "walk f0" : (frame == 1 ? "walk f1" : "walk f30"));
-            tdump_cram(frame == 0 ? "walk f0" : (frame == 1 ? "walk f1" : "walk f30"));
-            tdump_cell("walk f1 BG_B", BG_B, 5, 4);
-            tdump_cell("walk f1 BG_A", BG_A, 5, 10);
-            tdump_tile("walk f1 tile", END_BASE3 + 1);
+#ifdef MD_WALK_DIAG
+        {
+            static u32 last_vt;
+            const u32 dv = (u32)vtimer - last_vt;
+            last_vt = (u32)vtimer;
+            if (frame > 0 && dv != 1 && frame < 3000)
+                dbg_print("SLOWFRAME f=%u dv=%u\n", (unsigned)frame, (unsigned)dv);
+            if (frame < 5 || frame == 6 || frame == 8 || frame == 12 || frame == 20 ||
+                frame == 30 || frame == 45 || (frame % 60) == 0) {
+                char t[16];
+                intToStr((s32)frame, t, 1);
+                dbg_print("FRAME %u\n", (unsigned)frame);
+                wd_ck(t);
+                WALK_VERIFY(t);
+            }
         }
+#endif
 
         // Safety net for the intermittent start-of-walk garbage (tiles/palettes
         // that never landed): the transfers are idempotent and ~5 KB, so a few
@@ -448,6 +532,7 @@ static void credits_scroll(bool new_characters)
 
 void ending_run(bool new_characters)
 {
+    wd_ck("ending_run enter");
     walking_parade();
     boss_parade();
     credits_scroll(new_characters);

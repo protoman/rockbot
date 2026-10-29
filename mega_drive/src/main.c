@@ -34,6 +34,7 @@ static u8 lk_dbg_frames;   // frames still logged after a room change
 #include "music.h"
 #include "scene.h"
 #include "ending.h"
+#include "walkdiag.h"
 #include "config.h"
 #include "dialogs.h"
 #include "weapon_data.h"
@@ -1319,7 +1320,10 @@ int main(bool hardReset)
     current_player = 0;
     player_new_game();
     stage_set_data(13);
+    dbg_print("=== BOOT: ending test hook ===\n");
+    wd_ck("hook start");
     music_play(MUSIC_END_ANIMATION);
+    wd_ck("hook after music");
     scene_play((u8)(2 + (current_player & 3)));
     ending_run(TRUE);
     // falls through to the title, like the real flow after the ending
