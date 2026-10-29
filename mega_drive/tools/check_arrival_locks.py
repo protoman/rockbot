@@ -44,7 +44,7 @@ def fix(locks, focus, cam):
         if c in locks: lo = (c << 4) + 2; break
     for c in range(fc + 1, fc + 25):
         if c in locks: hi = (c << 4) - 307; break
-    if lo > hi: cam = (lo + hi) >> 1
+    if lo > hi: cam = lo
     elif cam < lo: cam = lo
     elif cam > hi: cam = hi
     return max(0, min(cam, 200*16-320))

@@ -265,7 +265,8 @@ static void scroll_lock_camera(s16 prev_x)
 // reported: a camera set by any other path (kept screen X, teleport, boss
 // door) can no longer leave a lock inside the view - tools/check_arrival_locks.py.
 // A room narrower than the view has no camera satisfying both bounds; the
-// camera then centres in the gap so the lock edges show equally.
+// camera is then pinned to the left lock (PC get_first_lock_on_left), so no
+// column left of the room shows; the right wall is inside the view.
 static void scroll_lock_span(s16 focus_x)
 {
     // The scan costs ~700 subticks (every column check walks the lock list and
@@ -283,7 +284,7 @@ static void scroll_lock_span(s16 focus_x)
             if (column_locked(c)) { hi = (s16)((c << 4) - 307); break; }
         key_fc = fc; key_gen = room_cache_gen; key_objs = objects_count();
     }
-    if (lo > hi) camera.x = (s16)((lo + hi) >> 1);
+    if (lo > hi) camera.x = lo;     // narrow room: pinned to the left wall, as the PC's get_first_lock_on_left
     else if (camera.x < lo) camera.x = lo;
     else if (camera.x > hi) camera.x = hi;
 }
