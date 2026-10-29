@@ -1,3 +1,4 @@
+#include "dbgprint.h"
 #include "player.h"
 #include "sprite_guard.h"
 #include "sfx.h"
@@ -1191,7 +1192,7 @@ void player_update(u16 pad)
             if ((trace_t++ & 7) == 0) {
                 const s16 mr = ((iy + box_t) + (iy + box_b)) >> 5;
                 const s16 fr = (iy + box_b) >> 4;
-                kprintf("LAD anim=%d frame=%d mid_stair=%d feet_stair=%d y=%d\n",
+                dbg_print("LAD anim=%d frame=%d mid_stair=%d feet_stair=%d y=%d\n",
                         (int)stair_anim, (int)stair_frame,
                         (int)(stage_terrain_at(stage_current_map, ctx, mr) ==
                               TERRAIN_STAIR),

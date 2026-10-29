@@ -1,3 +1,4 @@
+#include "dbgprint.h"
 #include "stage.h"
 #include "pal_safe.h"
 #include "sfx.h"
@@ -532,7 +533,7 @@ void stage_load(u8 map_index)
         // Out of heap: bail with the display restored (leaving it disabled
         // here would black the screen silently). BUG-040: the caller must not
         // keep going with a NULL map (drawing it crashed in setMapRow).
-        kprintf("stage_load: MAP_create failed (free=%u largest=%u)\n",
+        dbg_print("stage_load: MAP_create failed (free=%u largest=%u)\n",
                 (unsigned)MEM_getFree(),
                 (unsigned)MEM_getLargestFreeBlock());
         VDP_setEnable(wasEnabled);

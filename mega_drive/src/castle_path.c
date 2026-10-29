@@ -1,3 +1,4 @@
+#include "dbgprint.h"
 #include "castle_path.h"
 
 #include "castle_path_data.h"
@@ -107,7 +108,7 @@ void castle_path_run(u8 idx)
     cell_of_slot = (u16 *)cb;
     slot_of = cb + OVL_SLOTS * sizeof(u16);
     if (tiles_bytes < OVL_SLOTS * 32 || cells_bytes < OVL_SLOTS * 2 + CELLS_W * CELLS_H) {
-        kprintf("castle_path: scratch too small\n");     // no path: the castle still shows
+        dbg_print("castle_path: scratch too small\n");     // no path: the castle still shows
         return;
     }
     memset(ovl_tiles, 0, OVL_SLOTS * 32);

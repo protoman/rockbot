@@ -1,3 +1,4 @@
+#include "dbgprint.h"
 #include "sprite_guard.h"
 
 // Cap the diagnostics: one bad index usually repeats every frame, and the log
@@ -11,13 +12,13 @@ static void report(const char *what, s16 index, u16 count,
 {
     if (bad_logs >= SPR_BAD_LOGS_MAX) return;
     if (bad_logs == 0)
-        kprintf("sprite guard: %s out of range (index %d, %u valid, def %p)\n",
+        dbg_print("sprite guard: %s out of range (index %d, %u valid, def %p)\n",
                 what, index, count, def);
     else
-        kprintf("sprite guard: %s index %d >= %u\n", what, index, count);
+        dbg_print("sprite guard: %s index %d >= %u\n", what, index, count);
     bad_logs++;
     if (bad_logs == SPR_BAD_LOGS_MAX)
-        kprintf("sprite guard: further reports suppressed\n");
+        dbg_print("sprite guard: further reports suppressed\n");
 }
 
 void spr_set_anim(Sprite *spr, s16 anim)

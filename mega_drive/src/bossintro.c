@@ -1,3 +1,4 @@
+#include "dbgprint.h"
 #include "bossintro.h"
 #include "pal_safe.h"
 #include "sprite_guard.h"
@@ -69,7 +70,7 @@ void boss_intro_run(u8 stage)
     sprites_end();      // restarted below: the castle path needs the heap the engine takes
     stage_release_map();
 #ifdef MD_HEAP_TRACE
-    kprintf("HEAP boss_intro free=%u largest=%u\n", (unsigned)MEM_getFree(),
+    dbg_print("HEAP boss_intro free=%u largest=%u\n", (unsigned)MEM_getFree(),
             (unsigned)MEM_getLargestFreeBlock());
 #endif
 

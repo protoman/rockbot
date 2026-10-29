@@ -1,3 +1,4 @@
+#include "dbgprint.h"
 #include <genesis.h>
 
 #include "resources.h"
@@ -133,7 +134,7 @@ static inline void prof_tick(u8 i)
 static void prof_report(void)
 {
     if (++prof_frames < 60) return;
-    kprintf("PROF map=%d obj=%d npc=%d hot=%d/t%d/%d px=%d py=%d "
+    dbg_print("PROF map=%d obj=%d npc=%d hot=%d/t%d/%d px=%d py=%d "
             "setup=%lu objupd=%lu plr=%lu hud=%lu "
             "cam=%lu anim=%lu npcs=%lu shot=%lu spr=%lu wait=%lu "
             "over=%lu max=%lu fx=%lu esh=%lu psh=%lu (subticks/frame, 1280 = 60fps)\n",
@@ -154,14 +155,14 @@ static void prof_report(void)
             (unsigned long)(prof_acc[PROF_EXPL] / 60), (unsigned long)(prof_acc[PROF_ESHOT] / 60),
             (unsigned long)(prof_acc[PROF_PSHOT] / 60));
 #ifdef MD_PROFILE_PLAYER
-    kprintf("PPROF pre=%lu ladder=%lu shield=%lu slide=%lu horiz=%lu jump=%lu vert=%lu plat=%lu\n",
+    dbg_print("PPROF pre=%lu ladder=%lu shield=%lu slide=%lu horiz=%lu jump=%lu vert=%lu plat=%lu\n",
             (unsigned long)(player_prof[0] / 60), (unsigned long)(player_prof[1] / 60), (unsigned long)(player_prof[2] / 60),
             (unsigned long)(player_prof[3] / 60), (unsigned long)(player_prof[4] / 60), (unsigned long)(player_prof[5] / 60),
             (unsigned long)(player_prof[6] / 60), (unsigned long)(player_prof[7] / 60));
     for (u8 i = 0; i < 8; i++) player_prof[i] = 0;
 #endif
 #ifdef MD_PROFILE_ENEMY
-    kprintf("EPROF pre=%lu ai=%lu rest=%lu grav=%lu draw=%lu water=%lu (subticks/frame)\n",
+    dbg_print("EPROF pre=%lu ai=%lu rest=%lu grav=%lu draw=%lu water=%lu (subticks/frame)\n",
             (unsigned long)(enemy_prof[4] / 60), (unsigned long)(enemy_prof[5] / 60),
             (unsigned long)(enemy_prof[0] / 60), (unsigned long)(enemy_prof[1] / 60),
             (unsigned long)(enemy_prof[2] / 60), (unsigned long)(enemy_prof[3] / 60));
@@ -426,7 +427,7 @@ static void load_progress(void)
 }
 
 #ifdef MD_HEAP_TRACE
-#define HEAP_PROBE(tag) kprintf("HEAP %s free=%u largest=%u\n", tag, \
+#define HEAP_PROBE(tag) dbg_print("HEAP %s free=%u largest=%u\n", tag, \
                                 (unsigned)MEM_getFree(), (unsigned)MEM_getLargestFreeBlock())
 #else
 #define HEAP_PROBE(tag) ((void)0)
@@ -650,7 +651,7 @@ static RunResult runStage(u8 stage)
             if ((ap_t % 30) == 0 && player.hp < 28) player.hp = 28;
 #ifdef MD_LINK_TRACE
             if ((ap_t % 20) == 0)
-                kprintf("AP t=%d map=%d px=%d py=%d cam=%d ladder=%d\n", (int)ap_t,
+                dbg_print("AP t=%d map=%d px=%d py=%d cam=%d ladder=%d\n", (int)ap_t,
                         (int)stage_current_map, (int)player.x, (int)player.y,
                         (int)camera.x, (int)player.on_ladder);
 #endif
@@ -802,7 +803,7 @@ static RunResult runStage(u8 stage)
 #ifdef MD_LINK_TRACE
             // Offline-first rule then one emulator run: print exactly what the
             // arrival computes for the ladder / room-change reports.
-            kprintf("LINK map %d->%d trans %d dst(%d,%d) stair %d px %d py %d cam %d latch_off %d",
+            dbg_print("LINK map %d->%d trans %d dst(%d,%d) stair %d px %d py %d cam %d latch_off %d",
                     stage_current_map, to_map, to_trans, dst_tx, to_y / tile,
                     stair_col, px, py, cam_x, stage_link_band_off);
 #endif
@@ -1296,10 +1297,10 @@ int main(bool hardReset)
     current_player = 0;
     player_new_game();
     stage_set_data((u8)MD_TEST_CASTLE);
-    kprintf("castle test: heap free=%u largest=%u\n", (unsigned)MEM_getFree(),
+    dbg_print("castle test: heap free=%u largest=%u\n", (unsigned)MEM_getFree(),
             (unsigned)MEM_getLargestFreeBlock());
     boss_intro_run((u8)MD_TEST_CASTLE);
-    kprintf("castle test: done\n");
+    dbg_print("castle test: done\n");
     for (;;) SYS_doVBlankProcess();
 #endif
 

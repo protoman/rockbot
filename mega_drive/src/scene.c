@@ -1,3 +1,4 @@
+#include "dbgprint.h"
 #include <genesis.h>
 
 #include "scene.h"
@@ -336,7 +337,7 @@ void scene_play(u8 index)
                 // tools/convert_scenes.py refuses to emit a *played* scene with
                 // one of these, so reaching here means a data export went
                 // around the check - say so instead of skipping silently.
-                kprintf("scene %d: op %d not implemented, skipped\n",
+                dbg_print("scene %d: op %d not implemented, skipped\n",
                         index, op->type);
                 break;
             default:
