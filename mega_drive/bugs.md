@@ -1,3 +1,51 @@
+## BUG-045 — Ending: intermittent tile/palette garbage on the first frame of the walking scene (open)
+
+**Report (2026-10-29)**: `screenshots/bugs/ending/walking_glitch.png` - the first
+frame of the walking parade shows stripes, red/white garbage and the player's
+shapes as tiles; sometimes it lasts a split second, sometimes it stays. Repeats
+after a Tab reset of the same ROM, so it is timing/state dependent. Found with
+the `-DMD_TEST_ENDING` boot hook (src/main.c); not yet reproduced in a normal
+game finish.
+
+**Measured** (log-only run, `-DMD_TILE_DUMP`, walking frames 0/1/30): the walking
+scene's tile data (tile END_BASE3+1 reads all zeros) and the first palette lines
+(PAL0/PAL1 still hold the dialog scene's grey/blue ramps) never arrived, the map
+cell values read back wrong (BG_B cell (5,4) = tile 273, the art has 89 tiles),
+while the CPU-written things (scroll, sprites) ran. Registers were normal
+(reg12=81, BGA=E000, BGB=C000).
+
+**Ruled out by reading SGDK / the project** (no emulator needed):
+- V-INT handler (`src/boot/sega.s`): only the counter, `z80VIntCB` (XGM2 volume
+  fade) and the user callback; no VDP writes, no DMA.
+- Immediate and queued DMA both halt the Z80 (`HALT_Z80_ON_DMA 1`; the queue
+  flush is also wrapped in Z80 bus protection).
+- `SYS_disableInts/enableInts` nest correctly; no raw reg-1 write anywhere in
+  `src/` (DMA-enable bit), no palette fade in the scene/ending path.
+- ROM layout: no walking-scene table straddles a 128 KB boundary (SGDK splits
+  those anyway); the sheets/`ending.c` changes were bisected and are not the cause.
+- A display-OFF upload (VDP_setEnable(FALSE) + immediate DMA) made it worse
+  (one frame per second, no player) and was reverted - that variant is a clue
+  that something in the VDP/sprite state is fragile, not a fix.
+
+**Strongest remaining suspect**: heap exhaustion/fragmentation. 45 KB of the
+64 KB RAM is static, DMA queue (192 x 16 B) + DMA data buffer (8 KB) sit on the
+heap, and `walking_parade()` tears the sprite engine down and rebuilds it
+(`SPR_end` -> `POOL_destroy`/`MEM_pack`, `SPR_initEx` -> `POOL_create(MAX_SPRITE,
+sizeof(Sprite))` + a 1.5 KB VRAM map). If any `MEM_alloc` returns NULL the sprite
+engine (and the DMA queue, if it is ever re-created) is left half-built, which
+would also explain the "no player" symptom of the display-off attempt.
+
+**Changes made while investigating** (kept, unverified): the walking scene queues
+its tiles/palettes, then flushes them at a vblank BEFORE the long CPU map writes,
+and re-queues them at frames 2/8/30 (idempotent, ~5 KB) so a missed transfer
+shows for a couple of frames instead of for good.
+
+**Next run** (one launch, log only, `script -qf`, `-DMD_TEST_ENDING -DMD_TILE_DUMP`):
+read the `WALK:` lines - heap free/largest, DMA queue size/bytes before the first
+flush, `SPR_isInitialized()` and whether the player sprite was created - on a good
+and on a glitching boot. A NULL sprite pool or a tiny largest-free-block settles
+the heap theory; a full queue (192) settles the overflow one.
+
 ## BUG-044 follow-up — CRAM write race: fixed
 
 Every CPU-method CRAM write now goes through `src/pal_safe.h`

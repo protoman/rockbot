@@ -1,4 +1,5 @@
 #include "ending.h"
+#include "dbgprint.h"
 #include "sprite_guard.h"
 
 #include <genesis.h>
@@ -99,6 +100,18 @@ static void layer_upload(u16 plane, const u16 *map, u16 w, u16 h,
     }
 }
 
+// The walking scene's tiles and palettes, queued for the next vblank flush.
+static void walking_gfx_queue(void)
+{
+    VDP_loadTileData(end_l3_tiles_data, END_BASE3, END_L3_TILE_COUNT, DMA_QUEUE);
+    VDP_loadTileData(end_l2_tiles_data, END_BASE2, END_L2_TILE_COUNT, DMA_QUEUE);
+    VDP_loadTileData(end_l1_tiles_data, END_BASE1, END_L1_TILE_COUNT, DMA_QUEUE);
+    PAL_setPalette(END_PAL3, end_l3_pal.data, DMA_QUEUE);
+    PAL_setPalette(END_PAL2, end_l2_pal.data, DMA_QUEUE);
+    PAL_setPalette(END_PAL1, end_l1_pal.data, DMA_QUEUE);
+    PAL_setPalette(PAL2, player_palette_def()->data, DMA_QUEUE);
+}
+
 static void walking_parade(void)
 {
     music_play(MUSIC_END_ANIMATION);
@@ -106,17 +119,16 @@ static void walking_parade(void)
     sprites_begin(SPRITE_VRAM_TILES);
 
     black_screen();
-
-    VDP_loadTileData(end_l3_tiles_data, END_BASE3,
-                     END_L3_TILE_COUNT, DMA_QUEUE);
-    VDP_loadTileData(end_l2_tiles_data, END_BASE2,
-                     END_L2_TILE_COUNT, DMA_QUEUE);
-    VDP_loadTileData(end_l1_tiles_data, END_BASE1,
-                     END_L1_TILE_COUNT, DMA_QUEUE);
-    PAL_setPalette(END_PAL3, end_l3_pal.data, DMA_QUEUE);
-    PAL_setPalette(END_PAL2, end_l2_pal.data, DMA_QUEUE);
-    PAL_setPalette(END_PAL1, end_l1_pal.data, DMA_QUEUE);
-    PAL_setPalette(PAL2, player_palette_def()->data, DMA_QUEUE);
+    walking_gfx_queue();
+    // Flush the queued transfers at a vblank NOW. The map rows below are long CPU
+    // writes; with the transfers still pending, whether the tiles and the first
+    // palette lines landed (or got overtaken) depended on where the next vblank
+    // fell - the intermittent colour/tile garbage at the start of the walk.
+    dbg_print("WALK: heap free=%u largest=%u dmaq=%u/%u bytes=%u\n",
+              (unsigned)MEM_getFree(), (unsigned)MEM_getLargestFreeBlock(),
+              (unsigned)DMA_getQueueSize(), (unsigned)DMA_getMaxQueueSize(),
+              (unsigned)DMA_getQueueTransferSize());
+    SYS_doVBlankProcess();
 
     layer_upload(BG_B, end_l3_map, END_L3_MAP_W, END_L3_MAP_H,
                  END_BASE3, END_PAL3, END_L3_ROW);
@@ -127,6 +139,9 @@ static void walking_parade(void)
 
     Sprite *ply = SPR_addSprite(player_definition(), END_WALK_X, END_WALK_Y,
                                 TILE_ATTR(PAL2, FALSE, FALSE, FALSE));
+    dbg_print("WALK: sprite engine=%d player sprite=%d heap free=%u largest=%u\n",
+              (int)SPR_isInitialized(), (int)(ply != NULL),
+              (unsigned)MEM_getFree(), (unsigned)MEM_getLargestFreeBlock());
     if (ply) {
         spr_set_anim(ply, ANIM_WALK);
         SPR_setHFlip(ply, TRUE);   // PC: ANIM_DIRECTION_LEFT
@@ -159,6 +174,11 @@ static void walking_parade(void)
             tdump_cell("walk f1 BG_A", BG_A, 5, 10);
             tdump_tile("walk f1 tile", END_BASE3 + 1);
         }
+
+        // Safety net for the intermittent start-of-walk garbage (tiles/palettes
+        // that never landed): the transfers are idempotent and ~5 KB, so a few
+        // re-sends turn a persistent glitch into at most a couple of bad frames.
+        if (frame == 2 || frame == 8 || frame == 30) walking_gfx_queue();
 
         if (px < -48) break;
         frame++;
