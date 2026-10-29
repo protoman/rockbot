@@ -3,6 +3,7 @@
 #include "sprite_guard.h"
 
 #include <genesis.h>
+#include "transition.h"
 #include <string.h>
 
 #include "resources.h"
@@ -215,9 +216,14 @@ static void walk_verify(const char *tag)
     // Scroll table (the loop writes BG_A then BG_B plane scroll every frame) and the
     // first sprite (the player): attribute words, then its first tile's data
     // (sprite tiles are DMA'd by the sprite engine every frame too).
-    tdump_read(VDP_getHScrollTableAddress(), buf, 4);
-    dbg_print("VER %s hscroll words: %04X %04X %04X %04X (BG_A first, BG_B second)\n",
-              tag, buf[0], buf[1], buf[2], buf[3]);
+    // per-tile-row scroll table: 2 words (BG_A, BG_B) per row; rows 0 (empty), the
+    // middle band (L2) and the ground band (L1) must hold three different BG_A values
+    for (u8 k = 0; k < 3; k++) {
+        const u16 row = (k == 0) ? 0 : (k == 1) ? END_L2_ROW : END_L1_ROW;
+        tdump_read((u16)(VDP_getHScrollTableAddress() + row * 4), buf, 2);
+        dbg_print("VER %s hscroll row %u: BG_A=%04X BG_B=%04X\n", tag, (unsigned)row, buf[0],
+                  buf[1]);
+    }
     tdump_read(VDP_getSpriteListAddress(), buf, 8);
     const u16 stile = buf[2] & 0x7FF;
     dbg_print("VER %s sprite0: y=%u size/link=%04X attr=%04X x=%u\n", tag,
@@ -417,10 +423,13 @@ static void walking_parade(void)
         SPR_setHFlip(ply, TRUE);   // PC: ANIM_DIRECTION_LEFT
     }
 
-    // MD per-line scrolling proved unreliable here (only one plane moved), so
-    // use the two planes as two speed layers: BG_A carries the front+mid art
-    // (PC bg1 1.1 px/frame) and BG_B the back layer (0.1). PC mid is 0.5.
-    VDP_setScrollingMode(HSCROLL_PLANE, VSCROLL_PLANE);
+    // PC show_player_walking_ending: three layers at 1.1 / 0.5 / 0.1 px per step
+    // (front ground, middle trees, sky). The MD has two planes, so the layers that
+    // share BG_A are told apart by TILE ROW (the middle band at rows END_L2_ROW.., the
+    // ground at END_L1_ROW..) with the per-tile-row scroll table. This was tried
+    // before and "only one plane moved" - that was the broken DMA queue (BUG-045),
+    // the table is sent through it.
+    VDP_setScrollingMode(HSCROLL_TILE, VSCROLL_PLANE);
 
     u16 frame = 0;
     for (;;) {
@@ -428,10 +437,18 @@ static void walking_parade(void)
         s16 px = (s16)(END_WALK_X - ((u32)frame * 2 / 10));
         if (ply) SPR_setPosition(ply, px, END_WALK_Y);
 
-        s16 o1 = (s16)(((u32)frame * 11 / 10) % 320);
-        s16 o3 = (s16)(((u32)frame * 1 / 10) % 320);
-        VDP_setHorizontalScroll(BG_A, o1);
-        VDP_setHorizontalScroll(BG_B, o3);
+        // The planes are 64 tiles wide but the art repeats every 40: the offsets wrap at 320.
+        static s16 hs_a[32], hs_b[32];
+        const s16 o1 = (s16)(((u32)frame * 11 / 10) % 320);   // layer 1 (ground)  1.1
+        const s16 o2 = (s16)(((u32)frame * 5 / 10) % 320);    // layer 2 (trees)   0.5
+        const s16 o3 = (s16)(((u32)frame * 1 / 10) % 320);    // layer 3 (sky)     0.1
+        for (u16 r = 0; r < 32; r++) {
+            hs_a[r] = (r >= END_L1_ROW && r < END_L1_ROW + END_L1_MAP_H) ? o1
+                    : (r >= END_L2_ROW && r < END_L2_ROW + END_L2_MAP_H) ? o2 : 0;
+            hs_b[r] = o3;
+        }
+        VDP_setHorizontalScrollTile(BG_A, 0, hs_a, 32, DMA_QUEUE);
+        VDP_setHorizontalScrollTile(BG_B, 0, hs_b, 32, DMA_QUEUE);
 
 #ifdef MD_WALK_DIAG
         const u32 st0 = getSubTick();
@@ -507,11 +524,12 @@ static void parade_bg_load(void)
 // Redraws the backdrop (it also wipes the previous page's text).
 static void parade_bg_draw(void)
 {
-    static u16 cells[BOSS_INTRO_BG_MAP_W * BOSS_INTRO_BG_MAP_H];
+    u16 *cells = screen_cells(BOSS_INTRO_BG_MAP_W * BOSS_INTRO_BG_MAP_H);
+    VDP_fillTileMapRect(BG_A, BLANK_TILE, 0, 0, 64, 32);
+    if (!cells) return;
     for (u16 i = 0; i < BOSS_INTRO_BG_MAP_W * BOSS_INTRO_BG_MAP_H; i++)
         cells[i] = TILE_ATTR_FULL(PARADE_BG_PAL, FALSE, FALSE, FALSE,
                                   PARADE_BG_BASE + boss_intro_bg_map[i]);
-    VDP_fillTileMapRect(BG_A, BLANK_TILE, 0, 0, 64, 32);
     VDP_setTileMapDataRect(BG_A, cells, 0, 0, BOSS_INTRO_BG_MAP_W,
                            BOSS_INTRO_BG_MAP_H, BOSS_INTRO_BG_MAP_W, CPU);
 }

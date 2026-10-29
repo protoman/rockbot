@@ -53,7 +53,7 @@ static void wd_probe(const char *tag, bool queued)
         // RAM? contents equal to the register values for this transfer?)
         const u32 from = (u32)rom_pat;
         const DMAOpInfo *e = &dmaQueues[before];
-        const u32 w_len = 0x93000008UL, w_len_h = 0x9400;
+        const u32 w_len = 0x9308UL, w_len_h = 0x9400;
         const u32 w_ms = 0x96008F00UL + ((from << 7) & 0xFF0000UL) + 2;
         const u32 w_ha = 0x97009500UL + ((from >> 1) & 0x7F00FFUL);
         const u32 w_ct = VDP_DMA_VRAM_ADDR((u32)PROBE_VRAM);

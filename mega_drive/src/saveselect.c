@@ -1,3 +1,4 @@
+#include "transition.h"
 #include "saveselect.h"
 #include "sprite_guard.h"
 
@@ -74,7 +75,8 @@ static void icons_draw(void)
 
 static void draw_rows(void)
 {
-    static u16 cells[SAVE_ROW_W * SAVE_ROW_H * SAVE_SLOT_COUNT];
+    u16 *cells = screen_cells(SAVE_ROW_W * SAVE_ROW_H * SAVE_SLOT_COUNT);
+    if (!cells) return;
     for (u8 s = 0; s < SAVE_SLOT_COUNT; s++) {
         u16 pal = (s == sel) ? P_EN : P_DIS;
         for (u16 r = 0; r < SAVE_ROW_H; r++) {

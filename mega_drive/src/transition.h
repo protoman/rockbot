@@ -45,4 +45,16 @@ extern u16 transition_fail_free_kb;
 void *transition_scratch_tiles(u16 *bytes);
 void *transition_scratch_cells(u16 *bytes);
 
+// Scratch for building one screen's tile map before it is written to the plane.
+// The screens used to own a private 40x28 buffer each (10 x 2240 B of BSS, ~22 KB of the
+// ~20 KB heap budget - BUG-045: the DMA queue allocation failed). They are never on screen
+// together and never during a room change, so they share the transition's cell buffer.
+// NULL when `words` does not fit (the caller skips the draw).
+static inline u16 *screen_cells(u16 words)
+{
+    u16 bytes;
+    u16 *p = (u16 *)transition_scratch_cells(&bytes);
+    return ((u32)words * 2 <= bytes) ? p : (u16 *)0;
+}
+
 #endif

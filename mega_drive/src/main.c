@@ -302,18 +302,20 @@ static s16 showTitle(void)
     VDP_fillTileMapRect(BG_B,
                         TILE_ATTR_FULL(PAL_TITLE, FALSE, FALSE, FALSE, TITLE_TILE_BASE),
                         0, 0, 64, 32);
-    static u16 tcell[TITLE64_W * TITLE64_H];
-    for (u16 i = 0; i < TITLE64_W * TITLE64_H; i++) {
-        // the palette line travels in the map entry (bits 13-14); keep it and
-        // add the tileset base
-        u16 e = title64_map[i];
-        tcell[i] = (u16)((e & ~TILE_INDEX_MASK) |
-                         (TITLE_TILE_BASE + (e & TILE_INDEX_MASK)));
+    u16 *tcell = screen_cells(TITLE64_W * TITLE64_H);
+    if (tcell) {
+        for (u16 i = 0; i < TITLE64_W * TITLE64_H; i++) {
+            // the palette line travels in the map entry (bits 13-14); keep it and
+            // add the tileset base
+            u16 e = title64_map[i];
+            tcell[i] = (u16)((e & ~TILE_INDEX_MASK) |
+                             (TITLE_TILE_BASE + (e & TILE_INDEX_MASK)));
+        }
+        // CPU: the queued variant raced with the neighbouring writes when the
+        // title was re-entered (stale cells at the plane edges)
+        VDP_setTileMapDataRect(BG_B, tcell, 0, 0, TITLE64_W, TITLE64_H,
+                               TITLE64_W, CPU);
     }
-    // CPU: the queued variant raced with the neighbouring writes when the
-    // title was re-entered (stale cells at the plane edges)
-    VDP_setTileMapDataRect(BG_B, tcell, 0, 0, TITLE64_W, TITLE64_H,
-                           TITLE64_W, CPU);
 
     // PC draw_main: version at (8,8) -> tile (1,1), over the logo's top
     VDP_drawText(VERSION_STRING, 1, 1);
@@ -1087,12 +1089,14 @@ static void got_weapon_bg(void)
     VDP_loadTileData(gotbg_tiles_data, GOTBG_TILE_BASE, GOTBG_TILE_COUNT,
                      DMA_QUEUE);
     PAL_setPalette(PAL3, gotbg_pal.data, DMA_QUEUE);
-    static u16 cells[GOTBG_MAP_W * GOTBG_MAP_H];
-    for (u16 i = 0; i < GOTBG_MAP_W * GOTBG_MAP_H; i++)
-        cells[i] = TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE,
-                                  GOTBG_TILE_BASE + gotbg_map[i]);
-    VDP_setTileMapDataRect(BG_A, cells, 0, 0, GOTBG_MAP_W, GOTBG_MAP_H,
-                           GOTBG_MAP_W, CPU);
+    u16 *cells = screen_cells(GOTBG_MAP_W * GOTBG_MAP_H);
+    if (cells) {
+        for (u16 i = 0; i < GOTBG_MAP_W * GOTBG_MAP_H; i++)
+            cells[i] = TILE_ATTR_FULL(PAL3, FALSE, FALSE, FALSE,
+                                      GOTBG_TILE_BASE + gotbg_map[i]);
+        VDP_setTileMapDataRect(BG_A, cells, 0, 0, GOTBG_MAP_W, GOTBG_MAP_H,
+                               GOTBG_MAP_W, CPU);
+    }
     SYS_doVBlankProcess();
 }
 

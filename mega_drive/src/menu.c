@@ -1,3 +1,4 @@
+#include "transition.h"
 #include "menu.h"
 #include "pal_safe.h"
 #include "menu_armor_data.h"
@@ -37,7 +38,6 @@
 #define MENU_GRAY_BAR_TILE (MENU_BAR_TILE + MENU_BAR_TILES)
 
 static Sprite *portrait;
-static u16 cells[MENU_MAP_W * MENU_MAP_H];
 static u16 owned;            // owned weapons, bit n (PC has_weapon)
 
 // PC find_next_weapon (class_config.cpp:419): the next owned weapon in `dir`,
@@ -392,14 +392,17 @@ static void menu_draw_panel(void)
 {
     VDP_setHorizontalScroll(BG_A, 0);
     VDP_setVerticalScroll(BG_A, 0);
-    for (u16 i = 0; i < MENU_MAP_W * MENU_MAP_H; i++) {
-        cells[i] = TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE,
-                                  MENU_TILE_BASE + menu_map[i]);
+    u16 *cells = screen_cells(MENU_MAP_W * MENU_MAP_H);
+    if (cells) {
+        for (u16 i = 0; i < MENU_MAP_W * MENU_MAP_H; i++) {
+            cells[i] = TILE_ATTR_FULL(PAL1, FALSE, FALSE, FALSE,
+                                      MENU_TILE_BASE + menu_map[i]);
+        }
+        // CPU transfer: a queued DMA would flush at the next vblank and wipe
+        // the texts drawn right after it.
+        VDP_setTileMapDataRect(BG_A, cells, 0, 0, MENU_MAP_W, MENU_MAP_H,
+                               MENU_MAP_W, CPU);
     }
-    // CPU transfer: a queued DMA would flush at the next vblank and wipe
-    // the texts drawn right after it.
-    VDP_setTileMapDataRect(BG_A, cells, 0, 0, MENU_MAP_W, MENU_MAP_H,
-                           MENU_MAP_W, CPU);
     VDP_setTextPalette(PAL0);
 
     // texts PC draws over the panel (menu_map.h names from img2tiles.py)

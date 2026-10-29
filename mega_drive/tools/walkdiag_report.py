@@ -138,7 +138,7 @@ for bi, b in enumerate(boots, 1):
     print(f"  SLOWFRAME lines: {len(slow)} (verification frames are slow by design); first: "
           f"{slow[0] if slow else '-'}")
     for l in b:
-        if "hscroll words" in l or "sprite0" in l:
+        if "hscroll row" in l or "sprite0" in l:
             print("   ", l)
             if "tile" in l:
                 break

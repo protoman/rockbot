@@ -1,3 +1,4 @@
+#include "transition.h"
 #include "dbgprint.h"
 #include "bossintro.h"
 #include "pal_safe.h"
@@ -40,14 +41,16 @@ static void castle_screen(u8 stage)
     VDP_setBackgroundColor(0);
     // The art goes on BG_B so BG_A is free for the path overlay (castle_path.c).
     VDP_clearPlane(BG_A, TRUE);
-    static u16 cells[CASTLE64_W * CASTLE64_H];
-    for (u16 i = 0; i < CASTLE64_W * CASTLE64_H; i++) {
-        u16 e = castle64_map[i];
-        cells[i] = (u16)((e & ~TILE_INDEX_MASK) |
-                         (TILE_USER_INDEX + (e & TILE_INDEX_MASK)));
+    u16 *cells = screen_cells(CASTLE64_W * CASTLE64_H);
+    if (cells) {
+        for (u16 i = 0; i < CASTLE64_W * CASTLE64_H; i++) {
+            u16 e = castle64_map[i];
+            cells[i] = (u16)((e & ~TILE_INDEX_MASK) |
+                             (TILE_USER_INDEX + (e & TILE_INDEX_MASK)));
+        }
+        VDP_setTileMapDataRect(BG_B, cells, 0, 0, CASTLE64_W, CASTLE64_H,
+                               CASTLE64_W, CPU);
     }
-    VDP_setTileMapDataRect(BG_B, cells, 0, 0, CASTLE64_W, CASTLE64_H,
-                           CASTLE64_W, CPU);
     music_play(MUSIC_CASTLE_INTRO);
     // PC classic_style_castle_intro: the path to this stage is drawn first (the
     // last segment animated), then the screen holds for 6.5s. Stage 9 is the
@@ -95,13 +98,15 @@ void boss_intro_run(u8 stage)
     PAL_setPalette(BOSS_INTRO_PAL, boss_intro_bg_pal.data, DMA_QUEUE);
     PAL_setPalette(PAL0, pal_ui.data, DMA_QUEUE);
 
-    static u16 cells[BOSS_INTRO_BG_MAP_W * BOSS_INTRO_BG_MAP_H];
-    for (u16 i = 0; i < BOSS_INTRO_BG_MAP_W * BOSS_INTRO_BG_MAP_H; i++) {
-        cells[i] = TILE_ATTR_FULL(BOSS_INTRO_PAL, FALSE, FALSE, FALSE,
-                                  BOSS_INTRO_TILE_BASE + boss_intro_bg_map[i]);
+    u16 *cells = screen_cells(BOSS_INTRO_BG_MAP_W * BOSS_INTRO_BG_MAP_H);
+    if (cells) {
+        for (u16 i = 0; i < BOSS_INTRO_BG_MAP_W * BOSS_INTRO_BG_MAP_H; i++) {
+            cells[i] = TILE_ATTR_FULL(BOSS_INTRO_PAL, FALSE, FALSE, FALSE,
+                                      BOSS_INTRO_TILE_BASE + boss_intro_bg_map[i]);
+        }
+        VDP_setTileMapDataRect(BG_A, cells, 0, 0, BOSS_INTRO_BG_MAP_W,
+                               BOSS_INTRO_BG_MAP_H, BOSS_INTRO_BG_MAP_W, CPU);
     }
-    VDP_setTileMapDataRect(BG_A, cells, 0, 0, BOSS_INTRO_BG_MAP_W,
-                           BOSS_INTRO_BG_MAP_H, BOSS_INTRO_BG_MAP_W, CPU);
 
     // The stage's boss def carries the sprite sheet (STAND row, frame 0).
     const EnemyDef *boss = NULL;

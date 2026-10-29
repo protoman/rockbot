@@ -1,3 +1,4 @@
+#include "transition.h"
 #include "playerselect.h"
 
 #include "resources.h"
@@ -53,7 +54,8 @@ static void draw_portrait(void)
     VDP_loadTileData(p_tiles[sel], PSEL_PORT_BASE, p_tile_n[sel], DMA_QUEUE);
     PAL_setPalette(PSEL_PAL_PORT, p_pal[sel]->data, DMA_QUEUE);
     u16 w = PSEL_P1_MAP_W;
-    static u16 cells[PSEL_P1_MAP_W * PSEL_P1_MAP_H];
+    u16 *cells = screen_cells(PSEL_P1_MAP_W * PSEL_P1_MAP_H);
+    if (!cells) return;
     for (u16 y = 0; y < p_map_h[sel]; y++) {
         for (u16 x = 0; x < w; x++) {
             cells[y * w + x] = TILE_ATTR_FULL(PSEL_PAL_PORT, FALSE, FALSE, FALSE,
@@ -85,13 +87,15 @@ u8 player_select_run(void)
     PAL_setPalette(PSEL_PAL_BG, psel_bg_pal.data, DMA_QUEUE);
     PAL_setPalette(PAL0, pal_ui.data, DMA_QUEUE);
 
-    static u16 bgcells[PSEL_BG_MAP_W * PSEL_BG_MAP_H];
-    for (u16 i = 0; i < PSEL_BG_MAP_W * PSEL_BG_MAP_H; i++) {
-        bgcells[i] = TILE_ATTR_FULL(PSEL_PAL_BG, FALSE, FALSE, FALSE,
-                                    PSEL_BG_BASE + psel_bg_map[i]);
+    u16 *bgcells = screen_cells(PSEL_BG_MAP_W * PSEL_BG_MAP_H);
+    if (bgcells) {
+        for (u16 i = 0; i < PSEL_BG_MAP_W * PSEL_BG_MAP_H; i++) {
+            bgcells[i] = TILE_ATTR_FULL(PSEL_PAL_BG, FALSE, FALSE, FALSE,
+                                        PSEL_BG_BASE + psel_bg_map[i]);
+        }
+        VDP_setTileMapDataRect(BG_A, bgcells, 0, 0, PSEL_BG_MAP_W, PSEL_BG_MAP_H,
+                               PSEL_BG_MAP_W, CPU);
     }
-    VDP_setTileMapDataRect(BG_A, bgcells, 0, 0, PSEL_BG_MAP_W, PSEL_BG_MAP_H,
-                           PSEL_BG_MAP_W, CPU);
 
     sel = 0;
     draw_portrait();
