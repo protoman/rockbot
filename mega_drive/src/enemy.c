@@ -1058,6 +1058,14 @@ static bool ai_action_run(Enemy *e)
         }
         bool dx = step_axis(e, &e->x, e->dest_x, TRUE, TRUE);
         bool dy = step_axis(e, &e->y, e->dest_y, FALSE, TRUE);
+        // PC ZIGZAG_AHEAD (artificial_inteligence.cpp:1604): blocked on X (a
+        // wall, a conveyor/scroll tile) or arrived -> face the other way and
+        // fly on; the action itself never finishes by arriving.
+        if (st->param == AI_FLY_ZIGZAG && dx) {
+            e->dir = -e->dir;
+            e->dest_x = e->x + e->dir * ((d->box_l + d->box_w) / 2 + (s16)d->range);
+            return FALSE;
+        }
         if (st->param == AI_FLY_OPPOSITE_SHOOT && dx && dy) e->shooting = 0;
         // PC OPOSITE_WALL: turn around on arrival so he does not face the wall.
         if (st->param == AI_FLY_OPPOSITE_WALL && dx && dy) e->dir = -e->dir;
