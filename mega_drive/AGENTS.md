@@ -166,6 +166,14 @@ Hard rules, because they were broken twice in one session (2026-10-21):
   Still binding: one instance at a time, never launch over a running one, stop
   it when the test ends (close it in the same turn - never leave an instance
   running between turns), and ask again for anything the owner should watch.
+- **A run that must return numbers (profile, `dbg_print`, any KDEBUG text) is
+  launched ONLY with the `script -qf` recipe from `blastem_debug.md`** ->
+  `/tmp/opencode/md-emu/kdebug.log`. `tools/emu.sh start` does NOT capture
+  `kprintf`: stdout stays empty and BlastEm opens its own debugger window
+  instead. Before asking for such a run, open `blastem_debug.md` and write the
+  exact capture command into the ask. Release builds print nothing
+  (`dbg_print` needs `-DMD_DEBUG` or a trace/profile flag). Broken 2026-10-28:
+  a profile run through `emu.sh start` captured nothing.
 - **Ask before every launch.** One explicit permission = one launch. A retry
   with different flags, a `stdbuf`, a different terminal — all new launches,
   all need a new ask.
