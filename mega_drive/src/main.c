@@ -1312,15 +1312,30 @@ int main(bool hardReset)
     for (;;) SYS_doVBlankProcess();
 #endif
 
+#ifdef MD_TEST_ENDING
+    // Test build: the final castle's ending (scene + walking parade + enemy/boss
+    // parade + credits), sound ON.
+    current_save_slot = 0;
+    current_player = 0;
+    player_new_game();
+    stage_set_data(13);
+    music_play(MUSIC_END_ANIMATION);
+    scene_play((u8)(2 + (current_player & 3)));
+    ending_run(TRUE);
+    // falls through to the title, like the real flow after the ending
+#endif
+
 #ifdef MD_MINIMAL
     // Bisection build: normal init has run (font + boot palettes in place), then
     // a hand-drawn options screen with no stage, sprites, music or SRAM.
     config_minimal_app();       // never returns
 #endif
+#ifndef MD_TEST_ENDING
     showIntro();
     // PC game_scenes_show_unbeaten_intro(): scene list 0 (scenes_data.c)
     music_play(MUSIC_INTRO_SCENE);
     scene_play(SCENE_OPENING_UNBEATEN);
+#endif
     while (TRUE) {
         HEAP_PROBE("title");
         s16 action = showTitle();
