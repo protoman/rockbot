@@ -18,7 +18,6 @@
 #define SHOT_COOLDOWN 10   // frames between shots (design choice, not in data)
 #define SHOT_CIRCLE_FRAMES 216 // PC _effect_timer 3600 ms for CENTERED
 #define SHOT_QUAKE_LIFE 60 // ~1s for the stationary QUAKE shot
-#define SHOT_CHAIN_FRAMES 12   // chain out / chain back, ~0.2s each way
 
 typedef struct {
     Sprite *spr;
@@ -27,6 +26,7 @@ typedef struct {
     s16 dx, dy;
     u8 dmg;
     u8 w, h;    // collision box (from the projectile table)
+    u8 w0;      // CHAIN: full length (w is the current, growing one)
     u8 traj;
     u16 age;
     u16 effect_t;
@@ -174,6 +174,7 @@ void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
         s->w = pd->w ? pd->w : 8;
         s->h = pd->h ? pd->h : 8;
         s->traj = pd->traj;
+        s->w0 = s->w;
         if (s->traj == TRAJ_FREEZE) enemies_freeze(w);
         s->age = 0;
         s->effect_t = 0;
@@ -185,6 +186,13 @@ void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
         s->charged = FALSE;
         s->reflected = FALSE;
         s->weapon = w;      // PC: damage uses the projectile's weapon id
+        if (s->traj == TRAJ_CHAIN) {
+            // PC consume_projectile(): the chain is never consumed by a hit, it
+            // only grows and retracts, attached to the player.
+            s->pierce = TRUE;
+            s->w = pd->speed;
+            SPR_setAutoAnimation(s->spr, FALSE);
+        }
         live++;
     }
     cooldown = SHOT_COOLDOWN;
@@ -390,19 +398,27 @@ void shot_update(void)
                 continue;
             }
             break;
-        case TRAJ_CHAIN:
-            // PC projectilelib.cpp CHAIN (SPIKED CHAIN, weapon 7): the chain
-            // shoots out, then retracts and the weapon is spent. It used to
-            // fall into the default branch and fly on like a normal shot.
-            if (s->age <= SHOT_CHAIN_FRAMES) {
-                s->x += s->dx;
-            } else if (s->age <= (SHOT_CHAIN_FRAMES * 2)) {
-                s->x -= s->dx;
+        case TRAJ_CHAIN: {
+            // PC projectilelib.cpp:643: attached to the player (x + 5, +16 when
+            // facing right, y + 14), grows by `speed` per update until the art
+            // is fully out, then retracts; a hit never consumes it. Only the
+            // visible slice hurts (frame k = the spiked head + 8k columns of
+            // chain, built by the converter, as for the enemy chain in eshot.c).
+            const u8 spd = (u8)((s->dx < 0) ? -s->dx : s->dx);
+            if (s->status == 0) {
+                s->w = (u8)(s->w + spd);
+                if (s->w >= s->w0) { s->w = s->w0; s->status = 1; }
             } else {
-                shot_kill(s);
-                continue;
+                if (s->w <= spd) { shot_kill(s); continue; }
+                s->w = (u8)(s->w - spd);
             }
-            break;
+            s->dir = (s8)player.facing;
+            const s16 anchor = player.x + ((s->dir > 0) ? PLAYER_BOX_R : PLAYER_BOX_L);
+            s->x = (s->dir > 0) ? anchor : (s16)(anchor - s->w);
+            s->y = player.y + 14;
+            SPR_setHFlip(s->spr, s->dir < 0);
+            spr_set_frame(s->spr, (s16)((s->w - 1) >> 3));
+            break; }
         case TRAJ_FREEZE:
             // DYNAMITE: enemies_freeze() armed the 3.5s PC effect at spawn;
             // the projectile itself just sits there and expires with it.
@@ -484,7 +500,10 @@ void shot_update(void)
             }
         }
 
-        SPR_setPosition(s->spr, s->x - camera.x, s->y - camera.y);
+        s16 px = s->x;
+        if (s->traj == TRAJ_CHAIN && s->dir < 0)   // the flipped slice hugs the right edge of its 8-aligned cell
+            px = (s16)(px - (((s16)s->w0 + 7 & ~7) - s->w));
+        SPR_setPosition(s->spr, px - camera.x, s->y - camera.y);
     }
 }
 
