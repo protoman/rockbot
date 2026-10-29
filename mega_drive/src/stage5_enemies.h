@@ -9,7 +9,7 @@
 
 #define STAGE5_ENEMY_DEF_COUNT 9
 #define STAGE5_ENEMY_SPAWN_COUNT 33
-#define STAGE5_ENEMY_PROJ_MAX 35
+#define STAGE5_ENEMY_PROJ_MAX 36
 
 extern const EnemyDef stage5_enemy_defs[STAGE5_ENEMY_DEF_COUNT];
 extern const EnemySpawn stage5_enemy_spawns[STAGE5_ENEMY_SPAWN_COUNT];

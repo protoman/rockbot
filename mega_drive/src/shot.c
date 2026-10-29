@@ -101,7 +101,16 @@ void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
     const EnemyProj *pd = &stage_def->enemy_proj[weapon_data[w].proj];
     // Some ids have no art in the port (e.g. 7 SPIKED CHAIN is skipped by the
     // converter) — fall back to the buster so the weapon still shoots.
-    if (!pd->spr || !pd->speed) pd = &stage_def->enemy_proj[0];
+    if (!pd->spr || (!pd->speed && pd->traj != TRAJ_SLASH)) pd = &stage_def->enemy_proj[0];
+    // PC player normal_projectile_id: CANDYBOT fires the heart (26), KITTYBOT
+    // the claw slash (35); the others keep the buster.
+    if (w == 0) {
+        const s8 nid = player_normal_proj_id();
+        if (nid > 0 && nid < stage_def->enemy_proj_max) {
+            const EnemyProj *np = &stage_def->enemy_proj[nid];
+            if (np->spr && (np->speed || np->traj == TRAJ_SLASH)) pd = np;
+        }
+    }
     // PC classplayer.cpp:355 / inc_effect_weapon_status(): with a MAGIC STAR
     // held around the player, the next press releases it instead of making a
     // new one.
@@ -145,7 +154,7 @@ void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
 
     // PC simultaneous_shots (BETABOT fires 2 per press): the extra shot
     // spawns one tile BEHIND the first and 5px lower (character.cpp:761-771).
-    u8 n = player_simultaneous();
+    u8 n = (w == 0) ? player_simultaneous() : 1;   // PC: the 2nd shot only for the normal attack
     for (u8 k = 0; k < n && live < player_max_shots(); k++) {
         s16 ox = x, oy = y;
         if (k == 1) {
@@ -186,6 +195,13 @@ void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
         s->charged = FALSE;
         s->reflected = FALSE;
         s->weapon = w;      // PC: damage uses the projectile's weapon id
+        if (s->traj == TRAJ_SLASH) {
+            // PC TRAJECTORY_SLASH: no travel, follows the owner (x -/+ 20, y + 6)
+            // and ends with its animation (a hit never consumes it).
+            s->pierce = TRUE;
+            s->dx = 0;
+            SPR_setAutoAnimation(s->spr, TRUE);
+        }
         if (s->traj == TRAJ_CHAIN) {
             // PC consume_projectile(): the chain is never consumed by a hit, it
             // only grows and retracts, attached to the player.
@@ -243,6 +259,11 @@ void shot_charge_fire(s16 x, s16 y, s16 dir, u8 level)
         // projectile (super shot / laser / hadouken). Projectile table ids
         // 20..22 are emitted by convert_enemies.py for every stage.
         u8 aid = player_armor_shot_id();
+        // PC _charged_shot_projectile_id: the ARMS armour's projectile replaces
+        // the player's own full-charge one (KITTYBOT: 24, ROCKBOT: 10 = default).
+        if (aid == 0xFF && player_full_proj_id() > 0 &&
+            player_full_proj_id() != CHARGE_FULL_PROJ)
+            aid = (u8)player_full_proj_id();
         const EnemyProj *ap = NULL;
         if (aid != 0xFF && aid < stage_def->enemy_proj_max)
             ap = &stage_def->enemy_proj[aid];
@@ -418,6 +439,27 @@ void shot_update(void)
             s->y = player.y + 14;
             SPR_setHFlip(s->spr, s->dir < 0);
             spr_set_frame(s->spr, (s16)((s->w - 1) >> 3));
+            break; }
+        case TRAJ_PROGRESSIVE:
+            // FLOWER (PC projectilelib.cpp:762): steps ahead only when the
+            // animation restarts (every ~100 ms) and drops to the ground first.
+            if ((s->age % 6) == 0) {
+                s->x += s->dx;
+                for (u16 i = 0; i < 240; i++) {
+                    if (stage_terrain_at(stage_current_map, (s->x + s->w / 2) >> 4,
+                                         (s->y + s->h) >> 4) != TERRAIN_UNBLOCKED)
+                        break;
+                    s->y++;
+                }
+            }
+            break;
+        case TRAJ_SLASH: {
+            const s16 frames = s->spr->definition->animations[0]->numFrame;
+            if (s->age > frames * 6) { shot_kill(s); continue; }    // PC: 100 ms per frame
+            s->dir = (s8)player.facing;
+            s->x = player.x + ((s->dir > 0) ? 20 : -20);
+            s->y = player.y + 6;
+            SPR_setHFlip(s->spr, s->dir < 0);
             break; }
         case TRAJ_FREEZE:
             // DYNAMITE: enemies_freeze() armed the 3.5s PC effect at spawn;

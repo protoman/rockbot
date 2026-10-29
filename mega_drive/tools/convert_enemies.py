@@ -74,7 +74,7 @@ PROJ_SZ = 104
 # TRAJECTORY_TARGET_EXACT); the runtime clamped those to projectile 0 and the
 # wall shooter fired a straight normal shot. tools/check_projectiles.py is the
 # regression check: it fails on any reference beyond the table.
-PROJ_MAX = 35          # 0..34 (Projectiles 27..29 are one-pixel test entries)
+PROJ_MAX = 36          # 0..35 (Projectiles 27..29 are one-pixel test entries; 35 = KITTY CLAW)
 MAP_NPC_SZ = 12
 AI_SZ = 528            # file_artificial_inteligence (name30+pad + 20x20 + 6x16)
 AI_STATES = 20

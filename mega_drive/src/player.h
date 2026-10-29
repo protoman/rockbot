@@ -133,6 +133,8 @@ void player_add_special_tank(void);      // OBJ_SPECIAL_TANK
 bool player_use_tank(bool hp);           // menu: refill HP / current gauge (+special)
 void player_add_armor(u8 kind);          // 0 arms, 1 body, 2 legs
 u8 player_armor_ability(u8 kind);        // per-player special ability value
+s8 player_full_proj_id(void);                  // own full-charge projectile (-1 = none)
+s8 player_normal_proj_id(void);                // default-weapon projectile of this player (-1 = the buster)
 u8 player_armor_shot_id(void);           // ARMS charged projectile, 0xFF = none
 u16 player_weapon_color(u8 weapon);      // PC weapon_colors[weapon].color1, MD CRAM
 bool player_can_shoryuken(void);         // LEGS SHORYUKEN ability

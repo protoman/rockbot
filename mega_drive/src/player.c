@@ -261,10 +261,10 @@ static u8 player_n;
 
 void player_set_number(u8 n) { player_n = (n < 4) ? n : 0; }
 
+s8 player_normal_proj_id(void) { return player_data[player_n].normal_id; }
 u8 player_max_shots(void) { return player_data[player_n].max_shots; }
 u8 player_simultaneous(void) { return player_data[player_n].simultaneous; }
 s8 player_damage_mod(void) { return player_data[player_n].dmg_mod; }
-bool player_can_charge(void) { return (player_data[player_n].flags & PL_CHARGE) != 0; }
 // game_armorPieces_v301.dat special_ability[player] (read with the PC struct;
 // enum e_ARMOR_ABILITIES_*). BODY: 0 half damage, 1 extended immunity,
 // 2 spike immune, 3 no pushback. LEGS: 0 double jump, 1 air dash, 2 shoryuken.
@@ -288,6 +288,16 @@ u8 player_armor_shot_id(void)
 {
     return has_armor(0) ? armor_arms() : 0xFF;
 }
+
+// PC character.cpp:597/629/653: a player charges whenever _charged_shot_projectile_id
+// > 0 - his own full-charge projectile or the ARMS armour's (BETABOT / CANDYBOT
+// only charge once they wear the arms piece).
+bool player_can_charge(void)
+{
+    return player_data[player_n].full_id > 0 ||
+           (has_armor(0) && armor_arms() > 0);
+}
+s8 player_full_proj_id(void) { return player_data[player_n].full_id; }
 
 bool player_can_double_jump(void)
 {

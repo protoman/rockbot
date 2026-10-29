@@ -425,5 +425,6 @@ extern const SpriteDefinition proj_31_sprite;
 extern const SpriteDefinition proj_32_sprite;
 extern const SpriteDefinition proj_33_sprite;
 extern const SpriteDefinition proj_34_sprite;
+extern const SpriteDefinition proj_35_sprite;
 
 #endif // _RES_RESOURCES_H_
