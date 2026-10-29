@@ -174,6 +174,23 @@ Hard rules, because they were broken twice in one session (2026-10-21):
   exact capture command into the ask. Release builds print nothing
   (`dbg_print` needs `-DMD_DEBUG` or a trace/profile flag). Broken 2026-10-28:
   a profile run through `emu.sh start` captured nothing.
+- **Plan the run 2-4 steps ahead (owner rule, 2026-10-29).** A run that only answers
+  one question, followed by "now let's log X", is a wasted round. Before asking for a
+  launch that is meant to DIAGNOSE something, all of this is done and written in the ask:
+  1. **Every suspect is listed and instrumented in ONE build** - state, timing, readback
+     against the expected data, a control for each reader/writer used (so a failing
+     probe cannot be blamed on the probe), and the alternative ways of doing the same
+     thing as experiments inside the same boot (a ladder), not as later builds.
+  2. **A table maps each possible outcome to the next step**, and the likely fix is
+     already built behind a compile-time flag, so a clean result needs no new round.
+  3. **An analysis script is written and tested on an old log** before the run
+     (`tools/walkdiag_report.py` is the model: parse, verdict per suspect, first
+     failing step), so the answer is read the moment the log exists.
+  4. **The ask also says what the log still cannot tell** (no good boot to compare,
+     other hardware/emulator) and what is being done about it.
+  Per-step state lines + a probe at every checkpoint beat one dump at the end: the log
+  must show the FIRST step after which things go wrong. If a run answers only part of
+  the question, say so and prepare the whole remainder before asking again.
 - **Ask before every launch.** One explicit permission = one launch. A retry
   with different flags, a `stdbuf`, a different terminal — all new launches,
   all need a new ask.
