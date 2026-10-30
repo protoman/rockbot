@@ -68,8 +68,13 @@ static void castle_screen(u8 stage)
                         0, 0, 64, 32);
 }
 
-void boss_intro_run(u8 stage)
+bool boss_intro_run(u8 stage, u16 beaten_mask)
 {
+    // PC classic_style_boss_intro starts with this return (sceneslib.cpp:682):
+    // a beaten stage gets no screen AND no jingle. Keeping the test here means
+    // no call path can play the music without the presentation.
+    if (beaten_mask & (1u << stage)) return FALSE;
+
     sprites_end();      // restarted below: the castle path needs the heap the engine takes
     stage_release_map();
 #ifdef MD_HEAP_TRACE
@@ -157,4 +162,5 @@ void boss_intro_run(u8 stage)
 
     if (spr) SPR_releaseSprite(spr);
     sprites_end();   // the caller (runStage) re-inits the sprite engine
+    return TRUE;
 }

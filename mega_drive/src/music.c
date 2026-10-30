@@ -65,10 +65,12 @@ static bool stop_pending;
 
 void music_stop(void)
 {
-    if (!playing) return;
+    // Always talk to the driver. The `playing` flag is the port's own and a
+    // single desync leaves the previous track audible while music_stop() does
+    // nothing - a skipped boss intro then still "plays" its jingle.
     XGM2_stop();
     playing = FALSE;
-    stop_pending = TRUE;
+    stop_pending = TRUE;    // a stop is always fresh: music_play waits 2 frames
 }
 
 void music_play(MusicId id)

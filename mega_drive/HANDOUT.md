@@ -483,3 +483,8 @@ first row is discarded.
   for the double jump (and body was wrong for all 4 values). Repro:
   `make check-armor` (`tools/check_armor_dialog.py`) - 12 pages (4 players x
   arms/body/legs) + the per-player ability tables vs game_armorPieces_v301.dat.
+- 2026-10-30 boss intro: a beaten stage replay skipped the presentation but the
+  jingle could still be heard. The gate now lives inside `boss_intro_run()`
+  (PC `classic_style_boss_intro` returns before screen AND music) and
+  `music_stop()` always stops XGM2 instead of trusting the port's own `playing`
+  flag. Check: `make check-boss-intro` (`tools/check_boss_intro_gate.py`).

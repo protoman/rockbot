@@ -1673,3 +1673,25 @@ Reports, in the user's order, with what is known so far:
 - [x] audit: PC vulnerable_area - player shots only hit that rectangle (WASPER body, GOLD CART rider, UFO core, DESTRIN TANK, IRON TANK, SKULLPUNK, DOLGOLPHIN, RHINOZER...; APE BOT's is the whole frame); the port used the animation collision box. Mirrored for the flipped side (unverified against PC: its x formula for facing right is position.x - vul.x)
 - [x] TECHNO slowdowns (profile via scripted autopilot, 3 rooms): 23/38/44 frames per second over budget -> ~10/16/10 after: sprite calls cached per enemy/player/HUD, terrain lookup without the multiply, water probes skipped without water, reaction maths skipped for enemies without reactions, parked enemies skip gravity, room span cached. Still ~15% of frames over in the worst room with the autopilot firing constantly (profile: enemies ~300-360, player ~200, SPR_update ~140, camera ~95 subticks of 1280).
 - [x] MUMMY link 5 trace (MD_LINK_TRACE): arrival is dst (181,0) with no ladder, camera 2653, residual 0 - matches the PC arithmetic; the visible symptom could not be reproduced from numbers (the two locks 288px apart leave the camera 5px behind the left wall). Needs a visual check by the owner.
+
+## BUG-046 — Boss-intro jingle heard without the boss-intro presentation
+
+**Report** (2026-10-30): replaying an already-beaten stage from the stage select
+skips the 6.4 s boss-intro screen, but the jingle was still heard.
+
+**Cause**: the beaten-stage test lived in the *caller* (`main.c runStage`), while
+the jingle is started inside `boss_intro_run()`, so "presentation" and "music"
+were two separate decisions. The PC keeps them together:
+`scenesLib::classic_style_boss_intro` starts with
+`if (game_save.stages[stage_n] != 0) return;` (sceneslib.cpp:682) - before the
+castle screen, the sprites and `load_music`/`play_music_once`. Compounding it,
+`music_stop()` returned early whenever the port's own `playing` flag said
+nothing was running, so a flag that disagreed with the XGM2 driver left the
+previous track (e.g. a jingle) audible across the "stop".
+
+**Fix**: `boss_intro_run(stage, beaten_mask)` now returns FALSE before touching
+anything when the stage is beaten, and `main.c` only calls `music_stop()` when
+it did not run; `music_stop()` always issues `XGM2_stop()`.
+
+Reproduction: `make check-boss-intro` (`tools/check_boss_intro_gate.py`) -
+fails on the old tree with 3 violations, passes after.

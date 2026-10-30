@@ -74,6 +74,14 @@ check-pal:
 check-armor:
 	$(PYTHON) tools/check_armor_dialog.py
 
+# The boss-intro jingle must never be reachable without the presentation: a
+# stage already beaten shows nothing (PC classic_style_boss_intro returns before
+# the screen and the music). Also guards music_stop() against early-returning on
+# the port's own 'playing' flag, which can leave a stale track audible.
+.PHONY: check-boss-intro
+check-boss-intro:
+	$(PYTHON) tools/check_boss_intro_gate.py
+
 # Run the built ROM in BlastEm (native binary, see tools/emu.sh EMU_BIN).
 # This goes through tools/emu.sh instead of launching the emulator directly:
 # that kills a previous instance and relaunches while the window comes up

@@ -445,19 +445,16 @@ static RunResult runStage(u8 stage)
     stage_set_data(stage);
     player_clear_checkpoint();   // per-stage respawn point (PC resets it)
 
-    // PC boss intro (sceneslib.cpp:681) before the stage; skipped once the
-    // stage is beaten (game_save.stages[stage] != 0).
+    // PC boss intro (sceneslib.cpp:681) before the stage. boss_intro_run does
+    // the beaten-stage gate itself (PC returns before the screen and the
+    // jingle); a skipped intro also clears any track the previous screen left
+    // behind, so its jingle cannot play alone.
 #ifndef MD_TEST_STAGE      // test builds boot straight into the stage
-    if (!(save_slot_stages(current_save_slot) & (1u << stage))) {
-#else
-    if (0) {
-#endif
-        boss_intro_run(stage);
-    } else {
-        // Skip the intro and make sure its jingle did not carry over from a
-        // previous replay/selection.
+    if (!boss_intro_run(stage, save_slot_stages(current_save_slot)))
         music_stop();
-    }
+#else
+    boss_intro_run(stage, 0);        // test builds always see the intro
+#endif
 
     player_set_number(current_player);
 
@@ -1327,7 +1324,7 @@ int main(bool hardReset)
     stage_set_data((u8)MD_TEST_CASTLE);
     dbg_print("castle test: heap free=%u largest=%u\n", (unsigned)MEM_getFree(),
             (unsigned)MEM_getLargestFreeBlock());
-    boss_intro_run((u8)MD_TEST_CASTLE);
+    boss_intro_run((u8)MD_TEST_CASTLE, 0);
     dbg_print("castle test: done\n");
     for (;;) SYS_doVBlankProcess();
 #endif
