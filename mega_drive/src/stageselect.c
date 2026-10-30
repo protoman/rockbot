@@ -1,6 +1,7 @@
 #include "stageselect.h"
 
 #include "music.h"
+#include "pal_safe.h"
 
 #include "resources.h"
 #include "ssel_data.h"
@@ -87,34 +88,22 @@ static bool stage_ready(u8 st)
 
 static void draw_names(void)
 {
-    // The SGDK font paints every glyph cell with palette index 0 as its
-    // BACKGROUND and 15 as the ink, so the text has to be drawn with a palette
-    // line whose 0 is black and 15 light. Inheriting PAL0 here was the bug
-    // (BUG-014): the previous screen (stage / YOU GOT colour flash) leaves
-    // CRAM 0 on a stage colour, so the names came out peach-on-peach.
-    // PAL1 already holds the grey ramp (beaten faces): 0 = black, 15 = grey.
+    // The names get their own BLACK band instead of the PC bar art (BUG-014
+    // kept coming back after a stage: the bar and the inherited palette line
+    // depend on what the stage left in CRAM/video memory, so the glyph cells
+    // could end up drawn in a stage colour). PAL0 = pal_ui (0 = black, 15 =
+    // font ink) is written with the safe CRAM path so a pending DMA cannot
+    // redirect it, and VDP_clearTextArea paints the band with font spaces in
+    // palette 0 = solid black, whatever the bar tiles behind it look like.
     VDP_setTextPlane(BG_A);
-    VDP_setTextPalette(PAL1);
-    // restore the bottom bar from the static map, then draw the two lines
-    VDP_setTileMapDataRect(BG_A, &cells[BAR_ROW0 * SSEL_MAP_W], 0, BAR_ROW0,
-                           SSEL_MAP_W, BAR_ROWS, SSEL_MAP_W, CPU);
-    if (sx == 1 && sy == 1) {
-        if (!castle_unlocked) {         // centre slot: player/castle icon
-            VDP_setTextPalette(PAL0);
-            return;
-        }
-        u8 st = castle_next_stage();
-        char buf[40];
-        strcpy(buf, "BOSS ");
-        strcat(buf, ssel_boss_names[st]);
-        VDP_drawText(buf, 2, BAR_ROW0 + 1);
-        strcpy(buf, "STAGE ");
-        strcat(buf, ssel_stage_names[st]);
-        VDP_drawText(buf, 2, BAR_ROW0 + 2);
-        VDP_setTextPalette(PAL0);
-        return;
-    }
-    u8 st = complete_stage();
+    pal_load(PAL0, pal_ui.data);
+    VDP_setTextPalette(PAL0);
+    VDP_clearTextArea(0, BAR_ROW0 + 1, SSEL_MAP_W, BAR_ROWS - 1);
+
+    if (sx == 1 && sy == 1 && !castle_unlocked) return;  // centre: player icon
+
+    const bool centre = (sx == 1 && sy == 1);
+    u8 st = centre ? castle_next_stage() : complete_stage();
     char buf[40];
     strcpy(buf, "BOSS ");
     strcat(buf, ssel_boss_names[st]);
@@ -122,10 +111,9 @@ static void draw_names(void)
     strcpy(buf, "STAGE ");
     strcat(buf, ssel_stage_names[st]);
     VDP_drawText(buf, 2, BAR_ROW0 + 2);
-    if (!stage_ready(st)) {
+    if (!centre && !stage_ready(st)) {
         VDP_drawText("NOT CONVERTED YET", 2, BAR_ROW0 + 3);
     }
-    VDP_setTextPalette(PAL0);   // never leak PAL1 into the next screen
 }
 
 u8 stage_select_run(u8 player, u16 stage_mask)

@@ -488,3 +488,7 @@ first row is discarded.
   (PC `classic_style_boss_intro` returns before screen AND music) and
   `music_stop()` always stops XGM2 instead of trusting the port's own `playing`
   flag. Check: `make check-boss-intro` (`tools/check_boss_intro_gate.py`).
+- 2026-10-30 stage select names: own black band instead of the PC bar art +
+  borrowed PAL1 (BUG-014 relapse after some stages). `draw_names()` loads PAL0
+  (pal_ui: 0 = black, 15 = ink) through `pal_safe.h` and paints rows 25..27 with
+  `VDP_clearTextArea` before drawing. Check: `make check-ssel-text`.

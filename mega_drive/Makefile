@@ -82,6 +82,13 @@ check-armor:
 check-boss-intro:
 	$(PYTHON) tools/check_boss_intro_gate.py
 
+# The stage-select boss/stage names sit on their own black band, drawn with
+# PAL0 (pal_ui) loaded through pal_safe - borrowing the PC bar art and PAL1 made
+# them unreadable again after some stages (BUG-014 relapse).
+.PHONY: check-ssel-text
+check-ssel-text:
+	$(PYTHON) tools/check_stage_select_text.py
+
 # Run the built ROM in BlastEm (native binary, see tools/emu.sh EMU_BIN).
 # This goes through tools/emu.sh instead of launching the emulator directly:
 # that kills a previous instance and relaunches while the window comes up

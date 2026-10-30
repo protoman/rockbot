@@ -1695,3 +1695,23 @@ it did not run; `music_stop()` always issues `XGM2_stop()`.
 
 Reproduction: `make check-boss-intro` (`tools/check_boss_intro_gate.py`) -
 fails on the old tree with 3 violations, passes after.
+
+## BUG-047 — Stage-select names unreadable again after a stage (BUG-014 relapse)
+
+**Report** (2026-10-30): the boss/stage name lines at the bottom of the stage
+select were "still bad sometimes" after finishing a stage.
+
+**Cause**: the names were drawn over the PC bottom-bar art and borrowed PAL1
+(the grey ramp loaded for beaten boss faces), so both the glyph background and
+the palette came from whatever the finished stage left in CRAM / video memory.
+`models/cells` restore only put the bar art back; a stage that had put a
+different ramp in CRAM line 1 (or left the bar tileset overwritten) still made
+the text unreadable.
+
+**Fix**: `draw_names()` now clears rows 25..27 to font spaces (`VDP_clearTextArea`
+writes palette-0 cells = solid black) and draws with PAL0 = `pal_ui`
+(entry 0 black, entry 15 ink) loaded with `pal_load()` from `pal_safe.h`, so no
+stage palette or bar tile can affect the text.
+
+Reproduction: `make check-ssel-text` (`tools/check_stage_select_text.py`) - 4
+violations on the old tree, 0 after.
