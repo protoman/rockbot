@@ -30,7 +30,7 @@ def main():
     for n in (1, 2, 3):
         src = os.path.join(PCGAME, "images/ending/player_walking_layer%d.png" % n)
         if n == 2:
-            src = os.path.join(RES, "end_l2_src.png")   # padded at the top first
+            src = os.path.join(RES, "end_l2_pad.png")   # padded at the top first
         if not os.path.isfile(src):
             sys.exit("ending_layers: missing %s" % src)
         im = Image.open(src).convert("RGBA")

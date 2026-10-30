@@ -22,7 +22,6 @@ Usage: python3 tools/convert_stage.py
 import os
 import struct
 import sys
-from collections import Counter
 from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -434,85 +433,26 @@ def convert_map(map_n, ts_px, cells, used, palette, lut, frame0_px, slot_of,
     return img, terrain
 
 
-BG_PLANE_W = 512  # BG_B plane is 64 tiles wide
+BG_PLANE_W = 512  # BG_B plane is 64 tiles wide; the art is baked to this width
 
 
-def bg_strip(src):
-    """The strip that is repeated over the plane, made seamless.
+def bg_plane(src, h):
+    """Plane content: the PC art at its own width, then its first
+    (512 - w) columns, padded to `h` (a multiple of 8).
 
-    The PC art repeats at its OWN width (its left and right columns match:
-    `clouds.png` column 0 == column 319 on every row), but BG_B wraps at the
-    plane width, 512 px, and 512 is not a multiple of 320 - tiling the art
-    directly left a visible seam every 512 px of scroll (`clouds_misalign.png`).
-    The strip therefore has to be 256 px (the largest power of two below 320
-    that divides 512). Three ways to get there, best first:
-
-      1. the art already repeats inside itself with a period dividing 512
-         (circuit boards, MINE): crop to that period - exact, and fewer tiles
-         than any other option;
-      2. a 64 px window of the art is nearly one colour (sky, stars, a flat
-         wall): drop it - the strip shortens there and nothing is lost
-         (`city_night` 96% flat, `stars_bg` 100%);
-      3. otherwise resample the art to 256 px (20% narrower, no content lost -
-         dropping a window out of a painted background loses a tree).
-    """
-    w, h = src.size
-    if BG_PLANE_W % w == 0:                 # already repeats over the plane
-        return src
-    period = bg_inner_period(src)
-    if period:
-        return src.crop((0, 0, period, h))
-    if w <= 256:                            # 241 px art: 6% stretch
-        return src.resize((256, h), Image.NEAREST)
-    drop = w - 256
-    cut = bg_flat_window(src, drop)
-    if cut is not None:
-        strip = Image.new("RGBA", (256, h), (0, 0, 0, 0))
-        strip.paste(src.crop((0, 0, cut, h)), (0, 0))
-        strip.paste(src.crop((cut + drop, 0, w, h)), (cut, 0))
-        print(f"    {w} -> 256 px: {drop} flat columns dropped at x={cut}")
-        return strip
-    print(f"    {w} -> 256 px: squeezed (no flat window, {drop} px lost "
-          f"would cut the art)")
-    return src.resize((256, h), Image.NEAREST)
-
-
-def bg_inner_period(src):
-    """Smallest horizontal repeat inside the art that divides the plane width,
-    or 0. Cuts the tile count a lot when the art is a repeating pattern."""
-    w, h = src.size
-    px = src.load()
-    cols = [tuple(px[x, y] for y in range(h)) for x in range(w)]
-    for p in (8, 16, 32, 64, 128, 256):
-        if p >= w or BG_PLANE_W % p:
-            continue
-        if all(cols[x] == cols[x + p] for x in range(w - p)):
-            return p
-    return 0
-
-
-def bg_flat_window(src, drop):
-    """Offset of the `drop`-wide window that is mostly one colour, or None.
-
-    Dropping a window there only shortens a plain area, so the art is intact -
-    unlike a resample, which narrows every column, or an arbitrary cut, which
-    removes whatever it lands on."""
-    w, h = src.size
-    px = src.load()
-    cols = [Counter(px[x, y] for y in range(h)) for x in range(w)]
-    best = (0, 0.0)
-    for o in range(w - drop + 1):
-        merged = Counter()
-        for x in range(o, o + drop):
-            merged.update(cols[x])
-        colour, _n = merged.most_common(1)[0]
-        flat = sum(cols[x][colour] for x in range(o, o + drop)) / (drop * h)
-        if flat > best[1]:
-            best = (o, flat)
-    return best[0] if best[1] >= 0.9 else None
-
-
-
+    The PC repeats a background at its own width (its left and right columns
+    match: `clouds.png` column 0 == column 319) and the owner wants that exact
+    spacing, so the art is NOT resampled or cropped. BG_B wraps at 512 px, which
+    is not a multiple of the 320 px art, so the wrap joins art column 191 to
+    column 0 - a break every 512 px of parallax travel. That is accepted as the
+    price of the PC's art: the 128-tile plane that would fix it does not fit the
+    VRAM/SDK layout (bugs.md BUG-049/052)."""
+    bg = Image.new("RGBA", (BG_PLANE_W, h), (0, 0, 0, 0))
+    bg.paste(src, (0, 0))
+    tail = BG_PLANE_W - src.width
+    if tail > 0:
+        bg.paste(src.crop((0, 0, tail, src.height)), (src.width, 0))
+    return bg
 
 
 def background_exists(name):
@@ -557,11 +497,8 @@ def convert_background(map_n, name, adjust_y, speed, over=None):
         print(f"  bg{map_n}: layer1 {o_name} {top.size} composited at "
               f"dy={dy} (its own speed {o_speed} vs {speed} cannot be "
               f"independent on one plane)")
-    strip = bg_strip(src)
     h = (src.height + 7) & ~7   # SGDK wants height as a multiple of 8
-    bg = Image.new("RGBA", (BG_PLANE_W, h), (0, 0, 0, 0))
-    for x in range(0, BG_PLANE_W, strip.width):
-        bg.paste(strip, (x, 0))
+    bg = bg_plane(src, h)
     px = bg.load()
     # The colorkey is transparent (PC): those pixels are palette index 0, so the
     # plane shows the map's background colour (CRAM 0) through them.

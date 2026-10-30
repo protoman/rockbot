@@ -513,3 +513,7 @@ first row is discarded.
   art's 320 px inside a 512 px plane, so the ground/sky jumped every 320 px of
   travel (this was the `clouds_misalign.png` report). Layers are now baked to a
   256 px period over the 512 px plane and wrap at 512. `make check-bg-seam`.
+- 2026-10-30 parallax: owner's call - the stage strips keep the PC art at its own
+  320 px width (no resample); the 512 px plane wrap seam stays. The ending walk
+  (the real `clouds_misalign.png`) is fixed by baking its layers 256-periodic.
+  `make check-bg-seam` checks both rules.

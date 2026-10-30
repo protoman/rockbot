@@ -1,24 +1,23 @@
 #!/usr/bin/env python3
-"""Offline check: the baked parallax strips must repeat over the BG_B plane.
+"""Offline check of the baked scrolling strips (owner's decision 2026-10-30).
 
-BUG it reproduces (2026-10-30, `clouds_misalign.png`): the clouds jumped at the
-seam. The PC background art repeats at its own width - its left and right
-columns are identical (`clouds.png` 320x240: column 0 == column 319 on every
-row), so the PC draws it side by side and it looks continuous. BG_B however
-wraps at its plane width, 512 px, and 512 is NOT a multiple of 320: the strip
-was baked as art + the first 192 columns, so the wrap joined art column 191 to
-art column 0 - a visible break every 512 px of scroll.
+TWO different rules, on purpose:
 
-The strips therefore have to be periodic over the plane width: the converter
-resamples the art to a period that divides 512 (320 -> 256, 241 -> 256, 64 stays
-64). This check reads the baked `res/stage*_bg<N>.png` and accepts a strip when
+* STAGE parallax (`res/stage<N>_bg<M>.png`) keeps the PC's art at its OWN
+  width. The PC repeats a background at its width (its left and right columns
+  match), so a 320 px art repeats every 320 px and this check requires the bake
+  to do the same. BG_B wraps at 512 px, which is not a multiple of 320, so the
+  wrap joins art column 191 to column 0: a visible break every 512 px of
+  parallax travel. That is ACCEPTED (bugs.md BUG-049/052): the 128-tile plane
+  that would remove it does not fit the VRAM/SDK layout, and resampling to
+  256 px made the art 20% denser than the PC.
 
-  * it is exactly periodic with a period that divides the plane width (the wrap
-    then always lands on the next repeat, so there is nothing to line up), or
-  * it has no shorter period but its last and first columns are the same
-    (the PC art's own duplicated edge column), which is the PC's wrap.
+* ENDING walking layers (`res/end_l<N>_src.png`) must repeat over the plane
+  (a period that divides 512): their offsets wrap at 512, so a native 320 px
+  strip would jump every 320 px of travel - the "grass jumps" report
+  (tools/ending_layers.py bakes them at 256 px).
 
-Usage: tools/check_bg_seam.py     exit 1 on a seam.
+Usage: tools/check_bg_seam.py     exit 1 when a strip breaks its rule.
 """
 import glob
 import os
@@ -31,84 +30,76 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 RES = os.path.join(ROOT, "res")
 PLANE_W = 512
-PERIODS = (32, 64, 128, 256)        # divisors of the plane width, smallest first
+
+sys.path.insert(0, HERE)
+import convert_stage as cs          # noqa: E402  (the source-of-truth reader)
 
 
 def columns(img):
     w, h = img.size
-    px = img.load()
-    return [tuple(px[x, y] for y in range(h)) for x in range(w)]
+    px = img.convert("RGBA").load()
+    return [tuple(px[x, y] for y in range(h)) for x in range(w)], w
 
 
-def used_backgrounds():
-    """(stage, map) pairs whose stage data actually loads a parallax strip.
-
-    The converter only writes the maps that have a background, so a stale
-    `res/stageN_bgM.png` can linger after a data edit - it is not part of the
-    stage any more and must not fail this check."""
-    out = set()
-    for path in glob.glob(os.path.join(ROOT, "src", "stage*_data.c")):
-        if not os.path.basename(path).startswith("stage") or "_bg" in path:
-            continue
-        text = open(path, encoding="utf-8", errors="replace").read()
-        m = re.search(r"_bg_pal\[\d+\]\s*=\s*\{([^}]*)\}", text)
-        if not m:
-            continue
-        for i, entry in enumerate(s.split(",") for s in m.group(1).split(",")):
-            if "NULL" in entry[0]:
-                continue
-            stage = os.path.basename(path)[len("stage"):-len("_data.c")]
-            out.add((stage, i))
-    return out
+def period(cols, w, limit=None):
+    """Smallest horizontal repeat of `cols`, or 0."""
+    limit = limit or w
+    for p in range(1, limit + 1):
+        if all(cols[x] == cols[x + p] for x in range(w - p)):
+            return p
+    return 0
 
 
-def ending_layers():
-    """The ending's walking layers scroll over the same 512 px planes (their
-    offsets wrap at 512); they are baked by tools/ending_layers.py."""
-    return sorted(glob.glob(os.path.join(RES, "end_l[0-9]_src.png")))
+def source_period(name):
+    art = cs.unkey(Image.open(os.path.join(
+        cs.DATA, "images/map_backgrounds", name)).convert("RGBA"))
+    cols, w = columns(art)
+    return period(cols, w)
 
 
 def main():
-    used = used_backgrounds()
-    files = sorted(glob.glob(os.path.join(RES, "stage*_bg[0-9].png"))) + ending_layers()
-    if not files:
-        print("check_bg_seam: no baked backgrounds (run make assets)")
-        return 1
-
     errors = 0
-    for path in files:
-        name = os.path.basename(path)
-        m = re.match(r"stage(\d+)_bg(\d)\.png$", name)
-        if m and used and (m.group(1), int(m.group(2))) not in used:
-            print("skip  %s: not referenced by the stage data" % name)
-            continue
-        img = Image.open(path).convert("RGBA")
-        if img.size[0] != PLANE_W:
-            print("FAIL  %s: width %d, the plane is %d"
-                  % (name, img.size[0], PLANE_W))
-            errors += 1
-            continue
-        cols = columns(img)
-        period = next((p for p in PERIODS
-                       if all(cols[x] == cols[x + p]
-                              for x in range(PLANE_W - p))), None)
-        if period:
-            print("ok    %s: %d px period over the %d px plane"
-                  % (name, period, PLANE_W))
-            continue
-        if cols[PLANE_W - 1] == cols[0]:
-            print("ok    %s: single %d px pass, edges match"
-                  % (name, PLANE_W))
-            continue
-        # name where it breaks: the first column that repeats the plane's start
-        bad = next((x for x in range(PLANE_W // 2, PLANE_W)
-                    if cols[x] == cols[0]), PLANE_W)
-        print("FAIL  %s: no repeat period over the %d px plane, so the wrap "
-              "joins column %d to column 0 (art restarts at column %d)"
-              % (name, PLANE_W, PLANE_W - 1, bad if bad < PLANE_W else -1))
-        errors += 1
 
-    print("\n%d seam(s)" % errors)
+    # ---- stage parallax: the PC's own art spacing ------------------------
+    for path in sorted(glob.glob(os.path.join(RES, "stage*_bg[0-9].png"))):
+        base = os.path.basename(path)
+        hit = re.match(r"stage(\d+)_bg(\d)\.png$", base)
+        if not hit:
+            continue
+        stage, m = int(hit.group(1)), int(hit.group(2))
+        _, bg0, _, _ = cs.read_map(stage, m)
+        name = bg0[0]
+        if not name or not os.path.exists(os.path.join(
+                cs.DATA, "images/map_backgrounds", name)):
+            continue
+        # the PC repeats the art at its own WIDTH (not at an inner period)
+        want = Image.open(os.path.join(cs.DATA, "images/map_backgrounds",
+                                       name)).width
+        cols, w = columns(Image.open(path))
+        got = period(cols, w)
+        # the bake may repeat faster than the art width only when the ART
+        # itself repeats there (circuit boards/mine are 16/32 px periodic); a
+        # resample to 256 does not divide 320 and is caught here.
+        if not got or want % got:
+            print("FAIL  %s: bakes a %d px period, the PC art is %d px wide "
+                  "and does not repeat there" % (base, got, want))
+            errors += 1
+        else:
+            print("ok    %s: PC art spacing kept (%d px period)" % (base, got))
+
+    # ---- ending walking layers: must repeat over the plane --------------
+    for path in sorted(glob.glob(os.path.join(RES, "end_l[0-9]_src.png"))):
+        base = os.path.basename(path)
+        cols, w = columns(Image.open(path))
+        got = period(cols, w, limit=256)
+        if not got or PLANE_W % got:
+            print("FAIL  %s: no period dividing the %d px plane - the walking "
+                  "layers would jump" % (base, PLANE_W))
+            errors += 1
+        else:
+            print("ok    %s: %d px period over the plane (no jump)" % (base, got))
+
+    print("\n%d strip(s) breaking their rule" % errors)
     return 1 if errors else 0
 
 
