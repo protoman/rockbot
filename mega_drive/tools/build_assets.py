@@ -176,6 +176,10 @@ def build_steps():
             [DATA + "/map_object_data.dat", DATA + "/game_object_list.dat"] + img)
         for m in range(3):
             png = "res/stage%d_bg%d.png" % (s, m)
+            # the converter only writes the maps that HAVE a background
+            # (stage 0 map 2 has none), so a missing file is normal
+            if not os.path.isfile(png):
+                continue
             add("bg%d_%d" % (s, m), ["tools/img2tiles.py", png, "--name", "stage%d_bg%d" % (s, m)],
                 common("img2tiles.py") + [png])
     # --- shared converters --------------------------------------------------

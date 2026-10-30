@@ -1738,3 +1738,33 @@ Reproduction: `tests/host/door_block_test.c` (real `src/object.c` + stubs,
 `tools/run_host_tests.sh`): closed door blocks, open door passes, and the door
 after the open/close cycle blocks again - the last two checks fail on the old
 tree ("closed again after opening -> passes").
+
+## BUG-049 — Parallax background seams (clouds jump when the bg wraps)
+
+**Report** (2026-10-30, `clouds_misalign.png`): the cloud layer was misaligned -
+a hard break in the sky every so often. The PC art repeats seamlessly at its own
+width: `clouds.png` is 320x240 and its column 0 equals column 319 on every row,
+so the PC draws it side by side.
+
+**Cause**: the converter baked the strip to 512 px (`art` + the first 192
+columns) because BG_B is a 64-tile = 512 px plane, and BG_B's scroll wraps at
+512. 512 is not a multiple of 320, so at the wrap the strip joined art column
+191 to art column 0 instead of 319 to 0: a visible seam every 512 px of scroll.
+
+**Fix** (`tools/convert_stage.py bg_strip`): the strip must repeat over the
+plane, so it is turned into a 256 px one (the largest power of two below 320
+that divides 512):
+1. art that already repeats inside itself with a period dividing 512 (circuit
+   boards, MINE: period 16/32) is cropped to that period - exact;
+2. art with a 64 px window that is >= 90% one colour (stars, city night, red
+   clouds, factory) loses that window - exact, nothing visible removed;
+3. otherwise the art is resampled to 256 px (20% narrower, no content lost).
+
+Reproduction: `make check-bg-seam` (`tools/check_bg_seam.py`) - every baked
+`res/stage*_bg*.png` must be periodic over the 512 px plane (26 seams on the old
+tree, 0 now).
+
+**Trade-off**: squeezing the dense painterly strips (jungle trees, clouds_dark,
+egypt) costs tiles (stage 1's parallax 354 -> 451 tiles), so a few more room
+transitions skip the incoming half's parallax (12 -> 35 of them, cosmetic). The
+flat-window and period-crop paths *reduce* tiles elsewhere.

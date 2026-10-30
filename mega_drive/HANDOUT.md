@@ -496,3 +496,7 @@ first row is discarded.
   ran" latch), so once opened+closed it stopped blocking and the DESTRIN SHIP
   teleported inside it. Now `!door_open`. Repro: `tools/run_host_tests.sh`
   (`tests/host/door_block_test.c`).
+- 2026-10-30 parallax seams: the strips were baked as art + 192 px, but BG_B
+  wraps at 512 and the PC art repeats at 320 - the wrap joined the wrong
+  columns (clouds jumped). `convert_stage.py` now bakes a 256 px strip (period
+  crop / flat-window drop / squeeze, best first). Check: `make check-bg-seam`.

@@ -89,6 +89,13 @@ check-boss-intro:
 check-ssel-text:
 	$(PYTHON) tools/check_stage_select_text.py
 
+# The parallax strips are baked 512 px wide (the BG_B plane) and must repeat
+# over that width: the PC art repeats at its own 320 px, which does not divide
+# 512, so tiling it directly left a seam (clouds_misalign.png).
+.PHONY: check-bg-seam
+check-bg-seam:
+	$(PYTHON) tools/check_bg_seam.py
+
 # Run the built ROM in BlastEm (native binary, see tools/emu.sh EMU_BIN).
 # This goes through tools/emu.sh instead of launching the emulator directly:
 # that kills a previous instance and relaunches while the window comes up
