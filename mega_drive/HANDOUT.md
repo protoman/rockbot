@@ -517,3 +517,8 @@ first row is discarded.
   320 px width (no resample); the 512 px plane wrap seam stays. The ending walk
   (the real `clouds_misalign.png`) is fixed by baking its layers 256-periodic.
   `make check-bg-seam` checks both rules.
+- 2026-10-30 ending dialog faces: the portraits' own background (the PC clear
+  colour) quantised greenish next to the blue box, and they were drawn 16 px low
+  (CLEAR_AREA applied the 240->224 crop, MOVE_IMAGE did not). The face background
+  is now repainted a pure dark blue, `md_color()` packs CRAM the hardware way
+  (bits 11-9/7-5/3-1) and images get `y - 24` (one extra tile up).

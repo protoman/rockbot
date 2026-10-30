@@ -130,7 +130,7 @@ const SceneParallax scene_parallax[1] = {
 };
 
 const SceneClear scene_clear[1] = {
-    { 20, 20, 280, 80, 0x210 }, // INTRO Lab BG EYES
+    { 20, 20, 280, 80, 0x200 }, // INTRO Lab BG EYES
 };
 
 const SceneImage scene_images[13] = {

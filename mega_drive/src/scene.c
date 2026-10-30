@@ -230,7 +230,12 @@ static bool show_image(u8 rec)
 
     const u16 bg = scene_bg_entry;
     static u16 cells[16 * 16];   // portraits are 9x9 cells
-    s16 x = im->x, y = im->y;
+    // PC coordinates are 240 lines and the MD screen drops the top 16 (the
+    // CLEAR_AREA op does the same with c->y - 16); without it the ending faces
+    // sat two tiles below their box. One more tile up keeps the face inside the
+    // box instead of hanging out of its bottom edge (owner, 2026-10-30).
+    s16 x = im->x, y = (s16)(im->y - 24);
+    s16 dest_y = (s16)(im->dest_y - 24);
     for (;;) {
         u16 n = 0;
         for (u8 cy = 0; cy < im->map_h; cy++) {
@@ -243,14 +248,14 @@ static bool show_image(u8 rec)
         VDP_setTileMapDataRect(BG_B, cells, (u16)(x >> 3), (u16)(y >> 3),
                                im->map_w, im->map_h, im->map_w, CPU);
 
-        if (im->dest_x == im->x && im->dest_y == im->y) break;   // static
+        if (im->dest_x == im->x && dest_y == y) break;           // static
         if (!wait_ms(im->move_delay)) return FALSE;              // START aborts
 
         // Move one step toward the destination (PC sceneShow::show_image:
         // the longer axis advances 1px, the other axis by the ratio) and
         // erase the previous rect with the background tile. Endings are all
         // static, so this path exists for the lab scene / future scenes.
-        s16 dx = im->dest_x - x, dy = im->dest_y - y;
+        s16 dx = im->dest_x - x, dy = dest_y - y;
         s16 ax = (dx < 0) ? -dx : dx, ay = (dy < 0) ? -dy : dy;
         if (!ax && !ay) break;
         s16 sx8 = 0, sy8 = 0;

@@ -1852,3 +1852,27 @@ against the wrap the runtime uses.
 - Nothing else changes an image width: `img2tiles`/`convert_assets` crop height
   only, `convert_stage` bakes art + its head, `ending_layers` is the deliberate
   256 px bake for the walk.
+
+## BUG-054 — Ending dialog: face background greenish, faces too low
+
+**Report** (2026-10-30, `ending_faces_issue.png`): in the ending dialog the face
+portraits sat in a greenish box of their own instead of blending into the blue
+clear-area box behind them, and they were drawn too low relative to that box.
+
+**Causes**
+1. *Colour*: the portraits carry the PC clear colour (8,24,40) as their own
+   opaque background, and the image palette quantised it to a **greenish** entry
+   while the box was painted with the clear record's colour. `md_color()`
+   additionally packed the CRAM word at bits 8/4/0 instead of the hardware's
+   11-9/7-5/3-1 (`0000 BBB0 GGG0 RRR0`), so the two paths could never agree.
+2. *Position*: the CLEAR_AREA op converts the PC's 240-line y with `-16`, the
+   MOVE_IMAGE op did not - the faces were drawn two tiles lower than their box.
+
+**Fix** (`tools/convert_scenes.py`, `src/scene.c`): `md_color()` packs the CRAM
+word correctly (and uses the same 8->3 bit rule rescomp applies to palette
+PNGs); the portrait background is repainted a pure dark blue (`PORTRAIT_BG`
+(0,0,73), "closest possible to the box, not necessarily equal" - owner's call,
+no transparency); `show_image()` converts y with `-24` (PC crop plus one tile
+up, so the face sits inside the box instead of hanging out of its bottom edge).
+
+Verified with `MD_TEST_ENDING` captures.

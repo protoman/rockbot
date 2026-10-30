@@ -224,9 +224,47 @@ def bake(src_name, out_name):
     return wrap
 
 
+def md_level(v):
+    """8-bit channel -> MD 3-bit level, the same rule rescomp applies to a
+    palette PNG (so a colour written into the art and one passed to
+    PAL_setColor land on the same CRAM value)."""
+    return v >> 5
+
+
 def md_color(r, g, b):
-    """PC 0..255 -> SGDK PAL_setColor's 0x0BGR (4 bits per channel)."""
-    return ((b >> 4) << 8) | ((g >> 4) << 4) | (r >> 4)
+    """PC 0..255 -> the 9-bit CRAM word SGDK's PAL_setColor takes.
+
+    The Genesis CRAM entry is `0000 BBB0 GGG0 RRR0`: each channel sits in the
+    TOP 3 bits of its nibble (bits 11-9 / 7-5 / 3-1). Packing at bits 8/4/0
+    (an easy mistake) halves and shifts the colour: the ending's clear-area
+    box came out one level darker than the same RGB in a palette, which is why
+    the faces' background looked greenish against it (report 2026-10-30)."""
+    return (md_level(b) << 9) | (md_level(g) << 5) | (md_level(r) << 1)
+
+
+# Portrait background: a pure dark blue, the box colour's family. The box is
+# (8,24,40) -> one 3-bit blue step; the art is repainted (0,0,73) so it survives
+# the 15-colour quantisation as its own BLUE entry instead of merging into a
+# greenish/black one.
+PORTRAIT_BG = (0, 0, 73)
+
+# The 8-bit value each 3-bit MD level renders as (same table img2tiles uses).
+MD_LEVELS_8 = (0, 36, 73, 109, 146, 182, 219, 255)
+
+
+def clear_rgb8(clear):
+    """The clear-area colour as the 3:3:3 value the MD will actually show.
+
+    The portrait art carries the PC clear colour as its own opaque background
+    ((8,24,40) in the ending faces), but the image palette quantised it to a
+    *different* MD colour than the fill (greenish instead of the box's blue -
+    report 2026-10-30). The faces are still drawn opaque (index 0 of an image
+    line is not transparent), so the background pixels are re-written as the
+    fill's exact 9-bit colour, as the PC has them."""
+    md = md_color(clear["r"], clear["g"], clear["b"])
+    # CRAM word: TTT0 TTT0 TTT0 with B at 11-9, G at 7-5, R at 3-1
+    return (MD_LEVELS_8[(md >> 1) & 7], MD_LEVELS_8[(md >> 5) & 7],
+            MD_LEVELS_8[(md >> 9) & 7])
 
 
 def emit_c(scenes, texts, clears, pars, images, baked, music):
@@ -428,10 +466,29 @@ def main():
     # Only the portraits the endings (scenes 2..5) use. The other records are
     # the lab scene / unused; their art still needs a colour-reduction pass.
     baked = {6, 8, 9, 10, 11, 12}
+    # The ending scenes reuse the one CLEAR_AREA record (their blue box).
+    box = clear_rgb8(clears[0]) if clears else None
     for i in sorted(baked):
         im = Image.open(os.path.join(IMAGES, images[i]["file"])).convert("RGBA")
-        # Portrait backgrounds are the PC clear-area colour, fully opaque, so
-        # no colorkey/alpha handling is needed.
+        # Portrait backgrounds are the PC clear-area colour, fully opaque. Pin
+        # them to the box's exact MD colour: the image palette quantised the
+        # same RGB to a greenish entry and the face did not blend into the box.
+        # The art carries the PC clear colour as its own background; repaint it
+        # a pure dark blue (the box's own colour family) so the portrait reads
+        # as sitting IN the box. It does not have to match the box exactly - a
+        # transparent background is not wanted (report 2026-10-30: the quantised
+        # background came out greenish).
+        bg = im.getpixel((0, 0))
+        target = PORTRAIT_BG
+        px = im.load()
+        fixed = 0
+        for yy in range(im.height):
+            for xx in range(im.width):
+                p = px[xx, yy]
+                if p[3] and sum((p[k] - bg[k]) ** 2 for k in range(3)) <= 20 ** 2:
+                    px[xx, yy] = target + (255,)
+                    fixed += 1
+        print(f"  scene_img{i}: background {bg[:3]} -> {target} ({fixed} px)")
         im.save(os.path.join(RES, f"scene_img{i}.png"))
         print(f"  scene_img{i}: {images[i]['file']} {im.size}")
 
