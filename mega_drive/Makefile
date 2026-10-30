@@ -66,6 +66,14 @@ check-sram:
 check-pal:
 	$(PYTHON) tools/check_pal_writes.py
 
+# The "got armor" pages must describe the ability the piece actually installs
+# (BUG: ROCKBOT's legs page said air dash while the piece grants double jump -
+# dialogs.c keyed its labels off a different enum order than player.c). Also
+# checks the per-player ability tables against game_armorPieces_v301.dat.
+.PHONY: check-armor
+check-armor:
+	$(PYTHON) tools/check_armor_dialog.py
+
 # Run the built ROM in BlastEm (native binary, see tools/emu.sh EMU_BIN).
 # This goes through tools/emu.sh instead of launching the emulator directly:
 # that kills a previous instance and relaunches while the window comes up

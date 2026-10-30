@@ -1,17 +1,22 @@
 #!/usr/bin/env python3
-"""Offline check: the "got armor" dialog text must match the ability the data
-actually installs.
+"""Offline check: the "got armor" dialog text and the port's armor tables must
+match the ability the data actually installs.
 
-BUG it reproduces: ROCKBOT gets the legs piece with ability 0 (double jump) but
-the page reads "DASH IN MIDDLE-AIR." - the port's dialogs.c keyed the labels
-off a different enum order than src/player.c uses.
+BUG it reproduces (fixed): ROCKBOT gets the legs piece with ability 0 (double
+jump) but the page read "DASH IN MIDDLE-AIR." - dialogs.c keyed the labels off
+a different enum order than src/player.c uses. The body page was wrong for all
+four values too.
 
-Source of truth is the PC code, not a table copied here:
-  ../defines.h            enum e_ARMOR_ABILITIES_LEGS / _BODY order
-  ../scenes/dialogs.cpp   enum value -> message index (msg1..msg4)
-  ../file/fio_strings.cpp English text of that message
-  data/games/RockDroid1/game_armorPieces_v301.dat  ability per piece/player
-and the port's own text in src/dialogs.c is what gets compared.
+Source of truth is the PC code + data, not a table copied here:
+  ../defines.h             enum e_ARMOR_ABILITIES_LEGS / _BODY order
+  ../scenes/dialogs.cpp    enum value -> message index (msg1..msg4), and the
+                           ARMS page = "SHOOT <projectile name>."
+  ../file/fio_strings.cpp  English text of that message
+  data/games/RockDroid1/game_armorPieces_v301.dat   ability per piece/player
+  data/games/RockDroid1/game_projectile_list.dat     projectile id -> name
+and the port's own text/tables in src/dialogs.c and src/player.c are compared.
+
+Covers all 4 players x 3 armor pieces.
 
 Usage: tools/check_armor_dialog.py      exit 1 on a mismatch.
 """
@@ -23,9 +28,11 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 MD = os.path.dirname(HERE)
 PC = os.path.dirname(MD)
-DATA = os.path.join(MD, "data/games/RockDroid1/game_armorPieces_v301.dat")
-PORT_SRC = os.path.join(MD, "src/dialogs.c")
+DATA = os.path.join(MD, "data/games/RockDroid1")
+PORT_DIALOGS = os.path.join(MD, "src/dialogs.c")
+PORT_PLAYER = os.path.join(MD, "src/player.c")
 PLAYERS = ("ROCKBOT", "BETABOT", "CANDYBOT", "KITTYBOT")
+PROJ_REC = 104                  # sizeof(file_projectilev3) in game_projectile_list.dat
 
 
 def read(path):
@@ -59,46 +66,87 @@ def english_texts(pc_strings):
     return keys
 
 
+def pc_armor_data():
+    """piece name -> [ability per player], from the .dat (stride 64 B)."""
+    raw = open(os.path.join(DATA, "game_armorPieces_v301.dat"), "rb").read()
+    piece = lambda i: struct.unpack_from("<4i", raw, i * 64)
+    return {"arms": piece(0), "body": piece(1), "legs": piece(2)}
+
+
+def pc_projectile_names():
+    raw = open(os.path.join(DATA, "game_projectile_list.dat"), "rb").read()
+    return [raw[i:i + 30].split(b"\0")[0].decode("latin1")
+            for i in range(0, len(raw) - PROJ_REC + 1, PROJ_REC)]
+
+
+def port_ability_tables(port):
+    """piece name -> tuple of abilities, from src/player.c."""
+    out = {}
+    for piece, vals in re.findall(
+            r"armor_(arms|body|legs)_ability\[4\] = \{([^}]*)\}", port):
+        out[piece] = tuple(int(v) for v in vals.split(","))
+    return out
+
+
 def port_labels(port):
-    """Return {(kind, ability): label} parsed from dialog_show_armor."""
+    """{(piece, ability): page text} parsed from dialog_show_armor."""
     block = re.search(r"void dialog_show_armor.*?\n\}", port, re.S).group(0)
     out = {}
-    for kind, head in (("legs", "THOSE LIGHTER LEGS"),
-                       ("body", "THIS FORTIFIED BODY")):
+    # body / legs: if/else-if chain keyed on the ability value
+    for piece, head in (("legs", "THOSE LIGHTER LEGS"),
+                        ("body", "THIS FORTIFIED BODY")):
         chain = block.split(head, 1)[1]
-        chain = chain[:chain.index("\n    }")]     # the page's if/else chain
+        chain = chain[:chain.index("\n    }")]
         for n, label in re.findall(
                 r'ability == (\d+)\)\s*lines\[2\] = "([^"]*)"', chain):
-            out[(kind, int(n))] = label
+            out[(piece, int(n))] = label
         fallback = re.search(r'else\s+lines\[2\] = "([^"]*)"', chain)
         if fallback:
-            out[(kind, 1 + max(n for k, n in out if k == kind))] = \
+            out[(piece, 1 + max(n for k, n in out if k == piece))] = \
                 fallback.group(1)
+    # arms: the page is "SHOOT <armor_shot_name(ability)>."
+    shot = dict(re.findall(r'case (\d+): return "([^"]*)";',
+                           re.search(r"armor_shot_name.*?\n\}", port, re.S)
+                           .group(0)))
+    if "SHOOT " in block:
+        for ability, name in shot.items():
+            out[("arms", int(ability))] = "SHOOT %s." % name
     return out
 
 
 def main():
-    # st_armor_piece: special_ability[4] then got_message[4][3] -> 64 B stride
-    raw = open(DATA, "rb").read()
-    piece = lambda i: struct.unpack_from("<4i", raw, i * 64)
-    data = {"arms": piece(0), "body": piece(1), "legs": piece(2)}
-
+    data = pc_armor_data()
     defines = read(os.path.join(PC, "defines.h"))
     msg = pc_msg_index(read(os.path.join(PC, "scenes/dialogs.cpp")))
     texts = english_texts(read(os.path.join(PC, "file/fio_strings.cpp")))
-    port = port_labels(read(PORT_SRC))
+    proj_names = pc_projectile_names()
+    port = read(PORT_DIALOGS)
+    labels = port_labels(port)
+    tables = port_ability_tables(read(PORT_PLAYER))
 
     errors = 0
-    for kind, enum in (("legs", "e_ARMOR_ABILITIES_LEGS"),
-                       ("body", "e_ARMOR_ABILITIES_BODY")):
-        order = enum_order(defines, enum)
-        for player, ability in enumerate(data[kind]):
-            if ability < 0 or ability >= len(order):
-                continue
-            want = texts.get(msg.get(order[ability], ""), None)
-            got = port.get((kind, ability))
-            tag = "%s player %d (%s) ability %d %s" % (
-                kind, player, PLAYERS[player], ability, order[ability])
+    for piece, enum in (("legs", "e_ARMOR_ABILITIES_LEGS"),
+                        ("body", "e_ARMOR_ABILITIES_BODY"),
+                        ("arms", None)):
+        order = enum_order(defines, enum) if enum else []
+        if piece in tables and tables[piece] != data[piece]:
+            print("FAIL  src/player.c armor_%s_ability = %s but the data says %s"
+                  % (piece, tables[piece], data[piece]))
+            errors += 1
+        for player, ability in enumerate(data[piece]):
+            tag = "%s player %d (%s) ability %d" % (
+                piece, player, PLAYERS[player], ability)
+            if piece == "arms":
+                want = ("SHOOT %s." % proj_names[ability].upper()
+                        if 0 <= ability < len(proj_names) else None)
+                if order:
+                    tag += " " + order[ability]
+            else:
+                if ability < 0 or ability >= len(order):
+                    continue
+                tag += " " + order[ability]
+                want = texts.get(msg.get(order[ability], ""), None)
+            got = labels.get((piece, ability))
             if want is None:
                 print("SKIP  %s - no PC text found" % tag)
                 continue
@@ -109,7 +157,7 @@ def main():
             else:
                 print("ok    %s -> %r" % (tag, got))
 
-    print("\n%d mismatched armor page(s)" % errors)
+    print("\n%d mismatched armor page(s)/table(s)" % errors)
     return 1 if errors else 0
 
 
