@@ -120,10 +120,10 @@ const u8 scene_music_ids[3] = {
 static const SceneLayer scene_par0_layers[] = {
     { scene_par0_l0_tiles_data, SCENE_PAR0_L0_TILE_COUNT,
       scene_par0_l0_map, SCENE_PAR0_L0_MAP_W, SCENE_PAR0_L0_MAP_H,
-      &scene_par0_l0_pal, 1, 1 },
+      &scene_par0_l0_pal, 1, 1, 256 },
     { scene_par0_l1_tiles_data, SCENE_PAR0_L1_TILE_COUNT,
       scene_par0_l1_map, SCENE_PAR0_L1_MAP_W, SCENE_PAR0_L1_MAP_H,
-      &scene_par0_l1_pal, 38, 3 },
+      &scene_par0_l1_pal, 38, 3, 512 },
 };
 const SceneParallax scene_parallax[1] = {
     { scene_par0_layers, 2, 10, 4000, 0 },

@@ -123,11 +123,15 @@ static bool parallax_play(const SceneParallax *p)
     // PC run_parallax_scene: x += speed every frame_delay ms, wrapping at the
     // art width. The port advances the same speed at 60 Hz (speed px per
     // 10 ms = speed*100 px/s -> speed*426 in 8.8 fixed point per frame).
+    // The wrap uses the layer's BAKED period (tools/convert_scenes.py bakes
+    // the art at its own repeat width), not the 512 px plane: a 384 px layer
+    // whose art repeats at 256 px would otherwise jump 128 px every cycle.
     const u32 frames = (u32)p->duration * 60 / 1000;
     for (u32 f = 0; f < frames; f++) {
         for (u8 i = 0; i < p->count; i++) {
             pos[i] += (u32)p->layers[i].speed * 426;
-            VDP_setHorizontalScroll(plane[i], -(s16)((pos[i] >> 8) & 511));
+            const u16 per = p->layers[i].period ? p->layers[i].period : 512;
+            VDP_setHorizontalScroll(plane[i], -(s16)((pos[i] >> 8) % per));
         }
         if (!wait_frames(1)) return FALSE;
     }

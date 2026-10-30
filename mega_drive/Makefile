@@ -89,6 +89,14 @@ check-boss-intro:
 check-ssel-text:
 	$(PYTHON) tools/check_stage_select_text.py
 
+# Every baked scrolling strip must wrap where its content repeats: the stage
+# parallax keeps the PC's art width (seam accepted), the ending layers and the
+# cutscene parallax wrap at their baked period. Also flags any converter that
+# changes an image's WIDTH (the class of bug fixed in BUG-049/052).
+.PHONY: check-width
+check-width:
+	$(PYTHON) tools/audit_scroll_width.py
+
 # A boss door is a scroll lock: the PC counts the cells a door object covers as
 # wall when it builds wall_scroll_lock (classmap.cpp:173-190), so the view stops
 # at the closed door instead of scrolling into the arena behind it.

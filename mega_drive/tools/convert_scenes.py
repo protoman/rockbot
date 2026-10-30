@@ -212,13 +212,16 @@ def bake(src_name, out_name):
         for x in range(0, PLANE_W, period):
             out.paste(im.crop((0, 0, min(period, PLANE_W - x), im.height)), (x, 0))
         note = f"period {period}px"
+        wrap = period
     else:
         out.paste(im.crop((0, 0, min(PLANE_W, im.width), im.height)), (0, 0))
         note = "cropped to plane width"
+        wrap = PLANE_W
     # img2tiles punches the game colorkey (city_bg_3's sky) to index 0, so the
     # layer below shows through exactly as on the PC.
     out.save(os.path.join(RES, out_name + ".png"))
     print(f"  {out_name}: {src_name} {im.size} -> {out.size} ({note})")
+    return wrap
 
 
 def md_color(r, g, b):
@@ -255,6 +258,7 @@ def emit_c(scenes, texts, clears, pars, images, baked, music):
          "    const u16 *map; u8 map_w, map_h;",
          "    const Palette *pal;",
          "    s16 adjust_y; u8 speed;",
+         "    u16 period;   // the scroll wraps here (the strip's repeat width)",
          "} SceneLayer;",
          "",
          "typedef struct {",
@@ -341,7 +345,8 @@ def emit_c(scenes, texts, clears, pars, images, baked, music):
             up = f"scene_par{i}_l{j}".upper()
             c.append(f"    {{ scene_par{i}_l{j}_tiles_data, {up}_TILE_COUNT,")
             c.append(f"      scene_par{i}_l{j}_map, {up}_MAP_W, {up}_MAP_H,")
-            c.append(f"      &scene_par{i}_l{j}_pal, {l['adjust_y']}, {l['speed']} }},")
+            c.append(f"      &scene_par{i}_l{j}_pal, {l['adjust_y']}, {l['speed']}, "
+                     f"{l.get('period', 512)} }},")
         c.append("};")
         c.append(f"const SceneParallax scene_parallax[{max(1, len(pars))}] = {{")
         c.append(f"    {{ scene_par{i}_layers, {len(p['layers'])}, "
@@ -417,7 +422,7 @@ def main():
 
     for i, p in enumerate(pars):
         for j, l in enumerate(p["layers"]):
-            bake(l["file"], f"scene_par{i}_l{j}")
+            l["period"] = bake(l["file"], f"scene_par{i}_l{j}")
 
     images = read_images()
     # Only the portraits the endings (scenes 2..5) use. The other records are

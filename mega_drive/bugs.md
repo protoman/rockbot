@@ -1827,3 +1827,28 @@ a 256 px period (same rule as the stage parallax), the maps become 64 columns an
 Verified with `MD_TEST_ENDING` captures 12 s apart (past three old jump points):
 the ground band is 256-periodic on screen (mean mismatch 0.2 of 29 rows) and the
 sky band has no full-height edge. `make check-bg-seam` also checks the strips.
+
+## BUG-053 — Image WIDTH cut to the plane width (audit of the same class)
+
+**Report** (2026-10-30, follow-up to BUG-049/052): "check if there are other
+places we cut a background/scene image width like this".
+
+**Audit** (`make check-width`, `tools/audit_scroll_width.py`): every scrolling
+layer in the game is compared with its source art (width, repeat period) and
+against the wrap the runtime uses.
+
+- **Fixed**: the cutscene parallax wrapped at a hard-coded 512 px whatever the
+  baked period was. `SceneLayer` now carries the baked `period` (tools/
+  convert_scenes.py reports what it tiled) and `scene.c` wraps there, so a layer
+  whose art repeats at 256 px inside a 384 px image no longer jumps 128 px.
+- **Known, accepted**: CASTLE 5 etc. stage parallax keeps the PC's 320 px art and
+  wraps at the 512 px plane (BUG-049).
+- **Known, open**: the intro cutscene's back layer `city_bg_3.png` is **963 px
+  wide** and the MD plane is 512, so the bake keeps only the left 512 px - 451 px
+  (47%) of the city never shows and the layer wraps twice per scene (the scene
+  scrolls 1200 px). Showing all of it needs the window trick: keep the full art's
+  tiles in VRAM and rebuild the 64-column plane map from the wide map as the
+  scroll advances (the plane is exactly one window wide).
+- Nothing else changes an image width: `img2tiles`/`convert_assets` crop height
+  only, `convert_stage` bakes art + its head, `ending_layers` is the deliberate
+  256 px bake for the walk.

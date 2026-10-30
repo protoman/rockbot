@@ -30,6 +30,7 @@ typedef struct {
     const u16 *map; u8 map_w, map_h;
     const Palette *pal;
     s16 adjust_y; u8 speed;
+    u16 period;   // the scroll wraps here (the strip's repeat width)
 } SceneLayer;
 
 typedef struct {
