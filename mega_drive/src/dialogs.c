@@ -219,15 +219,15 @@ void dialog_show_armor(u8 kind)
     } else if (kind == 1) {
         lines[0] = "THIS FORTIFIED BODY WILL";
         lines[1] = "GIVE YOU THE ABILITY TO";
-        if (ability == 0)      lines[2] = "BE INTANGIBLE MORE TIME";
-        else if (ability == 1) lines[2] = "TAKE HALF DAMAGE";
-        else if (ability == 2) lines[2] = "AVOID PUSH-BACK ON HIT";
-        else                   lines[2] = "RESIST SPIKES";
+        if (ability == 0)      lines[2] = "TAKE HALF DAMAGE";
+        else if (ability == 1) lines[2] = "BE INTANGIBLE MORE TIME";
+        else if (ability == 2) lines[2] = "RESIST SPIKES";
+        else                   lines[2] = "AVOID PUSH-BACK ON HIT";
     } else {
         lines[0] = "THOSE LIGHTER LEGS";
         lines[1] = "GIVE YOU THE ABILITY TO";
-        if (ability == 0)      lines[2] = "DASH IN MIDDLE-AIR.";
-        else if (ability == 1) lines[2] = "EXECUTE DOUBLE JUMP";
+        if (ability == 0)      lines[2] = "EXECUTE DOUBLE JUMP";
+        else if (ability == 1) lines[2] = "DASH IN MIDDLE-AIR.";
         else                   lines[2] = "SHOURUYKEN (UP+DASH)";
     }
 
