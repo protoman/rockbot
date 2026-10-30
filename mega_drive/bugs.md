@@ -1715,3 +1715,26 @@ stage palette or bar tile can affect the text.
 
 Reproduction: `make check-ssel-text` (`tools/check_stage_select_text.py`) - 4
 violations on the old tree, 0 after.
+
+## BUG-048 — DR. DESTRIN SHIP teleports inside the boss door
+
+**Report** (2026-10-30, `boss_stuck_door.png`): the ship reappeared inside the
+closed boss door of the final castle. The port is supposed to block this (the
+teleport slides back out of solid objects and the door), so it was a state bug,
+not a missing guard.
+
+**Cause**: `objects.c solid_now()` answered a boss door with `!o->started`.
+`started` is the "the open/scroll sequence already ran" latch, not the door's
+current state: the port opens the door, scrolls the room and *closes* it again
+(`door_anim(o, FALSE)`), leaving `started = TRUE, door_open = FALSE`. From then
+on the closed-looking door was not solid, so `objects_block_box()` - the very
+test the teleport guard and the enemies' horizontal movement use - no longer saw
+it and the ship could land (or walk) inside it.
+
+**Fix**: the door's collision follows the visible slices:
+`solid_now()` -> `!o->door_open` for type 30.
+
+Reproduction: `tests/host/door_block_test.c` (real `src/object.c` + stubs,
+`tools/run_host_tests.sh`): closed door blocks, open door passes, and the door
+after the open/close cycle blocks again - the last two checks fail on the old
+tree ("closed again after opening -> passes").

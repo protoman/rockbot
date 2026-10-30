@@ -162,3 +162,4 @@ const SpriteDefinition object_item_jet_sprite;
 const SpriteDefinition object_item_jump_sprite;
 const SpriteDefinition object_weapons_pill_big_sprite;
 const SpriteDefinition object_weapons_pill_small_sprite;
+const SpriteDefinition object_door_4_sprite;   /* boss door, stage 13 */

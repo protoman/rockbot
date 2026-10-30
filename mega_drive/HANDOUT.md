@@ -492,3 +492,7 @@ first row is discarded.
   borrowed PAL1 (BUG-014 relapse after some stages). `draw_names()` loads PAL0
   (pal_ui: 0 = black, 15 = ink) through `pal_safe.h` and paints rows 25..27 with
   `VDP_clearTextArea` before drawing. Check: `make check-ssel-text`.
+- 2026-10-30 boss door: `solid_now()` keyed the door off `started` (the "sequence
+  ran" latch), so once opened+closed it stopped blocking and the DESTRIN SHIP
+  teleported inside it. Now `!door_open`. Repro: `tools/run_host_tests.sh`
+  (`tests/host/door_block_test.c`).

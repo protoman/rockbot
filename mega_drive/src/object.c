@@ -124,6 +124,15 @@ u8 host_obj_count(void) { return obj_count; }
 s16 host_obj_x(u8 i) { return (i < obj_count) ? objs[i].x : -1; }
 u8 host_obj_frame(u8 i) { return (i < obj_count) ? objs[i].frame : 0; }
 bool host_obj_started(u8 i) { return (i < obj_count) ? objs[i].started : FALSE; }
+// Door state for tests/host/door_block_test.c: the open sequence ends with
+// `started` set (it must not run twice) while `door_open` is back to FALSE
+// (the slices are visible again), so collision cannot be keyed off `started`.
+void host_obj_door_set(u8 i, u8 started, u8 door_open)
+{
+    if (i >= obj_count) return;
+    objs[i].started = started ? TRUE : FALSE;
+    objs[i].door_open = door_open;
+}
 u32 host_obj_terr[OBJECT_MAX];
 u32 host_obj_spr[OBJECT_MAX];
 #define HOST_WORK() (host_pred_calls + host_terrain_calls + host_spr_calls)
@@ -183,7 +192,11 @@ static bool solid_now(const MapObj *o)
     // ODF_PLATFORM is the spawn-time answer of is_platform(); this runs for
     // every object, twice per enemy and once per shot probe, every frame.
     if (!o->active || !(o->flags & ODF_PLATFORM)) return FALSE;
-    if (o->def->type == 30) return !o->started;   // boss door until opened
+    // Boss door: solid whenever its slices are SHOWN. `started` only means the
+    // open/scroll sequence already ran - the door closes again right after it,
+    // so keying collision off `started` left a closed-looking door that no
+    // longer blocked (the DR. DESTRIN SHIP teleported into it, 2026-10-30).
+    if (o->def->type == 30) return !o->door_open;
     return o->visible;
 }
 

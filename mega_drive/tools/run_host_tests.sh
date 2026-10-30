@@ -17,6 +17,11 @@ $CC $CFLAGS -o "$OUT/objects_cost" \
     tests/host/objects_cost.c
 "$OUT/objects_cost"
 
+echo "== boss door collision (report: DESTRIN SHIP inside the door)"
+$CC $CFLAGS -o "$OUT/door_block_test" \
+    src/object.c tests/host/stubs.c tests/host/door_block_test.c
+"$OUT/door_block_test"
+
 echo "== castle path (PC draw_castle_path parity)"
 python3 tools/convert_castle_path.py >/dev/null
 $CC $CFLAGS -o "$OUT/castle_path_test" \
