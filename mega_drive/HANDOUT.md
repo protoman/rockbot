@@ -500,3 +500,7 @@ first row is discarded.
   wraps at 512 and the PC art repeats at 320 - the wrap joined the wrong
   columns (clouds jumped). `convert_stage.py` now bakes a 256 px strip (period
   crop / flat-window drop / squeeze, best first). Check: `make check-bg-seam`.
+- 2026-10-30 narrow rooms: `scroll_lock_span` pinned the camera to the left wall
+  when a room is narrower than the view, which the PC never does - CASTLE 5's
+  rooms arrived one tile left. The camera now keeps the value the caller set.
+  Check: `make check-narrow-scroll`.

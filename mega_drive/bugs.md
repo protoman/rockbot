@@ -1768,3 +1768,24 @@ tree, 0 now).
 egypt) costs tiles (stage 1's parallax 354 -> 451 tiles), so a few more room
 transitions skip the incoming half's parallax (12 -> 35 of them, cosmetic). The
 flat-window and period-crop paths *reduce* tiles elsewhere.
+
+## BUG-050 — CASTLE 5: room arrives one tile to the left after a transition
+
+**Report** (2026-10-30): after the first room change in CASTLE 5 (FROZEN LAIR,
+stage 13) the second room's scroll sat one tile to the left.
+
+**Cause**: `scroll_lock_span()` answered "room narrower than the view" (`lo > hi`,
+which is every room of stage 13: 16..18 columns = 256..288 px against a 320 px
+view) with `camera.x = lo`, pinning the view to the left wall + 2 px. The PC has
+no such rule: `classMap::changeScrolling` only refuses to move a locked column
+into the view, so a narrow room keeps the scroll it arrived with. Stage 13 room
+1 therefore arrived at camera 18 instead of 0 - 18 px, "one tile left".
+
+**Fix** (`src/stage.c`): when `lo > hi` the camera is left as the caller set it
+(PC behaviour); the `lo`/`hi` clamp still applies to rooms wide enough for both
+bounds.
+
+Reproduction: `make check-narrow-scroll` (`tools/check_narrow_room_scroll.py`) -
+it models every link arrival into a narrow room from the real scroll-lock data
+and fails while the pin exists (3 480 arrivals would shift; stage 13 room 1:
+camera 2 -> 296 for keep 0).

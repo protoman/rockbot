@@ -284,8 +284,15 @@ static void scroll_lock_span(s16 focus_x)
             if (column_locked(c)) { hi = (s16)((c << 4) - 307); break; }
         key_fc = fc; key_gen = room_cache_gen; key_objs = objects_count();
     }
-    if (lo > hi) camera.x = lo;     // narrow room: pinned to the left wall, as the PC's get_first_lock_on_left
-    else if (camera.x < lo) camera.x = lo;
+    if (lo > hi) return;            // room narrower than the view: no camera can
+                                    // keep both locks out, and the PC does not
+                                    // invent one - changeScrolling() only blocks
+                                    // moving a locked column into the view, it
+                                    // never repositions the camera. Pinning to
+                                    // `lo` shifted every such room left by up to
+                                    // a tile (CASTLE 5's first room arrived one
+                                    // tile left, report 2026-10-30).
+    if (camera.x < lo) camera.x = lo;
     else if (camera.x > hi) camera.x = hi;
 }
 

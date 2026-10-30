@@ -89,6 +89,13 @@ check-boss-intro:
 check-ssel-text:
 	$(PYTHON) tools/check_stage_select_text.py
 
+# A room narrower than the view cannot keep both scroll locks out; the PC keeps
+# the camera it had (it only blocks moving a lock column into the view), so the
+# port must not pin it to the left wall (CASTLE 5 arrived one tile left).
+.PHONY: check-narrow-scroll
+check-narrow-scroll:
+	$(PYTHON) tools/check_narrow_room_scroll.py
+
 # The parallax strips are baked 512 px wide (the BG_B plane) and must repeat
 # over that width: the PC art repeats at its own 320 px, which does not divide
 # 512, so tiling it directly left a seam (clouds_misalign.png).
