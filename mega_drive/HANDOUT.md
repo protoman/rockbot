@@ -504,3 +504,8 @@ first row is discarded.
   when a room is narrower than the view, which the PC never does - CASTLE 5's
   rooms arrived one tile left. The camera now keeps the value the caller set.
   Check: `make check-narrow-scroll`.
+- 2026-10-30 boss door as scroll lock: the lock tables came from terrain only,
+  so the closed door's column was not a lock and the view scrolled past it
+  (CASTLE 5's boss room). `convert_stage.py` now counts the cells a boss door
+  object covers as wall, like PC `classMap::load_map`. Check:
+  `make check-door-lock`.

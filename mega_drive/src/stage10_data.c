@@ -88,13 +88,13 @@ static const StageBgInfo stage10_bg_info[3] = {
 };
 
 static const u8 stage10_scroll_lock_n[3] = {
-    6, 12, 4
+    6, 12, 6
 };
 
 static const u8 stage10_scroll_lock[3][12] = {
     { 0, 19, 20, 138, 139, 199, 0, 0, 0, 0, 0, 0 },
     { 0, 19, 20, 39, 40, 59, 60, 79, 80, 99, 118, 137 },
-    { 0, 19, 20, 199, 0, 0, 0, 0, 0, 0, 0, 0 },
+    { 0, 19, 20, 43, 62, 199, 0, 0, 0, 0, 0, 0 },
 };
 
 static const u8 stage10_tile3_mask[3][350] = {

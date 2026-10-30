@@ -1789,3 +1789,25 @@ Reproduction: `make check-narrow-scroll` (`tools/check_narrow_room_scroll.py`) -
 it models every link arrival into a narrow room from the real scroll-lock data
 and fails while the pin exists (3 480 arrivals would shift; stage 13 room 1:
 camera 2 -> 296 for keep 0).
+
+## BUG-051 — The boss door is not a scroll lock (the view scrolls into the arena)
+
+**Report** (2026-10-30, right after BUG-050): "on the transition to the room with
+the door, the scroll does not respect the door being there as a scroll-lock" -
+CASTLE 5's boss room view scrolled over the closed door.
+
+**Cause**: the port's scroll-lock tables are generated from the terrain only,
+but the PC builds `wall_scroll_lock` counting a cell covered by a **boss door
+object** as wall too (`classMap::load_map`, classmap.cpp:173-190: `obj_locked`).
+FROZEN LAIR map 0 column 179 is solid except rows 7..10, where the 16x64 door
+sits, so without the object it was not a lock and the camera passed it. The same
+hole existed in 7 stages / 8 maps (stage 1 map 0, stage 3 map 1, stage 4 map 0,
+stage 10 map 2, stage 11 map 1, stage 12 map 1, stage 13 maps 0 and 1).
+
+**Fix** (`tools/convert_stage.py read_boss_door_cells`): the converter reads the
+boss door spawns (type 30) and counts their cells as wall when it decides which
+columns lock the scroll, exactly like the PC. Static data, no runtime cost.
+
+Reproduction: `make check-door-lock` (`tools/check_door_scroll_lock.py`)
+recomputes the PC rule from the raw map + object tables and compares it with the
+generated lock tables: 8 missing door columns before, 0 now.

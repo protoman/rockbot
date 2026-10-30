@@ -44,6 +44,9 @@ STAGE_INDEX = int(sys.argv[1]) if len(sys.argv) > 1 else 0
 PFX = "stage%d" % STAGE_INDEX
 UP = PFX.upper()
 MAPS_PER_STAGE = 3
+# object tables (same records convert_objects.py reads)
+OBJ_DEF_SIZE, OBJ_SPAWN_SIZE = 84, 18
+OBJ_TYPE_BOSS_DOOR = 30
 
 COLORKEY = (75, 125, 125)
 KEY_TOL = 6   # art sometimes paints the backdrop with the colorkey a few units
@@ -118,8 +121,40 @@ def read_links(n):
     return links
 
 
+def read_boss_door_cells():
+    """Map cells covered by a boss door object, per map.
+
+    PC `classMap::load_map` (classmap.cpp:173-190) builds `wall_scroll_lock`
+    from the tiles BUT counts a cell covered by a boss door as wall, so the door
+    column locks the scroll even though the tiles behind it are open (CASTLE 5's
+    boss room is entered through a 16x64 door in a hole in the wall). Without
+    this the view scrolled over the closed door.
+    """
+    defs = open(os.path.join(DATA, "game_object_list.dat"), "rb").read()
+    spawns = open(os.path.join(DATA, "map_object_data.dat"), "rb").read()
+    cells = [set() for _ in range(MAPS_PER_STAGE)]
+    for i in range(len(spawns) // OBJ_SPAWN_SIZE):
+        r = spawns[i * OBJ_SPAWN_SIZE:(i + 1) * OBJ_SPAWN_SIZE]
+        (oid, _pad, sx, sy, _dir, _p2, _lx, _ly, _mdest,
+         st, mp, _dl, _dm, _p3) = struct.unpack_from("<bbhhbBhhbbbbbb", r)
+        if oid < 0 or st != STAGE_INDEX or mp >= MAPS_PER_STAGE:
+            continue
+        b = defs[oid * OBJ_DEF_SIZE:(oid + 1) * OBJ_DEF_SIZE]
+        if struct.unpack_from("<b", b, 60)[0] != OBJ_TYPE_BOSS_DOOR:
+            continue
+        w = struct.unpack_from("<b", b, 76)[0]
+        h = struct.unpack_from("<b", b, 77)[0]
+        # spawn positions are TILE positions (PC multiplies by TILESIZE)
+        for x in range(sx, sx + max(1, w // TILE)):
+            for y in range(sy, sy + max(1, h // TILE)):
+                if 0 <= x < MAP_W and 0 <= y < MAP_H:
+                    cells[mp].add((x, y))
+        print(f"  map {mp}: boss door at ({sx},{sy}) {w}x{h} -> scroll lock "
+              f"column {sx}")
+    return cells
+
+
 def read_anim_blocks():
-    """anim_block_list.dat: raw array of file_anim_block (no count prefix)."""
     with open(os.path.join(DATA, "anim_block_list.dat"), "rb") as f:
         raw = f.read()
     blocks = []
@@ -558,13 +593,15 @@ def main():
 
     maps_data, all_rgbs, scroll_locks = [], [], []
     lock_terrain = {1, 3, 4, 6, 10}
+    door_cells = read_boss_door_cells()
     for m in range(MAPS_PER_STAGE):
         cells, used = collect_map(m)
         all_rgbs += collect_colors(used, ts_px)
         maps_data.append((cells, used))
         scroll_locks.append([
             x for x in range(MAP_W)
-            if all(cells[x][y][0] in lock_terrain for y in range(MAP_H))
+            if all(cells[x][y][0] in lock_terrain
+                   or (x, y) in door_cells[m] for y in range(MAP_H))
         ])
     maps_data = [(cells, used)
                  for m, (cells, used) in enumerate(maps_data)]

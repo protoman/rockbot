@@ -89,6 +89,13 @@ check-boss-intro:
 check-ssel-text:
 	$(PYTHON) tools/check_stage_select_text.py
 
+# A boss door is a scroll lock: the PC counts the cells a door object covers as
+# wall when it builds wall_scroll_lock (classmap.cpp:173-190), so the view stops
+# at the closed door instead of scrolling into the arena behind it.
+.PHONY: check-door-lock
+check-door-lock:
+	$(PYTHON) tools/check_door_scroll_lock.py
+
 # A room narrower than the view cannot keep both scroll locks out; the PC keeps
 # the camera it had (it only blocks moving a lock column into the view), so the
 # port must not pin it to the left wall (CASTLE 5 arrived one tile left).

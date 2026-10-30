@@ -60,7 +60,7 @@ static const u8 stage3_terrain[3][2800] = {
     },
 };
 
-static const StageLink stage3_links[11] = {
+static const StageLink stage3_links[12] = {
     { 0, 132, 0, 1, 153, 13, 1, 1, 1 }, // link0
     { 0, 48, 13, 1, 11, 0, 8, 1, 0 }, // link1
     { 1, 1, 13, 0, 58, 0, 18, 1, 1 }, // link2
@@ -71,6 +71,7 @@ static const StageLink stage3_links[11] = {
     { 1, 136, 0, 0, 135, 13, 1, 1, 0 }, // link7
     { 0, 198, 0, 1, 174, 13, 1, 1, 0 }, // link8
     { 1, 133, 0, 2, 79, 13, 1, 1, 0 }, // link9
+    { 0, 0, 10, 2, 27, 5, 1, 1, 2 }, // link10
     { 1, 157, 0, 2, 2, 13, 1, 1, 0 }, // link11
 };
 
@@ -87,13 +88,13 @@ static const StageBgInfo stage3_bg_info[3] = {
 };
 
 static const u8 stage3_scroll_lock_n[3] = {
-    9, 12, 8
+    9, 14, 8
 };
 
-static const u8 stage3_scroll_lock[3][12] = {
-    { 56, 57, 76, 77, 96, 97, 133, 134, 199, 0, 0, 0 },
-    { 0, 19, 20, 63, 64, 65, 134, 135, 154, 155, 156, 175 },
-    { 0, 1, 20, 40, 41, 60, 61, 80, 0, 0, 0, 0 },
+static const u8 stage3_scroll_lock[3][14] = {
+    { 56, 57, 76, 77, 96, 97, 133, 134, 199, 0, 0, 0, 0, 0 },
+    { 0, 19, 20, 63, 64, 65, 89, 108, 134, 135, 154, 155, 156, 175 },
+    { 0, 1, 20, 40, 41, 60, 61, 80, 0, 0, 0, 0, 0, 0 },
 };
 
 static const u8 stage3_tile3_mask[3][350] = {
@@ -792,11 +793,11 @@ const StageDef stage3_def = {
     .map_count = 3, .map_w = 200, .map_h = 14, .tile = 16,
     .map_defs = stage3_map_defs, .tile_sets = stage3_tile_sets, .palettes = stage3_palettes,
     .terrain = &stage3_terrain[0][0],
-    .links = stage3_links, .link_count = 11,
+    .links = stage3_links, .link_count = 12,
     .bg_info = stage3_bg_info, .bg_color = &stage3_bg_color[0][0],
     .bg_pal = stage3_bg_pal, .bg_tiles = stage3_bg_tiles,
     .bg_tiles_n = stage3_bg_tiles_n, .bg_maps = stage3_bg_maps, .bg_map_h = stage3_bg_map_h,
-    .scroll_lock_n = stage3_scroll_lock_n, .scroll_lock = &stage3_scroll_lock[0][0], .scroll_lock_max = 12,
+    .scroll_lock_n = stage3_scroll_lock_n, .scroll_lock = &stage3_scroll_lock[0][0], .scroll_lock_max = 14,
     .tile3_mask = &stage3_tile3_mask[0][0],
     .pal3_mask = NULL,
     .cycle_base = 12, .cycle_n = 0, .cycle_frames = 0,

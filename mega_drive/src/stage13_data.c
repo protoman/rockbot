@@ -81,13 +81,13 @@ static const StageBgInfo stage13_bg_info[3] = {
 };
 
 static const u8 stage13_scroll_lock_n[3] = {
-    19, 26, 2
+    20, 27, 2
 };
 
-static const u8 stage13_scroll_lock[3][26] = {
-    { 0, 1, 18, 19, 20, 21, 38, 39, 40, 41, 58, 59, 60, 79, 80, 99, 100, 198, 199, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 1, 18, 19, 20, 21, 38, 39, 40, 41, 76, 77, 78, 79, 98, 99, 118, 119, 138, 139, 158, 159, 178, 179, 198, 199 },
-    { 0, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+static const u8 stage13_scroll_lock[3][27] = {
+    { 0, 1, 18, 19, 20, 21, 38, 39, 40, 41, 58, 59, 60, 79, 80, 99, 100, 179, 198, 199, 0, 0, 0, 0, 0, 0, 0 },
+    { 0, 1, 18, 19, 20, 21, 38, 39, 40, 41, 59, 76, 77, 78, 79, 98, 99, 118, 119, 138, 139, 158, 159, 178, 179, 198, 199 },
+    { 0, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
 };
 
 static const u8 stage13_tile3_mask[3][350] = {
@@ -495,7 +495,7 @@ const StageDef stage13_def = {
     .bg_info = stage13_bg_info, .bg_color = &stage13_bg_color[0][0],
     .bg_pal = stage13_bg_pal, .bg_tiles = stage13_bg_tiles,
     .bg_tiles_n = stage13_bg_tiles_n, .bg_maps = stage13_bg_maps, .bg_map_h = stage13_bg_map_h,
-    .scroll_lock_n = stage13_scroll_lock_n, .scroll_lock = &stage13_scroll_lock[0][0], .scroll_lock_max = 26,
+    .scroll_lock_n = stage13_scroll_lock_n, .scroll_lock = &stage13_scroll_lock[0][0], .scroll_lock_max = 27,
     .tile3_mask = &stage13_tile3_mask[0][0],
     .pal3_mask = NULL,
     .cycle_base = 12, .cycle_n = 0, .cycle_frames = 0,
