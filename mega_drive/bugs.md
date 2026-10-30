@@ -1811,3 +1811,24 @@ columns lock the scroll, exactly like the PC. Static data, no runtime cost.
 Reproduction: `make check-door-lock` (`tools/check_door_scroll_lock.py`)
 recomputes the PC rule from the raw map + object tables and compares it with the
 generated lock tables: 8 missing door columns before, 0 now.
+
+## BUG-052 — Ending walking parade: the layers jump (grass/clouds)
+
+**Report** (2026-10-30, `clouds_misalign.png` - the file is a capture of the
+ENDING, not a stage): "the clouds are misaligned... other layers suffer too, the
+grass jumps when it animates".
+
+**Cause**: the three walking layers are 320 px wide art repeated at the PC's own
+320 px width, uploaded as 40 of the 64 plane columns and scrolled with per-tile
+row offsets that wrapped at 320 (`% 320`). The window is 320 px wide, so as soon
+as the offset passed 192 px it ran past the end of the plane and wrapped to the
+plane's first columns instead of the art's continuation: the ground/trees/sky
+jumped every 320 px of travel (the ground at 1.1 px/frame = every ~5 s).
+
+**Fix**: `tools/ending_layers.py` bakes each layer to the 512 px plane width with
+a 256 px period (same rule as the stage parallax), the maps become 64 columns and
+`ending.c` wraps the offsets at 512, so the hardware wrap is seamless.
+
+Verified with `MD_TEST_ENDING` captures 12 s apart (past three old jump points):
+the ground band is 256-periodic on screen (mean mismatch 0.2 of 29 rows) and the
+sky band has no full-height edge. `make check-bg-seam` also checks the strips.

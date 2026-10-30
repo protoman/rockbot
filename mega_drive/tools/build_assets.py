@@ -210,10 +210,14 @@ def build_steps():
     add("stage_select", ["tools/convert_stage_select.py"], common("convert_stage_select.py") + img + shared)
     l2 = PCGAME + "/images/ending/player_walking_layer2.png"
     add("end_l2_pad", ["tools/pad_top.py", l2, "res/end_l2_src.png"], common("pad_top.py") + [l2])
+    # The layers scroll, so their strips must repeat over the 512 px plane (the
+    # PC art repeats at 320, which does not divide 512 - the grass jumped).
+    add("end_layers", ["tools/ending_layers.py"],
+        common("ending_layers.py") + [l2] +
+        [PCGAME + "/images/ending/player_walking_layer%d.png" % n
+         for n in (1, 3)])
     for n in (1, 2, 3):
-        png = PCGAME + "/images/ending/player_walking_layer%d.png" % n
-        if n == 2:
-            png = "res/end_l2_src.png"          # 53 px padded at the TOP (no gap above the ground)
+        png = "res/end_l%d_src.png" % n
         add("tiles_end_l%d" % n, ["tools/img2tiles.py", png, "--name", "end_l%d" % n, "--colors", "15"],
             common("img2tiles.py") + [png])
     add("save_selector", ["tools/convert_save_selector.py"], common("convert_save_selector.py") + img + shared)

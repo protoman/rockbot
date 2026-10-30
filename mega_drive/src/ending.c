@@ -437,11 +437,14 @@ static void walking_parade(void)
         s16 px = (s16)(END_WALK_X - ((u32)frame * 2 / 10));
         if (ply) SPR_setPosition(ply, px, END_WALK_Y);
 
-        // The planes are 64 tiles wide but the art repeats every 40: the offsets wrap at 320.
+        // The layer strips are baked to the 512 px plane width with a 256 px
+        // period (tools/ending_layers.py), so the offsets wrap over the plane:
+        // wrapping at the art's 320 px used to run the 320 px window past the
+        // plane end and the ground jumped every 320 px of travel.
         static s16 hs_a[32], hs_b[32];
-        const s16 o1 = (s16)(((u32)frame * 11 / 10) % 320);   // layer 1 (ground)  1.1
-        const s16 o2 = (s16)(((u32)frame * 5 / 10) % 320);    // layer 2 (trees)   0.5
-        const s16 o3 = (s16)(((u32)frame * 1 / 10) % 320);    // layer 3 (sky)     0.1
+        const s16 o1 = (s16)(((u32)frame * 11 / 10) % 512);   // layer 1 (ground)  1.1
+        const s16 o2 = (s16)(((u32)frame * 5 / 10) % 512);    // layer 2 (trees)   0.5
+        const s16 o3 = (s16)(((u32)frame * 1 / 10) % 512);    // layer 3 (sky)     0.1
         for (u16 r = 0; r < 32; r++) {
             hs_a[r] = (r >= END_L1_ROW && r < END_L1_ROW + END_L1_MAP_H) ? o1
                     : (r >= END_L2_ROW && r < END_L2_ROW + END_L2_MAP_H) ? o2 : 0;

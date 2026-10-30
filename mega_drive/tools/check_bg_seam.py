@@ -62,9 +62,15 @@ def used_backgrounds():
     return out
 
 
+def ending_layers():
+    """The ending's walking layers scroll over the same 512 px planes (their
+    offsets wrap at 512); they are baked by tools/ending_layers.py."""
+    return sorted(glob.glob(os.path.join(RES, "end_l[0-9]_src.png")))
+
+
 def main():
     used = used_backgrounds()
-    files = sorted(glob.glob(os.path.join(RES, "stage*_bg[0-9].png")))
+    files = sorted(glob.glob(os.path.join(RES, "stage*_bg[0-9].png"))) + ending_layers()
     if not files:
         print("check_bg_seam: no baked backgrounds (run make assets)")
         return 1
@@ -73,7 +79,7 @@ def main():
     for path in files:
         name = os.path.basename(path)
         m = re.match(r"stage(\d+)_bg(\d)\.png$", name)
-        if used and (m.group(1), int(m.group(2))) not in used:
+        if m and used and (m.group(1), int(m.group(2))) not in used:
             print("skip  %s: not referenced by the stage data" % name)
             continue
         img = Image.open(path).convert("RGBA")

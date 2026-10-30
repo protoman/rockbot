@@ -509,3 +509,7 @@ first row is discarded.
   (CASTLE 5's boss room). `convert_stage.py` now counts the cells a boss door
   object covers as wall, like PC `classMap::load_map`. Check:
   `make check-door-lock`.
+- 2026-10-30 ending walk: the three layers scrolled with offsets wrapping at the
+  art's 320 px inside a 512 px plane, so the ground/sky jumped every 320 px of
+  travel (this was the `clouds_misalign.png` report). Layers are now baked to a
+  256 px period over the 512 px plane and wrap at 512. `make check-bg-seam`.
