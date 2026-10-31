@@ -182,11 +182,11 @@ SHOT_MULTIPLE_PROJECTILE, EXPLODE_ITSELF, THROW_ITEM. `audit_data.py` prints
       them and played by the AI turn options (WALK TURN/TURN_TO_PLAYER, FLY
       TURN), the facing flipping when the animation ends — BLUE SHIELDER
       rotates its shield, as on the PC.
-- [ ] Remaining enemy rows: `VERTICAL_TURN`, `WALK_AIR` (AI_AIR_WALK reuses the
+- [x] (closed 2026-10-31: no converted enemy has art for these rows, `audit_data.py` guards it) Remaining enemy rows: `VERTICAL_TURN`, `WALK_AIR` (AI_AIR_WALK reuses the
       walk row), `HIT`/`HIT_SPECIAL` (the port blinks the sprite), `STAIRS_*`.
       The PC art of the converted enemies only carries TURN among these (checked
       while adding it), so nothing else is missing in practice.
-- [ ] **Quake attack half**: `ia_action_quake_attack()`
+- [x] (closed 2026-10-31: PC dead code, the only declaration/definition has no caller) **Quake attack half**: `ia_action_quake_attack()`
       (`artificial_inteligence.cpp:866`) — player damage + 1 s jump lock. It
       has **no caller** in this PC build, so the port only does the screen
       shake (`projectilelib.cpp:677`, added 2026-10-23). Nothing to port unless
@@ -312,7 +312,7 @@ data never uses, therefore unimplemented:
       as the dialog panel does): saved and restored around the 90 frames, and
       `stage_cycle_update()` holds the colourcycle while it owns the line. The
       background is therefore recoloured for those 1.5 s.
-- [ ] The PC's special tooltip names for COIL/JET/E-TANK/W-TANK/S-TANK (extra
+- [x] (closed 2026-10-31: COIL/JET names come from object_list = "COIL FROG"/"JET EAGLE", already the port's weapon_data names; tanks never raise a tooltip in the port, the menu line shows name + count) The PC's special tooltip names for COIL/JET/E-TANK/W-TANK/S-TANK (extra
       text with the item counts, `graphicslib.cpp:1370`); the port shows
       `weapon_data[].name` only. The tank icons (14..17) are quantized hard
       against the 11 icon slots and are not reachable from the menu anyway.
