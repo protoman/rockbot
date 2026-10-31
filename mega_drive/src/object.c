@@ -187,6 +187,9 @@ static bool object_has_gravity(u8 type)
 }
 
 // A disappearing block only collides while in its visible phase.
+// Pickup-like types with no per-frame logic beyond the touch test.
+#define OBJ_PLAIN(t) ((t) == 3 || (t) == 4 || (t) == 5 || (t) == 6 || (t) == 7 || \
+                      (t) == 8 || (t) == 9 || (t) == 15 || (t) == 16 || (t) == 17 || (t) == 23)
 static bool solid_now(const MapObj *o)
 {
     // ODF_PLATFORM is the spawn-time answer of is_platform(); this runs for
@@ -1170,6 +1173,21 @@ void objects_update(void)
         }
 
         // ---- JET EAGLE: horizontal flight carrying the player ---------------
+        // Far-off pickups (pills, tanks, 1UP, armor, checkpoint): nothing below
+        // can apply to them while they are a screen away - only the sprite has to
+        // be hidden. Skips the ~20-branch type chain for most of a room's objects
+        // (profile, CASTLE 5 map 0: 27 objects cost ~13 subticks each per frame).
+        if (OBJ_PLAIN(d->type) && !o->door) {
+            const s16 fx = (s16)(o->x - camera.x);
+            if (fx < -64 || fx > 384) {
+                if (o->spr && o->spr_vis) {
+                    SPR_setVisibility(o->spr, HIDDEN);
+                    o->spr_vis = 0;
+                }
+                continue;
+            }
+        }
+
         if (d->type == 12 && o->started) {
             s16 dx = (s16)d->speed * o->dir;
             // PC object.cpp:998: the rider's UP / DOWN move the jet vertically
