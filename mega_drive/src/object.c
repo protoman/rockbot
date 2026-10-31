@@ -938,6 +938,20 @@ bool objects_boss_door_locked(s16 tile_x)
     return FALSE;
 }
 
+// Sets bit (tile column) in `bits` for every column a boss door (type 30) occupies:
+// one pass over the objects instead of one per tested column (stage.c lock table).
+void objects_boss_door_columns(u8 *bits, s16 map_w)
+{
+    for (u8 i = 0; i < obj_count; i++) {
+        const MapObj *o = &objs[i];
+        if (o->def->type != 30) continue;
+        const s16 x0 = o->x >> 4;
+        const s16 x1 = (o->x + o->def->w - 1) >> 4;
+        for (s16 c = x0; c <= x1; c++)
+            if (c >= 0 && c < map_w) bits[c >> 3] |= (u8)(1 << (c & 7));
+    }
+}
+
 u8 objects_live(void)
 {
     u8 n = 0;

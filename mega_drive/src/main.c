@@ -138,8 +138,9 @@ static inline void prof_tick(u8 i)
 //  0 all (audio ON)   1 no objects   2 no enemies   3 neither   4 no door sync
 //  5 no solid scan    6 object prologue only   7 empty object loop
 //  8 sfx muted        9 music stopped (sfx on)    10 both off   11 audio restored
+// 13 no enemy AI  14 no enemy sprite section  15 enemy loop top only  16 no enemy gravity
 // 12 all + enemy phase marks (their timer reads inflate the enemy cost)
-#define PROF_PHASES 13
+#define PROF_PHASES 17
 static u16 prof_ab_t;
 static u8 prof_ab_last = 255;
 static u8 prof_phase(void) { return (u8)((prof_ab_t / 180) % PROF_PHASES); }

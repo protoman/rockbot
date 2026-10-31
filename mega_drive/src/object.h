@@ -92,6 +92,7 @@ void objects_reset_doors(void);
 void objects_set_visible(bool visible);
 // Live object count (profile line).
 u8 objects_live(void);
+void objects_boss_door_columns(u8 *bits, s16 map_w);   // stage.c lock table
 
 // Room transition: redraw every live object sprite shifted down by `dy`
 // screen pixels (the outgoing screen takes its objects with it).

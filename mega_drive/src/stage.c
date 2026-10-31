@@ -208,20 +208,38 @@ static void clamp_camera(void)
 static u16 room_cache_gen;          // bumped by stage_load: the walls changed
 
 // ---- PC scroll lock (classmap.cpp:459/475) ------------------------------
-static bool column_locked(s16 tile_x)
+// One bit per tile column (maps are at most 256 wide). The old per-call walk of
+// the lock list plus every object cost ~700 subticks per scan, and two scans ran
+// each time the player changed column (profile CASTLE 5, autopilot walk: ~200
+// subticks/frame). The table is rebuilt only when the stage reloads or the object
+// set changes - the same keys the scan caches already used.
+static u8 lock_bits[32];
+static u16 lock_gen = 0xFFFF;
+static u8 lock_objs = 0xFF;
+static u8 lock_map = 0xFF;
+
+static void lock_table_ensure(void)
 {
-    if (tile_x < 0 || tile_x >= stage_def->map_w) return FALSE;
+    if (lock_gen == room_cache_gen && lock_objs == objects_count() &&
+        lock_map == stage_current_map) return;
+    for (u8 i = 0; i < sizeof lock_bits; i++) lock_bits[i] = 0;
     const u8 *cols = stage_def->scroll_lock
                       + (u16)stage_current_map * stage_def->scroll_lock_max;
     const u8 n = stage_def->scroll_lock_n[stage_current_map];
     for (u8 i = 0; i < n; i++)
-        if (cols[i] == tile_x) return TRUE;
-
+        lock_bits[cols[i] >> 3] |= (u8)(1 << (cols[i] & 7));
     // PC classmap.cpp:171-191: a boss door locks the columns it occupies even
     // when the map tiles under it are empty. Use the live door state: once it
     // has opened, those columns must no longer hold the camera back.
-    if (objects_boss_door_locked(tile_x)) return TRUE;
-    return FALSE;
+    objects_boss_door_columns(lock_bits, stage_def->map_w);
+    lock_gen = room_cache_gen; lock_objs = objects_count(); lock_map = stage_current_map;
+}
+
+static bool column_locked(s16 tile_x)
+{
+    if (tile_x < 0 || tile_x >= stage_def->map_w) return FALSE;
+    lock_table_ensure();
+    return (lock_bits[tile_x >> 3] >> (tile_x & 7)) & 1;
 }
 
 static void scroll_lock_camera(s16 prev_x)

@@ -1697,6 +1697,17 @@ u8 prof_ep_on = 1;
 #define EP_MARK(n) do { } while (0)
 #endif
 
+#ifdef MD_PROFILE_ABLATE
+extern u8 prof_ab_obj;       // ablation phase, see main.c
+#define AB_SKIP(n) if (prof_ab_obj != (n))
+#define AB_AND(n)  && prof_ab_obj != (n)
+#define AB_CONT(n) if (prof_ab_obj == (n)) continue;
+#else
+#define AB_SKIP(n)
+#define AB_AND(n)
+#define AB_CONT(n)
+#endif
+
 void enemies_update(void)
 {
     s16 pl, pt, pr, pb;
@@ -1749,6 +1760,7 @@ void enemies_update(void)
             continue;
         }
         const EnemyDef *d = e->def;
+        AB_CONT(15)
 
         // PC classnpc::execute: a weak enemy skips its AI and is not drawn
         // while freeze_weapon_effect is active.
@@ -1827,7 +1839,7 @@ void enemies_update(void)
         const s16 ecol = (s16)((e->x + d->box_l + d->box_w / 2) >> 4);
         if (vis && ecol > room_lo && ecol < room_hi) {
             EP_MARK(4);   // pre-AI (visibility, boss drop)
-            ai_tick(e);
+            AB_SKIP(13) ai_tick(e);
             EP_MARK(5);   // the AI state machine
             if (!e->alive) continue;    // AI_REPLACE_NPC removed it
             // boss hit blink (PC shows a white flash via palette; the boss
@@ -1840,7 +1852,7 @@ void enemies_update(void)
         EP_MARK(0);   // pre: respawn, drop, visibility
         // ---- gravity (walkers only; AI JUMP manages its own arc) ---------
         // Parked (off-screen) enemies do not fall: they settle when first seen.
-        if (vis && !d->fly && !e->jumping && !e->no_gravity) {
+        if (vis && !d->fly && !e->jumping && !e->no_gravity AB_AND(16)) {
             if (e->vy < ENEMY_MAX_FALL) e->vy += ENEMY_GRAVITY;
             s16 dy = F16_toInt(e->vy);
             if (dy > 0) {
@@ -1882,7 +1894,7 @@ void enemies_update(void)
         // Every sprite call is cached against the last value sent: with 14
         // enemies on screen the unconditional setVisibility / setHFlip /
         // setAnim / setAnimationLoop / setPosition set cost ~230 subticks/frame.
-        if (e->spr) {
+        if (e->spr AB_AND(14)) {
             s8 vis2 = (sx >= -40 && sx < 336 && sy >= -40 && sy < 248);
             // Boss hit blink (PC shows a white flash via palette; the boss
             // shares PAL0 with the HUD, so blink instead).

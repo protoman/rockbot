@@ -11,7 +11,7 @@ rows = []
 eprof = {}
 cnt = {}
 phase = 0
-PH = {8: "sfx-muted", 9: "music-stopped", 10: "audio-off", 11: "audio-restored", 12: "enemy-marks", 0: "all", 1: "no-objects", 2: "no-enemies", 3: "no-obj+enemies", 4: "no-door-sync", 5: "no-solid-scan", 6: "prologue-only", 7: "empty-loop"}
+PH = {13: "no-enemy-ai", 14: "no-enemy-sprites", 15: "enemy-loop-top", 16: "no-enemy-gravity", 8: "sfx-muted", 9: "music-stopped", 10: "audio-off", 11: "audio-restored", 12: "enemy-marks", 0: "all", 1: "no-objects", 2: "no-enemies", 3: "no-obj+enemies", 4: "no-door-sync", 5: "no-solid-scan", 6: "prologue-only", 7: "empty-loop"}
 for ln in open(sys.argv[1] if len(sys.argv) > 1 else "/tmp/opencode/md-emu/kdebug.log", errors="replace"):
     e = re.search(r"EPROF pre=(\d+) ai=(\d+) rest=(\d+) grav=(\d+) draw=(\d+) water=(\d+)", ln)
     if e: eprof.setdefault(phase, []).append(tuple(map(int, e.groups())))
@@ -49,7 +49,7 @@ def summary():
         a = avg["all"]
         print(f"\nbudget 1280: 'all' averages {a[0]:.0f} ({'OVER' if a[0] > 1280 else 'fits'}), "
               f"{a[3]:.0f}/60 frames over")
-        for k, lab in (("no-objects", "objects"), ("sfx-muted", "(sfx) -"), ("music-stopped", "(music) -"), ("audio-off", "(all audio) -"), ("no-enemies", "enemies"),
+        for k, lab in (("no-objects", "objects"), ("no-enemy-ai", "-> enemy AI"), ("no-enemy-sprites", "-> enemy sprites"), ("no-enemy-gravity", "-> enemy gravity"), ("enemy-loop-top", "-> enemies minus loop top (all-this = body)"), ("sfx-muted", "(sfx) -"), ("music-stopped", "(music) -"), ("audio-off", "(all audio) -"), ("no-enemies", "enemies"),
                        ("no-door-sync", "door sync"), ("no-solid-scan", "solid scan"), ("prologue-only", "-> objects minus prologue"), ("empty-loop", "-> objects minus loop overhead")):
             if k in avg: print(f"  {lab:10s} costs ~{a[0]-avg[k][0]:.0f} subticks/frame")
 def extras():
