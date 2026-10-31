@@ -1,3 +1,18 @@
+## BUG-046 — Teleporter entered while sliding leaves the slide "shadows" on the next screen (open)
+
+**Report (2026-10-31, owner)**: entering a teleporter while sliding, the slide
+"shadows" appear on the destination screen at the position they had on the
+previous one, and disappear after a while.
+
+**Not reproduced yet.** Suspect, unverified: the dash-dust effects
+(`src/effects.c`, spawned from `src/player.c` while sliding) are not cleared
+when the room changes through a teleporter, so they stay alive in screen space
+for their lifetime. Check what `effects_reset()` (if any) a teleporter arrival
+calls, against the ladder and walking room changes.
+
+**To do**: an offline reproduction first (host test or rule check: effect pool
+empty after a teleporter room change), then the fix.
+
 ## BUG-045 — Ending: intermittent tile/palette garbage on the first frame of the walking scene (open)
 
 **Report (2026-10-29)**: `screenshots/bugs/ending/walking_glitch.png` - the first
