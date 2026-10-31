@@ -34,7 +34,7 @@ calls, against the ladder and walking room changes.
 **To do**: an offline reproduction first (host test or rule check: effect pool
 empty after a teleporter room change), then the fix.
 
-## BUG-045 — Ending: intermittent tile/palette garbage on the first frame of the walking scene (open)
+## BUG-045 — Ending: intermittent tile/palette garbage on the first frame of the walking scene (root cause fixed 2026-10-31, verified on one boot)
 
 **Report (2026-10-29)**: `screenshots/bugs/ending/walking_glitch.png` - the first
 frame of the walking parade shows stripes, red/white garbage and the player's
@@ -62,6 +62,12 @@ while the CPU-written things (scroll, sprites) ran. Registers were normal
 - A display-OFF upload (VDP_setEnable(FALSE) + immediate DMA) made it worse
   (one frame per second, no player) and was reverted - that variant is a clue
   that something in the VDP/sprite state is fragile, not a fix.
+
+**Verified 2026-10-31** (`-DMD_TEST_ENDING -DMD_WALK_DIAG -DMD_TILE_DUMP`, `tools/walkdiag_report.py`): the
+DMA queue is allocated (`maxq=192`, `dmaQueues` in RAM, every queued entry reads back OK, heap 18.6 KB free),
+all queued tiles/palettes land (`first step where a DMA probe fails: none`), and the maps, tiles and all four
+palettes read back OK from frame 0 to 60. Intermittent, so one boot is not proof; the checklist below
+(remove the scaffolding, re-check BUG-044's screens) is still to do.
 
 **Strongest remaining suspect**: heap exhaustion/fragmentation. 45 KB of the
 64 KB RAM is static, DMA queue (192 x 16 B) + DMA data buffer (8 KB) sit on the
@@ -121,7 +127,7 @@ at entries 8..15 on one boot and 10..15 on the next - the destination slid by a
 different amount each time, which is a redirection, not a torn frame. The same
 mechanism can drop CRAM data into VRAM at whatever address the VDP last held.
 
-## BUG-044 follow-up — the stripes are NOT the fill tiles (open)
+## BUG-044 follow-up — the stripes are NOT the fill tiles (probably fixed by the BUG-045 root cause; confirm in play)
 
 Measured on the emulator with `EXTRA_FLAGS=-DMD_TILE_DUMP` (`src/tdump.c`,
 registers + CRAM readback through kprintf, log only, no screenshots):
