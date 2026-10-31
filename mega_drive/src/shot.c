@@ -148,8 +148,10 @@ void shot_fire(s16 x, s16 y, s16 dir, s16 dy)
         return;
     }
 
+    // A charged / semi-charged shot in flight does not use up the normal buster's
+    // slots (BUG-056: it blocked normal fire until it was consumed).
     u8 live = 0;
-    for (u8 i = 0; i < SHOT_MAX; i++) if (shots[i].on) live++;
+    for (u8 i = 0; i < SHOT_MAX; i++) if (shots[i].on && !shots[i].charged) live++;
     if (live >= player_max_shots()) return;      // PC player.max_shots
 
     // PC simultaneous_shots (BETABOT fires 2 per press): the extra shot

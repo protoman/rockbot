@@ -1924,3 +1924,16 @@ now mean "fix the PNG by hand". The PC tree stays read-only reference.
 
 **Left**: AGENTS.md still describes the importers as a fresh-import path; a real
 re-import would need removing the guard on purpose.
+
+## BUG-056 — A charged shot in flight blocks normal fire
+
+**Report** (2026-10-31, owner): after firing a charged projectile (semi included)
+normal projectiles cannot be fired until the charged one is consumed.
+
+**Cause**: `shot_fire` counted every live shot (charged ones too) against
+`player_max_shots()`; with the charged shot alive the buster's slots were full.
+(The PC lowers the limit to the charged projectile's own `max_shots` while it
+lives, `character::get_projectile_max_shots`; the owner wants the buster free.)
+
+**Fix** (`src/shot.c`): the normal-fire live count skips `charged` shots.
+Charged fire still counts every live shot.
