@@ -142,7 +142,7 @@ static inline void prof_tick(u8 i)
 #define PROF_PHASES 13
 static u16 prof_ab_t;
 static u8 prof_ab_last = 255;
-static u8 prof_phase(void) { return (u8)((prof_ab_t / 300) % PROF_PHASES); }
+static u8 prof_phase(void) { return (u8)((prof_ab_t / 180) % PROF_PHASES); }
 u8 prof_ab_obj;
 extern u8 prof_ep_on;
 static void prof_phase_enter(void)
@@ -165,7 +165,7 @@ static void prof_report(void)
     if (++prof_frames < 60) return;
 #ifdef MD_PROFILE_ABLATE
     prof_ab_t += 60;
-    dbg_print("ABLATE phase=%d\n", (int)((((prof_ab_t - 60) / 300) % PROF_PHASES)));
+    dbg_print("ABLATE phase=%d\n", (int)((((prof_ab_t - 60) / 180) % PROF_PHASES)));
 #endif
     dbg_print("PROF map=%d obj=%d npc=%d hot=%d/t%d/%d px=%d py=%d "
             "setup=%lu objupd=%lu plr=%lu hud=%lu "
@@ -683,7 +683,7 @@ static RunResult runStage(u8 stage)
 #ifdef MD_PROFILE_ABLATE
             // Every ablation phase replays the SAME walk from the arrival tile, so the
             // phases are comparable (the player moves, jumps and fires in each).
-            if ((ap_t % 300) == 1) {
+            if ((ap_t % 180) == 1) {
                 player_place((s16)(MD_TEST_TX * stage_def->tile + stage_def->tile / 2
                                    - (PLAYER_BOX_L + PLAYER_BOX_R) / 2),
                              (s16)(MD_TEST_TY * stage_def->tile + stage_def->tile / 2

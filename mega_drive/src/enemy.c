@@ -1871,6 +1871,13 @@ void enemies_update(void)
         }
 
         EP_MARK(1);   // gravity / fall
+        // Parked: off screen, sprite already hidden, nothing moved (the AI only runs
+        // on screen). The sprite/anim/water/contact work below cannot change anything.
+        // Profile CASTLE 5 map 0: enemies cost ~440 subticks while moving and most of
+        // the 11 spawned enemies are a screen away.
+        if (!vis && e->spr && e->d_vis == 0 && !e->dying && !e->hurt_timer &&
+            e->x == pre_x && e->y == pre_y)
+            continue;
         // ---- draw ----------------------------------------------------------
         // Every sprite call is cached against the last value sent: with 14
         // enemies on screen the unconditional setVisibility / setHFlip /

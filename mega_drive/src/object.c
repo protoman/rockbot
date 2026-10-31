@@ -1092,8 +1092,11 @@ static void crusher_update(MapObj *o)
         player_crush();
 }
 
+static u32 obj_tick;     // global clock of the plain looping pickups
+
 void objects_update(void)
 {
+    obj_tick++;
     s16 pl, pt, pr, pb;
     player_get_box(&pl, &pt, &pr, &pb);
 
@@ -1125,11 +1128,36 @@ void objects_update(void)
         const u32 host_t0c = host_terrain_calls;
         const u32 host_s0c = host_spr_calls;
 #endif
+        // Plain pickups (pills, tanks, 1UP, armor): a screen away they need nothing
+        // but their sprite hidden; near, their looping art is a function of the
+        // global clock (identical pickups stay in lockstep with no per-object
+        // counter or branch chain). Profile CASTLE 5 map 0: 27 objects cost ~13
+        // subticks each per frame.
+        const bool plain_auto = OBJ_PLAIN(d->type) && !o->door &&
+                                (o->flags & ODF_LOOPING) && (o->flags & ODF_AUTOANIM);
+        if (OBJ_PLAIN(d->type) && !o->door) {
+            if (o->duration && --o->duration == 0) { obj_release(o); continue; }
+            const s16 fx = (s16)(o->x - camera.x);
+            if (fx < -64 || fx > 384) {
+                if (o->spr && o->spr_vis) {
+                    SPR_setVisibility(o->spr, HIDDEN);
+                    o->spr_vis = 0;
+                }
+                continue;
+            }
+            if (plain_auto && !o->anim_play && d->frame_t && d->frames > 1) {
+                const u8 f = (u8)((obj_tick / d->frame_t) % d->frames);
+                if (f != o->frame) {
+                    o->frame = f;
+                    if (o->spr) spr_set_frame(o->spr, f);
+                }
+            }
+        }
         // Looping art advances on ONE clock for the whole map, and it advances
         // even when the object is off screen (PC arms every object against the
         // same global timer). Doing it here, before the visibility gate, keeps
         // identical objects in lockstep without any per-object division.
-        if ((o->flags & ODF_LOOPING) && !o->anim_play && d->type != 13 &&
+        if (!plain_auto && (o->flags & ODF_LOOPING) && !o->anim_play && d->type != 13 &&
             d->type != 18 && d->type != 19 &&
             ((o->flags & ODF_AUTOANIM) || o->started) &&
             d->frame_t && d->frames > 1) {
@@ -1167,27 +1195,12 @@ void objects_update(void)
         // Dropped items live for a limited time (PC object duration); an
         // active JET EAGLE stays until its ammo runs out (PC object.cpp:875).
         bool jet_riding = (d->type == 12 && o->started);
-        if (o->duration && !jet_riding && --o->duration == 0) {
+        if (o->duration && !jet_riding && !OBJ_PLAIN(d->type) && --o->duration == 0) {
             obj_release(o);
             continue;
         }
 
         // ---- JET EAGLE: horizontal flight carrying the player ---------------
-        // Far-off pickups (pills, tanks, 1UP, armor, checkpoint): nothing below
-        // can apply to them while they are a screen away - only the sprite has to
-        // be hidden. Skips the ~20-branch type chain for most of a room's objects
-        // (profile, CASTLE 5 map 0: 27 objects cost ~13 subticks each per frame).
-        if (OBJ_PLAIN(d->type) && !o->door) {
-            const s16 fx = (s16)(o->x - camera.x);
-            if (fx < -64 || fx > 384) {
-                if (o->spr && o->spr_vis) {
-                    SPR_setVisibility(o->spr, HIDDEN);
-                    o->spr_vis = 0;
-                }
-                continue;
-            }
-        }
-
         if (d->type == 12 && o->started) {
             s16 dx = (s16)d->speed * o->dir;
             // PC object.cpp:998: the rider's UP / DOWN move the jet vertically
