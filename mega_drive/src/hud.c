@@ -57,7 +57,7 @@ static Sprite *add_part(const SpriteDefinition *def, s16 x, s16 y, u16 pal)
 // hud_set_visible).
 // The bars only touch the sprite engine when what they show changed: both calls
 // ran every frame and cost ~16 sprite-engine calls (~50 subticks).
-static s16 hp_last = -2, boss_last = -2;
+static s16 hp_last = -2, boss_last = -2, wpn_last = -2;
 
 static void set_bar(Sprite *const *parts, bool show, s16 pct,
                     Sprite *icon, Sprite *box)
@@ -77,7 +77,7 @@ static void set_bar(Sprite *const *parts, bool show, s16 pct,
 
 void hud_init(void)
 {
-    hp_last = boss_last = -2;
+    hp_last = boss_last = wpn_last = -2;
     const SpriteDefinition *hp[3] = {
         &hud_bar_hp_top_sprite, &hud_bar_hp_mid_sprite, &hud_bar_hp_bot_sprite
     };
@@ -157,6 +157,11 @@ void hud_weapon(u8 weapon, u8 ammo)
 {
     if (!hud_on) return;
     bool show = (weapon != 0);
+    // Only talk to the sprite engine when weapon/ammo/visibility changed (it ran
+    // ~8-16 sprite calls every frame; hud_set_visible/hud_reset clear the key).
+    const s16 key = (s16)((weapon << 8) | (show ? ammo : 0));
+    if (key == wpn_last && wpn_on == show) return;
+    wpn_last = key;
     s16 pct = (100 * ammo) / PLAYER_INITIAL_HP;
     set_bar(wpn_parts, show, pct, wpn_icon, wpn_box);
     for (u8 i = 0; i < HUD_PARTS; i++) {
@@ -191,7 +196,7 @@ void hud_boss(s16 hp)
 void hud_set_visible(bool visible)
 {
     hud_on = visible;
-    hp_last = boss_last = -2;      // force the next update to re-send
+    hp_last = boss_last = wpn_last = -2;      // force the next update to re-send
     for (u8 i = 0; i < HUD_PARTS; i++) {
         if (hp_parts[i]) SPR_setVisibility(hp_parts[i], visible && hp_on ? VISIBLE : HIDDEN);
         if (wpn_parts[i]) SPR_setVisibility(wpn_parts[i], visible && wpn_on ? VISIBLE : HIDDEN);
