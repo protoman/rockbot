@@ -73,12 +73,12 @@ Closed (each with its offline reproduction, see `git log`):
       visibility it last sent. Host test `run_menu_visibility`.
 
 Still open (PC does it, the port does not):
-- [ ] The slide shows only the incoming TILES: the PC also draws the incoming
+- [x] (2026-10-31, needs a play-test) The slide shows only the incoming TILES: the PC also draws the incoming
       map's objects, enemies and above-player layer during it
       (`game.cpp:1090` onward, `show_objects`/`show_above_objects`).
-- [ ] Incoming parallax is replaced by sky whenever the two maps' background
+- [x] (2026-10-31, nearest-colour remap into the outgoing PAL3) Incoming parallax is replaced by sky whenever the two maps' background
       palettes differ (PAL3 is shared): 12 links incl. CHAOS CITY map 0 -> 1.
-- [ ] Slide speed: 8 px/frame here, 4 px per step with delays on the PC.
+- [x] (2026-10-31, TRANS_HOLD=2) Slide speed: 8 px/frame here, 4 px per step with delays on the PC.
 - [ ] Owner's TODO.txt BUGS list (charged shot consumed on hit, full-charge
       indicator, wall-shooter diagonal aim, door opening from the centre, enemy
       speed vs the PC) is NOT audited against the PC source yet.

@@ -522,3 +522,4 @@ first row is discarded.
   (CLEAR_AREA applied the 240->224 crop, MOVE_IMAGE did not). The face background
   is now repainted a pure dark blue, `md_color()` packs CRAM the hardware way
   (bits 11-9/7-5/3-1) and images get `y - 24` (one extra tile up).
+- 2026-10-31 room slide: incoming enemy/object previews, parallax remapped to the outgoing PAL3 (no more sky), 8px steps held 2 frames (PC pace). Built, not play-tested.

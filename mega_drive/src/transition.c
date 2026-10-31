@@ -21,6 +21,8 @@
 // Deliberate deviations from the PC:
 //   - The destination map's palette is not loaded (PAL1 holds the current
 //     map's), so the incoming screen can be a shade off until stage_load.
+//     The incoming parallax is remapped to the outgoing PAL3 colours.
+//   - Incoming enemies/objects are frozen first-frame previews (prev_*).
 //   - Animated cells show their map-PNG art (frame 0) instead of the live
 //     animation frame.
 //   - If the slice needs more tiles than the free VRAM block has, the caller
@@ -39,12 +41,20 @@
 #include "player.h"
 #include "enemy.h"
 #include "object.h"
+#include "sprite_guard.h"
 
 #define TRANS_COLS 42     // plane cells written per row (>= 40 + 2 of slack)
 #define TRANS_MCOLS 21    // metatiles requested = 42 cells
 #define TRANS_ROWS 28     // plane rows (224px screen)
 #define TRANS_MROWS 14    // metatile rows = map_h
-#define TRANS_STEP 8      // pixels per frame (PC uses 4 at 6ms/step)
+#define TRANS_STEP 8      // pixels per step (tile rows move 8px at a time)
+// Frames each step is held. The PC moves 4px per step (56 steps) with a 6ms
+// delay plus a full software redraw, ~1s in all; 8px held for 2 frames takes
+// the same 56 frames. Set to 1 for the old fast (0.47s) slide.
+#define TRANS_HOLD 2
+// Sprites of the incoming room shown while it slides in (PC show_objects /
+// temp_map->show_objects). Each costs a sprite slot, so the cap is small.
+#define TRANS_PREV_MAX 14
 // Transition tiles must stay BELOW the tooltip block: 672..702 hold the tooltip
 // art, the dialog panel and the sky tile (702, which BG_B cells point at), and
 // 703.. is the sprite pool. TILE_SPRITE_INDEX (703) is not a free-VRAM limit.
@@ -189,6 +199,69 @@ static void apply_tile3(u16 *buf, u8 map, u16 mt0)
             }
         }
     }
+}
+
+// ---- incoming room sprites ------------------------------------------------
+static Sprite *prev_spr[TRANS_PREV_MAX];
+static s16 prev_x[TRANS_PREV_MAX];     // screen X at the destination camera
+static s16 prev_y[TRANS_PREV_MAX];     // world Y (maps are one screen tall)
+static u8 prev_n;
+
+static void prev_add(const SpriteDefinition *def, s16 x, s16 y, bool flip, s16 anim)
+{
+    if (prev_n >= TRANS_PREV_MAX || !def) return;
+    Sprite *sp = SPR_addSprite(def, x, y + 224,
+                               TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
+    if (!sp) return;
+    SPR_setAutoAnimation(sp, FALSE);
+    spr_set_anim(sp, anim);
+    SPR_setHFlip(sp, flip);
+    SPR_setVisibility(sp, HIDDEN);
+    prev_spr[prev_n] = sp;
+    prev_x[prev_n] = x;
+    prev_y[prev_n] = y;
+    prev_n++;
+}
+
+// Frozen first frame of every enemy and object the destination room starts
+// with, inside the 320px window shown at `dcam`.
+static void prev_build(u8 to_map, s16 dcam)
+{
+    prev_n = 0;
+    for (u8 i = 0; i < stage_def->enemy_spawn_count; i++) {
+        const EnemySpawn *sp = &stage_def->enemy_spawns[i];
+        if (sp->map != to_map) continue;
+        const s16 sx = sp->x - dcam;
+        if (sx < -40 || sx >= 336) continue;
+        const EnemyDef *d = &stage_def->enemy_defs[sp->def];
+        prev_add(d->spr, sx, sp->y, sp->dir == 0, d->walk_n > 0 ? 1 : 0);
+    }
+    for (u8 i = 0; i < stage_def->object_spawn_count; i++) {
+        const ObjectSpawn *sp = &stage_def->object_spawns[i];
+        if (sp->map != to_map) continue;
+        const ObjectDef *d = &stage_def->object_defs[sp->def];
+        if (d->type == 30 || (d->type == 2 && d->timer)) continue;  // door / timed block
+        const s16 sx = sp->x - dcam;
+        if (sx + d->w <= 0 || sx >= 320) continue;
+        prev_add(d->spr, sx, sp->y, FALSE, 0);
+    }
+}
+
+// `dy`: how far below its resting place the destination screen still is.
+static void prev_place(s16 dy)
+{
+    for (u8 i = 0; i < prev_n; i++) {
+        const s16 y = (s16)(prev_y[i] + dy);
+        SPR_setVisibility(prev_spr[i], (y > -48 && y < 224) ? VISIBLE : HIDDEN);
+        SPR_setPosition(prev_spr[i], prev_x[i], y);
+    }
+}
+
+static void prev_free(void)
+{
+    for (u8 i = 0; i < prev_n; i++) SPR_releaseSprite(prev_spr[i]);
+    prev_n = 0;
+    SPR_update();
 }
 
 #ifdef MD_TRANS_DEBUG
@@ -413,13 +486,34 @@ return FALSE; }
     const s16 vscroll = (s16)(-((s16)stage_def->bg_info[from_map].adjust_y - 16));
     const s16 vscroll_new = (s16)(-((s16)stage_def->bg_info[to_map].adjust_y - 16));
     if (stage_def->bg_info[to_map].present && stage_def->bg_pal[to_map] &&
-        stage_def->bg_pal[from_map] && vscroll == vscroll_new) {
+        stage_def->bg_pal[from_map]) {
         const Palette *pa = stage_def->bg_pal[from_map];
         const Palette *pb = stage_def->bg_pal[to_map];
         bool same = TRUE;
         for (u8 i = 0; i < 16 && same; i++) same = (pa->data[i] == pb->data[i]);
         const u16 need = stage_def->bg_tiles_n[to_map];
-        if (same && spare + used + need <= TRANS_VRAM_END) {
+        if (spare + used + need <= TRANS_VRAM_END) {
+            // PAL3 holds the OUTGOING room's parallax colours for the whole
+            // slide, so a destination with another palette is shown through
+            // the nearest outgoing colour per pixel (a ~0.5 s approximation;
+            // stage_load restores the true palette). The colourcycle band is
+            // excluded: those entries rotate and would make the art flicker.
+            u8 remap[16];
+            const u8 lim = stage_def->cycle_n ? (u8)stage_def->cycle_base : 16;
+            for (u8 c = 0; c < 16; c++) {
+                remap[c] = c;
+                if (same || c == 0) continue;
+                const u16 w = pb->data[c];
+                u16 best = 0xFFFF;
+                for (u8 k = 1; k < lim; k++) {
+                    const u16 v = pa->data[k];
+                    s16 db = (s16)((w >> 9) & 7) - (s16)((v >> 9) & 7);
+                    s16 dg = (s16)((w >> 5) & 7) - (s16)((v >> 5) & 7);
+                    s16 dr = (s16)((w >> 1) & 7) - (s16)((v >> 1) & 7);
+                    const u16 d = (u16)(db * db + dg * dg + dr * dr);
+                    if (d < best) { best = d; remap[c] = k; }
+                }
+            }
             bg_tiles_new = (u16)(spare + used);
             // one entry per 32-tile block, so a big parallax set is chunked too
             for (u16 t = 0; t < need; t += TRANS_DMA_CHUNK) {
@@ -427,8 +521,21 @@ return FALSE; }
                                         ? TRANS_DMA_CHUNK : need - t);
                 trans_queued = TRANS_DMA_CHUNK;   // force a drain before it
                 trans_dma_room(1);
-                VDP_loadTileData(stage_def->bg_tiles[to_map] + t * 8,
-                                 (u16)(bg_tiles_new + t), n, DMA_QUEUE);
+                const u32 *src = stage_def->bg_tiles[to_map] + t * 8;
+                if (!same) {
+                    // trans_tiles is idle by now (the window's tiles are in
+                    // VRAM and the queue was just drained)
+                    u32 *dst = trans_tiles;
+                    for (u16 k = 0; k < n * 8; k++) {
+                        const u32 v = src[k];
+                        u32 o = 0;
+                        for (u8 px = 0; px < 8; px++)
+                            o |= (u32)remap[(v >> (px * 4)) & 15] << (px * 4);
+                        dst[k] = o;
+                    }
+                    src = dst;
+                }
+                VDP_loadTileData(src, (u16)(bg_tiles_new + t), n, DMA_QUEUE);
             }
             used = (u16)(used + need);
             dest_bg = TRUE;
@@ -468,6 +575,7 @@ return FALSE; }
     s16 bg_filled_hi = -1;
 
     const s16 player_sx = player_x - dcam;
+    prev_build(to_map, dcam);
     const u16 span = TRANS_LINES;                 // one screen in pixels
     const u16 steps = span / TRANS_STEP;
     for (u16 i = 0; i <= steps; i++) {
@@ -516,7 +624,7 @@ return FALSE; }
                 if (from <= to) {
                     for (s16 r = from; r <= to; r++) {
                         if (dest_bg) {
-                            bg_row_cells(bgrow, to_map, r, bg_tiles_new, 0);
+                            bg_row_cells(bgrow, to_map, r, bg_tiles_new, vscroll_new);
                         } else {
                             for (u16 x = 0; x < 64; x++)
                                 bgrow[x] = TILE_ATTR_FULL(
@@ -532,7 +640,7 @@ return FALSE; }
                 if (from <= to) {
                     for (s16 r = from; r <= to; r++) {
                         if (dest_bg) {
-                            bg_row_cells(bgrow, to_map, r, bg_tiles_new, 0);
+                            bg_row_cells(bgrow, to_map, r, bg_tiles_new, vscroll_new);
                         } else {
                             for (u16 x = 0; x < 64; x++)
                                 bgrow[x] = TILE_ATTR_FULL(
@@ -560,10 +668,16 @@ return FALSE; }
             SPR_setPosition(player.spr, (s16)(player_sx + player_sprite_dx()), py);
         }
 
+        prev_place(top_to_bottom ? (s16)(span - off) : (s16)-off);
         SPR_update();
         SYS_doVBlankProcess();
         VDP_setReg(17, 0);   // see main.c: DMA clobbers the window regs
         VDP_setReg(18, 0);
+        for (u8 h = 1; h < TRANS_HOLD; h++) {
+            SYS_doVBlankProcess();
+            VDP_setReg(17, 0);
+            VDP_setReg(18, 0);
+        }
 #ifdef MD_TRANS_DEBUG
         dbg_frame(i, (u16)(off / 8), spare, from_map);
 #endif
@@ -582,6 +696,7 @@ return FALSE; }
     dbg_check_in("end", spare);
     dbg_check_out("end", from_map);
 #endif
+    prev_free();
     // back to one offset per plane; the caller's stage_load re-scrolls both
     VDP_setScrollingMode(HSCROLL_PLANE, VSCROLL_PLANE);
     VDP_setVerticalScroll(BG_B, vscroll);
