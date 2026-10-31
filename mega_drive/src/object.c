@@ -337,9 +337,15 @@ static void door_free(MapObj *o)
 
 // Place/show the slices for the current screen position (the general sprite
 // pass only handles o->spr, which a door does not have).
+#ifdef MD_PROFILE_ABLATE
+extern u8 prof_ab_obj;     // phase 4: no door_sync, 5: no solid scan
+#endif
 static void door_sync(MapObj *o, bool on_screen)
 {
     if (!o->door) return;
+#ifdef MD_PROFILE_ABLATE
+    if (prof_ab_obj == 4) return;
+#endif
     const u8 slot = (u8)(o->door - 1);
     const u8 n = door_slice_count(o);
     const bool vis = on_screen && o->visible && !o->door_open;
@@ -1091,6 +1097,9 @@ void objects_update(void)
     any_solid_obj = FALSE;
     any_breakable_obj = FALSE;
     for (u8 i = 0; i < obj_count; i++) {
+#ifdef MD_PROFILE_ABLATE
+        if (prof_ab_obj == 5) break;
+#endif
         if (!objs[i].active) continue;
         if (solid_now(&objs[i])) any_solid_obj = TRUE;
         const u8 ty = objs[i].def->type;
@@ -1102,7 +1111,10 @@ void objects_update(void)
         MapObj *o = &objs[i];
         if (!o->active) continue;
         const ObjectDef *d = o->def;
-#ifdef MD_PROFILE
+#ifdef MD_PROFILE_ABLATE
+        if (prof_ab_obj == 7) continue;     // empty iteration: loop overhead only
+#endif
+#ifdef MD_PROFILE_OBJ
         const u32 prof_t0 = getSubTick();
 #endif
 #ifdef MD_HOST_TEST
@@ -1128,6 +1140,9 @@ void objects_update(void)
             }
         }
 
+#ifdef MD_PROFILE_ABLATE
+        if (prof_ab_obj == 6) continue;     // looping-anim prologue only
+#endif
         // COIL FROG (PC auto_start=0, loop=0, reverse=1): frame 0 until stepped
         // on, then 0..last and back to 0 once, then idle again.
         if (d->type == 13 && o->started && d->frames > 1 && d->frame_t &&
@@ -1601,7 +1616,7 @@ void objects_update(void)
         host_obj_terr[i] += host_terrain_calls - host_t0c;
         host_obj_spr[i] += host_spr_calls - host_s0c;
 #endif
-#ifdef MD_PROFILE
+#ifdef MD_PROFILE_OBJ
         {
             const u16 cost = (u16)(getSubTick() - prof_t0);
             if (cost > prof_obj_hot_cost) {

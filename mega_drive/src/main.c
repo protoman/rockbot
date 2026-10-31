@@ -133,9 +133,40 @@ static inline void prof_tick(u8 i)
     }
     prof_last = t;
 }
+#ifdef MD_PROFILE_ABLATE
+// Ablation ladder, 300-frame phases, each replaying the same walk:
+//  0 all (audio ON)   1 no objects   2 no enemies   3 neither   4 no door sync
+//  5 no solid scan    6 object prologue only   7 empty object loop
+//  8 sfx muted        9 music stopped (sfx on)    10 both off   11 audio restored
+// 12 all + enemy phase marks (their timer reads inflate the enemy cost)
+#define PROF_PHASES 13
+static u16 prof_ab_t;
+static u8 prof_ab_last = 255;
+static u8 prof_phase(void) { return (u8)((prof_ab_t / 300) % PROF_PHASES); }
+u8 prof_ab_obj;
+extern u8 prof_ep_on;
+static void prof_phase_enter(void)
+{
+    const u8 ph = prof_phase();
+    if (ph == prof_ab_last) return;
+    prof_ab_last = ph;
+    prof_ep_on = (ph == 12);
+    switch (ph) {
+    case 8:  sfx_set_enabled(0); break;
+    case 9:  sfx_set_enabled(1); music_stop(); break;
+    case 10: sfx_set_enabled(0); break;
+    case 11: sfx_set_enabled(1); music_play_stage(13); break;
+    default: break;
+    }
+}
+#endif
 static void prof_report(void)
 {
     if (++prof_frames < 60) return;
+#ifdef MD_PROFILE_ABLATE
+    prof_ab_t += 60;
+    dbg_print("ABLATE phase=%d\n", (int)((((prof_ab_t - 60) / 300) % PROF_PHASES)));
+#endif
     dbg_print("PROF map=%d obj=%d npc=%d hot=%d/t%d/%d px=%d py=%d "
             "setup=%lu objupd=%lu plr=%lu hud=%lu "
             "cam=%lu anim=%lu npcs=%lu shot=%lu spr=%lu wait=%lu "
@@ -156,6 +187,7 @@ static void prof_report(void)
             (unsigned long)prof_over, (unsigned long)prof_max,
             (unsigned long)(prof_acc[PROF_EXPL] / 60), (unsigned long)(prof_acc[PROF_ESHOT] / 60),
             (unsigned long)(prof_acc[PROF_PSHOT] / 60));
+    dbg_print("CNT act=%d vdp=%d\n", (int)SPR_getNumActiveSprite(), (int)SPR_getUsedVDPSprite());
 #ifdef MD_PROFILE_PLAYER
     dbg_print("PPROF pre=%lu ladder=%lu shield=%lu slide=%lu horiz=%lu jump=%lu vert=%lu plat=%lu\n",
             (unsigned long)(player_prof[0] / 60), (unsigned long)(player_prof[1] / 60), (unsigned long)(player_prof[2] / 60),
@@ -648,6 +680,18 @@ static RunResult runStage(u8 stage)
                 ap_i++;
             }
 #endif
+#ifdef MD_PROFILE_ABLATE
+            // Every ablation phase replays the SAME walk from the arrival tile, so the
+            // phases are comparable (the player moves, jumps and fires in each).
+            if ((ap_t % 300) == 1) {
+                player_place((s16)(MD_TEST_TX * stage_def->tile + stage_def->tile / 2
+                                   - (PLAYER_BOX_L + PLAYER_BOX_R) / 2),
+                             (s16)(MD_TEST_TY * stage_def->tile + stage_def->tile / 2
+                                   - (PLAYER_BOX_T + PLAYER_BOX_B) / 2));
+                camera.x = player.x - 160;
+                stage_update_camera(player.x, player.y);
+            }
+#endif
             if ((ap_t % 20) == 0) pad |= config_fire_mask();
             if ((ap_t % 30) == 0 && player.hp < 28) player.hp = 28;
 #ifdef MD_LINK_TRACE
@@ -671,6 +715,11 @@ static RunResult runStage(u8 stage)
             pad = JOY_readJoypad(JOY_1);
         }
         prev_pad = pad;
+#ifdef MD_PROFILE_ABLATE
+        prof_phase_enter();
+        prof_ab_obj = prof_phase();
+        if (prof_ab_obj != 1 && prof_ab_obj != 3)
+#endif
         objects_update();   // platforms carry the player before his physics
 #ifdef MD_PROFILE
         prof_tick(PROF_OBJ);
@@ -933,6 +982,9 @@ static RunResult runStage(u8 stage)
         prof_tick(PROF_ANIM);
 #endif
 
+#ifdef MD_PROFILE_ABLATE
+        if (prof_phase() != 2 && prof_phase() != 3)
+#endif
         enemies_update();   // patrol/contact first, shots test fresh positions
         // SHORYUKEN (LEGS armor): PC collision_player_special_attack(..., 9)
         // damages enemies the rising player passes through.
@@ -1287,8 +1339,8 @@ int main(bool hardReset)
     wd_ckq("main: after save_init");
     config_init();
     wd_ckq("main: after config_init");
-#if defined(MD_NO_AUDIO) || defined(MD_PROFILE) || defined(MD_TEST_STAGE) || \
-    defined(MD_LINK_TRACE) || defined(MD_TEST_CASTLE)
+#if !defined(MD_PROFILE_AUDIO) && (defined(MD_NO_AUDIO) || defined(MD_PROFILE) || defined(MD_TEST_STAGE) || \
+    defined(MD_LINK_TRACE) || defined(MD_TEST_CASTLE))
     config_force_silent();      // see config.c: silent test builds
 #endif
     stage_set_data(0);   // valid stage_def before anything reads it

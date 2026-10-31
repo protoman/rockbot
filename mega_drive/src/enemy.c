@@ -1685,8 +1685,13 @@ void enemies_reset(void)
 #ifdef MD_PROFILE_ENEMY       // opt-in: the timer reads alone triple the enemy cost
 u32 enemy_prof[6];                 // subticks per phase, printed by main.c
 static u32 ep_last;
-#define EP_BEGIN() (ep_last = getSubTick())
-#define EP_MARK(n) do { const u32 t_ = getSubTick(); enemy_prof[n] += t_ - ep_last; ep_last = t_; } while (0)
+#ifdef MD_PROFILE_ABLATE
+u8 prof_ep_on = 0;                 // on only in the ladder's last phase
+#else
+u8 prof_ep_on = 1;
+#endif
+#define EP_BEGIN() do { if (prof_ep_on) ep_last = getSubTick(); } while (0)
+#define EP_MARK(n) do { if (prof_ep_on) { const u32 t_ = getSubTick(); enemy_prof[n] += t_ - ep_last; ep_last = t_; } } while (0)
 #else
 #define EP_BEGIN() do { } while (0)
 #define EP_MARK(n) do { } while (0)
