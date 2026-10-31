@@ -57,4 +57,8 @@ u8 music_get_volume(void);
 // Re-start the remembered track (used when sound is re-enabled in CONFIG).
 void music_resume(void);
 
+#ifdef MD_WALK_AUDIO_DIAG
+void music_diag(const char *tag);
+#endif
+
 #endif

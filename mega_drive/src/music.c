@@ -126,3 +126,15 @@ void music_resume(void)
         playing = TRUE;
     }
 }
+
+#ifdef MD_WALK_AUDIO_DIAG
+#include "dbgprint.h"
+// One state line: the port's own flag against what the Z80 driver reports.
+void music_diag(const char *tag)
+{
+    dbg_print("MUS %s: playing=%u xgm2=%u level=%u pending=%u same=%u sound=%u\n", tag,
+              (unsigned)playing, (unsigned)XGM2_isPlaying(), (unsigned)music_level,
+              (unsigned)stop_pending, (unsigned)(current_track == music_tracks[MUSIC_END_ANIMATION]),
+              (unsigned)config_is_sound_on());
+}
+#endif

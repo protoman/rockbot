@@ -145,6 +145,13 @@ RULES = [
      [("src/music.c", r"XGM2_setFMVolume\(v\);"),
       ("src/music.c", r"music_set_volume\(music_level\);")],
      []),
+    ("music-volume-migration",
+     "a config saved before the music-volume option (byte +9 never written, 0) "
+     "must load as the default level, not as silent (2026-10-31: ending test "
+     "had no music at all; owner never touched the option)",
+     [("src/config.c", r"CFG_VOL_SET"),
+      ("src/config.c", r"SRAM_writeByte\(CFG_OFF \+ 9, \(u8\)\(CFG_VOL_SET")],
+     []),
     ("menu-armor-line",
      "the in-game menu shows the installed armor pieces (PC "
      "draw::weapon_menu_show_player)",

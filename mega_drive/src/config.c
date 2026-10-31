@@ -13,6 +13,9 @@
 
 // SRAM: 5 save slots occupy bytes 8..47; options live at byte 48.
 #define CFG_OFF   48
+// Music volume byte (+9): bit 7 says "the player's choice was stored". Configs saved
+// before the option existed hold 0 there, which used to load as volume 0 = silent.
+#define CFG_VOL_SET 0x80
 #define CFG_MAGIC 0x4F50       // 'OP'
 
 Config config;
@@ -40,7 +43,10 @@ void config_init(void)
         return;
     }
     config.sound = SRAM_readByte(CFG_OFF + 2);
-    config.music_vol = SRAM_readByte(CFG_OFF + 9) & 3;
+    {
+        const u8 v = SRAM_readByte(CFG_OFF + 9);
+        config.music_vol = (v & CFG_VOL_SET) ? (u8)(v & 3) : 3;   // unset -> default
+    }
     config.turbo = SRAM_readByte(CFG_OFF + 3);
     config.autocharge = SRAM_readByte(CFG_OFF + 4);
     config.b_jump = SRAM_readByte(CFG_OFF + 5) & 3;
@@ -58,7 +64,7 @@ void config_save(void)
 {
     SRAM_writeWord(CFG_OFF, CFG_MAGIC);
     SRAM_writeByte(CFG_OFF + 2, config.sound);
-    SRAM_writeByte(CFG_OFF + 9, config.music_vol);
+    SRAM_writeByte(CFG_OFF + 9, (u8)(CFG_VOL_SET | config.music_vol));
     SRAM_writeByte(CFG_OFF + 3, config.turbo);
     SRAM_writeByte(CFG_OFF + 4, config.autocharge);
     SRAM_writeByte(CFG_OFF + 5, config.b_jump);

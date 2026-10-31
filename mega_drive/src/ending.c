@@ -366,7 +366,13 @@ static void walk_dma_experiments(void)
 static void walking_parade(void)
 {
     wd_ckq("walk enter");
+#ifdef MD_WALK_AUDIO_DIAG
+    music_diag("walk enter (before music_play)");
+#endif
     music_play(MUSIC_END_ANIMATION);
+#ifdef MD_WALK_AUDIO_DIAG
+    music_diag("walk after music_play");
+#endif
     wd_ck("walk after music");
     sprites_end();
     wd_ck("walk after sprites_end");
@@ -493,6 +499,21 @@ static void walking_parade(void)
         // that never landed): the transfers are idempotent and ~5 KB, so a few
         // re-sends turn a persistent glitch into at most a couple of bad frames.
         if (frame == 2 || frame == 8 || frame == 30) walking_gfx_queue();
+#ifdef MD_WALK_AUDIO_DIAG
+        // Audio ladder inside one boot: state line every 2 s, and three escalating
+        // recoveries. The listener notes at which step the sound returns.
+        if (frame == 1 || frame == 120 || frame == 300 || frame == 480 || frame == 660 || frame == 840) {
+            char t[16]; intToStr((s32)frame, t, 1);
+            music_diag(t);
+        }
+        if (frame == 300) { XGM2_resume(); music_diag("step1 XGM2_resume"); }
+        if (frame == 480) { music_set_volume(3); music_diag("step2 volume re-applied"); }
+        if (frame == 660) {
+            XGM2_stop(); SYS_doVBlankProcess(); SYS_doVBlankProcess();
+            XGM2_play(mus_end_animation); music_set_volume(3);
+            music_diag("step3 hard restart");
+        }
+#endif
 
 #ifdef MD_WALK_TIME
         {
