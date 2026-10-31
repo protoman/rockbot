@@ -1,3 +1,20 @@
+## BUG-047 - CASTLE 5 map 0 slowdown near the MULTIDRILL area (fixed in part, 2026-10-31)
+
+**Report (owner)**: after the teleporter, the room with the MULTIDRILL enemies runs slow.
+
+**Measured** (`tools/prof_report.py`, ROM built with `-DMD_PROFILE -DMD_PROFILE_ABLATE -DMD_PROFILE_ENEMY
+-DMD_PROFILE_AUDIO -DMD_AUTOPILOT -DMD_TEST_STAGE=13 -DMD_TEST_TILE -DMD_TEST_MAP=0 -DMD_TEST_TX=104
+-DMD_TEST_TY=3`; a 17-phase ablation ladder, each phase replaying the same walk). Work per frame, budget 1280
+subticks: **1745 -> 1287**. Audio is not a factor (+-40). What moved it:
+- far plain pickups skip the per-type chain, then sleep excess/12 frames (objects 410 -> 270);
+- parked enemies (off screen, sprite hidden) skip sprite/water/contact work (enemies 455 -> 360);
+- scroll-lock columns come from a per-map bit table: `stage_room_span` and `scroll_lock_span` re-walked
+  the lock list and every object (~700 subticks) per player column change (enemies 360 -> 257).
+
+**Still open**: ~1287 is at the budget, not under it. Remaining blocks: enemy AI ~115, camera scroll ~245,
+player + enemy shots ~225, sprite engine ~200, near objects ~35 each, VDP sprite count peaked at 85 (limit 80,
+meaning unchecked). The ladder phases in `src/main.c` (`PROF_PHASES`) isolate each.
+
 ## BUG-046 — Teleporter entered while sliding leaves the slide "shadows" on the next screen (fixed 2026-10-31)
 
 **Report (2026-10-31, owner)**: entering a teleporter while sliding, the slide
