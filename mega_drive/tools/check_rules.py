@@ -152,6 +152,11 @@ RULES = [
      [("src/config.c", r"CFG_VOL_SET"),
       ("src/config.c", r"SRAM_writeByte\(CFG_OFF \+ 9, \(u8\)\(CFG_VOL_SET")],
      []),
+    ("stage-select-sfx-beaten",
+     "the stage-select confirm sound goes with the boss intro: a beaten stage "
+     "skips the intro (PC classic_style_boss_intro returns first) and stays silent",
+     [("src/stageselect.c", r"if \(!\(stage_mask & \(1u << st\)\)\) sfx_play\(SFX_STAGE_SELECTED\);")],
+     []),
     ("menu-armor-line",
      "the in-game menu shows the installed armor pieces (PC "
      "draw::weapon_menu_show_player)",

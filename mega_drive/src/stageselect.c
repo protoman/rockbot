@@ -215,7 +215,9 @@ u8 stage_select_run(u8 player, u16 stage_mask)
             } else {
                 u8 st = complete_stage();
                 if (stage_ready(st)) {
-                    sfx_play(SFX_STAGE_SELECTED);
+                    // The confirm sound belongs to the boss intro: a beaten stage
+                    // gets neither (PC classic_style_boss_intro returns first).
+                    if (!(stage_mask & (1u << st))) sfx_play(SFX_STAGE_SELECTED);
                     sprites_end();
                     return st;
                 }
