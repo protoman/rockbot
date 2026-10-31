@@ -119,6 +119,24 @@ def convert(name, spec):
     qpal = q.getpalette()
     colors = [tuple(md_round(v) for v in qpal[i*3:i*3+3]) for i in range(spec["colors"])]
 
+    # BUG-004: keep whichever fit (MEDIANCUT or Ward+Lloyd) has the lower
+    # weighted error. Dithered specs keep Pillow's own indices.
+    fit_map = None
+    if not spec.get("dither"):
+        import palfit
+        wts = {}
+        for c in opaque:
+            k = (md_round(c[0]), md_round(c[1]), md_round(c[2]))
+            wts[k] = wts.get(k, 0) + 1
+        cand = palfit.fit(wts, spec["colors"])
+        e_old = palfit.error(wts, [c for c in colors if len(c) == 3])
+        e_new = palfit.error(wts, cand)
+        print(f"  palfit {name}: mediancut err {e_old:.1f} -> ward+lloyd {e_new:.1f}")
+        if e_new < e_old:
+            colors = list(cand)
+            fit_map = {k: min(range(len(colors)), key=lambda i: sum(
+                (colors[i][j] - k[j]) ** 2 for j in range(3))) for k in wts}
+
     # index 0 reserved/transparent, real colors at 1..15
     palette = [(0, 0, 0)] + colors
     while len(palette) < 16:
@@ -130,9 +148,13 @@ def convert(name, spec):
 
     qidx = list(q.getdata())
     out = []
-    for qi, m in zip(qidx, mask):
+    rgb_px = list(rgb.getdata())
+    for qi, m, rp in zip(qidx, mask, rgb_px):
         if m:
             out.append(0)
+            continue
+        if fit_map is not None:
+            out.append(lut[colors[fit_map[(md_round(rp[0]), md_round(rp[1]), md_round(rp[2]))]]])
             continue
         c = colors[qi] if qi < len(colors) else colors[0]
         if c not in lut:

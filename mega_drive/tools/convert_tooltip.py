@@ -133,6 +133,15 @@ def icons():
         raw = list(q.getpalette())
         raw += [0] * (3 * ICON_PAL_N - len(raw))    # <16 colours: short table
         pal = [snap_rgb(raw[j * 3:j * 3 + 3]) for j in range(ICON_PAL_N)]
+        # BUG-004: keep whichever fit has the lower weighted error
+        import palfit
+        wts = {}
+        for c in opaque:
+            k = tuple(snap_rgb(c[:3]))
+            wts[k] = wts.get(k, 0) + 1
+        cand = palfit.fit(wts, ICON_PAL_N)
+        if palfit.error(wts, cand) < palfit.error(wts, pal):
+            pal = [tuple(c) for c in cand] + [(0, 0, 0)] * (ICON_PAL_N - len(cand))
         # map every source colour onto the snapped table, keep the error
         # (transparent pixels become entry 0 = the box interior)
         lut, worst = {}, 0
