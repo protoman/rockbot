@@ -1910,3 +1910,17 @@ no transparency); `show_image()` converts y with `-24` (PC crop plus one tile
 up, so the face sits inside the box instead of hanging out of its bottom edge).
 
 Verified with `MD_TEST_ENDING` captures.
+
+## BUG-055 — Stop importing from the PC version (images/ and data/ are hand-owned)
+
+**Report** (2026-10-31, owner): the PC-art import did not improve the colours, so
+the owner edits the images by hand from now on; nothing may overwrite them again.
+
+**Change**: `tools/import_pc_art.py` (writes `images/`) and `tools/import_pc_data.py`
+(writes `data/games/RockDroid1`) are disarmed - they exit with a message when run.
+Neither is called by `make` / `tools/build_assets.py`, which read only `images/`
+and `data/`. The converters' "not indexed (run tools/import_pc_art.py)" hints
+now mean "fix the PNG by hand". The PC tree stays read-only reference.
+
+**Left**: AGENTS.md still describes the importers as a fresh-import path; a real
+re-import would need removing the guard on purpose.

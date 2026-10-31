@@ -289,7 +289,7 @@ from already-captured screenshots/assets over running the emulator again.
   survive every `make assets`.
 - It is already converted to the port's geometry: **14 game rows (224p)** in
   file slots 0..13 (slot 14 is unused padding of the PC struct), link rows and
-  spawn Y remapped. `tools/import_pc_data.py` did that once from the PC data;
+  spawn Y remapped. `tools/import_pc_data.py` did that once from the PC data (now DISARMED, BUG-055: data/ and images/ are hand-owned);
   the converters no longer crop anything. Re-running it overwrites the data
   (it backs up first) and is only for a fresh PC import.
 - `data/fonts` and `data/shared` are symlinks to the parent's read-only shared

@@ -29,6 +29,13 @@ is not stolen by a numerically-closer grey.
 
 Usage: python3 tools/import_pc_art.py
 """
+import sys as _sys
+# DISARMED (BUG-055, owner 2026-10-31): images/ and data/ are hand-edited now and
+# must never be overwritten from the PC version again. The file stays only as
+# documentation of how the first import was made.
+if __name__ == "__main__":
+    _sys.exit("%s is disarmed (BUG-055): the PC import is over, images/ and data/ are owned by hand edits" % __file__)
+
 
 import os
 from PIL import Image
