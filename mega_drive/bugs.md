@@ -1,4 +1,4 @@
-## BUG-047 - CASTLE 5 map 0 slowdown near the MULTIDRILL area (improved, needs a feel test, 2026-10-31)
+## BUG-047 - CASTLE 5 map 0 slowdown near the MULTIDRILL area (DONE 2026-10-31)
 
 **Report (owner)**: after the teleporter, the room with the MULTIDRILL enemies runs slow.
 
@@ -34,7 +34,7 @@ calls, against the ladder and walking room changes.
 **To do**: an offline reproduction first (host test or rule check: effect pool
 empty after a teleporter room change), then the fix.
 
-## BUG-045 — Ending: intermittent tile/palette garbage on the first frame of the walking scene (root cause fixed 2026-10-31, verified on one boot)
+## BUG-045 — Ending: intermittent tile/palette garbage on the first frame of the walking scene (DONE 2026-10-31)
 
 **Report (2026-10-29)**: `screenshots/bugs/ending/walking_glitch.png` - the first
 frame of the walking parade shows stripes, red/white garbage and the player's
@@ -127,7 +127,7 @@ at entries 8..15 on one boot and 10..15 on the next - the destination slid by a
 different amount each time, which is a redirection, not a torn frame. The same
 mechanism can drop CRAM data into VRAM at whatever address the VDP last held.
 
-## BUG-044 follow-up — the stripes are NOT the fill tiles (probably fixed by the BUG-045 root cause; confirm in play)
+## BUG-044 follow-up — the stripes are NOT the fill tiles (DONE 2026-10-31)
 
 Measured on the emulator with `EXTRA_FLAGS=-DMD_TILE_DUMP` (`src/tdump.c`,
 registers + CRAM readback through kprintf, log only, no screenshots):
@@ -1919,7 +1919,7 @@ up, so the face sits inside the box instead of hanging out of its bottom edge).
 
 Verified with `MD_TEST_ENDING` captures.
 
-## BUG-055 — Stop importing from the PC version (images/ and data/ are hand-owned)
+## BUG-055 — Stop importing from the PC version (images/ and data/ are hand-owned) (DONE 2026-10-31)
 
 **Report** (2026-10-31, owner): the PC-art import did not improve the colours, so
 the owner edits the images by hand from now on; nothing may overwrite them again.
@@ -1933,7 +1933,7 @@ now mean "fix the PNG by hand". The PC tree stays read-only reference.
 **Left**: AGENTS.md still describes the importers as a fresh-import path; a real
 re-import would need removing the guard on purpose.
 
-## BUG-056 — A charged shot in flight blocks normal fire
+## BUG-056 — A charged shot in flight blocks normal fire (DONE 2026-10-31)
 
 **Report** (2026-10-31, owner): after firing a charged projectile (semi included)
 normal projectiles cannot be fired until the charged one is consumed.
