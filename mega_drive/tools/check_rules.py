@@ -156,7 +156,7 @@ RULES = [
      "the stage-select confirm sound goes with the boss intro: a beaten stage "
      "skips the intro (PC classic_style_boss_intro returns first) and stays silent",
      [("src/stageselect.c", r"if \(!\(stage_mask & \(1u << st\)\)\) sfx_play\(SFX_STAGE_SELECTED\);")],
-     []),
+     [("src/stageselect.c", r"\n\s*sfx_play\(SFX_STAGE_SELECTED\);")]),   # no unconditional play
     ("menu-armor-line",
      "the in-game menu shows the installed armor pieces (PC "
      "draw::weapon_menu_show_player)",

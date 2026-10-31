@@ -208,7 +208,8 @@ u8 stage_select_run(u8 player, u16 stage_mask)
             if (sx == 1 && sy == 1) {
                 if (castle_unlocked) {
                     u8 st = castle_next_stage();
-                    sfx_play(SFX_STAGE_SELECTED);
+                    // castle_next_stage() ends on 13 even when it is beaten
+                    if (!(stage_mask & (1u << st))) sfx_play(SFX_STAGE_SELECTED);
                     sprites_end();
                     return st;            // unbeaten castle #1 stage
                 }
