@@ -50,6 +50,8 @@ u8 door_open;    // slices hidden: the door is open (stays so while the room scr
     u8 flags;        // ODF_*: type tests precomputed at spawn (hot loop)
     u8 spr_vis;      // last visibility sent to the sprite (0xFF = unknown)
     u8 grounded;     // resting on static terrain at rest_y
+    u8 skip;         // far plain pickup: frames until it can matter again
+    u8 skip_gen;     // obj_gen the skip was computed in (camera jump invalidates it)
     s16 rest_y;
 } MapObj;
 
@@ -102,6 +104,7 @@ static void obj_init_cached(MapObj *o, const ObjectDef *d)
     o->def = d;
     o->flags = obj_flags_for(d);
     o->spr_vis = 0xFF;
+    o->skip = 0;
     o->grounded = FALSE;
     o->rest_y = o->y;
 }
@@ -1107,10 +1110,17 @@ static void crusher_update(MapObj *o)
 }
 
 static u32 obj_tick;     // global clock of the plain looping pickups
+static u8 obj_gen;       // bumped when the camera jumps: far-pickup skips are void
+static s16 obj_last_cam = -32768;
 
 void objects_update(void)
 {
     obj_tick++;
+    {
+        const s16 dc = (s16)(camera.x - obj_last_cam);
+        if (dc > 12 || dc < -12) obj_gen++;     // door scroll / arrival / respawn
+        obj_last_cam = camera.x;
+    }
     s16 pl, pt, pr, pb;
     player_get_box(&pl, &pt, &pr, &pb);
 
@@ -1130,6 +1140,7 @@ void objects_update(void)
     for (u8 i = 0; i < obj_count; i++) {
         MapObj *o = &objs[i];
         if (!o->active) continue;
+        if (o->skip && o->skip_gen == obj_gen) { o->skip--; continue; }
         const ObjectDef *d = o->def;
 #ifdef MD_PROFILE_ABLATE
         if (prof_ab_obj == 7) continue;     // empty iteration: loop overhead only
@@ -1156,6 +1167,14 @@ void objects_update(void)
                 if (o->spr && o->spr_vis) {
                     SPR_setVisibility(o->spr, HIDDEN);
                     o->spr_vis = 0;
+                }
+                // Camera moves <= 12 px/frame (a bigger jump bumps obj_gen), so it
+                // takes at least excess/12 frames to bring this pickup near.
+                if (!o->duration) {
+                    const s16 ex = (fx < 0) ? (s16)(-64 - fx) : (s16)(fx - 384);
+                    const s16 sk = ex / 12;
+                    o->skip = (u8)(sk > 60 ? 60 : sk);
+                    o->skip_gen = obj_gen;
                 }
                 continue;
             }
