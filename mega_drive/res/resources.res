@@ -485,7 +485,7 @@ PALETTE stage12_bg2_pal "stage12_bg2_tiles.png"
 
 # ---- STAGE 13 (FROZEN LAIR) ----
 SPRITE enemy_destrin_tank_sprite "enemy_destrin_tank.png" 88p 96p FAST [[6,6,6][6,6,6][6][1]]
-SPRITE enemy_destrin_ship_sprite "enemy_destrin_ship.png" 48p 48p FAST [[12,12][18,18][6]]
+SPRITE enemy_destrin_ship_sprite "enemy_destrin_ship.png" 48p 48p FAST [[12,12][18,18][6][7,7,36]]
 SPRITE enemy_multidrill_sprite "enemy_multidrill.png" 16p 24p FAST [[6,6,6][6,6,6][0]]
 SPRITE enemy_shocker_sprite "enemy_shocker.png" 40p 40p FAST [[12,12][12,12,12][7,7,48]]
 TILESET stage13_tiles0 "stage13_map0.png"  NONE ALL
