@@ -22,6 +22,7 @@ Usage: python3 tools/convert_stage.py
 import os
 import struct
 import sys
+from collections import Counter
 from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -290,37 +291,78 @@ def cyc_frame0_px(fn, band):
     return out
 
 
-def build_palette(rgbs):
-    """One master palette shared by every map of the stage.
+def _d2(a, b):
+    return sum((a[k] - b[k]) ** 2 for k in range(3))
 
-    Colours beyond MAX_COLORS are merged rather than truncated: the closest pair
-    in RGB space is replaced by its PIXEL-COUNT WEIGHTED average, so a rare
-    shade folds into the dominant colour instead of dragging it off. (The old
-    code deleted one colour of the pair outright, which pulled patches of art to
-    the wrong shade - visible as flat or off-hue areas.)
 
-    Returns (palette, lut, weighted mean squared error). The error makes the
-    price of a stage's palette measurable at conversion time.
-    """
-    weight = {}
-    for c in rgbs:
-        weight[c] = weight.get(c, 0) + 1
-    art = dict(weight)                       # the art's own colours
-    while len(weight) > MAX_COLORS:
+def _pal_error(weight, uniq):
+    err = 0
+    for c, n in weight.items():
+        err += min(_d2(c, p) for p in uniq) * n
+    return err
+
+
+def _ward_merge(weight, limit):
+    """Greedy agglomeration: merge the pair whose union raises the weighted
+    squared error least (Ward: wa*wb/(wa+wb) * d^2), so two big areas of similar
+    shade fold together before a rare, distinct shade is touched."""
+    weight = dict(weight)
+    while len(weight) > limit:
         cols = list(weight)
-        bd, pair = 1 << 30, (cols[0], cols[0])
+        best, pair = None, None
         for i in range(len(cols)):
             for j in range(i + 1, len(cols)):
                 a, b = cols[i], cols[j]
-                d = sum((a[k] - b[k]) ** 2 for k in range(3))
-                if d < bd:
-                    bd, pair = d, (a, b)
+                wa, wb = weight[a], weight[b]
+                cost = wa * wb / (wa + wb) * _d2(a, b)
+                if best is None or cost < best:
+                    best, pair = cost, (a, b)
         a, b = pair
         wa, wb = weight.pop(a), weight.pop(b)
-        merged = tuple(md_round((a[k] * wa + b[k] * wb) // (wa + wb))
+        merged = tuple(md_round((a[k] * wa + b[k] * wb) / (wa + wb))
                        for k in range(3))
         weight[merged] = weight.get(merged, 0) + wa + wb
-    uniq = list(weight)
+    return list(weight)
+
+
+def _lloyd(weight, uniq, rounds=12):
+    """k-means refinement of the Ward result, centroids snapped to the MD grid.
+    Keeps the best palette seen (snapping can make a round slightly worse)."""
+    best, best_err = list(uniq), _pal_error(weight, uniq)
+    cur = list(uniq)
+    for _ in range(rounds):
+        acc = [[0, 0, 0, 0] for _ in cur]
+        for c, n in weight.items():
+            k = min(range(len(cur)), key=lambda i: _d2(c, cur[i]))
+            for ch in range(3):
+                acc[k][ch] += c[ch] * n
+            acc[k][3] += n
+        nxt = [tuple(md_round(a[ch] / a[3]) for ch in range(3)) if a[3]
+               else cur[i] for i, a in enumerate(acc)]
+        if nxt == cur:
+            break
+        cur = nxt
+        err = _pal_error(weight, cur)
+        if err < best_err:
+            best, best_err = list(cur), err
+    return best
+
+
+def build_palette(rgbs):
+    """One master palette shared by every map of the stage.
+
+    `rgbs` is a Counter {colour: weight}: how many screen pixels show it (tiles
+    are weighted by how often the maps place them, not once per unique tile).
+    Colours beyond MAX_COLORS are merged by weighted error (Ward) and then
+    refined (Lloyd) - see BUG-004.
+
+    Returns (palette, lut, weighted mean squared error).
+    """
+    weight = dict(rgbs)
+    art = dict(weight)                       # the art's own colours
+    uniq = _ward_merge(weight, MAX_COLORS)
+    if len(art) > MAX_COLORS:
+        uniq = _lloyd(weight, uniq)
     pal = [(0, 0, 0)] + uniq
     while len(pal) < 16:
         pal.append((0, 0, 0))
@@ -328,7 +370,7 @@ def build_palette(rgbs):
     for c, n in art.items():
         best, bd = 1, 1 << 30
         for i, p in enumerate(uniq):
-            d = sum((c[k] - p[k]) ** 2 for k in range(3))
+            d = _d2(c, p)
             if d < bd:
                 bd, best = d, i + 1
         lut[c] = best
@@ -337,31 +379,44 @@ def build_palette(rgbs):
     return pal, lut, err / max(1, total)
 
 
+TILE_USES = Counter()   # (cx,cy) -> placements in the map last read
+
+
 def collect_map(map_n):
     """Return (cells, used-tile coords) for one map."""
     _, _, _, cells = read_map(STAGE_INDEX, map_n)
     used, seen = [], set()
+    TILE_USES.clear()
     for x in range(MAP_W):
         for y in range(MAP_H):
             _, t1x, t1y, t3x, t3y = cells[x][y]
             for (cx, cy) in ((t1x, t1y), (t3x, t3y)):
                 if cx < 0 or cy < 0:
                     continue
+                TILE_USES[(cx, cy)] += 1
                 if (cx, cy) not in seen:
                     seen.add((cx, cy))
                     used.append((cx, cy))
     return cells, used
 
 
-def collect_colors(used, ts_px):
-    rgbs = []
+def tile_weight(uses):
+    """Weight of a tile in the palette fit: a ground tile placed 150 times must
+    not drown a platform placed 3 times, so the weight grows like sqrt(uses)."""
+    return 1 + int(uses ** 0.5)
+
+
+def collect_colors(used, ts_px, uses=None):
+    """Counter {colour: weight} for the tiles in `used` ((cx,cy) list)."""
+    rgbs = Counter()
     for (cx, cy) in used:
+        w = tile_weight(uses.get((cx, cy), 1)) if uses else 1
         for yy in range(TILE):
             for xx in range(TILE):
                 r, g, b, a = ts_px[cx * TILE + xx, cy * TILE + yy]
                 if a == 0 or is_key((r, g, b)):
                     continue
-                rgbs.append((md_round(r), md_round(g), md_round(b)))
+                rgbs[(md_round(r), md_round(g), md_round(b))] += w
     return rgbs
 
 
@@ -505,7 +560,7 @@ def convert_background(map_n, name, adjust_y, speed, over=None):
     clear = [px[x, y][3] == 0 for y in range(bg.height) for x in range(bg.width)]
     rgbs = [(md_round(px[x, y][0]), md_round(px[x, y][1]), md_round(px[x, y][2]))
             for y in range(bg.height) for x in range(bg.width)]
-    pal, lut, _bg_err = build_palette([c for c, t in zip(rgbs, clear) if not t])
+    pal, lut, _bg_err = build_palette(Counter(c for c, t in zip(rgbs, clear) if not t))
     img = Image.new("P", (BG_PLANE_W, bg.height))
     img.putpalette([v for c in pal for v in c])
     img.putdata([0 if t else lut.get(c, 1) for c, t in zip(rgbs, clear)])
@@ -528,12 +583,12 @@ def main():
     os.makedirs(RES, exist_ok=True)
     os.makedirs(SRC, exist_ok=True)
 
-    maps_data, all_rgbs, scroll_locks = [], [], []
+    maps_data, all_rgbs, scroll_locks = [], Counter(), []
     lock_terrain = {1, 3, 4, 6, 10}
     door_cells = read_boss_door_cells()
     for m in range(MAPS_PER_STAGE):
         cells, used = collect_map(m)
-        all_rgbs += collect_colors(used, ts_px)
+        all_rgbs += collect_colors(used, ts_px, TILE_USES)
         maps_data.append((cells, used))
         scroll_locks.append([
             x for x in range(MAP_W)
@@ -699,16 +754,22 @@ def main():
     print(f"anim slots per map: {[len(g) for g in anim_slot_gids]} (max {anim_slot_max})")
 
     all_gids = sorted({g for gs in anim_slot_gids for g in gs})
+    anim_uses = Counter()          # placements per animated block (palette weight)
+    for slots, gids in zip(anim_cell_slot, anim_slot_gids):
+        for v in slots:
+            if v:
+                anim_uses[gids[v - 1]] += 1
     strips = {}
     for gid in all_gids:
         fn = anim_blocks[gid][0]
         im = Image.open(anim_path(fn)).convert("RGBA")
         strips[gid] = im
         nf = max(1, im.width // TILE)
-        all_rgbs += collect_colors([(f, 0) for f in range(nf)], im.load())
+        all_rgbs += collect_colors([(f, 0) for f in range(nf)], im.load(),
+                                   {(f, 0): anim_uses.get(gid, 1) for f in range(nf)})
 
     palette, lut, pal_err = build_palette(all_rgbs)
-    print(f"master palette: {len(set(all_rgbs))} unique colors -> {MAX_COLORS} "
+    print(f"master palette: {len(all_rgbs)} unique colors -> {MAX_COLORS} "
           f"slots max, weighted error {pal_err:.0f}")
 
     def frame_tiles(im, frame):

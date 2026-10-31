@@ -523,3 +523,4 @@ first row is discarded.
   is now repainted a pure dark blue, `md_color()` packs CRAM the hardware way
   (bits 11-9/7-5/3-1) and images get `y - 24` (one extra tile up).
 - 2026-10-31 room slide: incoming enemy/object previews, parallax remapped to the outgoing PAL3 (no more sky), 8px steps held 2 frames (PC pace). Built, not play-tested.
+- 2026-10-31 BUG-004: palette fit by Ward merge + Lloyd refine, tiles weighted by placements (sqrt). Same-weight error vs old: stage1 1089->141, s2 324->151, s4 554->147, s5 246->188, s13 2429->1214. Not yet seen on screen.
