@@ -354,10 +354,10 @@ PALETTE stage4_bg2_pal "stage4_bg2_tiles.png"
 
 # ---- STAGE 5 ----
 SPRITE enemy_magebot_sprite "enemy_magebot.png" 32p 40p FAST [[120][12,12][18,18][120][12,12,12,36][120]]
-SPRITE enemy_bunny_sprite "enemy_bunny.png" 32p 40p FAST [[24][6][0]]
+SPRITE enemy_bunny_sprite "enemy_bunny.png" 32p 40p FAST [[24][6][0][12,48][1]]
 SPRITE enemy_top_hat_sprite "enemy_top_hat.png" 24p 16p FAST [[120][120][0]]
-SPRITE enemy_gambit_sprite "enemy_gambit.png" 40p 40p FAST [[120][120][12,12,12,12,36]]
-SPRITE enemy_metool_tophat_sprite "enemy_metool_tophat.png" 24p 24p FAST [[120][12,12][9,9,30,9,9,9]]
+SPRITE enemy_gambit_sprite "enemy_gambit.png" 40p 40p FAST [[120][120][12,12,12,12,36][6,6,6]]
+SPRITE enemy_metool_tophat_sprite "enemy_metool_tophat.png" 24p 24p FAST [[120][12,12][9,9,30,9,9,9][120]]
 TILESET stage5_tiles0 "stage5_map0.png"  NONE ALL
 PALETTE stage5_pal0   "stage5_map0.png"
 MAP     stage5_map0   "stage5_map0.png"  stage5_tiles0 NONE 0

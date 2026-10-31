@@ -89,6 +89,7 @@ BOSS_INITIAL_HP = 36
 AI_GOTO_CHANCE = 0
 
 ANIM_STAND, ANIM_WALK, ANIM_JUMP, ANIM_ATTACK, ANIM_TELEPORT = 0, 1, 2, 3, 4
+EXTRA_ROW_ENEMIES = {41, 54, 56, 57}   # see the needs_jump / needs_tele rule
 ANIM_TURN = 13       # PC ANIM_TYPE_TURN: the turn-around animation
 ANIM_SLIDE = 18      # PC ANIM_TYPE_SLIDE: the DASH action's pose
 ANIM_JUMP_ATTACK = 5 # PC ANIM_TYPE_JUMP_ATTACK: shooting / attacking while airborne
@@ -548,8 +549,14 @@ def main():
         # while a normal enemy sheet with 5 rows pushed crowded rooms past the
         # sprite VRAM pool (invisible player + garbage frame pointers).
         boss_or_sub = bool(d["is_boss"] or d["is_sub_boss"])
-        needs_jump = boss_or_sub and (2 in acts or 12 in acts)   # GRAB_WALL leaps with the JUMP pose
-        needs_tele = boss_or_sub and 10 in acts
+        # Ordinary enemies whose AI uses JUMP / TELEPORT and whose PC art has those
+        # frames get the row too (they played the stand pose): SKULLPUNK 41,
+        # ANGRY BUNNY 54, GAMBIT 56, MAGE HELMUT 57. DESTRIN SHIP (18) is left
+        # out on purpose: its sheet is hand-edited (add it here when it carries
+        # the teleport row).
+        rows_ok = boss_or_sub or eid in EXTRA_ROW_ENEMIES
+        needs_jump = rows_ok and (2 in acts or 12 in acts)   # GRAB_WALL leaps with the JUMP pose
+        needs_tele = rows_ok and 10 in acts
         jump = frames_of(d["jump"]) if needs_jump else []
         teleport = frames_of(d["teleport"]) if needs_tele else []
         jump_anim = 3 if needs_jump else 255
