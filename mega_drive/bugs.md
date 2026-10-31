@@ -1,4 +1,4 @@
-## BUG-047 - CASTLE 5 map 0 slowdown near the MULTIDRILL area (fixed in part, 2026-10-31)
+## BUG-047 - CASTLE 5 map 0 slowdown near the MULTIDRILL area (improved, needs a feel test, 2026-10-31)
 
 **Report (owner)**: after the teleporter, the room with the MULTIDRILL enemies runs slow.
 
@@ -11,7 +11,9 @@ subticks: **1745 -> 1287**. Audio is not a factor (+-40). What moved it:
 - scroll-lock columns come from a per-map bit table: `stage_room_span` and `scroll_lock_span` re-walked
   the lock list and every object (~700 subticks) per player column change (enemies 360 -> 257).
 
-**Still open**: ~1287 is at the budget, not under it. Remaining blocks: enemy AI ~115, camera scroll ~245,
+**Later the same day**: `hud_weapon` ran its sprite calls every frame (cached now) and the solid scan reads cached flags: walk average ~1240 (was 1290-1345), spikes to ~1340 with many drills on screen.
+
+**Was still open at 1287**: it was at the budget, not under it. Remaining blocks: enemy AI ~115, camera scroll ~245,
 player + enemy shots ~225, sprite engine ~200, near objects ~35 each, VDP sprite count peaked at 85 (limit 80,
 meaning unchecked). The ladder phases in `src/main.c` (`PROF_PHASES`) isolate each.
 
