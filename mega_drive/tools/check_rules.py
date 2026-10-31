@@ -157,6 +157,11 @@ RULES = [
      "skips the intro (PC classic_style_boss_intro returns first) and stays silent",
      [("src/stageselect.c", r"if \(!\(stage_mask & \(1u << st\)\)\) sfx_play\(SFX_STAGE_SELECTED\);")],
      [("src/stageselect.c", r"\n\s*sfx_play\(SFX_STAGE_SELECTED\);")]),   # no unconditional play
+    ("place-hides-slide-ghosts",
+     "player_place (room link / teleporter arrival) hides the slide ghost "
+     "sprites: zeroing trail_len alone skips trail_hide and leaves them on screen (BUG-046)",
+     [("src/player.c", r"void player_place\(s16 px, s16 py\)\n\{\n[^}]*?trail_hide\(\);")],
+     [("src/player.c", r"void player_place\(s16 px, s16 py\)\n\{\n[^}]*?trail_len = 0;")]),
     ("menu-armor-line",
      "the in-game menu shows the installed armor pieces (PC "
      "draw::weapon_menu_show_player)",

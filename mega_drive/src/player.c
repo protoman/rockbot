@@ -639,11 +639,13 @@ const Palette *player_palette_def(void)
     return player_defs[player_n]->palette;
 }
 
+static void trail_hide(void);
+
 void player_place(s16 px, s16 py)
 {
     player.x = px;
     player.y = py;
-    trail_len = 0;            // a teleport/arrival must not drag the old trail along
+    trail_hide();             // a teleport/arrival must not drag the old trail along (BUG-046: also hides the ghosts)
     player.vx = 0;
     player.vy = 0;
     player.on_ground = FALSE;

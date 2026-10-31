@@ -1,10 +1,12 @@
-## BUG-046 — Teleporter entered while sliding leaves the slide "shadows" on the next screen (open)
+## BUG-046 — Teleporter entered while sliding leaves the slide "shadows" on the next screen (fixed 2026-10-31)
 
 **Report (2026-10-31, owner)**: entering a teleporter while sliding, the slide
 "shadows" appear on the destination screen at the position they had on the
 previous one, and disappear after a while.
 
-**Not reproduced yet.** Suspect, unverified: the dash-dust effects
+**Cause (found, suspect above was wrong)**: `player_place()` zeroed `trail_len`, so the next `trail_update` (`if (trail_len) trail_hide()`) never hid the three ghost sprites; they kept their last screen position after the teleporter. Fix: `player_place` calls `trail_hide()`. Rule `place-hides-slide-ghosts` fails on HEAD~, passes now.
+
+Old suspect (wrong): the dash-dust effects
 (`src/effects.c`, spawned from `src/player.c` while sliding) are not cleared
 when the room changes through a teleporter, so they stay alive in screen space
 for their lifetime. Check what `effects_reset()` (if any) a teleporter arrival
