@@ -80,6 +80,7 @@ u8 prof_obj_hot_type;
 #define ODF_GRAVITY  0x02    // object_has_gravity()
 #define ODF_AUTOANIM 0x04    // def->anim_auto (PC animation_auto_start)
 #define ODF_LOOPING  0x08    // is_looping()
+#define ODF_BREAKABLE 0x10   // types 22/36/37/42 (any_breakable_obj)
 
 static bool is_platform(u8 type);
 static bool object_has_gravity(u8 type);
@@ -91,6 +92,7 @@ static u8 obj_flags_for(const ObjectDef *d)
     if (is_platform(type)) f |= ODF_PLATFORM;
     if (object_has_gravity(type)) f |= ODF_GRAVITY;
     if (d->anim_auto) f |= ODF_AUTOANIM;
+    if (type == 22 || type == 36 || type == 37 || type == 42) f |= ODF_BREAKABLE;
     if (type != 28) f |= ODF_LOOPING;      // 28's frames are its two states
     return f;
 }
@@ -1130,11 +1132,11 @@ void objects_update(void)
 #ifdef MD_PROFILE_ABLATE
         if (prof_ab_obj == 5) break;
 #endif
-        if (!objs[i].active) continue;
-        if (solid_now(&objs[i])) any_solid_obj = TRUE;
-        const u8 ty = objs[i].def->type;
-        if (ty == 22 || ty == 36 || ty == 37 || ty == 42)
-            any_breakable_obj = TRUE;
+        const MapObj *so = &objs[i];
+        if (!so->active) continue;
+        if (!(so->flags & (ODF_PLATFORM | ODF_BREAKABLE))) continue;
+        if (solid_now(so)) any_solid_obj = TRUE;
+        if (so->flags & ODF_BREAKABLE) any_breakable_obj = TRUE;
     }
 
     for (u8 i = 0; i < obj_count; i++) {
