@@ -281,6 +281,40 @@ def snapshot():
     return snap
 
 
+# ---- hand-owned art -------------------------------------------------------
+# Owner decision (2026-11-01): the art in res/ is edited BY HAND from now on, formats are
+# final, and no converter may write it again. Every converter still runs (it also emits the
+# generated C data and res/resources.res), but afterwards any art file that existed before
+# the run and changed is put back byte for byte. Only the tile layouts rendered from the map
+# data (res/stageN_mapM.png: map editor output) are exempt, so map edits still reach the ROM.
+# `--force-art` disables the protection (regenerate everything from images/).
+MAP_LAYOUT = re.compile(r"^res/stage\d+_map\d+\.png$")
+
+
+def protected_art():
+    out = {}
+    for f in sorted(os.listdir("res")) if os.path.isdir("res") else []:
+        p = "res/" + f
+        if not f.endswith((".png", ".gpl", ".bin")) or MAP_LAYOUT.match(p) or not os.path.isfile(p):
+            continue
+        out[p] = open(p, "rb").read()
+    return out
+
+
+def restore_art(saved):
+    n = 0
+    for p, data in saved.items():
+        try:
+            same = open(p, "rb").read() == data
+        except OSError:
+            same = False
+        if not same:
+            open(p, "wb").write(data)
+            n += 1
+            print("[assets] kept hand-owned %s" % p)
+    return n
+
+
 def main():
     argv = sys.argv[1:]
     force = "--force" in argv
@@ -300,6 +334,8 @@ def main():
         return 0
 
     before = snapshot()
+    art = {} if "--force-art" in argv else protected_art()
+    frozen = {os.path.abspath(k) for k in art}
     ran, failed = 0, None
     t0 = time.time()
 
@@ -328,7 +364,12 @@ def main():
         base = hash_inputs([it for it in inputs if isinstance(it, tuple)] + [("text", " ".join(cmd))])
         entry = cache.get(name)
         if isinstance(entry, dict) and entry.get("base") == base:
-            if deps_digest(entry["files"], entry["dirs"]) == entry["deps"]:
+            # hand-owned art is never an input: a converter that peeks at its own old output
+            # (enemies: the row count of the existing sheet) must not re-run because the owner
+            # painted that sheet
+            live = [f for f in entry["files"] if os.path.abspath(f) not in frozen]
+            if deps_digest(live, entry["dirs"]) == {k: v for k, v in entry["deps"].items()
+                                                    if k in live or k.startswith("dir:")}:
                 return True
         print("[assets] %s" % name, flush=True)
         trace = os.path.join("res", ".trace_%s.json" % name)
@@ -342,7 +383,8 @@ def main():
         try:
             t = json.load(open(trace))
             os.remove(trace)
-            files = [f for f in t["files"] if os.path.normpath(f) not in {os.path.normpath(x) for x in sliced}]
+            files = [f for f in t["files"] if os.path.normpath(f) not in {os.path.normpath(x) for x in sliced}
+                     and os.path.abspath(f) not in frozen]
             dirs = t["dirs"]
             if name in EXTERNAL_TOOL_STEPS:
                 # these run a child program (mod2vgm, g++) whose file reads the Python hook cannot
@@ -371,6 +413,7 @@ def main():
             if not ok:
                 break
     # stale steps for removed stages / images are harmless; keep the cache
+    kept_art = restore_art(art)
     os.makedirs("res", exist_ok=True)
     after = snapshot()
     changed = 0
@@ -386,7 +429,8 @@ def main():
         if changed or removed or not os.path.exists(STAMP):
             open(STAMP, "a").close()
             os.utime(STAMP, None)
-    print("[assets] %d step(s) run, %d output file(s) changed, %.1fs" % (ran, changed, time.time() - t0))
+    print("[assets] %d step(s) run, %d output file(s) changed, %d hand-owned kept, %.1fs"
+          % (ran, changed, kept_art, time.time() - t0))
     return 0 if ok else 1
 
 
