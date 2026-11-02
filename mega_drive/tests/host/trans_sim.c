@@ -194,6 +194,9 @@ static int pseq[MAXF];
 static int tear_n, hmis_old, hmis_new, max_bytes, max_entries, max_per_line;
 static int hscroll_equal_halves;
 static int first_bytes, first_entries;
+static int old_py;
+#define MAXF2 400
+static int pyseq[MAXF2];
 
 typedef struct { int map, colmod, row; } Dec;
 static Dec decode(u16 cell)
@@ -230,7 +233,7 @@ static void observe(void)
         }
     }
     if (tear) tear_n++;
-    if (frame_n < MAXF) pseq[frame_n] = tear ? -1 : p_common;
+    if (frame_n < MAXF) { pseq[frame_n] = tear ? -1 : p_common; pyseq[frame_n] = player.spr ? player.spr->y : -999; }
     frame_n++;
     if (frame_n == 1) { first_bytes = (int)qbytes_frame; first_entries = (int)qent_frame; }
     else {
@@ -290,10 +293,12 @@ int main(int argc, char **argv)
     stage_map = &maps[1];
     stage_current_map = 1;
     camera.x = (s16)from_cam;
-    static Sprite pspr;
-    pspr.definition = &dummy_spr; pspr.x = 100; pspr.y = 150; pspr.vis = VISIBLE;
-    player.spr = &pspr;
-    spool[sused++] = pspr;
+    spool[sused].definition = &dummy_spr; spool[sused].x = 100; spool[sused].y = 150;
+    spool[sused].vis = VISIBLE;
+    player.spr = &spool[sused++];
+    player.x = 150;
+    player.y = (argc > 8) ? (s16)atoi(argv[8]) : 150;   /* where the old room draws him */
+    old_py = player.y;
     for (int i = 0; i < 2048; i++) vram_tile_id[i] = (u32)i;
     hmode = HSCROLL_PLANE;
 
@@ -309,6 +314,9 @@ int main(int argc, char **argv)
     printf("RESULT ok=%d\n", ok);
     printf("SLIDE frames=%d p=[", frame_n);
     for (int i = 0; i < frame_n && i < MAXF; i++) printf("%s%d", i ? "," : "", pseq[i]);
+    printf("]\n");
+    printf("PLY old=%d y=[", old_py);
+    for (int i = 0; i < frame_n && i < MAXF; i++) printf("%s%d", i ? "," : "", pyseq[i]);
     printf("]\n");
     printf("TEAR n=%d\n", tear_n);
     printf("HMIS old=%d new=%d\n", hmis_old, hmis_new);

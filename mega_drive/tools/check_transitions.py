@@ -143,6 +143,7 @@ def scenarios(n, st):
             if not (ay == 0 or ay == st["map_h"] - 1):
                 continue       # not a vertical arrival
             t2b = 1 if sy > ay else 0                       # PC: origin.y > destiny.y
+            oy = al.arrival(st, smap, sx, sy)[1]   # where the old room draws him
             band = size * 8 - 13                            # player centred in the band
             px_src = sx * 16 + band
             focus_src = px_src + 13
@@ -165,16 +166,28 @@ def scenarios(n, st):
                 n, i, kind, smap, sx, sy, dmap, ax, ay, "T2B" if t2b else "B2T")
             _, py_dst, _ = al.arrival(st, dmap, ax, ay)
             hj = handoff_jump(st, dmap, px_dst, py_dst) if not nudge_before_slide() else 0
-            yield label, t2b, w, cam_src, cam_dst, old_shift, min(npv, 14), (align_err, hj)
+            # stage_update_camera (dead zone +-12 around screen x 160) runs on the first
+            # game frame: a player who arrived at another screen x drags the camera.
+            cam_after = cam_dst
+            if focus_dst > cam_dst + 160 + 12:
+                cam_after = focus_dst - 160 - 12
+            elif focus_dst < cam_dst + 160 - 12:
+                cam_after = focus_dst - 160 + 12
+            cam_after = clamp(cam_after, 0, maxcam)
+            snap = cam_after - cam_dst
+            yield label, t2b, w, cam_src, cam_dst, old_shift, min(npv, 14), (align_err, hj, snap), oy
 
 
-def run(t2b, w, from_cam, to_cam, old_shift, n_prev):
+def run(t2b, w, from_cam, to_cam, old_shift, n_prev, old_y=150):
     r = subprocess.run([SIM, str(t2b), str(w), str(w), str(from_cam), str(to_cam),
-                        str(old_shift), str(n_prev)], capture_output=True, text=True)
+                        str(old_shift), str(n_prev), str(old_y)], capture_output=True, text=True)
     res = {}
     for ln in r.stdout.splitlines():
         if ln.startswith("SLIDE"):
             res["p"] = [int(v) for v in ln.split("p=[")[1].rstrip("]").split(",") if v]
+        elif ln.startswith("PLY"):
+            res["ply_old"] = int(re.search(r"old=(-?\d+)", ln).group(1))
+            res["ply"] = [int(v) for v in ln.split("y=[")[1].rstrip("]").split(",") if v]
         elif ln.startswith("TEAR"):
             res["tear"] = int(ln.split("n=")[1])
         elif ln.startswith("HMIS"):
@@ -194,7 +207,7 @@ def run(t2b, w, from_cam, to_cam, old_shift, n_prev):
 
 
 def verdict(t2b, res, extra):
-    align_err, hj = extra
+    align_err, hj, snap = extra
     f = []
     if not res.get("ok"):
         return ["fallback-to-fade"]
@@ -210,12 +223,23 @@ def verdict(t2b, res, extra):
         f.append("first-frame(q=%d)" % q[0])
     if q and q[-1] != 224:
         f.append("last-frame(q=%d)" % q[-1])
+    ply = res.get("ply") or []
+    if ply:
+        # the player is carried from his old on-screen spot to the arrival spot (PC moves him
+        # with the scroll); he must not vanish at frame 0 or jump between frames
+        if abs(ply[0] - res["ply_old"]) > 6:
+            f.append("player-start(first frame y=%d, was %d in the old room)" % (ply[0], res["ply_old"]))
+        d = [abs(b - a) for a, b in zip(ply, ply[1:])]
+        if d and max(d) > 6:
+            f.append("player-jump(%dpx between frames)" % max(d))
     if res["tear"]:
         f.append("tear(%d frames)" % res["tear"])
     if res["hmis_old"] or res["hmis_new"]:
         f.append("hmis(old %d, new %d cells)" % (res["hmis_old"], res["hmis_new"]))
     if align_err:
         f.append("align(%+dpx)" % align_err)
+    if snap:
+        f.append("camera-snap(%+dpx on the first game frame)" % snap)
     if hj:
         f.append("handoff(player y jumps %+dpx after the slide)" % hj)
     if res["dma_bytes"] > DMA_BYTES_MAX or res["dma_entries"] > DMA_ENTRIES_MAX:
@@ -238,8 +262,8 @@ def main(argv):
         st = al.parse_stage(n)
         if not st:
             continue
-        for label, t2b, w, fc, tc, osh, npv, aerr in scenarios(n, st):
-            res = run(t2b, w, fc, tc, osh, npv)
+        for label, t2b, w, fc, tc, osh, npv, aerr, oy in scenarios(n, st):
+            res = run(t2b, w, fc, tc, osh, npv, oy)
             f = verdict(t2b, res, aerr)
             total += 1
             if f:

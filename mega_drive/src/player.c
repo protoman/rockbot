@@ -623,7 +623,7 @@ void player_force_anim(u8 anim)
 void player_sync_sprite(void)
 {
     if (player.spr)
-        SPR_setPosition(player.spr, player.x - camera.x + flip_dx(),
+        SPR_setPosition(player.spr, player.x - camera.x + player_sprite_dx(),
                         player.y - camera.y);
 }
 

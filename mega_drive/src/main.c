@@ -1,5 +1,8 @@
 #include "dbgprint.h"
 #include <genesis.h>
+#ifdef MD_LINK_TRACE
+u8 lk_aln_frames;     // frames of ALN trace left after a room slide
+#endif
 
 #include "resources.h"
 #include "sprite_guard.h"
@@ -665,7 +668,11 @@ static RunResult runStage(u8 stage)
             static s16 ap_x;
             ap_t++;
 #ifdef MD_AUTOPILOT_LADDER
+#ifdef MD_AUTOPILOT_UP_FIRST
+            pad = ((ap_t / 600) & 1) ? BUTTON_DOWN : BUTTON_UP;
+#else
             pad = ((ap_t / 600) & 1) ? BUTTON_UP : BUTTON_DOWN;
+#endif
 #else
             pad = BUTTON_RIGHT;
             if (player.x == ap_x) ap_stuck++; else ap_stuck = 0;
@@ -926,6 +933,9 @@ static RunResult runStage(u8 stage)
             player_get_box(&bl, &bt, &br, &bb);
             stage_arrival_camera_at(cam_x, (bt + bb) / 2);
             player_sync_sprite();   // else it flashes at the old screen spot
+#ifdef MD_LINK_TRACE
+            { extern u8 lk_aln_frames; lk_aln_frames = 8; }
+#endif
 #ifdef MD_LINK_DEBUG
             {
                 const s16 cx_ = (player.x + (PLAYER_BOX_L + PLAYER_BOX_R) / 2) / 16;
@@ -976,6 +986,19 @@ static RunResult runStage(u8 stage)
         // camera focus = centre of the player hitbox
         stage_bg_tick();       // PC bg auto-scroll phase
         stage_update_camera((bl + br) / 2, (bt + bb) / 2);
+#ifdef MD_LINK_TRACE
+        {   // alignment trace: the frames right after a room slide
+            extern u8 lk_aln_frames;
+            if (lk_aln_frames) {
+                lk_aln_frames--;
+                dbg_print("ALN left=%d cam=%d,%d plr=%d,%d scr=%d,%d spr=%d,%d lad=%d",
+                          (int)lk_aln_frames, camera.x, camera.y, player.x, player.y,
+                          player.x - camera.x, player.y - camera.y,
+                          player.spr ? player.spr->x : -999, player.spr ? player.spr->y : -999,
+                          player.on_ladder);
+            }
+        }
+#endif
         player_screen_edge_update();   // PC update_stage_scrolling
 
 #ifdef MD_PROFILE

@@ -33,6 +33,7 @@
 
 #include "transition.h"
 #include "dbglog.h"
+#include "dbgprint.h"
 
 #include <string.h>
 
@@ -292,6 +293,7 @@ static void prev_free(void)
 #include "tdump.h"
 #include "dbglog.h"
 
+
 static u8 dbg_slot_local[TRANS_TILES];   // incoming slot -> tileset tile
 static u16 dbg_tile_used;                // incoming tile slots (no parallax)
 
@@ -393,6 +395,10 @@ bool transition_scroll(u8 from_map, u8 to_map, s16 to_cam_x,
     transition_fail_code = 0;
     if (from_map == to_map) { transition_fail_code = 1; return FALSE; }
 
+    // Where the player is drawn NOW (old room, old camera): the slide carries him from
+    // here to his arrival spot, like the PC (game.cpp:1085 moves him a little less than
+    // the scroll every step) instead of making him vanish and re-enter from the edge.
+    const s16 old_sy = (s16)(player.y - camera.y);
     const u16 spare = vram_free_base(from_map);
     if (spare >= TRANS_VRAM_END) { transition_fail_code = 2;
 return FALSE; }
@@ -710,12 +716,16 @@ return FALSE; }
         enemies_shift_y(old_dy);
         objects_shift_y(old_dy);
         if (player.spr) {
-            const s16 py = player_y + (top_to_bottom ? (s16)(span - off)
-                                                     : (s16)-off);
+            const s16 py = (s16)(old_sy + (s16)(((s32)(player_y - old_sy) * (s32)i) / (s32)steps));
             SPR_setPosition(player.spr, (s16)(player_sx + player_sprite_dx()), py);
         }
 
         prev_place(top_to_bottom ? (s16)(span - off) : (s16)-off);
+#ifdef MD_LINK_TRACE
+        if (i == 0 || i == steps)
+            dbg_print("SLD i=%d off=%d dcam=%d ocam=%d old_sy=%d plr_y=%d", (int)i, (int)off,
+                      (int)dcam, (int)ocam, (int)old_sy, (int)player_y);
+#endif
         SPR_update();
         SYS_doVBlankProcess();
         VDP_setReg(17, 0);   // see main.c: DMA clobbers the window regs
