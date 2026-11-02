@@ -13,7 +13,7 @@ const ObjectDef stage9_object_defs[STAGE9_OBJECT_DEF_COUNT] = {
     /* 8 */ { &object_disappearing_block_orange_sprite, 14, 5, 4, 16, 16, 0, 500, 0, 0, 0 },  // Active Disappearing Block
     /* 9 */ { &object_fire_ray_vertical_sprite, 19, 10, 1, 16, 80, 0, 800, 0, 1, 1 },  // Fire Ray (Vertical)
     /* 10 */ { &object_fire_ray_horizontal_sprite, 18, 20, 1, 80, 16, 0, 0, 0, 1, 1 },  // Fire Ray (Horizontal)
-    /* 11 */ { &object_lava_beam_sprite, 24, 3, 6, 48, 64, 0, 0, 0, 1, 1 },  // Lava Beam (Vertical)
+    /* 11 */ { &object_lava_beam_sprite, 24, 62, 1, 48, 64, 0, 0, 0, 1, 1 },  // Lava Beam (Vertical)
     /* 12 */ { &object_deathray_small_horz_sprite, 25, 60, 1, 64, 16, 0, 20, 0, 1, 1 },  // Lava Bean Small 1(horizontal)
     /* 13 */ { &object_deathray_small_horz_sprite, 25, 60, 1, 64, 16, 0, 300, 0, 1, 1 },  // Lava Bean Small 2(horizontal)
     /* 14 */ { &object_deathray_small_horz_sprite, 25, 60, 1, 64, 16, 0, 600, 0, 1, 1 },  // Lava Bean Small 3(horizontal)
@@ -53,9 +53,7 @@ const ObjectSpawn stage9_object_spawns[STAGE9_OBJECT_SPAWN_COUNT] = {
     { 13, 2, 1584, 96, 1, 255, 255 },
     { 5, 2, 2160, 112, 255, 255, 255 },
     { 3, 2, 2064, 112, 255, 255, 255 },
-    { 1, 2, 2400, 192, 255, 255, 255 },
     { 1, 2, 2656, 176, 255, 255, 255 },
-    { 1, 2, 2944, 192, 255, 255, 255 },
     { 0, 0, 2320, 84, 255, 255, 255 },
     { 0, 0, 2288, 84, 255, 255, 255 },
     { 0, 0, 2256, 84, 255, 255, 255 },
@@ -67,4 +65,7 @@ const ObjectSpawn stage9_object_spawns[STAGE9_OBJECT_SPAWN_COUNT] = {
     { 5, 1, 2704, 192, 255, 255, 255 },
     { 16, 1, 2832, 144, 182, 1, 1 },
     { 4, 0, 2976, 32, 255, 255, 255 },
+    { 1, 2, 2400, 176, 255, 255, 255 },
+    { 1, 2, 2944, 176, 255, 255, 255 },
+    { 15, 0, 2112, 112, 255, 255, 255 },
 };

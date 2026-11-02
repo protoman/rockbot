@@ -8,7 +8,7 @@
 // map_object_data.dat. Types live in stage_data.h.
 
 #define STAGE9_OBJECT_DEF_COUNT 17
-#define STAGE9_OBJECT_SPAWN_COUNT 45
+#define STAGE9_OBJECT_SPAWN_COUNT 46
 
 extern const ObjectDef stage9_object_defs[STAGE9_OBJECT_DEF_COUNT];
 extern const ObjectSpawn stage9_object_spawns[STAGE9_OBJECT_SPAWN_COUNT];
