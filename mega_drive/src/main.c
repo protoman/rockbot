@@ -831,6 +831,30 @@ static RunResult runStage(u8 stage)
                 px = col * tile + tile / 2
                      - (PLAYER_BOX_L + PLAYER_BOX_R) / 2;
             }
+            // BUG-005: a stair link arrives on the top/bottom map row, inside the
+            // return link's band, so the latch never clears and the room cannot
+            // be left the way it was entered. Step along the ladder in 8px steps
+            // until the box is out of every band (PC keeps the player's screen
+            // position and lets him re-enter instead). Done BEFORE the slide
+            // (transition_plan.md phase 2): the slide used to show him at the
+            // un-nudged row and he jumped 8 px on the first game frame (142 of 284
+            // transitions, tools/check_transitions.py `handoff`).
+            if (py == 0 || py == py_max) {
+                const u8 save_map = stage_current_map;
+                stage_current_map = to_map;     // stage_link_band_hit reads the current map
+                const s16 step = (py == 0) ? 8 : -8;
+                for (u8 i = 0; i < 4; i++) {
+                    if (!stage_link_band_hit(px + PLAYER_BOX_L,
+                                             py + PLAYER_BOX_T,
+                                             px + PLAYER_BOX_R,
+                                             py + PLAYER_BOX_B))
+                        break;
+                    const s16 ny = (s16)(py + step);
+                    if (ny < 0 || ny > py_max) break;
+                    py = ny;
+                }
+                stage_current_map = save_map;
+            }
             // The arrival camera must be known before the destination map is
             // loaded, so the transition knows which screen to slide in.
             // PC keeps the player at the same SCREEN X across the slide (the
@@ -895,27 +919,7 @@ static RunResult runStage(u8 stage)
             // intermediate frames on the downward Mummy stair.
             stage_load_in_place = FALSE;
             stage_load(to_map);
-            // BUG-005 regression (2026-10-24 report: "the old bug returned in
-            // this ladder"): the arrival nudge lost its caller when the
-            // ladder-scan arrival landed - stage_link_band_hit() was dead
-            // code. A stair link arrives on the top/bottom map row, inside the
-            // return link's band, so the latch never clears and the room
-            // cannot be left the way it was entered. Step along the ladder in
-            // 8px steps until the box is out of every band (PC keeps the
-            // player's screen position and lets him re-enter instead).
-            if (py == 0 || py == py_max) {
-                const s16 step = (py == 0) ? 8 : -8;
-                for (u8 i = 0; i < 4; i++) {
-                    if (!stage_link_band_hit(px + PLAYER_BOX_L,
-                                             py + PLAYER_BOX_T,
-                                             px + PLAYER_BOX_R,
-                                             py + PLAYER_BOX_B))
-                        break;
-                    const s16 ny = (s16)(py + step);
-                    if (ny < 0 || ny > py_max) break;
-                    py = ny;
-                }
-            }
+            // (the BUG-005 band nudge now runs BEFORE the slide, see above)
             player_place(px, py);
             if (on_stair && hang) player.on_ladder = TRUE;   // arrive hanging on it
             if (!scrolled) player_restore_palette();  // fade blacked out PAL2

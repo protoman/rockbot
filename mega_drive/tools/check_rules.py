@@ -162,6 +162,11 @@ RULES = [
      "sprites: zeroing trail_len alone skips trail_hide and leaves them on screen (BUG-046)",
      [("src/player.c", r"void player_place\(s16 px, s16 py\)\n\{\n[^}]*?trail_hide\(\);")],
      [("src/player.c", r"void player_place\(s16 px, s16 py\)\n\{\n[^}]*?trail_len = 0;")]),
+    ("arrival-nudge-before-slide",
+     "the stair-arrival band nudge runs BEFORE transition_scroll, so the slide shows "
+     "the player where he will stand (hand-off jump of 8 px, transition_plan.md phase 2)",
+     [("src/main.c", r"stage_link_band_hit\([^;]*;[\s\S]*?transition_scroll\(")],
+     [("src/main.c", r"stage_load\(to_map\);[\s\S]{0,400}stage_link_band_hit\(")]),
     ("menu-armor-line",
      "the in-game menu shows the installed armor pieces (PC "
      "draw::weapon_menu_show_player)",

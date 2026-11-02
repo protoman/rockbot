@@ -119,6 +119,13 @@ def handoff_jump(st, dmap, px, py):
     return p - py
 
 
+def nudge_before_slide():
+    """main.c runs the band nudge before transition_scroll (rule arrival-nudge-before-slide)."""
+    t = open(os.path.join(ROOT, "src", "main.c")).read()
+    return bool(re.search(r"stage_link_band_hit\([^;]*;[\s\S]*?transition_scroll\(", t)) and \
+        not re.search(r"stage_load\(to_map\);[\s\S]{0,400}stage_link_band_hit\(", t)
+
+
 def scenarios(n, st):
     """Yield (label, t2b, width, from_cam, to_cam, old_shift, n_prev, align_err)."""
     w = st["width"]
@@ -155,7 +162,7 @@ def scenarios(n, st):
             label = "stage%d link%d %s m%d(%d,%d)->m%d(%d,%d) %s" % (
                 n, i, kind, smap, sx, sy, dmap, ax, ay, "T2B" if t2b else "B2T")
             _, py_dst, _ = al.arrival(st, dmap, ax, ay)
-            hj = handoff_jump(st, dmap, px_dst, py_dst)
+            hj = handoff_jump(st, dmap, px_dst, py_dst) if not nudge_before_slide() else 0
             yield label, t2b, w, cam_src, cam_dst, old_shift, min(npv, 14), (align_err, hj)
 
 
