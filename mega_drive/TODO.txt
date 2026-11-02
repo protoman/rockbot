@@ -1,438 +1,124 @@
 =====================================================================================================================================================================
 BUGS
 =====================================================================================================================================================================
-items_after_menu.png
 
-
-2. The slowdown needs one measurement.
-
-
-- wall shooter - the projectile should be in a diagonal in the direction of the player
-  # while it is correct the do not use the missile because we do not have image rotation,
-  # thje direction part still should still work the same as in PC version
-
-- there is no indicator on charging when you reach the full-charged shot
-  # because we have limited colors, we should do something like blinking faster instead.
-
-- charged shot should be consumed once hitting an enemy
-
-- all enemies speed are faster than on pc, we need to slow them down a bit (let's start with 30 percent)
-
-- the door animation works differently on PC. It does not slide down like you did (and it broken by the way)
-  # while it if very fast to see well on PC (a bug in speed there), I remember the code
-  # the idea is that the door starts opening from the center to the borders
-  # and close from the borders to the center
-  # something like this (opening):
-    # # # .
-    # # . .
-    # . . .
-    # . . .
-    # # . .
-    # # # .
+(eu) atualizar rosto destrin
 
 =====================================================================================================================================================================
 
-1. A bug, root cause unknown — BUG-043 (slide crash in APE)
-- What: your crash_slide.png. Sprite.frame held garbage (0x02400EEE) and SPR_update dereferenced it → ADDRESS ERROR.
-- Known: the trigger is an out-of-range frame/animation index that release builds don't check.
-- Done so far: sprite_guard.c now wraps every SPR_setAnim/SPR_setFrame in the port — it refuses the bad index and prints it over KDEBUG instead of crashing.
-- Still needed: a reproduction at your spot. My attempts (stage 0, and stage 1 via -DMD_TEST_STAGE=1, several slide/fire passes) produced no report. With the guard in, the next crash becomes a log line naming the art definition — that's the missing piece.
-- What would help from you: where in APE it happened (near the boss? a specific ledge/enemy?) and roughly what was on screen.
+- Roadmap item 15: a waterfall gap that still needs a reproduction.
+- Owner's TODO.txt bug list: it's not audited against the PC source yet. It covers:
+  - the charged shot being consumed on hit;
+  - the full-charge indicator;
+  - wall-shooter diagonal aim;
+  - the door opening from the centre;
+  - enemy speed versus the PC.
+- Dialog face: TODO.txt has a note to update the "destrin" face.
 
-2. A missing engine feature, nothing broken today — bg0 auto_scroll
-- What: PC maps can set a background scroll mode (UP/DOWN/LEFT/RIGHT) so the backdrop moves by itself, independent of the camera. The port stores StageBgInfo.auto_scroll and ignores it — the bg always follows the camera.
-- Who needs it: only RockDroid2 stage 3 (mode 3 = LEFT, 1.8 px/frame). No converted RockDroid1 stage uses it, so this is preparation, not a current defect. UP/DOWN/DIAGONAL would also need the plane's vertical scroll and its 256 px wrap.
+Missing PC features
+- Room-slide transition:
+  - It draws only the incoming tiles, not the incoming objects, enemies or above-player layer.
+  - The incoming parallax turns into sky when the two maps' palettes differ. That affects 12 links, including CHAOS CITY map 0 → 1.
+  - Slide speed differs: 8 px/frame here, 4 px per step on the PC.
+- Unimplemented objects that the data may not use yet:
+  - OBJ_FINAL_BOSS_TELEPORTER
+  - OBJ_CRUSHER
+  - the moving-platform variants
+  - the destructible-block variants
+  - the diagonal active platforms
+- AI: the remaining enemy rows (VERTICAL_TURN, WALK_AIR) and the quake-attack half.
+- Tooltips: the PC's special tooltip names for COIL, JET, E-TANK, W-TANK and S-TANK.
+- Trophies screen: the "characters unlocked" warning is open here, but AGENTS.md says the trophies/extras screen is out of scope for this version, so that item may not count.
+- Cutscene audio: music and SFX inside cutscenes.
 
-3. Two small PC-parity gaps (cosmetic/UI)
-- Tooltip special names: on the PC, COIL/JET/E-TANK/W-TANK/S-TANK replace the weapon name with item text and counts (e.g. E-TANK [3]). The port always shows weapon_data[].name.
-- "Characters unlocked" warning: on the PC, picking player 3/4 before unlocking shows a warning; the port silently refuses.
+Larger scope
+- Stages and bosses: stages 14–19 are placeholders (14 of 20 are converted), and the AGENTS.md status section says bosses were still out at that point. HANDOUT.md shows later ending and boss-dialog work, so check whether that status is stale.
 
-4. Housekeeping worth remembering
-- src/save.c still carries a temporary test hack (seeds slot 1 with the intro cleared so runs can reach the stage select) — marked BUG-T01, meant to be deleted before content-complete.
-- RockDroid2's object types 27/28/33, quicksand and the foreground-layer composite are implemented but untested against real RockDroid2 data (its stages aren't converted yet).
-So: one real bug needing a repro (1), one feature for future data (2), two small parity items (3), and cleanup (4). Nothing there is urgent for RockDroid1 play.
+Out of scope by the owner's decision: language selection, a separate SFX volume, and the trophies/extras screen.
 
 
 
+Castle 5:
+PERFURATROZ are changing X position while falling, and even leaving the wall from the sides.
 
+In this part with the PERFURATROZ, game is very slow.
 
+Spiked chain should not disappear once hitting an enemy.
 
+Also, when facing left, the position of the chain is wrong, behind the player X position.
 
+boss_stuck_door.png - the destrin ship should not teleport inside a door (this was a very old PC bug, it should not happen in the port since the code has blocks for this case
 
+In dialogs/scenes, the text clean is smaller then the text on the screen.
+Maybe this is due to a difference in size between the font of the PC and the MD versions, so we need to add an adjust factor.
 
-- Effects batch (dash dust, water splash, bubble, teleport flash): each needs converted art + a sprite-effect pool. Queued, not stubbed.
-- Weapon tooltip: no clean text path over the scrolling stage yet — plan is draw‑then‑stage_force_redraw().
-- Quicksand: no converted stage uses terrain 9 (audit_data shows the per‑stage terrain sets), so implementing physics blind risks the player collision for zero visible gain. Documented with the PC constants for when a map uses it.
+ENDING:
 
-========================================================================================================================================================
+No sound/music in the walking scene.
 
-Not done — and why, not hand-waved
-- SHOW_ANIMATION (used exactly once, scene 0): needs the images/scenes/animations/ art converted from scenes_show_animation.dat (6 records with frame_w/h/delay) plus a timed BG_B loop. Real work, next session's first item.
+The boss presentation is way too fast.
 
+End credits have no scrolling at all.
 
-- Not gaps at all (recorded so the list stops growing): boss "ground shake" has no PC shake (boss_hit_ground() is an animation switch) and TERRAIN_DOOR only exists for the PC's tile3 door redraw — the port draws doors as objects.
+The ending message (presented by) and new-characters unlocked, do not appear.
 
+NEW GAME PLUS:
+Kitty attack is meant to be a claw, not a regular projectile.
+Also, Candy is a heart shaped one, not the default blue.
 
 
-#########################################################################################################################################################
+nuvens repeat erro (async)
 
 
+=====================================================================================================================================================================
 
 
+The backgroun in castle 4 is wrong, check castle4_bg_cut.png. I believe it is missing to make the colorkey transparent.
 
 
+- dissappearing blocks still not working as intended. The time they are invisible is just an instant
+- wall shooter should not shoot to its back
+- diagonmal shoots missing from (enemy red small)
+- lots of slowdo3wns in techno stage
+- techno bomb makes no sound and explosion animation is wrong (and smaller)
+- after I respawn in the checkpoint, I can't just walk to the right, player gets stuck until I jump.
+- Mummy - link 5 is scrolling (to the left) ignoring the wall-lock
+- helmuts are changing from stand a second time after shooting and not shooting
+- after the boss dialog, Pharaoh just vanishes from existance, and I can't defeat him because he is... out there (call x-files maybe?)
 
 
+This list comes from three sources. First, what I confirmed against the PC source today. Second, the port's maintained gap notes (pc_gaps.md, bugs.md). Third, the older pc_features_vs_md.md. That last file is partly stale. It still lists the AI jump family and BUG-018 as open, which later notes show are done. So I've split the list by how sure I am.
 
-That's the next chunk: implement the jump options, starting with TO_ROOF; it needs a careful pass on gravity/landing in enemy.c, so I'd rather not rush it into this batch blindly — say the word and I take it next.
+Confirmed today, still lacking
 
+1. Room slide, incoming objects: the PC also draws the incoming map's objects, enemies and above-player layer during the slide. The port shows only the tiles, and the rest pop in after the slide.
+2. Room slide, incoming background: at 12 links, including CHAOS CITY map 0 to 1, the incoming parallax becomes plain sky, because the background palettes differ and PAL3 is shared.
+3. Slide timing: 8 px per frame in the port, against the PC's 4 px per step with delays. The PC also pauses 100 ms after arrival.
+4. Boss door opening: the PC code (redraw_boss_door) retracts the door's tiles one per 100 ms, bottom first, and closes top-down. The port opens centre-out at about 50 ms per slice. That matches your recollection of the PC but not the code I read, so this one needs your call.
+5. Charge indicator: the PC cycles three colours every 200 ms, and every 100 ms when fully charged. The port strobes two states at 8 and 2 frames, which is a palette limit.
+6. Wall-shooter missile art: the aim logic matches the PC. The missile sprite isn't rotated, since the port has no image rotation.
 
-mega_drive/HANDOFF.md
+From the port's own notes (open)
 
+- PC object types the converted data never spawns: crusher, timed bomb, expanding spike, platform walker, diagonal and up-loop platforms, destructible-with-drop and a few more.
+- AI leftovers: VERTICAL_TURN and WALK_AIR rows, and the quake attack's second half.
+- Menus: special tooltip names and counts for COIL, JET and the tanks, and the "characters unlocked" warning.
+- Cutscenes: music and sound effects inside them.
+- Out of scope by your decision: language selection, trophies and extras, and a separate SFX volume.
 
-Beta bot colors are all wrong (no, he is not charging shot or anything like that). Check screnshots/bugs/playtest/betabot_colors.png.
-  # The HP bar is also broken
+From the older comparison file (not re-verified)
 
-Checkpoint still does not start animation/change-frame when activated. Check PC version for the mechanism.
+- The "in memoriam" tribute and the castle path animation.
+- The ground-quake block_jump.
+- The teleport after-image trail.
+- Drop-table difficulty rows, where only normal is implemented.
+- Autoscroll damage when you are pushed off-screen.
+- Background scroll modes other than horizontal, which only RockDroid2 needs.
+- The appear animation and sounds for disappearing blocks, beam sound effects and wall-break sound effects.
+- Screen shake beyond shots, and the full screen blink.
 
-Slowdown in intro-stage on the part with several objects (up or down active platforms plus small hp).
+Not audited at all
 
-Boss dialog font backgrpound should be of same color the the dialog background, check boss_dialog_text_bg.png.
-  # the arrow should be white with a transparent background, something went wrong with that image.
+Stages 14–19 (the second castle) are still placeholders. Boss-specific patterns beyond the data-driven AI are also unaudited, as are weapon damage values and audio details.
 
-Boss and player explosion are not correct. Check PC version. The explosion animations should move away from the center.
-
-Here is the bad font in stage-select screenshot you asked for: stage_select_bad_font.png (same as before, I will not give new ones until I see changes).
-
-I did start a new game, defeated Milonga, then went to Seahorse, and his intro, before the stage start, did not play at all, only the music, as I had reported before.
-  # After I enter Seahorse stage, the player is nowhere to be found on screen.
-  # I could see his projectiles, but not the sprite.
-  # after doing some jumping and shooting, got this: crash_seahorse_second_played_stage.png
-
-
-
-In, waiting for a play-test
-- BUG-006 — sub-boss door opens but the screen never scrolls to the boss room (fixes in)
-- BUG-021 — MAGE enemy shot not flipped when fired left
-- BUG-025 — door scroll: 2.5-tile push + objects/enemies now follow the scroll
-- BUG-028 — dialog panel opaque (art padded to 320×72)
-- BUG-029 — "YOU GOT" screen (PC sequence)
-- BUG-030 — font after winning a stage (PAL0 reload)
-- BUG-034 — checkpoint respawn is now stage-wide (loads the checkpoint room)
-
-Open bugs
-- BUG-010 — Mummy keeps facing away from the player (analysis done, fix needs a decision)
-- BUG-011 — enemies never switch to the teleport/jump animation rows (probably global; blocks BUG-010)
-- BUG-012 — projectiles not cleared when the boss dies (needs a reproduction)
-- BUG-013 — "YOU GOT" layout still differs from the PC
-- BUG-014 — stage select shows garbage text after beating Mummy
-- MAGE — card thrower sprite not flipped toward the player
-- DYNAMITE BOT — should do a short dash on the hit frame
-
-Features from PLAN.md
-- Ending / scene player ops: MOVE_VIEWPOINT, SHOW_ANIMATION, SUBSCENE, music/sfx ops
-- Boss: intro sprites (fall-in), ground shake on landing, sub-boss revive, teleport/jump animation rows
-- Small: weapon tooltip (needs sprite art), water bubbles, teleport-small flash, dark mode, autoscroll out-of-screen damage, quake block_jump
-- Enemy AI actions the shipped data does not use (low priority)
-
-Say the word and I'll sweep the stale **Status** lines in bugs.md to match this list.
-
-
-========================================================================================================================================================
-Dynamite Stage Bugs
-========================================================================================================================================================
-Check - screenshots/bugs/dynamite/projectiles_and_block_fall.png. When I first enter the room, there are two projectiles (blue circles) in the air, stopped.
-There is a box over the ladder in the left/bottom, that simply falls through the ground instead of staying on top of the ground.
-In projectiles_and_tile_strip.png besides the projectiles appearing again, there is a strip of tiles (third from the bottom) that is incorrect.
-  # Also there is only one Disappearing Block #1, but in the data, there are quite a few Active Disappearing Block.
-    # Run a audit in data and out code to check that we did convert and added all objects from the map data.
-
-========================================================================================================================================================
-Ape Stage Bugs
-========================================================================================================================================================
-Got a crash. When stage starts, it is all black except player, then screenshots/bugs/ape/crash.png
-
-========================================================================================================================================================
-Mummy Stage Bugs
-========================================================================================================================================================
-First room, first stairs to the right fade. Second stairs following path too, also third... I will stop counting.
-Sub-boss door is not opening.
-
-========================================================================================================================================================
-
-
-Audited the PC sources against the port’s modules (game.cpp, sceneslib.cpp, classmap.cpp, classplayer/character, class_config, file_save, AI, objects, projectiles). Inventory below; “used” means used by the 14 converted stages, so it affects current play.
-
-
-2	Difficulty select - this we will not use.
-29	Music — per-stage, boss, final boss, got-weapon, game-over, stage-select, title, intro, ending, enemy parade (29 MOD + 1 MP3)	build/games/RockDroid1/music/	one shared XGM2 track - this we will do later.
-
-========================================================================================================================================================
-A. Core gameplay still missing
-========================================================================================================================================================
-#	Feature	PC evidence	Port state
-1	Enemy item drops — pills, 1UP, tanks, random drops from destructible blocks; sub-bosses always drop big energy	classmap.cpp:996 drop_item, ratios at :1016, :1128 drop_great_random_item	none. Kills only give the explosion
-2	Difficulty select (Easy/Normal/Hard) — affects damage, lives, drop rates, easy/hard terrain blocks, spawn filtering	sceneslib.cpp:222 select_difficulty; classmap.cpp:284, classplayer.cpp:1215	hardcoded Normal; converter drops terrain 12/13 and hard-only spawns. Matches Normal geometry, but no choice
-3	Cross-stage persistence — lives, energy/weapon/special tanks, armor pieces, difficulty stored in the save	file_save_v4.h st_items, armor_pieces	player_init() resets lives=5, tanks=0, armor=0 every stage; SRAM stores only stage mask + player (save.c)
-4	COIL / JET item weapons — awarded after stages 1 and 6, selectable in the menu, place object types 12/13	classplayer.cpp:1096 add_coil_object, :1130 add_jet_object; COIL_GOT_STAGE 1, JET_GOT_STAGE 6	absent, and objects 12/13 unimplemented
-5	Armor ARMS ability (charged projectile upgrade)	get_armor_arms_attack_id, effect weapon path	not modelled (known)
-6	Armor LEGS ability: shoryuken	armor_legs_ability value 2 in port; PC input	double jump and air dash work; shoryuken does not
-7	Armor pickup dialog	game::showGotArmorDialog	collected silently
-8	Weapon acquisition screen — “YOU GOT …”, player victory pose, colour flash, 5 s hold, only stages 1–8	player_victory game.cpp:1276, got_weapon :1320 + classic_style_got_weapon	stage jumps straight to “STAGE CLEAR” text
-9	Projectile trajectories — player weapons: only QUAKE and ARC work. SONAR (ZIGZAG), DESERT STORM (FOLLOW), MAGIC STAR (CENTERED), DYNAMITE (FREEZE), TIMED BOMB (BOMB) all fly straight. Enemy shots: SIN, BOMB, FREEZE, CENTERED, ZIGZAG, FALL_BOMB fall back to linear	projectilelib.cpp, defines.h:451	shot.c / eshot.c support LINEAR/ARC/QUAKE/FOLLOW/PROGRESSIVE/DIAG
-10	Weapon status effects — freeze, explosion, push/pull, ring, laser, bomb rain etc.	freeze_weapon_effect, is_using_circle_weapon	none
-11	Per-enemy weapon weakness multipliers — each weapon has its own multiplier per enemy	weakness[FS_NPC_WEAKNESSES]; converter only emits weakness[0]	only the buster multiplier applies
-12	AI actions used by current data but unimplemented: SHOT_INVERT_DIRECTION (7), AIR_WALK (8), FALL_TO_GROUND (9), JUMP_ATTACK_UP (18). Walk options “to saved point” (3) and “opposite direction” (6) are treated as plain ahead	defines.h:702, data counts across stages 0–13	partially implemented
-13	Enemy traits: is_sub_boss, respawn_delay (JUMPINER 2500 ms, MULTIDRILL 100 ms), second projectile id, is_ghost (currently unused), per-stage vulnerability boxes	classnpc.cpp, file_game_v4.h:715	only is_boss, one projectile, no respawn/sub-boss flag
-14	Death / game over semantics — death animation, reset room objects/animations, checkpoint rules, game-over screen + music, restart-or-leave	classplayer.cpp:951, game.cpp:1760, :2160 game_over	instant teleport respawn; out-of-lives returns to title with no screen
-15	Boss defeat sequence — expanding classic explosion, victory pose, weapon screen, clear jingle	classic_style_draw_boss_death game.cpp:1798	generic 32×32 puff, then “STAGE CLEAR”
-16	Boss arena presentation — blink, boss drops in from the top, then dialog	map_present_boss game.cpp:857	boss already stands in the map; only the dialog was added
-17	Sub-boss door rule — boss doors won’t open while a boss/sub-boss is alive on the left	classmap.cpp:1612, subboss_alive_on_left	door opens on touch
-18	Water physics — swim/floating behaviour	stage 3: 2057 water cells, stage 13: 234	minimal sink/slow-fall, untested at length
-19	Coil/jet/crusher/track/diagonal/timed-bomb/expanding-spike object types	defines.h:363+	unused by stages 0–13 except coil/jet; dormant until item weapons or more stages
-
-========================================================================================================================================================
-B. Flow, menus, content
-========================================================================================================================================================
-#	Feature	PC evidence	Port state
-20	Post-stage flow — after a stage, PC goes to stage select and starts the next stage directly	game.cpp:1445 leave_stage → sceneslib.cpp:529 pick_stage	returns to title; user must LOAD again
-21	Title menu CONFIG + ABOUT — PC title has NEW / LOAD / CONFIG / ABOUT	sceneslib.cpp:138-146	only NEW / LOAD; config only via in-game START
-22	ABOUT screen (site, bugs mail, Twitter, Facebook)	draw::show_about	missing
-23	Credits — scrolling game_credits.txt + engine credits, from ABOUT, EXTRAS, and the ending	draw::show_credits, game.cpp:1568	missing
-24	Ending is incomplete — after the four ending scenes PC plays: player-walking parade (3 parallax layers), enemy parade, credits, then intro	sceneslib.cpp:325 show_player_walking_ending, :404 show_enemies_ending	only scenes 2..5, then title
-25	Player unlock — PC allows 2 characters until game_finished, then all 4	sceneslib.cpp:557 max_loop = 2/4	all 4 always available; no game_finished flag
-26	Weapon grid UI — 2-column weapon/item grid, tank icons	class_config.cpp:284, generate_weapons_matrix	linear weapon list
-27	Scene op coverage — music/SFX ops stubbed; VIEWPOINT and ANIMATION ops skipped; MOVE_IMAGE static only	sceneshow.cpp	intro/endings use only the supported ops
-28	Modern-style stage select map (GAME_STYLE_MODERN)	stage_select.cpp pick_stage vs pick_stage_classic_style	classic 3×3 only (chosen style)
-
-
-========================================================================================================================================================
-C. Audio / visuals
-========================================================================================================================================================
-#	Feature	PC evidence	Port state
-29	Music — per-stage, boss, final boss, got-weapon, game-over, stage-select, title, intro, ending, enemy parade (29 MOD + 1 MP3)	build/games/RockDroid1/music/	one shared XGM2 track
-30	SFX — 46 PC wavs	sfx/	14 converted
-31	Audio volume music/SFX sliders	show_config_audio	on/off only (XGM2 limitation)
-32	Screen shake for QUAKE shots	graphLib quake	noted as not ported in shot.c/eshot.c
-33	HUD ball art dedup / real weapon colour	roadmap 11	3 sheets, fixed green
-34	Waterfall gap stage 2 map 2	roadmap 15	still needs a reproduction
-35	Dialogs	dialogs.cpp	done (boss pages + faces)
-
-========================================================================================================================================================
-D. Deliberate / not applicable
-========================================================================================================================================================
-- Platform, language, performance, quit-game config entries: omitted per your spec.
-- Cheats menu (keyboard combo), FPS display, quick-load: PC debug features.
-- 2-player mode: not present in this PC build’s runtime.
-- Stages 14–19 / second castle: use_second_castle = 0; placeholders.
-- Ghost/friend/weather NPC behaviour: no converted spawn uses it.
-- Stage-start dialogs: dead PC data (no reader; cutscene_pre/pos = -1).
-- Difficulty data: port matches PC Normal geometry.
-
-========================================================================================================================================================
-Recommended order
-========================================================================================================================================================
-1. Drops + cross-stage persistence + lives (items 1, 3, 8) — biggest effect on the actual game loop.
-2. Death/victory/game-over/boss-death + post-stage stage select (14, 15, 20) — closes the “game feels cut” gaps.
-3. COIL/JET + weapon grid (4, 26) and armor dialog/ARMS/shoryuken (5, 6, 7).
-4. Trajectories/effects/weakness (9–11) — weapon feel.
-5. AI actions + respawn/sub-boss (12, 13, 17), then per-boss AI with playtesting.
-6. Title CONFIG/ABOUT, difficulty, player unlock, game_finished (2, 21–25).
-7. Ending parade + credits (23, 24).
-8. Music/SFX last (29, 30) — tooling-bound.
-9. Polish: water, screen shake, HUD dedup, waterfall.
-No code changed for this audit; tree clean except your TODO.txt. Want me to start with step 1?
-
-
-
-========================================================================================================================================================
-
-========================================================================================================================================================
-Where you edit
-========================================================================================================================================================
-- Your files: mega_drive/images/tilesets/anim/<name>.png — the port's hand-owned art.
-  I'll switch convert_stage.py to read these first (3-line change), so from then on your edits drive the ROM.
-
-- Cycling candidates (draw these):
-  OK - water_1,
-  OK - water_2,
-  OK - water_2a,
-  OK - water_2b,
-  OK - green_water_1,
-  OK - green_water_2,
-
-  waterfall_left
-    right
-    middle_left
-    middle_right,
-  waterfall_top_left
-    right,
-  water_border_clean,
-  water_border_pipe_left
-    right,
-  water_border_tile,
-
-  OK - lava1,
-  OK - lava2,
-  OK - lightbulb_small,
-
-  magnets,
-  palmtree_005,
-
-  OK - move_left
-    right_platform
-      1
-      2
-      3
-
-- Leave alone (shape really changes, BUG-003): palmtree_001-004, palmtree_006, waterfall_top, water_ground — unless you redraw them as a band, then they join the list.
-What to draw
-  1. 3 shades + black, transparent where the background shows through. Keep interior black opaque — on the moving platform that black is the gaps between its segments, and making it transparent would show the sky through them.
-  2. Strip = N frames × 16 px wide, 16 tall, with N a multiple of 3 (3 frames is enough; 6 if you want more steps).
-  3. Frame k+1 = frame k with the three shades advanced one step, always the same direction. Draw one frame, make the rest by rotating the shades — that is the whole technique. It also means the shades must form a repeating band in the art; the motion appears because the band rotates.
-  4. Don't chase exact RGBs: keep the three shades clearly ordered lightest → darkest, that order is my rotation direction.
-
-========================================================================================================================================================
-Palette: you don't pick one, and no swatch tile needed
-========================================================================================================================================================
-The converter takes the three brightest colours of the art as the band, in luminosity order, folds anything else into the nearest one,
-and places those three in the free PAL3 entries of each stage. Free entries I measured per stage: 1 → 7–9, 2 → 6, 3 → 12, 6 → 10, 8 → 4, 0 → none (its lightbulb stays on tile frames).
-So: draw in true colour, no palette list, no per-stage decisions. The extra-tile swatch stays in reserve for the one case it actually solves — when you want a colour the art doesn't contain, or a rotation order that isn't light→dark. I'll add that parser only when we hit such a block.
-Per-stage hue variation (green water in the jungle, blue in the cave) is free too: the art stays identical, I just write different RGBs into the pool.
-
-========================================================================================================================================================
-What you tell me, per family
-========================================================================================================================================================
-- block name(s), and "reverse" if the automatic rotation direction looks backwards in motion (one flag in my table).
-- If a stage has no room for two bands (FLOWER FIELDS has 6 free = one band + black), the rate is shared across that stage — you already accepted that, so I'll take ~110 ms (the water family's) unless you say otherwise.
-
-========================================================================================================================================================
-Suggested order
-========================================================================================================================================================
-Start with one file as a template: water_1.png (ATLANTIDA, the laggiest stage — 957 animated cells — with 12 free PAL3 entries). Once that one looks right in the ROM, do the rest of the water/waterfall family, then lava1/2 (DARK MINE), then the platforms (their dark reds currently fold into the darkest shade, which is why they look flat), and last the borders — water_border_pipe_left/right use 12–13 colours and need the biggest simplification.
-
-========================================================================================================================================================
-What I'll do in parallel
-========================================================================================================================================================
-- Point the converter at your images/tilesets/anim/.
-- Generalise the pool to two bands per stage (different rates) plus a per-block table (band, direction, rate).
-- Wire the first redrawn family in as soon as water_1.png lands, so you can check the motion before doing the other 24.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Platform up must kill player if it crunching him against the root.
-Charged shot/projectiles must flipt when shooting to the left.
-
-
-
-Still not modelled: the shield move (ROCKBOT only), and dash-vs-slide hitbox height
-
-
-Resume the RockBot → Sega Mega Drive port in mega_drive/.
-Read mega_drive/AGENTS.md and mega_drive/stage0_plan.md first — they're the single source of truth (map, constraints, milestone state, decisions).
-
-Immediate task (in flight, finish this first) — make the sprite converters index-preserving, so hand-edited art under mega_drive/images/ flows into the build:
-- Background: images/ is the new hand-owned art tree (mirrors build/games/RockDroid1/images → 350 files, plus build/shared/images → images/shared), all P-mode indexed, index 0 = transparent slot, native sizes kept (240p), colours matched in CIELAB, palette per group = res/md_*.gpl, manifest in images/PALETTES.md. Importer: tools/import_pc_art.py (manual only — running it again overwrites images/).
-
-- I tried pointing convert_enemies/objects/player/stage/assets at images/ — it broke all sprite colours and was reverted; they read the PC art again now (verified good: res/player.png = PAL2 exactly, res/enemy_*.png + res/shot.png = PAL0 exactly).
-
-- Why it broke: those converters colour-key transparency and rebuild the palette from the sheet's unique RGB colours; the player converter keys the weapon swap on exact placeholders green (55,255,0) and magenta (255,0,255). Quantizing the art first destroys that identity.
-
-- Fix: (1) re-import sprites/p1..p4.png with a palette that keeps the two placeholders as their own indices (e.g. 14/15); make convert_player.py copy indices and swap weapon colour by index, not RGB. (2) For enemies/objects: trust input indices and take the palette from the art (PAL0) instead of rebuilding it. img2tiles.py's keep_pal path (used by the title) is the correct pattern to copy.
-
-Then the task list, in the user's order:
-1. Stage select screen (PC art already imported: images/backgrounds/classic_style_stage_select_*). Blocked by: converters are stage-0 hardcoded — needs multi-stage parameterisation first.
-
-2. Save/load — src/save.{c,h} + the title's NEW GAME/CONTINUE menu exist, but SRAM does not persist: the ROM header declares no SRAM (confirmed: no SRAM field in the project's out/release/sega.s). Needs the header's SRAM/device bytes.
-
-3. Data-driven projectiles — src/eshot.{c,h} supports LINEAR only; game_projectile_list.dat has ARC/TARGET_DIRECTION etc. Research the data first.
-
-4. Convert the Ape Bot and Daisie Bot stages (biggest — generalise tools/convert_stage.py).
-Working rules: decide and act on auto-pilot, but ask before anything that needs a permission I don't have (touching the SDK dir or outside the project triggers prompts — that kills the flow); work only inside project paths; don't commit unless asked; record decisions and progress in stage0_plan.md as you go.
-Emulator notes: Kega Fusion (flatpak run --command=Fusion com.carpeludum.KegaFusion @@ out/rom.bin @@) is for play tests but its window can't be grabbed with import; BlastEm + the harness at /tmp/opencode/harness.sh is what gives scripted screenshots — and it sometimes wedges (black window, debug-console timeouts); restart it if so. Last user-confirmed state: bugs fixed, palette/colour work verified, art workflow half-done (see above).
-
-
-########################################################################################################
-
-Here are some bugs I found:
-========================================================================================================
-Background color is now purple instead of black as it should.
-========================================================================================================
-The game start screen has black bars on top and bottom.
-========================================================================================================
-There is a part in the room 2 that has two small fall platforms.
-When I step in the first one, the second if the one activated and that falls.
-After that, there are several together, and the same issue happens, the wrong one is activated.
-========================================================================================================
-The checkpoint object must change animation when activated
-========================================================================================================
-The enemy_classic_metool should change the sprite when shooting at the player as in the PC version
-========================================================================================================
-
-After that, let's implement new stuff:
-# stage select screen
-# saving and loading (add the load game menu in the start screen like the PC game)
-# projectiles (check the original game data) for different attacks of enemies and player weapons
-# convert Ape and Daisie bot stages.
-
-You are now on auto-pilot. You can launch emulator at will to test bugs and features.
-Do not ask me quiestions, take a decision, take note of it, and I will review it tomorrow.
-Have fun and good night!
-
-
-########################################################################################################
-
-- boss
-- stage select
-
-- sound effects (use conversor from zacane)
-- save and load
-- special weapons
-
-
-- no need for quit game menu
-
-- settings should be simplified
-    # Audio: keep
-    # Input: remove Directional analog/digital and selected joystick.
-    # No PC, android or other
-    # No language
-    # No Performance
-    # extras: keep
-    # lave stage: keep
-    # quit game> remove
-
-
-Findings and fix plan are written.
-
-  5 root causes found, 3 are palette:
-
-   #                           │ Bug                                                             │ Impact
-  ─────────────────────────────┼─────────────────────────────────────────────────────────────────┼────────────────────────────────────────────
-   FIND-01                     │ STAGE_PAL = PAL0 = same as font → stage overwrites font palette │ HUD/debug text invisible
-   FIND-02                     │ Debug solid tile uses PAL0 attr but dbg_pal is in PAL3          │ Debug block wrong color
-   FIND-03                     │ PAL2 never initialized in game loop                             │ Stale intro garbage colors
-   FIND-04                     │ Player palette index 1 = (0,0,0) duplicate                      │ Low — black outlines work but waste a slot
-   FIND-05                     │ Each map generates its own palette independently                │ Color flash on map transition
-
-  Highest priority fix: stage.h → STAGE_PAL PAL1, player.h → PLAYER_PAL PAL2. That resolves the PAL0 conflict in one edit, no asset rebuild
-  needed.
+Which should I verify and fix first, the first list or the unverified items?
