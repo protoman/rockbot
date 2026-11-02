@@ -218,6 +218,16 @@ def read_stage_boss_id():
     return struct.unpack_from("<b", blob, STAGE_SZ * STAGE_INDEX + STAGE_BOSS_OFF)[0]
 
 
+
+def hand_owned_sheets():
+    """res/ sheet names (no .png) listed in art/hand_owned_sheets.txt, one per line."""
+    path = os.path.join(ROOT, "art", "hand_owned_sheets.txt")
+    if not os.path.exists(path):
+        return set()
+    return {ln.strip() for ln in open(path)
+            if ln.strip() and not ln.lstrip().startswith("#")}
+
+
 def read_ai_states():
     """game_ai_list.dat per enemy id -> list of 20 sanitized states.
 
@@ -700,6 +710,13 @@ def main():
                 old_rows = Image.open(path).height // ch
             except Exception:
                 old_rows = 0
+            # Sheets the owner paints by hand directly in res/ (art/hand_owned_sheets.txt):
+            # never overwritten by this converter (2026-11-01: a rebuild replaced the
+            # edited android / metool sheets with the generated colours).
+            if p["res_name"] in hand_owned_sheets():
+                kept[p["res_name"]] = old_rows
+                print(f"keep res/{p['res_name']}.png (hand-owned, {old_rows} rows)")
+                continue
             if old_rows > rows:
                 kept[p["res_name"]] = old_rows
                 print(f"keep res/{p['res_name']}.png ({old_rows} rows, this "
