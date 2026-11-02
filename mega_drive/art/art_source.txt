@@ -1,0 +1,4 @@
+res
+# `res`   = art in res/ is hand-owned: no converter writes it (current).
+# `images` = images/ is the source again: converters regenerate res/ art. Switch to this ONLY after
+#            every hand edit has been moved into images/ (the build would overwrite the res/ copies).

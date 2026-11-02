@@ -291,6 +291,16 @@ def snapshot():
 MAP_LAYOUT = re.compile(r"^res/stage\d+_map\d+\.png$")
 
 
+def art_source():
+    """`res` (default): art in res/ is hand-owned, converters never write it.
+    `images`: images/ is the source again, converters regenerate res/ art
+    (set art/art_source.txt to the single word `images` once the edits live there)."""
+    try:
+        return open(os.path.join(ROOT, "art", "art_source.txt")).read().split()[0].lower()
+    except (OSError, IndexError):
+        return "res"
+
+
 def protected_art():
     out = {}
     for f in sorted(os.listdir("res")) if os.path.isdir("res") else []:
@@ -334,7 +344,7 @@ def main():
         return 0
 
     before = snapshot()
-    art = {} if "--force-art" in argv else protected_art()
+    art = {} if ("--force-art" in argv or art_source() == "images") else protected_art()
     frozen = {os.path.abspath(k) for k in art}
     ran, failed = 0, None
     t0 = time.time()

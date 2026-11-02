@@ -222,6 +222,9 @@ def read_stage_boss_id():
 def hand_owned_sheets():
     """res/ sheet names (no .png) listed in art/hand_owned_sheets.txt, one per line."""
     path = os.path.join(ROOT, "art", "hand_owned_sheets.txt")
+    src = os.path.join(ROOT, "art", "art_source.txt")
+    if os.path.exists(src) and open(src).read().split()[:1] == ["images"]:
+        return set()                      # images/ is the source again: regenerate everything
     if not os.path.exists(path):
         return set()
     return {ln.strip() for ln in open(path)
