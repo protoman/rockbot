@@ -1,7 +1,7 @@
 # Vertical room transitions - redesign plan (2026-11-01)
 
 Owner report: the vertical transitions flicker, are sometimes misaligned and stutter. Worst case: the
-first link in APE (stage4 link0: map 0 (60,0) -> map 2 (189,13), a ladder going DOWN; verify that APE = stage 4).
+first link in APE (stage4 link0: map 0 (60,0) -> map 2 (189,13), the player climbs UP out of map 0 into the bottom of map 2 = B2T; verify that APE = stage 4).
 Goal: a slide that is as smooth as the PC's, ends exactly where the PC ends, and can be proven right offline.
 
 ## 1. What the PC does (game.cpp:1032 `transition_screen`, defines.h `TRANSITION_STEP 4`)
@@ -10,8 +10,10 @@ Goal: a slide that is as smooth as the PC's, ends exactly where the PC ends, and
    (top-to-bottom: old above, new below; bottom-to-top the other way). The destination is drawn with
    `set_scrolling(adjust_x)` where `adjust_x = new_map_pos_x` (computed in the caller, see 3).
 2. Loop `i = 0 .. RES_H/4 - 1` (60 steps of 4 px; 56 on the 224-line MD):
-   - copy the 240-line window starting at `i*4` (T2B) or `RES_H - i*4` (B2T): **pure vertical offset,
-     identical horizontal position for both halves** (this is the key PC property);
+   - copy the 240-line window starting at `i*4` (T2B) or `RES_H - i*4` (B2T): a pure vertical offset of ONE
+     composed surface (each half was drawn at its own scroll: the old screen at its camera, the new one at
+     `adjust_x`, so the link ladder sits at the same screen X in both - they do NOT share one X;
+     corrected 2026-11-01, phase 1);
    - move the player by `-4 + extra` per step (`extra = 1` every 5th step, so the player drifts 4/5 px
      less than the scroll: he ends a little lower/higher than the pure shift) while his y > 6 (T2B) /
      < RES_H - 2 tiles (B2T);
@@ -49,10 +51,10 @@ New pure function (no VDP, no globals written) in `src/arrival.c/.h`:
     void arrival_compute(const Link *l, s16 old_cam_x, s16 old_px, s16 old_py, Arrival *out);
 
 It contains what is now spread over `main.c` (stair scan, `stage_arrival_camera_keep`, band nudge).
-Follow the PC rule: **screen X is kept**, `cam_x = px_dest - screen_x`, clamped to the destination map; if
-clamping leaves a residual, the PC would move the player on screen, not shift one half of the slide:
-so the residual is applied to the PLAYER during the slide (he ends where `px - cam_x` says), never to
-the outgoing picture. Both halves then share ONE horizontal scroll, like the PC.
+Follow the PC rule: **screen X is kept**, `cam_x = px_dest - screen_x`, clamped to the destination map. The two
+halves keep their own horizontal scroll (as the PC's composed surface does), so the link ladder lines up; when
+clamping leaves a residual the current code shifts the outgoing half by it (`old_shift`): keep that, but make it
+part of the Arrival struct so the slide and the hand-off agree.
 `main.c` calls `arrival_compute` once; `transition_scroll(&arr)` and `stage_load`/`player_place` use the
 same struct. This function is host-testable (it already is, in spirit: `tools/audit_links.py`,
 `tools/check_arrival_locks.py`).
@@ -67,9 +69,9 @@ Keep the existing VRAM layout (BG_A/BG_B 64x32 cells, no new VRAM). Treat each p
 - every frame: advance `v` by `STEP` px (4 px/frame = 56 frames = 0.93 s, the PC's duration; 8 px/frame
   would be 0.47 s), and whenever `v` crosses a multiple of 8 px write ONE new row (64 words, ~130 B)
   of the stacked source (old rows then new rows) into ring slot `row mod 32`;
-- one horizontal scroll value for the whole plane (both halves share X, 3.1): no per-line hscroll table,
-  no 224-word DMA per frame. If the destination background needs a different parallax X, keep the
-  small per-line table for BG_B only and update it only when its value changes;
+- horizontal scroll: the halves have two values (old/new); the boundary moves 4 px per frame, so the per-line table is
+  rewritten only for the lines that changed side (about 4 per frame) or, better, HSCROLL_TILE (per 8-px row,
+  one word pair per row) refreshed when the boundary crosses a tile row, plus a one-line patch at the boundary;
 - BG_B (parallax): same ring, same stepping; when both maps share the background file the plane is
   simply left alone (the PC keeps `bg_scroll`).
 
@@ -137,3 +139,24 @@ APE link; that is the "fails on the current tree" reproduction the bug workflow 
 - Confirm APE = stage 4 and that link0 (ladder down at column 60) is the case that looks worst.
 - Which of the three symptoms is worst there (flicker / alignment / stutter), so the harness checks it first.
 - OK to start with phase 1 (harness + baseline, no behaviour change)?
+
+## 8. Phase 1 result: baseline (2026-11-01)
+
+Harness: `tests/host/trans_sim.c` (the REAL `src/transition.c` against a VDP model: name tables, scroll modes,
+DMA queue applied per vblank, sprite list; cells encode map/column/row so every frame is decoded back) driven
+by `tools/check_transitions.py` (all vertical links of stages 0-13, both directions, 284 transitions).
+Run: `python3 tools/check_transitions.py [stage ...] [--only-fails]`. It builds the sim itself.
+
+Result on the current tree: **284 / 284 fail**:
+
+| check | result |
+|---|---|
+| stutter | all 284: picture advances 8 px, held 2 frames (`29 held frames of 58`), PC is 4 px per step |
+| dma | all 284: 3760 B / 32 entries in ONE vblank (budget 1 KB / 8 entries) - the flicker candidate |
+| handoff | 142 of 284 (every arrival on the bottom row, e.g. stage4 link0 fwd): `main.c` nudges the player up 8 px AFTER the slide ended (`stage_link_band_hit` loop), so he jumps on the first game frame; the PC does not nudge |
+| tear, hmis, align, ends | **0**: what the slide displays is geometrically right (rows, columns, ladder alignment, first/last frame) |
+
+So the misalignment the owner sees is NOT in the slide geometry; the 8 px hand-off jump is the first measured
+cause. Not covered yet (limits of the model, next harness steps): BG_B parallax rows, scroll locks (they move the
+arrival camera in the ROM), the real VDP timing of queued DMA inside vblank (the 3760 B figure assumes one entry
+per tilemap row), `stage_load` black frames, and VRAM-fit fallbacks (stage 2 map 2 -> 1).

@@ -58,7 +58,18 @@ typedef struct {
     u16 w, h;
     u16 numTile;
     const u32 *data;
+    u16 compression;       /* host transition sim: unpackTileSet target */
+    u32 *tiles;
 } TileSet;
+#define COMPRESSION_NONE 0
+#define DMA_QUEUE 1
+#define CPU 0
+#define VDP_BG_B BG_B
+#define HSCROLL_PLANE 0
+#define HSCROLL_TILE  2
+#define HSCROLL_LINE  3
+#define VSCROLL_PLANE 0
+#define VSCROLL_2TILE 1
 typedef struct {
     u16 w, h;
     const u16 *data;
@@ -124,6 +135,11 @@ void VDP_setTextPlane(VDPPlane p);
 void VDP_setTextPalette(u16 pal);
 void VDP_setBackgroundColor(u16 c);
 void VDP_setEnable(bool on);
+void VDP_setTileMapDataRect(VDPPlane p, const u16 *data, u16 x, u16 y, u16 w, u16 h, u16 wm, u16 method);
+bool unpackTileSet(const TileSet *src, TileSet *dst);
+Map *MAP_create(const MapDefinition *def, VDPPlane plane, u16 base);
+void MAP_getTilemapRect(Map *m, u16 x, u16 y, u16 w, u16 h, bool usePrio, u16 *out);
+void MAP_release(Map *m);
 void VDP_loadTileData(const u32 *data, u16 index, u16 num, u16 method);
 void PAL_setPalette(u16 pal, const u16 *data, u16 method);
 void PAL_setColor(u16 index, u16 value);
