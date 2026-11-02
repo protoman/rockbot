@@ -174,11 +174,14 @@ static s16 bg_offset(u8 map, s16 cam)
 }
 
 // One BG_B plane row (64 cells) showing screen row `srow` of map `map`, whose
-// tiles live at `tile_base`. `vscroll` rotates the plane so the row lands where
-// the stage would have drawn it with its own vertical scroll.
+// tiles live at `tile_base`. `vscroll` is the stage's BG_B vertical scroll in PIXELS
+// (VSRAM, -(adjust_y - 16)): whole rows of it are folded into the row choice, the
+// remaining vscroll & 7 is written to VSRAM by the caller. (It used to be added to
+// the row index as if it were rows: APE, adjust_y 0 -> +16 px, shifted the parallax
+// by 14 rows and showed the bottom of the art at the top of the room.)
 static void bg_row_cells(u16 *row, u8 map, s16 srow, u16 tile_base, s16 vscroll)
 {
-    const s16 plane_row = (s16)((srow + vscroll) & 31);
+    const s16 plane_row = (s16)((srow + (vscroll >> 3)) & 31);
     const s16 h = (s16)stage_def->bg_map_h[map];
     const u16 *m = stage_def->bg_maps[map];
     const u16 sky = TILE_ATTR_FULL(BG_PAL, FALSE, FALSE, FALSE,
@@ -580,7 +583,7 @@ return FALSE; }
     // scroll taken out (rows for the incoming half are filled as they arrive).
     if (stage_def->bg_info[from_map].present) {
         static u16 bgrow[64];
-        for (s16 r = 0; r < TRANS_ROWS; r++) {
+        for (s16 r = 0; r <= TRANS_ROWS; r++) {     // +1: the sub-row VSRAM shift shows row 28
             bg_row_cells(bgrow, from_map, r, stage_bg_tile_base, vscroll);
             VDP_setTileMapData(VDP_BG_B, bgrow, (u16)(r * 64), 64, 2, CPU);
         }
@@ -591,7 +594,7 @@ return FALSE; }
 
     VDP_setScrollingMode(HSCROLL_LINE, VSCROLL_PLANE);
     VDP_setVerticalScroll(STAGE_PLANE, 0);
-    VDP_setVerticalScroll(BG_B, 0);
+    VDP_setVerticalScroll(BG_B, (s16)(vscroll & 7));   // the whole rows are in the tilemap
     // Rows of BG_B already moved to the incoming half. The incoming band grows
     // UPWARD for T2B and DOWNWARD for B2T, so a single "last row" marker left
     // the far side of the band holding the outgoing room's art - the stray

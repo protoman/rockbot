@@ -15,6 +15,7 @@ name table frame by frame:
              (PC adjust_x does exactly this); computed from the arrival maths
   dma        bytes / queue entries sent in ONE vblank (budget below); the first slide
              frame (ring fill) is reported separately and must fit the queue (192)
+  parallax   BG_B rows must show the art line the stage would (adjust_y, plane wrap)
   vscroll    BG_A's vertical scroll must be written with the VSync variant
   spr        sprites on one scanline during the slide (hardware limit 20)
 
@@ -50,6 +51,18 @@ def build():
     if r.returncode:
         print(r.stderr)
         sys.exit(2)
+
+
+def bg_adjust(n):
+    """adjust_y per map from stageN_bg_info (parallax art offset)."""
+    path = os.path.join(ROOT, "src", "stage%d_data.c" % n)
+    m = re.search(r"stage%d_bg_info\[\d+\]\s*=\s*\{(.*?)\n\};" % n, open(path).read(), re.S)
+    out = []
+    if m:
+        for row in re.findall(r"\{([^{}]*)\}", m.group(1)):
+            v = [x.strip() for x in row.split(",") if x.strip()]
+            out.append((int(v[0]), int(v[1])))        # present, adjust_y
+    return out
 
 
 def enemy_spawns(n):
@@ -175,12 +188,14 @@ def scenarios(n, st):
                 cam_after = focus_dst - 160 + 12
             cam_after = clamp(cam_after, 0, maxcam)
             snap = cam_after - cam_dst
-            yield label, t2b, w, cam_src, cam_dst, old_shift, min(npv, 14), (align_err, hj, snap), oy
+            bgs = bg_adjust(n)
+            adj = (bgs[smap][1] if smap < len(bgs) else 0, bgs[dmap][1] if dmap < len(bgs) else 0)
+            yield label, t2b, w, cam_src, cam_dst, old_shift, min(npv, 14), (align_err, hj, snap), (oy, adj)
 
 
-def run(t2b, w, from_cam, to_cam, old_shift, n_prev, old_y=150):
+def run(t2b, w, from_cam, to_cam, old_shift, n_prev, old_y=150, adj=(0, 0)):
     r = subprocess.run([SIM, str(t2b), str(w), str(w), str(from_cam), str(to_cam),
-                        str(old_shift), str(n_prev), str(old_y)], capture_output=True, text=True)
+                        str(old_shift), str(n_prev), str(old_y), str(adj[0]), str(adj[1])], capture_output=True, text=True)
     res = {}
     for ln in r.stdout.splitlines():
         if ln.startswith("SLIDE"):
@@ -199,6 +214,8 @@ def run(t2b, w, from_cam, to_cam, old_shift, n_prev, old_y=150):
             res["dma_first"] = (int(a[2]), int(a[3]))
         elif ln.startswith("SPR"):
             res["spr"] = int(ln.split("=")[1])
+        elif ln.startswith("BGMIS"):
+            res["bgmis"] = int(ln.split("=")[1])
         elif ln.startswith("VSIMM"):
             res["vs_imm"] = int(ln.split("=")[1])
         elif ln.startswith("RESULT"):
@@ -244,6 +261,10 @@ def verdict(t2b, res, extra):
         f.append("handoff(player y jumps %+dpx after the slide)" % hj)
     if res["dma_bytes"] > DMA_BYTES_MAX or res["dma_entries"] > DMA_ENTRIES_MAX:
         f.append("dma(%dB/%d entries per vblank)" % (res["dma_bytes"], res["dma_entries"]))
+    # the parallax switches by 8px rows while BG_A's boundary moves by pixels: up to 7 lines
+    # per frame are legitimately on the other side; anything above that is a wrong row
+    if res.get("bgmis", 0) > 8 * len(p):
+        f.append("parallax(%d lines show the wrong art row)" % res["bgmis"])
     if res.get("vs_imm"):
         f.append("vscroll-immediate(%d writes tear the previous frame)" % res["vs_imm"])
     if res["spr"] > SPR_LINE_MAX:
@@ -263,7 +284,7 @@ def main(argv):
         if not st:
             continue
         for label, t2b, w, fc, tc, osh, npv, aerr, oy in scenarios(n, st):
-            res = run(t2b, w, fc, tc, osh, npv, oy)
+            res = run(t2b, w, fc, tc, osh, npv, oy[0], oy[1])
             f = verdict(t2b, res, aerr)
             total += 1
             if f:

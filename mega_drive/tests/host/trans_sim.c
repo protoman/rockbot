@@ -40,6 +40,17 @@ static EnemyDef enemy_defs[1];
 static EnemySpawn enemy_spawns[32];
 static StageDef the_stage;
 static SpriteDefinition dummy_spr;
+/* parallax fixtures: bg tile k is image row k (its first word is k), map cell = row */
+#define BG_H 20
+static u32 bg_tiles_arr[BG_H * 8];
+static u16 bg_map_arr[BG_H * 64];
+static u16 bg_map_h_arr[MAXMAPS];
+static u16 bg_tiles_n_arr[MAXMAPS];
+static const u32 *bg_tiles_ptr[MAXMAPS];
+static const u16 *bg_maps_ptr[MAXMAPS];
+static u16 bg_pal_words[16];
+static Palette bg_pal_arr = { 16, 1, bg_pal_words };
+static const Palette *bg_pal_ptr[MAXMAPS];
 
 struct Map { int id; };
 static struct Map maps[MAXMAPS];
@@ -52,7 +63,7 @@ u16 stage_bg_tile_base;
 u16 spr_gen;
 Player player;
 
-u16 stage_sky_tile(void) { return 0; }
+u16 stage_sky_tile(void) { return 1300; }
 u16 stage_layout_anim(u8 map) { (void)map; return 300; }   /* new tiles land >= 300 */
 s16 stage_bg_auto_hscroll(u8 map) { (void)map; return 0; }
 void stage_release_map(void) { stage_map = NULL; }
@@ -110,12 +121,14 @@ void VDP_setTileMapDataRect(VDPPlane p, const u16 *data, u16 x, u16 y, u16 w, u1
 
 void VDP_setTileMapData(VDPPlane p, const u16 *data, u16 index, u16 w, u16 h, u16 method)
 {
-    Op o = { .kind = 1, .p = p, .idx = index, .w = w, .h = h };
-    memcpy(o.data, data, w * h * 2);
+    /* SGDK: VDP_setTileMapData(planeAddr, data, ind, num, vramStep, tm): `w` is num, `h` the step */
+    Op o = { .kind = 1, .p = p, .idx = index, .w = w, .h = 1 };
+    (void)h;
+    memcpy(o.data, data, w * 2);
     if (method == CPU) { apply(&o); return; }
     queue[qn++] = o;
     qent_frame += 1;
-    qbytes_frame += w * h * 2;
+    qbytes_frame += w * 2;
 }
 
 void VDP_setHorizontalScrollLine(VDPPlane p, u16 line, s16 *values, u16 len, u16 method)
@@ -194,7 +207,7 @@ static int pseq[MAXF];
 static int tear_n, hmis_old, hmis_new, max_bytes, max_entries, max_per_line;
 static int hscroll_equal_halves;
 static int first_bytes, first_entries;
-static int old_py;
+static int old_py, bgmis_n, bgadj_from, bgadj_to;
 #define MAXF2 400
 static int pyseq[MAXF2];
 
@@ -231,6 +244,24 @@ static void observe(void)
             const int want = ((cam + x) >> 3) % 9;
             if (e.colmod != want) { if (is_old) hmis_old++; else hmis_new++; }
         }
+    }
+    /* parallax (BG_B): line y of the OLD half must show image line y + v_old (v = -(adjust_y-16)),
+     * the NEW half y + v_new within 7 px (one VSRAM value serves both) */
+    for (int y = 0; y < 224; y++) {
+        const int prow = ((y + vs_plane[1]) >> 3) & 31;
+        const s16 hsb = (hmode == HSCROLL_LINE) ? hs_line[1][y] : hs_plane[1];
+        const u16 cell = plane[1][prow * 64 + (((4 - hsb) & 511) >> 3)];
+        const u32 id = vram_tile_id[cell & 0x7FF];
+        /* which half is this line? from the BG_A decode */
+        Dec d = decode(plane[0][(((y + vs_plane[0]) >> 3) & 31) * 64 + (((4 - ((hmode == HSCROLL_LINE) ? hs_line[0][y] : hs_plane[0])) & 511) >> 3)]);
+        const int is_old = (d.map == 1);
+        const int v = -((is_old ? bgadj_from : bgadj_to) - 16);
+        const int want = (y + v) & 255;              /* plane line wanted at this screen line (the plane wraps at 256) */
+        if (want < 0 || want >= BG_H * 8) { if (id != 9999 && id < BG_H) { bgmis_n++; if (getenv("BGDBG") && frame_n < 2) fprintf(stderr, "f%d y=%d old=%d want=%d (outside art) shows id=%u\n", frame_n, y, is_old, want, id); } continue; }   /* outside the art: sky */
+        if (id == 9999 || id >= BG_H) { bgmis_n++; if (getenv("BGDBG") && frame_n < 2) fprintf(stderr, "f%d y=%d old=%d want=%d SKY/other id=%u\n", frame_n, y, is_old, want, id); continue; }
+        const int got = (int)id * 8 + ((y + vs_plane[1]) & 7);
+        int err = got - want; if (err < 0) err = -err;
+        if (err > (is_old ? 0 : 7)) { bgmis_n++; if (getenv("BGDBG") && frame_n < 2) fprintf(stderr, "f%d y=%d old=%d want=%d got=%d id=%u vsB=%d\n", frame_n, y, is_old, want, got, id, vs_plane[1]); }
     }
     if (tear) tear_n++;
     if (frame_n < MAXF) { pseq[frame_n] = tear ? -1 : p_common; pyseq[frame_n] = player.spr ? player.spr->y : -999; }
@@ -289,6 +320,17 @@ int main(int argc, char **argv)
         enemy_spawns[i].def = 0; enemy_spawns[i].map = 2;
         enemy_spawns[i].x = (s16)(to_cam + 10 + i * 20); enemy_spawns[i].y = 80;
     }
+    const int adj_from = (argc > 9) ? atoi(argv[9]) : 0, adj_to = (argc > 10) ? atoi(argv[10]) : 0;
+    bgadj_from = adj_from; bgadj_to = adj_to;
+    for (int k = 0; k < BG_H; k++) { bg_tiles_arr[k * 8] = (u32)k; for (int x = 0; x < 64; x++) bg_map_arr[k * 64 + x] = (u16)k; }
+    for (int i = 0; i < MAXMAPS; i++) {
+        bg_info[i].present = 1; bg_info[i].adjust_y = (s16)((i == 1) ? adj_from : adj_to); bg_info[i].speed = 0;
+        bg_tiles_ptr[i] = bg_tiles_arr; bg_maps_ptr[i] = bg_map_arr;
+        bg_map_h_arr[i] = BG_H; bg_tiles_n_arr[i] = BG_H; bg_pal_ptr[i] = &bg_pal_arr;
+    }
+    the_stage.bg_tiles = bg_tiles_ptr; the_stage.bg_maps = bg_maps_ptr;
+    the_stage.bg_map_h = bg_map_h_arr; the_stage.bg_tiles_n = bg_tiles_n_arr; the_stage.bg_pal = bg_pal_ptr;
+    stage_bg_tile_base = 1200;
     stage_def = &the_stage;
     stage_map = &maps[1];
     stage_current_map = 1;
@@ -300,6 +342,8 @@ int main(int argc, char **argv)
     player.y = (argc > 8) ? (s16)atoi(argv[8]) : 150;   /* where the old room draws him */
     old_py = player.y;
     for (int i = 0; i < 2048; i++) vram_tile_id[i] = (u32)i;
+    for (int k = 0; k < BG_H; k++) vram_tile_id[1200 + k] = (u32)k;     /* outgoing room's resident bg */
+    vram_tile_id[1300] = 9999;                                           /* sky */
     hmode = HSCROLL_PLANE;
 
     const int max_cam_from = from_w * 16 - 320, max_cam_to = to_w * 16 - 320;
@@ -323,6 +367,7 @@ int main(int argc, char **argv)
     printf("DMA max_bytes=%d max_entries=%d first_bytes=%d first_entries=%d\n", max_bytes, max_entries, first_bytes, first_entries);
     printf("SPR max_per_line=%d\n", max_per_line);
     printf("VSIMM n=%d\n", vs_immediate);
+    printf("BGMIS n=%d\n", bgmis_n);
     (void)hscroll_equal_halves;
     return 0;
 }
