@@ -47,11 +47,10 @@
 #define TRANS_MCOLS 21    // metatiles requested = 42 cells
 #define TRANS_ROWS 28     // plane rows (224px screen)
 #define TRANS_MROWS 14    // metatile rows = map_h
-#define TRANS_STEP 8      // pixels per step (tile rows move 8px at a time)
-// Frames each step is held. The PC moves 4px per step (56 steps) with a 6ms
-// delay plus a full software redraw, ~1s in all; 8px held for 2 frames takes
-// the same 56 frames. Set to 1 for the old fast (0.47s) slide.
-#define TRANS_HOLD 2
+#define TRANS_STEP 4      // pixels per vblank (PC: 4 px per step); the plane is moved by VSCROLL
+// Frames each step is held: 1 = a new picture offset every vblank (60 Hz). The PC moves
+// 4 px per step; 56 steps of 4 px = 56 frames = 0.93 s.
+#define TRANS_HOLD 1
 // Sprites of the incoming room shown while it slides in (PC show_objects /
 // temp_map->show_objects). Each costs a sprite slot, so the cap is small.
 #define TRANS_PREV_MAX 14
@@ -82,6 +81,26 @@ void *transition_scratch_cells(u16 *bytes) { *bytes = sizeof(trans_buf); return 
 // screens sit at different sub-tile offsets, so each half needs its own.
 static s16 trans_hs_a[TRANS_LINES];
 static s16 trans_hs_b[TRANS_LINES];
+
+// Per-scanline scroll tables: what the VDP holds now (so a frame sends only the span
+// of lines that changed) - the old code re-sent both 224-entry tables every step.
+static s16 hs_sent_a[TRANS_LINES];
+static s16 hs_sent_b[TRANS_LINES];
+
+static void hs_send(VDPPlane plane, s16 *now, s16 *sent, bool all)
+{
+    s16 first = -1, last = -1;
+    for (u16 y = 0; y < TRANS_LINES; y++) {
+        if (all || now[y] != sent[y]) {
+            if (first < 0) first = (s16)y;
+            last = (s16)y;
+            sent[y] = now[y];
+        }
+    }
+    if (first >= 0)
+        VDP_setHorizontalScrollLine(plane, (u16)first, now + first,
+                                    (u16)(last - first + 1), DMA_QUEUE);
+}
 
 // Highest VRAM tile a map occupies: its tileset, the parallax tiles right
 // after it, then the animated slots (stage.h computes the same bases when the
@@ -578,11 +597,35 @@ return FALSE; }
     prev_build(to_map, dcam);
     const u16 span = TRANS_LINES;                 // one screen in pixels
     const u16 steps = span / TRANS_STEP;
+    // STREAMING SLIDE (transition_plan.md phase 3): BG_A is a ring of 32 rows (256 px)
+    // moved with the hardware vertical scroll, so the picture advances TRANS_STEP px
+    // EVERY frame. `trans_buf` holds the two screens stacked (56 rows); stacked row
+    // `s` lives in plane row s & 31, and only the row that scrolls into view is
+    // written (one 84-byte DMA) instead of the whole 42x28 map every step.
+    s16 w_lo = 32767, w_hi = -1;      // stacked rows already in the ring
     for (u16 i = 0; i <= steps; i++) {
         const s16 off = top_to_bottom ? (s16)(i * TRANS_STEP)
                                       : (s16)(span - i * TRANS_STEP);
-        VDP_setTileMapDataRect(STAGE_PLANE, &trans_buf[off / 8][0], 0, 0,
-                               TRANS_COLS, TRANS_ROWS, TRANS_COLS, DMA_QUEUE);
+        {
+            const s16 r_lo = (s16)(off >> 3);
+            const s16 r_hi = (s16)((off + TRANS_LINES - 1) >> 3);
+            if (w_hi < 0) { w_lo = (s16)(r_hi + 1); w_hi = r_hi; }   // first frame: whole window
+            while (w_lo > r_lo) {
+                w_lo--;
+                VDP_setTileMapDataRect(STAGE_PLANE, &trans_buf[w_lo][0], 0,
+                                       (u16)(w_lo & 31), TRANS_COLS, 1,
+                                       TRANS_COLS, DMA_QUEUE);
+            }
+            while (w_hi < r_hi) {
+                w_hi++;
+                VDP_setTileMapDataRect(STAGE_PLANE, &trans_buf[w_hi][0], 0,
+                                       (u16)(w_hi & 31), TRANS_COLS, 1,
+                                       TRANS_COLS, DMA_QUEUE);
+            }
+            // VSync variant: the write lands in the same vblank as the queued row
+            // (an immediate VSRAM write would tear the frame still being drawn).
+            VDP_setVerticalScrollVSync(STAGE_PLANE, (s16)(off & 255));
+        }
 
         // Which source row every scanline shows, derived from the same index
         // the tilemap write above used (base = off/8 into the stacked buffer).
@@ -597,13 +640,17 @@ return FALSE; }
                 const u16 prow = (u16)(base + (y >> 3));
                 const bool is_new = new_on_top ? (prow < TRANS_ROWS)
                                                : (prow >= TRANS_ROWS);
-                trans_hs_a[y] = is_new ? new_hs : old_hs;
+                // BG_A: the boundary moves by pixels (stacked line z = off + y);
+                // BG_B (parallax) switches by 8px rows, like its tile rows.
+                const s16 z = (s16)(off + (s16)y);
+                const bool a_new = top_to_bottom ? (z >= (s16)span) : (z < (s16)span);
+                trans_hs_a[y] = a_new ? new_hs : old_hs;
                 trans_hs_b[y] = is_new ? bg_new : bg_old;
             }
-            VDP_setHorizontalScrollLine(STAGE_PLANE, 0, trans_hs_a,
-                                        TRANS_LINES, DMA_QUEUE);
-            VDP_setHorizontalScrollLine(BG_B, 0, trans_hs_b, TRANS_LINES,
-                                        DMA_QUEUE);
+            // Only the lines whose value changed since the last frame go to the
+            // VDP (the boundary between the halves moves a few lines per frame).
+            hs_send(STAGE_PLANE, trans_hs_a, hs_sent_a, i == 0);
+            hs_send(BG_B, trans_hs_b, hs_sent_b, i == 0);
             // Parallax rows that just became incoming: the destination art (or
             // sky when its palette could not be shown).
             s16 lo = TRANS_ROWS, hi = -1;

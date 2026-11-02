@@ -62,6 +62,7 @@ void spr_set_anim(Sprite *s, s16 a) { if (s) s->animInd = a; }
 void enemies_shift_y(s16 dy) { (void)dy; }
 void objects_shift_y(s16 dy) { (void)dy; }
 
+static int started;
 /* ---- VDP model ---------------------------------------------------------- */
 static u16 plane[2][32 * 64];
 static u32 vram_tile_id[2048];
@@ -85,13 +86,16 @@ static void apply(Op *o)
         for (u16 i = 0; i < o->w * o->h; i++)
             plane[o->p][(o->idx + i) & (32 * 64 - 1)] = o->data[i];
     } else if (o->kind == 2) {          /* hscroll lines */
-        for (u16 i = 0; i < o->len; i++) hs_line[o->p][i] = o->line[i];
+        for (u16 i = 0; i < o->len; i++) hs_line[o->p][o->idx + i] = o->line[i];
     }
 }
 
 void VDP_setReg(u16 r, u8 v) { (void)r; (void)v; }
 void VDP_setScrollingMode(u16 h, u16 v) { hmode = h; vmode = v; }
-void VDP_setVerticalScroll(VDPPlane p, s16 v) { vs_plane[p] = v; }
+static int vs_immediate;
+static s16 vs_pending[2]; static int vs_pend[2];
+void VDP_setVerticalScroll(VDPPlane p, s16 v) { vs_plane[p] = v; if (started && p == BG_A) vs_immediate++; }
+void VDP_setVerticalScrollVSync(VDPPlane p, s16 v) { vs_pending[p] = v; vs_pend[p] = 1; }
 void VDP_setHorizontalScroll(VDPPlane p, s16 v) { hs_plane[p] = v; }
 
 void VDP_setTileMapDataRect(VDPPlane p, const u16 *data, u16 x, u16 y, u16 w, u16 h, u16 wm, u16 method)
@@ -116,8 +120,7 @@ void VDP_setTileMapData(VDPPlane p, const u16 *data, u16 index, u16 w, u16 h, u1
 
 void VDP_setHorizontalScrollLine(VDPPlane p, u16 line, s16 *values, u16 len, u16 method)
 {
-    Op o = { .kind = 2, .p = p, .len = len };
-    (void)line;
+    Op o = { .kind = 2, .p = p, .len = len, .idx = line };
     memcpy(o.line, values, len * 2);
     if (method == CPU) { apply(&o); return; }
     queue[qn++] = o;
@@ -185,12 +188,12 @@ bool unpackTileSet(const TileSet *src, TileSet *dst)
 /* ---- the observer -------------------------------------------------------- */
 static int t2b, from_w, to_w;
 static s16 ocam_exp, dcam_exp;
-static int started;
 #define MAXF 400
 static int frame_n;
 static int pseq[MAXF];
 static int tear_n, hmis_old, hmis_new, max_bytes, max_entries, max_per_line;
 static int hscroll_equal_halves;
+static int first_bytes, first_entries;
 
 typedef struct { int map, colmod, row; } Dec;
 static Dec decode(u16 cell)
@@ -229,8 +232,11 @@ static void observe(void)
     if (tear) tear_n++;
     if (frame_n < MAXF) pseq[frame_n] = tear ? -1 : p_common;
     frame_n++;
-    if ((int)qbytes_frame > max_bytes) max_bytes = (int)qbytes_frame;
-    if ((int)qent_frame > max_entries) max_entries = (int)qent_frame;
+    if (frame_n == 1) { first_bytes = (int)qbytes_frame; first_entries = (int)qent_frame; }
+    else {
+        if ((int)qbytes_frame > max_bytes) max_bytes = (int)qbytes_frame;
+        if ((int)qent_frame > max_entries) max_entries = (int)qent_frame;
+    }
     /* sprites per scanline */
     int cnt[224 + 64] = {0};
     for (int i = 0; i < sused; i++) {
@@ -245,6 +251,7 @@ static void observe(void)
 void SYS_doVBlankProcess(void)
 {
     for (int i = 0; i < qn; i++) apply(&queue[i]);
+    for (int k = 0; k < 2; k++) if (vs_pend[k]) { vs_plane[k] = vs_pending[k]; vs_pend[k] = 0; }
     if (!started && hmode == HSCROLL_LINE) started = 1;
     observe();
     qn = 0; qbytes_frame = 0; qent_frame = 0;
@@ -305,8 +312,9 @@ int main(int argc, char **argv)
     printf("]\n");
     printf("TEAR n=%d\n", tear_n);
     printf("HMIS old=%d new=%d\n", hmis_old, hmis_new);
-    printf("DMA max_bytes=%d max_entries=%d\n", max_bytes, max_entries);
+    printf("DMA max_bytes=%d max_entries=%d first_bytes=%d first_entries=%d\n", max_bytes, max_entries, first_bytes, first_entries);
     printf("SPR max_per_line=%d\n", max_per_line);
+    printf("VSIMM n=%d\n", vs_immediate);
     (void)hscroll_equal_halves;
     return 0;
 }

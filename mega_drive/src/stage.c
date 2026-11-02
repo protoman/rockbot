@@ -514,6 +514,7 @@ void stage_load(u8 map_index)
     stage_load_in_place = FALSE;
     if (!in_place) {
         VDP_setEnable(FALSE);
+        VDP_setVerticalScroll(STAGE_PLANE, 0);   // a slide leaves BG_A's ring scrolled (transition.c)
         VDP_clearPlane(BG_A, TRUE);
         VDP_clearPlane(BG_B, TRUE);
     }

@@ -124,6 +124,7 @@ void VDP_setReg(u16 reg, u8 value);
 void VDP_setScrollingMode(u16 h, u16 v);
 void VDP_setHorizontalScroll(VDPPlane p, s16 v);
 void VDP_setVerticalScroll(VDPPlane p, s16 v);
+void VDP_setVerticalScrollVSync(VDPPlane p, s16 v);
 void VDP_setHorizontalScrollLine(VDPPlane p, u16 line, s16 *values, u16 len, u16 method);
 void VDP_setTileMapData(VDPPlane p, const u16 *data, u16 index, u16 w, u16 h, u16 method);
 void VDP_setTileMapXY(VDPPlane p, u16 tile, u16 x, u16 y);

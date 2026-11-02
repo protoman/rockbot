@@ -160,3 +160,14 @@ So the misalignment the owner sees is NOT in the slide geometry; the 8 px hand-o
 cause. Not covered yet (limits of the model, next harness steps): BG_B parallax rows, scroll locks (they move the
 arrival camera in the ROM), the real VDP timing of queued DMA inside vblank (the 3760 B figure assumes one entry
 per tilemap row), `stage_load` black frames, and VRAM-fit fallbacks (stage 2 map 2 -> 1).
+
+## 9. Phase 2a + 3 done (2026-11-01)
+
+- 2a: the stair-arrival band nudge now runs before the slide (rule `arrival-nudge-before-slide`); the 142 hand-off jumps are gone.
+- 3: streaming slide in `src/transition.c`: BG_A is a 32-row ring moved by `VDP_setVerticalScrollVSync` (4 px every
+  vblank, `TRANS_STEP 4`, `TRANS_HOLD 1`); only the row that scrolls into view is queued (84 B); the per-line hscroll
+  tables send only the lines that changed (`hs_send`). `stage_load` resets BG_A's vscroll (display is off there).
+  Harness: 284 / 284 transitions pass every check (steady-state DMA about 150 B and 3-4 queue entries per vblank, was 3760 B / 32).
+- Still on the old method: BG_B (parallax) switches by 8 px rows at the band; previews still frozen first frames; the
+  sim does not model BG_B rows, scroll locks or VRAM-fit fallbacks. Emulator smoke (stage 4 map 2 -> 0, T2B, autopilot ladder): runs, no crash.
+- Needs the owner's eyes: APE link0 both directions, one T2B and one B2T in another stage.

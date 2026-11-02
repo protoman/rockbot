@@ -13,7 +13,9 @@ name table frame by frame:
   ends       first frame = outgoing screen at rest, last frame = incoming screen
   align      the link ladder must be at the same screen X in both halves
              (PC adjust_x does exactly this); computed from the arrival maths
-  dma        bytes / queue entries sent in ONE vblank (budget below)
+  dma        bytes / queue entries sent in ONE vblank (budget below); the first slide
+             frame (ring fill) is reported separately and must fit the queue (192)
+  vscroll    BG_A's vertical scroll must be written with the VSync variant
   spr        sprites on one scanline during the slide (hardware limit 20)
 
 Scroll locks (which move the destination camera in the ROM) are NOT modelled:
@@ -181,8 +183,11 @@ def run(t2b, w, from_cam, to_cam, old_shift, n_prev):
         elif ln.startswith("DMA"):
             a = re.findall(r"=(\d+)", ln)
             res["dma_bytes"], res["dma_entries"] = int(a[0]), int(a[1])
+            res["dma_first"] = (int(a[2]), int(a[3]))
         elif ln.startswith("SPR"):
             res["spr"] = int(ln.split("=")[1])
+        elif ln.startswith("VSIMM"):
+            res["vs_imm"] = int(ln.split("=")[1])
         elif ln.startswith("RESULT"):
             res["ok"] = ln.endswith("1")
     return res
@@ -215,6 +220,8 @@ def verdict(t2b, res, extra):
         f.append("handoff(player y jumps %+dpx after the slide)" % hj)
     if res["dma_bytes"] > DMA_BYTES_MAX or res["dma_entries"] > DMA_ENTRIES_MAX:
         f.append("dma(%dB/%d entries per vblank)" % (res["dma_bytes"], res["dma_entries"]))
+    if res.get("vs_imm"):
+        f.append("vscroll-immediate(%d writes tear the previous frame)" % res["vs_imm"])
     if res["spr"] > SPR_LINE_MAX:
         f.append("spr(%d on a line)" % res["spr"])
     return f
