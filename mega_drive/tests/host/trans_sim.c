@@ -71,6 +71,7 @@ u32 MEM_getFree(void) { return 30000; }
 s16 player_sprite_dx(void) { return 0; }
 void spr_set_anim(Sprite *s, s16 a) { if (s) s->animInd = a; }
 void enemies_shift_y(s16 dy) { (void)dy; }
+void enemies_anim_hold(bool hold) { (void)hold; }
 void objects_shift_y(s16 dy) { (void)dy; }
 
 static int started;

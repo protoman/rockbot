@@ -612,6 +612,7 @@ return FALSE; }
     // `s` lives in plane row s & 31, and only the row that scrolls into view is
     // written (one 84-byte DMA) instead of the whole 42x28 map every step.
     s16 w_lo = 32767, w_hi = -1;      // stacked rows already in the ring
+    enemies_anim_hold(TRUE);          // the outgoing room is a still picture while it slides
     for (u16 i = 0; i <= steps; i++) {
         const s16 off = top_to_bottom ? (s16)(i * TRANS_STEP)
                                       : (s16)(span - i * TRANS_STEP);
@@ -756,6 +757,7 @@ return FALSE; }
     dbg_check_in("end", spare);
     dbg_check_out("end", from_map);
 #endif
+    enemies_anim_hold(FALSE);
     prev_free();
     // back to one offset per plane; the caller's stage_load re-scrolls both
     VDP_setScrollingMode(HSCROLL_PLANE, VSCROLL_PLANE);

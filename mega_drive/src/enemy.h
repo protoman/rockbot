@@ -67,6 +67,7 @@ void enemies_set_visible(bool visible);
 // screen pixels. The outgoing screen takes its enemies with it (the PC
 // copies a frozen bitmap of it), so the caller passes the screen offset.
 void enemies_shift_y(s16 dy);
+void enemies_anim_hold(bool hold);   // room slide: freeze / resume the enemies' animation
 
 // Blocking horizontal scroll: re-place every live enemy sprite from its world
 // position (the camera moved, the enemies did not).

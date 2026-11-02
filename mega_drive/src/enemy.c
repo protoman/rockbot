@@ -2013,6 +2013,16 @@ void enemies_sync_sprites(void)
     }
 }
 
+// Room slide: the old room is a frozen picture, so its enemies must not keep walking
+// (SGDK auto-animates every sprite; enemies rely on it).
+void enemies_anim_hold(bool hold)
+{
+    for (u8 i = 0; i < enemy_count; i++) {
+        Enemy *e = &enemies[i];
+        if (e->spr && e->alive) SPR_setAutoAnimation(e->spr, !hold);
+    }
+}
+
 void enemies_shift_y(s16 dy)
 {
     for (u8 i = 0; i < enemy_count; i++) {
