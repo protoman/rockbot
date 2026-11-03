@@ -126,6 +126,15 @@ void setup(const char *argv0)
             }
         }
     }
+    // everything the game prints (printf of graphics/font/file errors) goes to a file next to the EBOOT
+    if (!g_base_dir.empty()) {
+        std::string out = g_base_dir + "rockbot_stdout.log";
+        freopen(out.c_str(), "w", stdout);
+        freopen(out.c_str(), "a", stderr);
+        setvbuf(stdout, NULL, _IOLBF, 0);
+        setvbuf(stderr, NULL, _IONBF, 0);
+    }
+    atexit([]() { log("exit(): normal process exit"); });
     char cwd[256];
     log("boot: argv0='%s' base='%s' cwd='%s'", argv0 ? argv0 : "(null)", g_base_dir.c_str(),
         getcwd(cwd, sizeof(cwd)) ? cwd : "(null)");

@@ -402,6 +402,9 @@ int main(int argc, char *argv[])
     fio.load_config(SharedData::get_instance()->game_config);
 #endif
 
+#ifdef PSP
+    psp_platform::log("main: config loaded, FILEPATH='%s'", FILEPATH.c_str());
+#endif
     detect_language();
     // force disable old music flag
     SharedData::get_instance()->game_config.android_use_mod_music = 0;
@@ -422,10 +425,16 @@ int main(int argc, char *argv[])
 #endif
 
 
+#ifdef PSP
+    psp_platform::log("main: graphics ok");
+#endif
     //GAMENAME = std::string("RockBot");
     gameControl.select_game_screen();
     GAMENAME = gameControl.get_selected_game();
     graphLib.set_window_title(GAMENAME);
+#ifdef PSP
+    psp_platform::log("main: game selected '%s'", GAMENAME.c_str());
+#endif
 
     fflush(stdout);
 
@@ -474,7 +483,13 @@ int main(int argc, char *argv[])
 #endif
 
 
+#ifdef PSP
+    psp_platform::log("main: graphLib.preload");
+#endif
     graphLib.preload();
+#ifdef PSP
+    psp_platform::log("main: draw_lib.preload");
+#endif
 
 #ifdef PLAYSTATION2
     //fio.load_config(game_config);
@@ -484,6 +499,9 @@ int main(int argc, char *argv[])
     draw_lib.preload();
 
 
+#ifdef PSP
+    psp_platform::log("main: preload done, starting intro");
+#endif
     gameControl.currentStage = INTRO_STAGE;
 
     // === DEBUG === //
