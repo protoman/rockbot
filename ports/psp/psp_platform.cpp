@@ -4,6 +4,9 @@
 
 #include <pspkernel.h>
 #include <psppower.h>
+#include <pspdebug.h>
+#include <pspthreadman.h>
+#include <pspmodulemgr.h>
 #include <pspiofilemgr.h>
 
 #include <cstdio>
@@ -32,7 +35,8 @@ extern CURRENT_FILE_FORMAT::file_io fio;
 PSP_MODULE_INFO("Rockbot", PSP_MODULE_USER, 1, 0);
 // Explicit heap: negative "all-but-N" can leave almost nothing under PPSSPP after SDL_Init.
 PSP_HEAP_SIZE_KB(20 * 1024);
-PSP_MAIN_THREAD_STACK_SIZE_KB(64);
+// 64 KB overflowed silently under the emulator but kills the thread on real hardware.
+PSP_MAIN_THREAD_STACK_SIZE_KB(512);
 
 namespace {
 
@@ -77,8 +81,13 @@ namespace psp_platform {
 
 static std::string g_base_dir; // folder that contains EBOOT.PBP, with trailing '/'
 
+static volatile unsigned int g_progress = 0;   // bumped by log() and every frame
+static SceUID g_main_thread = -1;
+static u32 g_text_addr = 0, g_text_size = 0;
+
 void log(const char *fmt, ...)
 {
+    g_progress++;
     // before the data folder is known, log next to the current directory
     std::string dir = g_base_dir;
     if (dir.empty()) {
@@ -112,6 +121,32 @@ void log(const char *fmt, ...)
     }
 }
 
+void heartbeat() { g_progress++; }
+
+static int watchdog_thread(SceSize, void *)
+{
+    unsigned int last = g_progress;
+    int idle = 0;
+    for (;;) {
+        sceKernelDelayThread(1000 * 1000);
+        if (g_progress != last) {
+            last = g_progress;
+            idle = 0;
+            continue;
+        }
+        idle++;
+        if (idle == 10 || (idle > 10 && idle % 30 == 0)) {
+            SceKernelThreadInfo info;
+            std::memset(&info, 0, sizeof(info));
+            info.size = sizeof(info);
+            int r = sceKernelReferThreadStatus(g_main_thread, &info);
+            log("WATCHDOG: no progress for %ds; main thread ref=%d status=%d waitType=%d waitId=0x%x stackSize=%d priority=%d",
+                idle, r, info.status, info.waitType, (unsigned)info.waitId, (int)info.stackSize, info.currentPriority);
+        }
+    }
+    return 0;
+}
+
 void setup(const char *argv0)
 {
     SetupCallbacks();
@@ -139,7 +174,20 @@ void setup(const char *argv0)
         setvbuf(stderr, NULL, _IONBF, 0);
     }
     atexit([]() { log("exit(): normal process exit"); });
+    g_main_thread = sceKernelGetThreadId();
+    SceKernelModuleInfo mi;
+    std::memset(&mi, 0, sizeof(mi));
+    mi.size = sizeof(mi);
+    if (sceKernelQueryModuleInfo(sceKernelGetModuleIdByAddress((const void *)&setup), &mi) >= 0) {
+        g_text_addr = mi.text_addr;
+        g_text_size = mi.text_size;
+    }
+    SceUID wd = sceKernelCreateThread("rockbot_watchdog", watchdog_thread, 0x30, 0x4000, 0, NULL);
+    if (wd >= 0) {
+        sceKernelStartThread(wd, 0, NULL);
+    }
     char cwd[256];
+    log("boot: module text=0x%08x size=0x%x stack=512K", (unsigned)g_text_addr, (unsigned)g_text_size);
     log("boot: argv0='%s' base='%s' cwd='%s'", argv0 ? argv0 : "(null)", g_base_dir.c_str(),
         getcwd(cwd, sizeof(cwd)) ? cwd : "(null)");
 }

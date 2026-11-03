@@ -1,6 +1,9 @@
 #ifndef FIO_COMMON_H
 #define FIO_COMMON_H
 
+#ifdef PSP
+namespace psp_platform { void log(const char *fmt, ...); }
+#endif
 #include <cstdlib>
 #include <iostream>
 #include <vector>
@@ -44,6 +47,9 @@ template <class T> T fio_common::load_struct_data(std::string file) {
     std::string filename = std::string(FILEPATH) + "/" + file;
     T res;
     FILE *fp = fopen(filename.c_str(), "rb");
+#ifdef PSP
+    psp_platform::log("load %s -> %s", filename.c_str(), fp ? "ok" : "MISSING");
+#endif
     if (!fp) {
         std::cout << "ERROR: file_io::load_struct_data - file '" << filename << "' not found." << std::endl;
         return res;
@@ -84,6 +90,9 @@ template <class T> std::vector<T> fio_common::load_from_disk(std::string file)
     std::string filename = std::string(FILEPATH) + "/" + file;
     std::vector<T> res;
     FILE *fp = fopen(filename.c_str(), "rb");
+#ifdef PSP
+    psp_platform::log("load %s -> %s", filename.c_str(), fp ? "ok" : "MISSING");
+#endif
     if (!fp) {
         std::cout << "ERROR: file_io::load_from_disk - file '" << filename << "' not found." << std::endl;
         return res;
@@ -112,6 +121,9 @@ template <class T> T fio_common::load_single_object_from_disk(std::string file)
     std::string filename = std::string(FILEPATH) + "/" + file;
     T res;
     FILE *fp = fopen(filename.c_str(), "rb");
+#ifdef PSP
+    psp_platform::log("load %s -> %s", filename.c_str(), fp ? "ok" : "MISSING");
+#endif
     if (!fp) {
         std::cout << "ERROR: file_io::load_from_disk - file '" << filename << "' not found." << std::endl;
         return res;

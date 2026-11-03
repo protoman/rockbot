@@ -16,6 +16,8 @@ namespace psp_platform {
 void setup(const char *argv0 = NULL);
 // Appends a line to <game folder>/rockbot_boot.log (diagnostics on real hardware).
 void log(const char *fmt, ...);
+// Tells the hang watchdog the game is alive (called once per frame).
+void heartbeat();
 void get_filepath(std::string &filepath, int maxpathlen);
 
 // --- Graphics / fonts / video ---
