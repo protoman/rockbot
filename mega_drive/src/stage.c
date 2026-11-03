@@ -197,6 +197,36 @@ static void bg_load(u8 map_index)
     bg_upload_tiles_maps(map_index);
 }
 
+#ifdef MD_TRANS_DEBUG
+// Probe: read BG_B back from VRAM and compare with the map's parallax tiles
+// (the stairs_return glitch: wrong rows after a room change). Logged per bad row.
+#include "dbglog.h"
+#include "tdump.h"
+void stage_dbg_bg_check(const char *tag)
+{
+    const u8 m_i = stage_current_map;
+    if (!stage_def->bg_info[m_i].present || !stage_def->bg_pal[m_i]) return;
+    const u16 *m = stage_def->bg_maps[m_i];
+    u16 bad_rows = 0, first = 0xFFFF;
+    for (u16 y = 0; y < 32; y++) {
+        u16 bad = 0, rowv[40];
+        tdump_read((u16)(VDP_getBGBAddress() + y * 128), rowv, 40);
+        for (u16 x = 0; x < 40; x++) {
+            const u16 want = (y < stage_def->bg_map_h[m_i])
+                ? (u16)(stage_bg_tile_base + m[y * 64 + x]) : stage_sky_tile();
+            const u16 got = rowv[x] & 0x7FF;
+            if (got != want) bad++;
+        }
+        if (bad) { bad_rows++; if (first == 0xFFFF) first = y; }
+    }
+    if (bad_rows || (tag[0] == 0x2B && tag[1] == 0x33))
+    dbg_log("BGC %s map=%u bad_rows=%u first=%d vs=%d base=%u h=%u\n", tag, (unsigned)m_i,
+            (unsigned)bad_rows, (int)(first == 0xFFFF ? -1 : first),
+            (int)stage_bg_vscroll, (unsigned)stage_bg_tile_base,
+            (unsigned)stage_def->bg_map_h[m_i]);
+}
+#endif
+
 static void clamp_camera(void)
 {
     if (camera.x < 0) camera.x = 0;

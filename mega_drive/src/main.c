@@ -746,7 +746,7 @@ static RunResult runStage(u8 stage)
 #ifdef MD_LINK_DEBUG
         if (lk_dbg_frames) {
             lk_dbg_frames--;
-            if ((lk_dbg_frames % 6) == 0)
+            if ((lk_dbg_frames % 30) == 0)
                 dbg_log("LKF t=%u x=%d y=%d vy=%d ladder=%u cam=%d under=%u pad=%u\n",
                         120 - lk_dbg_frames, player.x, player.y,
                         (s16)F16_toInt(player.vy), player.on_ladder, camera.x,
@@ -926,6 +926,11 @@ static RunResult runStage(u8 stage)
             // intermediate frames on the downward Mummy stair.
             stage_load_in_place = FALSE;
             stage_load(to_map);
+#ifdef MD_TRANS_DEBUG
+            { extern void stage_dbg_bg_check(const char *); stage_dbg_bg_check("load");
+              SYS_doVBlankProcess(); stage_dbg_bg_check("+1");
+              SYS_doVBlankProcess(); SYS_doVBlankProcess(); stage_dbg_bg_check("+3"); }
+#endif
             // (the BUG-005 band nudge now runs BEFORE the slide, see above)
             player_place(px, py);
             if (on_stair && hang) player.on_ladder = TRUE;   // arrive hanging on it

@@ -353,7 +353,7 @@ static void dbg_check_in(const char *tag, u16 spare)
 
 // Per slide frame: VDP registers, queue state, the whole visible plane A
 // window against trans_buf, and a sample of resident tiles.
-static void dbg_frame(u16 i, u16 base, u16 spare, u8 from_map)
+__attribute__((unused)) static void dbg_frame(u16 i, u16 base, u16 spare, u8 from_map)
 {
     u16 row[TRANS_COLS];
     u16 pbad = 0, fr = 0, fc = 0, fv = 0, fe = 0;
@@ -734,12 +734,25 @@ return FALSE; }
         SYS_doVBlankProcess();
         VDP_setReg(17, 0);   // see main.c: DMA clobbers the window regs
         VDP_setReg(18, 0);
+#ifdef MD_TRANS_DEBUG
+        {   // anomaly-only: one line per odd frame, at most 6 per slide
+            static u16 sla_r11; static u8 sla_n;
+            if (i == 0) { sla_r11 = VDP_getReg(11); sla_n = 0; }
+            if (sla_n < 6 && (VDP_getReg(15) != 2 || VDP_getReg(11) != sla_r11
+                              || DMA_getQueueSize() != 0)) {
+                dbg_log("SLA i=%u r11=%02X/%02X r15=%02X q=%u\n", (unsigned)i,
+                        (unsigned)VDP_getReg(11), (unsigned)sla_r11,
+                        (unsigned)VDP_getReg(15), (unsigned)DMA_getQueueSize());
+                sla_n++;
+            }
+        }
+#endif
         for (u8 h = 1; h < TRANS_HOLD; h++) {
             SYS_doVBlankProcess();
             VDP_setReg(17, 0);
             VDP_setReg(18, 0);
         }
-#ifdef MD_TRANS_DEBUG
+#ifdef MD_TRANS_FRAMES
         dbg_frame(i, (u16)(off / 8), spare, from_map);
 #endif
 #ifdef MD_TRANS_FREEZE
@@ -756,6 +769,24 @@ return FALSE; }
 #ifdef MD_TRANS_DEBUG
     dbg_check_in("end", spare);
     dbg_check_out("end", from_map);
+#endif
+#ifdef MD_TRANS_DEBUG
+    {   // BG_B as the slide leaves it, against what the slide meant to write
+        static u16 want[64], got[64];
+        u16 bad_rows = 0; s16 first = -1;
+        for (s16 r = 0; r < TRANS_ROWS; r++) {
+            if (dest_bg) bg_row_cells(want, to_map, r, bg_tiles_new, vscroll_new);
+            else for (u16 x = 0; x < 64; x++)
+                want[x] = TILE_ATTR_FULL(BG_PAL, FALSE, FALSE, FALSE, stage_sky_tile());
+            tdump_read((u16)(VDP_getBGBAddress() + r * 128), got, 40);
+            u16 bad = 0;
+            for (u16 x = 0; x < 40; x++) if ((got[x] & 0x7FF) != (want[x] & 0x7FF)) bad++;
+            if (bad) { bad_rows++; if (first < 0) first = r; }
+        }
+        dbg_log("BGS slide_end to=%u dest_bg=%u bad_rows=%u first=%d vs_new=%d\n",
+                (unsigned)to_map, (unsigned)dest_bg, (unsigned)bad_rows, (int)first,
+                (int)vscroll_new);
+    }
 #endif
     enemies_anim_hold(FALSE);
     prev_free();
