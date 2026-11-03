@@ -360,8 +360,8 @@ bool load_fonts(const char *path,
 
 SDL_Surface *create_surface(int width, int height)
 {
-    // Direct ARGB8888: CreateRGB(16)+DisplayFormat doubles peak RAM and OOMs on stage start.
-    SDL_Surface *temp_surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_ARGB8888);
+    // Direct 32-bit surface: CreateRGB(16)+DisplayFormat doubles peak RAM and OOMs on stage start.
+    SDL_Surface *temp_surface = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SURFACE_FORMAT);
     if (!temp_surface) {
         printf("initSurface OOM %dx%d\n", width, height);
         fflush(stdout);
@@ -386,7 +386,7 @@ SDL_Surface *format_text_for_blit(SDL_Surface *text_sf)
     if (!text_sf) {
         return NULL;
     }
-    SDL_Surface *formatted = SDL_ConvertSurfaceFormat(text_sf, SDL_PIXELFORMAT_ARGB8888, 0);
+    SDL_Surface *formatted = SDL_ConvertSurfaceFormat(text_sf, SURFACE_FORMAT, 0);
     SDLL_FreeSurface(text_sf);
     if (!formatted) {
         return NULL;
@@ -554,12 +554,17 @@ bool get_present_rect(int game_w, int game_h, SDL_Rect *dst)
     }
     const int lcd_w = 480;
     const int lcd_h = 272;
-    int w = lcd_w;
-    int h = (lcd_w * game_h) / game_w;
-    if (h > lcd_h) {
-        h = lcd_h;
-        w = (lcd_h * game_w) / game_h;
+    // Integer scale only: a fractional factor (320x240 -> 362x272 = 1.13) draws some pixel rows taller than
+    // others, which distorts fonts and the HUD bars. 1:1 keeps every pixel exact, with borders around it.
+    int scale = lcd_w / game_w;
+    if (lcd_h / game_h < scale) {
+        scale = lcd_h / game_h;
     }
+    if (scale < 1) {
+        return false; // the game is larger than the LCD: stretch
+    }
+    const int w = game_w * scale;
+    const int h = game_h * scale;
     dst->x = (lcd_w - w) / 2;
     dst->y = (lcd_h - h) / 2;
     dst->w = w;
@@ -567,7 +572,7 @@ bool get_present_rect(int game_w, int game_h, SDL_Rect *dst)
     static bool logged = false;
     if (!logged) {
         logged = true;
-        log("present rect %d,%d %dx%d (letterbox)", dst->x, dst->y, dst->w, dst->h);
+        log("present rect %d,%d %dx%d (integer scale %d, borders)", dst->x, dst->y, dst->w, dst->h, scale);
     }
     return true;
 }

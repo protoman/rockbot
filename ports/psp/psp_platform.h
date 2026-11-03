@@ -10,6 +10,10 @@
 
 namespace psp_platform {
 
+// All game surfaces use the PSP GE's native 32-bit layout (R in the low byte), so the screen reaches the
+// texture with one plain copy. With ARGB8888 every frame needed a CPU pass swapping red and blue (5.7 ms).
+static const Uint32 SURFACE_FORMAT = SDL_PIXELFORMAT_ABGR8888;
+
 // --- Bootstrap ---
 // argv0: the program path given by the loader (e.g. ms0:/PSP/GAME/Rockbot1/EBOOT.PBP). The data
 // folder is taken from it; the current directory is not reliable when launched from the XMB.

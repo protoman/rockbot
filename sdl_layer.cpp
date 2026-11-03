@@ -562,7 +562,11 @@ SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
 
 	// SDL2 forbids combining SDL_GetWindowSurface() with a Renderer.
 	// Software backbuffer (game res) + present via texture (scaled to window).
+	#ifdef PSP
+	SDL_Surface *screen = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, psp_platform::SURFACE_FORMAT);
+#else
 	SDL_Surface *screen = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_ARGB8888);
+#endif
 	if (screen == NULL) {
 		printf("SDLL_SetVideoMode: SDL_CreateRGBSurfaceWithFormat failed: %s\n", SDL_GetError());
 		return NULL;
@@ -580,7 +584,11 @@ int SDLL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
 
 SDL_Surface *SDLL_DisplayFormat(SDL_Surface *surface)
 {
+	#ifdef PSP
+	SDL_Surface *out = SDL_ConvertSurfaceFormat(surface, psp_platform::SURFACE_FORMAT, 0);
+#else
 	SDL_Surface *out = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
+#endif
 	return out;
 }
 
@@ -591,8 +599,8 @@ void SDLL_WM_SetCaption(const char *title, const char *icon)
 
 SDL_Surface *SDLL_DisplayFormatAlpha(SDL_Surface *surface)
 {
-	SDL_Surface *out = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
-#ifdef PSP
+	#ifdef PSP
+	SDL_Surface *out = SDL_ConvertSurfaceFormat(surface, psp_platform::SURFACE_FORMAT, 0);
 	psp_platform::adjust_display_format_alpha(out);
 #endif
 	return out;
@@ -618,46 +626,36 @@ int SDLL_Flip(SDL_Surface *screen)
 		return -1;
 	}
 #ifdef PSP
-	// screen is ARGB8888; the texture is ABGR8888 (swap red and blue) or RGB565: one cheap pass instead of
-	// SDL's generic per-pixel conversion.
-	static Uint32 *conv = NULL;
-	static int conv_w = 0, conv_h = 0;
-	if (conv == NULL || conv_w != screen->w || conv_h != screen->h) {
-		SDL_free(conv);
-		conv = (Uint32 *)SDL_malloc((size_t)screen->w * screen->h * 4);
-		conv_w = screen->w;
-		conv_h = screen->h;
-		if (conv == NULL) {
-			return -1;
-		}
-	}
+	// The screen already is ABGR8888 like the texture: a plain copy. Only the optional 16-bit texture
+	// (rgb565.txt) needs a conversion pass.
 	const bool use565 = psp_platform::use_rgb565();
-	for (int y = 0; y < screen->h; y++) {
-		const Uint32 *src = (const Uint32 *)((const Uint8 *)screen->pixels + (size_t)y * screen->pitch);
-		if (use565) {
-			Uint16 *dst16 = (Uint16 *)conv + (size_t)y * screen->w;
-			for (int x = 0; x < screen->w; x++) {
-				const Uint32 p = src[x];
-				dst16[x] = (Uint16)(((p >> 8) & 0xF800u) | ((p >> 5) & 0x07E0u) | ((p >> 3) & 0x001Fu));
-			}
-		} else {
-			Uint32 *dst = conv + (size_t)y * screen->w;
-			int x = 0;
-			for (; x + 4 <= screen->w; x += 4) { // unrolled: the loop is the hot spot of the frame
-				const Uint32 p0 = src[x], p1 = src[x+1], p2 = src[x+2], p3 = src[x+3];
-				dst[x]   = (p0 & 0xFF00FF00u) | ((p0 >> 16) & 0xFFu) | ((p0 & 0xFFu) << 16);
-				dst[x+1] = (p1 & 0xFF00FF00u) | ((p1 >> 16) & 0xFFu) | ((p1 & 0xFFu) << 16);
-				dst[x+2] = (p2 & 0xFF00FF00u) | ((p2 >> 16) & 0xFFu) | ((p2 & 0xFFu) << 16);
-				dst[x+3] = (p3 & 0xFF00FF00u) | ((p3 >> 16) & 0xFFu) | ((p3 & 0xFFu) << 16);
-			}
-			for (; x < screen->w; x++) {
-				const Uint32 p = src[x];
-				dst[x] = (p & 0xFF00FF00u) | ((p >> 16) & 0xFFu) | ((p & 0xFFu) << 16);
+	const void *upload_pixels = screen->pixels;
+	int upload_pitch = screen->pitch;
+	if (use565) {
+		static Uint16 *conv16 = NULL;
+		static int conv_w = 0, conv_h = 0;
+		if (conv16 == NULL || conv_w != screen->w || conv_h != screen->h) {
+			SDL_free(conv16);
+			conv16 = (Uint16 *)SDL_malloc((size_t)screen->w * screen->h * 2);
+			conv_w = screen->w;
+			conv_h = screen->h;
+			if (conv16 == NULL) {
+				return -1;
 			}
 		}
+		for (int y = 0; y < screen->h; y++) {
+			const Uint32 *src = (const Uint32 *)((const Uint8 *)screen->pixels + (size_t)y * screen->pitch);
+			Uint16 *dst16 = conv16 + (size_t)y * screen->w;
+			for (int x = 0; x < screen->w; x++) {
+				const Uint32 p = src[x]; // ABGR: red in the low byte
+				dst16[x] = (Uint16)(((p << 8) & 0xF800u) | ((p >> 5) & 0x07E0u) | ((p >> 19) & 0x001Fu));
+			}
+		}
+		upload_pixels = conv16;
+		upload_pitch = screen->w * 2;
 	}
 	const unsigned int t_swap = sceKernelGetSystemTimeLow();
-	if (SDL_UpdateTexture(texture, NULL, conv, screen->w * (use565 ? 2 : 4)) != 0) {
+	if (SDL_UpdateTexture(texture, NULL, upload_pixels, upload_pitch) != 0) {
 		psp_platform::log("flip: SDL_UpdateTexture failed: %s", SDL_GetError());
 		return -1;
 	}
