@@ -74,12 +74,20 @@ Not yet verified on real hardware. No `.pkg` has been produced yet.
 5. **Crash on `graphicsLib::change_surface_color`.** RLE-accelerated surfaces have no
    pixel data until locked; `change_colorkey_color` wrote through a NULL pointer.
    It now locks the surface, and `put_pixel`/`get_pixel` refuse NULL pixels.
-   *Fixes 4's cursor-repeat and 5 are built but still need a confirmation run.*
+6. **Smeared/repeated tiles and backgrounds while scrolling (root cause of #5 too).**
+   This SDL 1.3 snapshot's `SDL_DisplayFormat()` is `SDL_ConvertSurface(.., SDL_RLEACCEL)`,
+   so every loaded image (tileset, backgrounds, the stage's cached map surface) became
+   RLE-encoded. The old RLE blitter draws repeated, shifted copies when the source
+   rectangle is offset on this big-endian build, and RLE surfaces have no pixel data
+   until locked (the NULL write in `change_colorkey_color`, blank `SDL_SaveBMP` dumps).
+   Fix in `sdl_layer.cpp` (PS3 only): `SDLL_DisplayFormat` converts to the video format
+   without RLE, and `SDLL_SetColorKey`/`SDLL_SetAlpha` drop `SDL_RLEACCEL`.
+   Verified in RPCS3: scrolling is correct.
 
 ## Open items
 
-- Re-test in RPCS3: menus move one step per press; the crash after pressing Z/A
-  (attack / stick-left) in a stage is gone; a stage runs past a few minutes.
+- Everything above was confirmed in RPCS3 (menus, stage scrolling, attack, no freeze).
+  A stage should still be played for several minutes on real hardware.
 - **Endianness audit** — raw `fread` loads that still need byte swapping or a check:
   `file_npc_v3_1_2::vulnerable_area` (not converted), the projectile `trajectory`
   conversion is applied to a copy and discarded (`game_mediator.cpp`),
@@ -116,6 +124,10 @@ CFW PS3 through “Install Package Files”. Add this to `ports/ps3/build.sh` be
 
 - Log from anywhere with `ps3_platform::log("...")` and read `TTY.log`; bracket suspect
   calls with logs *before and after* — the last line tells you which call never returns.
+- To see what the game really draws, save `game_screen` with `SDL_SaveBMP` to
+  `/dev_hdd0/tmp/rockbot/` (visible under `~/.config/rpcs3/dev_hdd0/tmp/rockbot/`) and
+  convert it with ImageMagick. Do not `SDL_SaveBMP` a surface that has a colorkey or is
+  RLE-encoded: it comes out blank.
 - A game that "freezes" while RPCS3 still shows ~60 FPS is stuck in a blocking call;
   RPCS3's syscall-usage table at the end of `RPCS3.log` shows what it was spinning on.
 - Emulator quirk: the first run after each rebuild is slow (LLVM compile); wait for

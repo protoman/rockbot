@@ -904,6 +904,9 @@ const char *SDLL_Mix_GetError()
 
 int SDLL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha)
 {
+#ifdef PS3
+	flag &= ~SDL_RLEACCEL; // no RLE on PS3 (see SDLL_DisplayFormat)
+#endif
 	return SDL_SetAlpha(surface, flag, alpha);
 }
 
@@ -933,6 +936,17 @@ int SDLL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
 
 SDL_Surface *SDLL_DisplayFormat(SDL_Surface *surface)
 {
+#ifdef PS3
+	// SDL_DisplayFormat() in this SDL 1.3 snapshot converts with SDL_RLEACCEL, which
+	// makes every loaded surface RLE-encoded. Its RLE blitter draws smeared, repeated
+	// copies when the source rectangle is offset (tilesets, backgrounds) on this
+	// big-endian build, and RLE surfaces have no pixel data until locked. Convert to
+	// the display format without RLE instead.
+	SDL_Surface *video = SDL_GetVideoSurface();
+	if (video != NULL) {
+		return SDL_ConvertSurface(surface, video->format, SDL_SWSURFACE);
+	}
+#endif
 	return SDL_DisplayFormat(surface);
 }
 
@@ -1026,6 +1040,9 @@ void SDLL_FreeSurface(SDL_Surface *surface)
 
 int SDLL_SetColorKey(SDL_Surface *surface, int flag, Uint32 key)
 {
+#ifdef PS3
+	flag &= ~SDL_RLEACCEL; // no RLE on PS3 (see SDLL_DisplayFormat)
+#endif
 	return SDL_SetColorKey(surface, flag, key);
 }
 
