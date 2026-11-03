@@ -21,7 +21,9 @@ void heartbeat();
 // Called once per game logic tick (fps_control::limit): the perf line reports ticks per second.
 void tick();
 // Profiling of the screen update (microseconds): texture upload, clear+copy, present.
-void flip_timing(unsigned int tex_us, unsigned int copy_us, unsigned int present_us);
+void flip_timing(unsigned int swap_us, unsigned int upload_us, unsigned int copy_us, unsigned int present_us);
+// Options read at boot from empty marker files next to EBOOT.PBP.
+bool use_rgb565();   // rgb565.txt: 16-bit screen texture (half the upload, slightly fewer colors)
 void get_filepath(std::string &filepath, int maxpathlen);
 
 // --- Graphics / fonts / video ---

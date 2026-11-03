@@ -545,10 +545,10 @@ SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
 		SDLL_GetCompiledVersion(), win_w, win_h, width, height);
 
 #ifdef PSP
-	// ABGR8888 is the PSP's native texture format. With ARGB8888 SDL converts every pixel on the CPU
-	// at every update (about 27 ms per frame, 80% of the frame time); SDLL_Flip swaps R/B itself instead.
+	// ABGR8888 (or RGB565 with rgb565.txt) is the PSP's native texture format. With ARGB8888 SDL converts
+	// every pixel on the CPU at every update (about 27 ms per frame); SDLL_Flip converts it itself instead.
 	texture = SDL_CreateTexture(renderer,
-								SDL_PIXELFORMAT_ABGR8888,
+								psp_platform::use_rgb565() ? SDL_PIXELFORMAT_RGB565 : SDL_PIXELFORMAT_ABGR8888,
 #else
 	texture = SDL_CreateTexture(renderer,
 								SDL_PIXELFORMAT_ARGB8888,
@@ -618,27 +618,46 @@ int SDLL_Flip(SDL_Surface *screen)
 		return -1;
 	}
 #ifdef PSP
-	// screen is ARGB8888, the texture ABGR8888: swap red and blue (one cheap pass instead of SDL's generic conversion)
-	static Uint32 *abgr = NULL;
-	static int abgr_w = 0, abgr_h = 0;
-	if (abgr == NULL || abgr_w != screen->w || abgr_h != screen->h) {
-		SDL_free(abgr);
-		abgr = (Uint32 *)SDL_malloc((size_t)screen->w * screen->h * 4);
-		abgr_w = screen->w;
-		abgr_h = screen->h;
-		if (abgr == NULL) {
+	// screen is ARGB8888; the texture is ABGR8888 (swap red and blue) or RGB565: one cheap pass instead of
+	// SDL's generic per-pixel conversion.
+	static Uint32 *conv = NULL;
+	static int conv_w = 0, conv_h = 0;
+	if (conv == NULL || conv_w != screen->w || conv_h != screen->h) {
+		SDL_free(conv);
+		conv = (Uint32 *)SDL_malloc((size_t)screen->w * screen->h * 4);
+		conv_w = screen->w;
+		conv_h = screen->h;
+		if (conv == NULL) {
 			return -1;
 		}
 	}
+	const bool use565 = psp_platform::use_rgb565();
 	for (int y = 0; y < screen->h; y++) {
 		const Uint32 *src = (const Uint32 *)((const Uint8 *)screen->pixels + (size_t)y * screen->pitch);
-		Uint32 *dst = abgr + (size_t)y * screen->w;
-		for (int x = 0; x < screen->w; x++) {
-			const Uint32 p = src[x];
-			dst[x] = (p & 0xFF00FF00u) | ((p >> 16) & 0xFFu) | ((p & 0xFFu) << 16);
+		if (use565) {
+			Uint16 *dst16 = (Uint16 *)conv + (size_t)y * screen->w;
+			for (int x = 0; x < screen->w; x++) {
+				const Uint32 p = src[x];
+				dst16[x] = (Uint16)(((p >> 8) & 0xF800u) | ((p >> 5) & 0x07E0u) | ((p >> 3) & 0x001Fu));
+			}
+		} else {
+			Uint32 *dst = conv + (size_t)y * screen->w;
+			int x = 0;
+			for (; x + 4 <= screen->w; x += 4) { // unrolled: the loop is the hot spot of the frame
+				const Uint32 p0 = src[x], p1 = src[x+1], p2 = src[x+2], p3 = src[x+3];
+				dst[x]   = (p0 & 0xFF00FF00u) | ((p0 >> 16) & 0xFFu) | ((p0 & 0xFFu) << 16);
+				dst[x+1] = (p1 & 0xFF00FF00u) | ((p1 >> 16) & 0xFFu) | ((p1 & 0xFFu) << 16);
+				dst[x+2] = (p2 & 0xFF00FF00u) | ((p2 >> 16) & 0xFFu) | ((p2 & 0xFFu) << 16);
+				dst[x+3] = (p3 & 0xFF00FF00u) | ((p3 >> 16) & 0xFFu) | ((p3 & 0xFFu) << 16);
+			}
+			for (; x < screen->w; x++) {
+				const Uint32 p = src[x];
+				dst[x] = (p & 0xFF00FF00u) | ((p >> 16) & 0xFFu) | ((p & 0xFFu) << 16);
+			}
 		}
 	}
-	if (SDL_UpdateTexture(texture, NULL, abgr, screen->w * 4) != 0) {
+	const unsigned int t_swap = sceKernelGetSystemTimeLow();
+	if (SDL_UpdateTexture(texture, NULL, conv, screen->w * (use565 ? 2 : 4)) != 0) {
 		psp_platform::log("flip: SDL_UpdateTexture failed: %s", SDL_GetError());
 		return -1;
 	}
@@ -651,7 +670,7 @@ int SDLL_Flip(SDL_Surface *screen)
 	if (flip_log) psp_platform::log("flip #%u texture updated", flip_n);
 #endif
 #ifdef PSP
-	const unsigned int t_tex = sceKernelGetSystemTimeLow();
+	const unsigned int t_upload = sceKernelGetSystemTimeLow();
 #endif
 	// Copy RGB as-is; ignore per-pixel alpha (avoids empty frame if A was left 0).
 	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
@@ -674,7 +693,7 @@ int SDLL_Flip(SDL_Surface *screen)
 #endif
 	SDL_RenderPresent(renderer);
 #ifdef PSP
-	psp_platform::flip_timing(t_tex - t_start, t_copy - t_tex, sceKernelGetSystemTimeLow() - t_copy);
+	psp_platform::flip_timing(t_swap - t_start, t_upload - t_swap, t_copy - t_upload, sceKernelGetSystemTimeLow() - t_copy);
 	if (flip_log) psp_platform::log("flip #%u presented", flip_n);
 #endif
 	return 0;

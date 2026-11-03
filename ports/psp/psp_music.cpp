@@ -32,6 +32,8 @@ XmpMusic *g_current = NULL;
 volatile int g_volume = 128;
 volatile unsigned int g_decode_us = 0;
 
+// libxmp renders at 22.05 kHz (half the mixing work: the PSP CPU is shared with the game) and every stereo
+// frame is written twice to get the mixer's 44.1 kHz. Tracker samples are low rate, the difference is small.
 void hook(void *udata, Uint8 *stream, int len)
 {
     XmpMusic *m = (XmpMusic *)udata;
@@ -39,8 +41,14 @@ void hook(void *udata, Uint8 *stream, int len)
         std::memset(stream, 0, len);
         return;
     }
+    static Uint32 half[2048]; // up to 8192 bytes of output per call (mixer chunk is 1024 frames = 4096 bytes)
+    int out_frames = len / 4;
+    if (out_frames > 4096) {
+        out_frames = 4096;
+    }
+    const int in_frames = out_frames / 2;
     const unsigned int t0 = sceKernelGetSystemTimeLow();
-    int r = xmp_play_buffer(m->ctx, stream, len, m->xmp_loop);
+    int r = xmp_play_buffer(m->ctx, half, in_frames * 4, m->xmp_loop);
     g_decode_us += sceKernelGetSystemTimeLow() - t0;
     if (r < 0) { // end of the module (or an error): silence from now on
         m->playing = false;
@@ -48,12 +56,19 @@ void hook(void *udata, Uint8 *stream, int len)
         return;
     }
     const int volume = g_volume;
-    if (volume < 128) {
-        Sint16 *samples = (Sint16 *)stream;
-        const int count = len / 2;
-        for (int i = 0; i < count; i++) {
-            samples[i] = (Sint16)((samples[i] * volume) >> 7);
+    Uint32 *out = (Uint32 *)stream;
+    for (int i = 0; i < in_frames; i++) {
+        Uint32 frame = half[i];
+        if (volume < 128) {
+            Sint16 left = (Sint16)((Sint16)(frame & 0xFFFF) * volume >> 7);
+            Sint16 right = (Sint16)((Sint16)(frame >> 16) * volume >> 7);
+            frame = ((Uint32)(Uint16)right << 16) | (Uint16)left;
         }
+        out[2*i] = frame;
+        out[2*i + 1] = frame;
+    }
+    if (out_frames * 4 < len) { // odd sizes: silence for the rest
+        std::memset(stream + out_frames * 4, 0, len - out_frames * 4);
     }
 }
 
@@ -142,7 +157,7 @@ int play(SoundMusic *music, int loops)
     }
     Mix_HaltMusic();
     stop_current();
-    if (xmp_start_player(m->ctx, 44100, 0) < 0) {
+    if (xmp_start_player(m->ctx, 22050, 0) < 0) {
         psp_platform::log("psp_music: xmp_start_player failed");
         return -1;
     }

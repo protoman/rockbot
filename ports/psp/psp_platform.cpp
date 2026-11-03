@@ -106,7 +106,8 @@ static SceUID g_main_thread = -1;
 static u32 g_text_addr = 0, g_text_size = 0;
 
 static bool g_no_music = false;    // no_music.txt next to EBOOT.PBP: do not load music (debugging)
-static bool g_keep_aspect = false; // keep_aspect.txt next to EBOOT.PBP: letterbox instead of stretching
+static bool g_keep_aspect = true;  // letterbox (correct aspect ratio); stretch.txt next to EBOOT.PBP stretches instead
+static bool g_rgb565 = false;      // rgb565.txt: 16-bit texture
 
 void log(const char *fmt, ...)
 {
@@ -144,7 +145,7 @@ void log(const char *fmt, ...)
     }
 }
 
-static u32 g_tex_us = 0, g_copy_us = 0, g_present_us = 0;
+static u32 g_swap_us = 0, g_upload_us = 0, g_copy_us = 0, g_present_us = 0;
 static volatile u32 g_ticks = 0;
 
 void tick() { g_ticks++; }
@@ -171,26 +172,29 @@ void heartbeat()
     const u32 elapsed = now - window_start;
     if (elapsed >= 2000000u) {
         const unsigned int audio_us = psp_music::take_decode_us();
-        const u32 flip_total = g_tex_us + g_copy_us + g_present_us;
+        const u32 flip_total = g_swap_us + g_upload_us + g_copy_us + g_present_us;
         const u32 n = frames_in_window;
-        log("perf: %u frames in %u ms = %u.%u fps, game ticks/s %u | per frame us: texture %u, copy %u, present %u, outside-flip %u | "
+        log("perf: %u frames in %u ms = %u.%u fps, game ticks/s %u | per frame us: swap %u, upload %u, copy %u, present %u, outside-flip %u | "
             "music %u%% | slowest frame %u ms | cpu %d MHz bus %d MHz",
             (unsigned)n, (unsigned)(elapsed / 1000), (unsigned)((n * 1000000ull) / elapsed),
-            (unsigned)(((n * 10000000ull) / elapsed) % 10), (unsigned)((g_ticks * 1000000ull) / elapsed), (unsigned)(g_tex_us / n), (unsigned)(g_copy_us / n),
+            (unsigned)(((n * 10000000ull) / elapsed) % 10), (unsigned)((g_ticks * 1000000ull) / elapsed), (unsigned)(g_swap_us / n), (unsigned)(g_upload_us / n), (unsigned)(g_copy_us / n),
             (unsigned)(g_present_us / n), (unsigned)((elapsed > flip_total ? elapsed - flip_total : 0) / n),
             (unsigned)((audio_us * 100ull) / elapsed), (unsigned)(slowest / 1000),
             scePowerGetCpuClockFrequency(), scePowerGetBusClockFrequency());
         window_start = now;
         slowest = 0;
         frames_in_window = 0;
-        g_tex_us = g_copy_us = g_present_us = 0;
+        g_swap_us = g_upload_us = g_copy_us = g_present_us = 0;
         g_ticks = 0;
     }
 }
 
-void flip_timing(unsigned int tex_us, unsigned int copy_us, unsigned int present_us)
+bool use_rgb565() { return g_rgb565; }
+
+void flip_timing(unsigned int swap_us, unsigned int upload_us, unsigned int copy_us, unsigned int present_us)
 {
-    g_tex_us += tex_us;
+    g_swap_us += swap_us;
+    g_upload_us += upload_us;
     g_copy_us += copy_us;
     g_present_us += present_us;
 }
@@ -267,11 +271,12 @@ void setup(const char *argv0)
     }
     {
         SceIoStat ka;
-        g_keep_aspect = !g_base_dir.empty() && sceIoGetstat((g_base_dir + "keep_aspect.txt").c_str(), &ka) >= 0;
+        g_keep_aspect = !(!g_base_dir.empty() && sceIoGetstat((g_base_dir + "stretch.txt").c_str(), &ka) >= 0);
+        g_rgb565 = !g_base_dir.empty() && sceIoGetstat((g_base_dir + "rgb565.txt").c_str(), &ka) >= 0;
         g_no_music = !g_base_dir.empty() && sceIoGetstat((g_base_dir + "no_music.txt").c_str(), &ka) >= 0;
     }
     char cwd[256];
-    log("boot: module text=0x%08x size=0x%x stack=512K keep_aspect=%d no_music=%d cpu=%d MHz bus=%d MHz (asked 333/166)", (unsigned)g_text_addr, (unsigned)g_text_size, (int)g_keep_aspect, (int)g_no_music, scePowerGetCpuClockFrequency(), scePowerGetBusClockFrequency());
+    log("boot: module text=0x%08x size=0x%x stack=512K keep_aspect=%d rgb565=%d no_music=%d cpu=%d MHz bus=%d MHz (asked 333/166)", (unsigned)g_text_addr, (unsigned)g_text_size, (int)g_keep_aspect, (int)g_rgb565, (int)g_no_music, scePowerGetCpuClockFrequency(), scePowerGetBusClockFrequency());
     log("boot: argv0='%s' base='%s' cwd='%s'", argv0 ? argv0 : "(null)", g_base_dir.c_str(),
         getcwd(cwd, sizeof(cwd)) ? cwd : "(null)");
 }
@@ -543,8 +548,7 @@ void adjust_display_format_alpha(SDL_Surface *surface)
 
 bool get_present_rect(int game_w, int game_h, SDL_Rect *dst)
 {
-    // Stretching to the whole LCD is the path known to work on real hardware (and the fast one).
-    // Letterboxing is opt-in: create an empty keep_aspect.txt next to EBOOT.PBP.
+    // Letterbox by default; an empty stretch.txt next to EBOOT.PBP stretches to the whole LCD instead.
     if (!g_keep_aspect || game_w <= 0 || game_h <= 0) {
         return false;
     }
@@ -563,7 +567,7 @@ bool get_present_rect(int game_w, int game_h, SDL_Rect *dst)
     static bool logged = false;
     if (!logged) {
         logged = true;
-        log("present rect %d,%d %dx%d (keep aspect)", dst->x, dst->y, dst->w, dst->h);
+        log("present rect %d,%d %dx%d (letterbox)", dst->x, dst->y, dst->w, dst->h);
     }
     return true;
 }
