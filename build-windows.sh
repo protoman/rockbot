@@ -26,7 +26,7 @@ set -o pipefail
 # Output:
 #   build/rockbot.exe
 #   build/windows-dlls-<arch>-sdl<N>/*.dll   (also copied next to the exe)
-#   build/packages/Rockbot<N>_Win32_<version>.zip  (if game 1|2 given)
+#   build/packages/Rockbot<N>_Win64_<version>.zip (x86_64) or ..._Win32_... (i686), if game 1|2 given
 
 USE_SDL_VERSION=2
 ARCH="x86_64"
@@ -352,9 +352,10 @@ if [[ -n "$PACKAGE_VERSION" ]]; then
     fi
     VERSION_NAME="$(tr -d '[:space:]' < "$VERSION_FILE")"
     STAGE="${SCRIPT_DIR}/build/packages/win32/rockbot${PACKAGE_VERSION}"
-    OUT_ZIP="${SCRIPT_DIR}/build/packages/Rockbot${PACKAGE_VERSION}_Win32_${VERSION_NAME}.zip"
+    case "$ARCH" in i686) WIN_TAG="Win32" ;; *) WIN_TAG="Win64" ;; esac
+    OUT_ZIP="${SCRIPT_DIR}/build/packages/Rockbot${PACKAGE_VERSION}_${WIN_TAG}_${VERSION_NAME}.zip"
 
-    echo "📦 Packaging Win32 zip for RockDroid${PACKAGE_VERSION} (${VERSION_NAME})..."
+    echo "📦 Packaging ${WIN_TAG} zip for RockDroid${PACKAGE_VERSION} (${VERSION_NAME})..."
     rm -rf "$STAGE"
     mkdir -p "$STAGE/games"
     rsync -a --exclude='.svn' "${SCRIPT_DIR}/build/fonts" "$STAGE/"
