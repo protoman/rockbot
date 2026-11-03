@@ -93,6 +93,10 @@ void log(const char *fmt, ...)
     va_start(ap, fmt);
     int n = vsnprintf(line, sizeof(line) - 1, fmt, ap);
     va_end(ap);
+    if (n >= 0 && n < (int)sizeof(line) - 40) {
+        n += snprintf(line + n, sizeof(line) - 1 - n, " [free=%uK max=%uK]",
+                      (unsigned)(sceKernelTotalFreeMemSize() / 1024), (unsigned)(sceKernelMaxFreeMemSize() / 1024));
+    }
     if (n < 0) {
         return;
     }

@@ -1,6 +1,9 @@
 #include <cstring>
 #include <cstdlib>
 #include "game.h"
+#ifdef PSP
+#include "ports/psp/psp_platform.h"
+#endif
 #include <fstream>
 #include <iostream>
 #include <algorithm>
@@ -103,6 +106,9 @@ game::~game()
 // ********************************************************************************************** //
 void game::initGame()
 {
+#ifdef PSP
+    psp_platform::log("initGame: begin");
+#endif
     player1.initialize();
     loaded_stage = stage(currentStage, &player1);
     player1.initFrames();
@@ -243,6 +249,9 @@ st_float_position game::checkScrolling()
 // ********************************************************************************************** //
 void game::start_stage()
 {
+#ifdef PSP
+    psp_platform::log("start_stage: begin");
+#endif
     _show_boss_hp = false;
     input.clean();
 
@@ -423,6 +432,9 @@ bool game::show_game_intro()
 {
 
 
+#ifdef PSP
+    psp_platform::log("intro: before show_notice");
+#endif
     show_notice();
 
 #ifdef BETA_VERSION
@@ -431,19 +443,34 @@ bool game::show_game_intro()
 
     currentStage = INTRO_STAGE;
 
+#ifdef PSP
+    psp_platform::log("intro: before preloadScenes");
+#endif
     scenes.preloadScenes();
 
+#ifdef PSP
+    psp_platform::log("intro: before unbeaten_intro");
+#endif
     scenes.game_scenes_show_unbeaten_intro();
 
+#ifdef PSP
+    psp_platform::log("intro: before main_screen");
+#endif
     scenes.main_screen();
 
     // Pick stage before loading maps — avoids constructing two full stages
     // back-to-back (OOM / EXIT #21 on PSP).
+#ifdef PSP
+    psp_platform::log("intro: before pick_stage+initGame");
+#endif
     currentStage = scenes.pick_stage(INTRO_STAGE);
     initGame();
 
     // show boss intro with stars, if needed
     soundManager.stop_music();
+#ifdef PSP
+    psp_platform::log("intro: before boss_intro+start_stage");
+#endif
     scenes.boss_intro(currentStage);
     start_stage();
 
