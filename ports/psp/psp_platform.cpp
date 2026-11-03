@@ -34,6 +34,9 @@ extern draw draw_lib;
 extern CURRENT_FILE_FORMAT::file_io fio;
 
 PSP_MODULE_INFO("Rockbot", PSP_MODULE_USER, 1, 0);
+// SDL's PSP renderer (SDL_RenderCopy) uses VFPU instructions: without this attribute the real PSP raises
+// "Coprocessor unusable" on the first frame (PPSSPP does not enforce it).
+PSP_MAIN_THREAD_ATTR(PSP_THREAD_ATTR_USER | PSP_THREAD_ATTR_VFPU);
 // Explicit heap: negative "all-but-N" can leave almost nothing under PPSSPP after SDL_Init.
 PSP_HEAP_SIZE_KB(20 * 1024);
 // 64 KB overflowed silently under the emulator but kills the thread on real hardware.
