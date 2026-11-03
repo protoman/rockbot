@@ -62,6 +62,23 @@ SoundChunk *GameMediator::get_shared_sfx(string filename)
     }
 }
 
+void GameMediator::preload_projectile_sfx()
+{
+    // Same file-name rules as projectilelib.cpp (valid audio extension). The first use of a sound
+    // otherwise loads and converts the file while playing: a visible stall on slow storage (PSP).
+    for (size_t i = 0; i < projectile_list.size(); i++) {
+        std::string name(projectile_list.at(i).sfx_filename);
+        if (name.length() == 0) {
+            continue;
+        }
+        if (name.find(".wav") == std::string::npos && name.find(".mp3") == std::string::npos &&
+            name.find(".ogg") == std::string::npos && name.find(".aiff") == std::string::npos) {
+            continue;
+        }
+        get_sfx(name);
+    }
+}
+
 CURRENT_FILE_FORMAT::file_projectilev3 GameMediator::get_projectile(int n)
 {
     if (n < 0 || n >= projectile_list.size()) {

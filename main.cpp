@@ -498,6 +498,7 @@ int main(int argc, char *argv[])
 #endif
 
     draw_lib.preload();
+    GameMediator::get_instance()->preload_projectile_sfx();
 
 
 #ifdef PSP
