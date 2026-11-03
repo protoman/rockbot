@@ -785,6 +785,69 @@ void draw::pixelate_screen()
     int height = graphLib.gameScreen.height;
 
 
+#ifndef SDL3
+    // Fast path for 32-bit surfaces: work on the pixel memory directly. The generic loop below calls
+    // get_point_color/set_point_color for every pixel of every pass, which took seconds on the PSP.
+    SDL_Surface *screen_sf = graphLib.gameScreen.get_surface();
+    SDL_Surface *res_sf = res_surface.get_surface();
+    if (screen_sf != NULL && res_sf != NULL && screen_sf->format->BytesPerPixel == 4 && res_sf->format->BytesPerPixel == 4 &&
+        screen_sf->w >= width && screen_sf->h >= height && res_sf->w >= width && res_sf->h >= height) {
+        std::vector<unsigned char> rgb((size_t)width * height * 3);
+        for (int pixelationAmount=2; pixelationAmount<8; pixelationAmount++) {
+            // snapshot of the current screen (each pass starts from the previous result)
+            SDLL_LockSurface(screen_sf);
+            for (int y = 0; y < height; y++) {
+                const Uint32 *row = (const Uint32 *)((const Uint8 *)screen_sf->pixels + (size_t)y * screen_sf->pitch);
+                unsigned char *out = &rgb[(size_t)y * width * 3];
+                for (int x = 0; x < width; x++) {
+                    const Uint32 px = row[x];
+                    out[x*3]   = (unsigned char)((px & screen_sf->format->Rmask) >> screen_sf->format->Rshift);
+                    out[x*3+1] = (unsigned char)((px & screen_sf->format->Gmask) >> screen_sf->format->Gshift);
+                    out[x*3+2] = (unsigned char)((px & screen_sf->format->Bmask) >> screen_sf->format->Bshift);
+                }
+            }
+            SDLL_UnlockSurface(screen_sf);
+
+            SDLL_LockSurface(res_sf);
+            for (int x = 0; x < width; x += pixelationAmount) {
+                for (int y = 0; y < height; y += pixelationAmount) {
+                    int avR = 0, avG = 0, avB = 0, pointsCount = 0;
+                    for (int i = 0; i < pixelationAmount && x+i < width; i++) {
+                        for (int j = 0; j < pixelationAmount && y+j < height; j++) {
+                            const unsigned char *c = &rgb[((size_t)(y+j) * width + (x+i)) * 3];
+                            avR += c[0]; avG += c[1]; avB += c[2];
+                            if (c[0] != 0 && c[1] != 0) {
+                                pointsCount++;
+                            }
+                        }
+                    }
+                    if (pointsCount != 0) {
+                        avR = avR/pointsCount; // same averaging as the generic version below
+                        avG = avG/pointsCount;
+                        avB = avB/pointsCount;
+                    }
+                    if (avR > 255) avR = 255;
+                    if (avG > 255) avG = 255;
+                    if (avB > 255) avB = 255;
+                    const Uint32 color = SDLL_MapRGB(res_sf, avR, avG, avB);
+                    for (int j = 0; j < pixelationAmount && y+j < height; j++) {
+                        Uint32 *dst = (Uint32 *)((Uint8 *)res_sf->pixels + (size_t)(y+j) * res_sf->pitch) + x;
+                        for (int i = 0; i < pixelationAmount && x+i < width; i++) {
+                            dst[i] = color;
+                        }
+                    }
+                }
+            }
+            SDLL_UnlockSurface(res_sf);
+            graphLib.copyArea(st_position(0, 0), &res_surface, &graphLib.gameScreen);
+            graphLib.updateScreen();
+            timer.delay(20);
+        }
+        res_surface.freeGraphic();
+        return;
+    }
+#endif
+
     for (int pixelationAmount=2; pixelationAmount<8; pixelationAmount++) {
         for (int x = 0; x < width; x+= pixelationAmount) { // do the whole image
             for (int y = 0; y < height; y+= pixelationAmount) {
