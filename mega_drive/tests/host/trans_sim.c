@@ -81,11 +81,25 @@ static u32 vram_tile_id[2048];
 static int hmode, vmode;
 static s16 hs_plane[2], vs_plane[2];
 static s16 hs_line[2][256];
+static unsigned char hs_valid[2][256];   /* line written since the sim started (VRAM table is garbage before) */
+static int stale_frames, stale_lines_max;
+static int line_view;   /* a line-table write landed: the next displayed frame is in line mode (the mode is switched right after the flush) */
+#define LV() (hmode == HSCROLL_LINE || line_view)
 
-typedef struct { int kind; VDPPlane p; u16 idx, w, h; u16 data[64 * 32]; s16 line[256]; u16 len; } Op;
+typedef struct { int kind; VDPPlane p; u16 idx, w, h; u16 data[64 * 32]; s16 line[256]; u16 len;
+                 const void *src; u16 wm; } Op;   /* src/wm: DMA_QUEUE reads the source at flush time, like SGDK */
 static Op queue[256];
 static int qn;
 static unsigned qbytes_frame, qent_frame;
+
+static void fetch(Op *o)   /* read the DMA source NOW (flush time for queued ops) */
+{
+    if (o->kind == 0) {
+        const u16 *d = (const u16 *)o->src;
+        for (u16 r = 0; r < o->h; r++) memcpy(&o->data[r * o->w], &d[r * o->wm], o->w * 2);
+    } else if (o->kind == 1) memcpy(o->data, o->src, o->w * 2);
+    else if (o->kind == 2) memcpy(o->line, o->src, o->len * 2);
+}
 
 static void apply(Op *o)
 {
@@ -98,7 +112,7 @@ static void apply(Op *o)
         for (u16 i = 0; i < o->w * o->h; i++)
             plane[o->p][(o->idx + i) & (32 * 64 - 1)] = o->data[i];
     } else if (o->kind == 2) {          /* hscroll lines */
-        for (u16 i = 0; i < o->len; i++) hs_line[o->p][o->idx + i] = o->line[i];
+        for (u16 i = 0; i < o->len; i++) { hs_line[o->p][o->idx + i] = o->line[i]; hs_valid[o->p][o->idx + i] = 1; line_view = 1; }
     }
 }
 
@@ -112,9 +126,8 @@ void VDP_setHorizontalScroll(VDPPlane p, s16 v) { hs_plane[p] = v; }
 
 void VDP_setTileMapDataRect(VDPPlane p, const u16 *data, u16 x, u16 y, u16 w, u16 h, u16 wm, u16 method)
 {
-    Op o = { .kind = 0, .p = p, .idx = (u16)((y << 8) | x), .w = w, .h = h };
-    for (u16 r = 0; r < h; r++) memcpy(&o.data[r * w], &data[r * wm], w * 2);
-    if (method == CPU) { apply(&o); return; }
+    Op o = { .kind = 0, .p = p, .idx = (u16)((y << 8) | x), .w = w, .h = h, .src = data, .wm = wm };
+    if (method == CPU) { fetch(&o); apply(&o); return; }
     queue[qn++] = o;
     qent_frame += h;                    /* assumption: one DMA entry per row (stride != plane width) */
     qbytes_frame += w * h * 2;
@@ -123,10 +136,9 @@ void VDP_setTileMapDataRect(VDPPlane p, const u16 *data, u16 x, u16 y, u16 w, u1
 void VDP_setTileMapData(VDPPlane p, const u16 *data, u16 index, u16 w, u16 h, u16 method)
 {
     /* SGDK: VDP_setTileMapData(planeAddr, data, ind, num, vramStep, tm): `w` is num, `h` the step */
-    Op o = { .kind = 1, .p = p, .idx = index, .w = w, .h = 1 };
+    Op o = { .kind = 1, .p = p, .idx = index, .w = w, .h = 1, .src = data };
     (void)h;
-    memcpy(o.data, data, w * 2);
-    if (method == CPU) { apply(&o); return; }
+    if (method == CPU) { fetch(&o); apply(&o); return; }
     queue[qn++] = o;
     qent_frame += 1;
     qbytes_frame += w * 2;
@@ -134,9 +146,8 @@ void VDP_setTileMapData(VDPPlane p, const u16 *data, u16 index, u16 w, u16 h, u1
 
 void VDP_setHorizontalScrollLine(VDPPlane p, u16 line, s16 *values, u16 len, u16 method)
 {
-    Op o = { .kind = 2, .p = p, .len = len, .idx = line };
-    memcpy(o.line, values, len * 2);
-    if (method == CPU) { apply(&o); return; }
+    Op o = { .kind = 2, .p = p, .len = len, .idx = line, .src = values };
+    if (method == CPU) { fetch(&o); apply(&o); return; }
     queue[qn++] = o;
     qent_frame += 1;
     qbytes_frame += len * 2;
@@ -225,7 +236,7 @@ static void observe(void)
     if (!started) return;
     int p_common = -9999, tear = 0;
     for (int y = 0; y < 224; y++) {
-        const s16 hs = (hmode == HSCROLL_LINE) ? hs_line[0][y] : hs_plane[0];
+        const s16 hs = LV() ? hs_line[0][y] : hs_plane[0];
         const int prow = ((y + vs_plane[0]) >> 3) & 31;
         /* the cell shown at the pixel column x=4 and the line inside the tile */
         Dec d = decode(plane[0][prow * 64 + ((((0 + 4) - hs) & 511) >> 3)]);
@@ -250,11 +261,11 @@ static void observe(void)
      * the NEW half y + v_new within 7 px (one VSRAM value serves both) */
     for (int y = 0; y < 224; y++) {
         const int prow = ((y + vs_plane[1]) >> 3) & 31;
-        const s16 hsb = (hmode == HSCROLL_LINE) ? hs_line[1][y] : hs_plane[1];
+        const s16 hsb = LV() ? hs_line[1][y] : hs_plane[1];
         const u16 cell = plane[1][prow * 64 + (((4 - hsb) & 511) >> 3)];
         const u32 id = vram_tile_id[cell & 0x7FF];
         /* which half is this line? from the BG_A decode */
-        Dec d = decode(plane[0][(((y + vs_plane[0]) >> 3) & 31) * 64 + (((4 - ((hmode == HSCROLL_LINE) ? hs_line[0][y] : hs_plane[0])) & 511) >> 3)]);
+        Dec d = decode(plane[0][(((y + vs_plane[0]) >> 3) & 31) * 64 + (((4 - (LV() ? hs_line[0][y] : hs_plane[0])) & 511) >> 3)]);
         const int is_old = (d.map == 1);
         const int v = -((is_old ? bgadj_from : bgadj_to) - 16);
         const int want = (y + v) & 255;              /* plane line wanted at this screen line (the plane wraps at 256) */
@@ -285,9 +296,17 @@ static void observe(void)
 
 void SYS_doVBlankProcess(void)
 {
-    for (int i = 0; i < qn; i++) apply(&queue[i]);
+    /* The frame being DISPLAYED while the CPU worked: its picture is the state before
+     * this flush (plus immediate register writes). In HSCROLL_LINE mode every line must
+     * already hold a table value written by the slide, else it scrolls by leftovers. */
+    if LV() {
+        int bad = 0;
+        for (int y = 0; y < 224; y++) if (!hs_valid[0][y]) bad++;
+        if (bad) { stale_frames++; if (bad > stale_lines_max) stale_lines_max = bad; }
+    }
+    for (int i = 0; i < qn; i++) { fetch(&queue[i]); apply(&queue[i]); }
     for (int k = 0; k < 2; k++) if (vs_pend[k]) { vs_plane[k] = vs_pending[k]; vs_pend[k] = 0; }
-    if (!started && hmode == HSCROLL_LINE) started = 1;
+    if (!started && LV()) started = 1;
     observe();
     qn = 0; qbytes_frame = 0; qent_frame = 0;
 }
@@ -363,6 +382,7 @@ int main(int argc, char **argv)
     printf("PLY old=%d y=[", old_py);
     for (int i = 0; i < frame_n && i < MAXF; i++) printf("%s%d", i ? "," : "", pyseq[i]);
     printf("]\n");
+    printf("STALE frames=%d lines=%d\n", stale_frames, stale_lines_max);
     printf("TEAR n=%d\n", tear_n);
     printf("HMIS old=%d new=%d\n", hmis_old, hmis_new);
     printf("DMA max_bytes=%d max_entries=%d first_bytes=%d first_entries=%d\n", max_bytes, max_entries, first_bytes, first_entries);

@@ -16,6 +16,8 @@ name table frame by frame:
   dma        bytes / queue entries sent in ONE vblank (budget below); the first slide
              frame (ring fill) is reported separately and must fit the queue (192)
   parallax   BG_B rows must show the art line the stage would (adjust_y, plane wrap)
+  stale      a frame DISPLAYED in HSCROLL_LINE mode before the slide wrote the line table
+             (the table in VRAM is garbage then: ladder 233 px off, 1-frame flash; 2026-11)
   vscroll    BG_A's vertical scroll must be written with the VSync variant
   spr        sprites on one scanline during the slide (hardware limit 20)
 
@@ -203,6 +205,8 @@ def run(t2b, w, from_cam, to_cam, old_shift, n_prev, old_y=150, adj=(0, 0)):
         elif ln.startswith("PLY"):
             res["ply_old"] = int(re.search(r"old=(-?\d+)", ln).group(1))
             res["ply"] = [int(v) for v in ln.split("y=[")[1].rstrip("]").split(",") if v]
+        elif ln.startswith("STALE"):
+            res["stale"] = int(re.search(r"frames=(\d+)", ln).group(1))
         elif ln.startswith("TEAR"):
             res["tear"] = int(ln.split("n=")[1])
         elif ln.startswith("HMIS"):
@@ -249,6 +253,8 @@ def verdict(t2b, res, extra):
         d = [abs(b - a) for a, b in zip(ply, ply[1:])]
         if d and max(d) > 6:
             f.append("player-jump(%dpx between frames)" % max(d))
+    if res.get("stale"):
+        f.append("stale-hscroll-table(%d displayed frame(s) in line mode before the table landed)" % res["stale"])
     if res["tear"]:
         f.append("tear(%d frames)" % res["tear"])
     if res["hmis_old"] or res["hmis_new"]:

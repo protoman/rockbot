@@ -592,7 +592,10 @@ return FALSE; }
     const s16 bg_new = bg_offset(to_map, dcam);
     for (u16 y = 0; y < TRANS_LINES; y++) trans_hs_b[y] = bg_old;
 
-    VDP_setScrollingMode(HSCROLL_LINE, VSCROLL_PLANE);
+    // The line mode is switched on right AFTER the first flush (below): the register
+    // applies at once, the table that feeds it (hs_send) only lands in the next
+    // vblank, so switching here showed a frame scrolled by whatever the VRAM table
+    // held (stale lines: ladder ~233 px off, one-frame flash). Host check: "stale".
     VDP_setVerticalScroll(STAGE_PLANE, 0);
     VDP_setVerticalScroll(BG_B, (s16)(vscroll & 7));   // the whole rows are in the tilemap
     // Rows of BG_B already moved to the incoming half. The incoming band grows
@@ -732,6 +735,7 @@ return FALSE; }
 #endif
         SPR_update();
         SYS_doVBlankProcess();
+        if (i == 0) VDP_setScrollingMode(HSCROLL_LINE, VSCROLL_PLANE);   // table just landed
         VDP_setReg(17, 0);   // see main.c: DMA clobbers the window regs
         VDP_setReg(18, 0);
 #ifdef MD_TRANS_DEBUG
