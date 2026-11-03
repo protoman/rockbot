@@ -835,7 +835,14 @@ SDL_Surface *SDLL_rotozoomSurface(SDL_Surface *src, double angle, double zoom, i
 
 int SDLL_Mix_OpenAudio(int frequency, Uint16 format, int channels, int chunksize)
 {
+#ifdef PSP
+	psp_platform::log("Mix_OpenAudio freq=%d format=0x%x ch=%d chunk=%d", frequency, (unsigned)format, channels, chunksize);
+	int open_res = Mix_OpenAudio(frequency, format, channels, chunksize);
+	psp_platform::log("Mix_OpenAudio -> %d (%s)", open_res, open_res < 0 ? Mix_GetError() : "ok");
+	return open_res;
+#else
 	return Mix_OpenAudio(frequency, format, channels, chunksize);
+#endif
 }
 
 int SDLL_Mix_Volume(int channel, int volume)
@@ -850,11 +857,22 @@ int SDLL_Mix_VolumeMusic(int volume)
 
 int SDLL_Mix_PlayMusic(SoundMusic *music, int loops)
 {
+#ifdef PSP
+	psp_platform::log("Mix_PlayMusic music=%p loops=%d", (void*)music, loops);
+	int pm_res = Mix_PlayMusic(music, loops);
+	psp_platform::log("Mix_PlayMusic -> %d", pm_res);
+	return pm_res;
+#else
 	return Mix_PlayMusic(music, loops);
+#endif
 }
 
 int SDLL_Mix_PlayChannel(int channel, SoundChunk *chunk, int loops)
 {
+#ifdef PSP
+	static int sfx_logged = 0;
+	if (sfx_logged < 8) { sfx_logged++; psp_platform::log("Mix_PlayChannel ch=%d chunk=%p", channel, (void*)chunk); }
+#endif
 	return Mix_PlayChannel(channel, chunk, loops);
 }
 

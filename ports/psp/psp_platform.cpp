@@ -77,6 +77,21 @@ int owned_mem_close(SDL_RWops *context)
 
 } // namespace
 
+#ifdef ROCKBOT_PSP_POISON
+// Debug aid: real PSP memory is not zeroed (the emulator's is). Poison every C++ allocation.
+void *operator new(std::size_t n)
+{
+    void *p = std::malloc(n ? n : 1);
+    if (p) std::memset(p, 0xCD, n);
+    return p;
+}
+void *operator new[](std::size_t n) { return operator new(n); }
+void operator delete(void *p) noexcept { std::free(p); }
+void operator delete[](void *p) noexcept { std::free(p); }
+void operator delete(void *p, std::size_t) noexcept { std::free(p); }
+void operator delete[](void *p, std::size_t) noexcept { std::free(p); }
+#endif
+
 namespace psp_platform {
 
 static std::string g_base_dir; // folder that contains EBOOT.PBP, with trailing '/'
@@ -550,18 +565,25 @@ SoundChunk *load_wav(const char *file)
 {
     SDL_RWops *rw = rw_from_file(file, "rb");
     if (!rw) {
+        log("load_wav '%s': cannot open (%s)", file ? file : "(null)", SDL_GetError());
         return NULL;
     }
-    return Mix_LoadWAV_RW(rw, 1);
+    SoundChunk *chunk = Mix_LoadWAV_RW(rw, 1);
+    log("load_wav '%s' -> %p%s%s", file ? file : "(null)", (void *)chunk, chunk ? "" : " ", chunk ? "" : Mix_GetError());
+    return chunk;
 }
 
 SoundMusic *load_mus(const char *file)
 {
     SDL_RWops *rw = rw_from_file(file, "rb");
     if (!rw) {
+        log("load_mus '%s': cannot open (%s)", file ? file : "(null)", SDL_GetError());
         return NULL;
     }
-    return Mix_LoadMUS_RW(rw, 1);
+    log("load_mus '%s' decoding...", file ? file : "(null)");
+    SoundMusic *music = Mix_LoadMUS_RW(rw, 1);
+    log("load_mus '%s' -> %p%s%s", file ? file : "(null)", (void *)music, music ? "" : " ", music ? "" : Mix_GetError());
+    return music;
 }
 
 void get_default_keys(int keys_codes_copy[BTN_COUNT])

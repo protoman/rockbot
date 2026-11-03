@@ -4,6 +4,9 @@
 # Usage:
 #   ports/psp/build.sh [1|2] [--no-package]
 #
+# ROCKBOT_PSP_POISON=ON fills every C++ allocation with 0xCD (real PSP memory is not zeroed, the
+# emulator's is): finds reads of uninitialised members that only break on hardware.
+#
 # PSPDEV must point at a pspdev installation (default
 # /mnt/ExtraData/Devel/SDK/PSP/pspdev-v20261101/pspdev). Prebuilt releases:
 # https://github.com/pspdev/pspdev/releases (pspdev-ubuntu-latest-x86_64.tar.gz)
@@ -41,6 +44,7 @@ fi
 cmake -S "$ROOT" -B "$BUILD" \
     -DCMAKE_TOOLCHAIN_FILE="$PSPDEV/psp/share/pspdev.cmake" \
     -DCMAKE_BUILD_TYPE=Release \
+    -DROCKBOT_PSP_POISON="${ROCKBOT_PSP_POISON:-OFF}" \
     -DBUILD_PRX=ON \
     -DROCKBOT_VERSION_NUMBER="$VERSION_NUMBER" \
     -DROCKBOT_VERSION_NAME="$VERSION_NAME"

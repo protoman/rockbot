@@ -232,6 +232,10 @@ elseif(ROCKBOT_PSP)
     # -DPSP / -D__PSP__ come from pspdev.cmake. SDL_MAIN_HANDLED keeps the
     # real main() for the PSP crt0 (SDL2 would rename it to SDL_main).
     add_definitions(-DHANDHELD -DSDL_MAIN_HANDLED)
+    set(ROCKBOT_PSP_POISON OFF CACHE BOOL "Fill C++ allocations with 0xCD (debug aid for PSP)")
+    if(ROCKBOT_PSP_POISON)
+        add_definitions(-DROCKBOT_PSP_POISON)
+    endif()
 elseif(ROCKBOT_WII)
     add_definitions(-DWII -DHANDHELD)
 elseif(ROCKBOT_HANDHELD STREQUAL "dingux")
