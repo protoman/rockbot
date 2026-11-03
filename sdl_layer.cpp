@@ -603,7 +603,16 @@ int SDLL_Flip(SDL_Surface *screen)
 	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
+#ifdef PSP
+	SDL_Rect present_rect;
+	if (psp_platform::get_present_rect(screen->w, screen->h, &present_rect)) {
+		SDL_RenderCopy(renderer, texture, NULL, &present_rect);
+	} else {
+		SDL_RenderCopy(renderer, texture, NULL, NULL);
+	}
+#else
 	SDL_RenderCopy(renderer, texture, NULL, NULL);
+#endif
 	SDL_RenderPresent(renderer);
 	return 0;
 }

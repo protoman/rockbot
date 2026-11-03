@@ -24,6 +24,7 @@ build/*.dll
 
 # PlayStation 3 build output
 build-ps3/
+build-psp/
 
 # Game artifiacts
 rockbot

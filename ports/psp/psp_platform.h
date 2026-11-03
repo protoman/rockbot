@@ -40,6 +40,11 @@ unsigned int ram_available();
 // --- SDL layer hooks (called from sdl_layer.cpp) ---
 void adjust_window_size(int requested_w, int requested_h, int *win_w, int *win_h, Uint32 *window_flags);
 void adjust_display_format_alpha(SDL_Surface *surface);
+// Destination rect for presenting the game frame on the 480x272 LCD.
+// Returns false when the frame should fill the whole screen (stretched).
+// Otherwise keeps the game's aspect ratio, centered with black bars; the GU
+// renderer does this scaling in hardware, so it costs nothing extra.
+bool get_present_rect(int game_w, int game_h, SDL_Rect *dst);
 RWopsPtr *rw_from_file(const char *file, const char *mode);
 void prepare_color_key(SDL_Surface *surface, int sdl2_flag);
 SoundChunk *load_wav(const char *file);

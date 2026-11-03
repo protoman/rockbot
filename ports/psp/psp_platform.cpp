@@ -334,6 +334,27 @@ void adjust_display_format_alpha(SDL_Surface *surface)
     }
 }
 
+bool get_present_rect(int game_w, int game_h, SDL_Rect *dst)
+{
+    // "Fullscreen" in the video menu = stretch to the whole LCD.
+    if (SharedData::get_instance()->game_config.video_fullscreen == true || game_w <= 0 || game_h <= 0) {
+        return false;
+    }
+    const int lcd_w = 480;
+    const int lcd_h = 272;
+    int w = lcd_w;
+    int h = (lcd_w * game_h) / game_w;
+    if (h > lcd_h) {
+        h = lcd_h;
+        w = (lcd_h * game_w) / game_h;
+    }
+    dst->x = (lcd_w - w) / 2;
+    dst->y = (lcd_h - h) / 2;
+    dst->w = w;
+    dst->h = h;
+    return true;
+}
+
 RWopsPtr *rw_from_file(const char *file, const char *mode)
 {
     const bool writing = mode && (mode[0] == 'w' || mode[0] == 'a' || std::strchr(mode, '+'));
@@ -538,6 +559,7 @@ void adjust_window_size(int requested_w, int requested_h, int *win_w, int *win_h
     if (window_flags) *window_flags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
 }
 void adjust_display_format_alpha(SDL_Surface *) {}
+bool get_present_rect(int, int, SDL_Rect *) { return false; }
 RWopsPtr *rw_from_file(const char *file, const char *mode) { return SDL_RWFromFile(file, mode); }
 void prepare_color_key(SDL_Surface *, int) {}
 SoundChunk *load_wav(const char *file) { return Mix_LoadWAV(file); }

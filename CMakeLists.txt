@@ -6,10 +6,17 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Output Directory (same location as DESTDIR=build used by the old qmake scripts)
-if(CMAKE_SYSTEM_NAME STREQUAL "PS3")
+if(CMAKE_SYSTEM_NAME STREQUAL "PS3" OR PSP)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 else()
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
+endif()
+
+# PSP cross build (pspdev) uses psp/share/pspdev.cmake, which defines PSP.
+if(PSP)
+    set(ROCKBOT_PSP TRUE)
+    # pspdev ships SDL2 (+ image/mixer/ttf/gfx); the game also builds with SDL2 there.
+    set(USE_SDL_VERSION 2 CACHE STRING "SDL major version" FORCE)
 endif()
 
 # PlayStation 3 cross build (PSL1GHT) uses its own toolchain file.
@@ -49,9 +56,16 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         -Werror=return-type
     )
     # MinGW often lacks libssp; keep stack protector for native Unix builds only.
-    if(NOT WIN32 AND NOT ROCKBOT_PS3)
+    if(NOT WIN32 AND NOT ROCKBOT_PS3 AND NOT ROCKBOT_PSP)
         add_compile_options(-fstack-protector-all -fstack-protector)
     endif()
+endif()
+
+if(ROCKBOT_PSP)
+    # Same flags the old Makefile.psp used: no exceptions/RTTI (code size and
+    # RAM), small-data off for PRX builds.
+    add_compile_options(-G0 -O2 -g)
+    add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions> $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>)
 endif()
 
 if(APPLE)
@@ -167,6 +181,10 @@ if(WIN32)
     add_definitions(-DWIN32 -DPC)
 elseif(APPLE)
     add_definitions(-DOSX -DPC)
+elseif(ROCKBOT_PSP)
+    # -DPSP / -D__PSP__ come from pspdev.cmake. SDL_MAIN_HANDLED keeps the
+    # real main() for the PSP crt0 (SDL2 would rename it to SDL_main).
+    add_definitions(-DHANDHELD -DSDL_MAIN_HANDLED)
 elseif(UNIX)
     add_definitions(-DNES_RESOLUTION -DLINUX -DPC)
     pkg_check_modules(X11 REQUIRED x11)
@@ -241,6 +259,9 @@ set(SOURCES
     ports/ps3/ps3_platform.cpp
     sdl_layer.cpp
 )
+if(ROCKBOT_PSP)
+    list(APPEND SOURCES ports/psp/psp_platform.cpp)
+endif()
 
 # Header Files
 set(HEADERS
@@ -308,13 +329,34 @@ set(HEADERS
     scenes/game_menu.h
     ports/android/android_game_services.h
     ports/ps3/ps3_platform.h
+    ports/psp/psp_platform.h
     sdl_layer.h
 )
 
 add_executable(rockbot ${SOURCES} ${HEADERS})
 
 # Link Libraries
-if(NOT ROCKBOT_PS3)
+if(ROCKBOT_PSP)
+    # Static link: the PSP has no shared libs, so take the transitive deps too.
+    set(ROCKBOT_SDL_LIBS
+        ${SDL_MIXER_STATIC_LDFLAGS}
+        ${SDL_IMAGE_STATIC_LDFLAGS}
+        ${SDL_TTF_STATIC_LDFLAGS}
+        ${SDL_GFX_STATIC_LDFLAGS}
+        ${SDL_STATIC_LDFLAGS}
+    )
+    # harfbuzz.pc asks for -pthread, which psp-gcc does not know (PSP has its own threads).
+    list(REMOVE_ITEM ROCKBOT_SDL_LIBS -pthread)
+    # PSP SDK (stub) libraries must come last or psp-fixup-imports warns about
+    # out-of-order stubs. Pull them out of the pkg-config output and re-append
+    # them after the C/C++ runtime.
+    set(_psp_sdk_libs -lGL -lpspvram -lpspaudio -lpspvfpu -lpspdisplay -lpspgu
+        -lpspge -lpsphprm -lpspctrl -lpsppower -lpspdebug -lpsprtc)
+    list(REMOVE_ITEM ROCKBOT_SDL_LIBS ${_psp_sdk_libs})
+    # CMAKE_CXX_STANDARD_LIBRARIES is emitted at the very end of the link line.
+    string(REPLACE ";" " " _psp_sdk_libs_str "${_psp_sdk_libs}")
+    set(CMAKE_CXX_STANDARD_LIBRARIES "-lstdc++ -lm -lc ${_psp_sdk_libs_str}")
+elseif(NOT ROCKBOT_PS3)
     set(ROCKBOT_SDL_LIBS
         ${SDL_LDFLAGS}
         ${SDL_MIXER_LDFLAGS}
@@ -342,5 +384,29 @@ else()
     target_link_libraries(rockbot
         ${ROCKBOT_SDL_LIBS}
         ${ROCKBOT_EXTRA_LIBS}
+    )
+endif()
+
+if(ROCKBOT_PSP)
+    # EBOOT.PBP next to the binary: PRX build, all RAM (MEMSIZE=1), same as the
+    # old Makefile.psp (BUILD_PRX + PSP_LARGE_MEMORY).
+    set(ROCKBOT_VERSION_NAME "0.0.0" CACHE STRING "Version shown in the PSP menu")
+    set(ROCKBOT_VERSION_NUMBER 1 CACHE STRING "Game number (1 = RockDroid1, 2 = RockDroid2)")
+    set(_psp_files "${CMAKE_CURRENT_SOURCE_DIR}/build/packages/files")
+    if(ROCKBOT_VERSION_NUMBER EQUAL 1)
+        set(_psp_icon "${_psp_files}/psp_icon1.png")
+        set(_psp_bg "${_psp_files}/psp_background1.png")
+    else()
+        set(_psp_icon "${_psp_files}/psp_icon.png")
+        set(_psp_bg "${_psp_files}/psp_background.png")
+    endif()
+    create_pbp_file(
+        TARGET rockbot
+        BUILD_PRX
+        TITLE "Rockbot ${ROCKBOT_VERSION_NAME}"
+        VERSION "01.00"
+        MEMSIZE 1
+        ICON_PATH "${_psp_icon}"
+        BACKGROUND_PATH "${_psp_bg}"
     )
 endif()

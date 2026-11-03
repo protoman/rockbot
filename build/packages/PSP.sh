@@ -1,42 +1,29 @@
-#!/bin/sh
-read -r -p "What is the version number you are building? " version_number
-if [ "$version_number" != "1" ] && [ "$version_number" != "2" ];
-then
+#!/bin/bash
+# Builds the PSP package (CMake + pspdev SDK) and zips it.
+# Usage: ./PSP.sh [1|2]     (asks for the version if omitted)
+# PSPDEV selects the SDK (see ../../ports/psp/build.sh).
+set -euo pipefail
+cd "$(dirname "$0")"
+
+version_number="${1:-}"
+if [ -z "$version_number" ]; then
+    read -r -p "What is the version number you are building? " version_number
+fi
+if [ "$version_number" != "1" ] && [ "$version_number" != "2" ]; then
     echo "Invalid version number"
-    exit
+    exit 1
 fi
 
-set -x
-
-VERSIONNAME=`cat version_name_v$version_number.txt`
+VERSIONNAME=$(tr -d '[:space:]' < "version_name_v$version_number.txt")
 GAME_DIR=Rockbot$version_number
+OUT_ZIP="$PWD/Rockbot${version_number}_PSP_$VERSIONNAME.zip"
 
-rm -r -f ./PSP/$GAME_DIR
+# Configures, builds EBOOT.PBP and stages psp_dist/$GAME_DIR
+../../ports/psp/build.sh "$version_number"
 
-#cd ..
-#make clean
-#cd ..
-#qmake ../RockDroid.pro CONFIG -=linux CONFIG+=psp
-#cd build
-#make
-#cd packages
+STAGE="psp_dist/$GAME_DIR"
+find "$STAGE" \( -name '.svn' -o -name 'game*.sav' -o -name 'config*.sav' \) -prune -exec rm -rf {} +
 
-cd ../..
-pwd
-make -f Makefile.psp clean
-make -f Makefile.psp version_number=$version_number VERSIONNAME=$VERSIONNAME
-
-rm -r -f ./PSP
-mkdir ./PSP
-mkdir ./PSP/$GAME_DIR
-mkdir ./PSP/$GAME_DIR/games
-mkdir ./PSP/$GAME_DIR/fonts
-mkdir ./PSP/$GAME_DIR/shared
-cp ./EBOOT.PBP ./PSP/$GAME_DIR/
-rsync -r --exclude=mp3 --exclude=.svn ./build/games/RockDroid$version_number ./PSP/$GAME_DIR/games
-rsync -r --exclude=.svn ./build/fonts ./PSP/$GAME_DIR
-rsync -r --exclude=.svn ./build/shared ./PSP/$GAME_DIR
-rm ./PSP/$GAME_DIR/data/game*.sav
-rm ./PSP/$GAME_DIR/data/config*.sav
-cd ./PSP
-zip -r ../Rockbot2_PSP_$VERSIONNAME.zip *
+rm -f "$OUT_ZIP"
+( cd psp_dist && zip -qr "$OUT_ZIP" "$GAME_DIR" )
+echo "Package: $OUT_ZIP"
