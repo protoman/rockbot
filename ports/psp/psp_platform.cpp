@@ -144,6 +144,8 @@ void log(const char *fmt, ...)
     }
 }
 
+static u32 g_tex_us = 0, g_copy_us = 0, g_present_us = 0;
+
 void heartbeat()
 {
     g_progress++;
@@ -152,8 +154,8 @@ void heartbeat()
     if ((++frames & 31u) == 0) {
         scePowerTick(PSP_POWER_TICK_ALL);
     }
-    // profiling: every 240 frames log fps, the share of time spent decoding music and the slowest frame
-    static u32 window_start = 0, last = 0, slowest = 0;
+    // profiling: every 2 seconds log fps, where the time of a frame goes, music cost and the slowest frame
+    static u32 window_start = 0, last = 0, slowest = 0, frames_in_window = 0;
     const u32 now = sceKernelGetSystemTimeLow();
     if (window_start == 0) {
         window_start = last = now;
@@ -162,17 +164,31 @@ void heartbeat()
         slowest = now - last;
     }
     last = now;
-    if ((frames % 240u) == 0) {
-        const u32 elapsed = now - window_start;
+    frames_in_window++;
+    const u32 elapsed = now - window_start;
+    if (elapsed >= 2000000u) {
         const unsigned int audio_us = psp_music::take_decode_us();
-        if (elapsed > 0) {
-            log("perf: %u fps*10, music %u%%, slowest frame %u ms, cpu %d MHz bus %d MHz", (unsigned)((240ull * 10000000ull) / elapsed),
-                (unsigned)((audio_us * 100ull) / elapsed), (unsigned)(slowest / 1000),
-                scePowerGetCpuClockFrequency(), scePowerGetBusClockFrequency());
-        }
+        const u32 flip_total = g_tex_us + g_copy_us + g_present_us;
+        const u32 n = frames_in_window;
+        log("perf: %u frames in %u ms = %u.%u fps | per frame us: texture %u, copy %u, present %u, outside-flip %u | "
+            "music %u%% | slowest frame %u ms | cpu %d MHz bus %d MHz",
+            (unsigned)n, (unsigned)(elapsed / 1000), (unsigned)((n * 1000000ull) / elapsed),
+            (unsigned)(((n * 10000000ull) / elapsed) % 10), (unsigned)(g_tex_us / n), (unsigned)(g_copy_us / n),
+            (unsigned)(g_present_us / n), (unsigned)((elapsed > flip_total ? elapsed - flip_total : 0) / n),
+            (unsigned)((audio_us * 100ull) / elapsed), (unsigned)(slowest / 1000),
+            scePowerGetCpuClockFrequency(), scePowerGetBusClockFrequency());
         window_start = now;
         slowest = 0;
+        frames_in_window = 0;
+        g_tex_us = g_copy_us = g_present_us = 0;
     }
+}
+
+void flip_timing(unsigned int tex_us, unsigned int copy_us, unsigned int present_us)
+{
+    g_tex_us += tex_us;
+    g_copy_us += copy_us;
+    g_present_us += present_us;
 }
 
 static int watchdog_thread(SceSize, void *)

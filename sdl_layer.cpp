@@ -1,6 +1,7 @@
 #include "sdl_layer.h"
 #ifdef PSP
 #include "ports/psp/psp_platform.h"
+#include <pspkernel.h>
 #include "ports/psp/psp_music.h"
 #endif
 #ifdef PS3
@@ -603,6 +604,7 @@ int SDLL_Flip(SDL_Surface *screen)
 	flip_n++;
 	// first frames and then every 2^n-th one: shows how far the video path gets on real hardware
 	const bool flip_log = flip_n <= 3 || (flip_n & (flip_n - 1)) == 0;
+	const unsigned int t_start = sceKernelGetSystemTimeLow();
 	if (flip_log) psp_platform::log("flip #%u begin screen=%p texture=%p renderer=%p", flip_n, (void*)screen, (void*)texture, (void*)renderer);
 #endif
 	if (screen == NULL || texture == NULL || renderer == NULL) {
@@ -616,6 +618,9 @@ int SDLL_Flip(SDL_Surface *screen)
 	}
 #ifdef PSP
 	if (flip_log) psp_platform::log("flip #%u texture updated", flip_n);
+#endif
+#ifdef PSP
+	const unsigned int t_tex = sceKernelGetSystemTimeLow();
 #endif
 	// Copy RGB as-is; ignore per-pixel alpha (avoids empty frame if A was left 0).
 	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
@@ -633,8 +638,12 @@ int SDLL_Flip(SDL_Surface *screen)
 #else
 	SDL_RenderCopy(renderer, texture, NULL, NULL);
 #endif
+#ifdef PSP
+	const unsigned int t_copy = sceKernelGetSystemTimeLow();
+#endif
 	SDL_RenderPresent(renderer);
 #ifdef PSP
+	psp_platform::flip_timing(t_tex - t_start, t_copy - t_tex, sceKernelGetSystemTimeLow() - t_copy);
 	if (flip_log) psp_platform::log("flip #%u presented", flip_n);
 #endif
 	return 0;

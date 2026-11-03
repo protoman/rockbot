@@ -18,6 +18,8 @@ void setup(const char *argv0 = NULL);
 void log(const char *fmt, ...);
 // Tells the hang watchdog the game is alive (called once per frame).
 void heartbeat();
+// Profiling of the screen update (microseconds): texture upload, clear+copy, present.
+void flip_timing(unsigned int tex_us, unsigned int copy_us, unsigned int present_us);
 void get_filepath(std::string &filepath, int maxpathlen);
 
 // --- Graphics / fonts / video ---
