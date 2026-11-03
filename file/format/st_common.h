@@ -228,7 +228,14 @@ static inline SDL_Surface *rb_duplicate_surface(SDL_Surface *surface)
 #ifdef PS3
     return SDL_ConvertSurface(surface, surface->format, SDL_SWSURFACE);
 #else
-    return SDLL_DisplayFormatAlpha(surface);
+    SDL_Surface *copy = SDLL_DisplayFormatAlpha(surface);
+    if (copy != NULL) {
+        // DisplayFormatAlpha turns the colorkey pixels into alpha-0 pixels (SDL2) or drops the key (SDL1).
+        // Keep the key on the copy too: with a blend mode that ignores alpha (the PSP uses BLENDMODE_NONE for
+        // speed) the transparent pixels were drawn as solid teal boxes around items.
+        SDLL_SetColorKey(copy, SDL_SRCCOLORKEY, SDLL_MapRGB(copy, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+    }
+    return copy;
 #endif
 }
 

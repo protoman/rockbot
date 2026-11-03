@@ -392,6 +392,34 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(const std::string& filename)
         fflush(stdout);
         return NULL;
     }
+#ifndef SDL3
+    // Art exported with color management (gamma/sRGB chunks) can have a background that is close to the
+    // colorkey but not equal (e.g. 72,126,124 instead of 75,125,125), which then shows as an opaque box.
+    // If the top-left pixel is within a small distance of the key, that exact color is the key for this image.
+    if (res_surface->format->BytesPerPixel == 4 && res_surface->w > 0 && res_surface->h > 0) {
+        SDLL_LockSurface(res_surface);
+        const SDL_PixelFormat *fmt = res_surface->format;
+        const Uint32 rgb_mask = fmt->Rmask | fmt->Gmask | fmt->Bmask;
+        const Uint32 corner = *(const Uint32 *)res_surface->pixels & rgb_mask;
+        const int cr = (int)((corner & fmt->Rmask) >> fmt->Rshift);
+        const int cg = (int)((corner & fmt->Gmask) >> fmt->Gshift);
+        const int cb = (int)((corner & fmt->Bmask) >> fmt->Bshift);
+        const int tolerance = 8;
+        const Uint32 key_px = ((Uint32)COLORKEY_R << fmt->Rshift) | ((Uint32)COLORKEY_G << fmt->Gshift) | ((Uint32)COLORKEY_B << fmt->Bshift);
+        if (corner != key_px && std::abs(cr - COLORKEY_R) <= tolerance && std::abs(cg - COLORKEY_G) <= tolerance &&
+            std::abs(cb - COLORKEY_B) <= tolerance) {
+            for (int y = 0; y < res_surface->h; y++) {
+                Uint32 *row = (Uint32 *)((Uint8 *)res_surface->pixels + (size_t)y * res_surface->pitch);
+                for (int x = 0; x < res_surface->w; x++) {
+                    if ((row[x] & rgb_mask) == corner) {
+                        row[x] = (row[x] & ~rgb_mask) | key_px;
+                    }
+                }
+            }
+        }
+        SDLL_UnlockSurface(res_surface);
+    }
+#endif
     SDLL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDLL_MapRGB(game_screen, COLORKEY_R, COLORKEY_G, COLORKEY_B));
 
     return res_surface;
