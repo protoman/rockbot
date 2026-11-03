@@ -32,8 +32,9 @@ Not yet verified on real hardware. No `.pkg` has been produced yet.
 
 - `ports/ps3/ps3_platform.{h,cpp}` — paths, pad defaults, save dir, libc recursive
   locks, RSX command-buffer guard, libio pad reader, TTY `log()`.
-- `ports/ps3/build.sh` — CMake cross build, strip, `sprxlinker`, `fself`, package,
-  grayscale-PNG conversion.
+- `ports/ps3/build.sh [1|2] [--no-package] [--pkg]` — CMake cross build, strip, `sprxlinker`,
+  `fself`, package folder, grayscale-PNG conversion, optional `.pkg` installer.
+- `build/packages/PS3.sh` — asks which game, builds, writes the `.pkg` and a zip.
 - `ports/ps3/padtest/` — tiny SDL app that shows 16 boxes lit by the raw pad data and
   logs every pad report to the TTY. Use it to debug input problems.
 - `cmake/toolchain-ps3.cmake` — PPU toolchain, `-fno-exceptions -fno-rtti`,
@@ -98,27 +99,15 @@ Not yet verified on real hardware. No `.pkg` has been produced yet.
   (no SDL joysticks) — the "press a button" remap screens will not work.
 - Real hardware: untested (a wireless pad connects late — that case is the reason
   for the libio polling).
-- `.pkg` build (not done). Use the PSL1GHT rules, same as `ppu_rules`:
-
-```bash
-PS3DEV=/mnt/ExtraData/Devel/SDK/PS3/ps3dev
-CONTENTID=UP0001-ROCKBOT01_00-0000000000000000
-PKGROOT=build-ps3/pkg
-mkdir -p "$PKGROOT/USRDIR"
-cp -r build-ps3/PS3_GAME/USRDIR/* "$PKGROOT/USRDIR/"
-"$PS3DEV/bin/make_self_npdrm" build-ps3/rockbot_linked \
-    "$PKGROOT/USRDIR/EBOOT.BIN" "$CONTENTID"
-"$PS3DEV/bin/sfo" -f "$PS3DEV/bin/sfo.xml" \
-    --title="RockBot" --appid="ROCKBOT01" "$PKGROOT/PARAM.SFO"
-cp "$PS3DEV/bin/ICON0.PNG" "$PKGROOT/"
-"$PS3DEV/bin/pkg" --contentid "$CONTENTID" "$PKGROOT/" \
-    build-ps3/rockbot.gnpdrm.pkg
-"$PS3DEV/bin/package_finalize" build-ps3/rockbot.gnpdrm.pkg
-```
-
-Notes: `make_self_npdrm` output filename matters, do not rename EBOOT.BIN. Install on a
-CFW PS3 through “Install Package Files”. Add this to `ports/ps3/build.sh` behind
-`--pkg`.
+- Installer: done. `build/packages/PS3.sh [1|2]` (or `ports/ps3/build.sh [1|2] --pkg`)
+  creates `Rockbot<N>_PS3_<version>.pkg` (NPDRM EBOOT, content id
+  `UP0001-ROCKBOT0<N>_00-0000000000000000`, title id `ROCKBOT0<N>`, APP_VER = MM.NN from
+  `build/packages/version_name.txt`) and a zip of the bootable folder for RPCS3. Install the
+  `.pkg` on a CFW/HEN PS3 with "Install Package Files". Not yet installed on real hardware.
+  Gotchas with the ps3dev `pkg` tool: it segfaults on trees deeper than 6 folders (it puts
+  ~0.5 MB of arrays on the stack per level) — the script raises the stack limit; and it
+  silently drops everything past 1024 entries — the script refuses to build above 1000.
+  `make_self_npdrm` output name matters, do not rename EBOOT.BIN.
 
 ## Debugging recipes that worked
 

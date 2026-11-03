@@ -105,3 +105,7 @@ mega_drive/screenshots/
 
 # Python bytecode caches
 __pycache__/
+
+# PS3 package output
+build/packages/PS3/
+build/packages/*.pkg
