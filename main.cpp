@@ -157,6 +157,7 @@ void PS2_copy_to_memorycard(std::string file_in, std::string file_out)
         std::cout << "ERROR: Could not open write file '" << file_out << "'" << std::endl;
         graphLib.show_debug_msg("ERROR #2");
         graphLib.show_debug_msg(file_out);
+        fclose(fp_read);
         return;
     } else {
         std::cout << "WARNING: Opened file '" << file_out << "'" << std::endl;

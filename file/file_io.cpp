@@ -228,7 +228,7 @@ namespace format_v4 {
         bool USE_NEW_READ = true;
         if (USE_NEW_READ == false) {
             filename = std::string(FILEPATH) + "/game" + sufix + ".dat";
-            fp = fopen(filename.c_str(), "rb");
+            fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
             if (!fp) {
                 std::cout << "ERROR: file_io::read_game - file '" << filename << "' not found." << std::endl;
                 fflush(stdout);
@@ -238,6 +238,7 @@ namespace format_v4 {
             if (read_result < 1) {
                 std::cout << "ERROR: file_io::read_game - Error reading struct data from game file '" << filename << "'." << std::endl;
                 fflush(stdout);
+                fclose(fp);
                 exception_manager::throw_general_exception(std::string("file_io::read_game - Error reading data from file."), filename);
             }
             fclose(fp);
@@ -250,7 +251,7 @@ namespace format_v4 {
         // Sint8 player_items[FS_PLATER_ITEMS_N];
         // char stage_face_filename[MAX_STAGES][FS_FACE_FILENAME_MAX]
         filename = std::string(FILEPATH) + "/game_properties" + sufix + ".dat";
-        fp = fopen(filename.c_str(), "rb");
+        fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
         if (!fp) {
             std::cout << "ERROR: file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
@@ -346,7 +347,7 @@ namespace format_v4 {
         // file_weapon weapons[FS_MAX_WEAPONS]
         filename = std::string(FILEPATH) + "/game_weapons" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
-        fp = fopen(filename.c_str(), "rb");
+        fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
         if (!fp) {
             std::cout << "ERROR: file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
@@ -363,7 +364,7 @@ namespace format_v4 {
         // st_file_trophy trophies[TROPHIES_MAX]
         filename = std::string(FILEPATH) + "/game_trophies" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
-        fp = fopen(filename.c_str(), "rb");
+        fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
         if (!fp) {
             std::cout << "ERROR: file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
@@ -380,7 +381,7 @@ namespace format_v4 {
         // st_armor_piece armor_pieces[FS_PLAYER_ARMOR_PIECES_MAX]
         filename = std::string(FILEPATH) + "/game_armorPieces" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
-        fp = fopen(filename.c_str(), "rb");
+        fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
         if (!fp) {
             std::cout << "ERROR: file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
@@ -399,7 +400,7 @@ namespace format_v4 {
         filename = std::string(FILEPATH) + "/game_weaponMenuColors" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
 
-        fp = fopen(filename.c_str(), "rb");
+        fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
         if (!fp) {
             std::cout << "ERROR: file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
@@ -437,7 +438,7 @@ namespace format_v4 {
         FILE *fp;
         std::string filename = std::string(FILEPATH) + "/stages" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
-        fp = fopen(filename.c_str(), "rb");
+        fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
         if (!fp) {
             printf("ERROR.read_stage: Could not read stage '%s'\n", filename.c_str());
 #ifdef ANDROID
@@ -461,6 +462,7 @@ namespace format_v4 {
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### ERROR.read_stage:Error reading struct data from stage file ###");
 #endif
             fflush(stdout);
+            fclose(fp);
             return;
         }
         fclose(fp);
@@ -624,7 +626,7 @@ namespace format_v4 {
         //log::get_instance()->write(std::string("file_io::file_exists.filename[").append(filename).append(std::string("]")));
         bool res = false;
         FILE *fp;
-        fp = fopen(filename.c_str(), "rb");
+        fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
         if (fp) {
             res = true;
             fclose(fp);
@@ -726,7 +728,7 @@ namespace format_v4 {
 
 
         if (!file_exists(filename) && file_exists(filename_old)) {
-            FILE *fp_old = fopen(filename_old.c_str(), "rb");
+            FILE *fp_old = fopen(StringUtils::clean_filename(filename_old).c_str(), "rb");
             if (!fp_old) {
                 std::cout << "WARNING: Could not read config file '" << filename.c_str() << "'." << std::endl;
             } else {
@@ -735,13 +737,14 @@ namespace format_v4 {
                 if (read_result < 1) {
                     printf("ERROR: file_io::read_game - Error reading struct data from game file '%s'.\n", filename.c_str());
                     fflush(stdout);
+                    fclose(fp_old);
                     return;
                 }
                 fclose(fp_old);
                 config = config_old;
             }
         } else {
-            FILE *fp = fopen(filename.c_str(), "rb");
+            FILE *fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
             if (!fp) {
                 std::cout << "WARNING: Could not read config file '" << filename.c_str() << "'." << std::endl;
             } else {
@@ -749,6 +752,7 @@ namespace format_v4 {
                 if (read_result < 1) {
                     printf("ERROR: file_io::read_game - Error reading struct data from game file '%s'.\n", filename.c_str());
                     fflush(stdout);
+                    fclose(fp);
                     return;
                 }
                 fclose(fp);
@@ -783,7 +787,7 @@ namespace format_v4 {
         FILE *fp;
         std::string filename = std::string(SAVEPATH) + CONFIG_FILENAME;
         filename = StringUtils::clean_filename(filename);
-        fp = fopen(filename.c_str(), "wb");
+        fp = fopen(StringUtils::clean_filename(filename).c_str(), "wb");
         if (!fp) {
             std::cout << "ERROR: Could not open config file '" << filename << "'." << std::endl;
             return;
@@ -810,7 +814,7 @@ namespace format_v4 {
 
         std::string filename = get_save_filename(save_n);
 
-        fp = fopen(filename.c_str(), "rb");
+        fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
         if (!fp) {
             std::cout << "ERROR: Could not read save" << std::endl;
             return false;
@@ -819,6 +823,7 @@ namespace format_v4 {
         if (read_result < 1) {
             printf("ERROR: file_io::read_game - Error reading struct data from game file '%s'.\n", filename.c_str());
             fflush(stdout);
+            fclose(fp);
             return false;
         }
 
@@ -885,7 +890,7 @@ namespace format_v4 {
 
         std::string filename = get_save_filename(save_n);
 
-        fp = fopen(filename.c_str(), "wb");
+        fp = fopen(StringUtils::clean_filename(filename).c_str(), "wb");
         if (!fp) {
             std::cout << "ERROR: Could not open save-file '" << filename << "'." << std::endl;
             return false;
@@ -902,8 +907,9 @@ namespace format_v4 {
         FILE *fp;
         std::string filename = get_save_filename(save_n);
 
-        fp = fopen(filename.c_str(), "rb");
+        fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
         if (fp) {
+            fclose(fp);
             return true;
         }
         return false;
@@ -925,7 +931,7 @@ namespace format_v4 {
         std::string filename = std::string(SAVEPATH) + std::string("/") + GAMENAME + std::string(".sav");
         filename = StringUtils::clean_filename(filename);
         FILE* old_format_fp;
-        old_format_fp = fopen(filename.c_str(), "rb");
+        old_format_fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
         if (old_format_fp) {
              // convert v301 save to CURRENT_FORMAT save
              CURRENT_FILE_FORMAT::st_save old_format_save;
@@ -957,7 +963,7 @@ namespace format_v4 {
         std::string filename = std::string(FILEPATH) + "/stages" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
 
-        fp = fopen(filename.c_str(), "rb");
+        fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
         if (!fp) {
             printf("ERROR.read_stage: Could not read stage '%s'\n", filename.c_str());
             fflush(stdout);
@@ -968,6 +974,7 @@ namespace format_v4 {
         if (read_result < 1) {
             printf("ERROR: reading struct data from stage file.\n");
             fflush(stdout);
+            fclose(fp);
             return -1;
         }
         fclose(fp);

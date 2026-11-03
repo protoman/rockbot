@@ -11,6 +11,7 @@ namespace psp_platform { void log(const char *fmt, ...); }
 #include <stdio.h>
 
 #include "../aux_tools/exception_manager.h"
+#include "../aux_tools/stringutils.h"
 
 extern std::string FILEPATH;
 extern std::string GAMEPATH;
@@ -32,7 +33,7 @@ public:
 
 template <class T> void fio_common::save_struct_data(std::string file, T data) {
     std::string filename = std::string(FILEPATH) + "/" + file;
-    FILE *fp = fopen(filename.c_str(), "wb");
+    FILE *fp = fopen(StringUtils::clean_filename(filename).c_str(), "wb");
     if (!fp) {
         std::cout << "ERROR: file_io::save_struct_data - file '" << filename << "' not found." << std::endl;
         return;
@@ -46,7 +47,7 @@ template <class T> void fio_common::save_struct_data(std::string file, T data) {
 template <class T> T fio_common::load_struct_data(std::string file) {
     std::string filename = std::string(FILEPATH) + "/" + file;
     T res;
-    FILE *fp = fopen(filename.c_str(), "rb");
+    FILE *fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
 #ifdef PSP
     psp_platform::log("load %s -> %s", filename.c_str(), fp ? "ok" : "MISSING");
 #endif
@@ -70,7 +71,7 @@ template <class T> T fio_common::load_struct_data(std::string file) {
 template <class T> void fio_common::save_data_to_disk(std::string file, std::vector<T> data)
 {
     std::string filename = std::string(FILEPATH) + "/" + file;
-    FILE *fp = fopen(filename.c_str(), "wb");
+    FILE *fp = fopen(StringUtils::clean_filename(filename).c_str(), "wb");
     if (!fp) {
         std::cout << "ERROR: file_io::save_data_to_disk - file '" << filename << "' not found." << std::endl;
         return;
@@ -89,7 +90,7 @@ template <class T> std::vector<T> fio_common::load_from_disk(std::string file)
 {
     std::string filename = std::string(FILEPATH) + "/" + file;
     std::vector<T> res;
-    FILE *fp = fopen(filename.c_str(), "rb");
+    FILE *fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
 #ifdef PSP
     psp_platform::log("load %s -> %s", filename.c_str(), fp ? "ok" : "MISSING");
 #endif
@@ -120,7 +121,7 @@ template <class T> T fio_common::load_single_object_from_disk(std::string file)
 {
     std::string filename = std::string(FILEPATH) + "/" + file;
     T res;
-    FILE *fp = fopen(filename.c_str(), "rb");
+    FILE *fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
 #ifdef PSP
     psp_platform::log("load %s -> %s", filename.c_str(), fp ? "ok" : "MISSING");
 #endif
@@ -148,7 +149,7 @@ template <class T> T fio_common::load_single_object_from_disk(std::string file)
 template <class T> void fio_common::save_single_object_to_disk(std::string file, T data_in)
 {
     std::string filename = std::string(FILEPATH) + "/" + file;
-    FILE *fp = fopen(filename.c_str(), "wb");
+    FILE *fp = fopen(StringUtils::clean_filename(filename).c_str(), "wb");
     if (!fp) {
         std::cout << "ERROR: file_io::save_single_object_to_disk - file '" << filename << "' not found." << std::endl;
         return;
