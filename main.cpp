@@ -31,7 +31,9 @@
 
 
 // ************** CODE AND DEBUG flags ************** //
-#define PS2LOADFROMFIXEDPOINT 1
+// Debug: forces FILEPATH to a fixed USB path. Leave disabled so the game uses
+// its working directory (host:, cdfs:, mass:/... depending on the launcher).
+//#define PS2LOADFROMFIXEDPOINT 1
 //#define DISABLESOUND 1
 #define PS2LINK 1
 
@@ -277,7 +279,6 @@ void main_loop()
 
 int main(int argc, char *argv[])
 {
-
 #ifdef PSP
     psp_platform::setup();
 #endif
@@ -314,6 +315,9 @@ int main(int argc, char *argv[])
         FILEPATH = "cdfs:";
         PS2_load_CDROM();
     }
+
+    // Load IOP modules once FILEPATH points at the final device.
+    PS2_load_modules();
 #endif
 
 

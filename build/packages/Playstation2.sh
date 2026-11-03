@@ -18,6 +18,7 @@ mkdir ./PS2/$GAME_DIR
 mkdir ./PS2/$GAME_DIR/games
 mkdir ./PS2/$GAME_DIR/fonts
 mkdir ./PS2/$GAME_DIR/shared
+mkdir ./PS2/$GAME_DIR/modules
 
 cp ../rockbot.elf ./PS2/$GAME_DIR/
 
@@ -28,6 +29,7 @@ rsync -r --exclude=.svn ../fonts ././PS2/$GAME_DIR
 rsync -r --exclude=.svn ../shared ././PS2/$GAME_DIR
 rsync -r --exclude=mp3 --exclude=.svn ../games/RockDroid$version_number ./PS2/$GAME_DIR/games
 
+cp ../../ports/ps2/modules/*.irx ./PS2/$GAME_DIR/modules/
 cp ./rockbot_ps2_icon.icn ./PS2/$GAME_DIR/shared/images/
 cp ./icon.sys ./PS2/$GAME_DIR/images/
 cd ./PS2

@@ -127,7 +127,13 @@ bool graphicsLib::initGraphics()
     }
 #else
 	// GRAPHIC LIB
+#ifdef PLAYSTATION2
+    // The pad is handled by libpad (ports/ps2/ps2_pad.h): SDL's PS2 joystick
+    // subsystem hangs during SDL_Init with the current SDK.
+    if (SDLL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO) < 0 ) {
+#else
     if (SDLL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK|SDL_INIT_TIMER|SDL_INIT_AUDIO) < 0 ) {
+#endif
         std::cout << "ERROR: Unable to init SDL. Error: " << SDLL_GetError() << std::endl;
         std::fflush(stdout);
         exception_manager::throw_general_exception(std::string("graphicsLib::initGraphics - Unable to init SDL."), SDLL_GetError());
@@ -135,7 +141,7 @@ bool graphicsLib::initGraphics()
 #endif
 	sdl_initialized = true;
 
-#if defined(PLAYSTATION2) || defined(WII)
+#if defined(WII)
     if (SDLL_NumJoysticks() <= 0) {
         std::cout << "No joysticks found" << std::endl;
         fflush(stdout);
@@ -149,6 +155,7 @@ bool graphicsLib::initGraphics()
     fflush(stdout);
 
     // FONT
+
     SDLL_TTF_Init();
 
     filename = GAMEPATH + std::string("/fonts/pressstart2p.ttf");

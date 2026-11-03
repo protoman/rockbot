@@ -17,6 +17,10 @@ extern game gameControl;
 
 extern bool leave_game;
 
+#ifdef PLAYSTATION2
+#include "ports/ps2/ps2_pad.h"
+#endif
+
 #ifdef SDL3
 #undef SDL_KEYDOWN
 #undef SDL_KEYUP
@@ -66,6 +70,11 @@ inputLib::inputLib() : _used_keyboard(false), held_button_count(0), held_button_
 
 void inputLib::init_joystick()
 {
+#ifdef PLAYSTATION2
+    // SDL's PS2 joystick layer hangs during SDL_Init; use libpad directly.
+    ps2_pad_init();
+    return;
+#endif
 #ifdef ANDROID
     __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::init_joystick - %i joysticks were found.", SDLL_NumJoysticks() );
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::init_joystick - The names of the joysticks are:");
@@ -79,6 +88,10 @@ void inputLib::init_joystick()
 
 void inputLib::change_joystick()
 {
+#ifdef PLAYSTATION2
+    // Single fixed pad on PS2; nothing to switch.
+    return;
+#endif
     SDLL_JoystickClose(joystick1);
     joystick1 = SDLL_JoystickOpen(SharedData::get_instance()->game_config.selected_input_device);
 }
@@ -132,6 +145,36 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
     for (int i=0; i<BTN_COUNT; i++) {
         p1_previous_input[i] = p1_input[i];
     }
+
+#ifdef PLAYSTATION2
+    // Read the PS2 pad directly (SDL's joystick subsystem is not initialised).
+    if (SharedData::get_instance()->game_config.input_type == INPUT_TYPE_DOUBLE ||
+        SharedData::get_instance()->game_config.input_type == INPUT_TYPE_JOYSTICK) {
+        unsigned int ps2_buttons = ps2_pad_read_buttons();
+        for (int i=0; i<BTN_COUNT; i++) {
+            if (SharedData::get_instance()->game_config.button_codes[i].type != JOYSTICK_INPUT_TYPE_BUTTON) {
+                continue;
+            }
+            int value = SharedData::get_instance()->game_config.button_codes[i].value;
+            if (value < 0 || value >= 12) {
+                continue;
+            }
+            int pressed = (ps2_buttons & ps2_pad_button_bits[value]) ? 1 : 0;
+            if (pressed == 1 && p1_input[i] == 0 && i == BTN_JUMP) {
+                p1_input[BTN_JUMP_TIMER] = timer.getTimer();
+            }
+            p1_input[i] = pressed;
+        }
+        // Directions: analog stick (when present) and/or d-pad.
+        int lx = 0, ly = 0;
+        bool have_axes = ps2_pad_read_axes(&lx, &ly) != 0;
+        const int deadzone = 40;
+        p1_input[BTN_UP] = ((have_axes && ly < -deadzone) || (ps2_buttons & PAD_UP)) ? 1 : 0;
+        p1_input[BTN_DOWN] = ((have_axes && ly > deadzone) || (ps2_buttons & PAD_DOWN)) ? 1 : 0;
+        p1_input[BTN_LEFT] = ((have_axes && lx < -deadzone) || (ps2_buttons & PAD_LEFT)) ? 1 : 0;
+        p1_input[BTN_RIGHT] = ((have_axes && lx > deadzone) || (ps2_buttons & PAD_RIGHT)) ? 1 : 0;
+    }
+#endif
 
     int newWidth = 0, newHeight = 0;
     bool resized = false;
@@ -586,11 +629,18 @@ bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_conf
 
 int inputLib::get_joysticks_number()
 {
+#ifdef PLAYSTATION2
+    return ps2_pad_available() ? 1 : 0;
+#else
     return SDLL_NumJoysticks();
+#endif
 }
 
 string inputLib::get_joystick_name(int n)
 {
+#ifdef PLAYSTATION2
+    return std::string("PS2 Controller");
+#endif
     const char * name = SDLL_JoystickName(n);
     if (name) {
         return std::string(name);

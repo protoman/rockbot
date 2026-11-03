@@ -187,6 +187,9 @@ playstation2 {
     QMAKE_CXXFLAGS -= -m64
 #    QMAKE_CXXFLAGS -= -std=gnu++11
     QMAKE_LFLAGS -= -m64
+    # ps2sdk's linkfile is not PIC-aware; the EE code model is non-PIC.
+    QMAKE_CFLAGS_APP -= -fPIC
+    QMAKE_CXXFLAGS_APP -= -fPIC
 
     INCLUDES = -D_EE -O3 -G0 -Wall -G0 -mno-check-zero-division -ffast-math -funroll-loops -fomit-frame-pointer \
     -fstrict-aliasing -funsigned-char -fno-builtin-printf  -I. -Iunzip -DVAR_CYCLES -DCPU_SHUTDOWN -DSPC700_SHUTDOWN \
@@ -194,9 +197,9 @@ playstation2 {
     -D_NOTHREADS -D_STLP_NO_EXCEPTIONS -D_STLP_USE_NEWALLOC -D_STLP_HAS_WCHAR_T -D_STLP_NO_IOSTREAMS -Dwint_t=int \
     -DPLAYSTATION2=1 -DNUM=100 -DUSE_RWOPS -I../include -I./include -I$${PS2SDK}/ports/include/SDL -I$${PS2SDK}/ports/include -I../common I$${PS2SDK}/ee/include
 
-    LIBS = -Dmain=SDL_main $(SUBLIBS) ../ports/ps2/cdvd.s ../ports/ps2/usbd.s ../ports/ps2/usbhdfsd.s ../ports/ps2/SJPCM.s -L. -lstdc++ -lc \
+    LIBS = -Dmain=SDL_main $(SUBLIBS) ../ports/ps2/cdvd.s ../ports/ps2/usbd.s ../ports/ps2/usbhdfsd.s ../ports/ps2/SJPCM.s -T$${PS2SDK}/ee/startup/linkfile -L. -lstdc++ -lc \
     -L$${GSKIT}/lib -L../lib -L$${PS2SDK}/ports/lib \
-    -lSDL_gfx -lSDL_image -ljpeg -ltiff -lpng -lz -ldebug -lSDL_ttf -lsdlmixer -lsdlmain -lsdl -lgskit -ldmakit -llzma -lfreetype -lm -lcdvd -lpacket -ldma \
+    -lSDL_gfx -lSDL_image -ljpeg -ltiff -lpng -lz -ldebug -lSDL_ttf -lsdlmixer -lsdlmain -lsdl -lgskit -ldmakit -lpad -llzma -lfreetype -lm -lcdvd -lpacket -ldma \
     -L$${PS2DEV}/ps2sdk/ee/lib -L$${PS2DEV}/gsKit/lib -L$${PS2DEV}/ps2sdk/ports/lib -lmc \
     -lstdc++  -Wl,--whole-archive -Wl,--no-whole-archive -Wl,--whole-archive -lkernel -Wl,--no-whole-archive
     #QMAKE_POST_LINK += ee-strip --strip-all rockbot.elf
