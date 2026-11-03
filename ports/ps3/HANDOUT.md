@@ -4,9 +4,9 @@ Last updated: 2026-11-03. Read this before continuing the PS3 port.
 
 ## State in one line
 
-Builds, boots, renders Stage 1 at 60 FPS, but the game **freezes after roughly
-1–2 minutes**, and the normal intro/menu path is still broken. No `.pkg` has
-been produced yet.
+Builds, boots in RPCS3, plays the intro, reaches the title screen and a stage,
+and is controllable with a keyboard/pad. The long-standing freeze is fixed.
+Not yet verified on real hardware. No `.pkg` has been produced yet.
 
 ## Environment
 
@@ -14,120 +14,83 @@ been produced yet.
   (nightly 2026-10-12: PPU GCC 13.2.0, PSL1GHT `f649a08`, ps3libraries `b2efde5`)
 - Build: `PS3DEV=/mnt/ExtraData/Devel/SDK/PS3/ps3dev ports/ps3/build.sh`
 - Output: `build-ps3/PS3_GAME/` (`USRDIR/EBOOT.BIN`, `PARAM.SFO`, data)
+- Input test app: `ports/ps3/padtest/build.sh` → `build-ps3/padtest/PS3_GAME`
 - Emulator: `/mnt/ExtraData/programas/rpcs3-v0.0.43-20559-a2c2ca2f_linux64.appimage`
-- Firmware installed in `~/.config/rpcs3/dev_flash` (PS3UPDAT.pup was installed)
-- RPCS3 config/state: `~/.config/rpcs3/`, logs in `~/.cache/rpcs3/RPCS3.log`
-  and guest stdout in `~/.cache/rpcs3/TTY.log`
+  (`--no-gui <EBOOT.BIN>`). The first start after every rebuild recompiles the PPU
+  code with LLVM and takes ~2–3 minutes; later starts are quick. Never start a second
+  instance (it refuses/hangs) — check `ps -eo comm | grep -i '^rpcs3'` first.
+- RPCS3 logs: `~/.cache/rpcs3/RPCS3.log`; guest stdout: `~/.cache/rpcs3/TTY.log`
+  (`ps3_platform::log()` writes straight to the TTY, no stdio involved).
 - Saves: `~/.config/rpcs3/dev_hdd0/tmp/rockbot/`
+- RPCS3 keyboard profile: `~/.config/rpcs3/input_configs/global/Default.yml`
+  (Handler: Keyboard). Without a profile RPCS3 has **no** key bindings at all
+  ("Input configuration empty"). Default keys: arrows = D-pad, X = Cross (jump),
+  Z = Square (attack), C = Circle (dash), V = Triangle (shield), Q/E = L1/R1,
+  Enter = Start, Space = Select (quit), WASD = left stick.
 
 ## Code map
 
-- `ports/ps3/ps3_platform.{h,cpp}` — paths, pad defaults, save dir, the
-  recursive-newlib-lock workaround.
-- `ports/ps3/build.sh` — CMake cross build, strip, `sprxlinker`, `fself`,
-  package, grayscale-PNG conversion.
+- `ports/ps3/ps3_platform.{h,cpp}` — paths, pad defaults, save dir, libc recursive
+  locks, RSX command-buffer guard, libio pad reader, TTY `log()`.
+- `ports/ps3/build.sh` — CMake cross build, strip, `sprxlinker`, `fself`, package,
+  grayscale-PNG conversion.
+- `ports/ps3/padtest/` — tiny SDL app that shows 16 boxes lit by the raw pad data and
+  logs every pad report to the TTY. Use it to debug input problems.
 - `cmake/toolchain-ps3.cmake` — PPU toolchain, `-fno-exceptions -fno-rtti`,
   no `-fstack-protector`.
-- `graphicslib.cpp` — PS3 video mode 1280x720, 3x upscale of 320x240.
-- `file/file_io.cpp` + `game_mediator.cpp` — big-endian swaps shared with Wii.
-- `timerlib.cpp`, `aux_tools/fps_control.cpp`, `sdl_layer.cpp` — PS3 time/sleep
-  handling.
+- `file/fio_scenes.cpp` — scene `.dat` files are little-endian → byte-swapped here.
+- `file/file_io.cpp` + `game_mediator.cpp` — other big-endian swaps shared with Wii.
+- `inputlib.cpp` (`#ifdef PS3`) — polls the pad through libio.
+- `sdl_layer.cpp` (`SDLL_Flip`), `graphicslib.cpp` — PS3 video: 1280x720, 3x upscale.
 
-Commits:
+## What was wrong, and the fixes (all verified in RPCS3 unless noted)
 
-```
-c7e31c7a ps3: keep game time relative, avoid raw SDL delays
-86e24eb4 ps3: native PSL1GHT timer, convert grayscale PNGs
-6ad23d76 ps3: add PSL1GHT port (latest ps3dev SDK)
-```
+1. **Freeze after a short time (root cause).** SDL_PSL1GHT initialises RSX with a
+   **64 KB command buffer** and every `SDL_Flip` adds ~236 bytes through the system
+   gcm calls (`gcmSetFlip`, `gcmSetWaitFlip`) which do not wrap the buffer. After
+   exactly **256 flips** the buffer is full, the flip never completes and the game
+   hangs (the window keeps re-presenting the last frame). RPCS3 splits the buffer in
+   32 KB fragments and its context callback (`rsxContextCallback`) hops between
+   them. Fix: `ps3_platform::rsx_command_buffer_guard()` is called before every flip
+   and, when less than 8 KB is left, calls that callback itself and flushes. Do not
+   use `rsxSetNopCommand` for this: it writes through a stale pointer after the wrap
+   and overruns the buffer.
+2. **Real recursive libc locks.** The old workaround turned every recursive lock into
+   a no-op ("Rockbot is single-threaded"). It is not — SDL starts audio/timer
+   threads — so `malloc` and `stdio` were unprotected. Replaced with lwmutex-based
+   locks created lazily behind a spinlock (the libc ones depend on a meta lock that
+   is created after the game's static constructors run, hence the original abort).
+3. **Intro stuck on the first screen.** Scene files are little-endian and were read
+   raw: `delay_after = 100` became 0x64000000 (~19 days). Now converted in
+   `fio_scenes.cpp` (big-endian builds only).
+4. **No input.** (a) RPCS3 needs a keyboard profile (see above). (b) SDL_PSL1GHT
+   counts pads only during `SDL_Init`; RPCS3 connects the pad slightly later, so SDL
+   saw 0 joysticks and delivered no events. The game now polls libio directly
+   (`ps3_platform::pad_read`). `ioPadGetData` only fills data when the input changed
+   (`len == 0` = no change), so the last state is kept. The polled state is turned
+   into press/release *transitions* because the rest of the game expects events
+   (otherwise a held key moves menu cursors every frame). Directions are bound to the
+   D-pad (buttons 0–3) and the left stick adds movement.
+5. **Crash on `graphicsLib::change_surface_color`.** RLE-accelerated surfaces have no
+   pixel data until locked; `change_colorkey_color` wrote through a NULL pointer.
+   It now locks the surface, and `put_pixel`/`get_pixel` refuse NULL pixels.
+   *Fixes 4's cursor-repeat and 5 are built but still need a confirmation run.*
 
-## What works
+## Open items
 
-- Cross-build and package.
-- Boots in RPCS3 to the Upperland notice.
-- Stage 1 loads, renders correctly at 720p, 60 FPS.
-- Big-endian map/stage/enemy data loads.
-- Audio backend opens (`cellAudio`).
-- Idle animation, clouds and “MISSION STARTED!” play after the timer fix.
-
-## Open bugs (priority order)
-
-### 1. Stage freezes after 1–2 minutes
-
-Symptom: everything stops, including idle animation and disappearing-block
-timer. RPCS3 window still shows ~60 FPS (last frame is just re-presented).
-
-Already tried, did **not** fix:
-
-- native `sysUsleep` in `timerLib::delay` / `SDLL_Delay`
-- `fps_control::limit` using `timer.delay` instead of `SDL_Delay`
-- relative game time (`now_ms - first_reading`), so 32-bit fields do not overflow
-- RPCS3 audio `Renderer: Null`
-- PPU/SPU LLVM and interpreter
-
-Suspects not yet ruled out:
-
-- another blocking `timer.delay`/`SDL_Delay`/`sysUsleep` call
-- a deadlock in SDL audio/SDL_mixer or the pad thread
-- the recursive-lock no-op workaround in `ps3_platform.cpp` interacting with
-  libstdc++/SDL mutexes
-- FPSCR/PPU emulation difference in LLVM
-
-Debugging helper: `ports/ps3/README.md` explains logs. A temporary demo build
-that boots straight into Stage 1 is the fastest repro:
-
-- add `GAME_FLAGS[FLAG_QUICKLOAD] = true;` under `#ifdef PS3` in `main.cpp`
-- in `game::quick_load_game`, skip `scenes.select_player()` and comment
-  `show_ending()` on PS3
-- rebuild, package to `/tmp`, run
-- take two screenshots 5 s apart; identical MD5 = frozen
-
-GDB attempt: RPCS3's `ppu-gdb` segfaults on this machine (Python 3.12 build),
-and host GDB does not understand the 556-byte `g` packet. RPCS3's GDB server is
-enabled by `PPU Debug: true`, port 2345. Decoding the raw RSP `g` packet
-yourself is the next viable way to get the stuck PC; PC is the first 8 bytes.
-
-### 2. Normal intro/menu path goes black
-
-With `show_notice()` enabled, the notice displays but never advances (before
-the timer fix). After the timer fix the notice can still block; skipping it
-(`#ifndef PS3 show_notice();`) leaves a black screen after audio init, before
-the title menu. TTY log stops after `audioPortStart: 0`.
-
-Next: add TTY markers around `scenes.preloadScenes()`,
-`scenes.game_scenes_show_unbeaten_intro()`, `scenes.main_screen()` and
-`fio.have_one_save_file()` to find the blocking call. The demo quickload path
-avoiding these works, so the stage/graphics path is fine.
-
-### 3. Controller input not verified
-
-- PS3 defaults are in `ports/ps3/ps3_platform.cpp`:
-  Cross jump, Square attack, Circle dash, Triangle shield, L1/R1 weapons,
-  Start, Select quit, left analog stick movement.
-- RPCS3 `Keyboard` pad handler did **not** receive xdotool-injected keys in
-  `--no-gui` or GUI mode.
-- A virtual PS3 pad was created with `uinput`
-  (`/tmp/opencode/vpad.py`, name `Sony PLAYSTATION(R)3 Controller`), RPCS3 saw
-  it with `Handler: Evdev`, but Start did not reach the game.
-- Real hardware/controller still untested.
-- Input profile used during tests:
-  `~/.config/rpcs3/input_configs/global/Default.yml`
-  ```yaml
-  Player 1 Input:
-    Handler: Evdev
-    Device: Sony PLAYSTATION(R)3 Controller
-  ```
-  Remove that file to restore RPCS3 defaults.
-
-### 4. Grayscale PNG (fixed)
-
-`icons_small_disabled.png` is the only grayscale PNG; SDL_image on PS3 fails it
-with “Out of memory”. `ports/ps3/build.sh` converts grayscale PNGs in the
-packaged data to RGB via ImageMagick. Keep that step.
-
-## .pkg build (not done yet)
-
-Use the PSL1GHT rules, same as `ppu_rules`:
+- Re-test in RPCS3: menus move one step per press; the crash after pressing Z/A
+  (attack / stick-left) in a stage is gone; a stage runs past a few minutes.
+- **Endianness audit** — raw `fread` loads that still need byte swapping or a check:
+  `file_npc_v3_1_2::vulnerable_area` (not converted), the projectile `trajectory`
+  conversion is applied to a copy and discarded (`game_mediator.cpp`),
+  `file_stage`/`file_stages`/`file_map`/`file_castle` are read raw, and the
+  remaining `file_game` members (weapons, trophies) are not converted.
+  Symptoms to expect: wrong timings/positions only on PS3/Wii.
+- In-game controller remapping uses SDL joystick events, which do not exist on PS3
+  (no SDL joysticks) — the "press a button" remap screens will not work.
+- Real hardware: untested (a wireless pad connects late — that case is the reason
+  for the libio polling).
+- `.pkg` build (not done). Use the PSL1GHT rules, same as `ppu_rules`:
 
 ```bash
 PS3DEV=/mnt/ExtraData/Devel/SDK/PS3/ps3dev
@@ -145,16 +108,20 @@ cp "$PS3DEV/bin/ICON0.PNG" "$PKGROOT/"
 "$PS3DEV/bin/package_finalize" build-ps3/rockbot.gnpdrm.pkg
 ```
 
-Notes:
+Notes: `make_self_npdrm` output filename matters, do not rename EBOOT.BIN. Install on a
+CFW PS3 through “Install Package Files”. Add this to `ports/ps3/build.sh` behind
+`--pkg`.
 
-- `make_self_npdrm` warning: output filename matters, do not rename EBOOT.BIN.
-- Install on CFW PS3 through “Install Package Files”.
-- Add this to `ports/ps3/build.sh` behind `--pkg` only after the runtime freeze
-  is fixed, so a broken package is not distributed.
+## Debugging recipes that worked
+
+- Log from anywhere with `ps3_platform::log("...")` and read `TTY.log`; bracket suspect
+  calls with logs *before and after* — the last line tells you which call never returns.
+- A game that "freezes" while RPCS3 still shows ~60 FPS is stuck in a blocking call;
+  RPCS3's syscall-usage table at the end of `RPCS3.log` shows what it was spinning on.
+- Emulator quirk: the first run after each rebuild is slow (LLVM compile); wait for
+  the log to start before judging a hang.
 
 ## Working tree
 
-Do **not** commit or revert the pre-existing modified files
-(`game.cpp`, `build/games/...`, `mega_drive/...`, `docs/RoadMap.txt`,
-`scripts/ps2run.sh`). They are the owner’s work. The PS3 changes are isolated
-in the commits above.
+Do **not** commit or revert the owner's modified files (`game.cpp`,
+`build/games/...`, `mega_drive/...`, `docs/RoadMap.txt`, `scripts/ps2run.sh`).
