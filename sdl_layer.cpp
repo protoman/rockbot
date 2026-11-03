@@ -966,7 +966,18 @@ int SDLL_ShowCursor(int toggle)
 
 int SDLL_putenv(const char *variable)
 {
+#ifdef PLAYSTATION2
+	std::string var(variable);
+	size_t pos = var.find('=');
+	if (pos != std::string::npos) {
+		std::string name = var.substr(0, pos);
+		std::string val = var.substr(pos + 1);
+		return setenv(name.c_str(), val.c_str(), 1);
+	}
+	return -1;
+#else
 	return SDL_putenv((char*)variable);
+#endif
 }
 
 SDL_RWops *SDLL_RWFromFile(const char *file, const char *mode)
@@ -1178,7 +1189,11 @@ void SDLL_Mix_CloseAudio()
 
 void SDLL_Mix_Quit()
 {
+#ifdef PLAYSTATION2
+	// SDL_mixer 1.2 has no Mix_Quit(); Mix_CloseAudio() is the final cleanup.
+#else
 	Mix_Quit();
+#endif
 }
 
 const char *SDLL_Mix_GetError()
