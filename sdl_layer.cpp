@@ -2,6 +2,9 @@
 #ifdef PSP
 #include "ports/psp/psp_platform.h"
 #endif
+#ifdef PS3
+#include "ports/ps3/ps3_platform.h"
+#endif
 #include <string>
 #include <map>
 #include <cstdio>
@@ -950,7 +953,14 @@ void SDLL_WM_SetIcon(SDL_Surface *icon, Uint8 *mask)
 
 int SDLL_Flip(SDL_Surface *screen)
 {
+#ifdef PS3
+	// SDL_PSL1GHT's 64 KB RSX command buffer fills up after 256 flips and the
+	// game then hangs; wrap it before that happens (see ports/ps3/ps3_platform.cpp).
+	ps3_platform::rsx_command_buffer_guard();
 	return SDL_Flip(screen);
+#else
+	return SDL_Flip(screen);
+#endif
 }
 
 const char* SDLL_GetKeyName(int key)

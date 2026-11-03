@@ -1,3 +1,6 @@
+#ifdef PS3
+#include "ports/ps3/ps3_platform.h"
+#endif
 #include "inputlib.h"
 
 #include <iostream>
@@ -173,6 +176,47 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
         p1_input[BTN_DOWN] = ((have_axes && ly > deadzone) || (ps2_buttons & PAD_DOWN)) ? 1 : 0;
         p1_input[BTN_LEFT] = ((have_axes && lx < -deadzone) || (ps2_buttons & PAD_LEFT)) ? 1 : 0;
         p1_input[BTN_RIGHT] = ((have_axes && lx > deadzone) || (ps2_buttons & PAD_RIGHT)) ? 1 : 0;
+    }
+#endif
+
+#ifdef PS3
+    // SDL_PSL1GHT only counts pads during SDL_Init, so poll libio directly.
+    // The rest of the game expects *events* (a button sets p1_input on press and
+    // clears it on release; input.clean() clears it in between so that menus move
+    // one step per press). Turn the polled state into the same press/release
+    // transitions instead of re-asserting a held button every frame.
+    if (SharedData::get_instance()->game_config.input_type == INPUT_TYPE_DOUBLE ||
+        SharedData::get_instance()->game_config.input_type == INPUT_TYPE_JOYSTICK) {
+        static bool ps3_was_pressed[BTN_COUNT] = { false };
+        unsigned int ps3_buttons = 0;
+        int ps3_lx = 128, ps3_ly = 128;
+        ps3_platform::pad_read(&ps3_buttons, &ps3_lx, &ps3_ly);
+        const int deadzone = 48;
+        for (int i=0; i<BTN_COUNT; i++) {
+            if (SharedData::get_instance()->game_config.button_codes[i].type != JOYSTICK_INPUT_TYPE_BUTTON) {
+                continue;
+            }
+            int value = SharedData::get_instance()->game_config.button_codes[i].value;
+            if (value < 0 || value >= 16) {
+                continue;
+            }
+            bool pressed = ((ps3_buttons >> value) & 1u) ? true : false;
+            // the left analog stick also moves (on top of the d-pad)
+            if (i == BTN_LEFT && ps3_lx < 128 - deadzone) { pressed = true; }
+            if (i == BTN_RIGHT && ps3_lx > 128 + deadzone) { pressed = true; }
+            if (i == BTN_UP && ps3_ly < 128 - deadzone) { pressed = true; }
+            if (i == BTN_DOWN && ps3_ly > 128 + deadzone) { pressed = true; }
+
+            if (pressed && !ps3_was_pressed[i]) {
+                p1_input[i] = 1;
+                if (i == BTN_JUMP) {
+                    p1_input[BTN_JUMP_TIMER] = timer.getTimer();
+                }
+            } else if (!pressed && ps3_was_pressed[i]) {
+                p1_input[i] = 0;
+            }
+            ps3_was_pressed[i] = pressed;
+        }
     }
 #endif
 
