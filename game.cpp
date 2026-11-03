@@ -1614,7 +1614,7 @@ void game::quick_load_game()
     //game_save.stages[STAGE1] = 1;
     //game_save.stages[STAGE2] = 1;
     for (int i=STAGE1; i<=STAGE8; i++) {
-        game_save.stages[i] = 0;
+        game_save.stages[i] = 1;
     }
     for (int i=CASTLE1_STAGE1; i<CASTLE1_STAGE5; i++) {
         game_save.stages[i] = 0;
@@ -1649,18 +1649,18 @@ void game::quick_load_game()
     //GAME_FLAGS[FLAG_ALLWEAPONS] = true;
     if (is_stage_selected == false) {
         currentStage = STAGE5;
-        currentStage = CASTLE1_STAGE5;
+        currentStage = CASTLE1_STAGE4;
         //currentStage = STAGE1;
         //currentStage = INTRO_STAGE;
         game_save.stages[0] = 1;
-        currentStage = scenes.pick_stage(INTRO_STAGE);
+        //currentStage = scenes.pick_stage(INTRO_STAGE);
     }
 
 
     initGame();
 
     // DEBUG //
-    //show_ending();
+    show_ending();
 
     //scenes.boss_intro(currentStage);
 
