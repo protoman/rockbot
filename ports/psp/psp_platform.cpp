@@ -145,6 +145,9 @@ void log(const char *fmt, ...)
 }
 
 static u32 g_tex_us = 0, g_copy_us = 0, g_present_us = 0;
+static volatile u32 g_ticks = 0;
+
+void tick() { g_ticks++; }
 
 void heartbeat()
 {
@@ -170,10 +173,10 @@ void heartbeat()
         const unsigned int audio_us = psp_music::take_decode_us();
         const u32 flip_total = g_tex_us + g_copy_us + g_present_us;
         const u32 n = frames_in_window;
-        log("perf: %u frames in %u ms = %u.%u fps | per frame us: texture %u, copy %u, present %u, outside-flip %u | "
+        log("perf: %u frames in %u ms = %u.%u fps, game ticks/s %u | per frame us: texture %u, copy %u, present %u, outside-flip %u | "
             "music %u%% | slowest frame %u ms | cpu %d MHz bus %d MHz",
             (unsigned)n, (unsigned)(elapsed / 1000), (unsigned)((n * 1000000ull) / elapsed),
-            (unsigned)(((n * 10000000ull) / elapsed) % 10), (unsigned)(g_tex_us / n), (unsigned)(g_copy_us / n),
+            (unsigned)(((n * 10000000ull) / elapsed) % 10), (unsigned)((g_ticks * 1000000ull) / elapsed), (unsigned)(g_tex_us / n), (unsigned)(g_copy_us / n),
             (unsigned)(g_present_us / n), (unsigned)((elapsed > flip_total ? elapsed - flip_total : 0) / n),
             (unsigned)((audio_us * 100ull) / elapsed), (unsigned)(slowest / 1000),
             scePowerGetCpuClockFrequency(), scePowerGetBusClockFrequency());
@@ -181,6 +184,7 @@ void heartbeat()
         slowest = 0;
         frames_in_window = 0;
         g_tex_us = g_copy_us = g_present_us = 0;
+        g_ticks = 0;
     }
 }
 
