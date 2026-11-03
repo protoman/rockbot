@@ -997,7 +997,10 @@ static void ai_reaction_end(Enemy *e)
 {
     const EnemyAi *r = ai_state(e);
     u8 go = r->go_to;
-    u16 delay = r->delay;
+    // PC check_ai_reaction ENDED branch: the reaction is reset first, so execute_ai's
+    // "action finished" step adds the go_to_delay of the REGULAR chain state (the one
+    // before the reaction), not the reaction's own delay.
+    u16 delay = stage_def->enemy_ai[e->def_i][e->ai_chain].delay;
     e->react = 0;
 
     if (e->dying) {
@@ -1425,10 +1428,11 @@ static bool ai_action_run(Enemy *e)
     }
 
     case AI_WAIT_RANDOM:
-        // PC WAIT_RANDOM_TIME: hold for a random 0..range*2 frames.
-        if (!e->rand_t)
-            e->rand_t = (u16)(10 + (random() % (u16)(2 * (d->range ? d->range : 30) + 1)));
-        return e->act_t >= e->rand_t;
+        // PC execute_ai_wait_random_time: rand() % parameter SECONDS (0..parameter-1), and
+        // no go_to_delay on top (execute_ai skips it for this action).
+        if (e->act_t == 1)
+            e->rand_t = (st->param > 0) ? (u16)((random() % (u16)st->param) * 60) : 0;
+        return e->act_t > e->rand_t;
 
     case AI_PLAY_SFX:
         if (e->act_t == 1 && st->param >= 0 && st->param < SFX_COUNT)
@@ -1617,7 +1621,10 @@ static void ai_tick(Enemy *e)
     if (ai_action_run(e)) {
         const EnemyAi *st = ai_state(e);
         e->ai_phase = AI_WAIT;
-        e->ai_wait = ((u32)st->delay * 6) / 100;        // PC ms -> 60fps frames
+        // PC ms -> 60fps frames. WAIT_RANDOM_TIME sets its own wait (no go_to_delay);
+        // FALL_TO_GROUND holds 1200 ms after landing (ia_action_jump_fall) before the delay.
+        e->ai_wait = (st->action == AI_WAIT_RANDOM) ? 0 : (u16)(((u32)st->delay * 6) / 100);
+        if (st->action == AI_FALL) e->ai_wait += 72;
     }
 }
 
