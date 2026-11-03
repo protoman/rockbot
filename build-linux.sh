@@ -24,7 +24,7 @@ for arg in "$@"; do
 done
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-BUILD_DIR="$SCRIPT_DIR/build-linux-sdl${USE_SDL_VERSION}"
+BUILD_DIR="$SCRIPT_DIR/build-linux${ROCKBOT_IN_DOCKER:+-docker}-sdl${USE_SDL_VERSION}"
 
 for tool in cmake make pkg-config g++; do
     command -v "$tool" >/dev/null 2>&1 || { echo "Error: missing host tool: $tool" >&2; exit 1; }
