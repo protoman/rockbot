@@ -218,6 +218,20 @@ struct st_color {
  * @brief
  *
  */
+// Copies of a surface (copy constructor / assignment).
+// PS3: SDL_DisplayFormatAlpha() of the SDL 1.3 snapshot converts to ARGB8888 through an
+// RLE-accelerated colorkey->alpha conversion, which loses the transparency of the
+// object sprites (teal boxes around items). Duplicate in the original pixel format
+// instead: colorkey and blend state are preserved, no RLE, and half the memory.
+static inline SDL_Surface *rb_duplicate_surface(SDL_Surface *surface)
+{
+#ifdef PS3
+    return SDL_ConvertSurface(surface, surface->format, SDL_SWSURFACE);
+#else
+    return SDLL_DisplayFormatAlpha(surface);
+#endif
+}
+
 struct graphicsLib_gSurface {
     private:
         SDL_Surface *gSurface;
@@ -303,7 +317,7 @@ struct graphicsLib_gSurface {
                 show_debug = false;
                 gSurface = NULL;
                 if (original.width > 0 && original.gSurface != NULL) {
-                    gSurface = SDLL_DisplayFormatAlpha(original.gSurface);
+                    gSurface = rb_duplicate_surface(original.gSurface);
                 }
                 if (gSurface == NULL) {
                     width = 0;
@@ -389,7 +403,7 @@ struct graphicsLib_gSurface {
                 show_debug = false;
                 gSurface = NULL;
                 if (original.width > 0 && original.gSurface != NULL) {
-                    gSurface = SDLL_DisplayFormatAlpha(original.gSurface);
+                    gSurface = rb_duplicate_surface(original.gSurface);
                 }
                 if (gSurface == NULL) {
                     width = 0;
