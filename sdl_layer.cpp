@@ -1,6 +1,7 @@
 #include "sdl_layer.h"
 #ifdef PSP
 #include "ports/psp/psp_platform.h"
+#include "ports/psp/psp_music.h"
 #endif
 #ifdef PS3
 #include "ports/ps3/ps3_platform.h"
@@ -852,12 +853,20 @@ int SDLL_Mix_Volume(int channel, int volume)
 
 int SDLL_Mix_VolumeMusic(int volume)
 {
+#ifdef PSP
+	psp_music::set_volume(volume);
+#endif
 	return Mix_VolumeMusic(volume);
 }
 
 int SDLL_Mix_PlayMusic(SoundMusic *music, int loops)
 {
 #ifdef PSP
+	if (psp_music::owns(music)) {
+		psp_platform::log("play tracker music %p loops=%d", (void*)music, loops);
+		return psp_music::play(music, loops);
+	}
+	psp_music::halt();
 	psp_platform::log("Mix_PlayMusic music=%p loops=%d", (void*)music, loops);
 	int pm_res = Mix_PlayMusic(music, loops);
 	psp_platform::log("Mix_PlayMusic -> %d", pm_res);
@@ -888,6 +897,9 @@ int SDLL_Mix_HaltChannel(int channel)
 
 int SDLL_Mix_HaltMusic()
 {
+#ifdef PSP
+	psp_music::halt();
+#endif
 	return Mix_HaltMusic();
 }
 
@@ -911,6 +923,12 @@ SoundMusic *SDLL_Mix_LoadMUS(const char *file)
 
 void SDLL_Mix_FreeMusic(SoundMusic *music)
 {
+#ifdef PSP
+	if (psp_music::owns(music)) {
+		psp_music::free_music(music);
+		return;
+	}
+#endif
 	Mix_FreeMusic(music);
 }
 

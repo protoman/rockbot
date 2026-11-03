@@ -1,4 +1,5 @@
 #include "psp_platform.h"
+#include "psp_music.h"
 
 #ifdef PSP
 
@@ -606,6 +607,9 @@ SoundMusic *load_mus(const char *file)
 {
     if (g_no_music) {
         return NULL;
+    }
+    if (psp_music::is_tracker_file(file)) { // libxmp, not libmodplug (see psp_music.h)
+        return psp_music::load(file);
     }
     SDL_RWops *rw = rw_from_file(file, "rb");
     if (!rw) {

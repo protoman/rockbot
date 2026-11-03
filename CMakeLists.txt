@@ -317,7 +317,7 @@ set(SOURCES
     sdl_layer.cpp
 )
 if(ROCKBOT_PSP)
-    list(APPEND SOURCES ports/psp/psp_platform.cpp)
+    list(APPEND SOURCES ports/psp/psp_platform.cpp ports/psp/psp_music.cpp)
 endif()
 
 # Header Files
@@ -387,6 +387,7 @@ set(HEADERS
     ports/android/android_game_services.h
     ports/ps3/ps3_platform.h
     ports/psp/psp_platform.h
+    ports/psp/psp_music.h
     sdl_layer.h
 )
 
@@ -439,6 +440,8 @@ elseif(ROCKBOT_PSP)
     )
     # harfbuzz.pc asks for -pthread, which psp-gcc does not know (PSP has its own threads).
     list(REMOVE_ITEM ROCKBOT_SDL_LIBS -pthread)
+    # libxmp-lite plays the tracker music (libmodplug crashes the real PSP, see ports/psp/psp_music.h)
+    list(APPEND ROCKBOT_SDL_LIBS -lxmp-lite)
     # PSP SDK (stub) libraries must come last or psp-fixup-imports warns about
     # out-of-order stubs. Pull them out of the pkg-config output and re-append
     # them after the C/C++ runtime.
