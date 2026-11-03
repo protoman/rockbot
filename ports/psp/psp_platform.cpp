@@ -25,6 +25,7 @@
 #include "../../graphic/option_picker.h"
 #include "../../graphic/draw.h"
 #include "../../file/file_io.h"
+#include "../../aux_tools/stringutils.h"
 
 extern graphicsLib graphLib;
 extern inputLib input;
@@ -99,6 +100,8 @@ static std::string g_base_dir; // folder that contains EBOOT.PBP, with trailing 
 static volatile unsigned int g_progress = 0;   // bumped by log() and every frame
 static SceUID g_main_thread = -1;
 static u32 g_text_addr = 0, g_text_size = 0;
+
+static bool g_keep_aspect = false; // keep_aspect.txt next to EBOOT.PBP: letterbox instead of stretching
 
 void log(const char *fmt, ...)
 {
@@ -201,8 +204,12 @@ void setup(const char *argv0)
     if (wd >= 0) {
         sceKernelStartThread(wd, 0, NULL);
     }
+    {
+        SceIoStat ka;
+        g_keep_aspect = !g_base_dir.empty() && sceIoGetstat((g_base_dir + "keep_aspect.txt").c_str(), &ka) >= 0;
+    }
     char cwd[256];
-    log("boot: module text=0x%08x size=0x%x stack=512K", (unsigned)g_text_addr, (unsigned)g_text_size);
+    log("boot: module text=0x%08x size=0x%x stack=512K keep_aspect=%d", (unsigned)g_text_addr, (unsigned)g_text_size, (int)g_keep_aspect);
     log("boot: argv0='%s' base='%s' cwd='%s'", argv0 ? argv0 : "(null)", g_base_dir.c_str(),
         getcwd(cwd, sizeof(cwd)) ? cwd : "(null)");
 }
@@ -233,7 +240,7 @@ bool load_fonts(const char *path,
                 int error_font_size)
 {
     // Load font via sceIo (newlib ftell/fread can fail under PPSSPP).
-    SceUID font_fd = sceIoOpen(path, PSP_O_RDONLY, 0777);
+    SceUID font_fd = sceIoOpen(StringUtils::clean_filename(path ? path : "").c_str(), PSP_O_RDONLY, 0777);
     if (font_fd < 0) {
         printf("ERROR::initGraphics - sceIoOpen failed for '%s' (%d)\n", path, (int)font_fd);
         fflush(stdout);
@@ -379,7 +386,7 @@ std::vector<std::string> read_games_directory(const std::string &games_path)
     const char *candidates[] = { "RockDroid1", "RockDroid2", NULL };
     for (int i = 0; candidates[i] != NULL; ++i) {
         std::string probe = base + "/" + candidates[i] + "/game_enemy_list.dat";
-        SceUID fd = sceIoOpen(probe.c_str(), PSP_O_RDONLY, 0777);
+        SceUID fd = sceIoOpen(StringUtils::clean_filename(probe).c_str(), PSP_O_RDONLY, 0777);
         log("games probe '%s' -> %d", probe.c_str(), (int)fd);
         if (fd >= 0) {
             sceIoClose(fd);
@@ -474,8 +481,9 @@ void adjust_display_format_alpha(SDL_Surface *surface)
 
 bool get_present_rect(int game_w, int game_h, SDL_Rect *dst)
 {
-    // "Fullscreen" in the video menu = stretch to the whole LCD.
-    if (SharedData::get_instance()->game_config.video_fullscreen == true || game_w <= 0 || game_h <= 0) {
+    // Stretching to the whole LCD is the path known to work on real hardware (and the fast one).
+    // Letterboxing is opt-in: create an empty keep_aspect.txt next to EBOOT.PBP.
+    if (!g_keep_aspect || game_w <= 0 || game_h <= 0) {
         return false;
     }
     const int lcd_w = 480;
@@ -490,6 +498,11 @@ bool get_present_rect(int game_w, int game_h, SDL_Rect *dst)
     dst->y = (lcd_h - h) / 2;
     dst->w = w;
     dst->h = h;
+    static bool logged = false;
+    if (!logged) {
+        logged = true;
+        log("present rect %d,%d %dx%d (keep aspect)", dst->x, dst->y, dst->w, dst->h);
+    }
     return true;
 }
 
@@ -515,7 +528,9 @@ RWopsPtr *rw_from_file(const char *file, const char *mode)
         return NULL;
     }
 
-    const SceUID fd = sceIoOpen(file, PSP_O_RDONLY, 0777);
+    // the real PSP firmware rejects a doubled '/' in sceIo paths (newlib's fopen and PPSSPP accept it)
+    const std::string clean_file = StringUtils::clean_filename(file);
+    const SceUID fd = sceIoOpen(clean_file.c_str(), PSP_O_RDONLY, 0777);
     if (fd < 0) {
         SDL_SetError("psp_platform::rw_from_file: sceIoOpen(%s) failed (%d)", file, (int)fd);
         return NULL;
