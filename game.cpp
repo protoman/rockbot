@@ -527,82 +527,238 @@ void game::show_free_version_warning()
 
 void game::show_notice()
 {
+#ifdef PSP
+    psp_platform::log("show_notice #1: graphLib.blank_screen();");
+#endif
     graphLib.blank_screen();
+#ifdef PSP
+    psp_platform::log("show_notice #2: draw_lib.update_screen();");
+#endif
     draw_lib.update_screen();
 
+#ifdef PSP
+    psp_platform::log("show_notice #3: graphicsLib_gSurface upperland_surface;");
+#endif
     graphicsLib_gSurface upperland_surface;
+#ifdef PSP
+    psp_platform::log("show_notice #4: graphLib.surfaceFromFile(GAMEPATH + \"/shared/im");
+#endif
     graphLib.surfaceFromFile(GAMEPATH + "/shared/images/upperland.png", &upperland_surface);
 
+#ifdef PSP
+    psp_platform::log("show_notice #5: graphicsLib_gSurface jmd_surface;");
+#endif
     graphicsLib_gSurface jmd_surface;
+#ifdef PSP
+    psp_platform::log("show_notice #6: graphLib.surfaceFromFile(GAMEPATH + \"/shared/im");
+#endif
     graphLib.surfaceFromFile(GAMEPATH + "/shared/images/jmd_logo.png", &jmd_surface);
 
+#ifdef PSP
+    psp_platform::log("show_notice #7: graphicsLib_gSurface boberatu_surface;");
+#endif
     graphicsLib_gSurface boberatu_surface;
+#ifdef PSP
+    psp_platform::log("show_notice #8: graphLib.surfaceFromFile(GAMEPATH + \"/shared/im");
+#endif
     graphLib.surfaceFromFile(GAMEPATH + "/shared/images/boberatu.png", &boberatu_surface);
 
+#ifdef PSP
+    psp_platform::log("show_notice #9: st_position upperland_logo_pos(RES_W/2 - (upperl");
+#endif
     st_position upperland_logo_pos(RES_W/2 - (upperland_surface.width/6)/2, 40);
 
+#ifdef PSP
+    psp_platform::log("show_notice #10: graphLib.draw_centered_text(upperland_logo_pos.y");
+#endif
     graphLib.draw_centered_text(upperland_logo_pos.y + upperland_surface.height + 2, strings_map::get_instance()->get_ingame_string(string_intro_upperland_studios), graphLib.gameScreen, st_color(199, 215, 255));
 
+#ifdef PSP
+    psp_platform::log("show_notice #11: graphLib.copyArea(st_rectangle(0, 0, boberatu_su");
+#endif
     graphLib.copyArea(st_rectangle(0, 0, boberatu_surface.width, boberatu_surface.height), st_position(20, 100), &boberatu_surface, &graphLib.gameScreen);
 
+#ifdef PSP
+    psp_platform::log("show_notice #12: graphLib.copyArea(st_rectangle(0, 0, jmd_surface");
+#endif
     graphLib.copyArea(st_rectangle(0, 0, jmd_surface.width, jmd_surface.height), st_position(RES_W-jmd_surface.width-20, 100), &jmd_surface, &graphLib.gameScreen);
+#ifdef PSP
+    psp_platform::log("show_notice #13: graphLib.draw_text(190, upperland_logo_pos.y + u");
+#endif
     graphLib.draw_text(190, upperland_logo_pos.y + upperland_surface.height + 75, "JMD AMIGA MUSIC", st_color(199, 215, 255));
 
+#ifdef PSP
+    psp_platform::log("show_notice #14: graphLib.draw_centered_text(upperland_logo_pos.y");
+#endif
     graphLib.draw_centered_text(upperland_logo_pos.y + upperland_surface.height + 135, strings_map::get_instance()->get_ingame_string(string_intro_presents), graphLib.gameScreen, st_color(199, 215, 255));
 
+#ifdef PSP
+    psp_platform::log("show_notice #15: graphLib.copyArea(st_rectangle(0, 0, upperland_s");
+#endif
     graphLib.copyArea(st_rectangle(0, 0, upperland_surface.width/6, upperland_surface.height), upperland_logo_pos, &upperland_surface, &graphLib.gameScreen);
+#ifdef PSP
+    psp_platform::log("show_notice #16: graphLib.draw_centered_text(210, \"HTTPS://TWITT");
+#endif
     graphLib.draw_centered_text(210, "HTTPS://TWITTER.COM/BOBERATU");
+#ifdef PSP
+    psp_platform::log("show_notice #17: graphLib.draw_centered_text(220, \"HTTPS://JMDAM");
+#endif
     graphLib.draw_centered_text(220, "HTTPS://JMDAMIGAMUSIC.BANDCAMP.COM");
+#ifdef PSP
+    psp_platform::log("show_notice #18: graphLib.draw_centered_text(230, \"HTTPS://ROCKB");
+#endif
     graphLib.draw_centered_text(230, "HTTPS://ROCKBOT.UPPERLAND.NET");
+#ifdef PSP
+    psp_platform::log("show_notice #19: draw_lib.update_screen();");
+#endif
     draw_lib.update_screen();
+#ifdef PSP
+    psp_platform::log("show_notice #20: input.clean_and_wait_scape_time(400);");
+#endif
     input.clean_and_wait_scape_time(400);
     for (int i=1; i<6; i++) {
         graphLib.copyArea(st_rectangle((upperland_surface.width/6)*i, 0, upperland_surface.width/6, upperland_surface.height), upperland_logo_pos, &upperland_surface, &graphLib.gameScreen);
         draw_lib.update_screen();
         input.wait_scape_time(30);
     }
+#ifdef PSP
+    psp_platform::log("show_notice #21: graphLib.copyArea(st_rectangle(0, 0, upperland_s");
+#endif
     graphLib.copyArea(st_rectangle(0, 0, upperland_surface.width/6, upperland_surface.height), upperland_logo_pos, &upperland_surface, &graphLib.gameScreen);
 
 
+#ifdef PSP
+    psp_platform::log("show_notice #22: draw_lib.update_screen();");
+#endif
     draw_lib.update_screen();
 
+#ifdef PSP
+    psp_platform::log("show_notice #23: input.clean_and_wait_scape_time(3200);");
+#endif
     input.clean_and_wait_scape_time(3200);
 
 
+#ifdef PSP
+    psp_platform::log("show_notice #24: graphLib.blank_screen();");
+#endif
     graphLib.blank_screen();
 /*
+#ifdef PSP
+    psp_platform::log("show_notice #25: graphLib.draw_centered_text(10, strings_map::get");
+#endif
     graphLib.draw_centered_text(10, strings_map::get_instance()->get_ingame_string(string_intro_engine1, current_language), graphLib.gameScreen, st_color(199, 215, 255));
+#ifdef PSP
+    psp_platform::log("show_notice #26: graphLib.draw_centered_text(30, strings_map::get");
+#endif
     graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(string_intro_engine2, current_language));
+#ifdef PSP
+    psp_platform::log("show_notice #27: graphLib.draw_centered_text(50, strings_map::get");
+#endif
     graphLib.draw_centered_text(50, strings_map::get_instance()->get_ingame_string(string_intro_engine3, current_language));
+#ifdef PSP
+    psp_platform::log("show_notice #28: graphLib.draw_centered_text(70, strings_map::get");
+#endif
     graphLib.draw_centered_text(70, strings_map::get_instance()->get_ingame_string(string_intro_engine4, current_language));
+#ifdef PSP
+    psp_platform::log("show_notice #29: graphLib.draw_centered_text(90, strings_map::get");
+#endif
     graphLib.draw_centered_text(90, strings_map::get_instance()->get_ingame_string(string_intro_engine5, current_language));
+#ifdef PSP
+    psp_platform::log("show_notice #30: graphLib.draw_centered_text(110, strings_map::ge");
+#endif
     graphLib.draw_centered_text(110, strings_map::get_instance()->get_ingame_string(string_intro_engine6, current_language));
+#ifdef PSP
+    psp_platform::log("show_notice #31: graphLib.draw_centered_text(130, strings_map::ge");
+#endif
     graphLib.draw_centered_text(130, strings_map::get_instance()->get_ingame_string(string_intro_engine7, current_language));
+#ifdef PSP
+    psp_platform::log("show_notice #32: graphLib.draw_centered_text(150, strings_map::ge");
+#endif
     graphLib.draw_centered_text(150, strings_map::get_instance()->get_ingame_string(string_intro_engine8, current_language));
+#ifdef PSP
+    psp_platform::log("show_notice #33: graphLib.draw_centered_text(170, strings_map::ge");
+#endif
     graphLib.draw_centered_text(170, strings_map::get_instance()->get_ingame_string(string_intro_engine9, current_language));
+#ifdef PSP
+    psp_platform::log("show_notice #34: graphLib.draw_centered_text(190, strings_map::ge");
+#endif
     graphLib.draw_centered_text(190, strings_map::get_instance()->get_ingame_string(string_intro_engine10, current_language));
+#ifdef PSP
+    psp_platform::log("show_notice #35: graphLib.draw_centered_text(210, strings_map::ge");
+#endif
     graphLib.draw_centered_text(210, strings_map::get_instance()->get_ingame_string(string_intro_engine11, current_language));
 
+#ifdef PSP
+    psp_platform::log("show_notice #36: draw_lib.update_screen();");
+#endif
     draw_lib.update_screen();
 
+#ifdef PSP
+    psp_platform::log("show_notice #37: timer.delay(10000);");
+#endif
     timer.delay(10000);
 
+#ifdef PSP
+    psp_platform::log("show_notice #38: graphLib.blank_screen();");
+#endif
     graphLib.blank_screen();
 
+#ifdef PSP
+    psp_platform::log("show_notice #39: graphLib.draw_centered_text(10, strings_map::get");
+#endif
     graphLib.draw_centered_text(10, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning_title, current_language), graphLib.gameScreen, st_color(199, 215, 255));
+#ifdef PSP
+    psp_platform::log("show_notice #40: graphLib.draw_centered_text(30, strings_map::get");
+#endif
     graphLib.draw_centered_text(30, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning1, current_language));
+#ifdef PSP
+    psp_platform::log("show_notice #41: graphLib.draw_centered_text(50, strings_map::get");
+#endif
     graphLib.draw_centered_text(50, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning2, current_language));
+#ifdef PSP
+    psp_platform::log("show_notice #42: graphLib.draw_centered_text(70, strings_map::get");
+#endif
     graphLib.draw_centered_text(70, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning3, current_language));
+#ifdef PSP
+    psp_platform::log("show_notice #43: graphLib.draw_centered_text(90, strings_map::get");
+#endif
     graphLib.draw_centered_text(90, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning4, current_language));
+#ifdef PSP
+    psp_platform::log("show_notice #44: graphLib.draw_centered_text(110, strings_map::ge");
+#endif
     graphLib.draw_centered_text(110, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning5, current_language));
+#ifdef PSP
+    psp_platform::log("show_notice #45: graphLib.draw_centered_text(130, strings_map::ge");
+#endif
     graphLib.draw_centered_text(130, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning6, current_language));
+#ifdef PSP
+    psp_platform::log("show_notice #46: graphLib.draw_centered_text(150, strings_map::ge");
+#endif
     graphLib.draw_centered_text(150, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning7, current_language));
+#ifdef PSP
+    psp_platform::log("show_notice #47: graphLib.draw_centered_text(170, strings_map::ge");
+#endif
     graphLib.draw_centered_text(170, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning8, current_language));
+#ifdef PSP
+    psp_platform::log("show_notice #48: graphLib.draw_centered_text(200, strings_map::ge");
+#endif
     graphLib.draw_centered_text(200, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning9, current_language));
+#ifdef PSP
+    psp_platform::log("show_notice #49: graphLib.draw_centered_text(220, strings_map::ge");
+#endif
     graphLib.draw_centered_text(220, strings_map::get_instance()->get_ingame_string(string_intro_demo_warning10, current_language));
 
+#ifdef PSP
+    psp_platform::log("show_notice #50: draw_lib.update_screen();");
+#endif
     draw_lib.update_screen();
+#ifdef PSP
+    psp_platform::log("show_notice #51: timer.delay(10000);");
+#endif
     timer.delay(10000);
+#ifdef PSP
+    psp_platform::log("show_notice #52: graphLib.blank_screen();");
+#endif
     graphLib.blank_screen();
 */
 }
