@@ -3,6 +3,8 @@
 
 #ifdef PSP
 #include "../../ports/psp/psp_platform.h"
+#elif PS3
+#include "../../ports/ps3/ps3_platform.h"
 #endif
 #include "../format/st_common.h"
 #include "file/v4/file_config_old.h"
@@ -52,6 +54,8 @@ namespace format_v4 {
             for (int i=0; i<BTN_COUNT; i++) {
                 keys_codes_copy[i] = -1;
             }
+#elif PS3
+            ps3_platform::get_default_keys(keys_codes_copy);
 #elif PSP
             psp_platform::get_default_keys(keys_codes_copy);
 #elif WII
@@ -194,6 +198,8 @@ namespace format_v4 {
             button_codes_copy[BTN_LEFT].axis_type = -1;
             button_codes_copy[BTN_LEFT].type = JOYSTICK_INPUT_TYPE_AXIS;
             button_codes_copy[BTN_LEFT].value = 0;
+#elif PS3
+            ps3_platform::get_default_buttons(button_codes_copy);
 #elif PSP
             psp_platform::get_default_buttons(button_codes_copy);
 #elif WII
@@ -323,6 +329,8 @@ namespace format_v4 {
 #ifdef PLAYSTATION2
             input_type = INPUT_TYPE_JOYSTICK;
             input_mode = INPUT_MODE_DIGITAL;
+#elif PS3
+            ps3_platform::set_default_input_mode(&input_type, &input_mode);
 #elif PSP
             psp_platform::set_default_input_mode(&input_type, &input_mode);
 #elif WII
@@ -357,6 +365,8 @@ namespace format_v4 {
             return PLATFORM_PANDORA;
     #elif PLAYSTATION2
             return PLATFORM_PS2;
+    #elif PS3
+            return ps3_platform::get_platform();
     #elif PSP
             return psp_platform::get_platform();
     #elif WII

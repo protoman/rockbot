@@ -8,6 +8,10 @@
 #undef main
 #endif
 
+#ifdef PS3
+#include "ports/ps3/ps3_platform.h"
+#endif
+
 #ifdef ANDROID
 #include <jni.h>
 #include <android/log.h>
@@ -82,6 +86,8 @@ jobject activity_ref;
     std::string EXEC_NAME("rockbot.elf");
 #elif defined(PSP)
     std::string EXEC_NAME("EBOOT.PBP");
+#elif defined(PS3)
+    std::string EXEC_NAME("EBOOT.BIN");
 #elif defined(WII)
     std::string EXEC_NAME("boot.dol");
 #elif defined(DINGUX)
@@ -206,6 +212,8 @@ void get_filepath()
     }
 #elif defined(PSP)
     psp_platform::get_filepath(FILEPATH, MAXPATHLEN);
+#elif defined(PS3)
+    ps3_platform::get_filepath(FILEPATH, MAXPATHLEN);
 #else
     char *buffer = new char[MAXPATHLEN];
     char *res = getcwd(buffer, MAXPATHLEN);
@@ -268,6 +276,9 @@ void detect_language() {
 
 void main_loop()
 {
+#ifdef PS3
+    ps3_platform::update();
+#endif
     timer.start_ticker();
     gameControl.show_game(true, true);
     draw_lib.update_screen();
@@ -282,20 +293,27 @@ int main(int argc, char *argv[])
 #ifdef PSP
     psp_platform::setup();
 #endif
+#ifdef PS3
+    ps3_platform::setup(argc > 0 ? argv[0] : NULL);
+#endif
     for (int i=0; i<FLAG_COUNT; i++) {
         GAME_FLAGS[i] = false;
     }
     UNUSED(argc);
 
     string argvString = "";
-    argvString = string(argv[0]);
+    if (argc > 0 && argv != NULL && argv[0] != NULL) {
+        argvString = string(argv[0]);
+    }
 
     fflush(stdout);
 
     get_filepath();
     // fallback in case getcwd returns null
     if (FILEPATH.size() == 0) {
-        FILEPATH = argvString.substr(0, argvString.size()-EXEC_NAME.size());
+        if (argvString.size() >= EXEC_NAME.size()) {
+            FILEPATH = argvString.substr(0, argvString.size()-EXEC_NAME.size());
+        }
     }
 
 #ifdef PLAYSTATION2
@@ -367,6 +385,8 @@ int main(int argc, char *argv[])
     #elif WIN32
         SAVEPATH =  std::string(getenv("APPDATA")) + "/rockdroid";
         _mkdir(SAVEPATH.c_str());
+    #elif PS3
+        ps3_platform::get_savepath(SAVEPATH);
     #else
         SAVEPATH = GAMEPATH;
     #endif

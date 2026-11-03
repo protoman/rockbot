@@ -6,10 +6,21 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Output Directory (same location as DESTDIR=build used by the old qmake scripts)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
+if(CMAKE_SYSTEM_NAME STREQUAL "PS3")
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+else()
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
+endif()
+
+# PlayStation 3 cross build (PSL1GHT) uses its own toolchain file.
+if(CMAKE_SYSTEM_NAME STREQUAL "PS3")
+    set(ROCKBOT_PS3 TRUE)
+    # PSL1GHT portlibs only ship SDL 1.2 (SDL_PSL1GHT).
+    set(USE_SDL_VERSION 1 CACHE STRING "SDL major version" FORCE)
+endif()
 
 # Default to SDL1 if not specified
-set(USE_SDL_VERSION 1)
+set(USE_SDL_VERSION 1 CACHE STRING "SDL major version")
 
 # SDL Version Selection (override with: cmake -DUSE_SDL_VERSION=2 ...)
 if(USE_SDL_VERSION EQUAL 3)
@@ -38,7 +49,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         -Werror=return-type
     )
     # MinGW often lacks libssp; keep stack protector for native Unix builds only.
-    if(NOT WIN32)
+    if(NOT WIN32 AND NOT ROCKBOT_PS3)
         add_compile_options(-fstack-protector-all -fstack-protector)
     endif()
 endif()
@@ -48,6 +59,48 @@ if(APPLE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.7" CACHE STRING "macOS deployment target")
 endif()
 
+if(ROCKBOT_PS3)
+    # PSL1GHT portlibs. The prebuilt SDK's .pc files carry the CI build
+    # prefix, so the paths are set explicitly instead of via pkg-config.
+    set(SDL_INCLUDE_DIRS
+        "${PORTLIBS}/include"
+        "${PORTLIBS}/include/SDL"
+        "${PSL1GHT}/ppu/include"
+        "${PSL1GHT}/ppu/include/simdmath")
+    set(SDL_MIXER_INCLUDE_DIRS "${PORTLIBS}/include/SDL")
+    set(SDL_IMAGE_INCLUDE_DIRS "${PORTLIBS}/include/SDL")
+    set(SDL_TTF_INCLUDE_DIRS "${PORTLIBS}/include/SDL")
+    set(SDL_GFX_INCLUDE_DIRS "${PORTLIBS}/include/SDL")
+    set(SDL_GFX_FOUND TRUE)
+    add_definitions(-DPS3 -D__PSL1GHT__)
+    set(ROCKBOT_EXTRA_LIBS
+        ${PORTLIBS}/lib/libSDL_gfx.a
+        ${PORTLIBS}/lib/libSDL_ttf.a
+        ${PORTLIBS}/lib/libSDL_mixer.a
+        ${PORTLIBS}/lib/libSDL_image.a
+        ${PORTLIBS}/lib/libSDL.a
+        ${PORTLIBS}/lib/libfreetype.a
+        ${PORTLIBS}/lib/libpng.a
+        ${PORTLIBS}/lib/libjpeg.a
+        ${PORTLIBS}/lib/libtiff.a
+        ${PORTLIBS}/lib/libvorbisfile.a
+        ${PORTLIBS}/lib/libvorbis.a
+        ${PORTLIBS}/lib/libogg.a
+        ${PORTLIBS}/lib/libmikmod.a
+        ${PORTLIBS}/lib/libmad.a
+        ${PORTLIBS}/lib/libz.a
+        -lm
+        -lrt
+        -llv2
+        -lsysutil
+        -lsysfs
+        -lio
+        -laudio
+        -lgcm_sys
+        -lrsx
+    )
+    set(ROCKBOT_SDL_LIBS "")
+else()
 # Find Dependencies
 find_package(PkgConfig REQUIRED)
 
@@ -122,6 +175,7 @@ elseif(UNIX)
 else()
     add_definitions(-DPC)
 endif()
+endif() # ROCKBOT_PS3
 
 # Include Directories
 include_directories(
@@ -184,6 +238,7 @@ set(SOURCES
     aux_tools/exception_manager.cpp
     scenes/game_menu.cpp
     ports/android/android_game_services.cpp
+    ports/ps3/ps3_platform.cpp
     sdl_layer.cpp
 )
 
@@ -252,23 +307,40 @@ set(HEADERS
     aux_tools/exception_manager.h
     scenes/game_menu.h
     ports/android/android_game_services.h
+    ports/ps3/ps3_platform.h
     sdl_layer.h
 )
 
 add_executable(rockbot ${SOURCES} ${HEADERS})
 
 # Link Libraries
-set(ROCKBOT_SDL_LIBS
-    ${SDL_LDFLAGS}
-    ${SDL_MIXER_LDFLAGS}
-    ${SDL_IMAGE_LDFLAGS}
-    ${SDL_TTF_LDFLAGS}
-)
-if(SDL_GFX_FOUND)
-    list(APPEND ROCKBOT_SDL_LIBS ${SDL_GFX_LDFLAGS})
+if(NOT ROCKBOT_PS3)
+    set(ROCKBOT_SDL_LIBS
+        ${SDL_LDFLAGS}
+        ${SDL_MIXER_LDFLAGS}
+        ${SDL_IMAGE_LDFLAGS}
+        ${SDL_TTF_LDFLAGS}
+    )
+    if(SDL_GFX_FOUND)
+        list(APPEND ROCKBOT_SDL_LIBS ${SDL_GFX_LDFLAGS})
+    endif()
 endif()
 
-target_link_libraries(rockbot
-    ${ROCKBOT_SDL_LIBS}
-    ${ROCKBOT_EXTRA_LIBS}
-)
+if(ROCKBOT_PS3)
+    # Static PSL1GHT libs have circular references; group them.
+    target_link_libraries(rockbot
+        -Wl,--start-group
+        ${ROCKBOT_SDL_LIBS}
+        ${ROCKBOT_EXTRA_LIBS}
+        -Wl,--end-group
+    )
+    # Do not use --gc-sections here: it can drop PSL1GHT's lv2-crt0.o _start
+    # entry point, leaving the ELF with no valid entry address.
+    set_target_properties(rockbot PROPERTIES
+        LINK_FLAGS "-Wl,-Map=${CMAKE_BINARY_DIR}/rockbot.map")
+else()
+    target_link_libraries(rockbot
+        ${ROCKBOT_SDL_LIBS}
+        ${ROCKBOT_EXTRA_LIBS}
+    )
+endif()

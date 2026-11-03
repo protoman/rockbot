@@ -235,6 +235,10 @@ void graphicsLib::set_window_icon()
 
 void graphicsLib::update_screen_mode()
 {
+#ifdef PS3
+    game_screen_scaled = SDLL_SetVideoMode(1280, 720, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+    return;
+#endif
     if (SharedData::get_instance()->game_config.video_fullscreen == false) {
         scale_int = SharedData::get_instance()->game_config.scale_int;
         if (scale_int < 1) {
@@ -301,7 +305,24 @@ void graphicsLib::updateScreen()
         copyArea(st_position(-_screen_resolution_adjust.x, -_screen_resolution_adjust.y), &_screen_border, &gameScreen);
     }
 
-#ifdef PC
+#ifdef PS3
+    if (game_screen_scaled == NULL) {
+        SDLL_Flip(game_screen);
+        return;
+    }
+    {
+        const int scale = 3; // 320x240 -> 960x720, centered on 1280x720
+        SDL_Rect origin_rect = {0, 0, RES_W, RES_H};
+        SDL_Rect dest_rect;
+        dest_rect.w = RES_W * scale;
+        dest_rect.h = RES_H * scale;
+        dest_rect.x = (game_screen_scaled->w - dest_rect.w) / 2;
+        dest_rect.y = (game_screen_scaled->h - dest_rect.h) / 2;
+        SDL_FillRect(game_screen_scaled, NULL, SDLL_MapRGB(game_screen_scaled, 0, 0, 0));
+        SDLL_SoftStretch(game_screen, &origin_rect, game_screen_scaled, &dest_rect);
+    }
+    SDLL_Flip(game_screen_scaled);
+#elif defined(PC)
     if (SharedData::get_instance()->changed_window_size == true && !SharedData::get_instance()->game_config.video_fullscreen) {
         double scale = SharedData::get_instance()->scaleX;
         if (SharedData::get_instance()->scaleY < scale) {
@@ -2208,6 +2229,17 @@ void graphicsLib::set_video_mode()
     */
 #elif defined(RASPBERRY)
     game_screen = SDLL_SetVideoMode(RES_W, RES_H, 24, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+    _video_filter = VIDEO_FILTER_NOSCALE;
+#elif defined(PS3)
+    // Native output is 720p; the game keeps drawing at 320x240 and
+    // updateScreen() scales it 3x (960x720) into the center of the screen.
+    game_screen_scaled = SDLL_SetVideoMode(1280, 720, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+    if (game_screen != NULL) {
+        SDLL_FreeSurface(game_screen);
+    }
+    SDL_Surface *temp_screen = SDLL_CreateRGBSurface(SDL_SWSURFACE, RES_W, RES_H, VIDEO_MODE_COLORS, 0, 0, 0, 255);
+    game_screen = SDLL_DisplayFormat(temp_screen);
+    SDLL_FreeSurface(temp_screen);
     _video_filter = VIDEO_FILTER_NOSCALE;
 #else
 

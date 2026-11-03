@@ -38,7 +38,7 @@ extern bool GAME_FLAGS[FLAG_COUNT];
 // ************************************************************************************************************* //
 
 
-#ifdef WII
+#if defined(WII) || defined(PS3)
 void short_to_little_endian(short &s)
 {
      s = (s>>8) | (s<<8);
@@ -410,6 +410,10 @@ namespace format_v4 {
             return;
         }
         fclose(fp);
+
+#if defined(WII) || defined(PS3)
+        wii_convert_game_data(data_out);
+#endif
     }
 
 
@@ -540,7 +544,7 @@ namespace format_v4 {
             fp.read(reinterpret_cast<char *>(&data_out[j]), sizeof(file_map_v2));
         }
 
-        #ifdef WII
+        #if defined(WII) || defined(PS3)
         wii_convert_map_data(data_out);
         #endif
         fp.close();
@@ -552,6 +556,9 @@ namespace format_v4 {
         std::vector<CURRENT_FILE_FORMAT::file_map_npc_v2> res;
         std::vector<CURRENT_FILE_FORMAT::file_map_npc_v2> temp = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_map_npc_v2>(std::string("/map_npc_data.dat"));
         for (unsigned int i=0; i<temp.size(); i++) {
+#if defined(WII) || defined(PS3)
+            wii_convert_map_npc_data(temp[i]);
+#endif
             if (temp[i].stage_id == stage_id) {
                 res.push_back(temp[i]);
             }
@@ -565,6 +572,9 @@ namespace format_v4 {
         std::vector<CURRENT_FILE_FORMAT::file_map_object_v2> res;
         std::vector<CURRENT_FILE_FORMAT::file_map_object_v2> temp = fio_cmm.load_from_disk<CURRENT_FILE_FORMAT::file_map_object_v2>(std::string("/map_object_data.dat"));
         for (unsigned int i=0; i<temp.size(); i++) {
+#if defined(WII) || defined(PS3)
+            wii_convert_map_object_data(temp[i]);
+#endif
             if (temp[i].stage_id == stage_id) {
                 res.push_back(temp[i]);
             }
@@ -1001,6 +1011,12 @@ namespace format_v4 {
             return;
         }
         fp.read(reinterpret_cast<char *>(&data_out), sizeof(struct format_v4::file_castle));
+#if defined(WII) || defined(PS3)
+        for (int i=0; i<CASTLE_STAGES_MAX; i++) {
+            sint16_to_little_endian(data_out.points[i].x);
+            sint16_to_little_endian(data_out.points[i].y);
+        }
+#endif
         fp.close();
     }
 
@@ -1025,9 +1041,10 @@ namespace format_v4 {
 
 
 
-#ifdef WII
+#if defined(WII) || defined(PS3)
     void file_io::wii_convert_game_data(file_game &data_out)
     {
+        int_to_little_endian(*reinterpret_cast<int *>(&data_out.version));
         for (int i=0; i<MAX_WEAPON_N; i++) {
             sint16_to_little_endian(data_out.weapon_menu_colors[i].r);
             sint16_to_little_endian(data_out.weapon_menu_colors[i].g);
@@ -1044,26 +1061,30 @@ namespace format_v4 {
     }
 
 
-    void file_io::wii_convert_map_data(file_map (&data_out)[FS_STAGE_MAX_MAPS])
+    void file_io::wii_convert_map_data(file_map_v2 (&data_out)[FS_STAGE_MAX_MAPS])
     {
         for (int i=0; i<FS_STAGE_MAX_MAPS; i++) {
-            sint16_to_little_endian(data_out[i].backgrounds[0].adjust_y);
-            sint16_to_little_endian(data_out[i].backgrounds[1].adjust_y);
+            for (int j=0; j<MAP_BACKGROUND_COUNT; j++) {
+                sint16_to_little_endian(data_out[i].backgrounds[j].adjust_y);
+            }
             sint16_to_little_endian(data_out[i].background_color.r);
             sint16_to_little_endian(data_out[i].background_color.g);
             sint16_to_little_endian(data_out[i].background_color.b);
-
-            for (int j=0; j<FS_MAX_MAP_NPCS; j++) {
-                sint16_to_little_endian(data_out[i].map_npcs[j].start_point.x);
-                sint16_to_little_endian(data_out[i].map_npcs[j].start_point.y);
-            }
-            for (int j=0; j<FS_MAX_MAP_OBJECTS; j++) {
-                sint16_to_little_endian(data_out[i].map_objects[j].link_dest.x);
-                sint16_to_little_endian(data_out[i].map_objects[j].link_dest.y);
-                sint16_to_little_endian(data_out[i].map_objects[j].start_point.x);
-                sint16_to_little_endian(data_out[i].map_objects[j].start_point.y);
-            }
         }
+    }
+
+    void file_io::wii_convert_map_npc_data(file_map_npc_v2 &data_out)
+    {
+        sint16_to_little_endian(data_out.start_point.x);
+        sint16_to_little_endian(data_out.start_point.y);
+    }
+
+    void file_io::wii_convert_map_object_data(file_map_object_v2 &data_out)
+    {
+        sint16_to_little_endian(data_out.start_point.x);
+        sint16_to_little_endian(data_out.start_point.y);
+        sint16_to_little_endian(data_out.link_dest.x);
+        sint16_to_little_endian(data_out.link_dest.y);
     }
 #endif
 }

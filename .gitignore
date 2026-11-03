@@ -22,6 +22,9 @@ build/windows-dlls-*/
 build/rockbot.exe
 build/*.dll
 
+# PlayStation 3 build output
+build-ps3/
+
 # Game artifiacts
 rockbot
 # Note: do not ignore bare "PSP/" — on macOS that also hides psp/ (case-insensitive FS).
