@@ -4,20 +4,29 @@
 set -e
 set -o pipefail
 
-# Cross-compile Rockbot for Windows from Ubuntu (MinGW-w64).
+# Cross-compile Rockbot for Windows from Linux (llvm-mingw, no root needed).
 #
 # Usage:
 #   ./build-windows.sh                 → SDL2, x86_64 (default)
 #   ./build-windows.sh sdl2            → SDL2, x86_64
 #   ./build-windows.sh sdl3            → SDL3, x86_64
 #   ./build-windows.sh sdl2 i686       → SDL2, 32-bit
-#   ./build-windows.sh sdl2 x86_64 1   → also zip RockDroid1 package
-#   ./build-windows.sh sdl2 x86_64 2   → also zip RockDroid2 package
+#   ./build-windows.sh sdl2 x86_64 1   → also zip the RockDroid1 package
+#   ./build-windows.sh sdl2 x86_64 2   → also zip the RockDroid2 package
+#
+# The Windows SDK lives next to the other platform SDKs:
+#   $WINDOWS_SDK (default /mnt/ExtraData/Devel/SDK/Windows)
+#     llvm-mingw-<date>-ucrt-<host>/   cross toolchain (clang/LLD + MinGW-w64 UCRT);
+#                                      downloaded automatically when missing
+#     deps/mingw-<arch>-sdl<N>/        SDL, SDL_image, SDL_mixer, SDL_ttf, SDL_gfx
+#                                      for Windows (downloaded/built on first use)
+# Use another toolchain with MINGW_ROOT=/path/to/llvm-mingw (any tree that has
+# bin/<triplet>-g++).
 #
 # Output:
 #   build/rockbot.exe
-#   build/windows-dlls/*.dll   (SDL + MinGW runtime DLLs next to the exe too)
-#   build/packages/RockBot_Win32_<version>.zip  (if game version 1|2 given)
+#   build/windows-dlls-<arch>-sdl<N>/*.dll   (also copied next to the exe)
+#   build/packages/Rockbot<N>_Win32_<version>.zip  (if game 1|2 given)
 
 USE_SDL_VERSION=2
 ARCH="x86_64"
@@ -35,10 +44,7 @@ for arg in "$@"; do
         i686|i386|win32|x86) ARCH="i686" ;;
         1|2) PACKAGE_VERSION="$arg" ;;
         -h|--help)
-            echo "Usage: $0 [sdl2|sdl3] [x86_64|i686] [1|2]"
-            echo
-            echo "Cross-compiles rockbot.exe with MinGW-w64 on Ubuntu."
-            echo "Optional 1|2 packs fonts/shared/games into a Win32 zip."
+            sed -n '4,28p' "$0" | sed 's/^# \{0,1\}//'
             exit 0
             ;;
         *)
@@ -52,8 +58,17 @@ done
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
+WINDOWS_SDK="${WINDOWS_SDK:-/mnt/ExtraData/Devel/SDK/Windows}"
+LLVM_MINGW_VERSION="20261020"
+HOST_ARCH="$(uname -m)"
+case "$HOST_ARCH" in
+    x86_64|amd64) LLVM_MINGW_HOST="ubuntu-22.04-x86_64" ;;
+    aarch64|arm64) LLVM_MINGW_HOST="ubuntu-22.04-aarch64" ;;
+    *) LLVM_MINGW_HOST="" ;;
+esac
+
 TRIPLET="${ARCH}-w64-mingw32"
-DEPS_ROOT="${SCRIPT_DIR}/build/deps/mingw-${ARCH}-sdl${USE_SDL_VERSION}"
+DEPS_ROOT="${WINDOWS_SDK}/deps/mingw-${ARCH}-sdl${USE_SDL_VERSION}"
 DEPS_PREFIX="${DEPS_ROOT}/prefix"
 DOWNLOAD_DIR="${DEPS_ROOT}/downloads"
 CMAKE_BUILD_DIR="${SCRIPT_DIR}/build/cmake-windows-${ARCH}-sdl${USE_SDL_VERSION}"
@@ -66,45 +81,25 @@ SDL2_MIXER_VERSION="2.8.1"
 SDL2_TTF_VERSION="2.24.0"
 SDL2_GFX_VERSION="1.0.4"
 
-SDL3_VERSION="3.2.16"
-SDL3_IMAGE_VERSION="3.2.4"
+SDL3_VERSION="3.4.18"
+SDL3_IMAGE_VERSION="3.4.8"
 SDL3_MIXER_VERSION="3.2.4"
 SDL3_TTF_VERSION="3.2.2"
 
-export DEBIAN_FRONTEND=noninteractive
-export MINGW_TARGET_TRIPLET="$TRIPLET"
-export MINGW_SDL_PREFIX="$DEPS_PREFIX"
-
 echo ">> Windows cross-build: SDL${USE_SDL_VERSION}, ${ARCH} (${TRIPLET})"
 
-echo "🛠️ Installing MinGW toolchain and build tools..."
-sudo apt update
-MINGW_PACKAGES=()
-case "$ARCH" in
-    x86_64) MINGW_PACKAGES+=(g++-mingw-w64-x86-64 gcc-mingw-w64-x86-64) ;;
-    i686)   MINGW_PACKAGES+=(g++-mingw-w64-i686 gcc-mingw-w64-i686) ;;
-esac
-sudo apt install -y \
-    build-essential \
-    cmake \
-    pkg-config \
-    curl \
-    ca-certificates \
-    zip \
-    unzip \
-    tar \
-    rsync \
-    autoconf \
-    automake \
-    libtool \
-    "${MINGW_PACKAGES[@]}"
-
-if ! command -v "${TRIPLET}-g++" >/dev/null 2>&1; then
-    echo "Error: ${TRIPLET}-g++ not found after apt install"
+# --- host tools (no root: just report what is missing) -----------------------
+missing=()
+for tool in cmake make pkg-config curl tar rsync zip; do
+    command -v "$tool" >/dev/null 2>&1 || missing+=("$tool")
+done
+if [[ ${#missing[@]} -gt 0 ]]; then
+    echo "Error: missing host tools: ${missing[*]}" >&2
+    echo "       install them with your package manager and run again" >&2
     exit 1
 fi
 
-mkdir -p "$DOWNLOAD_DIR" "$DEPS_PREFIX" "$DLL_DIR"
+mkdir -p "$WINDOWS_SDK" "$DOWNLOAD_DIR" "$DEPS_PREFIX"
 
 download() {
     local url="$1"
@@ -117,6 +112,33 @@ download() {
     curl -fL --retry 3 --retry-delay 2 -o "$out.partial" "$url"
     mv "$out.partial" "$out"
 }
+
+# --- cross toolchain ----------------------------------------------------------
+if [[ -z "${MINGW_ROOT:-}" ]]; then
+    MINGW_ROOT="$(ls -d "$WINDOWS_SDK"/llvm-mingw-*-ucrt-* 2>/dev/null | grep -v '\.tar' | sort -V | tail -1 || true)"
+fi
+if [[ -z "$MINGW_ROOT" || ! -x "$MINGW_ROOT/bin/${TRIPLET}-g++" ]]; then
+    if [[ -z "$LLVM_MINGW_HOST" ]]; then
+        echo "Error: no Windows toolchain in $WINDOWS_SDK and no prebuilt llvm-mingw for $HOST_ARCH." >&2
+        echo "       Set MINGW_ROOT to a MinGW-w64 toolchain that has bin/${TRIPLET}-g++." >&2
+        exit 1
+    fi
+    echo "🛠️ Installing llvm-mingw ${LLVM_MINGW_VERSION} into ${WINDOWS_SDK}..."
+    archive="$WINDOWS_SDK/llvm-mingw-${LLVM_MINGW_VERSION}-ucrt-${LLVM_MINGW_HOST}.tar.xz"
+    download "https://github.com/mstorsjo/llvm-mingw/releases/download/${LLVM_MINGW_VERSION}/llvm-mingw-${LLVM_MINGW_VERSION}-ucrt-${LLVM_MINGW_HOST}.tar.xz" "$archive"
+    tar -xf "$archive" -C "$WINDOWS_SDK"
+    MINGW_ROOT="$WINDOWS_SDK/llvm-mingw-${LLVM_MINGW_VERSION}-ucrt-${LLVM_MINGW_HOST}"
+fi
+if [[ ! -x "$MINGW_ROOT/bin/${TRIPLET}-g++" ]]; then
+    echo "Error: ${TRIPLET}-g++ not found in $MINGW_ROOT/bin" >&2
+    exit 1
+fi
+export MINGW_ROOT
+export PATH="$MINGW_ROOT/bin:$PATH"
+echo "🛠️ Toolchain: $MINGW_ROOT ($(${TRIPLET}-g++ --version | head -1))"
+
+export MINGW_TARGET_TRIPLET="$TRIPLET"
+export MINGW_SDL_PREFIX="$DEPS_PREFIX"
 
 extract_mingw_devel() {
     # Official SDL *-devel-*-mingw.tar.gz contains <triplet>/{bin,include,lib}.
@@ -173,11 +195,13 @@ install_sdl2_stack() {
             export PKG_CONFIG_LIBDIR="$DEPS_PREFIX/lib/pkgconfig"
             export PKG_CONFIG_PATH=""
             export PATH="$DEPS_PREFIX/bin:$PATH"
+            export CC="${TRIPLET}-gcc" CXX="${TRIPLET}-g++" AR="${TRIPLET}-ar" RANLIB="${TRIPLET}-ranlib"
             ./configure \
                 --host="$TRIPLET" \
                 --prefix="$DEPS_PREFIX" \
                 --with-sdl-prefix="$DEPS_PREFIX" \
                 --disable-sdltest \
+                --disable-mmx \
                 SDL_CFLAGS="-I${DEPS_PREFIX}/include/SDL2" \
                 SDL_LIBS="-L${DEPS_PREFIX}/lib -lSDL2"
             make -j"$(nproc)"
@@ -254,21 +278,34 @@ EXE_SRC="${SCRIPT_DIR}/build/rockbot.exe"
 echo "📦 Collecting runtime DLLs..."
 rm -rf "$DLL_DIR"
 mkdir -p "$DLL_DIR"
-# SDL (and dependency) DLLs from the mingw prefix
+# Every DLL the exe needs that is not part of Windows itself: found by following the
+# import tables, looking in the SDL prefix and in the toolchain's runtime directory.
+copy_dll_deps() {
+    local binary="$1"
+    local dll found
+    while IFS= read -r dll; do
+        [[ -f "$DLL_DIR/$dll" ]] && continue
+        found=""
+        for dir in "$DEPS_PREFIX/bin" "$MINGW_ROOT/${TRIPLET}/bin" "$MINGW_ROOT/bin" "/usr/${TRIPLET}/lib" "/usr/${TRIPLET}/bin"; do
+            if [[ -f "$dir/$dll" ]]; then
+                found="$dir/$dll"
+                break
+            fi
+        done
+        if [[ -n "$found" ]]; then
+            cp -f "$found" "$DLL_DIR/$dll"
+            copy_dll_deps "$DLL_DIR/$dll"
+        fi
+    done < <("${TRIPLET}-objdump" -p "$binary" 2>/dev/null | sed -n 's/^\s*DLL Name: //p')
+}
+copy_dll_deps "$EXE_SRC"
+# SDL_image / SDL_mixer load their codec DLLs (png, jpeg, ogg, ...) at run time.
 if [[ -d "$DEPS_PREFIX/bin" ]]; then
-    find "$DEPS_PREFIX/bin" -maxdepth 1 -name '*.dll' -exec cp -f {} "$DLL_DIR"/ \;
+    for dll_path in "$DEPS_PREFIX"/bin/*.dll; do
+        [[ -e "$dll_path" ]] || continue
+        [[ -f "$DLL_DIR/$(basename "$dll_path")" ]] || cp -f "$dll_path" "$DLL_DIR"/
+    done
 fi
-# MinGW winpthread (still needed even with static libgcc/libstdc++)
-for candidate in \
-    "/usr/${TRIPLET}/lib/libwinpthread-1.dll" \
-    "/usr/${TRIPLET}/bin/libwinpthread-1.dll" \
-    "/usr/lib/gcc/${TRIPLET}/"*/libwinpthread-1.dll
-do
-    if [[ -f "$candidate" ]]; then
-        cp -f "$candidate" "$DLL_DIR"/
-        break
-    fi
-done
 
 # Place DLLs beside the exe for easy local testing / packaging
 cp -f "$DLL_DIR"/*.dll "${SCRIPT_DIR}/build/" 2>/dev/null || true
@@ -297,7 +334,7 @@ if [[ -n "$PACKAGE_VERSION" ]]; then
     fi
     VERSION_NAME="$(tr -d '[:space:]' < "$VERSION_FILE")"
     STAGE="${SCRIPT_DIR}/build/packages/win32/rockbot${PACKAGE_VERSION}"
-    OUT_ZIP="${SCRIPT_DIR}/build/packages/RockBot_Win32_${VERSION_NAME}.zip"
+    OUT_ZIP="${SCRIPT_DIR}/build/packages/Rockbot${PACKAGE_VERSION}_Win32_${VERSION_NAME}.zip"
 
     echo "📦 Packaging Win32 zip for RockDroid${PACKAGE_VERSION} (${VERSION_NAME})..."
     rm -rf "$STAGE"
@@ -309,6 +346,7 @@ if [[ -n "$PACKAGE_VERSION" ]]; then
     cp -f "$DLL_DIR"/*.dll "$STAGE/" 2>/dev/null || true
     rm -f "$STAGE"/game*.sav "$STAGE"/config_v*.sav
 
+    rm -f "$OUT_ZIP"
     (
         cd "$STAGE"
         zip -qr "$OUT_ZIP" .
@@ -318,5 +356,4 @@ fi
 
 echo
 echo "Usage on Windows:"
-echo "  1. Copy build/rockbot.exe + the DLLs into a folder with fonts/, shared/, games/"
-echo "  2. Run rockbot.exe"
+echo "  unzip the package and run rockbot.exe (the game data folders must stay next to it)."

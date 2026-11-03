@@ -1,3 +1,5 @@
+// SDL3: the SDL_main.h entry-point code must live in exactly one translation unit.
+#define ROCKBOT_DEFINE_MAIN
 #ifdef WII
 #include <fat.h>
 #endif
@@ -75,7 +77,9 @@ jobject activity_ref;
     #include <unistd.h>
 #elif defined(WIN32)
     #include <direct.h>
+    #ifndef SDL3
     #undef main // to build on win32
+    #endif
 #endif
 
 #if defined(WIN32)

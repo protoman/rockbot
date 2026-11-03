@@ -1,23 +1,25 @@
 #!/usr/bin/env bash
+# Cross-builds RockBot for Windows from Linux (llvm-mingw, see ../../build-windows.sh) and
+# creates Rockbot<N>_Win32_<version>.zip: rockbot.exe + the SDL DLLs + fonts/shared/games.
+# Usage: ./win32.sh [1|2] [sdl2|sdl3] [x86_64|i686]     (asks which game if omitted)
+# The Windows SDK is kept in $WINDOWS_SDK (default /mnt/ExtraData/Devel/SDK/Windows).
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 source "$SCRIPT_DIR/common.sh"
-choose_game "${1:-}" || exit 1
-GAME_DIR=rockbot$version_number
 
-#copy data
-rm -r -f ./win32/$GAME_DIR
-mkdir -p ./win32/$GAME_DIR/games
-rsync -r --exclude=.svn ../fonts ./win32/$GAME_DIR
-rsync -r --exclude=.svn ../shared ./win32/$GAME_DIR
-rsync -r --exclude=.svn ../games/Rockbot$version_number ./win32/$GAME_DIR/games
-cp ./win32/*.dll ./win32/$GAME_DIR
-cp ./win32/*.exe ./win32/$GAME_DIR
-rm ./win32/$GAME_DIR/game*.sav
-rm ./win32/$GAME_DIR/config_v*.sav
+game="" ; sdl="sdl2" ; arch="x86_64"
+for arg in "$@"; do
+    case "$arg" in
+        1|2) game="$arg" ;;
+        sdl2|sdl3) sdl="$arg" ;;
+        x86_64|i686) arch="$arg" ;;
+        *) echo "Usage: $0 [1|2] [sdl2|sdl3] [x86_64|i686]" >&2; exit 1 ;;
+    esac
+done
+choose_game "$game" || exit 1
 
-
-cd win32/$GAME_DIR
-spacer="_WIN32_"
-zip -r ../../Rockbot_Win32_$VERSIONNAME.zip *
+# Builds build/rockbot.exe and packages build/packages/Rockbot<N>_Win32_<version>.zip
+../../build-windows.sh "$sdl" "$arch" "$version_number"
+echo "Package: $PWD/Rockbot${version_number}_Win32_${VERSIONNAME}.zip"
