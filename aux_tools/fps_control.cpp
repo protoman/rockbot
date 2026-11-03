@@ -47,7 +47,7 @@ bool fps_control::limit()
 
     if (current_ticks < target_ticks)
     {
-        SDL_Delay(target_ticks - current_ticks);
+        timer.delay(target_ticks - current_ticks);
         current_ticks = timer.getTimer();
     }
 

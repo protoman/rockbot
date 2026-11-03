@@ -2,6 +2,10 @@
 #include <iostream>
 #include "timerlib.h"
 #include "sdl_layer.h"
+
+#ifdef PS3
+static unsigned long long rb_ps3_start_ms = 0;
+#endif
 #include <unistd.h>
 #ifdef PS3
 #include <sys/systime.h>
@@ -41,7 +45,11 @@ unsigned long timerLib::getTimer() const
 	u64 sec = 0;
 	u64 nsec = 0;
 	sysGetCurrentTime(&sec, &nsec);
-	return static_cast<unsigned long>(sec * 1000 + nsec / 1000000) - _paused_ticks;
+	const unsigned long long now_ms = sec * 1000 + nsec / 1000000;
+	if (rb_ps3_start_ms == 0) {
+		rb_ps3_start_ms = now_ms;
+	}
+	return static_cast<unsigned long>(now_ms - rb_ps3_start_ms) - _paused_ticks;
 #else
 	return SDLL_GetTicks() - _paused_ticks;
 #endif

@@ -7,6 +7,9 @@
 #include <cstdio>
 #include <cerrno>
 #include <cstring>
+#ifdef PS3
+#include <sys/systime.h>
+#endif
 
 // =============================================
 // SDL3
@@ -199,7 +202,11 @@ void SDLL_UnlockSurface(SDL_Surface *surface)
 
 void SDLL_Delay(Uint32 ms)
 {
+#ifdef PS3
+	sysUsleep(ms * 1000);
+#else
 	SDL_Delay(ms);
+#endif
 }
 
 Uint32 SDLL_GetTicks()
@@ -698,7 +705,11 @@ void SDLL_UnlockSurface(SDL_Surface *surface)
 
 void SDLL_Delay(Uint32 ms)
 {
+#ifdef PS3
+	sysUsleep(ms * 1000);
+#else
 	SDL_Delay(ms);
+#endif
 }
 
 Uint32 SDLL_GetTicks()
@@ -1026,7 +1037,11 @@ void SDLL_UnlockSurface(SDL_Surface *surface)
 
 void SDLL_Delay(Uint32 ms)
 {
+#ifdef PS3
+	sysUsleep(ms * 1000);
+#else
 	SDL_Delay(ms);
+#endif
 }
 
 Uint32 SDLL_GetTicks()
