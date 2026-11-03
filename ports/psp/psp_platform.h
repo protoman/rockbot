@@ -11,7 +11,11 @@
 namespace psp_platform {
 
 // --- Bootstrap ---
-void setup();
+// argv0: the program path given by the loader (e.g. ms0:/PSP/GAME/Rockbot1/EBOOT.PBP). The data
+// folder is taken from it; the current directory is not reliable when launched from the XMB.
+void setup(const char *argv0 = NULL);
+// Appends a line to <game folder>/rockbot_boot.log (diagnostics on real hardware).
+void log(const char *fmt, ...);
 void get_filepath(std::string &filepath, int maxpathlen);
 
 // --- Graphics / fonts / video ---

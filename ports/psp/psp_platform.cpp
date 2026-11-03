@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <cstdarg>
 #include <cerrno>
 #include <unistd.h>
 #include <malloc.h>
@@ -74,15 +75,70 @@ int owned_mem_close(SDL_RWops *context)
 
 namespace psp_platform {
 
-void setup()
+static std::string g_base_dir; // folder that contains EBOOT.PBP, with trailing '/'
+
+void log(const char *fmt, ...)
+{
+    // before the data folder is known, log next to the current directory
+    std::string dir = g_base_dir;
+    if (dir.empty()) {
+        char cwd[256];
+        if (getcwd(cwd, sizeof(cwd)) == NULL) {
+            return;
+        }
+        dir = std::string(cwd) + "/";
+    }
+    char line[512];
+    va_list ap;
+    va_start(ap, fmt);
+    int n = vsnprintf(line, sizeof(line) - 1, fmt, ap);
+    va_end(ap);
+    if (n < 0) {
+        return;
+    }
+    if (n > (int)sizeof(line) - 2) {
+        n = (int)sizeof(line) - 2;
+    }
+    line[n++] = '\n';
+    std::string path = dir + "rockbot_boot.log";
+    SceUID fd = sceIoOpen(path.c_str(), PSP_O_WRONLY | PSP_O_CREAT | PSP_O_APPEND, 0777);
+    if (fd >= 0) {
+        sceIoWrite(fd, line, n);
+        sceIoClose(fd);
+    }
+}
+
+void setup(const char *argv0)
 {
     SetupCallbacks();
     scePowerSetClockFrequency(333, 333, 166);
+
+    if (argv0 != NULL) {
+        std::string path(argv0);
+        std::string::size_type pos = path.find_last_of('/');
+        if (pos != std::string::npos) {
+            // use it only if the game data really is there; otherwise keep the current directory
+            std::string candidate = path.substr(0, pos + 1);
+            SceIoStat st;
+            if (sceIoGetstat((candidate + "games").c_str(), &st) >= 0) {
+                g_base_dir = candidate;
+                sceIoChdir(g_base_dir.c_str());
+            }
+        }
+    }
+    char cwd[256];
+    log("boot: argv0='%s' base='%s' cwd='%s'", argv0 ? argv0 : "(null)", g_base_dir.c_str(),
+        getcwd(cwd, sizeof(cwd)) ? cwd : "(null)");
 }
 
 void get_filepath(std::string &filepath, int maxpathlen)
 {
-    // Under PPSSPP/real PSP, cwd should be the folder that contains EBOOT.PBP.
+    // The folder of EBOOT.PBP, from argv[0]: the current directory depends on how the game
+    // was started (XMB, PPSSPP game list or direct file load) and may not be that folder.
+    if (!g_base_dir.empty()) {
+        filepath = g_base_dir;
+        return;
+    }
     char *buffer = new char[maxpathlen];
     if (getcwd(buffer, maxpathlen) != NULL) {
         filepath = std::string(buffer);

@@ -295,7 +295,7 @@ void main_loop()
 int main(int argc, char *argv[])
 {
 #ifdef PSP
-    psp_platform::setup();
+    psp_platform::setup(argc > 0 ? argv[0] : NULL);
 #endif
 #ifdef PS3
     ps3_platform::setup(argc > 0 ? argv[0] : NULL);
@@ -409,6 +409,9 @@ int main(int argc, char *argv[])
     // INIT GRAPHICS
     if (graphLib.initGraphics() != true) {
         fflush(stdout);
+#ifdef PSP
+        psp_platform::log("initGraphics failed");
+#endif
         return -1;
     }
 
@@ -431,6 +434,9 @@ int main(int argc, char *argv[])
     //GAMENAME = std::string("RockBot");
 
     if (GAMENAME == "") {
+#ifdef PSP
+        psp_platform::log("no game found under '%s'", GAMEPATH.c_str());
+#endif
         graphLib.draw_text(20, 20, strings_map::get_instance()->get_ingame_string(strings_ingame_engineerror) + std::string(":"));
         graphLib.draw_text(20, 32, strings_map::get_instance()->get_ingame_string(strings_ingame_nogames));
 
