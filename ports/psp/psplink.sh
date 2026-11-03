@@ -28,7 +28,7 @@ case "${1:-}" in
     host)
         [ -d "$SERVE" ] || "$0" stage
         echo "serving $SERVE as host0: (Ctrl+C to stop)"
-        exec usbhostfs_pc "$SERVE" ;;
+        exec usbhostfs_pc -c "$SERVE" ;;   # -c: case-insensitive names, like the FAT memory stick
     shell)
         exec pspsh ;;
     addr)

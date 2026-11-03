@@ -246,9 +246,7 @@ void setup(const char *argv0)
     if (!g_base_dir.empty()) {
         std::string out = g_base_dir + "rockbot_stdout.log";
         freopen(out.c_str(), "w", stdout);
-        freopen(out.c_str(), "a", stderr);
         setvbuf(stdout, NULL, _IOLBF, 0);
-        setvbuf(stderr, NULL, _IONBF, 0);
     }
     atexit([]() { log("exit(): normal process exit"); });
     g_main_thread = sceKernelGetThreadId();
@@ -594,6 +592,7 @@ RWopsPtr *rw_from_file(const char *file, const char *mode)
     const SceUID fd = sceIoOpen(clean_file.c_str(), PSP_O_RDONLY, 0777);
     if (fd < 0) {
         SDL_SetError("psp_platform::rw_from_file: sceIoOpen(%s) failed (%d)", file, (int)fd);
+        log("OPEN FAILED %s (0x%08x)", clean_file.c_str(), (unsigned)fd);
         return NULL;
     }
 
