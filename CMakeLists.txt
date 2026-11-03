@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Output Directory (same location as DESTDIR=build used by the old qmake scripts)
-if(CMAKE_SYSTEM_NAME STREQUAL "PS3" OR PSP)
+if(CMAKE_SYSTEM_NAME STREQUAL "PS3" OR CMAKE_SYSTEM_NAME STREQUAL "NintendoWii" OR PSP)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 else()
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
@@ -36,6 +36,13 @@ endif()
 if(PS2)
     set(ROCKBOT_PS2 TRUE)
     # The PS2 port runs on SDL 1.2 (libsdl / libsdlmixer in ps2sdk ports).
+    set(USE_SDL_VERSION 1 CACHE STRING "SDL major version" FORCE)
+endif()
+
+# Nintendo Wii cross build (devkitPro devkitPPC + libogc) uses devkitPro's Wii.cmake toolchain.
+if(CMAKE_SYSTEM_NAME STREQUAL "NintendoWii")
+    set(ROCKBOT_WII TRUE)
+    # The game's Wii code paths use SDL 1.2 (wii-sdl and friends).
     set(USE_SDL_VERSION 1 CACHE STRING "SDL major version" FORCE)
 endif()
 
@@ -76,7 +83,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         -Werror=return-type
     )
     # MinGW often lacks libssp; keep stack protector for native Unix builds only.
-    if(NOT WIN32 AND NOT ROCKBOT_PS3 AND NOT ROCKBOT_PSP AND NOT ROCKBOT_PS2 AND NOT ROCKBOT_HANDHELD)
+    if(NOT WIN32 AND NOT ROCKBOT_PS3 AND NOT ROCKBOT_PSP AND NOT ROCKBOT_PS2 AND NOT ROCKBOT_HANDHELD AND NOT ROCKBOT_WII)
         add_compile_options(-fstack-protector-all -fstack-protector)
     endif()
 endif()
@@ -225,6 +232,8 @@ elseif(ROCKBOT_PSP)
     # -DPSP / -D__PSP__ come from pspdev.cmake. SDL_MAIN_HANDLED keeps the
     # real main() for the PSP crt0 (SDL2 would rename it to SDL_main).
     add_definitions(-DHANDHELD -DSDL_MAIN_HANDLED)
+elseif(ROCKBOT_WII)
+    add_definitions(-DWII -DHANDHELD)
 elseif(ROCKBOT_HANDHELD STREQUAL "dingux")
     add_definitions(-DDINGUX -DHANDHELD -D_REENTRANT)
 elseif(ROCKBOT_HANDHELD STREQUAL "pocketgo")
@@ -380,7 +389,15 @@ set(HEADERS
 add_executable(rockbot ${SOURCES} ${HEADERS})
 
 # Link Libraries
-if(ROCKBOT_HANDHELD STREQUAL "dingux")
+if(ROCKBOT_WII)
+    # Static devkitPro portlibs: take the transitive dependencies from pkg-config, then the
+    # libogc pieces the game uses directly (SD card, Wii remote, keyboard).
+    set(ROCKBOT_SDL_LIBS
+        ${SDL_GFX_STATIC_LDFLAGS} ${SDL_TTF_STATIC_LDFLAGS} ${SDL_MIXER_STATIC_LDFLAGS}
+        ${SDL_IMAGE_STATIC_LDFLAGS} ${SDL_STATIC_LDFLAGS}
+        -lbz2 -lbrotlidec -lbrotlicommon -lz
+        -lfat -lwiiuse -lbte -lwiikeyboard -logc -lm)
+elseif(ROCKBOT_HANDHELD STREQUAL "dingux")
     set(ROCKBOT_SDL_LIBS ${SDL_LDFLAGS} ${SDL_MIXER_LDFLAGS} ${SDL_IMAGE_LDFLAGS}
         ${SDL_TTF_LDFLAGS} ${SDL_GFX_LDFLAGS} -lpthread)
     set_target_properties(rockbot PROPERTIES OUTPUT_NAME rockbot SUFFIX ".dge")
@@ -480,4 +497,11 @@ if(ROCKBOT_PSP)
         ICON_PATH "${_psp_icon}"
         BACKGROUND_PATH "${_psp_bg}"
     )
+endif()
+
+if(ROCKBOT_WII)
+    # boot.dol next to the ELF, the file the Homebrew Channel loads.
+    add_custom_command(TARGET rockbot POST_BUILD
+        COMMAND ${ELF2DOL_EXE} "$<TARGET_FILE:rockbot>" "${CMAKE_BINARY_DIR}/boot.dol"
+        COMMENT "Creating boot.dol")
 endif()
