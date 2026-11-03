@@ -43,6 +43,14 @@ RUN git init -q commandergenius && cd commandergenius \
  && cp /tmp/overlay/extra-files/*.png project/themes/SimpleTheme/ \
  && rm -rf /tmp/overlay
 
+# Submodules the SDL 1.2 build still needs: the SDL2 family with its external libraries (jpeg/png,
+# ogg/vorbis/... under sdl2_*/external), iconv and shmem. The ~20 application submodules are skipped.
+RUN cd commandergenius \
+ && git submodule update --init --depth 1 project/jni/sdl2 project/jni/sdl2_image project/jni/sdl2_ttf \
+        project/jni/sdl2_mixer project/jni/iconv/src project/jni/shmem \
+ && for d in sdl2 sdl2_image sdl2_ttf sdl2_mixer; do git -C project/jni/$d submodule update --init --depth 1 --recursive; done \
+ && chmod -R a+rwX /opt/android/commandergenius
+
 # Gradle distribution used by the project's wrapper, downloaded once here
 RUN mkdir -p ${GRADLE_USER_HOME} && cd commandergenius/project && ./gradlew --version >/dev/null \
  && chmod -R a+rwX ${GRADLE_USER_HOME} /opt/android/commandergenius
