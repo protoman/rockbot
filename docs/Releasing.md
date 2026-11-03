@@ -26,17 +26,20 @@ All take the game number (`1` or `2`) as the first argument (they ask when it is
 | PS3 | `PS3.sh` | `.pkg` + `.zip` | ps3dev (`.../SDK/PS3`) |
 | Dingux | `Dingux.sh` | `.zip` | OpenDingux gcw0 (`.../SDK/opendingux-gcw0-*`) |
 | PocketGo | `PocketGo.sh` | `.zip` | Buildroot (`.../SDK/PocketGo`) |
-| Wii | `Wii.sh` | `.zip` (Homebrew Channel) | devkitPro in Docker (`devkitpro/devkitppc`) |
+| Wii | `Wii.sh` | `.zip` (Homebrew Channel) | current devkitPro (`.../SDK/Wii/devkitpro-current`) |
 | Linux x64 | `linux.sh` / `deb.sh` / `appimage.sh` | `.tar.gz` / `.deb` / `.AppImage` | host g++ + SDL2 dev packages |
 | Windows | `win32.sh [1\|2] [sdl2\|sdl3] [x86_64\|i686]` | `_Win64_.zip` / `_Win32_.zip` | llvm-mingw (`.../SDK/Windows`) |
-| Android | `Android.sh [1\|2] [release\|debug] [--no-sign]` | `.apk` | Docker (`android/`) |
+| Android | `Android.sh [1\|2] [--no-sign]` | `.apk` | commandergenius + NDK r29 + Gradle (`.../SDK/Android`) |
 | Raspberry Pi | `Raspberry.sh [1\|2] [armhf\|arm64]` | `.tar.gz` | Docker (`ports/raspberry`) |
 
 Notes:
 - **AppImage:** `appimagetool` is downloaded into `/mnt/ExtraData/Devel/SDK/Linux` the first time.
-- **Android:** release APKs are signed with `~/.android/my-release-key.keystore` when it exists
-  (`ANDROID_KEYSTORE`, `ANDROID_KEY_ALIAS`, `ANDROID_KEYSTORE_PASS` override), otherwise unsigned. The
-  first run builds a large Docker image.
-- **Wii:** builds `boot.dol` (the SDL 1.2 Wii ports); not tested on hardware or an emulator yet.
+- **Android:** native build with your SDK (`ANDROID_BASE` overrides the folder). The APK is signed with
+  `~/.android/my-release-key.keystore` (`ANDROID_KEYSTORE` overrides) when `ANDROID_KEYSTORE_PASS` is
+  set (a terminal run prompts for the password instead); otherwise, or with `--no-sign`, it is left
+  unsigned. `ANDROID_BUILD=docker` uses the Docker build instead.
+- **Wii:** builds `boot.dol` (the SDL 1.2 Wii ports) natively. If `WII_SDK` is missing it is installed once
+  by copying devkitPro out of the `devkitpro/devkitppc` Docker image (the only use of Docker). Not tested
+  on hardware or an emulator yet.
 - **Raspberry Pi:** needs Raspberry Pi OS bookworm or newer and the `libsdl2*` packages.
 - The Qt editor is not part of any release package.

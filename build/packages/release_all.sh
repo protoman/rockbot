@@ -39,7 +39,7 @@ TARGETS=(
     "linux-appimage|./appimage.sh"
     "windows-x64|./win32.sh @GAME@ sdl2 x86_64"
     "windows-i686|./win32.sh @GAME@ sdl2 i686"
-    "android|./Android.sh @GAME@ release"
+    "android|./Android.sh @GAME@"
     "raspberry-armhf|./Raspberry.sh @GAME@ armhf"
     "raspberry-arm64|./Raspberry.sh @GAME@ arm64"
 )

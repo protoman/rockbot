@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# Android APK (Docker build, see ../../build-android.sh): creates Rockbot<N>_Android_<version>.apk
-# Usage: ./Android.sh [1|2] [debug|release] [--no-sign]    (asks which game if omitted)
-# Release builds are signed with ~/.android/my-release-key.keystore (override with ANDROID_KEYSTORE,
-# ANDROID_KEY_ALIAS, ANDROID_KEYSTORE_PASS); without a keystore the APK is left unsigned.
+# Android APK. Native build by default (commandergenius/NDK/Gradle on this machine, see
+# android_build.sh); set ANDROID_BUILD=docker to use the Docker build (../../build-android.sh).
+# Usage: ./Android.sh [1|2] [--no-sign]     (asks which game if omitted)
+# Creates Rockbot<N>_Android_<version>.apk (signed when the keystore password is available,
+# see android_build.sh).
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
@@ -17,5 +18,9 @@ for arg in "$@"; do
 done
 choose_game "$game" || exit 1
 
-../../build-android.sh "$version_number" "${extra[@]+"${extra[@]}"}"
+if [ "${ANDROID_BUILD:-native}" = "docker" ]; then
+    ../../build-android.sh "$version_number" release "${extra[@]+"${extra[@]}"}"
+else
+    ./android_build.sh "$version_number" "${extra[@]+"${extra[@]}"}"
+fi
 echo "Package: $PWD/Rockbot${version_number}_Android_${VERSIONNAME}.apk"
