@@ -3,6 +3,7 @@
 #ifdef PSP
 
 #include <xmp.h>
+#include <pspkernel.h>
 #include <cstdlib>
 #include <cstring>
 #include <strings.h>
@@ -29,6 +30,7 @@ struct XmpMusic {
 
 XmpMusic *g_current = NULL;
 volatile int g_volume = 128;
+volatile unsigned int g_decode_us = 0;
 
 void hook(void *udata, Uint8 *stream, int len)
 {
@@ -37,7 +39,9 @@ void hook(void *udata, Uint8 *stream, int len)
         std::memset(stream, 0, len);
         return;
     }
+    const unsigned int t0 = sceKernelGetSystemTimeLow();
     int r = xmp_play_buffer(m->ctx, stream, len, m->xmp_loop);
+    g_decode_us += sceKernelGetSystemTimeLow() - t0;
     if (r < 0) { // end of the module (or an error): silence from now on
         m->playing = false;
         std::memset(stream, 0, len);
@@ -142,6 +146,9 @@ int play(SoundMusic *music, int loops)
         psp_platform::log("psp_music: xmp_start_player failed");
         return -1;
     }
+    // cheap mixing: nearest-neighbour interpolation and no DSP filters (the PSP CPU is shared with the game)
+    xmp_set_player(m->ctx, XMP_PLAYER_INTERP, XMP_INTERP_NEAREST);
+    xmp_set_player(m->ctx, XMP_PLAYER_DSP, 0);
     m->started = true;
     m->xmp_loop = (loops < 0) ? 0 : loops + 1;
     m->playing = true;
@@ -178,6 +185,13 @@ void set_volume(int volume)
     }
 }
 
+unsigned int take_decode_us()
+{
+    const unsigned int us = g_decode_us;
+    g_decode_us = 0;
+    return us;
+}
+
 } // namespace psp_music
 
 #else
@@ -189,5 +203,6 @@ int play(SoundMusic *, int) { return -1; }
 void halt() {}
 void free_music(SoundMusic *) {}
 void set_volume(int) {}
+unsigned int take_decode_us() { return 0; }
 }
 #endif

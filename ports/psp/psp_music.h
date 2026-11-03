@@ -17,5 +17,6 @@ int play(SoundMusic *music, int loops);          // same loops meaning as Mix_Pl
 void halt();                                     // stops the tracker music (if any)
 void free_music(SoundMusic *music);
 void set_volume(int volume);                     // 0..128, like Mix_VolumeMusic
+unsigned int take_decode_us();                   // microseconds spent decoding since the last call (profiling)
 
 }

@@ -152,6 +152,26 @@ void heartbeat()
     if ((++frames & 31u) == 0) {
         scePowerTick(PSP_POWER_TICK_ALL);
     }
+    // profiling: every 240 frames log fps, the share of time spent decoding music and the slowest frame
+    static u32 window_start = 0, last = 0, slowest = 0;
+    const u32 now = sceKernelGetSystemTimeLow();
+    if (window_start == 0) {
+        window_start = last = now;
+    }
+    if (now - last > slowest) {
+        slowest = now - last;
+    }
+    last = now;
+    if ((frames % 240u) == 0) {
+        const u32 elapsed = now - window_start;
+        const unsigned int audio_us = psp_music::take_decode_us();
+        if (elapsed > 0) {
+            log("perf: %u fps*10, music %u%%, slowest frame %u ms", (unsigned)((240ull * 10000000ull) / elapsed),
+                (unsigned)((audio_us * 100ull) / elapsed), (unsigned)(slowest / 1000));
+        }
+        window_start = now;
+        slowest = 0;
+    }
 }
 
 static int watchdog_thread(SceSize, void *)
@@ -553,6 +573,7 @@ RWopsPtr *rw_from_file(const char *file, const char *mode)
 
     // the real PSP firmware rejects a doubled '/' in sceIo paths (newlib's fopen and PPSSPP accept it)
     const std::string clean_file = StringUtils::clean_filename(file);
+    const u32 io_start = sceKernelGetSystemTimeLow();
     const SceUID fd = sceIoOpen(clean_file.c_str(), PSP_O_RDONLY, 0777);
     if (fd < 0) {
         SDL_SetError("psp_platform::rw_from_file: sceIoOpen(%s) failed (%d)", file, (int)fd);
@@ -576,6 +597,10 @@ RWopsPtr *rw_from_file(const char *file, const char *mode)
 
     const int nread = sceIoRead(fd, buf, (size_t)sz);
     sceIoClose(fd);
+    const u32 io_ms = (sceKernelGetSystemTimeLow() - io_start) / 1000;
+    if (io_ms >= 30) {
+        log("slow file read: %u ms for %ld bytes '%s'", (unsigned)io_ms, (long)sz, clean_file.c_str());
+    }
     if (nread != (int)sz) {
         std::free(buf);
         SDL_SetError("psp_platform::rw_from_file: sceIoRead %d/%ld for %s", nread, (long)sz, file);
