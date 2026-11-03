@@ -544,8 +544,15 @@ SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
 	printf("SDL version: %s window=%dx%d game=%dx%d\n",
 		SDLL_GetCompiledVersion(), win_w, win_h, width, height);
 
+#ifdef PSP
+	// ABGR8888 is the PSP's native texture format. With ARGB8888 SDL converts every pixel on the CPU
+	// at every update (about 27 ms per frame, 80% of the frame time); SDLL_Flip swaps R/B itself instead.
+	texture = SDL_CreateTexture(renderer,
+								SDL_PIXELFORMAT_ABGR8888,
+#else
 	texture = SDL_CreateTexture(renderer,
 								SDL_PIXELFORMAT_ARGB8888,
+#endif
 								SDL_TEXTUREACCESS_STREAMING,
 								width, height);
 	if (texture == NULL) {
@@ -610,12 +617,36 @@ int SDLL_Flip(SDL_Surface *screen)
 	if (screen == NULL || texture == NULL || renderer == NULL) {
 		return -1;
 	}
-	if (SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch) != 0) {
 #ifdef PSP
+	// screen is ARGB8888, the texture ABGR8888: swap red and blue (one cheap pass instead of SDL's generic conversion)
+	static Uint32 *abgr = NULL;
+	static int abgr_w = 0, abgr_h = 0;
+	if (abgr == NULL || abgr_w != screen->w || abgr_h != screen->h) {
+		SDL_free(abgr);
+		abgr = (Uint32 *)SDL_malloc((size_t)screen->w * screen->h * 4);
+		abgr_w = screen->w;
+		abgr_h = screen->h;
+		if (abgr == NULL) {
+			return -1;
+		}
+	}
+	for (int y = 0; y < screen->h; y++) {
+		const Uint32 *src = (const Uint32 *)((const Uint8 *)screen->pixels + (size_t)y * screen->pitch);
+		Uint32 *dst = abgr + (size_t)y * screen->w;
+		for (int x = 0; x < screen->w; x++) {
+			const Uint32 p = src[x];
+			dst[x] = (p & 0xFF00FF00u) | ((p >> 16) & 0xFFu) | ((p & 0xFFu) << 16);
+		}
+	}
+	if (SDL_UpdateTexture(texture, NULL, abgr, screen->w * 4) != 0) {
 		psp_platform::log("flip: SDL_UpdateTexture failed: %s", SDL_GetError());
-#endif
 		return -1;
 	}
+#else
+	if (SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch) != 0) {
+		return -1;
+	}
+#endif
 #ifdef PSP
 	if (flip_log) psp_platform::log("flip #%u texture updated", flip_n);
 #endif
