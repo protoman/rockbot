@@ -488,6 +488,14 @@ struct graphicsLib_gSurface {
 
             Uint32 new_color_n = SDLL_MapRGB(gSurface, new_color.r, new_color.g, new_color.b);
 
+            // RLE-accelerated surfaces have no pixel data until they are locked
+            // (SDL frees it after encoding); writing without a lock dereferences NULL.
+            SDLL_LockSurface(gSurface);
+            if (gSurface->pixels == NULL) {
+                SDLL_UnlockSurface(gSurface);
+                return;
+            }
+
             if (key_n == 0) {
                 for (unsigned int i=0; i<colorkey1_points.size(); i++) {
                     put_pixel(colorkey1_points.at(i).x, colorkey1_points.at(i).y, new_color_n);
@@ -501,6 +509,7 @@ struct graphicsLib_gSurface {
                     put_pixel(colorkey3_points.at(i).x, colorkey3_points.at(i).y, new_color_n);
                 }
             }
+            SDLL_UnlockSurface(gSurface);
         }
 
         void enable_show_debug() {
@@ -574,7 +583,7 @@ struct graphicsLib_gSurface {
             if (x >= gSurface->w || y >= gSurface->h) {
                 return 0;
             }
-            if (is_rle_enabled) {
+            if (is_rle_enabled || gSurface->pixels == NULL) {
                 return 0;
             }
 
@@ -613,6 +622,9 @@ struct graphicsLib_gSurface {
                 return;
             }
             if (x < 0 || x >= gSurface->w || y < 0 || y >= gSurface->h) {
+                return;
+            }
+            if (gSurface->pixels == NULL) {
                 return;
             }
             int bpp =
