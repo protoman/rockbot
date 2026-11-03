@@ -10,7 +10,10 @@ set -o pipefail
 #   NCPU     make parallelism (default: nproc)
 
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
-PS2DEV="${PS2DEV:-/mnt/ExtraData/Devel/SDK/PS2.new/ps2dev}"
+export PS2DEV="${PS2DEV:-/mnt/ExtraData/Devel/SDK/PS2.new/ps2dev}"
+export PS2SDK="$PS2DEV/ps2sdk"
+export GSKIT="$PS2DEV/gsKit"
+export PATH="$PS2DEV/bin:$PS2DEV/ee/bin:$PS2DEV/iop/bin:$PS2SDK/bin:$PATH"
 BUILD_DIR="$REPO_ROOT/build-ps2"
 NCPU="${NCPU:-$(nproc)}"
 
@@ -20,10 +23,9 @@ if [ ! -x "$PS2DEV/ee/bin/mips64r5900el-ps2-elf-g++" ]; then
     exit 1
 fi
 
-mkdir -p "$BUILD_DIR"
-cd "$BUILD_DIR"
-
-PS2DEV="$PS2DEV" qmake "$REPO_ROOT/RockDroid.pro" CONFIG+=playstation2
-make -j"$NCPU"
+cmake -S "$REPO_ROOT" -B "$BUILD_DIR" \
+    -DCMAKE_TOOLCHAIN_FILE="$PS2DEV/share/ps2dev.cmake" \
+    -DCMAKE_BUILD_TYPE=Release
+cmake --build "$BUILD_DIR" -j"$NCPU"
 
 echo "Built $REPO_ROOT/build/rockbot.elf"

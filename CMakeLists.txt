@@ -19,6 +19,13 @@ if(PSP)
     set(USE_SDL_VERSION 2 CACHE STRING "SDL major version" FORCE)
 endif()
 
+# PS2 cross build (ps2dev) uses ps2dev's share/ps2dev.cmake, which defines PS2.
+if(PS2)
+    set(ROCKBOT_PS2 TRUE)
+    # The PS2 port runs on SDL 1.2 (libsdl / libsdlmixer in ps2sdk ports).
+    set(USE_SDL_VERSION 1 CACHE STRING "SDL major version" FORCE)
+endif()
+
 # PlayStation 3 cross build (PSL1GHT) uses its own toolchain file.
 if(CMAKE_SYSTEM_NAME STREQUAL "PS3")
     set(ROCKBOT_PS3 TRUE)
@@ -56,9 +63,18 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         -Werror=return-type
     )
     # MinGW often lacks libssp; keep stack protector for native Unix builds only.
-    if(NOT WIN32 AND NOT ROCKBOT_PS3 AND NOT ROCKBOT_PSP)
+    if(NOT WIN32 AND NOT ROCKBOT_PS3 AND NOT ROCKBOT_PSP AND NOT ROCKBOT_PS2)
         add_compile_options(-fstack-protector-all -fstack-protector)
     endif()
+endif()
+
+if(ROCKBOT_PS2)
+    # Same flags the qmake playstation2 config used (-G0 small data, no warnings
+    # noise from the old code base).
+    add_definitions(-DPLAYSTATION2=1 -D_EE)
+    # ps2dev.cmake defines PS2, which the game never saw under qmake (it would
+    # pull in the legacy fileio.h path); keep the old behavior.
+    add_compile_options(-G0 -w -UPS2)
 endif()
 
 if(ROCKBOT_PSP)
@@ -114,6 +130,17 @@ if(ROCKBOT_PS3)
         -lrsx
     )
     set(ROCKBOT_SDL_LIBS "")
+elseif(ROCKBOT_PS2)
+    # ps2sdk ports are SDL 1.2 static libs without usable .pc files; ps2dev.cmake
+    # already adds the ee/ports include and lib paths. SDL headers live in ports/include/SDL.
+    set(PS2SDK "$ENV{PS2SDK}")
+    set(SDL_INCLUDE_DIRS "${PS2SDK}/ports/include/SDL" "${PS2SDK}/ports/include")
+    set(SDL_MIXER_INCLUDE_DIRS "")
+    set(SDL_IMAGE_INCLUDE_DIRS "")
+    set(SDL_TTF_INCLUDE_DIRS "")
+    set(SDL_GFX_INCLUDE_DIRS "")
+    set(SDL_GFX_FOUND TRUE)
+    set(ROCKBOT_EXTRA_LIBS "")
 else()
 # Find Dependencies
 find_package(PkgConfig REQUIRED)
@@ -336,7 +363,19 @@ set(HEADERS
 add_executable(rockbot ${SOURCES} ${HEADERS})
 
 # Link Libraries
-if(ROCKBOT_PSP)
+if(ROCKBOT_PS2)
+    # Static libs have circular references (SDL <-> gsKit <-> ps2sdk); group them.
+    # Order follows the old qmake config.
+    set(ROCKBOT_SDL_LIBS
+        -Wl,--start-group
+        -lSDL_gfx -lSDL_image -ljpeg -ltiff -lpng -lz -ldebug -lSDL_ttf
+        -lsdlmixer -lsdlmain -lsdl -lgskit -ldmakit -lpad -llzma -lfreetype
+        -lm -lcdvd -lpacket -ldma -lmc -lstdc++ -lc -lkernel
+        -Wl,--end-group
+    )
+    # rockbot.elf, next to the other build output (build/packages/PS2.sh reads it).
+    set_target_properties(rockbot PROPERTIES OUTPUT_NAME rockbot SUFFIX ".elf")
+elseif(ROCKBOT_PSP)
     # Static link: the PSP has no shared libs, so take the transitive deps too.
     set(ROCKBOT_SDL_LIBS
         ${SDL_MIXER_STATIC_LDFLAGS}

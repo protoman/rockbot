@@ -1,24 +1,43 @@
-#!/bin/sh
-VERSIONNAME=`cat version_name.txt`
+#!/bin/bash
+# Builds the PS2 package (CMake + ps2dev) and zips it.
+# Usage: ./PS2.sh [1|2]     (asks for the version if omitted)
+# PS2DEV selects the SDK (see ../../build-ps2.sh).
+set -euo pipefail
+cd "$(dirname "$0")"
 
-rm ./Rockbot_PS2_$VERSIONNAME.zip
-rm -r -f ./PS2
-mkdir ./PS2
-mkdir ./PS2/Rockbot
-mkdir ./PS2/Rockbot/modules
+version_number="${1:-}"
+if [ -z "$version_number" ]; then
+    read -r -p "What is the version number you are building? " version_number
+fi
+if [ "$version_number" != "1" ] && [ "$version_number" != "2" ]; then
+    echo "Invalid version number"
+    exit 1
+fi
 
-cp ../rockbot.elf ./PS2/Rockbot/
-cp ../../ports/ps2/modules/*.irx ./PS2/Rockbot/modules/
+VERSIONNAME=$(tr -d '[:space:]' < "version_name_v$version_number.txt")
+GAME_DIR=rockbot$version_number
+OUT_ZIP="$PWD/Rockbot${version_number}_PS2_$VERSIONNAME.zip"
 
-rsync -r --exclude=.svn ../fonts ./PS2/Rockbot/
-rsync -r --exclude=.svn ../shared ./PS2/Rockbot/
-rsync -r --exclude=.svn ../games ./PS2/Rockbot/
-rsync -r --exclude=.svn ../*.dat ./PS2/Rockbot/
+# Produces ../rockbot.elf
+../../build-ps2.sh
 
-cp ./rockbot_ps2_icon.icn ./PS2/Rockbot/shared/images/
-cp ./icon.sys ./PS2/Rockbot/shared/images/
-rm ./PS2/Rockbot/data/game*.sav
-rm ./PS2/Rockbot/data/config*.sav
+rm -rf ./PS2
+mkdir -p "./PS2/$GAME_DIR/games" "./PS2/$GAME_DIR/modules" "./PS2/$GAME_DIR/data"
 
-cd ./PS2
-zip -r ../Rockbot_PS2_$VERSIONNAME.zip *
+cp ../rockbot.elf "./PS2/$GAME_DIR/"
+cp ../../ports/ps2/modules/*.irx "./PS2/$GAME_DIR/modules/"
+
+rsync -r --exclude=.svn ../fonts "./PS2/$GAME_DIR"
+rsync -r --exclude=.svn ../shared "./PS2/$GAME_DIR"
+rsync -r --exclude=mp3 --exclude=.svn "../games/RockDroid$version_number" "./PS2/$GAME_DIR/games"
+
+# Memory-card save icon (the game copies these on first run). icon.sys is
+# optional: it is not tracked in the repo.
+cp ./rockbot_ps2_icon.icn "./PS2/$GAME_DIR/shared/images/"
+[ -f ./icon.sys ] && cp ./icon.sys "./PS2/$GAME_DIR/shared/images/" || echo "note: icon.sys not found, no save icon will be created"
+
+find "./PS2/$GAME_DIR" \( -name 'game*.sav' -o -name 'config*.sav' \) -delete
+
+rm -f "$OUT_ZIP"
+( cd PS2 && zip -qr "$OUT_ZIP" "$GAME_DIR" )
+echo "Package: $OUT_ZIP"
