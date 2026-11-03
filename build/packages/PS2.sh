@@ -1,20 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Builds the PS2 package (CMake + ps2dev) and zips it.
-# Usage: ./PS2.sh [1|2]     (asks for the version if omitted)
+# Usage: ./PS2.sh [1|2]     (asks which game if omitted)
 # PS2DEV selects the SDK (see ../../build-ps2.sh).
 set -euo pipefail
-cd "$(dirname "$0")"
 
-version_number="${1:-}"
-if [ -z "$version_number" ]; then
-    read -r -p "What is the version number you are building? " version_number
-fi
-if [ "$version_number" != "1" ] && [ "$version_number" != "2" ]; then
-    echo "Invalid version number"
-    exit 1
-fi
-
-VERSIONNAME=$(tr -d '[:space:]' < "version_name_v$version_number.txt")
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+source "$SCRIPT_DIR/common.sh"
+choose_game "${1:-}" || exit 1
 GAME_DIR=rockbot$version_number
 OUT_ZIP="$PWD/Rockbot${version_number}_PS2_$VERSIONNAME.zip"
 

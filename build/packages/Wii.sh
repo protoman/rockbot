@@ -1,13 +1,9 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-read -r -p "What is the version number you are building? " version_number
-if [ "$version_number" != "1" ] && [ "$version_number" != "2" ];
-then
-    echo "Invalid version number"
-    exit
-fi
-
-VERSIONNAME=`cat version_name_v$version_number.txt`
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+source "$SCRIPT_DIR/common.sh"
+choose_game "${1:-}" || exit 1
 GAME_DIR=rockbot$version_number
 
 rm -r -f ./Wii

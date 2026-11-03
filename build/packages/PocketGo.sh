@@ -1,20 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Builds the PocketGo package (CMake + Buildroot SDK) and zips it.
-# Usage: ./PocketGo.sh [1|2]     (asks for the version if omitted)
+# Usage: ./PocketGo.sh [1|2]     (asks which game if omitted)
 # SDK location: see ../../build-pocketgo.sh (env POCKETGO_SDK).
 set -euo pipefail
-cd "$(dirname "$0")"
 
-version_number="${1:-}"
-if [ -z "$version_number" ]; then
-    read -r -p "What is the version number you are building? " version_number
-fi
-if [ "$version_number" != "1" ] && [ "$version_number" != "2" ]; then
-    echo "Invalid version number"
-    exit 1
-fi
-
-VERSIONNAME=$(tr -d '[:space:]' < "version_name_v$version_number.txt")
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+source "$SCRIPT_DIR/common.sh"
+choose_game "${1:-}" || exit 1
 GAME_DIR=Rockbot$version_number
 OUT_ZIP="$PWD/Rockbot${version_number}_PocketGo_$VERSIONNAME.zip"
 

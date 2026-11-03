@@ -47,36 +47,16 @@ if [ ! -f "$LOGO_SRC" ]; then
     exit 1
 fi
 
-# Parse canonical version from file/version.h (required). If missing, abort.
-VERSION_HEADER="$SCRIPT_DIR/../../file/version.h"
-if [ ! -f "$VERSION_HEADER" ]; then
-    echo "Version header not found: $VERSION_HEADER"
-    exit 1
-fi
+# Version comes from the single version file (bump it with ./release.sh).
+source "$SCRIPT_DIR/common.sh"
+VERSIONNAME="$(get_version)" || exit 1
 
-VERSION_FULL=$(grep -E '^\s*#\s*define\s+VERSION_NUMBER' "$VERSION_HEADER" | sed -E 's/.*"([^"]+)".*/\1/')
-if [ -z "$VERSION_FULL" ]; then
-    echo "Could not parse VERSION_NUMBER from $VERSION_HEADER"
-    exit 1
-fi
-
-VERSIONNAME="$VERSION_FULL"
-VERSION_MAJOR=$(echo "$VERSION_FULL" | cut -d. -f1)
-version_number="$VERSION_MAJOR"
-
-echo "Using VERSION_NUMBER=\"$VERSIONNAME\" (major: $version_number) from $VERSION_HEADER"
-
-# If the game folder name encodes a version, warn if it mismatches the header
-if [[ "$GAME_NAME" =~ ([0-9]+)$ ]]; then
-    GAME_MAJOR="${BASH_REMATCH[1]}"
-    if [ "$GAME_MAJOR" != "$version_number" ]; then
-        echo "Warning: picked game folder '$GAME_NAME' suggests major version $GAME_MAJOR but $VERSION_HEADER reports $version_number"
-        read -r -p "Continue with this game folder anyway? [y/N] " _cont
-        case $_cont in
-            [yY][eE][sS]|[yY]) ;;
-            *) echo "Aborting due to version mismatch"; exit 1 ;;
-        esac
-    fi
+# Game number (1 or 2): taken from the chosen game folder name (RockDroid1, ...),
+# otherwise asked.
+if [[ "$GAME_NAME" =~ ([0-9]+)$ ]] && [[ "${BASH_REMATCH[1]}" =~ ^[12]$ ]]; then
+    choose_game "${BASH_REMATCH[1]}" || exit 1
+else
+    choose_game "" || exit 1
 fi
 
 export PELYA_ANDROID_SDK=/mnt/SamsungEXT4/development/SDK/Android/commandergenius
@@ -146,7 +126,7 @@ case $response in
 		LINENUMBERFULLNAME=`grep -n "AppFullName=" AndroidAppSettings.cfg | cut -f1 -d:`
 		LINEVERSIONNUMBER=`grep -n "AppVersionCode=" AndroidAppSettings.cfg | cut -f1 -d:`
 
-		LINEVERSIONSTRING=`echo "$VERSIONNAME" | sed -e 's/\.//g'`
+		LINEVERSIONSTRING="$(version_code)" || exit 1
 		echo "$LINEVERSIONSTRING"
 
 		if [[ -z "$LINENUMBER" ]]

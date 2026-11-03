@@ -1,4 +1,6 @@
 #!/bin/bash
+# Keep file/version.h equal to build/packages/version_name.txt
+"$(dirname "${BASH_SOURCE[0]}")/build/packages/sync_version.sh"
 set -e
 set -o pipefail
 
@@ -47,6 +49,12 @@ for arg in "$@"; do
     esac
 done
 
+if [[ -z "$VERSION_NUMBER" && -t 0 ]]; then
+    echo "Which game are you building?"
+    echo "  1) Rockbot 1"
+    echo "  2) Rockbot 2"
+    read -r -p "Enter 1 or 2: " VERSION_NUMBER
+fi
 if [[ "$VERSION_NUMBER" != "1" && "$VERSION_NUMBER" != "2" ]]; then
     echo "Usage: $0 <1|2> [debug|release] [--no-sign] [--rebuild-image]"
     exit 1
@@ -149,7 +157,7 @@ if [[ "$DOCKER_STATUS" -ne 0 ]]; then
     exit "$DOCKER_STATUS"
 fi
 
-VERSION_NAME="$(tr -d '[:space:]' < "$PACKAGES_DIR/version_name_v${VERSION_NUMBER}.txt")"
+VERSION_NAME="$(tr -d '[:space:]' < "$PACKAGES_DIR/version_name.txt")"
 OUT_APK="$PACKAGES_DIR/RockBot_Android_${VERSION_NAME}.apk"
 
 if [[ ! -f "$OUT_APK" ]]; then

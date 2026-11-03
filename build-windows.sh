@@ -1,4 +1,6 @@
 #!/bin/bash
+# Keep file/version.h equal to build/packages/version_name.txt
+"$(dirname "${BASH_SOURCE[0]}")/build/packages/sync_version.sh"
 set -e
 set -o pipefail
 
@@ -283,7 +285,7 @@ echo
 echo "Note: the Qt editor is not cross-compiled; build it natively on Windows if needed."
 
 if [[ -n "$PACKAGE_VERSION" ]]; then
-    VERSION_FILE="${SCRIPT_DIR}/build/packages/version_name_v${PACKAGE_VERSION}.txt"
+    VERSION_FILE="${SCRIPT_DIR}/build/packages/version_name.txt"
     GAME_DATA="${SCRIPT_DIR}/build/games/RockDroid${PACKAGE_VERSION}"
     if [[ ! -f "$VERSION_FILE" ]]; then
         echo "Error: missing $VERSION_FILE"

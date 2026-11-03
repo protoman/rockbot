@@ -24,11 +24,13 @@ for arg in "$@"; do
     esac
 done
 
+"$ROOT/build/packages/sync_version.sh"   # file/version.h <- version_name.txt
+
 BUILD="$ROOT/build-psp"
 PACKAGES_DIR="$ROOT/build/packages"
 VERSION_NAME="0.0.0"
-if [ -f "$PACKAGES_DIR/version_name_v${VERSION_NUMBER}.txt" ]; then
-    VERSION_NAME="$(tr -d '[:space:]' < "$PACKAGES_DIR/version_name_v${VERSION_NUMBER}.txt")"
+if [ -f "$PACKAGES_DIR/version_name.txt" ]; then
+    VERSION_NAME="$(tr -d '[:space:]' < "$PACKAGES_DIR/version_name.txt")"
 fi
 
 if [ ! -x "$PSPDEV/bin/psp-g++" ]; then

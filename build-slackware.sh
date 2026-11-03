@@ -1,4 +1,6 @@
 #!/bin/bash
+# Keep file/version.h equal to build/packages/version_name.txt
+"$(dirname "${BASH_SOURCE[0]}")/build/packages/sync_version.sh"
 set -e
 
 # Usage:

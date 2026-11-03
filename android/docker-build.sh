@@ -47,8 +47,11 @@ fi
 export ANDROID_HOME ANDROID_NDK_HOME PELYA_ANDROID_SDK
 export PATH="$PELYA_ANDROID_SDK:$ANDROID_NDK_HOME:$ANDROID_HOME/build-tools/$ANDROID_BUILD_TOOLS:$PATH"
 
-VERSION_NAME="$(tr -d '[:space:]' < "$PACKAGES_DIR/version_name_v${VERSION_NUMBER}.txt")"
-VERSION_CODE="$(printf '%s' "$VERSION_NAME" | tr -d '.')"
+VERSION_NAME="$(tr -d '[:space:]' < "$PACKAGES_DIR/version_name.txt")"
+# Android versionCode (always increasing); see build/packages/common.sh
+source "$PACKAGES_DIR/common.sh"
+sync_version_header
+VERSION_CODE="$(version_code)"
 # Building 4 ABIs in Docker often OOMs; default to arm64-v8a. Override with ANDROID_ABIS.
 ANDROID_ABIS="${ANDROID_ABIS:-arm64-v8a}"
 # Cap ndk-build parallelism to reduce peak memory.

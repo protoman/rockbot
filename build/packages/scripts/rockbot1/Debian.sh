@@ -1,6 +1,6 @@
 #/usr/bin
 cd ../..
-VERSIONNAME=`cat version_name_v1.txt`
+VERSIONNAME=`cat version_name.txt`
 
 rm -r -f ./ubuntu/game/debian/opt/
 mkdir ./ubuntu/game/debian/opt/
