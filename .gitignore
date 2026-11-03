@@ -109,3 +109,15 @@ __pycache__/
 # PS3 package output
 build/packages/PS3/
 build/packages/*.pkg
+
+# Release build output
+build-wii/
+build-linux-sdl*/
+build-rpi-*/
+build/packages/Wii/
+build/packages/appimage/
+build/packages/deb/
+build/packages/linux/
+build/packages/raspberry/
+build/packages/release_logs/
+build/rockbot_pi_*
