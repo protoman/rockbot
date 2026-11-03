@@ -90,7 +90,7 @@ echo ">> Windows cross-build: SDL${USE_SDL_VERSION}, ${ARCH} (${TRIPLET})"
 
 # --- host tools (no root: just report what is missing) -----------------------
 missing=()
-for tool in cmake make pkg-config curl tar rsync zip; do
+for tool in cmake make pkg-config curl tar rsync zip unzip; do
     command -v "$tool" >/dev/null 2>&1 || missing+=("$tool")
 done
 if [[ ${#missing[@]} -gt 0 ]]; then
@@ -166,6 +166,20 @@ fix_pkgconfig_prefix() {
     done
 }
 
+install_mixer_codecs() {
+    # SDL_mixer loads its tracker-music codec (.mod/.s3m/.xm/.it) from a separate libxmp.dll,
+    # which is only in the official *runtime* zip (optional/), not in the -devel package.
+    local major="$1" version="$2" runtime_arch
+    case "$ARCH" in
+        i686) runtime_arch="win32-x86" ;;
+        *)    runtime_arch="win32-x64" ;;
+    esac
+    local zip="$DOWNLOAD_DIR/SDL${major}_mixer-${version}-${runtime_arch}.zip"
+    download "https://github.com/libsdl-org/SDL_mixer/releases/download/release-${version}/SDL${major}_mixer-${version}-${runtime_arch}.zip" "$zip"
+    mkdir -p "$DEPS_PREFIX/bin"
+    unzip -o -j -q "$zip" 'optional/libxmp.dll' 'optional/LICENSE.xmp.txt' -d "$DEPS_PREFIX/bin"
+}
+
 install_sdl2_stack() {
     download "https://github.com/libsdl-org/SDL/releases/download/release-${SDL2_VERSION}/SDL2-devel-${SDL2_VERSION}-mingw.tar.gz" \
         "$DOWNLOAD_DIR/SDL2-devel-${SDL2_VERSION}-mingw.tar.gz"
@@ -182,6 +196,7 @@ install_sdl2_stack() {
     extract_mingw_devel "$DOWNLOAD_DIR/SDL2_image-devel-${SDL2_IMAGE_VERSION}-mingw.tar.gz"
     extract_mingw_devel "$DOWNLOAD_DIR/SDL2_mixer-devel-${SDL2_MIXER_VERSION}-mingw.tar.gz"
     extract_mingw_devel "$DOWNLOAD_DIR/SDL2_ttf-devel-${SDL2_TTF_VERSION}-mingw.tar.gz"
+    install_mixer_codecs 2 "$SDL2_MIXER_VERSION"
     fix_pkgconfig_prefix
 
     if [[ ! -f "$DEPS_PREFIX/lib/libSDL2_gfx.a" && ! -f "$DEPS_PREFIX/lib/libSDL2_gfx.dll.a" ]]; then
@@ -226,18 +241,19 @@ install_sdl3_stack() {
     extract_mingw_devel "$DOWNLOAD_DIR/SDL3_image-devel-${SDL3_IMAGE_VERSION}-mingw.tar.gz"
     extract_mingw_devel "$DOWNLOAD_DIR/SDL3_mixer-devel-${SDL3_MIXER_VERSION}-mingw.tar.gz"
     extract_mingw_devel "$DOWNLOAD_DIR/SDL3_ttf-devel-${SDL3_TTF_VERSION}-mingw.tar.gz"
+    install_mixer_codecs 3 "$SDL3_MIXER_VERSION"
     fix_pkgconfig_prefix
 }
 
 echo "📁 Preparing MinGW SDL${USE_SDL_VERSION} dependencies in ${DEPS_PREFIX}..."
-if [[ ! -f "$DEPS_PREFIX/.rockbot_sdl${USE_SDL_VERSION}_ready" ]]; then
+if [[ ! -f "$DEPS_PREFIX/.rockbot_sdl${USE_SDL_VERSION}_ready_v2" ]]; then
     rm -rf "$DEPS_PREFIX"
     mkdir -p "$DEPS_PREFIX"
     case "$USE_SDL_VERSION" in
         3) install_sdl3_stack ;;
         *) install_sdl2_stack ;;
     esac
-    touch "$DEPS_PREFIX/.rockbot_sdl${USE_SDL_VERSION}_ready"
+    touch "$DEPS_PREFIX/.rockbot_sdl${USE_SDL_VERSION}_ready_v2"
 else
     echo "📦 Reusing existing SDL prefix: $DEPS_PREFIX"
 fi
@@ -307,6 +323,8 @@ if [[ -d "$DEPS_PREFIX/bin" ]]; then
     done
 fi
 
+cp -f "$DEPS_PREFIX"/bin/LICENSE*.txt "$DLL_DIR"/ 2>/dev/null || true
+
 # Place DLLs beside the exe for easy local testing / packaging
 cp -f "$DLL_DIR"/*.dll "${SCRIPT_DIR}/build/" 2>/dev/null || true
 
@@ -343,7 +361,7 @@ if [[ -n "$PACKAGE_VERSION" ]]; then
     rsync -a --exclude='.svn' "${SCRIPT_DIR}/build/shared" "$STAGE/"
     rsync -a --exclude='.svn' "$GAME_DATA" "$STAGE/games/"
     cp -f "$EXE_SRC" "$STAGE/rockbot.exe"
-    cp -f "$DLL_DIR"/*.dll "$STAGE/" 2>/dev/null || true
+    cp -f "$DLL_DIR"/*.dll "$DLL_DIR"/LICENSE*.txt "$STAGE/" 2>/dev/null || true
     rm -f "$STAGE"/game*.sav "$STAGE"/config_v*.sav
 
     rm -f "$OUT_ZIP"

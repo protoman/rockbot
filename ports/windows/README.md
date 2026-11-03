@@ -27,6 +27,10 @@ Host tools needed: cmake, make, pkg-config, curl, tar, rsync, zip.
 - The executable links the C++ runtime statically and imports only the Windows UCRT
   (Windows 10, or Windows 7/8.1 with the UCRT update) plus `SDL2.dll`, `SDL2_image.dll`,
   `SDL2_mixer.dll` and `SDL2_ttf.dll` (shipped in the zip). SDL2_gfx is linked in.
+  `libxmp.dll` is shipped too: SDL_mixer loads it at run time for the `.mod`/`.s3m` music
+  (it comes from the official SDL_mixer runtime zip, not from the -devel package).
+- Smoke-tested with Wine (`SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy wine rockbot.exe` from the
+  unzipped folder): the game starts, loads its data and the music, and keeps running.
 - SDL1 is not supported on Windows; the Qt editor is not cross-built.
 - SDL3: `sdl3-gfx` has no Windows release, so zoom/rotate effects are unavailable there.
 - `build/packages/version_name.txt` is the version in the zip name; `file/version.h` is kept in
