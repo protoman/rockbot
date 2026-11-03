@@ -304,10 +304,16 @@ std::vector<std::string> read_games_directory(const std::string &games_path)
     if (games_path.find("/games") == std::string::npos) {
         return res;
     }
+    // The real PSP firmware rejects paths with a doubled '/' (PPSSPP accepts them): no trailing '/'.
+    std::string base = games_path;
+    while (!base.empty() && base[base.size() - 1] == '/') {
+        base.erase(base.size() - 1);
+    }
     const char *candidates[] = { "RockDroid1", "RockDroid2", NULL };
     for (int i = 0; candidates[i] != NULL; ++i) {
-        std::string probe = games_path + "/" + candidates[i] + "/game_enemy_list.dat";
+        std::string probe = base + "/" + candidates[i] + "/game_enemy_list.dat";
         SceUID fd = sceIoOpen(probe.c_str(), PSP_O_RDONLY, 0777);
+        log("games probe '%s' -> %d", probe.c_str(), (int)fd);
         if (fd >= 0) {
             sceIoClose(fd);
             res.push_back(std::string(candidates[i]));
