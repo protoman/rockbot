@@ -1,46 +1,41 @@
-#!/bin/sh
+#!/bin/bash
+# Builds the Dingux package (CMake + Buildroot SDK) and zips it.
+# Usage: ./Dingux.sh [1|2]     (asks for the version if omitted)
+# SDK location: see ../../build-dingux.sh (env OPEN_DINGUX_SDK).
+set -euo pipefail
+cd "$(dirname "$0")"
 
-set -x
-set -e
-
-read -r -p "What is the version number you are building? " version_number
-if [ "$version_number" != "1" ] && [ "$version_number" != "2" ];
-then
+version_number="${1:-}"
+if [ -z "$version_number" ]; then
+    read -r -p "What is the version number you are building? " version_number
+fi
+if [ "$version_number" != "1" ] && [ "$version_number" != "2" ]; then
     echo "Invalid version number"
-    exit
+    exit 1
 fi
 
-export OPEN_DINGUX_SDK=/mnt/ExtraData/Devel/SDK/opendingux
-export PATH=$PATH:$OPEN_DINGUX_SDK/usr/bin/
+VERSIONNAME=$(tr -d '[:space:]' < "version_name_v$version_number.txt")
+GAME_DIR=Rockbot$version_number
+OUT_ZIP="$PWD/Rockbot${version_number}_Dingux_$VERSIONNAME.zip"
 
-VERSIONNAME=`cat version_name_v$version_number.txt`
-GAME_DIR=rockbot$version_number
+# Produces ../rockbot.dge
+../../build-dingux.sh
 
-rm -r -f ./Dingux
-mkdir ./Dingux
-mkdir ./Dingux/$GAME_DIR
-mkdir ./Dingux/$GAME_DIR/games
-mkdir ./Dingux/$GAME_DIR/fonts
-mkdir ./Dingux/$GAME_DIR/shared
+rm -rf ./Dingux
+mkdir -p "./Dingux/$GAME_DIR/games"
 
-cd ..
-#make clean
-cd ..
-pwd
+cp ../rockbot.dge "./Dingux/$GAME_DIR/"
+rsync -r --exclude=.svn ../fonts "./Dingux/$GAME_DIR/"
+rsync -r --exclude=.svn ../shared "./Dingux/$GAME_DIR/"
+rsync -r --exclude=mp3 --exclude=.svn "../games/RockDroid$version_number" "./Dingux/$GAME_DIR/games"
 
-qmake RockDroid.pro CONFIG-=linux CONFIG+=dingux
-cd build
+cp "./Dingux/$GAME_DIR/games/RockDroid$version_number/images/icon_32px.png" "./Dingux/$GAME_DIR/rockbot.png"
+find "./Dingux/$GAME_DIR" \( -name 'game*.sav' -o -name 'config*.sav' \) -delete
 
-make
-cd packages
+# Strip the staged copy (the build tree keeps the debug info).
+STRIP=$(ls ${OPEN_DINGUX_SDK:-/mnt/ExtraData/Devel/SDK/opendingux-gcw0-2022-09-22/gcw0-toolchain}/bin/*-strip 2>/dev/null | head -1 || true)
+[ -n "$STRIP" ] && "$STRIP" "./Dingux/$GAME_DIR/rockbot.dge" || true
 
-cp ../rockbot.dge ./Dingux/$GAME_DIR/
-
-
-rsync -r ../fonts ././Dingux/$GAME_DIR/
-rsync -r ../shared ././Dingux/$GAME_DIR/
-rsync -r --exclude=mp3 ../games/RockDroid$version_number ./Dingux/$GAME_DIR/games
-
-cp ./Dingux/$GAME_DIR/games/RockDroid$version_number/images/icon_32px.png ./Dingux/$GAME_DIR/rockbot.png
-cd ./Dingux
-zip -r ../Rockbot2_Dingux_$VERSIONNAME.zip *
+rm -f "$OUT_ZIP"
+( cd Dingux && zip -qr "$OUT_ZIP" "$GAME_DIR" )
+echo "Package: $OUT_ZIP"

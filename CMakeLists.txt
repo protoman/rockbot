@@ -19,6 +19,19 @@ if(PSP)
     set(USE_SDL_VERSION 2 CACHE STRING "SDL major version" FORCE)
 endif()
 
+# Buildroot handheld cross builds (SDL 1.2), selected with
+#   -DROCKBOT_HANDHELD=dingux   (OpenDingux, mipsel; output rockbot.dge)
+#   -DROCKBOT_HANDHELD=pocketgo (PocketGo/Bittboy, arm musl; output rockbot_pocketgo)
+# together with the SDK's share/buildroot/toolchainfile.cmake.
+set(ROCKBOT_HANDHELD "" CACHE STRING "Handheld target: dingux or pocketgo")
+set_property(CACHE ROCKBOT_HANDHELD PROPERTY STRINGS "" dingux pocketgo)
+if(ROCKBOT_HANDHELD AND NOT ROCKBOT_HANDHELD MATCHES "^(dingux|pocketgo)$")
+    message(FATAL_ERROR "ROCKBOT_HANDHELD must be dingux or pocketgo")
+endif()
+if(ROCKBOT_HANDHELD)
+    set(USE_SDL_VERSION 1 CACHE STRING "SDL major version" FORCE)
+endif()
+
 # PS2 cross build (ps2dev) uses ps2dev's share/ps2dev.cmake, which defines PS2.
 if(PS2)
     set(ROCKBOT_PS2 TRUE)
@@ -63,7 +76,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         -Werror=return-type
     )
     # MinGW often lacks libssp; keep stack protector for native Unix builds only.
-    if(NOT WIN32 AND NOT ROCKBOT_PS3 AND NOT ROCKBOT_PSP AND NOT ROCKBOT_PS2)
+    if(NOT WIN32 AND NOT ROCKBOT_PS3 AND NOT ROCKBOT_PSP AND NOT ROCKBOT_PS2 AND NOT ROCKBOT_HANDHELD)
         add_compile_options(-fstack-protector-all -fstack-protector)
     endif()
 endif()
@@ -159,7 +172,7 @@ if(APPLE)
         set(ENV{PKG_CONFIG_PATH}
             "${BREW_PREFIX}/lib/pkgconfig:${BREW_PREFIX}/share/pkgconfig:$ENV{PKG_CONFIG_PATH}")
     endif()
-else()
+elseif(NOT CMAKE_CROSSCOMPILING)
     # Prefer /usr/local for self-built SDL3 over older system packages (Linux)
     set(ENV{PKG_CONFIG_PATH}
         "/usr/local/lib/pkgconfig:/usr/local/lib/x86_64-linux-gnu/pkgconfig:/usr/local/lib/aarch64-linux-gnu/pkgconfig:$ENV{PKG_CONFIG_PATH}")
@@ -212,6 +225,10 @@ elseif(ROCKBOT_PSP)
     # -DPSP / -D__PSP__ come from pspdev.cmake. SDL_MAIN_HANDLED keeps the
     # real main() for the PSP crt0 (SDL2 would rename it to SDL_main).
     add_definitions(-DHANDHELD -DSDL_MAIN_HANDLED)
+elseif(ROCKBOT_HANDHELD STREQUAL "dingux")
+    add_definitions(-DDINGUX -DHANDHELD -D_REENTRANT)
+elseif(ROCKBOT_HANDHELD STREQUAL "pocketgo")
+    add_definitions(-DPOCKETGO -DHANDHELD -DHAVE_STDINT_H -DVERSION_BITTBOY -D_REENTRANT)
 elseif(UNIX)
     add_definitions(-DNES_RESOLUTION -DLINUX -DPC)
     pkg_check_modules(X11 REQUIRED x11)
@@ -363,7 +380,22 @@ set(HEADERS
 add_executable(rockbot ${SOURCES} ${HEADERS})
 
 # Link Libraries
-if(ROCKBOT_PS2)
+if(ROCKBOT_HANDHELD STREQUAL "dingux")
+    set(ROCKBOT_SDL_LIBS ${SDL_LDFLAGS} ${SDL_MIXER_LDFLAGS} ${SDL_IMAGE_LDFLAGS}
+        ${SDL_TTF_LDFLAGS} ${SDL_GFX_LDFLAGS} -lpthread)
+    set_target_properties(rockbot PROPERTIES OUTPUT_NAME rockbot SUFFIX ".dge")
+elseif(ROCKBOT_HANDHELD STREQUAL "pocketgo")
+    # The SDK only has static libs; the .pc files miss some transitive deps,
+    # so add the ones the old qmake config listed and let the linker resolve cycles.
+    set(ROCKBOT_SDL_LIBS
+        -Wl,--start-group
+        ${SDL_MIXER_STATIC_LDFLAGS} ${SDL_IMAGE_STATIC_LDFLAGS} ${SDL_TTF_STATIC_LDFLAGS}
+        ${SDL_GFX_STATIC_LDFLAGS} ${SDL_STATIC_LDFLAGS}
+        -lpng -ljpeg -lfreetype -lvorbisfile -lvorbis -logg -lmikmod -lmad -lasound
+        -lm -pthread -lz -lstdc++
+        -Wl,--end-group)
+    set_target_properties(rockbot PROPERTIES OUTPUT_NAME rockbot_pocketgo SUFFIX "")
+elseif(ROCKBOT_PS2)
     # Static libs have circular references (SDL <-> gsKit <-> ps2sdk); group them.
     # Order follows the old qmake config.
     set(ROCKBOT_SDL_LIBS

@@ -26,6 +26,8 @@ build/*.dll
 build-ps3/
 build-psp/
 build-ps2/
+build-dingux/
+build-pocketgo/
 
 # Game artifiacts
 rockbot

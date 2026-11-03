@@ -1,49 +1,41 @@
-#!/bin/sh
+#!/bin/bash
+# Builds the PocketGo package (CMake + Buildroot SDK) and zips it.
+# Usage: ./PocketGo.sh [1|2]     (asks for the version if omitted)
+# SDK location: see ../../build-pocketgo.sh (env POCKETGO_SDK).
+set -euo pipefail
+cd "$(dirname "$0")"
 
-set -x
-set -e
-
-export POCKETGO_SDK=/mnt/SamsungEXT4/development/SDK/PocketGo/output/host/
-export PATH=$PATH:$POCKETGO_SDK/usr/bin/
-
-
-read -r -p "What is the version number you are building? " version_number
-if [ "$version_number" != "1" ] && [ "$version_number" != "2" ];
-then
+version_number="${1:-}"
+if [ -z "$version_number" ]; then
+    read -r -p "What is the version number you are building? " version_number
+fi
+if [ "$version_number" != "1" ] && [ "$version_number" != "2" ]; then
     echo "Invalid version number"
-    exit
+    exit 1
 fi
 
-
-
-VERSIONNAME=`cat version_name_v$version_number.txt`
-DIR=./pocketgo
+VERSIONNAME=$(tr -d '[:space:]' < "version_name_v$version_number.txt")
 GAME_DIR=Rockbot$version_number
+OUT_ZIP="$PWD/Rockbot${version_number}_PocketGo_$VERSIONNAME.zip"
 
-rm -r -f $DIR
-mkdir $DIR
-mkdir $DIR/$GAME_DIR
-mkdir $DIR/$GAME_DIR/games
-mkdir $DIR/$GAME_DIR/fonts
-mkdir $DIR/$GAME_DIR/shared
+# Produces ../rockbot_pocketgo
+../../build-pocketgo.sh
 
+rm -rf ./pocketgo
+mkdir -p "./pocketgo/$GAME_DIR/games"
 
-echo $POCKETGO_SDK
+cp ../rockbot_pocketgo "./pocketgo/$GAME_DIR/"
+rsync -r --exclude=.svn ../fonts "./pocketgo/$GAME_DIR/"
+rsync -r --exclude=.svn ../shared "./pocketgo/$GAME_DIR/"
+rsync -r --exclude=mp3 --exclude=.svn "../games/RockDroid$version_number" "./pocketgo/$GAME_DIR/games"
 
-cd ..
-make clean
-cd ..
-qmake RockDroid.pro CONFIG-=linux CONFIG+=pocketgo
-cd build
-make
-cd packages
+cp "./pocketgo/$GAME_DIR/games/RockDroid$version_number/images/icon_32px.png" "./pocketgo/$GAME_DIR/rockbot.png"
+find "./pocketgo/$GAME_DIR" \( -name 'game*.sav' -o -name 'config*.sav' \) -delete
 
-cp ../rockbot_pocketgo $DIR/$GAME_DIR/
+# Strip the staged copy (the build tree keeps the debug info).
+STRIP=$(ls ${POCKETGO_SDK:-/mnt/ExtraData/Devel/SDK/PocketGo/output/host}/bin/*-strip 2>/dev/null | head -1 || true)
+[ -n "$STRIP" ] && "$STRIP" "./pocketgo/$GAME_DIR/rockbot_pocketgo" || true
 
-rsync -r --exclude=.svn ../fonts ./$DIR/$GAME_DIR
-rsync -r --exclude=.svn ../shared ./$DIR/$GAME_DIR
-rsync -r --exclude=mp3 --exclude=.svn ../games/RockDroid$version_number ./$DIR/$GAME_DIR/games
-
-cp ./Dingux/$GAME_DIR/games/RockDroid$version_number/images/icon_32px.png ./Dingux/$GAME_DIR/rockbot.png
-cd $DIR
-zip -r ../Rockbot_PocketGo_$VERSIONNAME.zip *
+rm -f "$OUT_ZIP"
+( cd pocketgo && zip -qr "$OUT_ZIP" "$GAME_DIR" )
+echo "Package: $OUT_ZIP"
