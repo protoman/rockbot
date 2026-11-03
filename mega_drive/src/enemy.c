@@ -159,7 +159,8 @@ typedef struct {
     u16 act_t;        // frames inside the current action
     s16 dest_x, dest_y;
     u8 jumping;       // JUMP action in the air
-    u8 teleporting;   // TELEPORT action (teleport animation row)
+    u8 teleporting;   // TELEPORT action: 1 dissolve, 2 hidden, 3 reappear
+    u8 tele_rev;      // reappear: sprite auto-animation is off, frames set by hand
     u16 intro_t;      // frames of ANIM_TYPE_INTRO left (boss landing)
     u8 moving;        // walk anim while the action moves the enemy
     u8 shooting;      // attack anim while a SHOT action runs
@@ -1020,6 +1021,18 @@ static void ai_reaction_end(Enemy *e)
     }
 }
 
+// Dissolve length of an enemy's teleport row, in frames (sum of the row's
+// frame timers; 1 minimum so a one-frame row still takes a tick).
+static u16 tele_ticks(const Enemy *e, const EnemyDef *d)
+{
+    if (!e->spr || d->teleport_anim == 255) return 6;
+    const Animation *an = e->spr->definition->animations[d->teleport_anim];
+    u16 t = 0;
+    for (u8 f = 0; f < an->numFrame; f++) t += an->frames[f]->timer ? an->frames[f]->timer : 1;
+    return t ? t : 1;
+}
+
+
 // Run one frame of the current action. TRUE = action finished.
 static bool ai_action_run(Enemy *e)
 {
@@ -1299,7 +1312,31 @@ static bool ai_action_run(Enemy *e)
         // walk_range). The port teleported next to the player at
         // `player.y - 16`, which put GAMBIT inside the floor and dropped it
         // through the ground after two shots (report 2026-10-24).
-        if (e->act_t == 1) {
+        // PC ia_action_teleport: dissolve in place (the teleport row, forward),
+        // then invisible + move + 600 ms, then the same row backwards.
+        // teleporting: 1 dissolve, 2 hidden, 3 reappear.
+        {
+            const u16 dis = tele_ticks(e, d);
+            if (e->act_t == 1) {
+                e->teleporting = 1;
+                sfx_play(SFX_TELEPORT);
+            }
+            if (e->act_t <= dis) return FALSE;                 // dissolving
+            if (e->act_t > dis + 1 + 36) {                      // hold over: reappear
+                const u16 k = e->act_t - (dis + 1 + 36);
+                e->teleporting = 3;
+                if (k >= dis) {
+                    e->teleporting = 0;
+                    if (e->spr) SPR_setAutoAnimation(e->spr, TRUE);
+                    e->tele_rev = 0;
+                    return TRUE;
+                }
+                return FALSE;
+            }
+            if (e->act_t != dis + 1) return FALSE;             // hidden hold
+            e->teleporting = 2;
+        }
+        {
             const s16 from_x = e->x;
             switch ((s8)st->param) {
             case AI_TELEPORT_LEFT:
@@ -1346,12 +1383,6 @@ static bool ai_action_run(Enemy *e)
             // PC teleport lands facing the player; without this the boss kept
             // the old facing after reappearing behind the player (BUG-010).
             e->dir = (player.x >= e->x) ? 1 : -1;
-            e->teleporting = 1;
-            sfx_play(SFX_TELEPORT);
-        }
-        if (e->act_t >= 20) {
-            e->teleporting = 0;     // back to the normal pose (it stayed on the dissolve frame)
-            return TRUE;
         }
         return FALSE;
 
@@ -1625,6 +1656,12 @@ static void ai_tick(Enemy *e)
         // FALL_TO_GROUND holds 1200 ms after landing (ia_action_jump_fall) before the delay.
         e->ai_wait = (st->action == AI_WAIT_RANDOM) ? 0 : (u16)(((u32)st->delay * 6) / 100);
         if (st->action == AI_FALL) e->ai_wait += 72;
+        // PC ia_action_jump_to_point :592 sets _ai_timer = now + 500 when the
+        // arc ends (jump to player / random point / ahead / long ahead).
+        if (st->action == AI_JUMP &&
+            (e->jump_opt == AI_JUMP_TO_PLAYER || e->jump_opt == AI_JUMP_RANDOM ||
+             e->jump_opt == AI_JUMP_AHEAD || e->jump_opt == AI_JUMP_LONG_AHEAD))
+            e->ai_wait += 30;
     }
 }
 
@@ -1660,6 +1697,9 @@ static Enemy *enemy_add(u8 def_i, s16 x, s16 y, s16 x_min, s16 x_max, u8 dir)
     e->act_t = 0;
     e->dest_x = x;
     e->dest_y = y;
+    e->teleporting = 0;
+    if (e->tele_rev && e->spr) SPR_setAutoAnimation(e->spr, TRUE);
+    e->tele_rev = 0;
     e->jumping = 0;
     e->moving = 0;
     e->move_acc = 0;
@@ -1929,6 +1969,7 @@ void enemies_update(void)
             // Boss hit blink (PC shows a white flash via palette; the boss
             // shares PAL0 with the HUD, so blink instead).
             if (e->hurt_timer && ((e->hurt_timer >> 3) & 1)) vis2 = FALSE;
+            if (e->teleporting == 2) vis2 = FALSE;      // PC: invisible during the 600 ms hold
             if (vis2 != e->d_vis) {
                 SPR_setVisibility(e->spr, vis2 ? VISIBLE : HIDDEN);
                 e->d_vis = vis2;
@@ -1973,6 +2014,16 @@ void enemies_update(void)
             if (row != 0xFF && row != e->d_row) {
                 spr_set_anim(e->spr, row);
                 e->d_row = row;
+            }
+            if (e->teleporting == 3 && e->spr && row == d->teleport_anim) {
+                // reappear = the dissolve row played backwards (SGDK cannot)
+                if (!e->tele_rev) { SPR_setAutoAnimation(e->spr, FALSE); e->tele_rev = 1; }
+                const u16 dis = tele_ticks(e, d);
+                const u16 k = e->act_t - (dis + 1 + 36);
+                const u8 n = e->spr->animation->numFrame;
+                u16 fi = (u16)(((u32)k * n) / dis);
+                if (fi >= n) fi = n - 1;
+                SPR_setFrame(e->spr, (s16)(n - 1 - fi));
             }
             const s16 spx = e->x - camera.x, spy = e->y - camera.y;
             if (spx != e->d_x || spy != e->d_y) {
