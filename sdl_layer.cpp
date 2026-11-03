@@ -93,46 +93,10 @@ void SDLL_WM_SetIcon(SDL_Surface *icon, Uint8 *mask)
 
 int SDLL_Flip(SDL_Surface *screen)
 {
-#ifdef PSP
-	psp_platform::heartbeat();
-	static unsigned int flip_n = 0;
-	flip_n++;
-	// first frames and then every 2^n-th one: shows how far the video path gets on real hardware
-	const bool flip_log = flip_n <= 3 || (flip_n & (flip_n - 1)) == 0;
-	if (flip_log) psp_platform::log("flip #%u begin screen=%p texture=%p renderer=%p", flip_n, (void*)screen, (void*)texture, (void*)renderer);
-#endif
-	if (screen == NULL || texture == NULL || renderer == NULL) {
-		return -1;
-	}
-	if (SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch) != 0) {
-#ifdef PSP
-		psp_platform::log("flip: SDL_UpdateTexture failed: %s", SDL_GetError());
-#endif
-		return -1;
-	}
-#ifdef PSP
-	if (flip_log) psp_platform::log("flip #%u texture updated", flip_n);
-#endif
-	// Copy RGB as-is; ignore per-pixel alpha (avoids empty frame if A was left 0).
-	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+	SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch);
 	SDL_RenderClear(renderer);
-#ifdef PSP
-	if (flip_log) psp_platform::log("flip #%u cleared", flip_n);
-	SDL_Rect present_rect;
-	if (psp_platform::get_present_rect(screen->w, screen->h, &present_rect)) {
-		SDL_RenderCopy(renderer, texture, NULL, &present_rect);
-	} else {
-		SDL_RenderCopy(renderer, texture, NULL, NULL);
-	}
-	if (flip_log) psp_platform::log("flip #%u copied", flip_n);
-#else
-	SDL_RenderCopy(renderer, texture, NULL, NULL);
-#endif
+	SDL_RenderTexture(renderer, texture, NULL, NULL);
 	SDL_RenderPresent(renderer);
-#ifdef PSP
-	if (flip_log) psp_platform::log("flip #%u presented", flip_n);
-#endif
 	return 0;
 }
 
@@ -632,27 +596,46 @@ void SDLL_WM_SetIcon(SDL_Surface *icon, Uint8 *mask)
 
 int SDLL_Flip(SDL_Surface *screen)
 {
+#ifdef PSP
+	psp_platform::heartbeat();
+	static unsigned int flip_n = 0;
+	flip_n++;
+	// first frames and then every 2^n-th one: shows how far the video path gets on real hardware
+	const bool flip_log = flip_n <= 3 || (flip_n & (flip_n - 1)) == 0;
+	if (flip_log) psp_platform::log("flip #%u begin screen=%p texture=%p renderer=%p", flip_n, (void*)screen, (void*)texture, (void*)renderer);
+#endif
 	if (screen == NULL || texture == NULL || renderer == NULL) {
 		return -1;
 	}
 	if (SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch) != 0) {
+#ifdef PSP
+		psp_platform::log("flip: SDL_UpdateTexture failed: %s", SDL_GetError());
+#endif
 		return -1;
 	}
+#ifdef PSP
+	if (flip_log) psp_platform::log("flip #%u texture updated", flip_n);
+#endif
 	// Copy RGB as-is; ignore per-pixel alpha (avoids empty frame if A was left 0).
 	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
 #ifdef PSP
+	if (flip_log) psp_platform::log("flip #%u cleared", flip_n);
 	SDL_Rect present_rect;
 	if (psp_platform::get_present_rect(screen->w, screen->h, &present_rect)) {
 		SDL_RenderCopy(renderer, texture, NULL, &present_rect);
 	} else {
 		SDL_RenderCopy(renderer, texture, NULL, NULL);
 	}
+	if (flip_log) psp_platform::log("flip #%u copied", flip_n);
 #else
 	SDL_RenderCopy(renderer, texture, NULL, NULL);
 #endif
 	SDL_RenderPresent(renderer);
+#ifdef PSP
+	if (flip_log) psp_platform::log("flip #%u presented", flip_n);
+#endif
 	return 0;
 }
 
