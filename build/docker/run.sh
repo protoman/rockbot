@@ -25,10 +25,13 @@ if [ "${1:-}" = "--build" ] || ! docker image inspect "$IMAGE" >/dev/null 2>&1; 
         "$ROOT/build/docker/build_images.sh" "$PLATFORM"
     fi
 fi
+# Run in the caller's directory when it is inside the repository (scripts rely on their own folder).
+case "$PWD" in "$ROOT"|"$ROOT"/*) WORKDIR="$PWD" ;; *) WORKDIR="$ROOT" ;; esac
+
 # The Android project builds the game through a link to the repository, created here so the image
 # does not depend on where the repository lives.
 if [ "$PLATFORM" = android ]; then
     set -- bash -c 'ln -sfn "$0" "$ANDROID_BASE/commandergenius/project/jni/application/rockbot" && exec "$@"' "$ROOT" "$@"
 fi
 exec docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp \
-    -e ROCKBOT_IN_DOCKER=1 -v "$ROOT":"$ROOT" -w "$ROOT" "$IMAGE" "$@"
+    -e ROCKBOT_IN_DOCKER=1 -v "$ROOT":"$ROOT" -w "$WORKDIR" "$IMAGE" "$@"
