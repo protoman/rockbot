@@ -166,8 +166,9 @@ void heartbeat()
         const u32 elapsed = now - window_start;
         const unsigned int audio_us = psp_music::take_decode_us();
         if (elapsed > 0) {
-            log("perf: %u fps*10, music %u%%, slowest frame %u ms", (unsigned)((240ull * 10000000ull) / elapsed),
-                (unsigned)((audio_us * 100ull) / elapsed), (unsigned)(slowest / 1000));
+            log("perf: %u fps*10, music %u%%, slowest frame %u ms, cpu %d MHz bus %d MHz", (unsigned)((240ull * 10000000ull) / elapsed),
+                (unsigned)((audio_us * 100ull) / elapsed), (unsigned)(slowest / 1000),
+                scePowerGetCpuClockFrequency(), scePowerGetBusClockFrequency());
         }
         window_start = now;
         slowest = 0;
@@ -252,7 +253,7 @@ void setup(const char *argv0)
         g_no_music = !g_base_dir.empty() && sceIoGetstat((g_base_dir + "no_music.txt").c_str(), &ka) >= 0;
     }
     char cwd[256];
-    log("boot: module text=0x%08x size=0x%x stack=512K keep_aspect=%d no_music=%d", (unsigned)g_text_addr, (unsigned)g_text_size, (int)g_keep_aspect, (int)g_no_music);
+    log("boot: module text=0x%08x size=0x%x stack=512K keep_aspect=%d no_music=%d cpu=%d MHz bus=%d MHz (asked 333/166)", (unsigned)g_text_addr, (unsigned)g_text_size, (int)g_keep_aspect, (int)g_no_music, scePowerGetCpuClockFrequency(), scePowerGetBusClockFrequency());
     log("boot: argv0='%s' base='%s' cwd='%s'", argv0 ? argv0 : "(null)", g_base_dir.c_str(),
         getcwd(cwd, sizeof(cwd)) ? cwd : "(null)");
 }
