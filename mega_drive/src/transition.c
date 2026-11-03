@@ -638,6 +638,14 @@ return FALSE; }
             // VSync variant: the write lands in the same vblank as the queued row
             // (an immediate VSRAM write would tear the frame still being drawn).
             VDP_setVerticalScrollVSync(STAGE_PLANE, (s16)(off & 255));
+            // BG_B has ONE vertical scroll for both halves: its whole rows are folded into
+            // the tilemap per half, the sub-row remainder (0..7 px) is shared. Holding the
+            // outgoing remainder left the incoming half up to 7 px off until stage_load
+            // snapped it (the ~4 px background jump at the end of a slide). The remainder
+            // now glides from the outgoing to the incoming value over the slide: no step
+            // anywhere, each half is off by less than the parallax itself drifts.
+            VDP_setVerticalScrollVSync(BG_B, (s16)((vscroll & 7) +
+                (s16)(((s32)((vscroll_new & 7) - (vscroll & 7)) * (s32)i) / (s32)steps)));
         }
 
         // Which source row every scanline shows, derived from the same index

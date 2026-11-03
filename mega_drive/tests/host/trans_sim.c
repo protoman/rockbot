@@ -273,7 +273,13 @@ static void observe(void)
         if (id == 9999 || id >= BG_H) { bgmis_n++; if (getenv("BGDBG") && frame_n < 2) fprintf(stderr, "f%d y=%d old=%d want=%d SKY/other id=%u\n", frame_n, y, is_old, want, id); continue; }
         const int got = (int)id * 8 + ((y + vs_plane[1]) & 7);
         int err = got - want; if (err < 0) err = -err;
-        if (err > (is_old ? 0 : 7)) { bgmis_n++; if (getenv("BGDBG") && frame_n < 2) fprintf(stderr, "f%d y=%d old=%d want=%d got=%d id=%u vsB=%d\n", frame_n, y, is_old, want, got, id, vs_plane[1]); }
+        const int vo = -(bgadj_from - 16), vn = -(bgadj_to - 16);
+        int dr = (vn & 7) - (vo & 7); if (dr < 0) dr = -dr;
+        /* the shared remainder glides old->new over the slide: a half is off by at most
+         * the glide so far (old) / still to go (new), +1 for rounding; exact at the ends */
+        const int fi = frame_n > 56 ? 56 : frame_n;
+        const int allow = is_old ? (dr * fi + 55) / 56 : (dr * (56 - fi) + 55) / 56;
+        if (err > allow + 1) { bgmis_n++; if (getenv("BGDBG") && frame_n < 2) fprintf(stderr, "f%d y=%d old=%d want=%d got=%d id=%u vsB=%d\n", frame_n, y, is_old, want, got, id, vs_plane[1]); }
     }
     if (tear) tear_n++;
     if (frame_n < MAXF) { pseq[frame_n] = tear ? -1 : p_common; pyseq[frame_n] = player.spr ? player.spr->y : -999; }
