@@ -29,6 +29,7 @@ FROM base AS wii
 COPY --from=sdk Wii/devkitpro-current /mnt/ExtraData/Devel/SDK/Wii/devkitpro-current
 
 FROM base AS windows
+RUN apt-get update && apt-get install -y --no-install-recommends rsync && rm -rf /var/lib/apt/lists/*
 COPY --from=sdk Windows/deps /mnt/ExtraData/Devel/SDK/Windows/deps
 COPY --from=sdk Windows/llvm-mingw-20261020-ucrt-ubuntu-22.04-x86_64 /mnt/ExtraData/Devel/SDK/Windows/llvm-mingw-20261020-ucrt-ubuntu-22.04-x86_64
 
@@ -37,3 +38,5 @@ COPY --from=sdk opendingux-gcw0-2022-09-22/gcw0-toolchain /mnt/ExtraData/Devel/S
 
 FROM base AS pocketgo
 COPY --from=sdk PocketGo/output/host /mnt/ExtraData/Devel/SDK/PocketGo/output/host
+# the Buildroot host tools carry the RUNPATH of the machine that built them
+ENV LD_LIBRARY_PATH=/mnt/ExtraData/Devel/SDK/PocketGo/output/host/lib
