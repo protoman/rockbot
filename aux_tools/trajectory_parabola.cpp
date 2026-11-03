@@ -56,6 +56,9 @@ float trajectory_parabola::get_velocity()
 {
     // y = p0 + n*v + ((n² + n)*a)/2 -> nv = p0 - y + ((n² + n)*a)/2 -> v = (p0 - y + ((n² + n)*a)/2)/n
     int n = std::abs((float)_dist);
+    if (n == 0) { // distance 0: no velocity (a float 0/0 raises an FPU exception on the PSP)
+        return 0;
+    }
     int y = 0;
     float v = std::abs((float)(_p0 - y + ((n*n + n)*_a)/2)/n);
     return v;

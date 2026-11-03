@@ -104,6 +104,7 @@ static volatile unsigned int g_progress = 0;   // bumped by log() and every fram
 static SceUID g_main_thread = -1;
 static u32 g_text_addr = 0, g_text_size = 0;
 
+static bool g_no_music = false;    // no_music.txt next to EBOOT.PBP: do not load music (debugging)
 static bool g_keep_aspect = false; // keep_aspect.txt next to EBOOT.PBP: letterbox instead of stretching
 
 void log(const char *fmt, ...)
@@ -170,6 +171,15 @@ static int watchdog_thread(SceSize, void *)
 
 void setup(const char *argv0)
 {
+    // The PSP FPU traps on invalid operations / division by zero / underflow (PPSSPP and desktop CPUs
+    // return NaN/inf quietly). Mask every trap and flush denormals to zero for this thread.
+    {
+        unsigned int fcr31;
+        asm volatile("cfc1 %0, $31" : "=r"(fcr31));
+        fcr31 &= ~((0x1fu << 7) | (0x3fu << 12) | (0x1fu << 2)); // enables, cause, flags
+        fcr31 |= (1u << 24);                                      // FS: flush to zero
+        asm volatile("ctc1 %0, $31" : : "r"(fcr31));
+    }
     SetupCallbacks();
     scePowerSetClockFrequency(333, 333, 166);
 
@@ -210,9 +220,10 @@ void setup(const char *argv0)
     {
         SceIoStat ka;
         g_keep_aspect = !g_base_dir.empty() && sceIoGetstat((g_base_dir + "keep_aspect.txt").c_str(), &ka) >= 0;
+        g_no_music = !g_base_dir.empty() && sceIoGetstat((g_base_dir + "no_music.txt").c_str(), &ka) >= 0;
     }
     char cwd[256];
-    log("boot: module text=0x%08x size=0x%x stack=512K keep_aspect=%d", (unsigned)g_text_addr, (unsigned)g_text_size, (int)g_keep_aspect);
+    log("boot: module text=0x%08x size=0x%x stack=512K keep_aspect=%d no_music=%d", (unsigned)g_text_addr, (unsigned)g_text_size, (int)g_keep_aspect, (int)g_no_music);
     log("boot: argv0='%s' base='%s' cwd='%s'", argv0 ? argv0 : "(null)", g_base_dir.c_str(),
         getcwd(cwd, sizeof(cwd)) ? cwd : "(null)");
 }
@@ -593,6 +604,9 @@ SoundChunk *load_wav(const char *file)
 
 SoundMusic *load_mus(const char *file)
 {
+    if (g_no_music) {
+        return NULL;
+    }
     SDL_RWops *rw = rw_from_file(file, "rb");
     if (!rw) {
         log("load_mus '%s': cannot open (%s)", file ? file : "(null)", SDL_GetError());
