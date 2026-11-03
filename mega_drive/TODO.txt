@@ -4,6 +4,10 @@ BUGS
 
 (eu) atualizar rosto destrin
 
+- confirmar saída fase
+- armor pieces not working correctly (only one appears at a time, probably transparency)
+- SIDERSHOOTER is firing right after I enter the room in ape, I can't even leave the ladder. In the PC version it does not do that.
+
 =====================================================================================================================================================================
 
 - Roadmap item 15: a waterfall gap that still needs a reproduction.

@@ -20,7 +20,7 @@ extern const u8 mus_end_animation[3328];
 extern const u8 mus_end_credits[50176];
 extern const u8 mus_transporters[73216];
 extern const u8 mus_stage0[87552];
-extern const u8 mus_stage1[41984];
+extern const u8 mus_stage1[32000];
 extern const u8 mus_stage2[66304];
 extern const u8 mus_stage3[39424];
 extern const u8 mus_stage4[93952];
