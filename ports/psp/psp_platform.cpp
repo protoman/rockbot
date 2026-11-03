@@ -144,7 +144,15 @@ void log(const char *fmt, ...)
     }
 }
 
-void heartbeat() { g_progress++; }
+void heartbeat()
+{
+    g_progress++;
+    // Without this the PSP dims the screen and then suspends after its idle time (menus wait for input).
+    static unsigned int frames = 0;
+    if ((++frames & 31u) == 0) {
+        scePowerTick(PSP_POWER_TICK_ALL);
+    }
+}
 
 static int watchdog_thread(SceSize, void *)
 {
