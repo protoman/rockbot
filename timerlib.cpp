@@ -3,6 +3,9 @@
 #include "timerlib.h"
 #include "sdl_layer.h"
 #include <unistd.h>
+#ifdef PS3
+#include <sys/systime.h>
+#endif
 
 timerLib::timerLib()
 {
@@ -14,12 +17,18 @@ timerLib::timerLib()
 
 void timerLib::delay(int waitMS) const
 {
+#ifdef PS3
+	sysUsleep(waitMS * 1000);
+#else
 	SDLL_Delay(waitMS);
+#endif
 }
 
 void timerLib::udelay(int useconds)
 {
-#ifndef PC
+#ifdef PS3
+	sysUsleep(useconds);
+#elif !defined(PC)
 	SDLL_Delay(useconds);
 #else
     usleep(useconds);
@@ -28,7 +37,14 @@ void timerLib::udelay(int useconds)
 
 unsigned long timerLib::getTimer() const
 {
+#ifdef PS3
+	u64 sec = 0;
+	u64 nsec = 0;
+	sysGetCurrentTime(&sec, &nsec);
+	return static_cast<unsigned long>(sec * 1000 + nsec / 1000000) - _paused_ticks;
+#else
 	return SDLL_GetTicks() - _paused_ticks;
+#endif
 }
 
 void timerLib::start_ticker()

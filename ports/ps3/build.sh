@@ -51,6 +51,16 @@ cp -r "$ROOT/build/games/RockDroid1" "$STAGE/USRDIR/games/"
 cp -r "$ROOT/build/shared" "$STAGE/USRDIR/"
 cp -r "$ROOT/build/fonts" "$STAGE/USRDIR/"
 
+# SDL_image on PS3 fails on the game's single grayscale PNG ("Out of memory").
+# Convert any grayscale PNG in the packaged data to RGB.
+if command -v convert >/dev/null 2>&1; then
+    find "$STAGE/USRDIR" -name '*.png' -print0 | while IFS= read -r -d '' png; do
+        if file "$png" | grep -q 'grayscale'; then
+            convert "$png" -type TrueColor "PNG24:$png.tmp" && mv "$png.tmp" "$png"
+        fi
+    done
+fi
+
 "$PS3DEV/bin/sfo" -f "$PS3DEV/bin/sfo.xml" \
     --title="RockBot" --appid="$APPID" "$STAGE/PARAM.SFO"
 cp "$PS3DEV/bin/ICON0.PNG" "$STAGE/ICON0.PNG"
