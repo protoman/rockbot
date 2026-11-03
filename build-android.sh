@@ -158,7 +158,7 @@ if [[ "$DOCKER_STATUS" -ne 0 ]]; then
 fi
 
 VERSION_NAME="$(tr -d '[:space:]' < "$PACKAGES_DIR/version_name.txt")"
-OUT_APK="$PACKAGES_DIR/RockBot_Android_${VERSION_NAME}.apk"
+OUT_APK="$PACKAGES_DIR/Rockbot${VERSION_NUMBER}_Android_${VERSION_NAME}.apk"
 
 if [[ ! -f "$OUT_APK" ]]; then
     echo "Error: expected APK was not produced:"

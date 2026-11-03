@@ -103,7 +103,7 @@ fi
 
 APP_DIR="$PELYA_ANDROID_SDK/project/jni/application/rockbot"
 WORK_DIR="$PACKAGES_DIR/Android"
-OUT_APK="$PACKAGES_DIR/RockBot_Android_${VERSION_NAME}.apk"
+OUT_APK="$PACKAGES_DIR/Rockbot${VERSION_NUMBER}_Android_${VERSION_NAME}.apk"
 
 echo "📁 Syncing sources into Pelya application/rockbot..."
 mkdir -p "$APP_DIR"
@@ -338,7 +338,7 @@ fi
 
 echo "📦 Found APK: $UNSIGNED_APK"
 
-TEMP_APK="$PACKAGES_DIR/TEMP_RockBot_Android_${VERSION_NAME}.apk"
+TEMP_APK="$PACKAGES_DIR/TEMP_Rockbot${VERSION_NUMBER}_Android_${VERSION_NAME}.apk"
 rm -f "$TEMP_APK" "$OUT_APK"
 cp "$UNSIGNED_APK" "$TEMP_APK"
 zip -d "$TEMP_APK" 'META-INF/*' 2>/dev/null || true
