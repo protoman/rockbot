@@ -120,6 +120,7 @@
 #define AI_FIRST 0
 #define AI_RUN   1
 #define AI_WAIT  2
+#define AI_START 3   // first state chosen, its action starts after state 0's delay (PC execute_ai)
 
 // PC projectile TRAJECTORY_FREEZE: global freeze_weapon_effect for 3500ms.
 // Only enemies whose weakness for the freeze weapon is non-zero are frozen.
@@ -1541,6 +1542,18 @@ static bool ai_action_run(Enemy *e)
     }
 }
 
+// Start the action of the chosen state (PC sub_status INITIAL).
+static void ai_begin(Enemy *e)
+{
+    const EnemyAi *tbl = stage_def->enemy_ai[e->def_i];
+    e->act_t = 0;
+    ai_action_init(e);
+    // PC always_move_ahead(): a state whose go_to points back to itself
+    // keeps walking; while doing so a low wall ahead triggers a one-shot jump.
+    e->always_ahead = (tbl[e->ai_chain].go_to == e->ai_chain + 1);
+    e->ai_phase = AI_RUN;
+}
+
 static void ai_pick(Enemy *e, bool initial)
 {
     const EnemyAi *tbl = stage_def->enemy_ai[e->def_i];
@@ -1560,12 +1573,17 @@ static void ai_pick(Enemy *e, bool initial)
         e->ai_chain = (go <= 20) ? go - 1 : 0;          // 1-based (PC go_to-1)
     }
 
-    e->act_t = 0;
-    ai_action_init(e);
-    // PC always_move_ahead(): a state whose go_to points back to itself
-    // keeps walking; while doing so a low wall ahead triggers a one-shot jump.
-    e->always_ahead = (tbl[e->ai_chain].go_to == e->ai_chain + 1);
-    e->ai_phase = AI_RUN;
+    // PC execute_ai: with no action yet (_current_ai_type == -1) the AI timer is set
+    // to the go_to_delay of state 0 BEFORE the first state is defined, so the first
+    // action only starts after that delay (SIDERSHOOTER: 1500 ms, it used to fire the
+    // moment its room was entered).
+    if (initial) {
+        e->ai_phase = AI_START;
+        e->ai_wait = ((u32)tbl[0].delay * 6) / 100;
+        e->act_t = 0;
+        return;
+    }
+    ai_begin(e);
 }
 
 static void ai_tick(Enemy *e)
@@ -1584,6 +1602,11 @@ static void ai_tick(Enemy *e)
         return;
     }
 
+    if (e->ai_phase == AI_START) {
+        if (e->ai_wait > 0) e->ai_wait--;
+        if (e->ai_wait == 0) ai_begin(e);
+        return;
+    }
     if (e->ai_phase == AI_WAIT) {
         if (e->ai_wait > 0) e->ai_wait--;
         if (e->ai_wait == 0) ai_pick(e, FALSE);
