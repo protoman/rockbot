@@ -120,5 +120,5 @@ build/packages/deb/
 build/packages/linux/
 build/packages/raspberry/
 build/packages/release_logs/
-build/rockbot_pi_*
+build/rockbot_*
 build-linux-docker-sdl*/
