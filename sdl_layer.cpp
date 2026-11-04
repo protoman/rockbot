@@ -2,6 +2,9 @@
 #ifdef VITA
 #include "ports/vita/vita_platform.h"
 #endif
+#ifdef SWITCH
+#include "ports/switch/switch_platform.h"
+#endif
 #ifdef PSP
 #include "ports/psp/psp_platform.h"
 #include <pspkernel.h>
@@ -506,6 +509,10 @@ SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
 	win_w = vita_platform::LCD_W;
 	win_h = vita_platform::LCD_H;
 	window_flags = SDL_WINDOW_SHOWN;
+#elif defined(SWITCH)
+	win_w = switch_platform::LCD_W;
+	win_h = switch_platform::LCD_H;
+	window_flags = SDL_WINDOW_SHOWN;
 #endif
 
 	if (texture != NULL) {
@@ -692,10 +699,14 @@ int SDLL_Flip(SDL_Surface *screen)
 		SDL_RenderCopy(renderer, texture, NULL, NULL);
 	}
 	if (flip_log) psp_platform::log("flip #%u copied", flip_n);
-#elif defined(VITA)
-	SDL_Rect vita_rect;
-	if (vita_platform::get_present_rect(screen->w, screen->h, &vita_rect)) {
-		SDL_RenderCopy(renderer, texture, NULL, &vita_rect);
+#elif defined(VITA) || defined(SWITCH)
+	SDL_Rect fixed_rect;
+#ifdef VITA
+	if (vita_platform::get_present_rect(screen->w, screen->h, &fixed_rect)) {
+#else
+	if (switch_platform::get_present_rect(screen->w, screen->h, &fixed_rect)) {
+#endif
+		SDL_RenderCopy(renderer, texture, NULL, &fixed_rect);
 	} else {
 		SDL_RenderCopy(renderer, texture, NULL, NULL);
 	}

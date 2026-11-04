@@ -24,6 +24,7 @@ All take the game number (`1` or `2`) as the first argument (they ask when it is
 | PS2 | `PS2.sh` | `.zip` | ps2dev (`/mnt/ExtraData/Devel/SDK/PS2.new`) |
 | PSP | `PSP.sh` | `.zip` | pspdev (`.../SDK/PSP`) |
 | PS Vita | `Vita.sh` | `.vpk` | VitaSDK (`.../SDK/Vita/vitasdk`) |
+| Switch | `Switch.sh` | `.zip` (folder for `/switch/rockbot/`) | devkitA64 (`.../SDK/Switch/devkitpro`) |
 | PS3 | `PS3.sh` | `.pkg` + `.zip` | ps3dev (`.../SDK/PS3`) |
 | Dingux | `Dingux.sh` | `.zip` | OpenDingux gcw0 (`.../SDK/opendingux-gcw0-*`) |
 | PocketGo | `PocketGo.sh` | `.zip` | Buildroot (`.../SDK/PocketGo`) |

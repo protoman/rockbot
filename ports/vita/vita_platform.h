@@ -9,6 +9,7 @@
 #include <string>
 #include <sys/stat.h>
 
+#include "../common/present_rect.h"
 #include "../../defines.h"
 #include "../../file/format/st_common.h"
 
@@ -47,25 +48,10 @@ inline void log(const char *fmt, ...)
     std::fclose(f);
 }
 
-// Destination rect on the 960x544 LCD: integer scale only (a fractional factor draws some pixel rows taller
-// than others), centered with black borders.
+// Destination rect on the 960x544 LCD (integer scale, black borders; see ports/common/present_rect.h).
 inline bool get_present_rect(int game_w, int game_h, SDL_Rect *dst)
 {
-    if (game_w <= 0 || game_h <= 0) {
-        return false;
-    }
-    int scale = LCD_W / game_w;
-    if (LCD_H / game_h < scale) {
-        scale = LCD_H / game_h;
-    }
-    if (scale < 1) {
-        return false;
-    }
-    dst->w = game_w * scale;
-    dst->h = game_h * scale;
-    dst->x = (LCD_W - dst->w) / 2;
-    dst->y = (LCD_H - dst->h) / 2;
-    return true;
+    return present_rect::integer_scale(LCD_W, LCD_H, game_w, game_h, dst);
 }
 
 // SDL2 on the Vita numbers the joystick buttons like on the PSP:

@@ -11,6 +11,7 @@ installed on the machine, and the whole build environment can be backed up and r
 | `rockbot-rpi` | Raspberry Pi armhf / arm64 | Debian bookworm | cross compilers, ARM SDL2 libs | `ports/raspberry/Dockerfile` |
 | `rockbot-psp` | PSP | Ubuntu 26.04 | pspdev SDK | `ports/docker/Dockerfile` (target `psp`) |
 | `rockbot-vita` | PS Vita | Ubuntu 26.04 | VitaSDK, SDL2 libs (vdpm) | same, target `vita` |
+| `rockbot-switch` | Nintendo Switch | Ubuntu 26.04 | devkitA64, libnx, switch-sdl2 portlibs (devkitPro) | same, target `switch` |
 | `rockbot-ps2` | PlayStation 2 | Ubuntu 26.04 | ps2dev SDK | same, target `ps2` |
 | `rockbot-ps3` | PlayStation 3 | Ubuntu 26.04 | ps3dev (PSL1GHT) SDK | same, target `ps3` |
 | `rockbot-wii` | Nintendo Wii | Ubuntu 26.04 | devkitPro | same, target `wii` |
@@ -36,7 +37,7 @@ after the disk is mounted).
 ## Building the images
 
 ```
-build/docker/build_images.sh            # every SDK image (psp vita ps2 ps3 wii windows dingux pocketgo android)
+build/docker/build_images.sh            # every SDK image (psp vita switch ps2 ps3 wii windows dingux pocketgo android)
 build/docker/build_images.sh psp ps3    # only some
 docker build -t rockbot-linux ports/linux
 docker build -t rockbot-rpi ports/raspberry
@@ -93,3 +94,12 @@ A crash prints the exception and the address, which `addr` maps to a function. T
 `rockbot_boot.log` and `rockbot_stdout.log` next to `EBOOT.PBP`; every 2 seconds the boot log has a `perf:`
 line (fps, game ticks per second, time per frame step). Optional marker files next to `EBOOT.PBP`:
 `stretch.txt` (stretch instead of 1:1 with borders), `rgb565.txt` (16-bit screen texture), `no_music.txt`.
+
+## Where the console SDKs come from (to recreate them)
+
+- **Vita:** `bootstrap-vitasdk.sh` from `github.com/vitasdk/vdpm` into `SDK/Vita/vitasdk`, then
+  `vdpm install sdl2 sdl2_image sdl2_mixer sdl2_ttf sdl2_gfx`.
+- **Switch:** `docker pull devkitpro/devkita64`, run it once with
+  `dkp-pacman -Sy --noconfirm switch-sdl2 switch-sdl2_image switch-sdl2_mixer switch-sdl2_ttf switch-sdl2_gfx switch-pkg-config`,
+  copy `/opt/devkitpro` to `SDK/Switch/devkitpro` and replace `/opt/devkitpro` with that path in the
+  scripts and `.pc` files (`grep -rIl /opt/devkitpro ... | xargs sed -i`). The Wii SDK is made the same way (`build-wii.sh`).

@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Output Directory (same location as DESTDIR=build used by the old qmake scripts)
-if(CMAKE_SYSTEM_NAME STREQUAL "PS3" OR CMAKE_SYSTEM_NAME STREQUAL "NintendoWii" OR PSP OR VITA)
+if(CMAKE_SYSTEM_NAME STREQUAL "PS3" OR CMAKE_SYSTEM_NAME STREQUAL "NintendoWii" OR PSP OR VITA OR CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 else()
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
@@ -23,6 +23,13 @@ endif()
 if(VITA)
     set(ROCKBOT_VITA TRUE)
     # vdpm ships SDL2 (+ image/mixer/ttf/gfx).
+    set(USE_SDL_VERSION 2 CACHE STRING "SDL major version" FORCE)
+endif()
+
+# Nintendo Switch cross build (devkitA64 + libnx) uses devkitPro's Switch.cmake toolchain.
+if(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
+    set(ROCKBOT_SWITCH TRUE)
+    # switch-sdl2 and its image/mixer/ttf/gfx ports.
     set(USE_SDL_VERSION 2 CACHE STRING "SDL major version" FORCE)
 endif()
 
@@ -90,7 +97,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         -Werror=return-type
     )
     # MinGW often lacks libssp; keep stack protector for native Unix builds only.
-    if(NOT WIN32 AND NOT ROCKBOT_PS3 AND NOT ROCKBOT_PSP AND NOT ROCKBOT_VITA AND NOT ROCKBOT_PS2 AND NOT ROCKBOT_HANDHELD AND NOT ROCKBOT_WII)
+    if(NOT WIN32 AND NOT ROCKBOT_PS3 AND NOT ROCKBOT_PSP AND NOT ROCKBOT_VITA AND NOT ROCKBOT_SWITCH AND NOT ROCKBOT_PS2 AND NOT ROCKBOT_HANDHELD AND NOT ROCKBOT_WII)
         add_compile_options(-fstack-protector-all -fstack-protector)
     endif()
 endif()
@@ -113,6 +120,10 @@ endif()
 
 if(ROCKBOT_VITA)
     add_compile_options(-O2 -g)
+endif()
+
+if(ROCKBOT_SWITCH)
+    add_compile_options(-O2 -g -ffunction-sections)
 endif()
 
 if(APPLE)
@@ -258,6 +269,8 @@ elseif(ROCKBOT_PSP)
     endif()
 elseif(ROCKBOT_WII)
     add_definitions(-DWII -DHANDHELD)
+elseif(ROCKBOT_SWITCH)
+    add_definitions(-DSWITCH -DHANDHELD -D__SWITCH__)
 elseif(ROCKBOT_VITA)
     # VITA also selects the PS Vita code paths; SDL_MAIN_HANDLED is not used (SDL2 provides SDL_main).
     add_definitions(-DVITA -DHANDHELD)
@@ -478,6 +491,17 @@ elseif(ROCKBOT_PSP)
     # CMAKE_CXX_STANDARD_LIBRARIES is emitted at the very end of the link line.
     string(REPLACE ";" " " _psp_sdk_libs_str "${_psp_sdk_libs}")
     set(CMAKE_CXX_STANDARD_LIBRARIES "-lstdc++ -lm -lc ${_psp_sdk_libs_str}")
+elseif(ROCKBOT_SWITCH)
+    # Static portlibs: transitive dependencies come from the .pc files; libnx goes last.
+    set(ROCKBOT_SDL_LIBS
+        ${SDL_MIXER_STATIC_LDFLAGS}
+        ${SDL_IMAGE_STATIC_LDFLAGS}
+        ${SDL_TTF_STATIC_LDFLAGS}
+        ${SDL_GFX_STATIC_LDFLAGS}
+        ${SDL_STATIC_LDFLAGS}
+    )
+    list(REMOVE_ITEM ROCKBOT_SDL_LIBS -pthread)
+    set_target_properties(rockbot PROPERTIES OUTPUT_NAME rockbot)
 elseif(ROCKBOT_VITA)
     # Static link; sdl2.pc (Libs.private) pulls the Vita system stubs in the right order.
     set(ROCKBOT_SDL_LIBS
@@ -542,6 +566,20 @@ if(ROCKBOT_PSP)
         ICON_PATH "${_psp_icon}"
         BACKGROUND_PATH "${_psp_bg}"
     )
+endif()
+
+if(ROCKBOT_SWITCH)
+    # rockbot.nro next to the ELF; ports/switch/build.sh adds the game data folders beside it.
+    set(ROCKBOT_NRO_ICON "" CACHE FILEPATH "256x256 JPEG icon for the Homebrew Menu (made by ports/switch/build.sh)")
+    set(_nx_icon "${ROCKBOT_NRO_ICON}")
+    set(ROCKBOT_VERSION_NAME "0.0.0" CACHE STRING "Version shown in the Homebrew Menu")
+    set(ROCKBOT_VERSION_NUMBER 1 CACHE STRING "Game number (1 = RockDroid1, 2 = RockDroid2)")
+    nx_generate_nacp(OUTPUT rockbot.nacp NAME "Rockbot ${ROCKBOT_VERSION_NUMBER}" AUTHOR "Upperland" VERSION "${ROCKBOT_VERSION_NAME}")
+    if(_nx_icon AND EXISTS "${_nx_icon}")
+        nx_create_nro(rockbot NACP rockbot.nacp ICON "${_nx_icon}")
+    else()
+        nx_create_nro(rockbot NACP rockbot.nacp)
+    endif()
 endif()
 
 if(ROCKBOT_VITA)

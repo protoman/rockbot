@@ -21,7 +21,7 @@
 #
 # To add a port: add a "name|./Script.sh" line to TARGETS below (the script takes the game number as its
 # argument); with --docker the target runs in the image rockbot-<name> (see docs/Docker.md).
-# Targets: ps2 psp ps3 vita dingux pocketgo wii linux-targz linux-deb linux-appimage
+# Targets: ps2 psp ps3 vita switch dingux pocketgo wii linux-targz linux-deb linux-appimage
 #          windows-x64 windows-i686 android raspberry-armhf raspberry-arm64
 #
 # Output: build/packages/Rockbot<N>_<Platform>_<version>.*   logs: build/packages/release_logs/<version>/
@@ -36,6 +36,7 @@ TARGETS=(
     "psp|./PSP.sh"
     "ps3|./PS3.sh"
     "vita|./Vita.sh"
+    "switch|./Switch.sh"
     "dingux|./Dingux.sh"
     "pocketgo|./PocketGo.sh"
     "wii|./Wii.sh"

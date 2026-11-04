@@ -5,6 +5,8 @@
 #include "../../ports/psp/psp_platform.h"
 #elif VITA
 #include "../../ports/vita/vita_platform.h"
+#elif SWITCH
+#include "../../ports/switch/switch_platform.h"
 #elif PS3
 #include "../../ports/ps3/ps3_platform.h"
 #endif
@@ -62,6 +64,8 @@ namespace format_v4 {
             psp_platform::get_default_keys(keys_codes_copy);
 #elif VITA
             vita_platform::get_default_keys(keys_codes_copy);
+#elif SWITCH
+            switch_platform::get_default_keys(keys_codes_copy);
 #elif WII
             for (int i=0; i<BTN_COUNT; i++) {
                 keys_codes_copy[i] = -1;
@@ -208,6 +212,8 @@ namespace format_v4 {
             psp_platform::get_default_buttons(button_codes_copy);
 #elif VITA
             vita_platform::get_default_buttons(button_codes_copy);
+#elif SWITCH
+            switch_platform::get_default_buttons(button_codes_copy);
 #elif WII
             button_codes_copy[BTN_SHIELD].type = JOYSTICK_INPUT_TYPE_BUTTON;
             button_codes_copy[BTN_SHIELD].value = 1;
@@ -341,6 +347,8 @@ namespace format_v4 {
             psp_platform::set_default_input_mode(&input_type, &input_mode);
 #elif VITA
             vita_platform::set_default_input_mode(&input_type, &input_mode);
+#elif SWITCH
+            switch_platform::set_default_input_mode(&input_type, &input_mode);
 #elif WII
             input_type = INPUT_TYPE_JOYSTICK;
             input_mode = INPUT_MODE_DIGITAL;
@@ -379,6 +387,8 @@ namespace format_v4 {
             return psp_platform::get_platform();
     #elif VITA
             return vita_platform::get_platform();
+    #elif SWITCH
+            return switch_platform::get_platform();
     #elif WII
             return PLATFORM_WII;
     #elif DREAMCAST

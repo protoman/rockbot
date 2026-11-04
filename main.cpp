@@ -18,6 +18,10 @@
 #include "ports/vita/vita_platform.h"
 #endif
 
+#ifdef SWITCH
+#include "ports/switch/switch_platform.h"
+#endif
+
 #ifdef ANDROID
 #include <jni.h>
 #include <android/log.h>
@@ -77,7 +81,7 @@ jobject activity_ref;
     #include <sys/stat.h>
     #include <unistd.h>
     #include <sys/param.h>
-#elif defined(PLAYSTATION2) || defined(DINGUX) || defined(PSP) || defined(ANDROID) || defined(OPEN_PANDORA) || defined(WII) || defined(POCKETGO) || defined(VITA)
+#elif defined(PLAYSTATION2) || defined(DINGUX) || defined(PSP) || defined(ANDROID) || defined(OPEN_PANDORA) || defined(WII) || defined(POCKETGO) || defined(VITA) || defined(SWITCH)
     #include <unistd.h>
 #elif defined(WIN32)
     #include <direct.h>
@@ -98,6 +102,8 @@ jobject activity_ref;
     std::string EXEC_NAME("EBOOT.BIN");
 #elif defined(VITA)
     std::string EXEC_NAME("eboot.bin");
+#elif defined(SWITCH)
+    std::string EXEC_NAME("rockbot.nro");
 #elif defined(WII)
     std::string EXEC_NAME("boot.dol");
 #elif defined(DINGUX)
@@ -227,6 +233,8 @@ void get_filepath()
     ps3_platform::get_filepath(FILEPATH, MAXPATHLEN);
 #elif defined(VITA)
     vita_platform::get_filepath(FILEPATH, MAXPATHLEN);
+#elif defined(SWITCH)
+    switch_platform::get_filepath(FILEPATH, MAXPATHLEN);
 #else
     char *buffer = new char[MAXPATHLEN];
     char *res = getcwd(buffer, MAXPATHLEN);
@@ -308,6 +316,9 @@ int main(int argc, char *argv[])
 #endif
 #ifdef PS3
     ps3_platform::setup(argc > 0 ? argv[0] : NULL);
+#endif
+#ifdef SWITCH
+    switch_platform::setup(argc > 0 ? argv[0] : NULL);
 #endif
     for (int i=0; i<FLAG_COUNT; i++) {
         GAME_FLAGS[i] = false;
@@ -402,6 +413,8 @@ int main(int argc, char *argv[])
         ps3_platform::get_savepath(SAVEPATH);
     #elif VITA
         vita_platform::get_savepath(SAVEPATH);
+    #elif SWITCH
+        switch_platform::get_savepath(SAVEPATH);
     #else
         SAVEPATH = GAMEPATH;
     #endif
