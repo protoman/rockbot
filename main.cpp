@@ -14,6 +14,10 @@
 #include "ports/ps3/ps3_platform.h"
 #endif
 
+#ifdef VITA
+#include "ports/vita/vita_platform.h"
+#endif
+
 #ifdef ANDROID
 #include <jni.h>
 #include <android/log.h>
@@ -73,7 +77,7 @@ jobject activity_ref;
     #include <sys/stat.h>
     #include <unistd.h>
     #include <sys/param.h>
-#elif defined(PLAYSTATION2) || defined(DINGUX) || defined(PSP) || defined(ANDROID) || defined(OPEN_PANDORA) || defined(WII) || defined(POCKETGO)
+#elif defined(PLAYSTATION2) || defined(DINGUX) || defined(PSP) || defined(ANDROID) || defined(OPEN_PANDORA) || defined(WII) || defined(POCKETGO) || defined(VITA)
     #include <unistd.h>
 #elif defined(WIN32)
     #include <direct.h>
@@ -92,6 +96,8 @@ jobject activity_ref;
     std::string EXEC_NAME("EBOOT.PBP");
 #elif defined(PS3)
     std::string EXEC_NAME("EBOOT.BIN");
+#elif defined(VITA)
+    std::string EXEC_NAME("eboot.bin");
 #elif defined(WII)
     std::string EXEC_NAME("boot.dol");
 #elif defined(DINGUX)
@@ -219,6 +225,8 @@ void get_filepath()
     psp_platform::get_filepath(FILEPATH, MAXPATHLEN);
 #elif defined(PS3)
     ps3_platform::get_filepath(FILEPATH, MAXPATHLEN);
+#elif defined(VITA)
+    vita_platform::get_filepath(FILEPATH, MAXPATHLEN);
 #else
     char *buffer = new char[MAXPATHLEN];
     char *res = getcwd(buffer, MAXPATHLEN);
@@ -392,6 +400,8 @@ int main(int argc, char *argv[])
         _mkdir(SAVEPATH.c_str());
     #elif PS3
         ps3_platform::get_savepath(SAVEPATH);
+    #elif VITA
+        vita_platform::get_savepath(SAVEPATH);
     #else
         SAVEPATH = GAMEPATH;
     #endif

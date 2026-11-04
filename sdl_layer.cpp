@@ -1,4 +1,7 @@
 #include "sdl_layer.h"
+#ifdef VITA
+#include "ports/vita/vita_platform.h"
+#endif
 #ifdef PSP
 #include "ports/psp/psp_platform.h"
 #include <pspkernel.h>
@@ -499,6 +502,10 @@ SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
 	Uint32 window_flags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
 #ifdef PSP
 	psp_platform::adjust_window_size(width, height, &win_w, &win_h, &window_flags);
+#elif defined(VITA)
+	win_w = vita_platform::LCD_W;
+	win_h = vita_platform::LCD_H;
+	window_flags = SDL_WINDOW_SHOWN;
 #endif
 
 	if (texture != NULL) {
@@ -685,6 +692,13 @@ int SDLL_Flip(SDL_Surface *screen)
 		SDL_RenderCopy(renderer, texture, NULL, NULL);
 	}
 	if (flip_log) psp_platform::log("flip #%u copied", flip_n);
+#elif defined(VITA)
+	SDL_Rect vita_rect;
+	if (vita_platform::get_present_rect(screen->w, screen->h, &vita_rect)) {
+		SDL_RenderCopy(renderer, texture, NULL, &vita_rect);
+	} else {
+		SDL_RenderCopy(renderer, texture, NULL, NULL);
+	}
 #else
 	SDL_RenderCopy(renderer, texture, NULL, NULL);
 #endif

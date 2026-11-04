@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Output Directory (same location as DESTDIR=build used by the old qmake scripts)
-if(CMAKE_SYSTEM_NAME STREQUAL "PS3" OR CMAKE_SYSTEM_NAME STREQUAL "NintendoWii" OR PSP)
+if(CMAKE_SYSTEM_NAME STREQUAL "PS3" OR CMAKE_SYSTEM_NAME STREQUAL "NintendoWii" OR PSP OR VITA)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 else()
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
@@ -16,6 +16,13 @@ endif()
 if(PSP)
     set(ROCKBOT_PSP TRUE)
     # pspdev ships SDL2 (+ image/mixer/ttf/gfx); the game also builds with SDL2 there.
+    set(USE_SDL_VERSION 2 CACHE STRING "SDL major version" FORCE)
+endif()
+
+# PS Vita cross build (VitaSDK) uses share/vita.toolchain.cmake, which defines VITA.
+if(VITA)
+    set(ROCKBOT_VITA TRUE)
+    # vdpm ships SDL2 (+ image/mixer/ttf/gfx).
     set(USE_SDL_VERSION 2 CACHE STRING "SDL major version" FORCE)
 endif()
 
@@ -83,7 +90,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         -Werror=return-type
     )
     # MinGW often lacks libssp; keep stack protector for native Unix builds only.
-    if(NOT WIN32 AND NOT ROCKBOT_PS3 AND NOT ROCKBOT_PSP AND NOT ROCKBOT_PS2 AND NOT ROCKBOT_HANDHELD AND NOT ROCKBOT_WII)
+    if(NOT WIN32 AND NOT ROCKBOT_PS3 AND NOT ROCKBOT_PSP AND NOT ROCKBOT_VITA AND NOT ROCKBOT_PS2 AND NOT ROCKBOT_HANDHELD AND NOT ROCKBOT_WII)
         add_compile_options(-fstack-protector-all -fstack-protector)
     endif()
 endif()
@@ -102,6 +109,10 @@ if(ROCKBOT_PSP)
     # RAM), small-data off for PRX builds.
     add_compile_options(-G0 -O2 -g)
     add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions> $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>)
+endif()
+
+if(ROCKBOT_VITA)
+    add_compile_options(-O2 -g)
 endif()
 
 if(APPLE)
@@ -247,6 +258,9 @@ elseif(ROCKBOT_PSP)
     endif()
 elseif(ROCKBOT_WII)
     add_definitions(-DWII -DHANDHELD)
+elseif(ROCKBOT_VITA)
+    # VITA also selects the PS Vita code paths; SDL_MAIN_HANDLED is not used (SDL2 provides SDL_main).
+    add_definitions(-DVITA -DHANDHELD)
 elseif(ROCKBOT_HANDHELD STREQUAL "dingux")
     add_definitions(-DDINGUX -DHANDHELD -D_REENTRANT)
 elseif(ROCKBOT_HANDHELD STREQUAL "pocketgo")
@@ -464,6 +478,17 @@ elseif(ROCKBOT_PSP)
     # CMAKE_CXX_STANDARD_LIBRARIES is emitted at the very end of the link line.
     string(REPLACE ";" " " _psp_sdk_libs_str "${_psp_sdk_libs}")
     set(CMAKE_CXX_STANDARD_LIBRARIES "-lstdc++ -lm -lc ${_psp_sdk_libs_str}")
+elseif(ROCKBOT_VITA)
+    # Static link; sdl2.pc (Libs.private) pulls the Vita system stubs in the right order.
+    set(ROCKBOT_SDL_LIBS
+        ${SDL_MIXER_STATIC_LDFLAGS}
+        ${SDL_IMAGE_STATIC_LDFLAGS}
+        ${SDL_TTF_STATIC_LDFLAGS}
+        ${SDL_GFX_STATIC_LDFLAGS}
+        ${SDL_STATIC_LDFLAGS}
+    )
+    list(REMOVE_ITEM ROCKBOT_SDL_LIBS -pthread)
+    set_target_properties(rockbot PROPERTIES OUTPUT_NAME rockbot)
 elseif(NOT ROCKBOT_PS3)
     set(ROCKBOT_SDL_LIBS
         ${SDL_LDFLAGS}
@@ -517,6 +542,13 @@ if(ROCKBOT_PSP)
         ICON_PATH "${_psp_icon}"
         BACKGROUND_PATH "${_psp_bg}"
     )
+endif()
+
+if(ROCKBOT_VITA)
+    # eboot.bin (a compressed SELF) next to the ELF; ports/vita/build.sh packs it into the VPK.
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-q")
+    include("${VITASDK}/share/vita.cmake" REQUIRED)
+    vita_create_self(eboot.bin rockbot UNSAFE)
 endif()
 
 if(ROCKBOT_WII)
