@@ -584,7 +584,7 @@ int SDLL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
 
 SDL_Surface *SDLL_DisplayFormat(SDL_Surface *surface)
 {
-	#ifdef PSP
+#ifdef PSP
 	SDL_Surface *out = SDL_ConvertSurfaceFormat(surface, psp_platform::SURFACE_FORMAT, 0);
 #else
 	SDL_Surface *out = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
@@ -599,9 +599,11 @@ void SDLL_WM_SetCaption(const char *title, const char *icon)
 
 SDL_Surface *SDLL_DisplayFormatAlpha(SDL_Surface *surface)
 {
-	#ifdef PSP
+#ifdef PSP
 	SDL_Surface *out = SDL_ConvertSurfaceFormat(surface, psp_platform::SURFACE_FORMAT, 0);
 	psp_platform::adjust_display_format_alpha(out);
+#else
+	SDL_Surface *out = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
 #endif
 	return out;
 }
