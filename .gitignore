@@ -29,6 +29,8 @@ build-ps2/
 build-dingux/
 build-pocketgo/
 build-pandora/
+build-gamecube/
+build-wii/
 build-vita/
 build-switch/
 
@@ -53,6 +55,8 @@ build/packages/Android/
 build/packages/Dingux/
 build/packages/pandora/rockbot*/
 build/packages/*.pnd
+build/packages/GameCube/
+build/packages/Wii/
 build/packages/*.vpk
 build/packages/*.nro
 build/packages/PS2/

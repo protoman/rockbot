@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Output Directory (same location as DESTDIR=build used by the old qmake scripts)
-if(CMAKE_SYSTEM_NAME STREQUAL "PS3" OR CMAKE_SYSTEM_NAME STREQUAL "NintendoWii" OR PSP OR VITA OR CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
+if(CMAKE_SYSTEM_NAME STREQUAL "PS3" OR CMAKE_SYSTEM_NAME STREQUAL "NintendoWii" OR CMAKE_SYSTEM_NAME STREQUAL "NintendoGameCube" OR PSP OR VITA OR CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 else()
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/build")
@@ -55,8 +55,12 @@ if(PS2)
 endif()
 
 # Nintendo Wii cross build (devkitPro devkitPPC + libogc) uses devkitPro's Wii.cmake toolchain.
-if(CMAKE_SYSTEM_NAME STREQUAL "NintendoWii")
+# The GameCube build (GameCube.cmake) is the same port: same code paths (WII), plus GAMECUBE.
+if(CMAKE_SYSTEM_NAME STREQUAL "NintendoWii" OR CMAKE_SYSTEM_NAME STREQUAL "NintendoGameCube")
     set(ROCKBOT_WII TRUE)
+    if(CMAKE_SYSTEM_NAME STREQUAL "NintendoGameCube")
+        set(ROCKBOT_GAMECUBE TRUE)
+    endif()
     # The game's Wii code paths use SDL 1.2 (wii-sdl and friends).
     set(USE_SDL_VERSION 1 CACHE STRING "SDL major version" FORCE)
 endif()
@@ -275,6 +279,9 @@ elseif(ROCKBOT_PSP)
     endif()
 elseif(ROCKBOT_WII)
     add_definitions(-DWII -DHANDHELD)
+    if(ROCKBOT_GAMECUBE)
+        add_definitions(-DGAMECUBE)
+    endif()
 elseif(ROCKBOT_SWITCH)
     add_definitions(-DSWITCH -DHANDHELD -D__SWITCH__)
 elseif(ROCKBOT_VITA)
@@ -444,8 +451,13 @@ if(ROCKBOT_WII)
     set(ROCKBOT_SDL_LIBS
         ${SDL_GFX_STATIC_LDFLAGS} ${SDL_TTF_STATIC_LDFLAGS} ${SDL_MIXER_STATIC_LDFLAGS}
         ${SDL_IMAGE_STATIC_LDFLAGS} ${SDL_STATIC_LDFLAGS}
-        -lbz2 -lbrotlidec -lbrotlicommon -lz
-        -lfat -lwiiuse -lbte -lwiikeyboard -logc -lm)
+        -lbz2 -lbrotlidec -lbrotlicommon -lz)
+    if(ROCKBOT_GAMECUBE)
+        # No Wii remote / Bluetooth / USB keyboard on the GameCube; the SD card is an SD Gecko / SD2SP2.
+        list(APPEND ROCKBOT_SDL_LIBS -lfat -logc -lm)
+    else()
+        list(APPEND ROCKBOT_SDL_LIBS -lfat -lwiiuse -lbte -lwiikeyboard -logc -lm)
+    endif()
 elseif(ROCKBOT_HANDHELD STREQUAL "dingux")
     set(ROCKBOT_SDL_LIBS ${SDL_LDFLAGS} ${SDL_MIXER_LDFLAGS} ${SDL_IMAGE_LDFLAGS}
         ${SDL_TTF_LDFLAGS} ${SDL_GFX_LDFLAGS} -lpthread)

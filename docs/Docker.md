@@ -14,7 +14,7 @@ installed on the machine, and the whole build environment can be backed up and r
 | `rockbot-switch` | Nintendo Switch | Ubuntu 26.04 | devkitA64, libnx, switch-sdl2 portlibs (devkitPro) | same, target `switch` |
 | `rockbot-ps2` | PlayStation 2 | Ubuntu 26.04 | ps2dev SDK | same, target `ps2` |
 | `rockbot-ps3` | PlayStation 3 | Ubuntu 26.04 | ps3dev (PSL1GHT) SDK | same, target `ps3` |
-| `rockbot-wii` | Nintendo Wii | Ubuntu 26.04 | devkitPro | same, target `wii` |
+| `rockbot-wii` | Nintendo Wii and GameCube | Ubuntu 26.04 | devkitPro | same, target `wii` |
 | `rockbot-windows` | Windows (MinGW from Linux) | Ubuntu 26.04 | llvm-mingw, SDL2/SDL3 Windows libs | same, target `windows` |
 | `rockbot-dingux` | Dingoo A320 (Dingux) | Ubuntu 26.04 | OpenDingux 1.2.5 toolchain (GCC 4.7.1, 32-bit host, uClibc 0.9.31) | same, target `dingux` |
 | `rockbot-pocketgo` | PocketGo | Ubuntu 26.04 | Buildroot toolchain | same, target `pocketgo` |

@@ -2,6 +2,7 @@
 #define ROCKBOT_DEFINE_MAIN
 #ifdef WII
 #include <fat.h>
+#include <sys/stat.h>
 #endif
 
 #ifdef PSP
@@ -264,6 +265,22 @@ void get_filepath()
     delete[] buffer;
 #endif
 
+#if defined(GAMECUBE)
+    // GameCube loaders (Swiss, SD Gecko loaders) do not set the working directory like the Homebrew
+    // Channel does: look for the data folder (it has games/) on the SD adapters.
+    {
+        fatInitDefault(); // mounts the SD Gecko / SD2SP2 slots (sd:, carda:, cardb:)
+        const char* candidates[] = { "sd:/rockbot/", "carda:/rockbot/", "cardb:/rockbot/", "sd:/apps/rockbot/", "carda:/apps/rockbot/", "sd:/rockbot1/", "sd:/rockbot2/", "carda:/rockbot1/", "carda:/rockbot2/" };
+        struct stat st;
+        for (size_t i = 0; i < sizeof(candidates) / sizeof(candidates[0]); i++) {
+            std::string games = std::string(candidates[i]) + "games";
+            if (stat(games.c_str(), &st) == 0) {
+                FILEPATH = candidates[i];
+                break;
+            }
+        }
+    }
+#endif
 #if defined(PLAYSTATION2) && defined(PS2LOADFROMFIXEDPOINT) // DEBUG
     FILEPATH = "mass:/PS2/Rockbot/";
 #elif DREAMCAST
