@@ -19,7 +19,7 @@
 #   --dry-run                      show what would run, change nothing
 #   -h, --help
 #
-# Targets: ps2 psp ps3 dingux pocketgo wii linux-targz linux-deb linux-appimage
+# Targets: ps2 psp ps3 vita dingux pocketgo wii linux-targz linux-deb linux-appimage
 #          windows-x64 windows-i686 android raspberry-armhf raspberry-arm64
 #
 # Output: build/packages/Rockbot<N>_<Platform>_<version>.*   logs: build/packages/release_logs/<version>/
@@ -33,6 +33,7 @@ TARGETS=(
     "ps2|./PS2.sh"
     "psp|./PSP.sh"
     "ps3|./PS3.sh"
+    "vita|./Vita.sh"
     "dingux|./Dingux.sh"
     "pocketgo|./PocketGo.sh"
     "wii|./Wii.sh"
@@ -132,7 +133,7 @@ for game in "${GAME_LIST[@]}"; do
         if [ "$DOCKER" = 1 ]; then
             # target -> image (raspberry's script starts its own container, so it runs as is)
             case "$name" in
-                ps2|psp|ps3|dingux|pocketgo|wii) image="$name" ;;
+                ps2|psp|vita|ps3|dingux|pocketgo|wii) image="$name" ;;
                 linux-*) image=linux ;;
                 windows-*) image=windows ;;
                 android) image=android ;;

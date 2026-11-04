@@ -19,6 +19,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 FROM base AS psp
 COPY --from=sdk PSP/pspdev-v20261101/pspdev /mnt/ExtraData/Devel/SDK/PSP/pspdev-v20261101/pspdev
 
+FROM base AS vita
+COPY --from=sdk Vita/vitasdk /mnt/ExtraData/Devel/SDK/Vita/vitasdk
+
 FROM base AS ps2
 COPY --from=sdk PS2.new/ps2dev /mnt/ExtraData/Devel/SDK/PS2.new/ps2dev
 

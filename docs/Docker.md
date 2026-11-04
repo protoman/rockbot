@@ -10,6 +10,7 @@ installed on the machine, and the whole build environment can be backed up and r
 | `rockbot-linux` | Linux x64: tar.gz, deb, AppImage | Ubuntu 22.04 | SDL2 dev libs, dpkg, appimagetool | `ports/linux/Dockerfile` |
 | `rockbot-rpi` | Raspberry Pi armhf / arm64 | Debian bookworm | cross compilers, ARM SDL2 libs | `ports/raspberry/Dockerfile` |
 | `rockbot-psp` | PSP | Ubuntu 26.04 | pspdev SDK | `ports/docker/Dockerfile` (target `psp`) |
+| `rockbot-vita` | PS Vita | Ubuntu 26.04 | VitaSDK, SDL2 libs (vdpm) | same, target `vita` |
 | `rockbot-ps2` | PlayStation 2 | Ubuntu 26.04 | ps2dev SDK | same, target `ps2` |
 | `rockbot-ps3` | PlayStation 3 | Ubuntu 26.04 | ps3dev (PSL1GHT) SDK | same, target `ps3` |
 | `rockbot-wii` | Nintendo Wii | Ubuntu 26.04 | devkitPro | same, target `wii` |
@@ -35,7 +36,7 @@ after the disk is mounted).
 ## Building the images
 
 ```
-build/docker/build_images.sh            # every SDK image (psp ps2 ps3 wii windows dingux pocketgo android)
+build/docker/build_images.sh            # every SDK image (psp vita ps2 ps3 wii windows dingux pocketgo android)
 build/docker/build_images.sh psp ps3    # only some
 docker build -t rockbot-linux ports/linux
 docker build -t rockbot-rpi ports/raspberry
