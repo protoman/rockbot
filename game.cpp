@@ -1809,14 +1809,14 @@ void game::quick_load_game()
         //currentStage = STAGE1;
         //currentStage = INTRO_STAGE;
         game_save.stages[0] = 1;
-        //currentStage = scenes.pick_stage(INTRO_STAGE);
+        currentStage = scenes.pick_stage(INTRO_STAGE);
     }
 
 
     initGame();
 
     // DEBUG //
-    show_ending();
+    //show_ending();
 
     //scenes.boss_intro(currentStage);
 

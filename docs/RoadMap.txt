@@ -1,7 +1,13 @@
 ﻿###########################################################################################################################
 ROCKBOT
 ###########################################################################################################################
-Create README.md based on the prtoject contents.
+
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+- Create README.md based on the project contents.
+- Try to fix mod music playing in Android. It started to just make noise in more recent devices,
+while in others it plays normally. I can use an Android phone in dev mode for testing.
 
 -------------------------------------------------------------------------------------------------------------------------------
 
@@ -9,14 +15,16 @@ Now, I want to create a general release script.
 The idea is that it will ask about major/minor/mini version and increase itm, then run all the build scripts for the following systems:
     PS2
     PSP
+    PS Vita
     PS3
     Dingux
     PocketGo
     Nintendo Wii
+    Nintendo Switch
     Linux x64 tar.gz
     Linux x64 deb
     Linux x64 appImage
-    Windows x65 i686
+    Windows x64 i686
     Android
     Raspberry Pi
 So, before doing that, check that all the systems listed have build scripts, create if not,
