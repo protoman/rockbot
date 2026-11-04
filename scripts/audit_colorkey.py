@@ -6,7 +6,8 @@ The game makes (75,125,125) transparent. Art exported with colour management end
 the top-left pixel is that colour (and not in the SDL3 build), so images whose top-left pixel is something
 else stay broken.
 
-Usage: scripts/audit_colorkey.py [folder ...]      (default: build/games build/shared)
+Usage: scripts/audit_colorkey.py [folder ...]      (default: build/shared build/games/RockDroid1 build/games/RockDroid2;
+       RockMix and NEW-PROJ are test beds and are skipped)
        scripts/audit_colorkey.py --all             also list images that are fine
 Exit status: 1 when something needs fixing.
 """
@@ -55,7 +56,7 @@ def likely_bug(info):
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     show_all = "--all" in sys.argv
-    roots = args or ["build/games", "build/shared"]
+    roots = args or ["build/shared", "build/games/RockDroid1", "build/games/RockDroid2"]
     bad, ok = [], 0
     for root in roots:
         for dirpath, _, files in os.walk(root):
