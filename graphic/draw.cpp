@@ -1376,6 +1376,7 @@ void draw::add_dynamic_background(string filename, int auto_scroll_mode, st_colo
         graphLib.initSurface(st_size(temp_surface.width, temp_surface.height), &maps_dynamic_background_list.find(filename)->second);
         graphLib.clear_surface_area(0, 0, temp_surface.width, temp_surface.height, bg_color.r, bg_color.g, bg_color.b, maps_dynamic_background_list.find(filename)->second);
         graphLib.copyArea(st_position(0, 0), &temp_surface, &maps_dynamic_background_list.find(filename)->second);
+        graphLib.drop_unused_colorkey(&maps_dynamic_background_list.find(filename)->second); // opaque layer: plain-copy blits
     }
 }
 

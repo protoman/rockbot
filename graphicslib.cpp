@@ -856,6 +856,43 @@ void graphicsLib::show_white_surface_at(graphicsLib_gSurface *surfaceOrigin, st_
     showSurfaceAt(&tmp, pos, false);
 }
 
+// initSurface() turns the colour key on for every surface. A composed, fully painted layer (the scrolling
+// background) has no pixel left with the key colour, so the key test on each pixel of every blit is wasted work:
+// when no pixel matches, the key is switched off and the blit becomes a plain copy.
+void graphicsLib::drop_unused_colorkey(struct graphicsLib_gSurface* gSurface)
+{
+#if !defined(SDL3) && !defined(PSP) && !defined(PS3)
+    SDL_Surface *surface = gSurface != NULL ? gSurface->get_surface() : NULL;
+    if (surface == NULL || game_screen == NULL || surface->format == NULL) {
+        return;
+    }
+    const int bpp = surface->format->BytesPerPixel;
+    if (bpp != 2 && bpp != 4) {
+        return;
+    }
+    const Uint32 rgb_mask = surface->format->Rmask | surface->format->Gmask | surface->format->Bmask;
+    const Uint32 key = SDLL_MapRGB(game_screen, COLORKEY_R, COLORKEY_G, COLORKEY_B) & rgb_mask;
+    SDLL_LockSurface(surface);
+    bool found = false;
+    for (int y = 0; y < surface->h && !found; y++) {
+        const Uint8 *row = (const Uint8 *)surface->pixels + (size_t)y * surface->pitch;
+        for (int x = 0; x < surface->w; x++) {
+            const Uint32 px = (bpp == 4) ? ((const Uint32 *)row)[x] : ((const Uint16 *)row)[x];
+            if ((px & rgb_mask) == key) {
+                found = true;
+                break;
+            }
+        }
+    }
+    SDLL_UnlockSurface(surface);
+    if (!found) {
+        SDLL_SetColorKey(surface, 0, 0);
+    }
+#else
+    UNUSED(gSurface);
+#endif
+}
+
 void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* gSurface)
 {
     if (game_screen == NULL || SDLL_FormatIsNull(game_screen)) {
