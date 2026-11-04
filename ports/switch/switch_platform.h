@@ -26,15 +26,29 @@ inline std::string &base_dir()
     return dir;
 }
 
-// argv0: the path the loader gives (e.g. sdmc:/switch/rockbot/rockbot.nro); emulators pass a host path.
+inline bool has_games(const std::string &dir)
+{
+    struct stat st;
+    return stat((dir + "games").c_str(), &st) == 0;
+}
+
+// argv0: the path the loader gives (e.g. sdmc:/switch/rockbot/rockbot.nro); emulators may pass a host path
+// or only the file name. The folder that holds games/ wins: the NRO's folder, the Homebrew Menu folder,
+// then the current directory.
 inline void setup(const char *argv0)
 {
     if (argv0 != NULL) {
         std::string path(argv0);
         size_t slash = path.find_last_of('/');
         if (slash != std::string::npos) {
-            base_dir() = path.substr(0, slash + 1);
+            std::string dir = path.substr(0, slash + 1);
+            if (has_games(dir) || !has_games("sdmc:/switch/rockbot/")) {
+                base_dir() = dir;
+            }
         }
+    }
+    if (!has_games(base_dir()) && has_games("./")) {
+        base_dir() = "./";
     }
 }
 
@@ -52,6 +66,9 @@ inline void get_savepath(std::string &savepath)
 inline void log(const char *fmt, ...)
 {
     std::FILE *f = std::fopen((base_dir() + "rockbot_boot.log").c_str(), "a");
+    if (f == NULL) {
+        f = std::fopen("rockbot_boot.log", "a"); // the data folder may not exist or not be writable
+    }
     if (f == NULL) {
         return;
     }

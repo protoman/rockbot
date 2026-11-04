@@ -22,6 +22,15 @@
 #include "ports/switch/switch_platform.h"
 #endif
 
+// Boot log of the ports that write one next to their data (diagnostics on real hardware).
+#if defined(PSP)
+#define BOOT_LOG psp_platform::log
+#elif defined(VITA)
+#define BOOT_LOG vita_platform::log
+#elif defined(SWITCH)
+#define BOOT_LOG switch_platform::log
+#endif
+
 #ifdef ANDROID
 #include <jni.h>
 #include <android/log.h>
@@ -319,6 +328,7 @@ int main(int argc, char *argv[])
 #endif
 #ifdef SWITCH
     switch_platform::setup(argc > 0 ? argv[0] : NULL);
+    switch_platform::log("main: argc=%d argv0='%s' base dir='%s'", argc, argc > 0 && argv[0] ? argv[0] : "(none)", switch_platform::base_dir().c_str());
 #endif
     for (int i=0; i<FLAG_COUNT; i++) {
         GAME_FLAGS[i] = false;
@@ -426,8 +436,8 @@ int main(int argc, char *argv[])
     fio.load_config(SharedData::get_instance()->game_config);
 #endif
 
-#ifdef PSP
-    psp_platform::log("main: config loaded, FILEPATH='%s'", FILEPATH.c_str());
+#ifdef BOOT_LOG
+    BOOT_LOG("main: config loaded, FILEPATH='%s'", FILEPATH.c_str());
 #endif
     detect_language();
     // force disable old music flag
@@ -436,8 +446,8 @@ int main(int argc, char *argv[])
     // INIT GRAPHICS
     if (graphLib.initGraphics() != true) {
         fflush(stdout);
-#ifdef PSP
-        psp_platform::log("initGraphics failed");
+#ifdef BOOT_LOG
+        BOOT_LOG("initGraphics failed");
 #endif
         return -1;
     }
@@ -449,15 +459,15 @@ int main(int argc, char *argv[])
 #endif
 
 
-#ifdef PSP
-    psp_platform::log("main: graphics ok");
+#ifdef BOOT_LOG
+    BOOT_LOG("main: graphics ok");
 #endif
     //GAMENAME = std::string("RockBot");
     gameControl.select_game_screen();
     GAMENAME = gameControl.get_selected_game();
     graphLib.set_window_title(GAMENAME);
-#ifdef PSP
-    psp_platform::log("main: game selected '%s'", GAMENAME.c_str());
+#ifdef BOOT_LOG
+    BOOT_LOG("main: game selected '%s'", GAMENAME.c_str());
 #endif
 
     fflush(stdout);
@@ -467,8 +477,8 @@ int main(int argc, char *argv[])
     //GAMENAME = std::string("RockBot");
 
     if (GAMENAME == "") {
-#ifdef PSP
-        psp_platform::log("no game found under '%s'", GAMEPATH.c_str());
+#ifdef BOOT_LOG
+        BOOT_LOG("no game found under '%s'", GAMEPATH.c_str());
 #endif
         graphLib.draw_text(20, 20, strings_map::get_instance()->get_ingame_string(strings_ingame_engineerror) + std::string(":"));
         graphLib.draw_text(20, 32, strings_map::get_instance()->get_ingame_string(strings_ingame_nogames));
@@ -507,12 +517,12 @@ int main(int argc, char *argv[])
 #endif
 
 
-#ifdef PSP
-    psp_platform::log("main: graphLib.preload");
+#ifdef BOOT_LOG
+    BOOT_LOG("main: graphLib.preload");
 #endif
     graphLib.preload();
-#ifdef PSP
-    psp_platform::log("main: draw_lib.preload");
+#ifdef BOOT_LOG
+    BOOT_LOG("main: draw_lib.preload");
 #endif
 
 #ifdef PLAYSTATION2
@@ -524,8 +534,8 @@ int main(int argc, char *argv[])
     GameMediator::get_instance()->preload_projectile_sfx();
 
 
-#ifdef PSP
-    psp_platform::log("main: preload done, starting intro");
+#ifdef BOOT_LOG
+    BOOT_LOG("main: preload done, starting intro");
 #endif
     gameControl.currentStage = INTRO_STAGE;
 

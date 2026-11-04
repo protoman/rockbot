@@ -1,5 +1,8 @@
 #include <cstdlib>
 #include <cstdio>
+#ifdef SWITCH
+#include "ports/switch/switch_platform.h"
+#endif
 #ifdef PSP
 #include "ports/psp/psp_platform.h"
 #endif
@@ -134,6 +137,9 @@ bool graphicsLib::initGraphics()
 #else
     if (SDLL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK|SDL_INIT_TIMER|SDL_INIT_AUDIO) < 0 ) {
 #endif
+#ifdef SWITCH
+        switch_platform::log("initGraphics: SDL_Init failed (%s)", SDLL_GetError());
+#endif
         std::cout << "ERROR: Unable to init SDL. Error: " << SDLL_GetError() << std::endl;
         std::fflush(stdout);
         exception_manager::throw_general_exception(std::string("graphicsLib::initGraphics - Unable to init SDL."), SDLL_GetError());
@@ -176,6 +182,9 @@ bool graphicsLib::initGraphics()
     if (!fileRW || !fileOutlineRW || !fileErrorRW) {
 		printf("ERROR::initGraphics - could not open '%s' font (rw=%p outline=%p error=%p sdl='%s')\n",
                buffer, (void*)fileRW, (void*)fileOutlineRW, (void*)fileErrorRW, SDLL_GetError());
+#ifdef SWITCH
+        switch_platform::log("initGraphics: cannot open font '%s' (%s)", buffer, SDLL_GetError());
+#endif
         fflush(stdout);
         delete[] buffer;
 		return false;
@@ -188,6 +197,9 @@ bool graphicsLib::initGraphics()
         if (font == NULL || outline_font == NULL || error_font == NULL) {
             printf("ERROR::initGraphics - SDLL_TTF_OpenFont failed for '%s' (ttf='%s')\n",
                    buffer, SDLL_TTF_GetError());
+#ifdef SWITCH
+            switch_platform::log("initGraphics: TTF_OpenFont failed for '%s' (%s)", buffer, SDLL_TTF_GetError());
+#endif
             fflush(stdout);
             delete[] buffer;
             return false;
