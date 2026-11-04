@@ -17,7 +17,7 @@ APP="./GameCube/$GAME_DIR"
 
 rm -rf ./GameCube
 mkdir -p "$APP"
-cp ../../build-gamecube/rockbot_gamecube.dol "$APP/rockbot_gamecube.dol"
+cp ../../res/gamecube/rockbot_gamecube.dol "$APP/rockbot_gamecube.dol"
 stage_game_data "$APP"
 
 rm -f "$OUT"

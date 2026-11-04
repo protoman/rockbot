@@ -30,7 +30,7 @@ done
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 IMAGE="${ROCKBOT_RPI_IMAGE:-rockbot-rpi:latest}"
 case "$ARCH" in arm64) RPI_TRIPLET="aarch64-linux-gnu" ;; *) RPI_TRIPLET="arm-linux-gnueabihf" ;; esac
-BUILD_SUBDIR="build-rpi-${ARCH}"
+BUILD_SUBDIR="res/rpi-${ARCH}"
 
 command -v docker >/dev/null 2>&1 || { echo "Error: docker is required" >&2; exit 1; }
 

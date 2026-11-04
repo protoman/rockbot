@@ -17,7 +17,7 @@ set -o pipefail
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 TOOLCHAIN="${PANDORA_TOOLCHAIN:-/mnt/ExtraData/Devel/SDK/Pandora/gcc-16.2.0}"
 SYSROOT="${PANDORA_SYSROOT:-/mnt/ExtraData/Devel/SDK/OpenPandora/arm-angstrom-linux-gnueabi}"
-BUILD_DIR="$REPO_ROOT/build-pandora"
+BUILD_DIR="$REPO_ROOT/res/pandora"
 
 if [ ! -x "$TOOLCHAIN/bin/arm-angstrom-linux-gnueabi-gcc" ] || [ ! -d "$SYSROOT/usr/include/SDL" ]; then
     echo "Pandora SDK not found (PANDORA_TOOLCHAIN=$TOOLCHAIN, PANDORA_SYSROOT=$SYSROOT)" >&2

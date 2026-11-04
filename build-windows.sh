@@ -25,7 +25,7 @@ set -o pipefail
 #
 # Output:
 #   build/rockbot_windows.exe
-#   build/windows-dlls-<arch>-sdl<N>/*.dll   (also copied next to the exe)
+#   res/windows-dlls-<arch>-sdl<N>/*.dll   (also copied next to the exe)
 #   build/packages/Rockbot<N>_Win64_<version>.zip (x86_64) or ..._Win32_... (i686), if game 1|2 given
 
 USE_SDL_VERSION=2
@@ -71,8 +71,8 @@ TRIPLET="${ARCH}-w64-mingw32"
 DEPS_ROOT="${WINDOWS_SDK}/deps/mingw-${ARCH}-sdl${USE_SDL_VERSION}"
 DEPS_PREFIX="${DEPS_ROOT}/prefix"
 DOWNLOAD_DIR="${DEPS_ROOT}/downloads"
-CMAKE_BUILD_DIR="${SCRIPT_DIR}/build/cmake-windows-${ARCH}-sdl${USE_SDL_VERSION}"
-DLL_DIR="${SCRIPT_DIR}/build/windows-dlls-${ARCH}-sdl${USE_SDL_VERSION}"
+CMAKE_BUILD_DIR="${SCRIPT_DIR}/res/windows-${ARCH}-sdl${USE_SDL_VERSION}"
+DLL_DIR="${SCRIPT_DIR}/res/windows-dlls-${ARCH}-sdl${USE_SDL_VERSION}"
 
 # Pinned upstream releases (official *-mingw.tar.gz from libsdl-org).
 SDL2_VERSION="2.32.8"

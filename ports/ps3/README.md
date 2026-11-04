@@ -23,7 +23,7 @@ ports/ps3/build.sh
 Output:
 
 ```
-build-ps3/PS3_GAME/
+res/ps3/PS3_GAME/
 ├── PARAM.SFO
 ├── ICON0.PNG
 └── USRDIR/
@@ -38,7 +38,7 @@ build-ps3/PS3_GAME/
 RPCS3, directly:
 
 ```bash
-rpcs3 build-ps3/PS3_GAME/USRDIR/EBOOT.BIN
+rpcs3 res/ps3/PS3_GAME/USRDIR/EBOOT.BIN
 ```
 
 Real console (CFW): copy the `PS3_GAME` contents to

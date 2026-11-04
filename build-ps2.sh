@@ -16,7 +16,7 @@ export PS2DEV="${PS2DEV:-/mnt/ExtraData/Devel/SDK/PS2.new/ps2dev}"
 export PS2SDK="$PS2DEV/ps2sdk"
 export GSKIT="$PS2DEV/gsKit"
 export PATH="$PS2DEV/bin:$PS2DEV/ee/bin:$PS2DEV/iop/bin:$PS2SDK/bin:$PATH"
-BUILD_DIR="$REPO_ROOT/build-ps2"
+BUILD_DIR="$REPO_ROOT/res/ps2"
 NCPU="${NCPU:-$(nproc)}"
 
 if [ ! -x "$PS2DEV/ee/bin/mips64r5900el-ps2-elf-g++" ]; then

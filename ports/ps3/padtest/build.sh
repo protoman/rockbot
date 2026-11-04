@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Builds the tiny PS3 input test (padtest.cpp) into build-ps3/padtest/PS3_GAME.
-# Run it with: rpcs3 build-ps3/padtest/PS3_GAME/USRDIR/EBOOT.BIN
+# Builds the tiny PS3 input test (padtest.cpp) into res/ps3/padtest/PS3_GAME.
+# Run it with: rpcs3 res/ps3/padtest/PS3_GAME/USRDIR/EBOOT.BIN
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 PS3DEV="${PS3DEV:-/mnt/ExtraData/Devel/SDK/PS3/ps3dev}"
 export PS3DEV PSL1GHT="$PS3DEV"
 PORTLIBS="$PS3DEV/portlibs/ppu"
-OUT="$ROOT/build-ps3/padtest"
+OUT="$ROOT/res/ps3/padtest"
 STAGE="$OUT/PS3_GAME"
 mkdir -p "$OUT"
 

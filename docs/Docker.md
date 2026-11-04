@@ -64,7 +64,7 @@ cd build/packages && ../docker/run.sh linux ./deb.sh 1
 
 `run.sh` mounts the repository at the same path as on the host, runs as your user (files are not owned by
 root) and keeps the directory you called it from. Builds inside Docker use their own directory where a
-native build would clash (`build-linux-docker-sdl*`).
+native build would clash (`res/linux-docker-sdl*`).
 
 `build-raspberry.sh` is itself the launcher of the Raspberry Pi image: run it directly on the host.
 

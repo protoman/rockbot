@@ -12,7 +12,7 @@ OUT_VPK="$PWD/Rockbot${version_number}_Vita_$VERSIONNAME.vpk"
 
 ../../ports/vita/build.sh "$version_number"
 
-BUILD_VPK="$SCRIPT_DIR/../../build-vita/Rockbot${version_number}.vpk"
+BUILD_VPK="$SCRIPT_DIR/../../res/vita/Rockbot${version_number}.vpk"
 if [ ! -f "$BUILD_VPK" ]; then
     echo "error: the VPK was not produced" >&2
     exit 1

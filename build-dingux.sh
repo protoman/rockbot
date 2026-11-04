@@ -13,7 +13,7 @@ set -o pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 SDK="${OPEN_DINGUX_SDK:-/mnt/ExtraData/Devel/SDK/opendingux}"
-BUILD_DIR="$REPO_ROOT/build-dingux"
+BUILD_DIR="$REPO_ROOT/res/dingux"
 
 if [ ! -f "$SDK/usr/bin/mipsel-linux-gcc" ]; then
     echo "OpenDingux SDK not found at $SDK (set OPEN_DINGUX_SDK)" >&2

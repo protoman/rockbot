@@ -15,24 +15,14 @@ CTestTestfile.cmake
 CMakeUserPresets.json
 Testing/
 install_manifest.txt
-build/cmake/
-build/cmake-windows-*/
 build/deps/
-build/windows-dlls-*/
+
+# Build trees of every platform (CMake build folders, staged output): see docs/Docker.md
+res/
 build/rockbot.exe
 build/*.dll
 
 # PlayStation 3 build output
-build-ps3/
-build-psp/
-build-ps2/
-build-dingux/
-build-pocketgo/
-build-pandora/
-build-gamecube/
-build-wii/
-build-vita/
-build-switch/
 
 # Game artifiacts
 rockbot
@@ -122,9 +112,6 @@ build/packages/PS3/
 build/packages/*.pkg
 
 # Release build output
-build-wii/
-build-linux-sdl*/
-build-rpi-*/
 build/packages/Wii/
 build/packages/appimage/
 build/packages/deb/
@@ -132,5 +119,4 @@ build/packages/linux/
 build/packages/raspberry/
 build/packages/release_logs/
 build/rockbot_*
-build-linux-docker-sdl*/
 *.AppImage

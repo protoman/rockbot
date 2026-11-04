@@ -11,7 +11,7 @@ set -o pipefail
 # Usage:
 #   ./build-gamecube.sh
 #
-# Output: build-gamecube/rockbot_gamecube.dol
+# Output: res/gamecube/rockbot_gamecube.dol
 #
 # SDK: $WII_SDK (default /mnt/ExtraData/Devel/SDK/Wii/devkitpro-current): the same devkitPro as the
 # Wii build (portlibs/gamecube is part of it); build-wii.sh installs it. Optional env: WII_SDK, NCPU.
@@ -39,9 +39,9 @@ export DEVKITPRO="$WII_SDK" DEVKITPPC="$WII_SDK/devkitPPC"
 export PATH="$DEVKITPPC/bin:$DEVKITPRO/tools/bin:$PATH"
 
 echo "🛠️ Cross-compiling for the GameCube ($(powerpc-eabi-g++ --version | head -1))..."
-cmake -S "$REPO_ROOT" -B "$REPO_ROOT/build-gamecube" \
+cmake -S "$REPO_ROOT" -B "$REPO_ROOT/res/gamecube" \
     -DCMAKE_TOOLCHAIN_FILE="$DEVKITPRO/cmake/GameCube.cmake" \
     -DCMAKE_BUILD_TYPE=Release
-cmake --build "$REPO_ROOT/build-gamecube" -j"${NCPU:-$(nproc)}"
+cmake --build "$REPO_ROOT/res/gamecube" -j"${NCPU:-$(nproc)}"
 
-echo "Built $REPO_ROOT/build-gamecube/rockbot_gamecube.dol"
+echo "Built $REPO_ROOT/res/gamecube/rockbot_gamecube.dol"

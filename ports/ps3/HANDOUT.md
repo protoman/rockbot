@@ -13,8 +13,8 @@ Not yet verified on real hardware. No `.pkg` has been produced yet.
 - ps3dev: `/mnt/ExtraData/Devel/SDK/PS3/ps3dev`
   (nightly 2026-10-12: PPU GCC 13.2.0, PSL1GHT `f649a08`, ps3libraries `b2efde5`)
 - Build: `PS3DEV=/mnt/ExtraData/Devel/SDK/PS3/ps3dev ports/ps3/build.sh`
-- Output: `build-ps3/PS3_GAME/` (`USRDIR/EBOOT.BIN`, `PARAM.SFO`, data)
-- Input test app: `ports/ps3/padtest/build.sh` → `build-ps3/padtest/PS3_GAME`
+- Output: `res/ps3/PS3_GAME/` (`USRDIR/EBOOT.BIN`, `PARAM.SFO`, data)
+- Input test app: `ports/ps3/padtest/build.sh` → `res/ps3/padtest/PS3_GAME`
 - Emulator: `/mnt/ExtraData/programas/rpcs3-v0.0.43-20559-a2c2ca2f_linux64.appimage`
   (`--no-gui <EBOOT.BIN>`). The first start after every rebuild recompiles the PPU
   code with LLVM and takes ~2–3 minutes; later starts are quick. Never start a second

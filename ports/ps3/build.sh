@@ -10,8 +10,8 @@
 #                 firmware / HEN, "Install Package Files")
 #
 # Outputs:
-#   build-ps3/PS3_GAME/                folder RPCS3 (and a CFW PS3 via /app_home) can boot
-#   build-ps3/Rockbot<N>.pkg           installer (only with --pkg)
+#   res/ps3/PS3_GAME/                folder RPCS3 (and a CFW PS3 via /app_home) can boot
+#   res/ps3/Rockbot<N>.pkg           installer (only with --pkg)
 #
 # PS3DEV must point at a ps3dev installation (default
 # /mnt/ExtraData/Devel/SDK/PS3/ps3dev). The nightly all-in-one release from
@@ -37,7 +37,7 @@ for arg in "$@"; do
     esac
 done
 
-BUILD="$ROOT/build-ps3"
+BUILD="$ROOT/res/ps3"
 STAGE="$BUILD/PS3_GAME"
 GAME_DATA="$ROOT/build/games/RockDroid${GAME_NUMBER}"
 # PS3 title ids are exactly 9 characters.

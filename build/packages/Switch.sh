@@ -13,7 +13,7 @@ OUT_ZIP="$PWD/Rockbot${version_number}_Switch_$VERSIONNAME.zip"
 
 ../../ports/switch/build.sh "$version_number"
 
-BUILD_ZIP="$SCRIPT_DIR/../../build-switch/Rockbot${version_number}_Switch.zip"
+BUILD_ZIP="$SCRIPT_DIR/../../res/switch/Rockbot${version_number}_Switch.zip"
 if [ ! -f "$BUILD_ZIP" ]; then
     echo "error: the package was not produced" >&2
     exit 1

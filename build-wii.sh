@@ -10,7 +10,7 @@ set -o pipefail
 # Usage:
 #   ./build-wii.sh
 #
-# Output: build-wii/rockbot_wii.dol
+# Output: res/wii/rockbot_wii.dol
 #
 # SDK: $WII_SDK (default /mnt/ExtraData/Devel/SDK/Wii/devkitpro-current). If it is missing it is
 # installed once by copying /opt/devkitpro out of the official devkitpro/devkitppc Docker image
@@ -48,9 +48,9 @@ export DEVKITPRO="$WII_SDK" DEVKITPPC="$WII_SDK/devkitPPC"
 export PATH="$DEVKITPPC/bin:$DEVKITPRO/tools/bin:$PATH"
 
 echo "🛠️ Cross-compiling for the Wii ($(powerpc-eabi-g++ --version | head -1))..."
-cmake -S "$REPO_ROOT" -B "$REPO_ROOT/build-wii" \
+cmake -S "$REPO_ROOT" -B "$REPO_ROOT/res/wii" \
     -DCMAKE_TOOLCHAIN_FILE="$DEVKITPRO/cmake/Wii.cmake" \
     -DCMAKE_BUILD_TYPE=Release
-cmake --build "$REPO_ROOT/build-wii" -j"${NCPU:-$(nproc)}"
+cmake --build "$REPO_ROOT/res/wii" -j"${NCPU:-$(nproc)}"
 
-echo "Built $REPO_ROOT/build-wii/rockbot_wii.dol"
+echo "Built $REPO_ROOT/res/wii/rockbot_wii.dol"

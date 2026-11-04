@@ -16,7 +16,7 @@ APP="./Wii/apps/$GAME_DIR"
 
 rm -rf ./Wii
 mkdir -p "$APP"
-cp ../../build-wii/rockbot_wii.dol "$APP/boot.dol"
+cp ../../res/wii/rockbot_wii.dol "$APP/boot.dol"
 cp files/wii_meta/icon.png "$APP/icon.png"
 cat > "$APP/meta.xml" <<META
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>

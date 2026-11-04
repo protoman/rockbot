@@ -12,7 +12,7 @@ set -o pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 SDK="${POCKETGO_SDK:-/mnt/ExtraData/Devel/SDK/PocketGo/output/host}"
-BUILD_DIR="$REPO_ROOT/build-pocketgo"
+BUILD_DIR="$REPO_ROOT/res/pocketgo"
 
 if [ ! -f "$SDK/share/buildroot/toolchainfile.cmake" ]; then
     echo "PocketGo SDK not found at $SDK (set POCKETGO_SDK)" >&2

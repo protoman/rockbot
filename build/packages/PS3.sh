@@ -16,10 +16,10 @@ GAME_DIR="Rockbot$version_number"
 OUT_PKG="$PWD/Rockbot${version_number}_PS3_$VERSIONNAME.pkg"
 OUT_ZIP="$PWD/Rockbot${version_number}_PS3_$VERSIONNAME.zip"
 
-# Compiles, stages build-ps3/PS3_GAME and builds the .pkg
+# Compiles, stages res/ps3/PS3_GAME and builds the .pkg
 ../../ports/ps3/build.sh "$version_number" --pkg
 
-BUILD_DIR="$SCRIPT_DIR/../../build-ps3"
+BUILD_DIR="$SCRIPT_DIR/../../res/ps3"
 if [ ! -f "$BUILD_DIR/Rockbot${version_number}.pkg" ]; then
     echo "error: the installer was not produced" >&2
     exit 1

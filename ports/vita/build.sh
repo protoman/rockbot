@@ -7,7 +7,7 @@
 #   1|2           which game to package (default 1): build/games/RockDroid<N>
 #   --no-package  only compile
 #
-# Output: build-vita/Rockbot<N>.vpk  (install with VitaShell, or drop it on Vita3K).
+# Output: res/vita/Rockbot<N>.vpk  (install with VitaShell, or drop it on Vita3K).
 #         The game data is inside the VPK (app0:); saves and rockbot_boot.log go to ux0:data/rockbot/.
 #
 # VITASDK must point at a VitaSDK installation (default /mnt/ExtraData/Devel/SDK/Vita/vitasdk).
@@ -36,7 +36,7 @@ fi
 
 "$ROOT/build/packages/sync_version.sh"   # file/version.h <- version_name.txt
 
-BUILD="$ROOT/build-vita"
+BUILD="$ROOT/res/vita"
 GAME_DATA="$ROOT/build/games/RockDroid${GAME_NUMBER}"
 # Vita title ids are exactly 9 characters: 4 letters + 5 digits.
 TITLE_ID="ROCK0000${GAME_NUMBER}"

@@ -7,9 +7,9 @@
 #   1|2           which game to package (default 1): build/games/RockDroid<N>
 #   --no-package  only compile
 #
-# Output: build-switch/Rockbot<N>_Switch/   the folder to copy to the SD card as /switch/rockbot/
+# Output: res/switch/Rockbot<N>_Switch/   the folder to copy to the SD card as /switch/rockbot/
 #                                           (rockbot_switch.nro + games/ shared/ fonts/; saves go there too)
-#         build-switch/Rockbot<N>_Switch.zip
+#         res/switch/Rockbot<N>_Switch.zip
 #
 # DEVKITPRO must point at a devkitPro tree with devkitA64, libnx and the switch-sdl2* portlibs
 # (default /mnt/ExtraData/Devel/SDK/Switch/devkitpro). It is made once by copying /opt/devkitpro out of the
@@ -40,7 +40,7 @@ fi
 
 "$ROOT/build/packages/sync_version.sh"   # file/version.h <- version_name.txt
 
-BUILD="$ROOT/build-switch"
+BUILD="$ROOT/res/switch"
 GAME_DATA="$ROOT/build/games/RockDroid${GAME_NUMBER}"
 VERSION_NAME="0.0.0"
 [ -f "$ROOT/build/packages/version_name.txt" ] && VERSION_NAME="$(tr -d '[:space:]' < "$ROOT/build/packages/version_name.txt")"

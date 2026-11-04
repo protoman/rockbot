@@ -29,7 +29,7 @@ done
 
 "$ROOT/build/packages/sync_version.sh"   # file/version.h <- version_name.txt
 
-BUILD="$ROOT/build-psp"
+BUILD="$ROOT/res/psp"
 PACKAGES_DIR="$ROOT/build/packages"
 VERSION_NAME="0.0.0"
 if [ -f "$PACKAGES_DIR/version_name.txt" ]; then

@@ -1,7 +1,7 @@
 # PlayStation 3 cross toolchain (PSL1GHT / ps3dev).
 #
 # Usage:
-#   cmake -B build-ps3 -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-ps3.cmake
+#   cmake -B res/ps3 -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchain-ps3.cmake
 #
 # The ps3dev environment is located through PS3DEV (default:
 # /usr/local/ps3dev). Point it somewhere else with -DPS3DEV=/path or the
