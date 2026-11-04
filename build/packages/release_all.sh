@@ -19,6 +19,8 @@
 #   --dry-run                      show what would run, change nothing
 #   -h, --help
 #
+# To add a port: add a "name|./Script.sh" line to TARGETS below (the script takes the game number as its
+# argument); with --docker the target runs in the image rockbot-<name> (see docs/Docker.md).
 # Targets: ps2 psp ps3 vita dingux pocketgo wii linux-targz linux-deb linux-appimage
 #          windows-x64 windows-i686 android raspberry-armhf raspberry-arm64
 #
@@ -133,11 +135,10 @@ for game in "${GAME_LIST[@]}"; do
         if [ "$DOCKER" = 1 ]; then
             # target -> image (raspberry's script starts its own container, so it runs as is)
             case "$name" in
-                ps2|psp|vita|ps3|dingux|pocketgo|wii) image="$name" ;;
                 linux-*) image=linux ;;
                 windows-*) image=windows ;;
-                android) image=android ;;
-                *) image="" ;;
+                raspberry-*) image="" ;;
+                *) image="$name" ;;   # a new port's target uses the image rockbot-<target> (see docs/Docker.md)
             esac
             [ -z "$image" ] || cmd="../docker/run.sh $image $cmd"
         fi
