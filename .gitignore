@@ -122,3 +122,4 @@ build/packages/raspberry/
 build/packages/release_logs/
 build/rockbot_*
 build-linux-docker-sdl*/
+*.AppImage
