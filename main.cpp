@@ -613,6 +613,7 @@ int main(int argc, char *argv[])
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop(main_loop, 0, 1);
 #else
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
     try {
         while (run_game) {
             main_loop();
@@ -625,6 +626,12 @@ int main(int argc, char *argv[])
         graphicsLib::safe_sdl_quit();
         return 1;
     }
+#else
+    // built without exceptions (Android, some consoles): nothing to catch
+    while (run_game) {
+        main_loop();
+    }
+#endif
     GameMediator::release();
     soundManager.close_audio();
     graphicsLib::safe_sdl_quit();

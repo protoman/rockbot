@@ -196,6 +196,10 @@ case $response in
 		else
 			echo "No ANDROID_KEYSTORE_PASS and no terminal to ask the keystore password: APK left unsigned"
 		fi
+		if [ ! -s "$ROCKDROIDDIR/$APK_NAME" ]; then
+			echo "ERROR: the Android build did not produce $APK_NAME (see the compiler errors above)" >&2
+			exit 1
+		fi
 		# copy mappings.txt so we can use for later debugging
 		cp ./project/app/build/outputs/mapping/release/mapping.txt "$ROCKDROIDDIR/Rockbot${version_number}_mappings_$VERSIONNAME.txt"
 		echo "Package: $ROCKDROIDDIR/$APK_NAME"
