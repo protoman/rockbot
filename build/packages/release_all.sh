@@ -14,6 +14,8 @@
 #   --only a,b,c                   build only these targets
 #   --skip a,b,c                   build everything except these targets
 #   --list                         list the targets and exit
+#   --docker                       run each platform's build inside its Docker image (build/docker/run.sh;
+#                                  same as ROCKBOT_DOCKER=1). Images: see docs/Docker.md
 #   --dry-run                      show what would run, change nothing
 #   -h, --help
 #
@@ -44,13 +46,14 @@ TARGETS=(
     "raspberry-arm64|./Raspberry.sh @GAME@ arm64"
 )
 
-BUMP=""; GAMES=""; ONLY=""; SKIP=""; DRY=0
+BUMP=""; GAMES=""; ONLY=""; SKIP=""; DRY=0; DOCKER="${ROCKBOT_DOCKER:-0}"
 while [ $# -gt 0 ]; do
     case "$1" in
         --bump) BUMP="${2:-}"; shift 2 ;;
         --game) GAMES="${2:-}"; shift 2 ;;
         --only) ONLY="${2:-}"; shift 2 ;;
         --skip) SKIP="${2:-}"; shift 2 ;;
+        --docker) DOCKER=1; shift ;;
         --dry-run) DRY=1; shift ;;
         --list) for t in "${TARGETS[@]}"; do echo "${t%%|*}"; done; exit 0 ;;
         -h|--help) sed -n '2,26p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
@@ -126,6 +129,17 @@ for game in "${GAME_LIST[@]}"; do
             *@GAME@*) cmd="${cmd//@GAME@/$game}" ;;
             *) cmd="$cmd $game" ;;
         esac
+        if [ "$DOCKER" = 1 ]; then
+            # target -> image (raspberry's script starts its own container, so it runs as is)
+            case "$name" in
+                ps2|psp|ps3|dingux|pocketgo|wii) image="$name" ;;
+                linux-*) image=linux ;;
+                windows-*) image=windows ;;
+                android) image=android ;;
+                *) image="" ;;
+            esac
+            [ -z "$image" ] || cmd="../docker/run.sh $image $cmd"
+        fi
         label="Rockbot $game / $name"
         if [ "$DRY" = 1 ]; then echo "[dry run] $label: $cmd"; continue; fi
         log="$LOG_DIR/${name}_rockbot$game.log"
