@@ -761,6 +761,10 @@ void classPlayer::execute_projectiles()
         }
 
 
+        if (projectile_erased) { // the iterator is no longer valid: the others are handled next frame
+            break;
+        }
+
         // check collision against objects
 
         // if projectile is a bomb, check collision against objects

@@ -568,8 +568,8 @@ void classnpc::move_projectiles()
 					break;
 				}
 			}
-            if (projectile_erased) {
-                continue;
+            if (projectile_erased) { // the iterator is no longer valid: the others are handled next frame
+                break;
             }
 		}
 	}
