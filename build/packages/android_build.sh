@@ -59,6 +59,8 @@ export PELYA_ANDROID_SDK="$ANDROID_BASE/commandergenius"
 # (ports/android/overlay/0003-*.patch and up). Applied once; a patch that is already there is skipped.
 for overlay_patch in "$SCRIPT_DIR/../../ports/android/overlay/"0003-*.patch; do
     [ -f "$overlay_patch" ] || continue
+    # ROCKBOT_SKIP_OVERLAY_PATCHES=1: build without them (to compare a device before / after the fix)
+    [ "${ROCKBOT_SKIP_OVERLAY_PATCHES:-0}" = "1" ] && continue
     if git -C "$PELYA_ANDROID_SDK" apply --check "$overlay_patch" 2>/dev/null; then
         git -C "$PELYA_ANDROID_SDK" apply "$overlay_patch" && echo "Applied $(basename "$overlay_patch") to $PELYA_ANDROID_SDK"
     fi
@@ -89,6 +91,11 @@ case $response in
 		rsync -r --exclude=.svn ../shared ./Android/data
 		rsync -r --exclude=.svn "$GAME_DIR" ./Android/data/games
 		mkdir ./Android/data/games/$GAME_NAME/music/mp3/
+
+		# ROCKBOT_ANDROID_MOD_TEST=1: test build that plays the .mod files (see soundlib.cpp), APK named *_modtest
+		if [ "${ROCKBOT_ANDROID_MOD_TEST:-0}" = "1" ]; then
+			echo "mod music test build" > "./Android/data/games/$GAME_NAME/music/use_mod_music.txt"
+		fi
 
 		### Convert MOD music to MP3 ###
 		for filename in "$GAME_DIR/music/"*; do
@@ -178,6 +185,12 @@ case $response in
 		# build release
 		./build.sh rockbot release
 		APK_NAME="Rockbot${version_number}_Android_$VERSIONNAME.apk"
+		if [ "${ROCKBOT_ANDROID_MOD_TEST:-0}" = "1" ]; then
+			APK_NAME="Rockbot${version_number}_Android_${VERSIONNAME}_modtest.apk"
+			if [ "${ROCKBOT_SKIP_OVERLAY_PATCHES:-0}" = "1" ]; then
+				APK_NAME="Rockbot${version_number}_Android_${VERSIONNAME}_modtest_unpatched.apk"
+			fi
+		fi
 		rm -f "$ROCKDROIDDIR/$APK_NAME"
 		cp ./project/app/build/outputs/apk/release/app-release-unsigned.apk "$ROCKDROIDDIR/TEMP_$APK_NAME"
 		# remove as assinaturas do Android (caso haja alguma, por engano)

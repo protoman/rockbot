@@ -33,5 +33,10 @@ case "$PWD" in "$ROOT"|"$ROOT"/*) WORKDIR="$PWD" ;; *) WORKDIR="$ROOT" ;; esac
 if [ "$PLATFORM" = android ]; then
     set -- bash -c 'ln -sfn "$0" "$ANDROID_BASE/commandergenius/project/jni/application/rockbot" && ln -sfn rockbot "$ANDROID_BASE/commandergenius/project/jni/application/src" && exec "$@"' "$ROOT" "$@"
 fi
-exec docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp \
+# environment variables to hand to the container: ROCKBOT_DOCKER_ENV="NAME1 NAME2" (their current values)
+EXTRA_ENV=()
+for name in ${ROCKBOT_DOCKER_ENV:-}; do
+    [ -n "${!name:-}" ] && EXTRA_ENV+=(-e "$name=${!name}")
+done
+exec docker run --rm -u "$(id -u):$(id -g)" -e HOME=/tmp "${EXTRA_ENV[@]+"${EXTRA_ENV[@]}"}" \
     -e ROCKBOT_IN_DOCKER=1 -v "$ROOT":"$ROOT" -w "$WORKDIR" "$IMAGE" "$@"
