@@ -21,6 +21,9 @@ timerLib::timerLib()
 
 void timerLib::delay(int waitMS) const
 {
+    if (waitMS <= 0) { // a negative value would become a ~49 day Uint32 delay
+        return;
+    }
 #ifdef PS3
 	sysUsleep(waitMS * 1000);
 #else
@@ -30,6 +33,9 @@ void timerLib::delay(int waitMS) const
 
 void timerLib::udelay(int useconds)
 {
+    if (useconds <= 0) {
+        return;
+    }
 #ifdef PS3
 	sysUsleep(useconds);
 #elif !defined(PC)

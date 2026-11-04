@@ -437,10 +437,10 @@ int main(int argc, char *argv[])
                 GAME_FLAGS[FLAG_PLAYER3] = true;
             } else if (temp_argv == "--player4") {
                 GAME_FLAGS[FLAG_PLAYER4] = true;
-            } else if (temp_argv == "--gamename" && argc >= i+1) {
+            } else if (temp_argv == "--gamename" && argc > i+1) {
                 std::string game_name(argv[i+1]);
                 gameControl.set_selected_game(game_name);
-            } else if (temp_argv == "--stage" && argc >= i+1) {
+            } else if (temp_argv == "--stage" && argc > i+1) {
                 std::string stage_n_str(argv[i+1]);
                 sscanf(stage_n_str.c_str(), "%d", &current_stage);
             }
@@ -612,8 +612,17 @@ int main(int argc, char *argv[])
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop(main_loop, 0, 1);
 #else
-    while (run_game) {
-        main_loop();
+    try {
+        while (run_game) {
+            main_loop();
+        }
+    } catch (const std::exception &e) {
+        // a bad index/size from a damaged data file: leave cleanly (audio, video) instead of aborting
+        std::cout << "FATAL: " << e.what() << std::endl;
+        fflush(stdout);
+        soundManager.close_audio();
+        graphicsLib::safe_sdl_quit();
+        return 1;
     }
     GameMediator::release();
     soundManager.close_audio();

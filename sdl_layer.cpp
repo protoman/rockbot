@@ -1437,6 +1437,9 @@ Uint32 SDLL_MapRGB(SDL_Surface *surface, Uint8 r, Uint8 g, Uint8 b)
 	if (surface != NULL && surface->format != NULL && surface->format->Amask != 0) {
 		return SDL_MapRGBA(surface->format, r, g, b, 255);
 	}
+	if (surface == NULL || surface->format == NULL) {
+		return 0;
+	}
 	return SDL_MapRGB(surface->format, r, g, b);
 #endif
 }

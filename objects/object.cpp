@@ -217,8 +217,12 @@ void object::reset_obj_anim_timer()
 // ********************************************************************************************** //
 void object::add_graphic()
 {
-    draw_lib.get_object_graphic(_id);
-    max_frames = ((draw_lib.get_object_graphic(_id))->width/framesize_w)-1;
+    graphicsLib_gSurface *graphic = draw_lib.get_object_graphic(_id);
+    if (graphic == NULL || framesize_w <= 0) { // no graphic file set for this object: nothing to animate
+        max_frames = 0;
+        return;
+    }
+    max_frames = (graphic->width/framesize_w)-1;
     if (type == OBJ_BOSS_DOOR && max_frames <= 0 && framesize_h > 0) {
         // single-image door: it opens from its middle, each frame the gap grows by BOSS_DOOR_STEP_PX
         // on both sides until the two halves are gone (see show_boss_door)

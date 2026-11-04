@@ -82,6 +82,9 @@ void GameMediator::preload_projectile_sfx()
 CURRENT_FILE_FORMAT::file_projectilev3 GameMediator::get_projectile(int n)
 {
     if (n < 0 || n >= projectile_list.size()) {
+        if (projectile_list.empty()) {
+            return CURRENT_FILE_FORMAT::file_projectilev3();
+        }
         return projectile_list.at(0);
     }
     return projectile_list.at(n);
