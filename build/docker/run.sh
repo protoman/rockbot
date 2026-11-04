@@ -2,7 +2,7 @@
 # Run a command inside one of the Rockbot build images, with the repository mounted.
 #
 # Usage: build/docker/run.sh <platform> [--build] <command...>
-#   platform: linux | rpi | psp | vita | switch | ps2 | ps3 | wii | windows | dingux | pocketgo | android   (image rockbot-<platform>; Dockerfile in ports/<dir>/)
+#   platform: linux | rpi | psp | vita | switch | ps2 | ps3 | wii | windows | dingux | pocketgo | pandora | android   (image rockbot-<platform>; Dockerfile in ports/<dir>/)
 #   --build : (re)build the image first
 # Example: build/docker/run.sh linux ./build-linux.sh sdl2
 #
@@ -13,7 +13,7 @@ PLATFORM="${1:?usage: $0 <platform> [--build] <command...>}"; shift
 case "$PLATFORM" in
     linux) DF_DIR=linux ;;
     rpi|raspberry) PLATFORM=rpi; DF_DIR=raspberry ;;
-    psp|vita|switch|ps2|ps3|wii|windows|dingux|pocketgo|android) DF_DIR= ;;
+    psp|vita|switch|ps2|ps3|wii|windows|dingux|pocketgo|pandora|android) DF_DIR= ;;
     *) echo "unknown platform: $PLATFORM" >&2; exit 1 ;;
 esac
 IMAGE="rockbot-$PLATFORM"

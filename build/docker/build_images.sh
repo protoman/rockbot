@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Build the SDK images (rockbot-psp, -vita, -switch, -ps2, -ps3, -wii, -windows, -dingux, -pocketgo).
+# Build the SDK images (rockbot-psp, -vita, -switch, -ps2, -ps3, -wii, -windows, -dingux, -pocketgo, -pandora).
 # Usage: build/docker/build_images.sh [target...]   (default: all)
 # SDK_DIR (default /mnt/ExtraData/Devel/SDK) is the source of the SDKs baked into the images.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 SDK_DIR="${SDK_DIR:-/mnt/ExtraData/Devel/SDK}"
 TARGETS=("$@")
-[ ${#TARGETS[@]} -gt 0 ] || TARGETS=(psp vita switch ps2 ps3 wii windows dingux pocketgo android)
+[ ${#TARGETS[@]} -gt 0 ] || TARGETS=(psp vita switch ps2 ps3 wii windows dingux pocketgo pandora android)
 for t in "${TARGETS[@]}"; do
     echo "=== rockbot-$t ==="
     if [ "$t" = android ]; then

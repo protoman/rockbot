@@ -18,6 +18,7 @@ installed on the machine, and the whole build environment can be backed up and r
 | `rockbot-windows` | Windows (MinGW from Linux) | Ubuntu 26.04 | llvm-mingw, SDL2/SDL3 Windows libs | same, target `windows` |
 | `rockbot-dingux` | Dingoo A320 (Dingux) | Ubuntu 26.04 | OpenDingux 1.2.5 toolchain (GCC 4.7.1, 32-bit host, uClibc 0.9.31) | same, target `dingux` |
 | `rockbot-pocketgo` | PocketGo | Ubuntu 26.04 | Buildroot toolchain | same, target `pocketgo` |
+| `rockbot-pandora` | OpenPandora | Ubuntu 26.04 | GCC 16 cross compiler (built by `ports/pandora/build-toolchain.sh`) + OpenPandora sysroot (glibc 2.9, SDL 1.2), squashfs-tools | same, target `pandora` |
 | `rockbot-android` | Android | Ubuntu 26.04 | JDK 21, Android SDK, NDK r29, commandergenius | `ports/android/Dockerfile` |
 
 The Linux image stays on an older Ubuntu on purpose: the binaries it produces are distributed, and a
@@ -37,7 +38,7 @@ after the disk is mounted).
 ## Building the images
 
 ```
-build/docker/build_images.sh            # every SDK image (psp vita switch ps2 ps3 wii windows dingux pocketgo android)
+build/docker/build_images.sh            # every SDK image (psp vita switch ps2 ps3 wii windows dingux pocketgo pandora android)
 build/docker/build_images.sh psp ps3    # only some
 docker build -t rockbot-linux ports/linux
 docker build -t rockbot-rpi ports/raspberry
@@ -103,3 +104,7 @@ line (fps, game ticks per second, time per frame step). Optional marker files ne
   `dkp-pacman -Sy --noconfirm switch-sdl2 switch-sdl2_image switch-sdl2_mixer switch-sdl2_ttf switch-sdl2_gfx switch-pkg-config`,
   copy `/opt/devkitpro` to `SDK/Switch/devkitpro` and replace `/opt/devkitpro` with that path in the
   scripts and `.pc` files (`grep -rIl /opt/devkitpro ... | xargs sed -i`). The Wii SDK is made the same way (`build-wii.sh`).
+- **Pandora:** the OpenPandora SDK (`SDK/OpenPandora`, sysroot with glibc 2.9 and SDL 1.2) only ships GCC 4.3.3 /
+  Sourcery 4.6.1, too old for the game's C++11. `ports/pandora/build-toolchain.sh` builds binutils and the
+  newest GCC against that sysroot into `SDK/Pandora/gcc-<version>` (run it in a throwaway `ubuntu:26.04`
+  container, see the header of the script).

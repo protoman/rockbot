@@ -28,6 +28,7 @@ All take the game number (`1` or `2`) as the first argument (they ask when it is
 | PS3 | `PS3.sh` | `.pkg` + `.zip` | ps3dev (`.../SDK/PS3`) |
 | Dingux | `Dingux.sh` | `.zip` | OpenDingux gcw0 (`.../SDK/opendingux-gcw0-*`) |
 | PocketGo | `PocketGo.sh` | `.zip` | Buildroot (`.../SDK/PocketGo`) |
+| OpenPandora | `Pandora.sh` | `.pnd` | GCC 16 built by `ports/pandora/build-toolchain.sh` + OpenPandora SDK sysroot (`.../SDK/Pandora`, `.../SDK/OpenPandora`) |
 | Wii | `Wii.sh` | `.zip` (Homebrew Channel) | current devkitPro (`.../SDK/Wii/devkitpro-current`) |
 | Linux x64 | `linux.sh` / `deb.sh` / `appimage.sh` | `.tar.gz` / `.deb` / `.AppImage` | host g++ + SDL2 dev packages |
 | Windows | `win32.sh [1\|2] [sdl2\|sdl3] [x86_64\|i686]` | `_Win64_.zip` / `_Win32_.zip` | llvm-mingw (`.../SDK/Windows`) |

@@ -43,6 +43,12 @@ FROM base AS dingux
 RUN dpkg --add-architecture i386 && apt-get update && apt-get install -y --no-install-recommends libc6:i386 libstdc++6:i386 zlib1g:i386 && rm -rf /var/lib/apt/lists/*
 COPY --from=sdk opendingux /mnt/ExtraData/Devel/SDK/opendingux
 
+FROM base AS pandora
+# GCC built by ports/pandora/build-toolchain.sh against the OpenPandora sysroot; mksquashfs makes the .pnd
+RUN apt-get update && apt-get install -y --no-install-recommends squashfs-tools && rm -rf /var/lib/apt/lists/*
+COPY --from=sdk OpenPandora/arm-angstrom-linux-gnueabi /mnt/ExtraData/Devel/SDK/OpenPandora/arm-angstrom-linux-gnueabi
+COPY --from=sdk Pandora /mnt/ExtraData/Devel/SDK/Pandora
+
 FROM base AS pocketgo
 COPY --from=sdk PocketGo/output/host /mnt/ExtraData/Devel/SDK/PocketGo/output/host
 # the Buildroot host tools carry the RUNPATH of the machine that built them
