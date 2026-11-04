@@ -28,6 +28,9 @@ build-psp/
 build-ps2/
 build-dingux/
 build-pocketgo/
+build-pandora/
+build-vita/
+build-switch/
 
 # Game artifiacts
 rockbot
@@ -48,6 +51,10 @@ build/packages/win32
 build/scenesviewer
 build/packages/Android/
 build/packages/Dingux/
+build/packages/pandora/rockbot*/
+build/packages/*.pnd
+build/packages/*.vpk
+build/packages/*.nro
 build/packages/PS2/
 build/packages/PSP/
 build/packages/psp_dist/

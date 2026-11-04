@@ -106,6 +106,7 @@ namespace format_v4 {
             for (int i=0; i<BTN_COUNT; i++) {
                 keys_codes_copy[i] = -1;
             }
+            keys_codes_copy[BTN_JUMP] = SDLK_PAGEDOWN;
             keys_codes_copy[BTN_SHIELD] = SDLK_PAGEUP;
             keys_codes_copy[BTN_DASH] = SDLK_HOME;
             keys_codes_copy[BTN_ATTACK] = SDLK_END;
