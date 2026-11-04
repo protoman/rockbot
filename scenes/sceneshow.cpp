@@ -56,7 +56,7 @@ void sceneShow::show_scene(int n)
         input.read_input();
         int scene_seek_n = scene.objects[i].seek_n;
 
-        if (_interrupt_scene == true || input.p1_input[BTN_START] == 1) {
+        if (_interrupt_scene == true || input.start_pressed()) {
             break;
         }
 
@@ -399,7 +399,7 @@ void sceneShow::run_text(int n)
     int min_pos_y = RES_H;
     unsigned int max_line_count = 0;
     for (int i=0; i<lines.size(); i++) {
-        if (input.p1_input[BTN_START] == 1) {
+        if (input.start_pressed()) {
             _interrupt_scene = true;
             break;
         }

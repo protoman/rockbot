@@ -21,6 +21,9 @@ enum e_object_teleport_states {
     e_object_teleport_state_count
 };
 
+// pixels the boss door gap grows (per side) in each animation frame
+#define BOSS_DOOR_STEP_PX 4
+
 enum e_OBJECT_BOSS_DOOR_STATES {
     e_OBJECT_BOSS_DOOR_STATE_NONE,
     e_OBJECT_BOSS_DOOR_STATE_OPENING,

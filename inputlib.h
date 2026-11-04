@@ -37,6 +37,9 @@ public:
     int wait_scape_time(int);
     void clean_and_wait_scape_time(int);
     void clean();
+    /// true if Start is held or was pressed (even a quick tap already released) since the last clean()
+    /// or the last time this returned true; scenes that do not poll the keyboard often would miss it
+    bool start_pressed();
     void clean_all();     /// removes also the attack state
     void save();
     void wait_keypress(); /// waits intil a key is pressed
@@ -70,6 +73,7 @@ public:
 private:
     SDL_Joystick *joystick1;
     bool _used_keyboard;
+    bool _start_latch;
     bool _show_btn_debug;
     int held_button_count;
     bool cheat_input_is_active;

@@ -44,7 +44,7 @@ extern bool leave_game;
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-inputLib::inputLib() : _used_keyboard(false), held_button_count(0), held_button_timer(0), cheat_input_count(0), cheat_input_previous(-1)
+inputLib::inputLib() : _used_keyboard(false), _start_latch(false), held_button_count(0), held_button_timer(0), cheat_input_count(0), cheat_input_previous(-1)
 {
 	for (int i=0; i<BTN_COUNT; i++) {
 		p1_input[i] = 0;
@@ -102,8 +102,16 @@ void inputLib::change_joystick()
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
+bool inputLib::start_pressed()
+{
+    bool pressed = (p1_input[BTN_START] == 1) || _start_latch;
+    _start_latch = false;
+    return pressed;
+}
+
 void inputLib::clean()
 {
+    _start_latch = false;
 	for (int i=0; i<BTN_COUNT; i++) {
         if (i != BTN_ATTACK) { // don't clean attack to save charging
             p1_input[i] = 0;
@@ -115,6 +123,7 @@ void inputLib::clean()
 
 void inputLib::clean_all()
 {
+    _start_latch = false;
     for (int i=0; i<BTN_COUNT; i++) {
         p1_input[i] = 0;
     }
@@ -284,6 +293,9 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
                     ) {
                         p1_input[i] = 1;
                         _used_keyboard = true;
+                        if (i == BTN_START) {
+                            _start_latch = true;
+                        }
                         if (i == BTN_JUMP) {
                             p1_input[BTN_JUMP_TIMER] = timer.getTimer();
                         }
@@ -334,6 +346,9 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
                 for (int i=0; i<BTN_COUNT; i++) {
                     if (SharedData::get_instance()->game_config.button_codes[i].type == JOYSTICK_INPUT_TYPE_BUTTON && SharedData::get_instance()->game_config.button_codes[i].value != -1 && SharedData::get_instance()->game_config.button_codes[i].value == event.jbutton.button) {
                         p1_input[i] = 1;
+                        if (i == BTN_START) {
+                            _start_latch = true;
+                        }
                         if (i == BTN_JUMP) {
                             p1_input[BTN_JUMP_TIMER] = timer.getTimer();
                         }
@@ -563,7 +578,7 @@ int inputLib::wait_scape_time(int wait_period) {
 	wait_period = now_time + wait_period;
 
 	while (now_time < wait_period) {
-        if (p1_input[BTN_START] == 1) {
+        if (start_pressed()) {
 			return 1;
 #if !defined(PLAYSTATION2) && !defined(PSP) && !defined(WII) && !defined(DREAMCAST)
         } else if (p1_input[BTN_QUIT] == 1) {

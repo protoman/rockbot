@@ -219,6 +219,14 @@ void object::add_graphic()
 {
     draw_lib.get_object_graphic(_id);
     max_frames = ((draw_lib.get_object_graphic(_id))->width/framesize_w)-1;
+    if (type == OBJ_BOSS_DOOR && max_frames <= 0 && framesize_h > 0) {
+        // single-image door: it opens from its middle, each frame the gap grows by BOSS_DOOR_STEP_PX
+        // on both sides until the two halves are gone (see show_boss_door)
+        max_frames = (framesize_h / 2) / BOSS_DOOR_STEP_PX;
+        if (max_frames < 1) {
+            max_frames = 1;
+        }
+    }
 }
 
 void object::remove_graphic()
@@ -746,8 +754,21 @@ void object::show_boss_door(int adjust_x, int adjust_y)
         graph_x = 0;
     }
 
-    if (draw_lib.get_object_graphic(_id) != NULL) {
-        graphLib.copyArea(st_rectangle(graph_x, 0, framesize_w, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y), draw_lib.get_object_graphic(_id), &graphLib.gameScreen);
+    graphicsLib_gSurface *door_graphic = draw_lib.get_object_graphic(_id);
+    if (door_graphic != NULL) {
+        if (door_graphic->width / framesize_w > 1) { // animation frames in the image
+            graphLib.copyArea(st_rectangle(graph_x, 0, framesize_w, framesize_h), st_position(graphic_destiny.x, graphic_destiny.y), door_graphic, &graphLib.gameScreen);
+        } else {
+            // one image: the gap opens from the middle, the upper and lower parts shrink toward the ends
+            // (frame = steps already opened; the closed state draws it whole)
+            int half = framesize_h / 2;
+            int gap = (state == e_OBJECT_BOSS_DOOR_STATE_CLOSED) ? 0 : frame * BOSS_DOOR_STEP_PX;
+            if (gap < half) {
+                int part_h = half - gap;
+                graphLib.copyArea(st_rectangle(0, 0, framesize_w, part_h), st_position(graphic_destiny.x, graphic_destiny.y), door_graphic, &graphLib.gameScreen);
+                graphLib.copyArea(st_rectangle(0, half + gap, framesize_w, framesize_h - (half + gap)), st_position(graphic_destiny.x, graphic_destiny.y + half + gap), door_graphic, &graphLib.gameScreen);
+            }
+        }
     }
     if (state == e_OBJECT_BOSS_DOOR_STATE_OPENING) {
         frame++;
@@ -1187,7 +1208,8 @@ void object::move(bool paused)
         if (state == e_OBJECT_BOSS_DOOR_STATE_OPENING) {
             if (frame >= max_frames) {
                 state = e_OBJECT_BOSS_DOOR_STATE_OPENED;
-                frame = max_frames-1;
+                // single-image door: max_frames is the step where the gap is complete, closing starts there
+                frame = (draw_lib.get_object_graphic(_id) != NULL && draw_lib.get_object_graphic(_id)->width / framesize_w > 1) ? max_frames-1 : max_frames;
             }
         } else if (state == e_OBJECT_BOSS_DOOR_STATE_OPENED) {
             gameControl.horizontal_screen_move(ANIM_DIRECTION_RIGHT, true, position.x/TILESIZE);
