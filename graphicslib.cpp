@@ -3,6 +3,9 @@
 #ifdef SWITCH
 #include "ports/switch/switch_platform.h"
 #endif
+#ifdef WII
+#include "ports/ogc/ogc_platform.h"
+#endif
 #ifdef PSP
 #include "ports/psp/psp_platform.h"
 #endif
@@ -149,6 +152,7 @@ bool graphicsLib::initGraphics()
 
 #if defined(WII)
     if (SDLL_NumJoysticks() <= 0) {
+        ogc_platform::log("No joysticks found, exiting");
         std::cout << "No joysticks found" << std::endl;
         fflush(stdout);
 

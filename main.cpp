@@ -23,6 +23,10 @@
 #include "ports/switch/switch_platform.h"
 #endif
 
+#ifdef WII
+#include "ports/ogc/ogc_platform.h"
+#endif
+
 // Boot log of the ports that write one next to their data (diagnostics on real hardware).
 #if defined(PSP)
 #define BOOT_LOG psp_platform::log
@@ -30,6 +34,8 @@
 #define BOOT_LOG vita_platform::log
 #elif defined(SWITCH)
 #define BOOT_LOG switch_platform::log
+#elif defined(WII)
+#define BOOT_LOG ogc_platform::log
 #endif
 
 #ifdef ANDROID
@@ -337,6 +343,11 @@ void main_loop()
 
 int main(int argc, char *argv[])
 {
+#ifdef BOOT_LOG
+#ifdef WII
+    BOOT_LOG("---- boot (argc=%d)", argc);
+#endif
+#endif
 #ifdef PSP
     psp_platform::setup(argc > 0 ? argv[0] : NULL);
 #endif
