@@ -22,7 +22,7 @@ cp ../../ports/ps2/modules/*.irx "./PS2/$GAME_DIR/modules/"
 
 rsync -r --exclude=.svn ../fonts "./PS2/$GAME_DIR"
 rsync -r --exclude=.svn ../shared "./PS2/$GAME_DIR"
-rsync -r --exclude=mp3 --exclude=.svn "../games/RockDroid$version_number" "./PS2/$GAME_DIR/games"
+rsync -r --exclude=.svn "../games/RockDroid$version_number" "./PS2/$GAME_DIR/games"
 
 # Memory-card save icon (the game copies these on first run). icon.sys is
 # optional: it is not tracked in the repo.

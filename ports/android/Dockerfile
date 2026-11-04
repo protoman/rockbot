@@ -8,7 +8,7 @@
 FROM ubuntu:26.04
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        ca-certificates openjdk-21-jdk-headless git wget unzip zip xz-utils rsync ffmpeg imagemagick \
+        ca-certificates openjdk-21-jdk-headless git wget unzip zip xz-utils rsync imagemagick \
         build-essential cmake make pkg-config python3 file curl \
  && rm -rf /var/lib/apt/lists/*
 

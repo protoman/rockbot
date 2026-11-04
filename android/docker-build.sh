@@ -138,7 +138,7 @@ safe_cp "$ANDROID_FILES/AndroidAppSettings.cfg" "$APP_DIR/AndroidAppSettings.cfg
 
 echo "📁 Packaging game data (RockDroid${VERSION_NUMBER})..."
 rm -rf "$WORK_DIR"
-mkdir -p "$WORK_DIR/data/games" "$WORK_DIR/data/games/RockDroid${VERSION_NUMBER}/music/mp3"
+mkdir -p "$WORK_DIR/data/games"
 
 for required in \
     "$GAME_DATA_ROOT/fonts" \
@@ -155,20 +155,6 @@ rsync -a --exclude='.svn' "$GAME_DATA_ROOT/fonts" "$WORK_DIR/data/"
 rsync -a --exclude='.svn' "$GAME_DATA_ROOT/shared" "$WORK_DIR/data/"
 rsync -a --exclude='.svn' "$GAME_DATA_ROOT/games/RockDroid${VERSION_NUMBER}" "$WORK_DIR/data/games/"
 
-shopt -s nullglob
-for filename in "$GAME_DATA_ROOT/games/RockDroid${VERSION_NUMBER}/music/"*; do
-    basename="${filename##*/}"
-    case "$basename" in
-        *.mod|*.s3m|*.xm|*.it|*.MOD|*.S3M|*.XM|*.IT)
-            ffmpeg -y -i "$filename" -vn -ar 44100 -ac 2 -b:a 48k \
-                "$WORK_DIR/data/games/RockDroid${VERSION_NUMBER}/music/mp3/${basename}.mp3" \
-                </dev/null >/dev/null 2>&1
-            ;;
-    esac
-done
-shopt -u nullglob
-
-rm -rf "$WORK_DIR/data/games/RockDroid${VERSION_NUMBER}/music/ogg"
 rm -f "$WORK_DIR/data"/game*.sav "$WORK_DIR/data"/config_v*.sav
 
 (

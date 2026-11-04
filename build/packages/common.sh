@@ -10,8 +10,8 @@
 #   get_version        prints the current version
 #   version_code       prints the Android versionCode for the current version
 #   sync_version_header  writes the current version into file/version.h
-#   stage_game_data DEST   copies fonts, shared and games/RockDroid<N> (no mp3 alternatives,
-#                          no saves) into DEST; needs $version_number (see choose_game)
+#   stage_game_data DEST   copies fonts, shared and games/RockDroid<N> (without
+#                          saves) into DEST; needs $version_number (see choose_game)
 #   choose_game [1|2]  sets $version_number (the game: 1 = Rockbot 1,
 #                      2 = Rockbot 2) and $VERSIONNAME; uses the argument if
 #                      given, otherwise asks.
@@ -66,7 +66,7 @@ stage_game_data() {
     mkdir -p "$dest/games"
     rsync -a --exclude=.svn "$PKG_DIR/../fonts" "$dest/"
     rsync -a --exclude=.svn "$PKG_DIR/../shared" "$dest/"
-    rsync -a --exclude=mp3 --exclude=.svn "$PKG_DIR/../games/RockDroid$version_number" "$dest/games/"
+    rsync -a --exclude=.svn "$PKG_DIR/../games/RockDroid$version_number" "$dest/games/"
     find "$dest" \( -name 'game*.sav' -o -name 'config*.sav' -o -name 'errors.log' \) -delete
 }
 

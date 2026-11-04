@@ -10,7 +10,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 RUN apt-get update && apt-get install -y --no-install-recommends \
         openjdk-17-jdk-headless \
         unzip zip curl ca-certificates git \
-        python3 rsync ffmpeg \
+        python3 rsync \
         build-essential cmake pkg-config \
         libncurses6 file less bsdutils \
     && rm -rf /var/lib/apt/lists/*

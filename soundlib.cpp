@@ -469,24 +469,6 @@ string soundLib::get_filename_for_music(string filename)
                 filename = old_filename;
             }
         }
-    } else {
-#if defined(ANDROID)
-        // Developer switch: a file music/use_mod_music.txt in the game data (added by android_build.sh when
-        // ROCKBOT_ANDROID_MOD_TEST=1) plays the tracker files themselves instead of their MP3 versions,
-        // to test the mod decoder on a device.
-        static int force_mod_music = -1;
-        if (force_mod_music < 0) {
-            force_mod_music = fio.file_exists(FILEPATH + "music/use_mod_music.txt") ? 1 : 0;
-        }
-        std::size_t found = force_mod_music ? std::string::npos : filename.find_last_of("/");
-        if (found != std::string::npos) {
-            std::string mp3_filename = filename.substr(0,found) + "/mp3/" + filename.substr(found+1) + ".mp3";
-            std::cout << "###ROCKBOT### - mp3_filename[" + mp3_filename + "]" << std::endl;
-            if (fio.file_exists(mp3_filename)) {
-                filename = mp3_filename;
-            }
-        }
-#endif
     }
     filename = StringUtils::clean_filename(filename);
     return filename;
