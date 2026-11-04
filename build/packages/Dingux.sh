@@ -11,13 +11,13 @@ choose_game "${1:-}" || exit 1
 GAME_DIR=Rockbot$version_number
 OUT_ZIP="$PWD/Rockbot${version_number}_Dingux_$VERSIONNAME.zip"
 
-# Produces ../rockbot.dge
+# Produces ../rockbot_dingux.dge
 ../../build-dingux.sh
 
 rm -rf ./Dingux
 mkdir -p "./Dingux/$GAME_DIR/games"
 
-cp ../rockbot.dge "./Dingux/$GAME_DIR/"
+cp ../rockbot_dingux.dge "./Dingux/$GAME_DIR/"
 rsync -r --exclude=.svn ../fonts "./Dingux/$GAME_DIR/"
 rsync -r --exclude=.svn ../shared "./Dingux/$GAME_DIR/"
 rsync -r --exclude=mp3 --exclude=.svn "../games/RockDroid$version_number" "./Dingux/$GAME_DIR/games"
@@ -27,7 +27,7 @@ find "./Dingux/$GAME_DIR" \( -name 'game*.sav' -o -name 'config*.sav' \) -delete
 
 # Strip the staged copy (the build tree keeps the debug info).
 STRIP=$(ls ${OPEN_DINGUX_SDK:-/mnt/ExtraData/Devel/SDK/opendingux}/usr/bin/mipsel-linux-strip 2>/dev/null | head -1 || true)
-[ -n "$STRIP" ] && "$STRIP" "./Dingux/$GAME_DIR/rockbot.dge" || true
+[ -n "$STRIP" ] && "$STRIP" "./Dingux/$GAME_DIR/rockbot_dingux.dge" || true
 
 rm -f "$OUT_ZIP"
 ( cd Dingux && zip -qr "$OUT_ZIP" "$GAME_DIR" )

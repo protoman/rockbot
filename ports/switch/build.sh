@@ -8,7 +8,7 @@
 #   --no-package  only compile
 #
 # Output: build-switch/Rockbot<N>_Switch/   the folder to copy to the SD card as /switch/rockbot/
-#                                           (rockbot.nro + games/ shared/ fonts/; saves go there too)
+#                                           (rockbot_switch.nro + games/ shared/ fonts/; saves go there too)
 #         build-switch/Rockbot<N>_Switch.zip
 #
 # DEVKITPRO must point at a devkitPro tree with devkitA64, libnx and the switch-sdl2* portlibs
@@ -72,7 +72,7 @@ fi
 STAGE="$BUILD/Rockbot${GAME_NUMBER}_Switch"
 rm -rf "$STAGE"
 mkdir -p "$STAGE/games"
-cp "$BUILD/rockbot.nro" "$STAGE/rockbot.nro"
+cp "$BUILD/rockbot_switch.nro" "$STAGE/rockbot_switch.nro"
 cp -r "$GAME_DATA" "$STAGE/games/"
 cp -r "$ROOT/build/shared" "$ROOT/build/fonts" "$STAGE/"
 find "$STAGE" \( -name '.svn' -o -name 'errors.log' -o -name '*.sav' \) -prune -exec rm -rf {} +

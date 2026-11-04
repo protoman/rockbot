@@ -24,7 +24,7 @@ set -o pipefail
 # bin/<triplet>-g++).
 #
 # Output:
-#   build/rockbot.exe
+#   build/rockbot_windows.exe
 #   build/windows-dlls-<arch>-sdl<N>/*.dll   (also copied next to the exe)
 #   build/packages/Rockbot<N>_Win64_<version>.zip (x86_64) or ..._Win32_... (i686), if game 1|2 given
 
@@ -271,25 +271,25 @@ cmake -S "$SCRIPT_DIR" -B "$CMAKE_BUILD_DIR" \
     -DUSE_SDL_VERSION="${USE_SDL_VERSION}" \
     -DCMAKE_PREFIX_PATH="$DEPS_PREFIX"
 
-echo "📁 Building rockbot.exe..."
+echo "📁 Building rockbot_windows.exe..."
 cmake --build "$CMAKE_BUILD_DIR" -j"$(nproc)"
 
-EXE_SRC="${SCRIPT_DIR}/build/rockbot.exe"
+EXE_SRC="${SCRIPT_DIR}/build/rockbot_windows.exe"
 if [[ ! -f "$EXE_SRC" ]]; then
     # Some generators put the binary under the cmake build dir.
-    EXE_SRC="$(find "$CMAKE_BUILD_DIR" -name 'rockbot.exe' | head -1)"
+    EXE_SRC="$(find "$CMAKE_BUILD_DIR" -name 'rockbot_windows.exe' | head -1)"
 fi
 if [[ -z "$EXE_SRC" || ! -f "$EXE_SRC" ]]; then
-    echo "Error: rockbot.exe not found after build"
+    echo "Error: rockbot_windows.exe not found after build"
     exit 1
 fi
 
-# Keep a stable path at build/rockbot.exe
+# Keep a stable path at build/rockbot_windows.exe
 mkdir -p "${SCRIPT_DIR}/build"
-if [[ "$EXE_SRC" != "${SCRIPT_DIR}/build/rockbot.exe" ]]; then
-    cp -f "$EXE_SRC" "${SCRIPT_DIR}/build/rockbot.exe"
+if [[ "$EXE_SRC" != "${SCRIPT_DIR}/build/rockbot_windows.exe" ]]; then
+    cp -f "$EXE_SRC" "${SCRIPT_DIR}/build/rockbot_windows.exe"
 fi
-EXE_SRC="${SCRIPT_DIR}/build/rockbot.exe"
+EXE_SRC="${SCRIPT_DIR}/build/rockbot_windows.exe"
 
 echo "📦 Collecting runtime DLLs..."
 rm -rf "$DLL_DIR"
@@ -335,7 +335,7 @@ echo
 echo "Binary:"
 echo "  ${EXE_SRC}"
 echo "DLLs:"
-echo "  ${DLL_DIR}/  (also copied next to build/rockbot.exe)"
+echo "  ${DLL_DIR}/  (also copied next to build/rockbot_windows.exe)"
 echo
 echo "Note: the Qt editor is not cross-compiled; build it natively on Windows if needed."
 
@@ -361,7 +361,7 @@ if [[ -n "$PACKAGE_VERSION" ]]; then
     rsync -a --exclude='.svn' "${SCRIPT_DIR}/build/fonts" "$STAGE/"
     rsync -a --exclude='.svn' "${SCRIPT_DIR}/build/shared" "$STAGE/"
     rsync -a --exclude='.svn' "$GAME_DATA" "$STAGE/games/"
-    cp -f "$EXE_SRC" "$STAGE/rockbot.exe"
+    cp -f "$EXE_SRC" "$STAGE/rockbot_windows.exe"
     cp -f "$DLL_DIR"/*.dll "$DLL_DIR"/LICENSE*.txt "$STAGE/" 2>/dev/null || true
     rm -f "$STAGE"/game*.sav "$STAGE"/config_v*.sav
 
@@ -375,4 +375,4 @@ fi
 
 echo
 echo "Usage on Windows:"
-echo "  unzip the package and run rockbot.exe (the game data folders must stay next to it)."
+echo "  unzip the package and run rockbot_windows.exe (the game data folders must stay next to it)."

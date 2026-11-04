@@ -11,13 +11,13 @@ choose_game "${1:-}" || exit 1
 GAME_DIR=rockbot$version_number
 OUT_ZIP="$PWD/Rockbot${version_number}_PS2_$VERSIONNAME.zip"
 
-# Produces ../rockbot.elf
+# Produces ../rockbot_playstation2.elf
 ../../build-ps2.sh
 
 rm -rf ./PS2
 mkdir -p "./PS2/$GAME_DIR/games" "./PS2/$GAME_DIR/modules" "./PS2/$GAME_DIR/data"
 
-cp ../rockbot.elf "./PS2/$GAME_DIR/"
+cp ../rockbot_playstation2.elf "./PS2/$GAME_DIR/"
 cp ../../ports/ps2/modules/*.irx "./PS2/$GAME_DIR/modules/"
 
 rsync -r --exclude=.svn ../fonts "./PS2/$GAME_DIR"

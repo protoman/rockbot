@@ -14,15 +14,15 @@ OUT="$PWD/Rockbot${version_number}_Linux_x64_$VERSIONNAME.tar.gz"
 
 rm -rf ./linux
 mkdir -p "./linux/$GAME_DIR"
-cp ../rockbot "./linux/$GAME_DIR/rockbot"
+cp ../rockbot_linux "./linux/$GAME_DIR/rockbot_linux"
 stage_game_data "./linux/$GAME_DIR"
 
 # The game looks for its data in the current directory, so start it through this launcher.
 cat > "./linux/$GAME_DIR/rockbot.sh" <<'LAUNCHER'
 #!/bin/sh
-cd "$(dirname "$(readlink -f "$0")")" && exec ./rockbot "$@"
+cd "$(dirname "$(readlink -f "$0")")" && exec ./rockbot_linux "$@"
 LAUNCHER
-chmod +x "./linux/$GAME_DIR/rockbot.sh" "./linux/$GAME_DIR/rockbot"
+chmod +x "./linux/$GAME_DIR/rockbot.sh" "./linux/$GAME_DIR/rockbot_linux"
 
 cat > "./linux/$GAME_DIR/README.TXT" <<README
 Rockbot $version_number $VERSIONNAME (Linux x86_64)

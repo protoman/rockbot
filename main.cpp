@@ -107,11 +107,11 @@ jobject activity_ref;
 #endif
 
 #if defined(WIN32)
-    std::string EXEC_NAME = std::string("rockbot.exe");
+    std::string EXEC_NAME = std::string("rockbot_windows.exe");
 #elif defined(ANDROID)
     std::string EXEC_NAME("");
 #elif defined(PLAYSTATION2)
-    std::string EXEC_NAME("rockbot.elf");
+    std::string EXEC_NAME("rockbot_playstation2.elf");
 #elif defined(PSP)
     std::string EXEC_NAME("EBOOT.PBP");
 #elif defined(PS3)
@@ -119,15 +119,21 @@ jobject activity_ref;
 #elif defined(VITA)
     std::string EXEC_NAME("eboot.bin");
 #elif defined(SWITCH)
-    std::string EXEC_NAME("rockbot.nro");
+    std::string EXEC_NAME("rockbot_switch.nro");
+#elif defined(GAMECUBE)
+    std::string EXEC_NAME("rockbot_gamecube.dol");
 #elif defined(WII)
-    std::string EXEC_NAME("boot.dol");
+    std::string EXEC_NAME("boot.dol"); // the Homebrew Channel needs this name (the build writes rockbot_wii.dol)
 #elif defined(DINGUX)
-    std::string EXEC_NAME("rockbot.dge");
+    std::string EXEC_NAME("rockbot_dingux.dge");
 #elif defined(POCKETGO)
     std::string EXEC_NAME("rockbot_pocketgo");
+#elif defined(OPEN_PANDORA)
+    std::string EXEC_NAME("rockbot_pandora");
+#elif defined(OSX)
+    std::string EXEC_NAME("rockbot_osx");
 #else
-    std::string EXEC_NAME("rockbot");
+    std::string EXEC_NAME("rockbot_linux"); // the Raspberry Pi package ships rockbot_raspberry
 #endif
 
 // EXTERNAL GLOBALS

@@ -10,7 +10,7 @@ set -o pipefail
 # Usage:
 #   ./build-wii.sh
 #
-# Output: build-wii/boot.dol
+# Output: build-wii/rockbot_wii.dol
 #
 # SDK: $WII_SDK (default /mnt/ExtraData/Devel/SDK/Wii/devkitpro-current). If it is missing it is
 # installed once by copying /opt/devkitpro out of the official devkitpro/devkitppc Docker image
@@ -53,4 +53,4 @@ cmake -S "$REPO_ROOT" -B "$REPO_ROOT/build-wii" \
     -DCMAKE_BUILD_TYPE=Release
 cmake --build "$REPO_ROOT/build-wii" -j"${NCPU:-$(nproc)}"
 
-echo "Built $REPO_ROOT/build-wii/boot.dol"
+echo "Built $REPO_ROOT/build-wii/rockbot_wii.dol"

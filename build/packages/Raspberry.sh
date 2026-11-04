@@ -24,13 +24,13 @@ OUT="$PWD/Rockbot${version_number}_RaspberryPi_${arch}_$VERSIONNAME.tar.gz"
 
 rm -rf ./raspberry
 mkdir -p "./raspberry/$GAME_DIR"
-cp "../rockbot_pi_$arch" "./raspberry/$GAME_DIR/rockbot"
+cp "../rockbot_raspberry_$arch" "./raspberry/$GAME_DIR/rockbot_raspberry"
 stage_game_data "./raspberry/$GAME_DIR"
 cat > "./raspberry/$GAME_DIR/rockbot.sh" <<'LAUNCHER'
 #!/bin/sh
-cd "$(dirname "$(readlink -f "$0")")" && exec ./rockbot "$@"
+cd "$(dirname "$(readlink -f "$0")")" && exec ./rockbot_raspberry "$@"
 LAUNCHER
-chmod +x "./raspberry/$GAME_DIR/rockbot.sh" "./raspberry/$GAME_DIR/rockbot"
+chmod +x "./raspberry/$GAME_DIR/rockbot.sh" "./raspberry/$GAME_DIR/rockbot_raspberry"
 cat > "./raspberry/$GAME_DIR/README.TXT" <<README
 Rockbot $version_number $VERSIONNAME (Raspberry Pi OS, $arch)
 

@@ -11,7 +11,7 @@ set -o pipefail
 #   ./build-linux.sh              → SDL2 (default)
 #   ./build-linux.sh sdl2|sdl3
 #
-# Output: build/rockbot
+# Output: build/rockbot_linux
 
 USE_SDL_VERSION=2
 for arg in "$@"; do
@@ -35,5 +35,5 @@ cmake -S "$SCRIPT_DIR" -B "$BUILD_DIR" \
     -DUSE_SDL_VERSION="$USE_SDL_VERSION"
 cmake --build "$BUILD_DIR" -j"$(nproc)"
 
-strip --strip-unneeded "$SCRIPT_DIR/build/rockbot" 2>/dev/null || true
-echo "Built $SCRIPT_DIR/build/rockbot"
+strip --strip-unneeded "$SCRIPT_DIR/build/rockbot_linux" 2>/dev/null || true
+echo "Built $SCRIPT_DIR/build/rockbot_linux"

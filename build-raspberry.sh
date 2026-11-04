@@ -12,7 +12,7 @@ set -o pipefail
 #   ./build-raspberry.sh arm64        → 64-bit Raspberry Pi OS
 #   ./build-raspberry.sh armhf --rebuild-image
 #
-# Output: build/rockbot_pi_<arch>     (needs libsdl2, -image, -mixer, -ttf and -gfx on the Pi)
+# Output: build/rockbot_raspberry_<arch>     (needs libsdl2, -image, -mixer, -ttf and -gfx on the Pi)
 #
 # Optional env: ROCKBOT_RPI_IMAGE (default rockbot-rpi:latest), NCPU
 
@@ -52,10 +52,10 @@ docker run --rm "${PLATFORM_ARGS[@]}" \
         cmake -S . -B "$BUILD_SUBDIR" \
             -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain-rpi.cmake -DRPI_ARCH="$ARCH" \
             -DCMAKE_BUILD_TYPE=Release -DUSE_SDL_VERSION=2
-        rm -f build/rockbot   # another platform'\''s binary would otherwise be mistaken for this build'\''s output
+        rm -f build/rockbot_linux   # another platform'\''s binary would otherwise be mistaken for this build'\''s output
         cmake --build "$BUILD_SUBDIR" -j"$NCPU"
         case "$ARCH" in arm64) STRIP=aarch64-linux-gnu-strip ;; *) STRIP=arm-linux-gnueabihf-strip ;; esac
-        $STRIP --strip-unneeded build/rockbot
-        mv -f build/rockbot "build/rockbot_pi_$ARCH"
+        $STRIP --strip-unneeded build/rockbot_linux
+        mv -f build/rockbot_linux "build/rockbot_raspberry_$ARCH"
     '
-echo "Built $REPO_ROOT/build/rockbot_pi_$ARCH"
+echo "Built $REPO_ROOT/build/rockbot_raspberry_$ARCH"

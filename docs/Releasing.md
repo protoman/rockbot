@@ -54,3 +54,13 @@ Notes:
 2. Add `"<name>|./<Name>.sh"` to `TARGETS` in `build/packages/release_all.sh`.
 3. For `--docker`: add a stage `<name>` to `ports/docker/Dockerfile`, add it to `build/docker/build_images.sh` and `build/docker/run.sh`. The target then runs in the image `rockbot-<name>` automatically.
 4. Add a row to the table above and in `docs/Docker.md`.
+
+## Binary names
+
+Every build writes `rockbot_<platform><ext>` (set once in `CMakeLists.txt`, `ROCKBOT_PLATFORM_NAME`):
+`rockbot_linux`, `rockbot_windows.exe`, `rockbot_osx`, `rockbot_raspberry_<arch>`, `rockbot_playstation2.elf`,
+`rockbot_playstation3`, `rockbot_psp`, `rockbot_vita`, `rockbot_switch.nro`, `rockbot_wii.dol`,
+`rockbot_gamecube.dol`, `rockbot_dingux.dge`, `rockbot_pocketgo`, `rockbot_pandora`. The package scripts keep
+that name inside the package, except where the loader demands a fixed one: `boot.dol` (Wii Homebrew
+Channel), `EBOOT.PBP` (PSP), `EBOOT.BIN` (PS3) and `eboot.bin` (Vita). A new port gets its name from the same
+block in `CMakeLists.txt`.

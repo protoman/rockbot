@@ -73,7 +73,7 @@ fi
 rm -rf "$STAGE"
 mkdir -p "$STAGE/USRDIR/games"
 
-"$PS3DEV/ppu/bin/ppu-strip" --strip-all "$BUILD/rockbot" -o "$BUILD/rockbot_stripped"
+"$PS3DEV/ppu/bin/ppu-strip" --strip-all "$BUILD/rockbot_playstation3" -o "$BUILD/rockbot_stripped"
 cp "$BUILD/rockbot_stripped" "$BUILD/rockbot_linked"
 "$PS3DEV/bin/sprxlinker" "$BUILD/rockbot_linked"
 "$PS3DEV/bin/fself" "$BUILD/rockbot_linked" "$STAGE/USRDIR/EBOOT.BIN"

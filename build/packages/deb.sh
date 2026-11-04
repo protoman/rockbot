@@ -17,14 +17,14 @@ ROOT="$PWD/deb/$NAME"
 
 rm -rf "$ROOT"
 mkdir -p "$ROOT/DEBIAN" "$ROOT/opt/$NAME" "$ROOT/usr/bin" "$ROOT/usr/share/applications" "$ROOT/usr/share/pixmaps"
-cp ../rockbot "$ROOT/opt/$NAME/rockbot"
+cp ../rockbot_linux "$ROOT/opt/$NAME/rockbot_linux"
 stage_game_data "$ROOT/opt/$NAME"
 cp "$PWD/../games/RockDroid$version_number/images/icon_android.png" "$ROOT/usr/share/pixmaps/$NAME.png" 2>/dev/null \
     || cp "$PWD/../games/RockDroid$version_number/images/icon_32px.png" "$ROOT/usr/share/pixmaps/$NAME.png"
 
 cat > "$ROOT/usr/bin/$NAME" <<LAUNCHER
 #!/bin/sh
-cd /opt/$NAME && exec ./rockbot "\$@"
+cd /opt/$NAME && exec ./rockbot_linux "\$@"
 LAUNCHER
 cat > "$ROOT/usr/share/applications/$NAME.desktop" <<DESKTOP
 [Desktop Entry]
@@ -36,7 +36,7 @@ Icon=$NAME
 Terminal=false
 Categories=Game;ActionGame;
 DESKTOP
-chmod 755 "$ROOT/usr/bin/$NAME" "$ROOT/opt/$NAME/rockbot"
+chmod 755 "$ROOT/usr/bin/$NAME" "$ROOT/opt/$NAME/rockbot_linux"
 
 chmod -R u=rwX,go=rX "$ROOT"
 INSTALLED_SIZE="$(du -sk "$ROOT" | cut -f1)"

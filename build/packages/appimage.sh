@@ -21,7 +21,7 @@ APPDIR="$PWD/appimage/Rockbot$version_number.AppDir"
 
 rm -rf "$APPDIR"
 mkdir -p "$APPDIR/usr/bin" "$APPDIR/usr/lib" "$APPDIR/usr/share/$NAME"
-cp ../rockbot "$APPDIR/usr/bin/rockbot"
+cp ../rockbot_linux "$APPDIR/usr/bin/rockbot_linux"
 stage_game_data "$APPDIR/usr/share/$NAME"
 
 # --- bundle the shared libraries the game needs, except the ones every system provides ---
@@ -36,7 +36,7 @@ is_system_lib() {
     esac
     return 1
 }
-ldd "$APPDIR/usr/bin/rockbot" | awk '/=> \// {print $3}' | while read -r lib; do
+ldd "$APPDIR/usr/bin/rockbot_linux" | awk '/=> \// {print $3}' | while read -r lib; do
     if ! is_system_lib "$lib"; then
         cp -L "$lib" "$APPDIR/usr/lib/"
     fi
@@ -48,9 +48,9 @@ cat > "$APPDIR/AppRun" <<APPRUN
 HERE="\$(dirname "\$(readlink -f "\$0")")"
 export LD_LIBRARY_PATH="\$HERE/usr/lib:\${LD_LIBRARY_PATH:-}"
 # The game looks for its data in the current directory (read-only is fine: saves go to ~/.rockdroid).
-cd "\$HERE/usr/share/$NAME" && exec "\$HERE/usr/bin/rockbot" "\$@"
+cd "\$HERE/usr/share/$NAME" && exec "\$HERE/usr/bin/rockbot_linux" "\$@"
 APPRUN
-chmod +x "$APPDIR/AppRun" "$APPDIR/usr/bin/rockbot"
+chmod +x "$APPDIR/AppRun" "$APPDIR/usr/bin/rockbot_linux"
 
 ICON_SRC="$PWD/../games/RockDroid$version_number/images/icon_android.png"
 [ -f "$ICON_SRC" ] || ICON_SRC="$PWD/../games/RockDroid$version_number/images/icon_32px.png"

@@ -30,4 +30,4 @@ cmake -S "$REPO_ROOT" -B "$BUILD_DIR" \
     -DCMAKE_BUILD_TYPE=Release
 cmake --build "$BUILD_DIR" -j"$NCPU"
 
-echo "Built $REPO_ROOT/build/rockbot.elf"
+echo "Built $REPO_ROOT/build/rockbot_playstation2.elf"

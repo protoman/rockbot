@@ -26,4 +26,4 @@ cmake -S "$REPO_ROOT" -B "$BUILD_DIR" \
     -DROCKBOT_HANDHELD=dingux
 cmake --build "$BUILD_DIR" -j"${NCPU:-$(nproc)}"
 
-echo "Built $REPO_ROOT/build/rockbot.dge"
+echo "Built $REPO_ROOT/build/rockbot_dingux.dge"

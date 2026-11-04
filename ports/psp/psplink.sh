@@ -20,10 +20,10 @@ SERVE="$ROOT/build-psp/psplink_host"
 
 case "${1:-}" in
     stage)
-        [ -f "$ROOT/build-psp/rockbot.prx" ] || { echo "build first: ports/psp/build.sh" >&2; exit 1; }
+        [ -f "$ROOT/build-psp/rockbot_psp.prx" ] || { echo "build first: ports/psp/build.sh" >&2; exit 1; }
         rm -rf "$SERVE"; mkdir -p "$SERVE"
         cp -a "$ROOT/build/packages/psp_dist/Rockbot1/." "$SERVE/"
-        cp "$ROOT/build-psp/rockbot.prx" "$SERVE/rockbot.prx"
+        cp "$ROOT/build-psp/rockbot_psp.prx" "$SERVE/rockbot.prx"
         echo "staged in $SERVE (rockbot.prx + games/ fonts/ shared/)" ;;
     host)
         [ -d "$SERVE" ] || "$0" stage
@@ -35,6 +35,6 @@ case "${1:-}" in
         pc="${2:?usage: $0 addr <pc> [load-address]}"; base="${3:-0x08804000}"
         off=$(printf '0x%x' $(( pc - base )))
         echo "offset $off in rockbot:"
-        psp-addr2line -f -C -e "$ROOT/build-psp/rockbot" "$off" ;;
+        psp-addr2line -f -C -e "$ROOT/build-psp/rockbot_psp" "$off" ;;
     *) sed -n 2,16p "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac

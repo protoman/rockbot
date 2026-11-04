@@ -34,7 +34,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
 endif()
 
 # Buildroot handheld cross builds (SDL 1.2), selected with
-#   -DROCKBOT_HANDHELD=dingux   (OpenDingux, mipsel; output rockbot.dge)
+#   -DROCKBOT_HANDHELD=dingux   (OpenDingux, mipsel; output rockbot_dingux.dge)
 #   -DROCKBOT_HANDHELD=pocketgo (PocketGo/Bittboy, arm musl; output rockbot_pocketgo)
 #   -DROCKBOT_HANDHELD=pandora  (OpenPandora, ARMv7 glibc 2.9, SDL 1.2; output rockbot_pandora)
 # together with the SDK's share/buildroot/toolchainfile.cmake.
@@ -444,6 +444,34 @@ set(HEADERS
 
 add_executable(rockbot ${SOURCES} ${HEADERS})
 
+# Every build writes rockbot_<platform><ext> (rockbot_playstation2.elf, rockbot_dingux.dge, ...), so binaries
+# of different platforms never share a name. The package scripts rename it where a loader demands a fixed
+# name (EBOOT.PBP, EBOOT.BIN, eboot.bin, boot.dol).
+if(ROCKBOT_PS2)
+    set(ROCKBOT_PLATFORM_NAME playstation2)
+elseif(ROCKBOT_PSP)
+    set(ROCKBOT_PLATFORM_NAME psp)
+elseif(ROCKBOT_PS3)
+    set(ROCKBOT_PLATFORM_NAME playstation3)
+elseif(ROCKBOT_VITA)
+    set(ROCKBOT_PLATFORM_NAME vita)
+elseif(ROCKBOT_SWITCH)
+    set(ROCKBOT_PLATFORM_NAME switch)
+elseif(ROCKBOT_GAMECUBE)
+    set(ROCKBOT_PLATFORM_NAME gamecube)
+elseif(ROCKBOT_WII)
+    set(ROCKBOT_PLATFORM_NAME wii)
+elseif(ROCKBOT_HANDHELD)
+    set(ROCKBOT_PLATFORM_NAME ${ROCKBOT_HANDHELD})
+elseif(WIN32)
+    set(ROCKBOT_PLATFORM_NAME windows)
+elseif(APPLE)
+    set(ROCKBOT_PLATFORM_NAME osx)
+else()
+    set(ROCKBOT_PLATFORM_NAME linux)
+endif()
+set_target_properties(rockbot PROPERTIES OUTPUT_NAME rockbot_${ROCKBOT_PLATFORM_NAME})
+
 # Link Libraries
 if(ROCKBOT_WII)
     # Static devkitPro portlibs: take the transitive dependencies from pkg-config, then the
@@ -464,13 +492,13 @@ elseif(ROCKBOT_HANDHELD STREQUAL "dingux")
     # The toolchain's libstdc++ is newer than the one on the device (OpenDingux images differ):
     # link it statically or the loader fails with "can't resolve symbol ..._M_replace...".
     target_link_options(rockbot PRIVATE -static-libstdc++ -static-libgcc)
-    set_target_properties(rockbot PROPERTIES OUTPUT_NAME rockbot SUFFIX ".dge")
+    set_target_properties(rockbot PROPERTIES SUFFIX ".dge")
 elseif(ROCKBOT_HANDHELD STREQUAL "pandora")
     set(ROCKBOT_SDL_LIBS ${SDL_LDFLAGS} ${SDL_MIXER_LDFLAGS} ${SDL_IMAGE_LDFLAGS}
         ${SDL_TTF_LDFLAGS} ${SDL_GFX_LDFLAGS} -lpthread)
     # The Sourcery 4.6 libstdc++ is newer than the one on the device: link it statically.
     target_link_options(rockbot PRIVATE -static-libstdc++ -static-libgcc)
-    set_target_properties(rockbot PROPERTIES OUTPUT_NAME rockbot_pandora SUFFIX "")
+    set_target_properties(rockbot PROPERTIES SUFFIX "")
 elseif(ROCKBOT_HANDHELD STREQUAL "pocketgo")
     # The SDK only has static libs; the .pc files miss some transitive deps,
     # so add the ones the old qmake config listed and let the linker resolve cycles.
@@ -482,7 +510,7 @@ elseif(ROCKBOT_HANDHELD STREQUAL "pocketgo")
         -lm -pthread -lz -lstdc++
         -Wl,--end-group)
     target_link_options(rockbot PRIVATE -static-libstdc++ -static-libgcc)
-    set_target_properties(rockbot PROPERTIES OUTPUT_NAME rockbot_pocketgo SUFFIX "")
+    set_target_properties(rockbot PROPERTIES SUFFIX "")
 elseif(ROCKBOT_PS2)
     # Static libs have circular references (SDL <-> gsKit <-> ps2sdk); group them.
     # Order follows the old qmake config.
@@ -493,8 +521,8 @@ elseif(ROCKBOT_PS2)
         -lm -lcdvd -lpacket -ldma -lmc -lstdc++ -lc -lkernel
         -Wl,--end-group
     )
-    # rockbot.elf, next to the other build output (build/packages/PS2.sh reads it).
-    set_target_properties(rockbot PROPERTIES OUTPUT_NAME rockbot SUFFIX ".elf")
+    # rockbot_playstation2.elf, next to the other build output (build/packages/PS2.sh reads it).
+    set_target_properties(rockbot PROPERTIES SUFFIX ".elf")
 elseif(ROCKBOT_PSP)
     # Static link: the PSP has no shared libs, so take the transitive deps too.
     set(ROCKBOT_SDL_LIBS
@@ -527,7 +555,6 @@ elseif(ROCKBOT_SWITCH)
         ${SDL_STATIC_LDFLAGS}
     )
     list(REMOVE_ITEM ROCKBOT_SDL_LIBS -pthread)
-    set_target_properties(rockbot PROPERTIES OUTPUT_NAME rockbot)
 elseif(ROCKBOT_VITA)
     # Static link; sdl2.pc (Libs.private) pulls the Vita system stubs in the right order.
     set(ROCKBOT_SDL_LIBS
@@ -538,7 +565,6 @@ elseif(ROCKBOT_VITA)
         ${SDL_STATIC_LDFLAGS}
     )
     list(REMOVE_ITEM ROCKBOT_SDL_LIBS -pthread)
-    set_target_properties(rockbot PROPERTIES OUTPUT_NAME rockbot)
 elseif(NOT ROCKBOT_PS3)
     set(ROCKBOT_SDL_LIBS
         ${SDL_LDFLAGS}
@@ -595,16 +621,16 @@ if(ROCKBOT_PSP)
 endif()
 
 if(ROCKBOT_SWITCH)
-    # rockbot.nro next to the ELF; ports/switch/build.sh adds the game data folders beside it.
+    # rockbot_switch.nro next to the ELF; ports/switch/build.sh adds the game data folders beside it.
     set(ROCKBOT_NRO_ICON "" CACHE FILEPATH "256x256 JPEG icon for the Homebrew Menu (made by ports/switch/build.sh)")
     set(_nx_icon "${ROCKBOT_NRO_ICON}")
     set(ROCKBOT_VERSION_NAME "0.0.0" CACHE STRING "Version shown in the Homebrew Menu")
     set(ROCKBOT_VERSION_NUMBER 1 CACHE STRING "Game number (1 = RockDroid1, 2 = RockDroid2)")
     nx_generate_nacp(OUTPUT rockbot.nacp NAME "Rockbot ${ROCKBOT_VERSION_NUMBER}" AUTHOR "Upperland" VERSION "${ROCKBOT_VERSION_NAME}")
     if(_nx_icon AND EXISTS "${_nx_icon}")
-        nx_create_nro(rockbot NACP rockbot.nacp ICON "${_nx_icon}")
+        nx_create_nro(rockbot OUTPUT rockbot_switch.nro NACP rockbot.nacp ICON "${_nx_icon}")
     else()
-        nx_create_nro(rockbot NACP rockbot.nacp)
+        nx_create_nro(rockbot OUTPUT rockbot_switch.nro NACP rockbot.nacp)
     endif()
 endif()
 
@@ -616,8 +642,9 @@ if(ROCKBOT_VITA)
 endif()
 
 if(ROCKBOT_WII)
-    # boot.dol next to the ELF, the file the Homebrew Channel loads.
+    # rockbot_wii.dol / rockbot_gamecube.dol next to the ELF; the Wii package names it boot.dol, the
+    # file the Homebrew Channel loads.
     add_custom_command(TARGET rockbot POST_BUILD
-        COMMAND ${ELF2DOL_EXE} "$<TARGET_FILE:rockbot>" "${CMAKE_BINARY_DIR}/boot.dol"
-        COMMENT "Creating boot.dol")
+        COMMAND ${ELF2DOL_EXE} "$<TARGET_FILE:rockbot>" "${CMAKE_BINARY_DIR}/rockbot_${ROCKBOT_PLATFORM_NAME}.dol"
+        COMMENT "Creating rockbot_${ROCKBOT_PLATFORM_NAME}.dol")
 endif()

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Nintendo GameCube package: cross-builds boot.dol (devkitPro, see ../../build-gamecube.sh) and creates
+# Nintendo GameCube package: cross-builds rockbot_gamecube.dol (devkitPro, see ../../build-gamecube.sh) and creates
 # Rockbot<N>_GameCube_<version>.zip. Unzip it into the root of the SD card (SD Gecko / SD2SP2); the
-# folder rockbot<N>/ holds rockbot.dol and the game data. Run rockbot.dol with Swiss or any DOL loader.
+# folder rockbot<N>/ holds rockbot_gamecube.dol and the game data. Run rockbot_gamecube.dol with Swiss or any DOL loader.
 # Usage: ./GameCube.sh [1|2]     (asks which game if omitted)
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -17,7 +17,7 @@ APP="./GameCube/$GAME_DIR"
 
 rm -rf ./GameCube
 mkdir -p "$APP"
-cp ../../build-gamecube/boot.dol "$APP/rockbot.dol"
+cp ../../build-gamecube/rockbot_gamecube.dol "$APP/rockbot_gamecube.dol"
 stage_game_data "$APP"
 
 rm -f "$OUT"
