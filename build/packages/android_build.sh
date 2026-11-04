@@ -54,6 +54,15 @@ if [ -z "${ANDROID_BASE:-}" ] || [ ! -d "$ANDROID_BASE/commandergenius" ]; then
     exit 1
 fi
 export PELYA_ANDROID_SDK="$ANDROID_BASE/commandergenius"
+
+# Patches for the commandergenius tree that are newer than the Docker image / the pinned commit
+# (ports/android/overlay/0003-*.patch and up). Applied once; a patch that is already there is skipped.
+for overlay_patch in "$SCRIPT_DIR/../../ports/android/overlay/"0003-*.patch; do
+    [ -f "$overlay_patch" ] || continue
+    if git -C "$PELYA_ANDROID_SDK" apply --check "$overlay_patch" 2>/dev/null; then
+        git -C "$PELYA_ANDROID_SDK" apply "$overlay_patch" && echo "Applied $(basename "$overlay_patch") to $PELYA_ANDROID_SDK"
+    fi
+done
 export ANDROID_HOME="$ANDROID_BASE/SDK"
 export ANDROID_NDK_HOME="$ANDROID_BASE/android-ndk-r29"
 # add NDK to path

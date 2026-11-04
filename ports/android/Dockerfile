@@ -40,6 +40,7 @@ RUN git init -q commandergenius && cd commandergenius \
  && git fetch -q --depth 1 ${COMMANDERGENIUS_REPO} ${COMMANDERGENIUS_COMMIT} && git checkout -q FETCH_HEAD \
  && git apply --whitespace=nowarn /tmp/overlay/0001-fix-ndk28.patch 2>/dev/null || git apply /tmp/overlay/0001-fix-ndk28.patch \
  && git apply /tmp/overlay/0002-rockbot-buttons-and-config.patch \
+ && git apply /tmp/overlay/0003-mikmod-64bit-types.patch \
  && cp /tmp/overlay/extra-files/*.png project/themes/SimpleTheme/ \
  && rm -rf /tmp/overlay
 
