@@ -405,6 +405,9 @@ if(ROCKBOT_WII)
 elseif(ROCKBOT_HANDHELD STREQUAL "dingux")
     set(ROCKBOT_SDL_LIBS ${SDL_LDFLAGS} ${SDL_MIXER_LDFLAGS} ${SDL_IMAGE_LDFLAGS}
         ${SDL_TTF_LDFLAGS} ${SDL_GFX_LDFLAGS} -lpthread)
+    # The toolchain's libstdc++ is newer than the one on the device (OpenDingux images differ):
+    # link it statically or the loader fails with "can't resolve symbol ..._M_replace...".
+    target_link_options(rockbot PRIVATE -static-libstdc++ -static-libgcc)
     set_target_properties(rockbot PROPERTIES OUTPUT_NAME rockbot SUFFIX ".dge")
 elseif(ROCKBOT_HANDHELD STREQUAL "pocketgo")
     # The SDK only has static libs; the .pc files miss some transitive deps,
@@ -416,6 +419,7 @@ elseif(ROCKBOT_HANDHELD STREQUAL "pocketgo")
         -lpng -ljpeg -lfreetype -lvorbisfile -lvorbis -logg -lmikmod -lmad -lasound
         -lm -pthread -lz -lstdc++
         -Wl,--end-group)
+    target_link_options(rockbot PRIVATE -static-libstdc++ -static-libgcc)
     set_target_properties(rockbot PROPERTIES OUTPUT_NAME rockbot_pocketgo SUFFIX "")
 elseif(ROCKBOT_PS2)
     # Static libs have circular references (SDL <-> gsKit <-> ps2sdk); group them.
