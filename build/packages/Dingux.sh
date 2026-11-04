@@ -26,7 +26,7 @@ cp "./Dingux/$GAME_DIR/games/RockDroid$version_number/images/icon_32px.png" "./D
 find "./Dingux/$GAME_DIR" \( -name 'game*.sav' -o -name 'config*.sav' \) -delete
 
 # Strip the staged copy (the build tree keeps the debug info).
-STRIP=$(ls ${OPEN_DINGUX_SDK:-/mnt/ExtraData/Devel/SDK/opendingux-gcw0-2022-09-22/gcw0-toolchain}/bin/*-strip 2>/dev/null | head -1 || true)
+STRIP=$(ls ${OPEN_DINGUX_SDK:-/mnt/ExtraData/Devel/SDK/opendingux}/usr/bin/mipsel-linux-strip 2>/dev/null | head -1 || true)
 [ -n "$STRIP" ] && "$STRIP" "./Dingux/$GAME_DIR/rockbot.dge" || true
 
 rm -f "$OUT_ZIP"

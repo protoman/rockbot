@@ -33,7 +33,9 @@ COPY --from=sdk Windows/deps /mnt/ExtraData/Devel/SDK/Windows/deps
 COPY --from=sdk Windows/llvm-mingw-20261020-ucrt-ubuntu-22.04-x86_64 /mnt/ExtraData/Devel/SDK/Windows/llvm-mingw-20261020-ucrt-ubuntu-22.04-x86_64
 
 FROM base AS dingux
-COPY --from=sdk opendingux-gcw0-2022-09-22/gcw0-toolchain /mnt/ExtraData/Devel/SDK/opendingux-gcw0-2022-09-22/gcw0-toolchain
+# the legacy A320 toolchain (GCC 4.7.1) is made of 32-bit x86 programs
+RUN dpkg --add-architecture i386 && apt-get update && apt-get install -y --no-install-recommends libc6:i386 libstdc++6:i386 zlib1g:i386 && rm -rf /var/lib/apt/lists/*
+COPY --from=sdk opendingux /mnt/ExtraData/Devel/SDK/opendingux
 
 FROM base AS pocketgo
 COPY --from=sdk PocketGo/output/host /mnt/ExtraData/Devel/SDK/PocketGo/output/host

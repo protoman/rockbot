@@ -1256,7 +1256,11 @@ TTF_Font *SDLL_TTF_OpenFontRW(SDL_RWops *src, int freesrc, int size)
 
 void SDLL_TTF_SetFontOutline(TTF_Font *font, int outline)
 {
+#ifndef DINGUX_LEGACY_SDL_TTF
 	TTF_SetFontOutline(font, outline);
+#else
+	(void)font; (void)outline; // SDL_ttf 2.0.9 (A320 toolchain) has no outline support
+#endif
 }
 
 SDL_Surface *SDLL_TTF_RenderUTF8_Solid(TTF_Font *font, const char *text, SDL_Color fg)

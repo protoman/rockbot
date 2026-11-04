@@ -59,8 +59,6 @@ public:
     ~object();
     object(const object&) = default;
     object& operator=(const object&) = default;
-    object(object&&) = default;
-    object& operator=(object&&) = default;
     void reset();
     void reset_timer();
     void reset_obj_anim_timer();
