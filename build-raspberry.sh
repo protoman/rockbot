@@ -52,6 +52,7 @@ docker run --rm "${PLATFORM_ARGS[@]}" \
         cmake -S . -B "$BUILD_SUBDIR" \
             -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain-rpi.cmake -DRPI_ARCH="$ARCH" \
             -DCMAKE_BUILD_TYPE=Release -DUSE_SDL_VERSION=2
+        rm -f build/rockbot   # another platform'\''s binary would otherwise be mistaken for this build'\''s output
         cmake --build "$BUILD_SUBDIR" -j"$NCPU"
         case "$ARCH" in arm64) STRIP=aarch64-linux-gnu-strip ;; *) STRIP=arm-linux-gnueabihf-strip ;; esac
         $STRIP --strip-unneeded build/rockbot
