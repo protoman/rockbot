@@ -47,7 +47,7 @@ FROM base AS pandora
 # GCC built by ports/pandora/build-toolchain.sh against the OpenPandora sysroot; mksquashfs makes the .pnd
 RUN apt-get update && apt-get install -y --no-install-recommends squashfs-tools && rm -rf /var/lib/apt/lists/*
 COPY --from=sdk OpenPandora/arm-angstrom-linux-gnueabi /mnt/ExtraData/Devel/SDK/OpenPandora/arm-angstrom-linux-gnueabi
-COPY --from=sdk Pandora /mnt/ExtraData/Devel/SDK/Pandora
+COPY --from=sdk Pandora/gcc-16.2.0 /mnt/ExtraData/Devel/SDK/Pandora/gcc-16.2.0
 
 FROM base AS pocketgo
 COPY --from=sdk PocketGo/output/host /mnt/ExtraData/Devel/SDK/PocketGo/output/host
