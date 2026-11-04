@@ -372,6 +372,22 @@ void graphicsLib::updateScreen()
     SDLL_Flip(game_screen);
 #endif
 
+#ifdef WII
+    {   // frames per second in the boot log (every 2 s)
+        static Uint32 window_start = 0;
+        static unsigned frames = 0;
+        Uint32 now = SDLL_GetTicks();
+        if (window_start == 0) {
+            window_start = now;
+        }
+        frames++;
+        if (now - window_start >= 2000) {
+            ogc_platform::log("perf: %u frames in %u ms = %u fps", frames, (unsigned)(now - window_start), (unsigned)(frames * 1000 / (now - window_start)));
+            window_start = now;
+            frames = 0;
+        }
+    }
+#endif
 }
 
 
@@ -2251,7 +2267,8 @@ void graphicsLib::set_video_mode()
 	}
 #elif defined(WII)
     _video_filter = VIDEO_FILTER_NOSCALE;
-    game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE);
+    // double buffered: with a single hardware buffer the frame is shown while it is being drawn
+    game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF);
 #elif defined(PSP)
     _video_filter = VIDEO_FILTER_NOSCALE;
     game_screen = psp_platform::set_video_mode(RES_W, RES_H, VIDEO_MODE_COLORS);
