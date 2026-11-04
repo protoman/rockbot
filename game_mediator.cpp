@@ -79,6 +79,26 @@ void GameMediator::preload_projectile_sfx()
     }
 }
 
+// Sounds played from game code by name; the first play would otherwise read and convert the file mid-game
+// (a visible stall on slow storage). Only files that exist are loaded, so a game without them stays quiet.
+void GameMediator::preload_gameplay_sfx()
+{
+    const char *game_sfx[] = { "classic_style_door_open.wav", "enter_platform.wav", "teleporter_activated.wav" };
+    const char *shared_sfx[] = { "thunder.wav", "dinosaur_growl.wav" };
+    for (size_t i = 0; i < sizeof(game_sfx) / sizeof(game_sfx[0]); i++) {
+        std::ifstream f(StringUtils::clean_filename(FILEPATH + "/sfx/" + game_sfx[i]).c_str(), std::ios::binary);
+        if (f.good()) {
+            get_sfx(game_sfx[i]);
+        }
+    }
+    for (size_t i = 0; i < sizeof(shared_sfx) / sizeof(shared_sfx[0]); i++) {
+        std::ifstream f(StringUtils::clean_filename(GAMEPATH + "/shared/sfx/" + shared_sfx[i]).c_str(), std::ios::binary);
+        if (f.good()) {
+            get_shared_sfx(shared_sfx[i]);
+        }
+    }
+}
+
 CURRENT_FILE_FORMAT::file_projectilev3 GameMediator::get_projectile(int n)
 {
     if (n < 0 || n >= projectile_list.size()) {

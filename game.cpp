@@ -1962,12 +1962,23 @@ void game::draw_player_death(st_position center)
     }
 }
 
+// The explosion image is decoded once per game instead of at every death.
+static graphicsLib_gSurface &get_classic_death_explosion_surface()
+{
+    static graphicsLib_gSurface surface;
+    static std::string loaded_filename;
+    std::string filename = FILEPATH + "images/backgrounds/classic_style_death_explosion.png";
+    if (loaded_filename != filename) {
+        graphLib.surfaceFromFile(filename, &surface);
+        loaded_filename = filename;
+    }
+    return surface;
+}
+
 void game::classic_style_draw_player_death(st_position center)
 {
     st_explosion_status explosion_status;
-    graphicsLib_gSurface classic_death_explosion_surface;
-    std::string classic_death_explosion_filename = FILEPATH + "images/backgrounds/classic_style_death_explosion.png";
-    graphLib.surfaceFromFile(classic_death_explosion_filename, &classic_death_explosion_surface);
+    graphicsLib_gSurface &classic_death_explosion_surface = get_classic_death_explosion_surface();
     for (int i=0; i<RES_W; i++) {
         explosion_status.distance = i;
         loaded_stage.show_stage();
@@ -1981,9 +1992,7 @@ void game::classic_style_draw_player_death(st_position center)
 void game::classic_style_draw_boss_death(st_position center)
 {
     st_explosion_status explosion_status;
-    graphicsLib_gSurface classic_death_explosion_surface;
-    std::string classic_death_explosion_filename = FILEPATH + "images/backgrounds/classic_style_death_explosion.png";
-    graphLib.surfaceFromFile(classic_death_explosion_filename, &classic_death_explosion_surface);
+    graphicsLib_gSurface &classic_death_explosion_surface = get_classic_death_explosion_surface();
     for (int i=0; i<RES_W; i++) {
         explosion_status.distance = i;
         loaded_stage.show_stage();

@@ -573,6 +573,7 @@ int main(int argc, char *argv[])
 
     draw_lib.preload();
     GameMediator::get_instance()->preload_projectile_sfx();
+    GameMediator::get_instance()->preload_gameplay_sfx();
 
 
 #ifdef BOOT_LOG

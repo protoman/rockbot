@@ -438,6 +438,31 @@ namespace format_v4 {
         FILE *fp;
         std::string filename = std::string(FILEPATH) + "/stages" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
+
+        // The stage list screens ask for every stage one by one (60+ opens of the same small file per visit,
+        // slow on SD cards): the file is read once and served from memory while the file name stays the same.
+        static std::string cached_filename;
+        static std::vector<format_v4::file_stage> cached_stages;
+        if (cached_filename != filename) {
+            cached_stages.clear();
+            cached_filename = filename;
+            FILE *cfp = fopen(filename.c_str(), "rb");
+            if (cfp) {
+                format_v4::file_stage one;
+                while (fread(&one, sizeof(format_v4::file_stage), 1, cfp) == 1) {
+                    cached_stages.push_back(one);
+                }
+                fclose(cfp);
+            }
+            if (cached_stages.empty()) {
+                cached_filename.clear(); // nothing usable: try the file again next time
+            }
+        }
+        if (stage_n < cached_stages.size()) {
+            stages_data_out = cached_stages[stage_n];
+            return;
+        }
+
         fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
         if (!fp) {
             printf("ERROR.read_stage: Could not read stage '%s'\n", filename.c_str());

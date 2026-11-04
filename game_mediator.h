@@ -20,6 +20,7 @@ public:
     SoundChunk *get_sfx(std::string filename);
     SoundChunk *get_shared_sfx(std::string filename);
     void preload_projectile_sfx(); // loads every projectile sound now, so firing never reads a file mid-game
+    void preload_gameplay_sfx();   // same for the doors, teleporter, platform, thunder and dinosaur sounds
     CURRENT_FILE_FORMAT::file_projectilev3 get_projectile(int n);
     int get_projectile_list_size();
 
