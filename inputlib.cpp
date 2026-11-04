@@ -477,6 +477,14 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
                 }
     */
 
+#ifdef WII
+                // Wii / GameCube: the D-pad is a joystick hat (bits: up 1, right 2, down 4, left 8)
+                p1_input[BTN_UP] = (event.jhat.value & 1) ? 1 : 0;
+                p1_input[BTN_RIGHT] = (event.jhat.value & 2) ? 1 : 0;
+                p1_input[BTN_DOWN] = (event.jhat.value & 4) ? 1 : 0;
+                p1_input[BTN_LEFT] = (event.jhat.value & 8) ? 1 : 0;
+                _used_keyboard = false;
+#endif
                 // prevent double-direction input //
                 if (p1_input[BTN_LEFT] == 1) {
                     p1_input[BTN_RIGHT] = 0;
