@@ -1066,6 +1066,9 @@ void classPlayer::set_weapon_value(Uint8 weapon_n, Uint8 value)
 
 CURRENT_FILE_FORMAT::file_weapon_colors classPlayer::get_weapon_colors(short int weapon_n)
 {
+	if (weapon_n < 0 || weapon_n >= MAX_WEAPON_N) {
+		weapon_n = 0;
+	}
 	return weapon_colors[weapon_n];
 }
 
