@@ -48,9 +48,11 @@ docker build -t rockbot-rpi ports/raspberry
 named build context, so nothing is copied into the repository.
 
 The Android image is built from scratch (cmdline tools, SDK platform and build-tools, NDK, a pinned commit
-of the commandergenius fork without its ~20 application submodules). The local changes to commandergenius
-(NDK 28+ fix, Rockbot button images, manifest and `Globals.java` tweaks) are patches in
-`ports/android/overlay/`.
+of Pelya's commandergenius (`pelya/commandergenius`) without its ~20 application submodules). The Rockbot
+changes (button images, manifest and `Globals.java` tweaks, the libmikmod 64-bit fix) are patches in
+`ports/android/overlay/`. To move to a newer commandergenius, change `COMMANDERGENIUS_COMMIT` in the
+Dockerfile, check that the patches still apply, rebuild the image (`build/docker/build_images.sh android`)
+and test the APK.
 
 ## Running a build
 

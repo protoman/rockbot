@@ -1,8 +1,9 @@
 # Android build image: JDK, Android SDK, NDK and the commandergenius (SDL for Android) project,
 # built from scratch. The layout matches build/packages/android_build.sh (ANDROID_BASE):
 #   $ANDROID_BASE/commandergenius, $ANDROID_BASE/SDK, $ANDROID_BASE/android-ndk-r29
-# Local changes to commandergenius (NDK 28+ fix, Rockbot button images, manifest/Globals tweaks) are
-# applied from ports/android/overlay/.
+# commandergenius comes straight from Pelya's repository (pelya/commandergenius) at a pinned commit; the
+# Rockbot changes (button images, manifest/Globals tweaks, libmikmod 64-bit fix) are patches in
+# ports/android/overlay/. To update: change COMMANDERGENIUS_COMMIT below, check that the patches still apply.
 #
 #   build/docker/build_images.sh android
 FROM ubuntu:26.04
@@ -14,8 +15,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 ARG CMDLINE_TOOLS=14742923
 ARG NDK_VERSION=r29
-ARG COMMANDERGENIUS_REPO=https://github.com/protoman/commandergenius
-ARG COMMANDERGENIUS_COMMIT=c5f29ae26a16c7b313cffd8e6cb9574fc4f8b08a
+ARG COMMANDERGENIUS_REPO=https://github.com/pelya/commandergenius
+ARG COMMANDERGENIUS_COMMIT=5eef322f67429465c99eabce5f86481d47178321
 ENV ANDROID_BASE=/opt/android
 ENV ANDROID_HOME=/opt/android/SDK
 ENV ANDROID_SDK_ROOT=/opt/android/SDK
@@ -38,7 +39,6 @@ RUN wget -q https://dl.google.com/android/repository/android-ndk-${NDK_VERSION}-
 COPY overlay /tmp/overlay
 RUN git init -q commandergenius && cd commandergenius \
  && git fetch -q --depth 1 ${COMMANDERGENIUS_REPO} ${COMMANDERGENIUS_COMMIT} && git checkout -q FETCH_HEAD \
- && git apply --whitespace=nowarn /tmp/overlay/0001-fix-ndk28.patch 2>/dev/null || git apply /tmp/overlay/0001-fix-ndk28.patch \
  && git apply /tmp/overlay/0002-rockbot-buttons-and-config.patch \
  && git apply /tmp/overlay/0003-mikmod-64bit-types.patch \
  && cp /tmp/overlay/extra-files/*.png project/themes/SimpleTheme/ \

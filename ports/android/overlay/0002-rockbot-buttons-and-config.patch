@@ -1,8 +1,8 @@
 diff --git a/project/AndroidManifestTemplate.xml b/project/AndroidManifestTemplate.xml
-index 1f15e9ba2..06dcb3fe1 100644
+index d41308e..3392bfb 100644
 --- a/project/AndroidManifestTemplate.xml
 +++ b/project/AndroidManifestTemplate.xml
-@@ -28,7 +28,7 @@
+@@ -27,7 +27,7 @@
  				<category android:name="android.intent.category.LAUNCHER" />
  				<category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" /> <!-- Samsung's multiwindow -->
  				<action android:name="com.sec.android.airview.HOVER" /> <!-- Stupid Samsung requires their own intent for finger-hover events -->
@@ -12,8 +12,8 @@ index 1f15e9ba2..06dcb3fe1 100644
  			</intent-filter>
  			<!-- ==OPENFILE== --> <intent-filter>
 @@ -70,7 +70,7 @@
- 
  	<!-- ==INTERNET== --> <uses-permission android:name="android.permission.INTERNET" />
+ 	<!-- ==INTERNET== --> <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
  	<!-- ==EXTERNAL_STORAGE== --> <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" tools:ignore="ScopedStorage" />
 -	<!-- ==EXTERNAL_STORAGE== --> <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
 +	<!-- ==EXTERNAL_STORAGE== --> <!-- <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" /> -->
@@ -21,11 +21,11 @@ index 1f15e9ba2..06dcb3fe1 100644
  	<!-- ==NOT_EXTERNAL_STORAGE== --> <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="18" />
  	<!-- ==NOT_EXTERNAL_STORAGE== --> <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="18" /> <!-- App has write access to it's own dir on SD card without this permission on Android 4.4 and above -->
 diff --git a/project/java/Globals.java b/project/java/Globals.java
-index c84680e05..9c1e13c67 100644
+index 887f3e9..9263a11 100644
 --- a/project/java/Globals.java
 +++ b/project/java/Globals.java
-@@ -198,7 +198,7 @@ class Globals
- 	public static int MultitouchGestureSensitivity = 1;
+@@ -199,7 +199,7 @@ class Globals
+ 	public static int MultitouchGestureSensitivity = 2;
  	public static int TouchscreenCalibration[] = new int[4];
  	public static String DataDir = new String("");
 -	public static boolean VideoLinearFilter = true;
