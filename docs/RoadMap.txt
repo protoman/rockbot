@@ -5,7 +5,6 @@ ROCKBOT
 
 -------------------------------------------------------------------------------------------------------------------------------
 
-- Create README.md based on the project contents.
 - Try to fix mod music playing in Android. It started to just make noise in more recent devices,
 while in others it plays normally. I can use an Android phone in dev mode for testing.
 
