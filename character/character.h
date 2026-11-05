@@ -144,6 +144,7 @@ public:
     bool test_change_position(short int xinc, short int yinc);
     bool is_shielded(int projectile_direction) const;
     bool is_intangible();
+    bool is_intangible_to_touch(); // like is_intangible, but the hit-blink does not void contact damage
     short get_anim_type() const;
     graphicsLib_gSurface* get_char_frame(int direction, int type, int frame);
     st_color get_color_key(short int key_n) const;

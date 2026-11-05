@@ -3384,6 +3384,15 @@ bool character::is_shielded(int projectile_direction) const
     }
 }
 
+// contact damage: only a disguised enemy can't hurt by touch; the blink after being hit (is_intangible) does not void it
+bool character::is_intangible_to_touch()
+{
+    if (is_player()) {
+        return false;
+    }
+    return (state.animation_type == ANIM_TYPE_STAND && shield_type == SHIELD_DISGUISE);
+}
+
 bool character::is_intangible()
 {
     if (is_player()) {
