@@ -421,12 +421,19 @@ short stage_select::pick_stage_classic_style(int stage_n)
     int cursor_opacity = 0;
     bool cursor_opacity_inc = true;
     int complete_stage_n = STAGE1;
+    st_position selection_pos;
     if (stage_n < STAGE1) {
-        stage_n = STAGE1;
+        // first time here: start with the cursor on the center of the 3x3 grid (the castle), not on the first boss
+        stage_n = 5;
+        selection_pos = st_position(1, 1);
+        if (can_access_castle == true) {
+            complete_stage_n = max_stage;
+        }
+    } else {
+        int stage_pos_x = (stage_n-1) - std::floor(stage_n / 3);
+        int stage_pos_y = std::floor((stage_n-1) / 3);
+        selection_pos = st_position(stage_pos_x, stage_pos_y);
     }
-    int stage_pos_x = (stage_n-1) - std::floor(stage_n / 3);
-    int stage_pos_y = std::floor((stage_n-1) / 3);
-    st_position selection_pos = st_position(stage_pos_x, stage_pos_y);
 
     while (finished == false) {
         // clean cursor in old position
