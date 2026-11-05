@@ -150,6 +150,9 @@ case $response in
 			sed $LINENUMBERFULLNAME'c\'"AppFullName=net.upperland.rockdroid$version_number" AndroidAppSettings.cfg.temp3 > AndroidAppSettings.cfg.temp4
 		fi
 		sed $LINEVERSIONNUMBER'c\'"AppVersionCode=$LINEVERSIONSTRING" AndroidAppSettings.cfg.temp4 > AndroidAppSettings.cfg.new
+		# keep the native libs compressed in the APK (the commandergenius default stores them uncompressed: ~170 MB instead of ~60 MB)
+		grep -q '^ExtractNativeLibs=' AndroidAppSettings.cfg.new || echo 'ExtractNativeLibs=y' >> AndroidAppSettings.cfg.new
+		sed -i 's/^ExtractNativeLibs=.*/ExtractNativeLibs=y/' AndroidAppSettings.cfg.new
 
 
         cd $PELYA_ANDROID_SDK

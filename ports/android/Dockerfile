@@ -29,7 +29,7 @@ RUN mkdir -p SDK/cmdline-tools && cd SDK/cmdline-tools \
  && unzip -q t.zip && mv cmdline-tools latest && rm t.zip \
  && yes | SDK/../../latest/bin/sdkmanager --sdk_root=/opt/android/SDK --licenses >/dev/null 2>&1 || true
 RUN yes | /opt/android/SDK/cmdline-tools/latest/bin/sdkmanager --sdk_root=/opt/android/SDK \
-        "platform-tools" "platforms;android-36" "build-tools;36.1.0" "build-tools;35.0.0"
+        "platform-tools" "platforms;android-36" "platforms;android-37.0" "build-tools;36.1.0" "build-tools;36.0.0" "build-tools;35.0.0"
 
 # NDK
 RUN wget -q https://dl.google.com/android/repository/android-ndk-${NDK_VERSION}-linux.zip -O n.zip \
