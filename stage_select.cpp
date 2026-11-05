@@ -430,9 +430,21 @@ short stage_select::pick_stage_classic_style(int stage_n)
             complete_stage_n = max_stage;
         }
     } else {
-        int stage_pos_x = (stage_n-1) - std::floor(stage_n / 3);
-        int stage_pos_y = std::floor((stage_n-1) / 3);
-        selection_pos = st_position(stage_pos_x, stage_pos_y);
+        // stage_n is the real stage number (1-4, 5-8, castle...); the grid has 9 cells and the castle is in the center (grid number 5)
+        complete_stage_n = stage_n;
+        int grid_n;
+        if (stage_n >= CASTLE1_STAGE1) {
+            grid_n = 5;
+            if (can_access_castle == true) {
+                complete_stage_n = max_stage;
+            }
+        } else if (stage_n <= 4) {
+            grid_n = stage_n;
+        } else {
+            grid_n = stage_n + 1;
+        }
+        stage_n = grid_n;
+        selection_pos = st_position((grid_n-1) % 3, (grid_n-1) / 3);
     }
 
     while (finished == false) {
