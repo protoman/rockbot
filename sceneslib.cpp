@@ -683,7 +683,7 @@ void scenesLib::classic_style_boss_intro(short stage_n)
     if (game_save.stages[stage_n] != 0) {
         return;
     }
-    if (stage_n >= STAGE8) {
+    if (stage_n >= CASTLE1_STAGE1) {
         classic_style_castle_intro(stage_n);
     }
     soundManager.stop_music();
