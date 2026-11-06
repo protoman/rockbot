@@ -1,36 +1,62 @@
+#include "dbgprint.h"
 #include "player.h"
+#include "sprite_guard.h"
 #include "sfx.h"
 
 #include "stage.h"
+#include "enemy.h"
+#include "effects.h"
 #include "shot.h"
 #include "object.h"
 #include "resources.h"
 #include "player_data.h"
+#include "weapon_data.h"
 #include "player_flip.h"   // generated: per-animation flip X correction
+#include "config.h"
 
 // Physics, tuned for 60fps. The original normalises movement by
 // fps_movement_multiplier = 60/max_fps (shareddata.cpp:22); here fps is fixed.
 #define MOVE_SPEED FIX16(2)
+// PC character::slide (character.cpp:1724): max_speed = move_speed * 2.5, and
+// the loop picks the largest step that does not collide, so an open-ground
+// slide is 2.5x walking (5 px/frame here). Water multiplies by 0.8.
+#define SLIDE_SPEED FIX16(5)
 #define ACCEL      FIX16(0.35)
 #define DECEL      FIX16(0.28)
 #define GRAVITY    FIX16(0.25)
 #define JUMP_VEL   FIX16(5.3)  // ~56px arc, about 3.5 tiles
+#define SUPER_JUMP_VEL FIX16(7.4) // PC classjump bigjump: 5.675 * 1.40
 #define MAX_FALL   FIX16(6)
 #define CLIMB_SPEED FIX16(1.5)
+// FROZEN LAIR: ice has almost no friction (PC character.cpp:330 starts the
+// inertia object when the feet tile is ICE), water uses the PC's reduced
+// jump gravity (character/movement/jump.cpp:32, acceleration*0.3 in water).
+#define ICE_ACCEL  FIX16(0.15)
+#define ICE_DECEL  FIX16(0.03)
+#define WATER_GRAVITY FIX16(0.09)
+#define WATER_MAX_FALL FIX16(2)
+// Walking through water/quicksand is slower on the PC: the horizontal step is
+// multiplied by the tile's factor (character.cpp:235 WATER_SPEED_MULT 0.7,
+// character.cpp:237 QUICKSAND_SPEED_MULT 0.4).
+#define WATER_SPEED_MULT     FIX16(0.7)
+#define QUICKSAND_SPEED_MULT FIX16(0.4)
+// Quicksand is passable and has no floor: instead of falling, the character
+// sinks at QUICKSAND_GRAVITY (defines.h:1461, character.cpp:1346).
+#define QUICKSAND_GRAVITY FIX16(0.2)
 
 #define COYOTE_FRAMES    6
 #define JUMP_BUFFER_FRAMES 6
 
-#define JUMP_BUTTONS BUTTON_C
+#define JUMP_BUTTONS config_jump_mask()
 
 // B fires (fire frame shows for the whole cooldown; ANIM_ATTACK row).
-#define FIRE_BUTTON  BUTTON_B
+#define FIRE_BUTTON  config_fire_mask()
 #define ATTACK_FRAMES 12
 
 // Slide = A on the ground (PC dash button; classplayer move() turns the
 // character from input even on stairs — same here for the climb pose).
 // Max distance = 5 tiles (character.cpp:1662 slide_distance > TILESIZE*5).
-#define SLIDE_BUTTON   BUTTON_A
+#define SLIDE_BUTTON   config_dash_mask()
 #define SLIDE_MAX_DIST 80
 
 // PC character.cpp:24 SLIDE_Y_ADJUST — a SLIDING player with can_slide
@@ -41,7 +67,7 @@
 // Shield (PC BTN_SHIELD, classplayer.cpp:916) — ROCKBOT only. A 3-button pad
 // has no free button (A=dash, B=fire, C=jump), so the gesture is DOWN+A held
 // while not running; the PC requires no direction/jump for the shield anyway.
-#define SHIELD_MASK (BUTTON_DOWN | BUTTON_A)
+#define SHIELD_MASK (BUTTON_DOWN | config_dash_mask())
 
 // Charge shot (defines.h:665 CHARGED_SHOT_INITIAL_TIME 1000ms,
 // CHARGED_SHOT_TIME 2200ms at 60fps).
@@ -70,20 +96,48 @@
 Player player;
 
 static bool air_jump_used;
+static Sprite *flip_spr;            // sprite / flip last sent by the normal pose code
+static s8 flip_sent = -1;
+static u16 freeze_frames;
+static u16 jump_lock;      // PC JUMP_LOCK_DURATION: jump refused (enemy ground quake)      // enemy FREEZE weapon: frames of lost control
+static bool ladder_need_release; // dropped off a ladder: UP/DOWN must be let go before it grabs again
+static u8 ladder_lock;      // frames left before a released ladder can grab again
 static bool air_dash_used;
 static u8 lives;            // PC game_save.items.lifes (5 = normal difficulty)
 static bool out_of_lives;
+// Death animation hold: the PC classic ring explosion takes ~1.6s; the port
+// hides the player and freezes the world for ~1.5s.
+#define PLAYER_DEATH_FRAMES 90
+static u16 death_timer;
+static bool shoryuken_active;
 static s16 box_t = PLAYER_BOX_T;   // hitbox offsets (see update_hitbox)
 static s16 box_b = PLAYER_BOX_B;
 static s16 coyote_timer;
 static s16 jump_timer;
+static bool force_jump;    // PC _force_jump: COIL FROG jump ignores the button release
+#define TRAIL_FRAMES 12
+#define GHOST_N 3
+static Sprite *ghost_spr[GHOST_N];
+static s16 trail_x[TRAIL_FRAMES], trail_y[TRAIL_FRAMES];
+static u8 trail_len;
+static u8 trail_tick;
+static const u8 GHOST_LAG[GHOST_N]  = { 3, 6, 9 };
+static const u8 GHOST_MASK[GHOST_N] = { 0x7, 0x5, 0x1 };   // visible on (tick & 3) bit set
+
 static s16 attack_timer;
 static u16 charge_sfx_timer;   // re-trigger countdown for the charge loop
 static u16 prev_pad;
 static u16 current_anim;
+static bool water_splash_latch;   // PC _water_splash: one splash per crossing
+static bool in_water;       // previous water state (enter/leave SFX)
 static bool ladder_flip;    // climb pose desired (cycle/turn driven)
 static bool ladder_shown;   // last pose baked into the sprite VRAM
+static u8 ladder_frame;     // STAIRS frame last baked (0 climb, 1 half body)
 static s16 climb_flip_dist;
+// Sub-pixel remainders for quicksand's 0.2 px/frame sink and for the slowed
+// walk, which runs below one pixel per frame (the move is whole-pixel).
+static fix16 sink_acc;
+static fix16 slow_acc;
 
 // charge-shot palette flash: two brighter copies of the player palette,
 // strobed every 8 frames while the fire button is held (PC
@@ -95,6 +149,12 @@ static u16 base_pal[16];    // sheet palette + the current weapon's 13/14/15
 // when set, else at the stage start). cp_y is the feet position.
 static bool cp_active;
 static s16 cp_map, cp_x, cp_y;
+
+// A new stage starts without a checkpoint (the PC keeps it per stage only).
+void player_clear_checkpoint(void)
+{
+    cp_active = FALSE;
+}
 
 void player_set_checkpoint(s16 worldX, s16 worldY)
 {
@@ -112,6 +172,14 @@ void player_set_checkpoint(s16 worldX, s16 worldY)
 // above it and stand him on it. Scanning top-down put him on the CEILING in
 // stages that have a roof (SPIKE), and could bury him (ATLANTIDA/FLOWER
 // FIELDS) so he fell out and respawned forever.
+// Ground for the start point: ice and the conveyors are floors as well (castle 5
+// starts on an ICE row above the solid one; counting only SOLID buried him).
+static bool spawn_floor(u16 t)
+{
+    return t == TERRAIN_SOLID || t == TERRAIN_ICE ||
+           t == TERRAIN_MOVE_LEFT || t == TERRAIN_MOVE_RIGHT;
+}
+
 static s16 spawn_ground_y(s16 x)
 {
     s16 l = x + PLAYER_BOX_L, r = x + PLAYER_BOX_R;
@@ -119,7 +187,7 @@ static s16 spawn_ground_y(s16 x)
     for (s16 row = stage_def->map_h - 1; row >= 1; row--) {
         bool solid = FALSE;
         for (s16 tx = tx0; tx <= tx1 && !solid; tx++)
-            if (stage_terrain_at(stage_current_map, tx, row) == TERRAIN_SOLID)
+            if (spawn_floor(stage_terrain_at(stage_current_map, tx, row)))
                 solid = TRUE;
         if (!solid) continue;
         // the player's box must fit in the rows above this one
@@ -127,7 +195,7 @@ static s16 spawn_ground_y(s16 x)
         bool fits = TRUE;
         for (s16 ry = top_row; ry <= row - 1 && fits; ry++)
             for (s16 tx = tx0; tx <= tx1; tx++)
-                if (stage_terrain_at(stage_current_map, tx, ry) == TERRAIN_SOLID) {
+                if (spawn_floor(stage_terrain_at(stage_current_map, tx, ry))) {
                     fits = FALSE;
                     break;
                 }
@@ -136,13 +204,48 @@ static s16 spawn_ground_y(s16 x)
     return SPAWN_Y;
 }
 
+static bool column_hits_solid(s16 col, s16 t, s16 b);
+
+// The checkpoint object settles 1px INTO the floor (PC platform_can_move tests
+// the row 2px above its bottom), so its bottom edge is no standing height:
+// respawning there put the feet one pixel inside the ground and every walk
+// step was blocked until a jump lifted him out.
+static s16 lift_out_of_floor(s16 sx, s16 sy)
+{
+    for (u8 i = 0; i < 8; i++) {
+        bool hit = FALSE;
+        for (s16 tx = (sx + PLAYER_BOX_L) >> 4; tx <= (sx + PLAYER_BOX_R - 1) >> 4 && !hit; tx++)
+            hit = column_hits_solid(tx, sy + PLAYER_BOX_T, sy + PLAYER_BOX_B);
+        if (!hit) break;
+        sy--;
+    }
+    return sy;
+}
+
 static void respawn_player(bool invuln)
 {
+    objects_reset_doors();   // a new life starts with the doors shut
+    player.charge_frames = 0;   // a new life starts uncharged
+    player.fire_prev = FALSE;
     s16 sx = SPAWN_X;
     s16 sy = spawn_ground_y(SPAWN_X);
-    if (cp_active && cp_map == stage_current_map) {
+    if (!cp_active) enemies_reset();   // PC: a death resets the stage maps, killed enemies return
+    if (cp_active) {
+        // PC game.cpp:395: the checkpoint is the STAGE-wide respawn point, and
+        // a death sends the player back to it even from another room (the PC
+        // resets the stage maps and teleports there). The port used to honour
+        // the checkpoint only on its own map, so dying one room later spawned
+        // you at that room's start (SEAHORSE: next to the boss teleporter
+        // instead of the checkpoint you had touched).
+        if (cp_map != stage_current_map) {
+            stage_load_in_place = FALSE;
+            stage_pending_camera_x = -1;
+            stage_load(cp_map);
+        } else {
+            enemies_reset();    // same room: stage_load did not run, bring the killed enemies back
+        }
         sx = cp_x;
-        sy = cp_y - box_b;
+        sy = lift_out_of_floor(sx, cp_y - PLAYER_BOX_B);
     }
     player_place(sx, sy);
     player.on_ground = TRUE;
@@ -158,14 +261,60 @@ static u8 player_n;
 
 void player_set_number(u8 n) { player_n = (n < 4) ? n : 0; }
 
+s8 player_normal_proj_id(void) { return player_data[player_n].normal_id; }
 u8 player_max_shots(void) { return player_data[player_n].max_shots; }
 u8 player_simultaneous(void) { return player_data[player_n].simultaneous; }
 s8 player_damage_mod(void) { return player_data[player_n].dmg_mod; }
-bool player_can_charge(void) { return (player_data[player_n].flags & PL_CHARGE) != 0; }
-bool player_can_double_jump(void) { return (player_data[player_n].flags & PL_DJUMP) != 0; }
+// game_armorPieces_v301.dat special_ability[player] (read with the PC struct;
+// enum e_ARMOR_ABILITIES_*). BODY: 0 half damage, 1 extended immunity,
+// 2 spike immune, 3 no pushback. LEGS: 0 double jump, 1 air dash, 2 shoryuken.
+static const u8 armor_body_ability[4] = { 0, 2, 1, 3 };
+static const u8 armor_legs_ability[4] = { 0, 1, 1, 2 };
+static const u8 armor_arms_ability[4] = { 20, 11, 21, 22 };  // projectile ids
+
+static u8 armor_body(void) { return armor_body_ability[player_n & 3]; }
+static u8 armor_legs(void) { return armor_legs_ability[player_n & 3]; }
+static u8 armor_arms(void) { return armor_arms_ability[player_n & 3]; }
+static bool has_armor(u8 bit) { return (player.armor & (1u << bit)) != 0; }
+
+u8 player_number(void) { return player_n; }
+u8 player_armor_ability(u8 kind)
+{
+    if (kind == 0) return armor_arms();
+    if (kind == 1) return armor_body();
+    return armor_legs();
+}
+u8 player_armor_shot_id(void)
+{
+    return has_armor(0) ? armor_arms() : 0xFF;
+}
+
+// PC character.cpp:597/629/653: a player charges whenever _charged_shot_projectile_id
+// > 0 - his own full-charge projectile or the ARMS armour's (BETABOT / CANDYBOT
+// only charge once they wear the arms piece).
+bool player_can_charge(void)
+{
+    return player_data[player_n].full_id > 0 ||
+           (has_armor(0) && armor_arms() > 0);
+}
+s8 player_full_proj_id(void) { return player_data[player_n].full_id; }
+
+bool player_can_double_jump(void)
+{
+    if ((player_data[player_n].flags & PL_DJUMP) != 0) return TRUE;
+    return has_armor(2) && armor_legs() == 0;
+}
 bool player_can_slide(void) { return (player_data[player_n].flags & PL_SLIDE) != 0; }
 bool player_can_diagonal(void) { return (player_data[player_n].flags & PL_DIAG) != 0; }
-bool player_can_air_dash(void) { return (player_data[player_n].flags & PL_AIRDASH) != 0; }
+bool player_can_air_dash(void)
+{
+    if ((player_data[player_n].flags & PL_AIRDASH) != 0) return TRUE;
+    return has_armor(2) && armor_legs() == 1;
+}
+bool player_can_shoryuken(void)
+{
+    return has_armor(2) && armor_legs() == 2;
+}
 bool player_can_shield(void) { return (player_data[player_n].flags & PL_SHIELD) != 0; }
 bool player_is_shielding(void) { return player.shielding; }
 
@@ -185,6 +334,9 @@ static void make_flash_palettes(void)
     for (u8 v = 0; v < 2; v++) {
         u8 boost = v ? 3 : 1;
         for (u8 i = 0; i < 16; i++) {
+            // 2/3/4 are the HUD HP bar, not the sprite: keep them steady so the
+            // gauge does not blink with the hit flash.
+            if (i >= 2 && i <= 4) { flash_pal[v][i] = base[i]; continue; }
             u16 c = base[i];
             u8 r = ((c >> 1) & 7) + boost;  if (r > 7) r = 7;
             u8 g = ((c >> 5) & 7) + boost;  if (g > 7) g = 7;
@@ -214,7 +366,26 @@ static void rebuild_player_palette(void)
         if (wc[k][0] < 0) continue;
         base_pal[13 + k] = rgb9((u8)wc[k][0], (u8)wc[k][1], (u8)wc[k][2]);
     }
+    // Classic HUD bars on this line, in the SELECTED player's colours:
+    //   2/3 = HP colour 1/2 (weapon 0), 4 = the bar's black gaps,
+    //   13/14 = the weapon bar (the art's swap placeholders, set above).
+    // Those entries are reserved in the player art by tools/convert_player.py
+    // (its pixels are remapped away) - the bar used to sit on 8/9/12, which
+    // BETABOT's black body / CANDYBOT's and KITTYBOT's armour really use, so
+    // the bar colours recoloured the sprite instead.
+    const s16 (*hp)[3] = player_data[player_n].wcol[0];
+    if (hp[0][0] >= 0) base_pal[2] = rgb9((u8)hp[0][0], (u8)hp[0][1], (u8)hp[0][2]);
+    if (hp[1][0] >= 0) base_pal[3] = rgb9((u8)hp[1][0], (u8)hp[1][1], (u8)hp[1][2]);
+    base_pal[4] = 0;
     make_flash_palettes();
+}
+
+u16 player_weapon_color(u8 weapon)
+{
+    if (weapon >= PLAYER_WEAPON_N) return 0x0EEE;
+    const s16 (*c)[3] = player_data[player_n & 3].wcol[weapon];
+    if (c[0][0] < 0) return 0x0EEE;      // unset: white
+    return rgb9((u8)c[0][0], (u8)c[0][1], (u8)c[0][2]);
 }
 
 u8 player_weapon(void) { return player.weapon; }
@@ -235,22 +406,44 @@ void player_refill_weapons(void)
 
 void player_set_weapon(u8 n)
 {
-    player.weapon = (n < PLAYER_WEAPON_N) ? n : 0;
+    player.weapon = (n < WEAPON_SWITCH_N) ? n : 0;
     rebuild_player_palette();
     PAL_setPalette(PLAYER_PAL, base_pal, DMA_QUEUE);
 }
 
+// Tiles that stop the player from the sides and from below. The PC blocks on every
+// terrain except UNBLOCKED/WATER/STAIR/...: the belts (MOVE_LEFT/RIGHT) and ICE are
+// solid bodies, not just floors (jumping up into a belt from below used to pass
+// through it and land on top).
+static inline bool terr_solid(u16 t)
+{
+    return t == TERRAIN_SOLID || t == TERRAIN_MOVE_LEFT || t == TERRAIN_MOVE_RIGHT ||
+           t == TERRAIN_ICE;
+}
+
 static bool tile_blocks(s16 px, s16 py)
 {
-    return stage_terrain_at(stage_current_map, px >> 4, py >> 4) == TERRAIN_SOLID;
+    return terr_solid(stage_terrain_at(stage_current_map, px >> 4, py >> 4));
 }
 
 // TRUE if any tile in the column, spanning rows [t..b), is solid.
 static bool column_hits_solid(s16 col, s16 t, s16 b)
 {
     for (s16 ty = t >> 4; ty <= (b - 1) >> 4; ty++) {
-        if (stage_terrain_at(stage_current_map, col, ty) == TERRAIN_SOLID) return TRUE;
+        if (terr_solid(stage_terrain_at(stage_current_map, col, ty))) return TRUE;
     }
+    return FALSE;
+}
+
+// TRUE when the standing box would not fit where the (lower) slide box is: a
+// solid tile sits in the strip between the standing head and the slide head.
+static bool no_room_to_stand(s16 ix, s16 iy)
+{
+    if (SLIDE_TOP_ADJUST <= 0) return FALSE;
+    const s16 t = iy + PLAYER_BOX_T;
+    const s16 b = iy + PLAYER_BOX_T + SLIDE_TOP_ADJUST;
+    for (s16 tx = (ix + PLAYER_BOX_L) >> 4; tx <= (ix + PLAYER_BOX_R - 1) >> 4; tx++)
+        if (column_hits_solid(tx, t, b)) return TRUE;
     return FALSE;
 }
 
@@ -298,11 +491,36 @@ static s16 unstick_x(s16 ix, s16 t, s16 b)
 // with a 9-row pit below) releases the player with feet and centre both in
 // row 3 — "above" would compare against the rung (STAIR) and freeze him in
 // mid-air, while the PC centre compare lets him fall.
-static bool ground_pair(s16 tx, s16 feet_row, s16 centre_row)
+static bool ground_pair(s16 tx, s16 feet_row, s16 centre_row, s16 middle_row)
 {
     u16 lock1 = stage_terrain_at(stage_current_map, tx, feet_row);
-    if (lock1 != TERRAIN_UNBLOCKED && lock1 != TERRAIN_STAIR)
+    // Do not treat "UNBLOCKED feet over a STAIR centre" as floor. That is
+    // exactly what happens while falling off a ladder: the feet leave the
+    // rung row first, while the body centre is still on it. The old ladder-
+    // rest exception latched the player in the air; a real solid tile below
+    // still catches him.
+    if (lock1 == TERRAIN_UNBLOCKED &&
+        stage_terrain_at(stage_current_map, tx, centre_row) == TERRAIN_STAIR)
+        return FALSE;
+    // Water is not floor: falling into it must enter the water (BUG-017).
+    // The pair test below saw feet WATER over centre UNBLOCKED as "different
+    // tiles -> ground", so the player stood on the surface. PC reports the
+    // surface as ground too, but only after the water gravity/physics has
+    // already put the player in the water; the port needs the tile excluded.
+    if (lock1 == TERRAIN_WATER) return FALSE;
+    // Quicksand is not floor either: the PC lets the character sink into the
+    // tile (character.cpp:1346 adds QUICKSAND_GRAVITY instead of blocking).
+    if (lock1 == TERRAIN_QUICKSAND) return FALSE;
+    if (lock1 != TERRAIN_UNBLOCKED && lock1 != TERRAIN_STAIR &&
+        lock1 != TERRAIN_WATER)
         return TRUE;
+    // PC map_collision stairs special case (character.cpp:2258): while
+    // falling, a STAIR tile is floor only when the point just above the feet
+    // is NOT a stair. Comparing against the body centre instead made the
+    // player land on the bottom rung after jumping up through a stair.
+    if (lock1 == TERRAIN_STAIR)
+        return stage_terrain_at(stage_current_map, tx, middle_row) !=
+               TERRAIN_STAIR;
     return lock1 != stage_terrain_at(stage_current_map, tx, centre_row);
 }
 
@@ -315,17 +533,38 @@ static bool ground_pair(s16 tx, s16 feet_row, s16 centre_row)
 static bool support_col(s16 tx, s16 top_row, s16 feet_row)
 {
     for (s16 r = top_row; r <= feet_row; r++)
-        if (stage_terrain_at(stage_current_map, tx, r) != TERRAIN_SOLID)
+        if (!terr_solid(stage_terrain_at(stage_current_map, tx, r)))
             return TRUE;                // some open row: a real floor column
     return FALSE;                       // solid for the full height: a wall
+}
+
+// Feet tile terrain (centre column) — ice friction and the quicksand sink.
+static u16 terrain_under_feet(void)
+{
+    s16 cx = (player.x + (PLAYER_BOX_L + PLAYER_BOX_R) / 2) >> 4;
+    s16 cy = (player.y + box_b) >> 4;
+    return stage_terrain_at(stage_current_map, cx, cy);
+}
+
+// Chest tile (centre column, body middle) — the water/quicksand walk
+// slowdown. The feet tile is the pool floor whenever the player stands in
+// shallow water, so the feet probe would never see the water.
+static u16 terrain_at_chest(void)
+{
+    s16 cx = (player.x + (PLAYER_BOX_L + PLAYER_BOX_R) / 2) >> 4;
+    s16 cy = (player.y + (box_t + box_b) / 2) >> 4;
+    return stage_terrain_at(stage_current_map, cx, cy);
 }
 
 // Moving-platform tiles carry the player (PC check_platform_move, ~2.5px/frame
 // at PC speeds; 1px/frame here) and spikes damage on contact
 // (PC character::damage_spikes; PC value 188 would be instant death with the
 // port's HP 28, so 4 = 2x contact damage).
-#define CONVEYOR_SPEED 1
-#define SPIKE_DAMAGE   4
+// PC character::check_platform_move: (move_speed 2.0 - 0.5) = 1.5 px per frame
+// (MOVING_GROUND 10 ms is shorter than a frame): alternate 1 and 2 px.
+static u8 conveyor_phase;
+#define CONVEYOR_SPEED ((conveyor_phase & 1) ? 2 : 1)
+#define SPIKE_DAMAGE   188
 
 void player_get_box(s16 *left, s16 *top, s16 *right, s16 *bottom)
 {
@@ -349,14 +588,42 @@ static s8 flip_dx(void)
                                     ? current_anim : 0];
 }
 
+// Ladder poses are not centred in their 29px frame: measured from p1.png,
+// the STAND art centre is 12.5, STAIRS 14.5 and STAIRS_ATTACK 15.0, so the
+// player looked ~2px right of the hitbox while climbing. flip_dx() already
+// makes the hardware-flipped art land where the unflipped one does, so the
+// same correction applies with either facing.
+static s8 ladder_art_dx(void)
+{
+    return (current_anim == ANIM_STAIRS_ATTACK) ? -3 : -2;
+}
+
+// Sprite offset against the hitbox for the current pose, exactly what the
+// ladder branch of player_update() adds: flip_dx() for hardware-flipped art and
+// the ladder art correction. The room-change slide draws the player itself and
+// must use the same value, or he is shifted ~2-5px off the ladder for the whole
+// slide (and snaps back when it ends).
+s16 player_sprite_dx(void)
+{
+    return (s16)(flip_dx() + (player.on_ladder ? ladder_art_dx() : 0));
+}
+
 // Re-place the player sprite for the CURRENT camera. player_place() moves the
 // player but the sprite's screen position is only set in player_update(), so
 // after a map link the sprite is drawn once at its old screen position while
 // the camera has already jumped (it flashed at the top of the screen).
+// Force an animation row regardless of the physics state (stage-clear
+// sequences: PC ANIM_TYPE_GOT_WEAPON / ANIM_TYPE_ATTACK).
+void player_force_anim(u8 anim)
+{
+    current_anim = anim;
+    if (player.spr) spr_set_anim(player.spr, anim);
+}
+
 void player_sync_sprite(void)
 {
     if (player.spr)
-        SPR_setPosition(player.spr, player.x - camera.x + flip_dx(),
+        SPR_setPosition(player.spr, player.x - camera.x + player_sprite_dx(),
                         player.y - camera.y);
 }
 
@@ -372,10 +639,13 @@ const Palette *player_palette_def(void)
     return player_defs[player_n]->palette;
 }
 
+static void trail_hide(void);
+
 void player_place(s16 px, s16 py)
 {
     player.x = px;
     player.y = py;
+    trail_hide();             // a teleport/arrival must not drag the old trail along (BUG-046: also hides the ghosts)
     player.vx = 0;
     player.vy = 0;
     player.on_ground = FALSE;
@@ -383,12 +653,56 @@ void player_place(s16 px, s16 py)
     player.sliding = FALSE;
     player.slide_prev = TRUE;
     player.slide_dist = 0;
-    player.charge_frames = 0;
+    // NOTE: do NOT clear the charge here. player_place() is also used by the
+    // room-link arrival, and the PC keeps the charge when you cross a link
+    // with the button held (BUG-007). The charge is cleared on spawn/respawn.
     coyote_timer = 0;
     jump_timer = 0;
     player.hit_push = 0;
     player.hit_acc = 0;
     player.hit_dir = 0;
+}
+
+// ---- slide trail (PC character::show_previous_sprites, character.cpp:899) ----
+// While sliding/dashing the PC keeps the last PREVIOUS_FRAMES_MAX (12) positions and
+// draws a translucent copy of the current frame at every second one, alpha rising
+// towards the player. The MD has no alpha: GHOST_N extra player sprites follow the
+// player GHOST_LAG[k] frames behind, flickered at a different density each (3/4,
+// 2/4, 1/4 of the frames) which reads as the same fade.
+static void trail_hide(void)
+{
+    for (u8 k = 0; k < GHOST_N; k++)
+        if (ghost_spr[k]) SPR_setVisibility(ghost_spr[k], HIDDEN);
+    trail_len = 0;
+}
+
+static void trail_update(s16 ix, s16 iy)
+{
+    if (!player.sliding || death_timer > 0) {
+        if (trail_len) trail_hide();
+        return;
+    }
+    for (u8 i = TRAIL_FRAMES - 1; i > 0; i--) {
+        trail_x[i] = trail_x[i - 1];
+        trail_y[i] = trail_y[i - 1];
+    }
+    trail_x[0] = ix;
+    trail_y[0] = iy;
+    if (trail_len < TRAIL_FRAMES) trail_len++;
+    trail_tick++;
+    for (u8 k = 0; k < GHOST_N; k++) {
+        Sprite *g = ghost_spr[k];
+        if (!g) continue;
+        const u8 lag = GHOST_LAG[k];
+        if (trail_len <= lag || !((GHOST_MASK[k] >> (trail_tick & 3)) & 1)) {
+            SPR_setVisibility(g, HIDDEN);
+            continue;
+        }
+        SPR_setHFlip(g, player.facing < 0);
+        SPR_setPosition(g, trail_x[lag] - camera.x + flip_dx(),
+                        trail_y[lag] - camera.y);
+        SPR_setVisibility(g, VISIBLE);
+    }
 }
 
 void player_init(void)
@@ -413,20 +727,37 @@ void player_init(void)
     player.shielding = FALSE;
     player.weapon = 0;
     player_refill_weapons();      // PC refills every gauge at stage start
-    lives = 5;                    // PC reset_lifes(), normal difficulty
-    out_of_lives = FALSE;
+    // lives/tanks/armor persist across stages (player_new_game or the save
+    // slot sets them; player_init must not reset them).
+    death_timer = 0;
+    shoryuken_active = FALSE;
     coyote_timer = COYOTE_FRAMES;
     jump_timer = 0;
     attack_timer = 0;
     prev_pad = 0;
     current_anim = ANIM_STAND;
     ladder_flip = FALSE;
+    ladder_need_release = FALSE;
+    freeze_frames = 0;
+    jump_lock = 0;
+    in_water = FALSE;
+    water_splash_latch = FALSE;
     rebuild_player_palette();
 
     player.spr = SPR_addSprite(player_defs[player_n], SPAWN_X - camera.x, SPAWN_Y - camera.y,
                                TILE_ATTR(PLAYER_PAL, FALSE, FALSE, FALSE));
     PAL_setPalette(PLAYER_PAL, base_pal, DMA_QUEUE);
-    SPR_setAnim(player.spr, ANIM_STAND);
+    spr_set_anim(player.spr, ANIM_STAND);
+    // slide trail: created right after the player so they sort BELOW him
+    for (u8 k = 0; k < GHOST_N; k++) {
+        ghost_spr[k] = SPR_addSprite(player_defs[player_n], -64, -64,
+                                     TILE_ATTR(PLAYER_PAL, FALSE, FALSE, FALSE));
+        if (ghost_spr[k]) {
+            spr_set_anim(ghost_spr[k], ANIM_SLIDE);
+            SPR_setVisibility(ghost_spr[k], HIDDEN);
+        }
+    }
+    trail_len = 0;
     // player.y is the ground row spawn_ground_y() found, which is only row 10
     // (SPAWN_Y) in CHAOS CITY. Without this the sprite sat at SPAWN_Y for the
     // whole stage-start teleport and snapped up one tile on the first
@@ -434,9 +765,70 @@ void player_init(void)
     player_sync_sprite();
 }
 
+// PC classPlayer::reset_lifes(): normal difficulty starts with 5 lives.
+void player_new_game(void)
+{
+    lives = 5;
+    out_of_lives = FALSE;
+    player.tanks_hp = 0;
+    player.tanks_wp = 0;
+    player.tanks_sp = 0;
+    player.armor = 0;
+}
+
+void player_set_progress(u8 l, u8 hp, u8 wp, u8 sp, u8 armor_pieces)
+{
+    lives = (l > 9) ? 9 : l;
+    out_of_lives = FALSE;
+    player.tanks_hp = (hp > 9) ? 9 : hp;
+    player.tanks_wp = (wp > 9) ? 9 : wp;
+    player.tanks_sp = (sp > 9) ? 9 : sp;
+    player.armor = armor_pieces & 7;
+}
+
+void player_reset_lives(void)
+{
+    lives = 5;
+    out_of_lives = FALSE;
+}
+
 // Fire (B) + charge shot, shared by the ground and ladder paths.
 // Edge-triggered like the PC (one shot per press); holding charges and
 // the release fires the semi/full charge shot (character.cpp:597).
+// Charge feedback shared by the button-held and auto-charge paths: the armour
+// colour flash and the looping charge sound.
+static void charge_feedback(void)
+{
+    // Charge feedback: the PC switches to a brighter/flashing armour
+    // colour set. PAL2 cannot spare a second highlight (the HUD bar owns
+    // entries 2/3/4), so the existing two-step flash runs FASTER once the
+    // shot is full: 8-frame strobe while charging, 2-frame when ready
+    // (report 2026-10-24: no full-charge indication).
+    {
+        const u16 period = (player.charge_frames >= CHARGE_FULL_FRAMES)
+                               ? 2 : 8;
+        if ((player.charge_frames % period) == 0) {
+            PAL_setPalette(PLAYER_PAL,
+                           flash_pal[(player.charge_frames / period) & 1],
+                           DMA_QUEUE);
+        }
+    }
+    // PC character.cpp:631/656 loops SFX_CHARGING1 from
+    // CHARGED_SHOT_INITIAL_TIME (1000ms) and switches to SFX_CHARGING2 at
+    // CHARGED_SHOT_TIME (2200ms). The MD has no looping PCM here, so the
+    // (0.47s) sample is re-triggered every 27 frames while it applies.
+    if (player.charge_frames >= CHARGE_SEMI_FRAMES) {
+        const SfxId id = (player.charge_frames >= CHARGE_FULL_FRAMES)
+                         ? SFX_CHARGING2 : SFX_CHARGING1;
+        if (charge_sfx_timer == 0) {
+            sfx_play(id);
+            charge_sfx_timer = CHARGE_SFX_RETRIGGER;
+        } else {
+            charge_sfx_timer--;
+        }
+    }
+}
+
 static void handle_fire(u16 pad, s16 ix, s16 iy)
 {
     // PC attack() returns early while the shield is up (classplayer.cpp:300).
@@ -448,7 +840,49 @@ static void handle_fire(u16 pad, s16 ix, s16 iy)
         return;
     }
 
+    // PC turbo_mode: no charging, repeat the shot while the button is held.
     bool fire_raw = (pad & FIRE_BUTTON) != 0;
+    if (config.turbo) {
+        if (fire_raw && !player.sliding && attack_timer == 0) {
+            s16 sx = (player.facing > 0) ? ix + PLAYER_BOX_R
+                                         : ix + PLAYER_BOX_L - 8;
+            shot_fire(sx, iy + 10, player.facing, 0);
+            attack_timer = ATTACK_FRAMES;
+        }
+        player.charge_frames = 0;
+        player.fire_prev = fire_raw;
+        if (attack_timer > 0) attack_timer--;
+        return;
+    }
+    // PC auto_charge_mode (classplayer.cpp:313, default weapon only): the
+    // attack command is inverted every frame, so the shot charges while the
+    // button is NOT held and pressing it releases whatever was charged.
+    if (config.autocharge && player_weapon() == 0 && !player.sliding) {
+        if (!fire_raw) {
+            if (player_can_charge()) {
+                if (player.charge_frames < 60000) player.charge_frames++;
+                charge_feedback();
+            }
+        } else if (!player.fire_prev) {
+            s16 sx = (player.facing > 0) ? ix + 21 : ix - 6;
+            if (player.charge_frames >= CHARGE_FULL_FRAMES) {
+                shot_charge_fire(sx, iy + 8, player.facing, 2);
+                attack_timer = ATTACK_FRAMES;
+            } else if (player.charge_frames >= CHARGE_SEMI_FRAMES) {
+                shot_charge_fire(sx, iy + 8, player.facing, 1);
+                attack_timer = ATTACK_FRAMES;
+            } else if (attack_timer == 0) {
+                shot_fire(sx, iy + 10, player.facing, 0);
+                attack_timer = ATTACK_FRAMES;
+            }
+            player.charge_frames = 0;
+            charge_sfx_timer = 0;
+            PAL_setPalette(PLAYER_PAL, base_pal, DMA_QUEUE);
+        }
+        player.fire_prev = fire_raw;
+        if (attack_timer > 0) attack_timer--;
+        return;
+    }
     bool fire_ok = fire_raw && !player.sliding;
     if (fire_ok && !player.fire_prev) {
         if (attack_timer == 0) {
@@ -467,27 +901,12 @@ static void handle_fire(u16 pad, s16 ix, s16 iy)
         charge_sfx_timer = 0;
     } else if (fire_ok && player_can_charge()) {
         if (player.charge_frames < 60000) player.charge_frames++;
-        if ((player.charge_frames & 7) == 0) {
-            PAL_setPalette(PLAYER_PAL,
-                           flash_pal[(player.charge_frames >> 3) & 1], DMA_QUEUE);
-        }
-        // PC character.cpp:631/656 loops SFX_CHARGING1 from
-        // CHARGED_SHOT_INITIAL_TIME (1000ms) and switches to SFX_CHARGING2 at
-        // CHARGED_SHOT_TIME (2200ms). The MD has no looping PCM here, so the
-        // (0.47s) sample is re-triggered every 27 frames while it applies.
-        if (player.charge_frames >= CHARGE_SEMI_FRAMES) {
-            const SfxId id = (player.charge_frames >= CHARGE_FULL_FRAMES)
-                             ? SFX_CHARGING2 : SFX_CHARGING1;
-            if (charge_sfx_timer == 0) {
-                sfx_play(id);
-                charge_sfx_timer = CHARGE_SFX_RETRIGGER;
-            } else {
-                charge_sfx_timer--;
-            }
-        }
+        charge_feedback();
     } else if (player.fire_prev && !fire_raw) {
         if (!player.sliding) {
-            s16 sx = (player.facing > 0) ? ix + PLAYER_BOX_R - 4 : ix + PLAYER_BOX_L - 12;
+            // PC get_attack_position: right = position.x + 29 - 8 (= +21
+            // on the art), left keeps the port's validated -6 muzzle.
+            s16 sx = (player.facing > 0) ? ix + 21 : ix - 6;
             if (player.charge_frames >= CHARGE_FULL_FRAMES) {
                 shot_charge_fire(sx, iy + 8, player.facing, 2);
                 attack_timer = ATTACK_FRAMES;
@@ -515,9 +934,103 @@ static void invuln_blink(void)
     }
 }
 
+// PC game::update_stage_scrolling (game.cpp:1652): an autoscroll push can
+// leave the player behind the left edge. The PC nudges him 1px per frame and
+// kills him once he is more than 2 tiles out ("damage(999)").
+void player_screen_edge_update(void)
+{
+    const s16 sx = player.x + PLAYER_BOX_L - camera.x;
+    if (sx >= 0) return;
+    player.x += 1;
+    if (sx < -(16 * 2)) player_take_damage(999);
+}
+
+void player_check_scroll_lock(u16 pad)
+{
+    if (player.on_ladder) return;
+    s8 dir = (pad & BUTTON_RIGHT) ? 1 : (pad & BUTTON_LEFT) ? -1 : 0;
+    // PC character::process_special_map_points fires on the COLLISION and takes
+    // the facing from the movement, so a slide counts. The port skipped the
+    // check entirely while sliding, letting the player slide through a
+    // horizontal lock and leave the scroll state broken (report 2026-10-24).
+    if (!dir && player.sliding) dir = (player.facing < 0) ? -1 : 1;
+    if (!dir) return;
+    const s16 row = (player.y + (box_t + box_b) / 2) >> 4;
+    // Probe every column the leading edge crossed this frame: a slide moves
+    // 5 px, more than the old fixed 2 px look-ahead, so it could jump over the
+    // whole band.
+    s16 step = F16_toInt(player.vx);
+    if (step < 0) step = -step;
+    if (step < 2) step = 2;
+    const s16 reach = step + 2;
+    for (s16 off = -reach; off <= 2; off++) {
+        s16 edge = (dir > 0) ? player.x + PLAYER_BOX_R + off
+                             : player.x + PLAYER_BOX_L - off;
+        if (stage_terrain_at(stage_current_map, edge >> 4, row)
+            == TERRAIN_SCROLL_LOCK) {
+            stage_autoscroll(dir);
+            return;
+        }
+    }
+}
+
+void player_freeze(void) { freeze_frames = 210; }
+
+// PC classPlayer::block_jump: only while standing on the ground.
+void player_block_jump(u16 frames) { if (player.on_ground) jump_lock = frames; }
+
+#ifdef MD_PROFILE_PLAYER       // opt-in: each timer read costs ~20 subticks
+u32 player_prof[8];
+static u32 pp_last;
+#define PP_BEGIN() (pp_last = getSubTick())
+#define PP_MARK(n) do { const u32 t_ = getSubTick(); player_prof[n] += t_ - pp_last; pp_last = t_; } while (0)
+#else
+#define PP_BEGIN() do { } while (0)
+#define PP_MARK(n) do { } while (0)
+#endif
+
 void player_update(u16 pad)
 {
+    PP_BEGIN();
+    if (freeze_frames) {
+        freeze_frames--;
+        if (player.invuln == 0) pad = 0;
+    }
+    if (ladder_lock) ladder_lock--;
+    if (!(pad & (BUTTON_UP | BUTTON_DOWN))) ladder_need_release = FALSE;
     update_hitbox();   // box_t/box_b from the slide state so far
+    {
+        bool water_now = terrain_under_feet() == TERRAIN_WATER;
+        if (water_now != in_water) {
+            sfx_play(water_now ? SFX_WATER_ENTER : SFX_WATER_LEAVE);
+            in_water = water_now;
+        }
+        // PC character.cpp:2283: the splash plays at the water SURFACE when
+        // head and body are in air and only the feet are still in water. Owner
+        // report: it is for LEAVING the water (rising through the surface), not
+        // for jumps or entering. It is latched until all three points agree
+        // again, so one crossing gives one splash.
+        if (player.vy != 0) {
+            const s16 cx = (player.x + (PLAYER_BOX_L + PLAYER_BOX_R) / 2) >> 4;
+            const s16 rt = (player.y + box_t) >> 4;
+            const s16 rm = (player.y + (box_t + box_b) / 2) >> 4;
+            const s16 rb = (player.y + box_b - 1) >> 4;
+            const u16 pt = stage_terrain_at(stage_current_map, cx, rt);
+            const u16 pm = stage_terrain_at(stage_current_map, cx, rm);
+            const u16 pb = stage_terrain_at(stage_current_map, cx, rb);
+            if (pt == TERRAIN_UNBLOCKED && pm == TERRAIN_UNBLOCKED &&
+                pb == TERRAIN_WATER && !water_splash_latch && player.vy < 0 &&
+                in_water) {
+                water_splash_latch = TRUE;
+                fx_splash(player.x - 2, rb * 16, player.facing);
+            } else if (pt == pb && pt == pm && water_splash_latch) {
+                water_splash_latch = FALSE;
+            }
+        }
+        // PC character.cpp:158 — a bubble rises from the player while he is
+        // inside water (one at a time, 3 s apart).
+        if (water_now) fx_water_bubble(player.x + 14, player.y + 6);
+    }
     s16 ix = player.x;
     s16 iy = player.y;
     s16 bl = ix + PLAYER_BOX_L;
@@ -527,29 +1040,54 @@ void player_update(u16 pad)
     s16 ctx = (bl + br) >> 5;   // centre tile X  ((bl+br)/2) >> 4
     s16 cty = (bt + bb) >> 5;   // centre tile Y
 
+    PP_MARK(0);
     // ---- ladder ------------------------------------------------------------
     // Grab clears on_ground so gravity cannot re-latch while climbing.
     // PC has no sideways let-go: horizontal input is gated while the ladder
     // anim plays (character.cpp:218/266), which is also what lets the
     // per-frame X centring below stick (the old same-frame let-go fired
     // before player.x = ix ran, leaving the player beside the stair).
-    if (!player.on_ladder) {
-        if ((pad & BUTTON_UP) && stage_terrain_at(stage_current_map, ctx, cty) == TERRAIN_STAIR) {
-            player.on_ladder = TRUE;
-            player.on_ground = FALSE;
-            ix = (ctx << 4) + 8 - (PLAYER_BOX_L + PLAYER_BOX_R) / 2;   // centre on ladder (character.cpp:396)
-        } else if ((pad & BUTTON_DOWN) &&
-                   stage_terrain_at(stage_current_map, ctx, bb >> 4) == TERRAIN_STAIR) {
-            player.on_ladder = TRUE;
-            player.on_ground = FALSE;
-            ix = (ctx << 4) + 8 - (PLAYER_BOX_L + PLAYER_BOX_R) / 2;
+    // PC is_on_stairs (character.cpp:2428) samples TWO points (1/3 and 2/3
+    // of the body width), not just the centre column; grabbing only when the
+    // centre tile is a stair missed ladders the body was partly over.
+    s16 stair_col = -1;
+    if (!player.on_ladder && ladder_lock == 0 && !ladder_need_release) {
+        if (pad & BUTTON_UP) {
+            s16 sy = (iy + 14 - 2) >> 4;
+            s16 c1 = stage_terrain_at(stage_current_map, (ix + 9) >> 4, sy);
+            s16 c2 = stage_terrain_at(stage_current_map, (ix + 20) >> 4, sy);
+            if (c1 == TERRAIN_STAIR) stair_col = (ix + 9) >> 4;
+            else if (c2 == TERRAIN_STAIR) stair_col = (ix + 20) >> 4;
+            // PC up-grab: the row at the player's TOP must be free, so a
+            // ladder under a ceiling is not grabbed by accident.
+            if (stair_col >= 0) {
+                u16 top = stage_terrain_at(stage_current_map, stair_col,
+                                           iy >> 4);
+                if (top == TERRAIN_SOLID) stair_col = -1;
+            }
+        } else if (pad & BUTTON_DOWN) {
+            s16 sy = (iy + box_b) >> 4;
+            s16 c1 = stage_terrain_at(stage_current_map, (ix + 9) >> 4, sy);
+            s16 c2 = stage_terrain_at(stage_current_map, (ix + 20) >> 4, sy);
+            if (c1 == TERRAIN_STAIR) stair_col = (ix + 9) >> 4;
+            else if (c2 == TERRAIN_STAIR) stair_col = (ix + 20) >> 4;
         }
+    }
+    if (stair_col >= 0) {
+        player.on_ladder = TRUE;
+        player.on_ground = FALSE;
+        ix = (stair_col << 4) + 8 - (PLAYER_BOX_L + PLAYER_BOX_R) / 2;
     }
 
     // freshly grabbed: pose starts from the approach direction, cycle restarts
     if (player.on_ladder && current_anim != ANIM_STAIRS) {
         ladder_flip = (player.facing < 0);
         climb_flip_dist = 0;
+        // NOTE: no timed half-body pose on grab. PC only uses
+        // ANIM_TYPE_STAIRS_SEMI at the TOP of a ladder, while the body is
+        // half on / half off it (character.cpp:387-410 leaving upward,
+        // :426-446 entering downward). The pose is picked from the terrain
+        // every frame in the draw block below.
     }
 
     if (player.on_ladder) {
@@ -595,6 +1133,15 @@ void player_update(u16 pad)
                 // open space (map1 col 1). With iy = ny both rows are off
                 // the stair, the pair sees no ground and he falls.
                 iy = ny;
+                // A ladder whose last rung is the map's last row has no
+                // floor below it. Stepping off must leave him standing on
+                // that bottom rung, not below the map. Ladders ending above
+                // a real pit still fall normally.
+                {
+                    const s16 floor_y = stage_def->map_h * stage_def->tile
+                                        - box_b;
+                    if (iy > floor_y) iy = floor_y;
+                }
                 player.on_ladder = FALSE;                       // walked off the ladder
             } else {
                 iy = ny;
@@ -622,22 +1169,71 @@ void player_update(u16 pad)
             // PC keeps the stairs pose; firing mid-climb uses
             // ANIM_TYPE_STAIRS_ATTACK (classplayer.cpp:482).
             u16 stair_anim = (attack_timer > 0) ? ANIM_STAIRS_ATTACK : ANIM_STAIRS;
+            // PC ANIM_TYPE_STAIRS_SEMI = the half-body pose, used ONLY at the
+            // top of a ladder while the player is half on / half off it:
+            //   climbing UP and stepping out (character.cpp:396-405: the body
+            //     middle no longer samples a stair, the feet still do), and
+            //   climbing DOWN into a ladder from above (character.cpp:426-446:
+            //     same test, then switch to the climb pose once the middle is
+            //     over the stairs).
+            // Frame 1 of the STAIRS animation is that art (sheet frame 18);
+            // it used to be a separate animation, which ROCKBOT's sheet did
+            // not have (BUG-043).
+            u8 stair_frame = 0;
+            if (attack_timer == 0) {
+                const s16 mid_row = ((iy + box_t) + (iy + box_b)) >> 5;
+                const s16 feet_row = (iy + box_b) >> 4;
+                const bool mid_stair =
+                    stage_terrain_at(stage_current_map, ctx, mid_row)
+                    == TERRAIN_STAIR;
+                const bool feet_stair =
+                    stage_terrain_at(stage_current_map, ctx, feet_row)
+                    == TERRAIN_STAIR;
+                if (!mid_stair && feet_stair) stair_frame = 1;
+            }
             // Rebuild the sprite when the pose changes: the VRAM tiles are
             // (re)built on anim changes and both rows are static (time 0)
             // so they never advance on their own.
-            if (current_anim != stair_anim || ladder_flip != ladder_shown) {
+            if (current_anim != stair_anim || ladder_flip != ladder_shown ||
+                stair_frame != ladder_frame) {
                 current_anim = stair_anim;
                 ladder_shown = ladder_flip;
+                ladder_frame = stair_frame;
                 SPR_setHFlip(player.spr, ladder_flip);
-                SPR_setAnim(player.spr, stair_anim);
+                flip_sent = -1;                 // the pose code must re-send its own flip
+                spr_set_anim(player.spr, stair_anim);
+                spr_set_frame(player.spr, stair_frame);
             }
-            SPR_setPosition(player.spr, ix - camera.x + flip_dx(), iy - camera.y);
+#ifdef MD_LADDER_TRACE
+            // Deterministic proof for the stairs pose: the half-body frame is
+            // only valid while the feet are on a rung and the body middle has
+            // left it (PC character.cpp:396/426). Printed once every 8 frames.
+            static u8 trace_t;
+            if ((trace_t++ & 7) == 0) {
+                const s16 mr = ((iy + box_t) + (iy + box_b)) >> 5;
+                const s16 fr = (iy + box_b) >> 4;
+                dbg_print("LAD anim=%d frame=%d mid_stair=%d feet_stair=%d y=%d\n",
+                        (int)stair_anim, (int)stair_frame,
+                        (int)(stage_terrain_at(stage_current_map, ctx, mr) ==
+                              TERRAIN_STAIR),
+                        (int)(stage_terrain_at(stage_current_map, ctx, fr) ==
+                              TERRAIN_STAIR),
+                        (int)iy);
+            }
+#endif
+            SPR_setPosition(player.spr,
+                            ix - camera.x + flip_dx() + ladder_art_dx(),
+                            iy - camera.y);
             invuln_blink();
             // JUMP press on a ladder = let go and fall in place (the press
             // is consumed so it cannot double as a ground jump).
             if ((pad & JUMP_BUTTONS) && !(prev_pad & JUMP_BUTTONS)) {
                 player.on_ladder = FALSE;
                 player.vy = 0;
+                ladder_lock = 12;    // PC STAIRS_GRAB_TIMEOUT 200ms
+                // A held UP/DOWN must not re-grab when the lock runs out (or
+                // after a room change mid-fall): grab again only on a new press.
+                ladder_need_release = TRUE;
                 prev_pad = pad;
             } else {
                 prev_pad = pad;
@@ -647,6 +1243,7 @@ void player_update(u16 pad)
         player.vy = 0;
     }
 
+    PP_MARK(1);
     // ---- hit pushback (PC ANIM_TYPE_HIT, character.cpp:191-215) -----------
     // While pushing back, movement/jump/slide input is ignored and the
     // player slides away from the direction he was facing.
@@ -659,7 +1256,13 @@ void player_update(u16 pad)
         if (mv > 0) {
             // pushed away from facing: use the same first-solid-column rule as
             // walking, or a hit next to a thick wall drives the box inside it
-            ix = step_x_solid(ix, player.hit_dir * mv, iy + box_t, iy + box_b);
+            const s16 pdx = player.hit_dir * mv;
+            ix = step_x_solid(ix, pdx, iy + box_t, iy + box_b);
+            // Map objects stop the knockback too: next to a boss door the old
+            // path pushed the player INSIDE it, off-screen and stuck
+            // (report 2026-10-24).
+            s16 px;
+            if (objects_block_x(ix, iy + box_t, iy + box_b, pdx, &px)) ix = px;
         }
         player.vx = 0;
         pad &= ~(BUTTON_LEFT | BUTTON_RIGHT | JUMP_BUTTONS | SLIDE_BUTTON);
@@ -680,6 +1283,29 @@ void player_update(u16 pad)
                  JUMP_BUTTONS | FIRE_BUTTON | SLIDE_BUTTON);
     }
 
+    // ---- SHORYUKEN (LEGS armor, PC classPlayer::shouryuken) -----------------
+    // Up + dash while standing: 1.4x jump, no horizontal control, damages
+    // enemies along the path (main.c applies the hit box each frame).
+    if (shoryuken_active && player.on_ground) shoryuken_active = FALSE;
+    if (!shoryuken_active && player_can_shoryuken() && player.on_ground &&
+        !player.shielding && (pad & BUTTON_UP) && (pad & SLIDE_BUTTON)) {
+        shoryuken_active = TRUE;
+        player.on_ground = FALSE;
+        player.sliding = FALSE;
+        player.vx = 0;
+        player.vy = -SUPER_JUMP_VEL;
+        jump_timer = 0;
+        pad &= ~(BUTTON_LEFT | BUTTON_RIGHT | BUTTON_UP | BUTTON_DOWN |
+                 JUMP_BUTTONS | SLIDE_BUTTON | FIRE_BUTTON);
+        sfx_play(SFX_SHORYUKEN);   // PC classplayer.cpp:222 (not the jump sound)
+    }
+    if (shoryuken_active) {
+        player.vx = 0;
+        pad &= ~(BUTTON_LEFT | BUTTON_RIGHT | BUTTON_UP | BUTTON_DOWN |
+                 JUMP_BUTTONS | SLIDE_BUTTON | FIRE_BUTTON);
+    }
+
+    PP_MARK(2);
     // ---- slide / dash (start) ----------------------------------------------
     // Needs a FRESH press: the PC only starts a slide after the dash button
     // was released again (_dash_button_released, character.cpp:1668), so a
@@ -693,7 +1319,11 @@ void player_update(u16 pad)
             player.sliding = TRUE;
             player.slide_prev = FALSE;
             player.slide_dist = 0;
-            player.vx = (player.facing < 0) ? -MOVE_SPEED : MOVE_SPEED;
+            player.vx = (player.facing < 0) ? -SLIDE_SPEED : SLIDE_SPEED;
+            // PC character.cpp:1681: dash dust behind the player,
+            // adjust (frameSize.width+3 | -3, frameSize.height-8).
+            fx_dust(player.x + ((player.facing < 0) ? 29 + 3 : -3),
+                    player.y + 29 - 8, player.facing);
         } else if (player_can_air_dash() && !air_dash_used) {
             // PC air dash (character.cpp:1668): the SAME ANIM_TYPE_SLIDE state,
             // gravity off, up to 5 tiles, once per airtime (_can_execute_airdash).
@@ -702,7 +1332,11 @@ void player_update(u16 pad)
             player.slide_prev = FALSE;
             player.slide_dist = 0;
             player.vy = 0;   // PC _obj_jump.finish(): the dash is horizontal
-            player.vx = (player.facing < 0) ? -MOVE_SPEED : MOVE_SPEED;
+            player.vx = (player.facing < 0) ? -SLIDE_SPEED : SLIDE_SPEED;
+            // PC character.cpp:1681: dash dust behind the player, 8x16 art
+            // whose bottom edge sits at the feet (the PC clips it to 8x8).
+            fx_dust(player.x + ((player.facing < 0) ? 29 + 3 : -3),
+                    player.y + 29 - 16, player.facing);
         }
     }
 
@@ -710,6 +1344,9 @@ void player_update(u16 pad)
     update_hitbox();
 
     // ---- horizontal --------------------------------------------------------
+    const bool on_ice = player.on_ground && terrain_under_feet() == TERRAIN_ICE;
+    const fix16 accel = on_ice ? ICE_ACCEL : ACCEL;
+    const fix16 decel = on_ice ? ICE_DECEL : DECEL;
     if (player.sliding) {
         // PC lets left/right turn the character even mid-slide
         // (character.cpp:266 includes ANIM_TYPE_SLIDE) — the slide follows.
@@ -718,28 +1355,46 @@ void player_update(u16 pad)
         } else if ((pad & BUTTON_LEFT) && player.facing != -1) {
             player.facing = -1;
         }
-        player.vx = (player.facing < 0) ? -MOVE_SPEED : MOVE_SPEED;
+        player.vx = (player.facing < 0) ? -SLIDE_SPEED : SLIDE_SPEED;
     } else if (pad & BUTTON_RIGHT) {
         player.facing = 1;
-        player.vx += ACCEL;
+        player.vx += accel;
         if (player.vx > MOVE_SPEED) player.vx = MOVE_SPEED;
     } else if (pad & BUTTON_LEFT) {
         player.facing = -1;
-        player.vx -= ACCEL;
+        player.vx -= accel;
         if (player.vx < -MOVE_SPEED) player.vx = -MOVE_SPEED;
     } else if (player.vx > 0) {
-        player.vx -= DECEL;
+        player.vx -= decel;
         if (player.vx < 0) player.vx = 0;
     } else if (player.vx < 0) {
-        player.vx += DECEL;
+        player.vx += decel;
         if (player.vx > 0) player.vx = 0;
     }
 
+    // Water and quicksand cap the walk at the PC's fraction of the speed
+    // (character.cpp:235/237). The cap is applied to the target speed and the
+    // remnant kept in slow_acc, because the move below is whole-pixel.
+    const u16 chest = terrain_at_chest();
+    const bool slowed = !player.sliding &&
+                        (chest == TERRAIN_WATER || chest == TERRAIN_QUICKSAND);
+    if (slowed) {
+        const fix16 cap = F16_mul(MOVE_SPEED,
+                                  (chest == TERRAIN_QUICKSAND)
+                                      ? QUICKSAND_SPEED_MULT
+                                      : WATER_SPEED_MULT);
+        if (player.vx > cap) player.vx = cap;
+        else if (player.vx < -cap) player.vx = -cap;
+    }
+
+    PP_MARK(3);
     // ---- jump (edge triggered, buffered + coyote time) ----------------------
     if ((pad & JUMP_BUTTONS) && !(prev_pad & JUMP_BUTTONS)) {
         jump_timer = JUMP_BUFFER_FRAMES;
     }
-    if (!(pad & JUMP_BUTTONS) && player.vy < 0) {
+    if (jump_lock) { jump_lock--; jump_timer = 0; }     // locked by an enemy quake
+    if (player.vy >= 0 || player.on_ladder) force_jump = FALSE;
+    if (!(pad & JUMP_BUTTONS) && player.vy < 0 && !force_jump) {
         player.vy = F16_mul(player.vy, FIX16(0.5));   // variable jump height
     }
     prev_pad = pad;
@@ -749,7 +1404,10 @@ void player_update(u16 pad)
     if (player.sliding && !player.on_ground) jump_timer = 0;
     if (coyote_timer > 0 && jump_timer > 0) {
         sfx_play(SFX_JUMP);
-        player.vy = -JUMP_VEL;
+        // PC classjump::start: water uses 0.9x the initial speed and 0.3x
+        // gravity (jump.cpp:32).
+        player.vy = (terrain_under_feet() == TERRAIN_WATER)
+                    ? -FIX16(4.77) : -JUMP_VEL;
         player.on_ground = FALSE;
         coyote_timer = 0;
         jump_timer = 0;
@@ -767,13 +1425,39 @@ void player_update(u16 pad)
     // PC skips gravity while the dash runs (character.cpp:1201: an air-dash
     // player stays in ANIM_TYPE_SLIDE, so the dash is a flat 5-tile move).
     if (!player.on_ground && !player.sliding) {
-        if (player.vy < MAX_FALL) player.vy += GRAVITY;
-        if (player.vy > MAX_FALL) player.vy = MAX_FALL;
+        if (player.vy >= 0 && terrain_under_feet() == TERRAIN_QUICKSAND) {
+            // Quicksand: sink at a constant 0.2 px/frame (character.cpp:1346)
+            // instead of falling. The remainders below one pixel are carried
+            // in sink_acc so 0.2 px/frame still advances.
+            sink_acc += QUICKSAND_GRAVITY;
+            const s16 q = F16_toInt(sink_acc);
+            sink_acc -= FIX16(q);
+            player.vy = FIX16(q);
+        } else {
+            sink_acc = 0;
+            const bool water = terrain_under_feet() == TERRAIN_WATER;
+            const fix16 grav = water ? WATER_GRAVITY : GRAVITY;
+            const fix16 maxf = water ? WATER_MAX_FALL : MAX_FALL;
+            if (player.vy < maxf) player.vy += grav;
+            if (player.vy > maxf) player.vy = maxf;
+        }
+    } else {
+        sink_acc = 0;
     }
 
-    s16 dx = F16_toInt(player.vx);
+    s16 dx;
+    if (slowed) {
+        // Below one pixel per frame the whole-pixel move would stand still.
+        const fix16 want = player.vx + slow_acc;
+        dx = F16_toInt(want);
+        slow_acc = want - FIX16(dx);
+    } else {
+        slow_acc = 0;
+        dx = F16_toInt(player.vx);
+    }
     s16 dy = F16_toInt(player.vy);
 
+    PP_MARK(4);
     // ---- horizontal move + resolve -----------------------------------------
     // Test only the column the leading edge enters and snap flush against its
     // face. The old whole-box test snapped by the rightmost/leftmost column
@@ -795,12 +1479,20 @@ void player_update(u16 pad)
         ix = nx;
     }
 
+    PP_MARK(5);
     // ---- vertical move + resolve -------------------------------------------
     // Only the row the feet enter (falling) or the row the head enters (rising)
     // may block. Testing the whole box here would treat a side-hit against a
     // step as "landed": on_ground would latch, gravity would stop and the
     // player would freeze mid-air. See lessons_learned.md #23.
     player.on_ground = FALSE;
+
+    // COIL FROG: stepping on it (descending) starts a 1.4x jump this frame.
+    if (dy > 0 && objects_spring_check(ix + PLAYER_BOX_L, ix + PLAYER_BOX_R,
+                                       iy + box_b, iy + dy + box_b)) {
+        player_super_jump();
+        dy = 0;
+    }
 
     if (dy != 0) {
         s16 ny = iy + dy;
@@ -820,13 +1512,16 @@ void player_update(u16 pad)
             // current (unsnapped) pose keeps its real centre row; deeper
             // candidate rows use the snapped-pose centre (row - 1).
             s16 centre_now = (iy + (box_t + box_b) / 2) >> 4;
+            s16 middle_now = (iy + box_b - 1) >> 4;
             s16 top_now = (iy + box_t) >> 4;
             for (s16 row = (iy + box_b) >> 4;
                  row <= ((ny + box_b) >> 4) && !blocked; row++) {
                 s16 centre_row = (row == ((iy + box_b) >> 4))
                                      ? centre_now : row - 1;
+                s16 middle_row = (row == ((iy + box_b) >> 4))
+                                     ? middle_now : row - 1;
                 for (s16 tx = x0; tx <= x1; tx++) {
-                    if (ground_pair(tx, row, centre_row) &&
+                    if (ground_pair(tx, row, centre_row, middle_row) &&
                         support_col(tx, top_now, row)) {
                         ny = (row << 4) - box_b;
                         player.on_ground = TRUE;
@@ -849,7 +1544,7 @@ void player_update(u16 pad)
             for (s16 row = ((iy + box_t) >> 4) - 1;
                  row >= ((ny + box_t) >> 4) && !blocked; row--) {
                 for (s16 tx = x0; tx <= x1; tx++) {
-                    if (stage_terrain_at(stage_current_map, tx, row) == TERRAIN_SOLID) {
+                    if (terr_solid(stage_terrain_at(stage_current_map, tx, row))) {
                         ny = ((row + 1) << 4) - box_t;
                         player.vy = 0;
                         blocked = TRUE;
@@ -861,7 +1556,7 @@ void player_update(u16 pad)
             // (lower) of terrain vs platform wins
             s16 pny = objects_head_block(l, r, ny + box_t,
                                          iy + box_b);
-            if (pny > ny) {
+            if (pny != OBJ_NO_HEAD_BLOCK && pny > ny) {
                 ny = pny;
                 player.vy = 0;
             }
@@ -873,9 +1568,10 @@ void player_update(u16 pad)
         s16 r = ix + PLAYER_BOX_R;
         s16 row = (iy + box_b) >> 4;
         s16 centre_row = (iy + (box_t + box_b) / 2) >> 4;
+        s16 middle_row = (iy + box_b - 1) >> 4;
         s16 top_row = (iy + box_t) >> 4;
         for (s16 tx = l >> 4; tx <= (r - 1) >> 4; tx++) {
-            if (ground_pair(tx, row, centre_row) &&
+            if (ground_pair(tx, row, centre_row, middle_row) &&
                 support_col(tx, top_row, row)) {
                 player.on_ground = TRUE;
                 break;
@@ -899,13 +1595,20 @@ void player_update(u16 pad)
         s16 adx = (dx < 0) ? -dx : dx;
         player.slide_dist += adx;
         bool no_ground_ends = !player_can_air_dash();
-        if (!(pad & SLIDE_BUTTON) ||
+        // In a one-tile tunnel the slide cannot end (button released, wall,
+        // distance): standing up would put the head inside the ceiling. It
+        // goes on, even without moving, until there is room above.
+        if (player_can_slide() && player.on_ground &&
+            no_room_to_stand(ix, iy)) {
+            player.slide_dist = 0;
+        } else if (!(pad & SLIDE_BUTTON) ||
             (no_ground_ends && !player.on_ground) ||
             player.slide_dist > SLIDE_MAX_DIST || player.vx == 0) {
             player.sliding = FALSE;
         }
     }
 
+    PP_MARK(6);
     // ---- moving-platform tiles (PC check_platform_move) --------------------
     // The belt is sampled across the FEET SPAN, not just the centre column:
     // with the centre test the push stopped the moment the middle left the
@@ -917,6 +1620,7 @@ void player_update(u16 pad)
         for (s16 cx = lx; cx <= rx; cx += 8) {
             u16 ft = stage_terrain_at(stage_current_map, cx >> 4, fcy);
             if (ft != TERRAIN_MOVE_LEFT && ft != TERRAIN_MOVE_RIGHT) continue;
+            conveyor_phase++;
             s16 nx = ix + ((ft == TERRAIN_MOVE_LEFT) ? -CONVEYOR_SPEED : CONVEYOR_SPEED);
             s16 t = iy + box_t, b = iy + box_b;
             s16 col = (ft == TERRAIN_MOVE_LEFT) ? ((nx + PLAYER_BOX_L) >> 4)
@@ -931,7 +1635,10 @@ void player_update(u16 pad)
         s16 l = ix + PLAYER_BOX_L, r = ix + PLAYER_BOX_R;
         s16 t = iy + box_t, b = iy + box_b;
         bool spiked = FALSE;
-        for (s16 ty = t >> 4; ty <= (b - 1) >> 4 && !spiked; ty++) {
+        // Include the feet row: standing on a spike/lava tile means the
+        // hitbox bottom is exactly at that tile's top boundary, so the
+        // exclusive (b - 1) test skipped the tile the player stands on.
+        for (s16 ty = t >> 4; ty <= b >> 4 && !spiked; ty++) {
             for (s16 tx = l >> 4; tx <= (r - 1) >> 4; tx++) {
                 if (stage_terrain_at(stage_current_map, tx, ty) == TERRAIN_SPIKE) {
                     spiked = TRUE;
@@ -939,7 +1646,8 @@ void player_update(u16 pad)
                 }
             }
         }
-        if (spiked) player_take_damage(SPIKE_DAMAGE);
+        if (spiked && !(has_armor(1) && armor_body() == 2))
+            player_take_damage(SPIKE_DAMAGE);
     }
 
     player.x = ix;
@@ -955,24 +1663,43 @@ void player_update(u16 pad)
     // ---- fire (B) + charge shot ---------------------------------------------
     handle_fire(pad, ix, iy);
 
+    PP_MARK(7);
     // ---- animation + screen position ----------------------------------------
     u16 want;
-    if (player.hit_push > 0)    want = ANIM_HIT;
+    if (shoryuken_active)       want = ANIM_SPECIAL;
+    else if (player.hit_push > 0)    want = ANIM_HIT;
     else if (player.shielding)  want = ANIM_SHIELD;
     else if (player.sliding)    want = ANIM_SLIDE;   // ground slide + air dash
+    else if (attack_timer > 0) {
+        // PC classplayer.cpp:480-487: the fire animation is picked from the
+        // animation that was playing - walking gives WALK_ATTACK (12/13/14),
+        // in the air JUMP_ATTACK, on a ladder STAIRS_ATTACK, else ATTACK.
+        if (!player.on_ground)        want = ANIM_JUMP_ATTACK;
+        else if (player.on_ladder)    want = ANIM_STAIRS_ATTACK;
+        else if (player.vx != 0)      want = ANIM_WALK_ATTACK;
+        else                          want = ANIM_ATTACK;
+    }
     else if (!player.on_ground) want = ANIM_JUMP;
-    else if (attack_timer > 0)  want = ANIM_ATTACK;
     else if (player.vx != 0)    want = ANIM_WALK;
     else                        want = ANIM_STAND;
 
     // Flip before setAnim: the VRAM tiles are (re)built on anim changes, so
     // a flip set after a static/single-frame anim switch never reaches VRAM.
-    SPR_setHFlip(player.spr, player.facing < 0);
+    {
+        // only touch the sprite when the facing changed (or the sprite was recreated)
+        const s8 f = (player.facing < 0);
+        if (flip_spr != player.spr || flip_sent != f) {
+            SPR_setHFlip(player.spr, f);
+            flip_spr = player.spr;
+            flip_sent = f;
+        }
+    }
     if (want != current_anim) {
         current_anim = want;
-        SPR_setAnim(player.spr, want);
+        spr_set_anim(player.spr, want);
     }
     SPR_setPosition(player.spr, ix - camera.x + flip_dx(), iy - camera.y);
+    trail_update(ix, iy);
 
     invuln_blink();
 }
@@ -980,6 +1707,7 @@ void player_update(u16 pad)
 void player_set_visible(bool visible)
 {
     if (player.spr) SPR_setVisibility(player.spr, visible ? VISIBLE : HIDDEN);
+    if (!visible) trail_hide();
 }
 
 // PC classPlayer::death() (classplayer.cpp:951): one life per death; running
@@ -989,8 +1717,28 @@ static void player_die(void)
     if (lives) lives--;
     else out_of_lives = TRUE;
     player.hp = PLAYER_INITIAL_HP;
-    PAL_setPalette(PLAYER_PAL, base_pal, DMA_QUEUE);
-    respawn_player(FALSE);
+    player.vx = 0;
+    player.vy = 0;
+    player.sliding = FALSE;
+    player.hit_push = 0;
+    death_timer = PLAYER_DEATH_FRAMES;
+    player_set_visible(FALSE);
+}
+
+bool player_is_dying(void) { return death_timer != 0; }
+bool player_is_shoryuken(void) { return shoryuken_active; }
+
+bool player_death_update(void)
+{
+    if (!death_timer) return FALSE;
+    if (--death_timer) return TRUE;
+    if (!out_of_lives) {
+        PAL_setPalette(PLAYER_PAL, base_pal, DMA_QUEUE);
+        respawn_player(TRUE);
+        player_sync_sprite();
+        player_set_visible(TRUE);
+    }
+    return FALSE;
 }
 
 void player_take_damage(u8 amount)
@@ -1004,9 +1752,12 @@ void player_take_damage(u8 amount)
     s16 dmg = (s16)amount;
     if (dmg < 1) dmg = 1;
     if (dmg + player_damage_mod() > 0) dmg += player_damage_mod();
+    if (has_armor(1) && armor_body() == 0 && dmg > 1) dmg /= 2;   // half damage
 
     player.hp = (dmg >= (s16)player.hp) ? 0 : (u8)(player.hp - dmg);
-    player.invuln = PLAYER_INVULN_FRAMES;
+    player.invuln = (has_armor(1) && armor_body() == 1)
+                        ? (u16)(PLAYER_INVULN_FRAMES * 3)   // extended immunity
+                        : PLAYER_INVULN_FRAMES;
     sfx_play((player.hp == 0) ? SFX_PLAYER_DEATH : SFX_PLAYER_HIT);
 
     // PC ANIM_TYPE_HIT replaces ANIM_TYPE_SLIDE (character.cpp:1598), so a hit
@@ -1017,7 +1768,7 @@ void player_take_damage(u8 amount)
 
     // Enter the hit state (PC character.cpp:3036): push away from facing,
     // half distance + jump cancelled when hit in the air.
-    if (player.hit_push <= 0) {
+    if (player.hit_push <= 0 && !(has_armor(1) && armor_body() == 3)) {
         player.hit_dir = (player.facing > 0) ? -1 : 1;
         player.hit_acc = 0;
         if (player.on_ground) {
@@ -1040,6 +1791,74 @@ void player_crush(void)
     player_die();
 }
 
+void player_super_jump(void)
+{
+    player.on_ground = FALSE;
+    player.on_ladder = FALSE;
+    player.sliding = FALSE;
+    player.vy = -SUPER_JUMP_VEL;
+    jump_timer = 0;
+    force_jump = TRUE;
+}
+
+u16 player_pad(void) { return prev_pad; }
+
 u8 player_lives(void) { return lives; }
+
+void player_add_life(void)
+{
+    if (lives < 9) lives++;
+}
+
+void player_add_armor(u8 kind)
+{
+    if (kind < 3) player.armor |= (u8)(1u << kind);
+}
+
+void player_add_special_tank(void)
+{
+    if (player.tanks_sp < 9) player.tanks_sp++;
+}
+
+void player_add_tank(bool hp)
+{
+    if (hp) { if (player.tanks_hp < 9) player.tanks_hp++; }
+    else    { if (player.tanks_wp < 9) player.tanks_wp++; }
+}
+
+bool player_use_tank(bool hp)
+{
+    if (hp) {
+        if (player.hp >= PLAYER_INITIAL_HP) return FALSE;
+        if (player.tanks_hp) {
+            player.tanks_hp--;
+        } else if (player.tanks_sp) {
+            // special refills HP + every weapon gauge (PC class_config)
+            player.tanks_sp--;
+            for (u8 i = 0; i < PLAYER_WEAPON_N; i++)
+                player.ammo[i] = PLAYER_INITIAL_HP;
+        } else {
+            return FALSE;
+        }
+        player.hp = PLAYER_INITIAL_HP;
+        return TRUE;
+    }
+    if (player_weapon() != 0 && player_weapon_ammo() < PLAYER_INITIAL_HP) {
+        if (player.tanks_wp) {
+            player.tanks_wp--;
+            player.ammo[player.weapon] = PLAYER_INITIAL_HP;
+            return TRUE;
+        }
+    }
+    if (player.tanks_sp && (player.hp < PLAYER_INITIAL_HP ||
+                            player_weapon() == 0 ||
+                            player_weapon_ammo() < PLAYER_INITIAL_HP)) {
+        player.tanks_sp--;
+        player.hp = PLAYER_INITIAL_HP;
+        for (u8 i = 0; i < PLAYER_WEAPON_N; i++) player.ammo[i] = PLAYER_INITIAL_HP;
+        return TRUE;
+    }
+    return FALSE;
+}
 
 bool player_out_of_lives(void) { return out_of_lives; }

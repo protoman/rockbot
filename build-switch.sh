@@ -51,7 +51,7 @@ fi
 for required in \
     "$REPO_ROOT/Makefile.switch" \
     "$SWITCH_SCRIPT_DIR/docker-build.sh" \
-    "$PACKAGES_DIR/version_name_v${VERSION_NUMBER}.txt" \
+    "$PACKAGES_DIR/version_name.txt" \
     "$REPO_ROOT/build/fonts" \
     "$REPO_ROOT/build/shared" \
     "$REPO_ROOT/build/games/RockDroid${VERSION_NUMBER}"
@@ -122,7 +122,7 @@ if [[ "$DOCKER_STATUS" -ne 0 ]]; then
     exit "$DOCKER_STATUS"
 fi
 
-VERSION_NAME="$(tr -d '[:space:]' < "$PACKAGES_DIR/version_name_v${VERSION_NUMBER}.txt")"
+VERSION_NAME="$(tr -d '[:space:]' < "$PACKAGES_DIR/version_name.txt")"
 OUT_ZIP="$PACKAGES_DIR/RockBot_Switch_${VERSION_NAME}.zip"
 
 if [[ ! -f "$OUT_ZIP" ]]; then

@@ -1,0 +1,7 @@
+# res/ sheets edited BY HAND (owner, 2026-11-01). tools/convert_enemies.py keeps them as they are.
+# Remove a line only if you want the converter to regenerate that sheet from images/.
+enemy_android
+enemy_apebot
+enemy_classic_metool
+enemy_daisiebot
+enemy_flower_metool

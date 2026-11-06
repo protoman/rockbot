@@ -29,6 +29,13 @@ is not stolen by a numerically-closer grey.
 
 Usage: python3 tools/import_pc_art.py
 """
+import sys as _sys
+# DISARMED (BUG-055, owner 2026-10-31): images/ and data/ are hand-edited now and
+# must never be overwritten from the PC version again. The file stays only as
+# documentation of how the first import was made.
+if __name__ == "__main__":
+    _sys.exit("%s is disarmed (BUG-055): the PC import is over, images/ and data/ are owned by hand edits" % __file__)
+
 
 import os
 from PIL import Image
@@ -92,6 +99,12 @@ PLACEHOLDER_COLOR3 = (0, 255, 255)     # classplayer.cpp COLORKEY3
 PLAYER_PLACEHOLDERS = (PLACEHOLDER_COLOR1, PLACEHOLDER_COLOR2, PLACEHOLDER_COLOR3)
 PLAYER_OVERRIDES = {PLACEHOLDER_COLOR1: 13, PLACEHOLDER_COLOR2: 14,
                     PLACEHOLDER_COLOR3: 15}
+# Checkpoint terminal (sprites/objects/checkpoint.png): PAL0 only has ONE
+# green, so the "monitor off" dark green and the frame-1 "CHECK POINT" bright
+# green both quantized to index 13 and the two frames became identical - the
+# checkpoint never looked animated. Pin them apart: screen background ->
+# PAL0 black, text -> PAL0 white, status LEDs -> PAL0 red.
+CHECKPOINT_OVERRIDES = {(13, 59, 28): 1, (3, 160, 54): 2, (246, 12, 23): 10}
 FACE_PAL = {}                          # player n -> face palette (eyes reuse it)
 
 # ---------------------------------------------------------------- colour
@@ -209,6 +222,8 @@ def palette_for(rel):
             return None, "PLAYER_SHEET", None      # handled in main()
         if d == "faces" and base[:2] in ("p1", "p2", "p3", "p4"):
             return None, "PLAYER_FACE", None       # handled in main()
+        if d == "sprites" and base == "checkpoint.png":
+            return PAL0, "PAL0", CHECKPOINT_OVERRIDES
         return PAL0, "PAL0", None
     if d == "ending":
         # ending art is a SCENE (own palette); if it ever composites the

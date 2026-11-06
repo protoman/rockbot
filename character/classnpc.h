@@ -45,6 +45,7 @@ public:
     void copy(classnpc *from);
     void move();
     void move_projectiles();
+    bool is_wall_between_screen();
     void show_projectiles();
     virtual bool is_boss();
     void set_is_boss(bool set_boss);

@@ -727,12 +727,8 @@ st_float_size projectile::move() {
 			}
 		}
 	} else if (_move_type == TRAJECTORY_ZIGZAG) {
+        // reflects only on walls (it used to also turn around when coming back to where it was shot, which looked like bouncing on the player)
         move_ahead(moved);
-        if (original_direction != direction) {
-            if (direction == ANIM_DIRECTION_LEFT && position.x <= position0.x) {
-                inc_zigzag_status();
-            }
-        }
         if (check_map_collision(st_position(moved.width, moved.height)) == true) {
             inc_zigzag_status();
         }

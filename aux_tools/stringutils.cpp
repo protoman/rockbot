@@ -41,10 +41,20 @@ void StringUtils::replace_all(std::string &source, const std::string &from, cons
 
 std::string StringUtils::clean_filename(std::string filename)
 {
-    replace_all(filename, "//", "/");
-    replace_all(filename, "//", "/"); // twice because first time could will have "//" if "///"
-    replace_all(filename, "\\", "/");
-
-    return filename;
+    // Normalise to '/' first, then collapse every run of '/' into one (any length, one pass).
+    // Some platforms reject a doubled '/' in a path (real PSP firmware).
+    std::string result;
+    result.reserve(filename.size());
+    for (std::string::size_type i = 0; i < filename.size(); i++) {
+        char c = filename[i];
+        if (c == '\\') {
+            c = '/';
+        }
+        if (c == '/' && !result.empty() && result[result.size() - 1] == '/') {
+            continue;
+        }
+        result += c;
+    }
+    return result;
 }
 

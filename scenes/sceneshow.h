@@ -20,6 +20,8 @@ public:
     sceneShow();
 
     void show_scene(int n);
+    /// false for scenes that must play to the end (the game ending): Start does not skip them
+    void set_skippable(bool skippable) { _skippable = skippable; }
     void show_image(int n);
     void show_parallax(int n);
     void show_text(int n);
@@ -59,6 +61,8 @@ private:
     std::vector<CURRENT_FILE_FORMAT::file_scene_show_animation> animation_list;
 
     bool _interrupt_scene;
+    bool _skippable;
+    void wait_unskippable(int ms);
 
 };
 

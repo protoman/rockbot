@@ -157,29 +157,18 @@ playstation2 {
     DEFINES += _EE
     #DEFINES += _IOP
     TARGET = rockbot.elf
+    # Keep the packaged ELF where build/packages/PS2.sh expects it.
+    DESTDIR = ../build
 
-    PS2DEV = /media/iuri/SamsungEXT4/development/SDK/PS2/sdk
+    # PS2DEV can be overridden from the environment; defaults to the local install.
+    PS2DEV = $$(PS2DEV)
+    isEmpty(PS2DEV): PS2DEV = /mnt/ExtraData/Devel/SDK/PS2.new/ps2dev
     PS2SDK = $${PS2DEV}/ps2sdk
     GSKIT = $${PS2DEV}/gsKit
 
     export(PS2DEV)
     export(PS2SDK)
     export(GSKIT)
-
-    # pre-build commands
-    SJPCM.target = SJPCM.s
-    SJPCM.commands = $${PS2SDK}/bin/bin2s ../ports/ps2/SJPCM.irx ../ports/ps2/SJPCM.s SJPCM
-    cdvd.target = cdvd.s
-    cdvd.commands = $${PS2SDK}/bin/bin2s ../ports/ps2/cdvd.irx ../ports/ps2/cdvd.s cdvd
-    usbd.target = usbd.s
-    usbd.commands = $${PS2SDK}/bin/bin2s ../ports/ps2/usbd.irx ../ports/ps2/usbd.s usbd
-    usbhdfsd.target = usbhdfsd.s
-    usbhdfsd.commands = $${PS2SDK}/bin/bin2s ../ports/ps2/usbhdfsd.irx ../ports/ps2/usbhdfsd.s usbhdfsd
-    QMAKE_EXTRA_TARGETS += SJPCM cdvd usbd usbhdfsd
-    PRE_TARGETDEPS += SJPCM.s
-    PRE_TARGETDEPS += cdvd.s
-    PRE_TARGETDEPS += usbd.s
-    PRE_TARGETDEPS += usbhdfsd.s
 
     #SOURCES += ports/ps2/cdvd_rpc.c
     QMAKE_CXX = $${PS2DEV}/ee/bin/mips64r5900el-ps2-elf-g++
@@ -198,6 +187,9 @@ playstation2 {
     QMAKE_CXXFLAGS -= -m64
 #    QMAKE_CXXFLAGS -= -std=gnu++11
     QMAKE_LFLAGS -= -m64
+    # ps2sdk's linkfile is not PIC-aware; the EE code model is non-PIC.
+    QMAKE_CFLAGS_APP -= -fPIC
+    QMAKE_CXXFLAGS_APP -= -fPIC
 
     INCLUDES = -D_EE -O3 -G0 -Wall -G0 -mno-check-zero-division -ffast-math -funroll-loops -fomit-frame-pointer \
     -fstrict-aliasing -funsigned-char -fno-builtin-printf  -I. -Iunzip -DVAR_CYCLES -DCPU_SHUTDOWN -DSPC700_SHUTDOWN \
@@ -205,9 +197,9 @@ playstation2 {
     -D_NOTHREADS -D_STLP_NO_EXCEPTIONS -D_STLP_USE_NEWALLOC -D_STLP_HAS_WCHAR_T -D_STLP_NO_IOSTREAMS -Dwint_t=int \
     -DPLAYSTATION2=1 -DNUM=100 -DUSE_RWOPS -I../include -I./include -I$${PS2SDK}/ports/include/SDL -I$${PS2SDK}/ports/include -I../common I$${PS2SDK}/ee/include
 
-    LIBS = -Dmain=SDL_main $(SUBLIBS) ../ports/ps2/cdvd.s ../ports/ps2/usbd.s ../ports/ps2/usbhdfsd.s ../ports/ps2/SJPCM.s -L. -lstdc++ -lc \
-    -L$(PS2DEV)/gsKit/lib -L../lib -L$${PS2SDK}/ports/lib \
-    -lSDL_gfx -lSDL_image -ljpeg -ltiff -lpng -lz -ldebug -lSDL_ttf -lsdlmixer -lSDLmain -lSDL -lfreetype -lm -lcdvd -lpacket -ldma \
+    LIBS = -Dmain=SDL_main $(SUBLIBS) ../ports/ps2/cdvd.s ../ports/ps2/usbd.s ../ports/ps2/usbhdfsd.s ../ports/ps2/SJPCM.s -T$${PS2SDK}/ee/startup/linkfile -L. -lstdc++ -lc \
+    -L$${GSKIT}/lib -L../lib -L$${PS2SDK}/ports/lib \
+    -lSDL_gfx -lSDL_image -ljpeg -ltiff -lpng -lz -ldebug -lSDL_ttf -lsdlmixer -lsdlmain -lsdl -lgskit -ldmakit -lpad -llzma -lfreetype -lm -lcdvd -lpacket -ldma \
     -L$${PS2DEV}/ps2sdk/ee/lib -L$${PS2DEV}/gsKit/lib -L$${PS2DEV}/ps2sdk/ports/lib -lmc \
     -lstdc++  -Wl,--whole-archive -Wl,--no-whole-archive -Wl,--whole-archive -lkernel -Wl,--no-whole-archive
     #QMAKE_POST_LINK += ee-strip --strip-all rockbot.elf

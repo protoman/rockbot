@@ -207,6 +207,18 @@ def main():
         qpal = q.getpalette()
         palette_rgb = [(md_round(qpal[i * 3]), md_round(qpal[i * 3 + 1]),
                         md_round(qpal[i * 3 + 2])) for i in range(args.colors)]
+        # BUG-004: keep whichever fit has the lower weighted error
+        import palfit
+        wts = {}
+        for px, n in counts.items():
+            k = (md_round(px[0]), md_round(px[1]), md_round(px[2]))
+            wts[k] = wts.get(k, 0) + n
+        e_old = palfit.error(wts, palette_rgb)
+        cand = palfit.fit(wts, args.colors)
+        e_new = palfit.error(wts, cand)
+        print(f"  palfit: mediancut err {e_old:.1f} -> ward+lloyd {e_new:.1f}")
+        if e_new < e_old:
+            palette_rgb = cand
     else:
         palette_rgb = [c[:3] for c in colors][:args.colors]
     # Index 0 is the blank/backdrop slot (a BG plane cannot be transparent);

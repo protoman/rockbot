@@ -90,9 +90,13 @@ namespace format_v4 {
 #ifdef PS2
         //int file_io::listcdvd(const char *path, entries *FileEntry);
         void ps2_listfiles(std::string filepath, std::vector<std::string> &res);
-#elif WII
+#elif defined(WII) || defined(PS3)
+        // Big-endian hosts (Wii, PS3) must byte-swap multi-byte fields that
+        // were stored little-endian by the editor. The names are historical.
         void wii_convert_game_data(file_game& data_out);
-        void wii_convert_map_data(file_map (&data_out)[FS_STAGE_MAX_MAPS]);
+        void wii_convert_map_data(file_map_v2 (&data_out)[FS_STAGE_MAX_MAPS]);
+        void wii_convert_map_npc_data(file_map_npc_v2 &data_out);
+        void wii_convert_map_object_data(file_map_object_v2 &data_out);
 #endif
         std::string get_sufix();
 

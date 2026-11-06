@@ -1907,7 +1907,7 @@ classnpc* classMap::collision_player_npcs(character* playerObj, const short int 
             continue;
         }
 
-        if (npc_ref->is_intangible() == true) {
+        if (npc_ref->is_intangible_to_touch() == true) {
             continue;
         }
 

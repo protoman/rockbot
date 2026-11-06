@@ -37,7 +37,7 @@ DUMPER = r'''
 #include <cstdio>
 int main() {
     using namespace format_v4;
-    FILE* f = fopen("build/games/RockDroid1/player_list_v3_1_1.dat", "rb");
+    FILE* f = fopen("data/games/RockDroid1/player_list_v3_1_1.dat", "rb");
     if (!f) { printf("ERROR no file\n"); return 1; }
     for (int i = 0; i < 4; i++) {
         file_player_v3_1_1 p(i);
@@ -76,12 +76,14 @@ def parse_players():
     exe = os.path.join(WORK, "pl_dump")
     with open(src, "w") as f:
         f.write(DUMPER)
+    # cwd is the port root so the probe's relative data/games/... path works;
+    # -I still points at the parent for the PC headers.
     r = subprocess.run(["g++", "-I" + ROCKBOT, "-o", exe, src],
-                       cwd=ROCKBOT, capture_output=True, text=True)
+                       cwd=ROOT, capture_output=True, text=True)
     if r.returncode != 0:
         print(r.stderr, file=sys.stderr)
         raise SystemExit("g++ failed")
-    out = subprocess.run([exe], cwd=ROCKBOT, capture_output=True,
+    out = subprocess.run([exe], cwd=ROOT, capture_output=True,
                          text=True).stdout
     players = []
     for line in out.splitlines():

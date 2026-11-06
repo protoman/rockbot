@@ -683,7 +683,7 @@ void scenesLib::classic_style_boss_intro(short stage_n)
     if (game_save.stages[stage_n] != 0) {
         return;
     }
-    if (stage_n >= STAGE8) {
+    if (stage_n >= CASTLE1_STAGE1) {
         classic_style_castle_intro(stage_n);
     }
     soundManager.stop_music();
@@ -848,6 +848,7 @@ short scenesLib::select_save(bool is_new_game)
 void scenesLib::show_ending_scenes(e_PLAYERS selected_player)
 {
     sceneShow show;
+    show.set_skippable(false); // the ending always plays to the end
     if (selected_player == PLAYER_1) {
         show.show_scene(game_scenes_map[GAME_SCENE_TYPES_ENDING_PLAYER1]);
     } else if (selected_player == PLAYER_2) {

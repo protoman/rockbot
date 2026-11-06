@@ -1,46 +1,34 @@
-#!/bin/sh
+#!/usr/bin/env bash
+# Builds the Dingux package (CMake + Buildroot SDK) and zips it.
+# Usage: ./Dingux.sh [1|2]     (asks which game if omitted)
+# SDK location: see ../../build-dingux.sh (env OPEN_DINGUX_SDK).
+set -euo pipefail
 
-set -x
-set -e
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+source "$SCRIPT_DIR/common.sh"
+choose_game "${1:-}" || exit 1
+GAME_DIR=Rockbot$version_number
+OUT_ZIP="$PWD/Rockbot${version_number}_Dingux_$VERSIONNAME.zip"
 
-read -r -p "What is the version number you are building? " version_number
-if [ "$version_number" != "1" ] && [ "$version_number" != "2" ];
-then
-    echo "Invalid version number"
-    exit
-fi
+# Produces ../rockbot_dingux.dge
+../../build-dingux.sh
 
-export OPEN_DINGUX_SDK=/mnt/ExtraData/Devel/SDK/opendingux
-export PATH=$PATH:$OPEN_DINGUX_SDK/usr/bin/
+rm -rf ./Dingux
+mkdir -p "./Dingux/$GAME_DIR/games"
 
-VERSIONNAME=`cat version_name_v$version_number.txt`
-GAME_DIR=rockbot$version_number
+cp ../rockbot_dingux.dge "./Dingux/$GAME_DIR/"
+rsync -r --exclude=.svn ../fonts "./Dingux/$GAME_DIR/"
+rsync -r --exclude=.svn ../shared "./Dingux/$GAME_DIR/"
+rsync -r --exclude=.svn "../games/RockDroid$version_number" "./Dingux/$GAME_DIR/games"
 
-rm -r -f ./Dingux
-mkdir ./Dingux
-mkdir ./Dingux/$GAME_DIR
-mkdir ./Dingux/$GAME_DIR/games
-mkdir ./Dingux/$GAME_DIR/fonts
-mkdir ./Dingux/$GAME_DIR/shared
+cp "./Dingux/$GAME_DIR/games/RockDroid$version_number/images/icon_32px.png" "./Dingux/$GAME_DIR/rockbot.png"
+find "./Dingux/$GAME_DIR" \( -name 'game*.sav' -o -name 'config*.sav' \) -delete
 
-cd ..
-#make clean
-cd ..
-pwd
+# Strip the staged copy (the build tree keeps the debug info).
+STRIP=$(ls ${OPEN_DINGUX_SDK:-/mnt/ExtraData/Devel/SDK/opendingux}/usr/bin/mipsel-linux-strip 2>/dev/null | head -1 || true)
+[ -n "$STRIP" ] && "$STRIP" "./Dingux/$GAME_DIR/rockbot_dingux.dge" || true
 
-qmake RockDroid.pro CONFIG-=linux CONFIG+=dingux
-cd build
-
-make
-cd packages
-
-cp ../rockbot.dge ./Dingux/$GAME_DIR/
-
-
-rsync -r ../fonts ././Dingux/$GAME_DIR/
-rsync -r ../shared ././Dingux/$GAME_DIR/
-rsync -r --exclude=mp3 ../games/RockDroid$version_number ./Dingux/$GAME_DIR/games
-
-cp ./Dingux/$GAME_DIR/games/RockDroid$version_number/images/icon_32px.png ./Dingux/$GAME_DIR/rockbot.png
-cd ./Dingux
-zip -r ../Rockbot2_Dingux_$VERSIONNAME.zip *
+rm -f "$OUT_ZIP"
+( cd Dingux && zip -qr "$OUT_ZIP" "$GAME_DIR" )
+echo "Package: $OUT_ZIP"

@@ -1,15 +1,26 @@
 #include "sdl_layer.h"
-#ifdef PSP
-#include "ports/psp/psp_platform.h"
+#ifdef VITA
+#include "ports/vita/vita_platform.h"
 #endif
 #ifdef SWITCH
 #include "ports/switch/switch_platform.h"
+#endif
+#ifdef PSP
+#include "ports/psp/psp_platform.h"
+#include <pspkernel.h>
+#include "ports/psp/psp_music.h"
+#endif
+#ifdef PS3
+#include "ports/ps3/ps3_platform.h"
 #endif
 #include <string>
 #include <map>
 #include <cstdio>
 #include <cerrno>
 #include <cstring>
+#ifdef PS3
+#include <sys/systime.h>
+#endif
 
 // =============================================
 // SDL3
@@ -202,7 +213,11 @@ void SDLL_UnlockSurface(SDL_Surface *surface)
 
 void SDLL_Delay(Uint32 ms)
 {
+#ifdef PS3
+	sysUsleep(ms * 1000);
+#else
 	SDL_Delay(ms);
+#endif
 }
 
 Uint32 SDLL_GetTicks()
@@ -490,6 +505,10 @@ SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
 	Uint32 window_flags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
 #ifdef PSP
 	psp_platform::adjust_window_size(width, height, &win_w, &win_h, &window_flags);
+#elif defined(VITA)
+	win_w = vita_platform::LCD_W;
+	win_h = vita_platform::LCD_H;
+	window_flags = SDL_WINDOW_SHOWN;
 #elif defined(SWITCH)
 	switch_platform::adjust_window_size(width, height, &win_w, &win_h, &window_flags);
 #endif
@@ -537,8 +556,15 @@ SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
 	printf("SDL version: %s window=%dx%d game=%dx%d\n",
 		SDLL_GetCompiledVersion(), win_w, win_h, width, height);
 
+#ifdef PSP
+	// ABGR8888 (or RGB565 with rgb565.txt) is the PSP's native texture format. With ARGB8888 SDL converts
+	// every pixel on the CPU at every update (about 27 ms per frame); SDLL_Flip converts it itself instead.
+	texture = SDL_CreateTexture(renderer,
+								psp_platform::use_rgb565() ? SDL_PIXELFORMAT_RGB565 : SDL_PIXELFORMAT_ABGR8888,
+#else
 	texture = SDL_CreateTexture(renderer,
 								SDL_PIXELFORMAT_ARGB8888,
+#endif
 								SDL_TEXTUREACCESS_STREAMING,
 								width, height);
 	if (texture == NULL) {
@@ -548,7 +574,11 @@ SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
 
 	// SDL2 forbids combining SDL_GetWindowSurface() with a Renderer.
 	// Software backbuffer (game res) + present via texture (scaled to window).
+	#ifdef PSP
+	SDL_Surface *screen = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, psp_platform::SURFACE_FORMAT);
+#else
 	SDL_Surface *screen = SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL_PIXELFORMAT_ARGB8888);
+#endif
 	if (screen == NULL) {
 		printf("SDLL_SetVideoMode: SDL_CreateRGBSurfaceWithFormat failed: %s\n", SDL_GetError());
 		return NULL;
@@ -566,7 +596,11 @@ int SDLL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
 
 SDL_Surface *SDLL_DisplayFormat(SDL_Surface *surface)
 {
+#ifdef PSP
+	SDL_Surface *out = SDL_ConvertSurfaceFormat(surface, psp_platform::SURFACE_FORMAT, 0);
+#else
 	SDL_Surface *out = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
+#endif
 	return out;
 }
 
@@ -577,9 +611,11 @@ void SDLL_WM_SetCaption(const char *title, const char *icon)
 
 SDL_Surface *SDLL_DisplayFormatAlpha(SDL_Surface *surface)
 {
-	SDL_Surface *out = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
 #ifdef PSP
+	SDL_Surface *out = SDL_ConvertSurfaceFormat(surface, psp_platform::SURFACE_FORMAT, 0);
 	psp_platform::adjust_display_format_alpha(out);
+#else
+	SDL_Surface *out = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_ARGB8888, 0);
 #endif
 	return out;
 }
@@ -591,18 +627,94 @@ void SDLL_WM_SetIcon(SDL_Surface *icon, Uint8 *mask)
 
 int SDLL_Flip(SDL_Surface *screen)
 {
+#ifdef PSP
+	psp_platform::heartbeat();
+	static unsigned int flip_n = 0;
+	flip_n++;
+	// first frames and then every 2^n-th one: shows how far the video path gets on real hardware
+	const bool flip_log = flip_n <= 3 || (flip_n & (flip_n - 1)) == 0;
+	const unsigned int t_start = sceKernelGetSystemTimeLow();
+	if (flip_log) psp_platform::log("flip #%u begin screen=%p texture=%p renderer=%p", flip_n, (void*)screen, (void*)texture, (void*)renderer);
+#endif
 	if (screen == NULL || texture == NULL || renderer == NULL) {
 		return -1;
 	}
+#ifdef PSP
+	// The screen already is ABGR8888 like the texture: a plain copy. Only the optional 16-bit texture
+	// (rgb565.txt) needs a conversion pass.
+	const bool use565 = psp_platform::use_rgb565();
+	const void *upload_pixels = screen->pixels;
+	int upload_pitch = screen->pitch;
+	if (use565) {
+		static Uint16 *conv16 = NULL;
+		static int conv_w = 0, conv_h = 0;
+		if (conv16 == NULL || conv_w != screen->w || conv_h != screen->h) {
+			SDL_free(conv16);
+			conv16 = (Uint16 *)SDL_malloc((size_t)screen->w * screen->h * 2);
+			conv_w = screen->w;
+			conv_h = screen->h;
+			if (conv16 == NULL) {
+				return -1;
+			}
+		}
+		for (int y = 0; y < screen->h; y++) {
+			const Uint32 *src = (const Uint32 *)((const Uint8 *)screen->pixels + (size_t)y * screen->pitch);
+			Uint16 *dst16 = conv16 + (size_t)y * screen->w;
+			for (int x = 0; x < screen->w; x++) {
+				const Uint32 p = src[x]; // ABGR: red in the low byte
+				dst16[x] = (Uint16)(((p << 8) & 0xF800u) | ((p >> 5) & 0x07E0u) | ((p >> 19) & 0x001Fu));
+			}
+		}
+		upload_pixels = conv16;
+		upload_pitch = screen->w * 2;
+	}
+	const unsigned int t_swap = sceKernelGetSystemTimeLow();
+	if (SDL_UpdateTexture(texture, NULL, upload_pixels, upload_pitch) != 0) {
+		psp_platform::log("flip: SDL_UpdateTexture failed: %s", SDL_GetError());
+		return -1;
+	}
+#else
 	if (SDL_UpdateTexture(texture, NULL, screen->pixels, screen->pitch) != 0) {
 		return -1;
 	}
+#endif
+#ifdef PSP
+	if (flip_log) psp_platform::log("flip #%u texture updated", flip_n);
+#endif
+#ifdef PSP
+	const unsigned int t_upload = sceKernelGetSystemTimeLow();
+#endif
 	// Copy RGB as-is; ignore per-pixel alpha (avoids empty frame if A was left 0).
 	SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE);
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
+#ifdef PSP
+	if (flip_log) psp_platform::log("flip #%u cleared", flip_n);
+	SDL_Rect present_rect;
+	if (psp_platform::get_present_rect(screen->w, screen->h, &present_rect)) {
+		SDL_RenderCopy(renderer, texture, NULL, &present_rect);
+	} else {
+		SDL_RenderCopy(renderer, texture, NULL, NULL);
+	}
+	if (flip_log) psp_platform::log("flip #%u copied", flip_n);
+#elif defined(VITA)
+	SDL_Rect fixed_rect;
+	if (vita_platform::get_present_rect(screen->w, screen->h, &fixed_rect)) {
+		SDL_RenderCopy(renderer, texture, NULL, &fixed_rect);
+	} else {
+		SDL_RenderCopy(renderer, texture, NULL, NULL);
+	}
+#else
 	SDL_RenderCopy(renderer, texture, NULL, NULL);
+#endif
+#ifdef PSP
+	const unsigned int t_copy = sceKernelGetSystemTimeLow();
+#endif
 	SDL_RenderPresent(renderer);
+#ifdef PSP
+	psp_platform::flip_timing(t_swap - t_start, t_upload - t_swap, t_copy - t_upload, sceKernelGetSystemTimeLow() - t_copy);
+	if (flip_log) psp_platform::log("flip #%u presented", flip_n);
+#endif
 	return 0;
 }
 
@@ -703,7 +815,11 @@ void SDLL_UnlockSurface(SDL_Surface *surface)
 
 void SDLL_Delay(Uint32 ms)
 {
+#ifdef PS3
+	sysUsleep(ms * 1000);
+#else
 	SDL_Delay(ms);
+#endif
 }
 
 Uint32 SDLL_GetTicks()
@@ -798,7 +914,14 @@ SDL_Surface *SDLL_rotozoomSurface(SDL_Surface *src, double angle, double zoom, i
 
 int SDLL_Mix_OpenAudio(int frequency, Uint16 format, int channels, int chunksize)
 {
+#ifdef PSP
+	psp_platform::log("Mix_OpenAudio freq=%d format=0x%x ch=%d chunk=%d", frequency, (unsigned)format, channels, chunksize);
+	int open_res = Mix_OpenAudio(frequency, format, channels, chunksize);
+	psp_platform::log("Mix_OpenAudio -> %d (%s)", open_res, open_res < 0 ? Mix_GetError() : "ok");
+	return open_res;
+#else
 	return Mix_OpenAudio(frequency, format, channels, chunksize);
+#endif
 }
 
 int SDLL_Mix_Volume(int channel, int volume)
@@ -808,16 +931,35 @@ int SDLL_Mix_Volume(int channel, int volume)
 
 int SDLL_Mix_VolumeMusic(int volume)
 {
+#ifdef PSP
+	psp_music::set_volume(volume);
+#endif
 	return Mix_VolumeMusic(volume);
 }
 
 int SDLL_Mix_PlayMusic(SoundMusic *music, int loops)
 {
+#ifdef PSP
+	if (psp_music::owns(music)) {
+		psp_platform::log("play tracker music %p loops=%d", (void*)music, loops);
+		return psp_music::play(music, loops);
+	}
+	psp_music::halt();
+	psp_platform::log("Mix_PlayMusic music=%p loops=%d", (void*)music, loops);
+	int pm_res = Mix_PlayMusic(music, loops);
+	psp_platform::log("Mix_PlayMusic -> %d", pm_res);
+	return pm_res;
+#else
 	return Mix_PlayMusic(music, loops);
+#endif
 }
 
 int SDLL_Mix_PlayChannel(int channel, SoundChunk *chunk, int loops)
 {
+#ifdef PSP
+	static int sfx_logged = 0;
+	if (sfx_logged < 8) { sfx_logged++; psp_platform::log("Mix_PlayChannel ch=%d chunk=%p", channel, (void*)chunk); }
+#endif
 	return Mix_PlayChannel(channel, chunk, loops);
 }
 
@@ -833,6 +975,9 @@ int SDLL_Mix_HaltChannel(int channel)
 
 int SDLL_Mix_HaltMusic()
 {
+#ifdef PSP
+	psp_music::halt();
+#endif
 	return Mix_HaltMusic();
 }
 
@@ -856,6 +1001,12 @@ SoundMusic *SDLL_Mix_LoadMUS(const char *file)
 
 void SDLL_Mix_FreeMusic(SoundMusic *music)
 {
+#ifdef PSP
+	if (psp_music::owns(music)) {
+		psp_music::free_music(music);
+		return;
+	}
+#endif
 	Mix_FreeMusic(music);
 }
 
@@ -886,6 +1037,9 @@ const char *SDLL_Mix_GetError()
 
 int SDLL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha)
 {
+#ifdef PS3
+	flag &= ~SDL_RLEACCEL; // no RLE on PS3 (see SDLL_DisplayFormat)
+#endif
 	return SDL_SetAlpha(surface, flag, alpha);
 }
 
@@ -915,6 +1069,17 @@ int SDLL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
 
 SDL_Surface *SDLL_DisplayFormat(SDL_Surface *surface)
 {
+#ifdef PS3
+	// SDL_DisplayFormat() in this SDL 1.3 snapshot converts with SDL_RLEACCEL, which
+	// makes every loaded surface RLE-encoded. Its RLE blitter draws smeared, repeated
+	// copies when the source rectangle is offset (tilesets, backgrounds) on this
+	// big-endian build, and RLE surfaces have no pixel data until locked. Convert to
+	// the display format without RLE instead.
+	SDL_Surface *video = SDL_GetVideoSurface();
+	if (video != NULL) {
+		return SDL_ConvertSurface(surface, video->format, SDL_SWSURFACE);
+	}
+#endif
 	return SDL_DisplayFormat(surface);
 }
 
@@ -935,7 +1100,14 @@ void SDLL_WM_SetIcon(SDL_Surface *icon, Uint8 *mask)
 
 int SDLL_Flip(SDL_Surface *screen)
 {
+#ifdef PS3
+	// SDL_PSL1GHT's 64 KB RSX command buffer fills up after 256 flips and the
+	// game then hangs; wrap it before that happens (see ports/ps3/ps3_platform.cpp).
+	ps3_platform::rsx_command_buffer_guard();
 	return SDL_Flip(screen);
+#else
+	return SDL_Flip(screen);
+#endif
 }
 
 const char* SDLL_GetKeyName(int key)
@@ -971,7 +1143,18 @@ int SDLL_ShowCursor(int toggle)
 
 int SDLL_putenv(const char *variable)
 {
+#ifdef PLAYSTATION2
+	std::string var(variable);
+	size_t pos = var.find('=');
+	if (pos != std::string::npos) {
+		std::string name = var.substr(0, pos);
+		std::string val = var.substr(pos + 1);
+		return setenv(name.c_str(), val.c_str(), 1);
+	}
+	return -1;
+#else
 	return SDL_putenv((char*)variable);
+#endif
 }
 
 SDL_RWops *SDLL_RWFromFile(const char *file, const char *mode)
@@ -990,6 +1173,9 @@ void SDLL_FreeSurface(SDL_Surface *surface)
 
 int SDLL_SetColorKey(SDL_Surface *surface, int flag, Uint32 key)
 {
+#ifdef PS3
+	flag &= ~SDL_RLEACCEL; // no RLE on PS3 (see SDLL_DisplayFormat)
+#endif
 	return SDL_SetColorKey(surface, flag, key);
 }
 
@@ -1020,7 +1206,11 @@ void SDLL_UnlockSurface(SDL_Surface *surface)
 
 void SDLL_Delay(Uint32 ms)
 {
+#ifdef PS3
+	sysUsleep(ms * 1000);
+#else
 	SDL_Delay(ms);
+#endif
 }
 
 Uint32 SDLL_GetTicks()
@@ -1085,7 +1275,11 @@ TTF_Font *SDLL_TTF_OpenFontRW(SDL_RWops *src, int freesrc, int size)
 
 void SDLL_TTF_SetFontOutline(TTF_Font *font, int outline)
 {
+#ifndef DINGUX_LEGACY_SDL_TTF
 	TTF_SetFontOutline(font, outline);
+#else
+	(void)font; (void)outline; // SDL_ttf 2.0.9 (A320 toolchain) has no outline support
+#endif
 }
 
 SDL_Surface *SDLL_TTF_RenderUTF8_Solid(TTF_Font *font, const char *text, SDL_Color fg)
@@ -1183,7 +1377,11 @@ void SDLL_Mix_CloseAudio()
 
 void SDLL_Mix_Quit()
 {
+#ifdef PLAYSTATION2
+	// SDL_mixer 1.2 has no Mix_Quit(); Mix_CloseAudio() is the final cleanup.
+#else
 	Mix_Quit();
+#endif
 }
 
 const char *SDLL_Mix_GetError()
@@ -1232,6 +1430,9 @@ Uint32 SDLL_MapRGB(SDL_Surface *surface, Uint8 r, Uint8 g, Uint8 b)
 	// SDL2 MapRGB sets A=0 on ARGB8888 → transparent fills → black Flip / invisible text.
 	if (surface != NULL && surface->format != NULL && surface->format->Amask != 0) {
 		return SDL_MapRGBA(surface->format, r, g, b, 255);
+	}
+	if (surface == NULL || surface->format == NULL) {
+		return 0;
 	}
 	return SDL_MapRGB(surface->format, r, g, b);
 #endif

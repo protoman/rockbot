@@ -1,10 +1,13 @@
 #include <cstdlib>
 #include <cstdio>
-#ifdef PSP
-#include "ports/psp/psp_platform.h"
-#endif
 #ifdef SWITCH
 #include "ports/switch/switch_platform.h"
+#endif
+#ifdef WII
+#include "ports/ogc/ogc_platform.h"
+#endif
+#ifdef PSP
+#include "ports/psp/psp_platform.h"
 #endif
 #include <iostream>
 #include <cstring>
@@ -130,7 +133,16 @@ bool graphicsLib::initGraphics()
     }
 #else
 	// GRAPHIC LIB
+#ifdef PLAYSTATION2
+    // The pad is handled by libpad (ports/ps2/ps2_pad.h): SDL's PS2 joystick
+    // subsystem hangs during SDL_Init with the current SDK.
+    if (SDLL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO) < 0 ) {
+#else
     if (SDLL_Init(SDL_INIT_VIDEO|SDL_INIT_JOYSTICK|SDL_INIT_TIMER|SDL_INIT_AUDIO) < 0 ) {
+#endif
+#ifdef SWITCH
+        switch_platform::log("initGraphics: SDL_Init failed (%s)", SDLL_GetError());
+#endif
         std::cout << "ERROR: Unable to init SDL. Error: " << SDLL_GetError() << std::endl;
         std::fflush(stdout);
         exception_manager::throw_general_exception(std::string("graphicsLib::initGraphics - Unable to init SDL."), SDLL_GetError());
@@ -138,8 +150,9 @@ bool graphicsLib::initGraphics()
 #endif
 	sdl_initialized = true;
 
-#if defined(PLAYSTATION2) || defined(WII)
+#if defined(WII)
     if (SDLL_NumJoysticks() <= 0) {
+        ogc_platform::log("No joysticks found, exiting");
         std::cout << "No joysticks found" << std::endl;
         fflush(stdout);
 
@@ -152,6 +165,7 @@ bool graphicsLib::initGraphics()
     fflush(stdout);
 
     // FONT
+
     SDLL_TTF_Init();
 
     filename = GAMEPATH + std::string("/fonts/pressstart2p.ttf");
@@ -172,6 +186,9 @@ bool graphicsLib::initGraphics()
     if (!fileRW || !fileOutlineRW || !fileErrorRW) {
 		printf("ERROR::initGraphics - could not open '%s' font (rw=%p outline=%p error=%p sdl='%s')\n",
                buffer, (void*)fileRW, (void*)fileOutlineRW, (void*)fileErrorRW, SDLL_GetError());
+#ifdef SWITCH
+        switch_platform::log("initGraphics: cannot open font '%s' (%s)", buffer, SDLL_GetError());
+#endif
         fflush(stdout);
         delete[] buffer;
 		return false;
@@ -184,6 +201,9 @@ bool graphicsLib::initGraphics()
         if (font == NULL || outline_font == NULL || error_font == NULL) {
             printf("ERROR::initGraphics - SDLL_TTF_OpenFont failed for '%s' (ttf='%s')\n",
                    buffer, SDLL_TTF_GetError());
+#ifdef SWITCH
+            switch_platform::log("initGraphics: TTF_OpenFont failed for '%s' (%s)", buffer, SDLL_TTF_GetError());
+#endif
             fflush(stdout);
             delete[] buffer;
             return false;
@@ -231,6 +251,10 @@ void graphicsLib::set_window_icon()
 
 void graphicsLib::update_screen_mode()
 {
+#ifdef PS3
+    game_screen_scaled = SDLL_SetVideoMode(1280, 720, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+    return;
+#endif
     if (SharedData::get_instance()->game_config.video_fullscreen == false) {
         scale_int = SharedData::get_instance()->game_config.scale_int;
         if (scale_int < 1) {
@@ -297,7 +321,24 @@ void graphicsLib::updateScreen()
         copyArea(st_position(-_screen_resolution_adjust.x, -_screen_resolution_adjust.y), &_screen_border, &gameScreen);
     }
 
-#ifdef PC
+#ifdef PS3
+    if (game_screen_scaled == NULL) {
+        SDLL_Flip(game_screen);
+        return;
+    }
+    {
+        const int scale = 3; // 320x240 -> 960x720, centered on 1280x720
+        SDL_Rect origin_rect = {0, 0, RES_W, RES_H};
+        SDL_Rect dest_rect;
+        dest_rect.w = RES_W * scale;
+        dest_rect.h = RES_H * scale;
+        dest_rect.x = (game_screen_scaled->w - dest_rect.w) / 2;
+        dest_rect.y = (game_screen_scaled->h - dest_rect.h) / 2;
+        SDL_FillRect(game_screen_scaled, NULL, SDLL_MapRGB(game_screen_scaled, 0, 0, 0));
+        SDLL_SoftStretch(game_screen, &origin_rect, game_screen_scaled, &dest_rect);
+    }
+    SDLL_Flip(game_screen_scaled);
+#elif defined(PC)
     if (SharedData::get_instance()->changed_window_size == true && !SharedData::get_instance()->game_config.video_fullscreen) {
         double scale = SharedData::get_instance()->scaleX;
         if (SharedData::get_instance()->scaleY < scale) {
@@ -331,6 +372,22 @@ void graphicsLib::updateScreen()
     SDLL_Flip(game_screen);
 #endif
 
+#ifdef WII
+    {   // frames per second in the boot log (every 2 s)
+        static Uint32 window_start = 0;
+        static unsigned frames = 0;
+        Uint32 now = SDLL_GetTicks();
+        if (window_start == 0) {
+            window_start = now;
+        }
+        frames++;
+        if (now - window_start >= 2000) {
+            ogc_platform::log("perf: %u frames in %u ms = %u fps", frames, (unsigned)(now - window_start), (unsigned)(frames * 1000 / (now - window_start)));
+            window_start = now;
+            frames = 0;
+        }
+    }
+#endif
 }
 
 
@@ -367,6 +424,34 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(const std::string& filename)
         fflush(stdout);
         return NULL;
     }
+#ifndef SDL3
+    // Art exported with color management (gamma/sRGB chunks) can have a background that is close to the
+    // colorkey but not equal (e.g. 72,126,124 instead of 75,125,125), which then shows as an opaque box.
+    // If the top-left pixel is within a small distance of the key, that exact color is the key for this image.
+    if (res_surface->format->BytesPerPixel == 4 && res_surface->w > 0 && res_surface->h > 0) {
+        SDLL_LockSurface(res_surface);
+        const SDL_PixelFormat *fmt = res_surface->format;
+        const Uint32 rgb_mask = fmt->Rmask | fmt->Gmask | fmt->Bmask;
+        const Uint32 corner = *(const Uint32 *)res_surface->pixels & rgb_mask;
+        const int cr = (int)((corner & fmt->Rmask) >> fmt->Rshift);
+        const int cg = (int)((corner & fmt->Gmask) >> fmt->Gshift);
+        const int cb = (int)((corner & fmt->Bmask) >> fmt->Bshift);
+        const int tolerance = 8;
+        const Uint32 key_px = ((Uint32)COLORKEY_R << fmt->Rshift) | ((Uint32)COLORKEY_G << fmt->Gshift) | ((Uint32)COLORKEY_B << fmt->Bshift);
+        if (corner != key_px && std::abs(cr - COLORKEY_R) <= tolerance && std::abs(cg - COLORKEY_G) <= tolerance &&
+            std::abs(cb - COLORKEY_B) <= tolerance) {
+            for (int y = 0; y < res_surface->h; y++) {
+                Uint32 *row = (Uint32 *)((Uint8 *)res_surface->pixels + (size_t)y * res_surface->pitch);
+                for (int x = 0; x < res_surface->w; x++) {
+                    if ((row[x] & rgb_mask) == corner) {
+                        row[x] = (row[x] & ~rgb_mask) | key_px;
+                    }
+                }
+            }
+        }
+        SDLL_UnlockSurface(res_surface);
+    }
+#endif
     SDLL_SetColorKey(res_surface, SDL_SRCCOLORKEY, SDLL_MapRGB(game_screen, COLORKEY_R, COLORKEY_G, COLORKEY_B));
 
     return res_surface;
@@ -770,6 +855,43 @@ void graphicsLib::show_white_surface_at(graphicsLib_gSurface *surfaceOrigin, st_
     copyArea(st_position(0, 0), surfaceOrigin, &tmp);
     //struct st_position pos, struct graphicsLib_gSurface* surfaceOrigin, struct graphicsLib_gSurface* surfaceDestiny
     showSurfaceAt(&tmp, pos, false);
+}
+
+// initSurface() turns the colour key on for every surface. A composed, fully painted layer (the scrolling
+// background) has no pixel left with the key colour, so the key test on each pixel of every blit is wasted work:
+// when no pixel matches, the key is switched off and the blit becomes a plain copy.
+void graphicsLib::drop_unused_colorkey(struct graphicsLib_gSurface* gSurface)
+{
+#if !defined(SDL3) && !defined(PSP) && !defined(PS3)
+    SDL_Surface *surface = gSurface != NULL ? gSurface->get_surface() : NULL;
+    if (surface == NULL || game_screen == NULL || surface->format == NULL) {
+        return;
+    }
+    const int bpp = surface->format->BytesPerPixel;
+    if (bpp != 2 && bpp != 4) {
+        return;
+    }
+    const Uint32 rgb_mask = surface->format->Rmask | surface->format->Gmask | surface->format->Bmask;
+    const Uint32 key = SDLL_MapRGB(game_screen, COLORKEY_R, COLORKEY_G, COLORKEY_B) & rgb_mask;
+    SDLL_LockSurface(surface);
+    bool found = false;
+    for (int y = 0; y < surface->h && !found; y++) {
+        const Uint8 *row = (const Uint8 *)surface->pixels + (size_t)y * surface->pitch;
+        for (int x = 0; x < surface->w; x++) {
+            const Uint32 px = (bpp == 4) ? ((const Uint32 *)row)[x] : ((const Uint16 *)row)[x];
+            if ((px & rgb_mask) == key) {
+                found = true;
+                break;
+            }
+        }
+    }
+    SDLL_UnlockSurface(surface);
+    if (!found) {
+        SDLL_SetColorKey(surface, 0, 0);
+    }
+#else
+    UNUSED(gSurface);
+#endif
 }
 
 void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* gSurface)
@@ -2183,7 +2305,8 @@ void graphicsLib::set_video_mode()
 	}
 #elif defined(WII)
     _video_filter = VIDEO_FILTER_NOSCALE;
-    game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE);
+    // double buffered: with a single hardware buffer the frame is shown while it is being drawn
+    game_screen = SDLL_SetVideoMode(RES_W, RES_H, VIDEO_MODE_COLORS, SDL_HWSURFACE | SDL_DOUBLEBUF);
 #elif defined(PSP)
     _video_filter = VIDEO_FILTER_NOSCALE;
     game_screen = psp_platform::set_video_mode(RES_W, RES_H, VIDEO_MODE_COLORS);
@@ -2208,6 +2331,17 @@ void graphicsLib::set_video_mode()
     */
 #elif defined(RASPBERRY)
     game_screen = SDLL_SetVideoMode(RES_W, RES_H, 24, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+    _video_filter = VIDEO_FILTER_NOSCALE;
+#elif defined(PS3)
+    // Native output is 720p; the game keeps drawing at 320x240 and
+    // updateScreen() scales it 3x (960x720) into the center of the screen.
+    game_screen_scaled = SDLL_SetVideoMode(1280, 720, VIDEO_MODE_COLORS, SDL_SWSURFACE | SDL_DOUBLEBUF | SDL_FULLSCREEN);
+    if (game_screen != NULL) {
+        SDLL_FreeSurface(game_screen);
+    }
+    SDL_Surface *temp_screen = SDLL_CreateRGBSurface(SDL_SWSURFACE, RES_W, RES_H, VIDEO_MODE_COLORS, 0, 0, 0, 255);
+    game_screen = SDLL_DisplayFormat(temp_screen);
+    SDLL_FreeSurface(temp_screen);
     _video_filter = VIDEO_FILTER_NOSCALE;
 #else
 

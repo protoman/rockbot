@@ -215,8 +215,8 @@ void classPlayer::recharge(e_energy_types _en_type, int value)
 
 bool classPlayer::shouryuken()
 {
-    // trying to start command (can only start if standing)
-    if (moveCommands.up != 0 && moveCommands.dash != 0 && state.animation_type == ANIM_TYPE_STAND)  {
+    // trying to start command (can only start if standing on the ground: against a wall the animation can fall back to STAND in the air, which allowed to chain shoryukens forever)
+    if (moveCommands.up != 0 && moveCommands.dash != 0 && state.animation_type == ANIM_TYPE_STAND && hit_ground() == true)  {
         set_animation_type(ANIM_TYPE_SPECIAL_ATTACK);
         _can_execute_airdash = false;
         soundManager.play_sfx(SFX_SHORYUKEN_GIRL);
@@ -761,6 +761,10 @@ void classPlayer::execute_projectiles()
         }
 
 
+        if (projectile_erased) { // the iterator is no longer valid: the others are handled next frame
+            break;
+        }
+
         // check collision against objects
 
         // if projectile is a bomb, check collision against objects
@@ -1062,6 +1066,9 @@ void classPlayer::set_weapon_value(Uint8 weapon_n, Uint8 value)
 
 CURRENT_FILE_FORMAT::file_weapon_colors classPlayer::get_weapon_colors(short int weapon_n)
 {
+	if (weapon_n < 0 || weapon_n >= MAX_WEAPON_N) {
+		weapon_n = 0;
+	}
 	return weapon_colors[weapon_n];
 }
 

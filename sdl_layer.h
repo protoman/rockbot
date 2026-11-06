@@ -3,7 +3,11 @@
 #ifdef SDL3
 
 #include <SDL3/SDL.h>
+// SDL3's SDL_main.h defines WinMain/main-wrapper code in every file that includes it, so it
+// must be included only by the file that defines main() (main.cpp defines ROCKBOT_DEFINE_MAIN).
+#ifdef ROCKBOT_DEFINE_MAIN
 #include <SDL3/SDL_main.h>
+#endif
 #include <SDL3_image/SDL_image.h>
 #include <SDL3_mixer/SDL_mixer.h>
 #include <SDL3_ttf/SDL_ttf.h>

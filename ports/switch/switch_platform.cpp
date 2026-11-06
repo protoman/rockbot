@@ -4,6 +4,7 @@
 
 #include <switch.h>
 
+#include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -62,6 +63,16 @@ void shutdown()
         socketExit();
         g_sockets_ok = false;
     }
+}
+
+void log(const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    std::vprintf(fmt, ap);
+    va_end(ap);
+    std::printf("\n");
+    std::fflush(stdout);
 }
 
 void get_filepath(std::string &filepath, int maxpathlen, const char *argv0)
@@ -204,6 +215,7 @@ void setup() {}
 void shutdown() {}
 void get_filepath(std::string &, int, const char *) {}
 bool is_applet_mode() { return false; }
+void log(const char *, ...) {}
 SDL_Surface *set_video_mode(int, int, int) { return NULL; }
 
 void adjust_window_size(int requested_w, int requested_h, int *win_w, int *win_h, Uint32 *window_flags)

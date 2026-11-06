@@ -53,14 +53,31 @@ Real mistakes + fixes. Add to this on every session.
   thing: that one *is* the 2-bit line number (`TILE_ATTR_FULL`/`<< 13`).
 
 **26. A failing build is invisible if you only grep the log for "error"**
-- This toolchain's messages are localised: gcc reports `Erro 1` (Portuguese), so
-  `make ... | grep -iE 'error|Error'` matched nothing while every build was in
-  fact failing. Four emulator runs then tested a *stale* ROM (it played the intro
-  logo screen), and the conclusion drawn from them — "the palette line is not
-  switching" — was wrong: the code had never been compiled.
-- Always check make's exit status (`if ! make > log 2>&1; then ... fi`, or look
-  for `Erro`) and, before launching an emulator, that `out/rom.bin` is **newer
-  than the newest source file**. Two seconds of checking beats four bad runs.
+- This toolchain's messages are localised (Portuguese, and **lowercase**):
+  `erro: 'x' undeclared ...` and `aviso: ...`. `make ... | grep -E "error|Error"`
+  matches nothing while the build is failing, and `ls -l out/rom.bin` still shows
+  a happy-looking ROM - the *previous* one. This has now cost two sessions:
+  four emulator runs once (stale ROM, wrong conclusion about the palette line)
+  and two commits on 2026-10-22 (boss-death ring, boss-intro skip fix), where
+  `main.c` had a missing declaration and never compiled.
+- The only reliable check is **make's exit status**:
+  `make > log 2>&1; echo "exit=$?"` (`if ! make; then ...; fi` in scripts).
+  Grep is for reading the messages, not for deciding pass/fail - and it must
+  include the localised words: `grep -E "erro:|error:"`.
+- Before any emulator run also confirm `out/rom.bin` is **newer than the newest
+  source file** (`find src res -newer out/rom.bin -name '*.[ch]' | head`).
+  Two seconds of checking beats four bad runs and a wrong handoff.
+
+**27. A self-consistent preview cannot validate an encoding**
+- The 60-colour title tool emitted its palette as `[blank] + colours` but built
+  the tile pixels from `lines[L].index(colour)`, i.e. 0-based, so every pixel was
+  read one palette slot too low on hardware (and the first colour of each line
+  collided with transparent slot 0). Colours were wrong, shapes were fine.
+- The `--preview` check *looked* correct the whole time because it built its
+  palettes the same wrong way: the preview validated the algorithm, not the
+  encoding. Fix that worked: make the preview derive the palette exactly as the
+  emitter writes it (blank at 0, colours at 1..15) - then a mismatch shows up
+  offline. Reserve slot 0 in the *data* model, not just at write time.
 
 ## Runtime / drawing
 
@@ -244,3 +261,12 @@ Real mistakes + fixes. Add to this on every session.
 
 - ROM checksum: `sizebnd -checksum` did not rewrite the field (writes `0xd271`, real is `0xa980`). Modern emulators (Kega/GPGX/blastem) do not validate it, so it is cosmetic. Investigate only if an emulator starts rejecting the ROM.
 - Milestone 1 (intro logos) is running. Next: title screen + menu.
+
+**26. A `for f in res/*.png` loop that writes `res/*.png` feeds itself**
+- The scene-image step globbed `res/scene_img*.png`, then `img2tiles` wrote
+  `res/scene_imgN_tiles.png` / `_tiles_rgba.png` — the next run picked those
+  up as inputs and generated `scene_img8_tiles_tiles_...` names, 3240 C files
+  and 4572 PNGs later the linker failed with "argument list too long".
+- Fix: filter generated names in the shell loop
+  (`case "$f" in *_tiles.png|*_tiles_rgba.png) continue;; esac`) or keep
+  inputs in a separate directory from outputs.

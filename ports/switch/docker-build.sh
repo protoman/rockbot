@@ -17,7 +17,7 @@ export DEVKITPRO="${DEVKITPRO:-/opt/devkitpro}"
 export DEVKITA64="${DEVKITA64:-$DEVKITPRO/devkitA64}"
 export PATH="${DEVKITPRO}/tools/bin:${DEVKITA64}/bin:${PATH}"
 
-VERSION_NAME="$(tr -d '[:space:]' < "$PACKAGES_DIR/version_name_v${VERSION_NUMBER}.txt")"
+VERSION_NAME="$(tr -d '[:space:]' < "$PACKAGES_DIR/version_name.txt")"
 STAGE_DIR="$PACKAGES_DIR/switch_dist"
 GAME_DIR="Rockbot${VERSION_NUMBER}"
 OUT_ZIP="$PACKAGES_DIR/RockBot_Switch_${VERSION_NAME}.zip"

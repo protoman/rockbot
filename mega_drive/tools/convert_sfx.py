@@ -24,7 +24,7 @@ import wave
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
-DATA = os.path.join(ROCKBOT, "build/games/RockDroid1/sfx")
+DATA = os.path.join(ROOT, "data/games/RockDroid1/sfx")
 RES = os.path.join(ROOT, "res")
 GAIN = 2
 
@@ -40,6 +40,16 @@ SOUNDS = [
     "npc_hit", "npc_killed", "big_explosion",
     # objects
     "got_energy_pill", "got_item", "teleporter_activated",
+    # player enters/leaves water
+    "water_enter", "water_leave",
+    "door_open", "got_weapon", "stage_selected",
+    # objects: block appearing, destructible break, beams
+    "disappearning_block", "object_break", "beam",
+    # PC plays these too (soundlib.cpp:170/242/251): shot reflected by a shield,
+    # the shoryuken voice, the big energy pill (recharge.wav)
+    "shot_reflected", "shoryuken_girl", "recharge",
+    # enemy projectile sounds from the projectile table (beam.wav, axe.wav)
+    "axe",
     # UI
     "cursor",
 ]

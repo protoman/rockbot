@@ -25,6 +25,7 @@ extern timerLib timer;
 sceneShow::sceneShow()
 {
     _interrupt_scene = false;
+    _skippable = true;
     scene_list = fio_scn.load_scenes();
     image_scenes = fio_scn.load_scenes_show_image();
     parallax_scenes = fio_scn.load_scenes_parallax();
@@ -56,7 +57,7 @@ void sceneShow::show_scene(int n)
         input.read_input();
         int scene_seek_n = scene.objects[i].seek_n;
 
-        if (_interrupt_scene == true || input.p1_input[BTN_START] == 1) {
+        if (_interrupt_scene == true || (_skippable && input.start_pressed())) {
             break;
         }
 
@@ -87,13 +88,28 @@ void sceneShow::show_scene(int n)
             } else {
                 std::cout << "ERROR: sceneShow::show_scene - unknown scene_type[" << scene_type << "]" << std::endl;
             }
-            if (input.wait_scape_time(scene.objects[i].delay_after) == 1) {
-                _interrupt_scene = true;
+            if (_skippable) {
+                if (input.wait_scape_time(scene.objects[i].delay_after) == 1) {
+                    _interrupt_scene = true;
+                }
+            } else {
+                wait_unskippable(scene.objects[i].delay_after);
             }
         } else {
             break;
         }
     }
+}
+
+// waits without letting any button end it (keeps reading the input so the window stays responsive)
+void sceneShow::wait_unskippable(int ms)
+{
+    unsigned long end_time = timer.getTimer() + ms;
+    while (timer.getTimer() < end_time) {
+        timer.delay(10);
+        input.read_input();
+    }
+    input.clean();
 }
 
 void sceneShow::show_image(int n)
@@ -399,7 +415,7 @@ void sceneShow::run_text(int n)
     int min_pos_y = RES_H;
     unsigned int max_line_count = 0;
     for (int i=0; i<lines.size(); i++) {
-        if (input.p1_input[BTN_START] == 1) {
+        if (_skippable && input.start_pressed()) {
             _interrupt_scene = true;
             break;
         }

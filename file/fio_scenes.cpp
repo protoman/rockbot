@@ -3,8 +3,68 @@
 
 #include "fio_scenes.h"
 #include "../aux_tools/exception_manager.h"
+#include "../aux_tools/stringutils.h"
 
 namespace format_v4 {
+
+// The scene .dat files are raw little-endian structs written by the editor.
+// Big-endian targets (Wii, PS3) must byte-swap the multi-byte fields after
+// loading, otherwise e.g. delay_after = 100 becomes 0x64000000 and the intro
+// waits for ~19 days.
+#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+    namespace {
+        inline void sw(int &v) { v = (int)__builtin_bswap32((unsigned int)v); }
+        inline void sw(Uint16 &v) { v = __builtin_bswap16(v); }
+
+        void convert(st_scene_area &a) { sw(a.x); sw(a.y); sw(a.w); sw(a.h); }
+
+        void convert(file_scene_clear_area &s) {
+            sw(s.x); sw(s.y); sw(s.w); sw(s.h); sw(s.r); sw(s.g); sw(s.b);
+        }
+        void convert(file_scene_show_image &s) {
+            sw(s.ini_x); sw(s.ini_y); sw(s.dest_x); sw(s.dest_y);
+            convert(s.copy_area);
+            sw(s.move_delay); sw(s.loop_mode); sw(s.move_type);
+        }
+        void convert(file_scene_show_viewpoint &s) {
+            sw(s.ini_x); sw(s.ini_y); sw(s.dest_x); sw(s.dest_y);
+            sw(s.w); sw(s.h); sw(s.pos_x); sw(s.pos_y);
+            sw(s.move_delay); sw(s.loop_mode);
+        }
+        void convert(file_scene_show_animation &s) {
+            sw(s.x); sw(s.y); sw(s.frame_w); sw(s.frame_h); sw(s.frame_delay);
+        }
+        void convert(file_scene_show_text &s) {
+            for (int i = 0; i < SCENE_TEXT_LINES_N; i++) { sw(s.line_string_id[i]); }
+            sw(s.x); sw(s.y); sw(s.transition_type); sw(s.position_type);
+        }
+        void convert(file_scene_play_sfx &s) { sw(s.repeat_times); }
+        void convert(file_scene_play_music &) {}
+        void convert(file_scene_show_parallax &s) {
+            sw(s.frame_delay); sw(s.loop_mode); sw(s.move_direction);
+            sw(s.total_duration); sw(s.TBD2);
+            for (int i = 0; i < PARALLAX_LAYERS_MAX; i++) {
+                sw(s.layer_speed[i]); sw(s.adjust_y[i]); sw(s.adjust_h[i]);
+                sw(s.TBD3[i]); sw(s.TBD4[i]);
+            }
+        }
+        void convert(file_scene_list &s) {
+            for (int i = 0; i < SCENE_OBJECTS_MAX; i++) {
+                sw(s.objects[i].seek_n); sw(s.objects[i].delay_after);
+                sw(s.objects[i].repeat_type); sw(s.objects[i].repeat_value);
+            }
+        }
+
+        template <class T> std::vector<T> to_host(std::vector<T> v) {
+            for (size_t i = 0; i < v.size(); i++) { convert(v[i]); }
+            return v;
+        }
+    }
+#else
+    namespace {
+        template <class T> std::vector<T> to_host(std::vector<T> v) { return v; }
+    }
+#endif
 
     fio_scenes::fio_scenes()
     {
@@ -13,47 +73,47 @@ namespace format_v4 {
 
     std::vector<file_scene_list> fio_scenes::load_scenes()
     {
-        return load_from_disk<file_scene_list>("scenes_list.dat");
+        return to_host<file_scene_list>(load_from_disk<file_scene_list>("scenes_list.dat"));
     }
 
     std::vector<file_scene_clear_area> fio_scenes::load_scenes_clear_area()
     {
-        return load_from_disk<file_scene_clear_area>("scenes_clear_area.dat");
+        return to_host<file_scene_clear_area>(load_from_disk<file_scene_clear_area>("scenes_clear_area.dat"));
     }
 
     std::vector<file_scene_play_music> fio_scenes::load_scenes_play_music()
     {
-        return load_from_disk<file_scene_play_music>("scenes_play_music.dat");
+        return to_host<file_scene_play_music>(load_from_disk<file_scene_play_music>("scenes_play_music.dat"));
     }
 
     std::vector<file_scene_play_sfx> fio_scenes::load_scenes_play_sfx()
     {
-        return load_from_disk<file_scene_play_sfx>("scenes_play_sfx.dat");
+        return to_host<file_scene_play_sfx>(load_from_disk<file_scene_play_sfx>("scenes_play_sfx.dat"));
     }
 
     std::vector<file_scene_show_animation> fio_scenes::load_scenes_show_animation()
     {
-        return load_from_disk<file_scene_show_animation>("scenes_show_animation.dat");
+        return to_host<file_scene_show_animation>(load_from_disk<file_scene_show_animation>("scenes_show_animation.dat"));
     }
 
     std::vector<file_scene_show_image> fio_scenes::load_scenes_show_image()
     {
-        return load_from_disk<file_scene_show_image>("scenes_show_image.dat");
+        return to_host<file_scene_show_image>(load_from_disk<file_scene_show_image>("scenes_show_image.dat"));
     }
 
     std::vector<file_scene_show_parallax> fio_scenes::load_scenes_parallax()
     {
-        return load_from_disk<file_scene_show_parallax>("scenes_parallax.dat");
+        return to_host<file_scene_show_parallax>(load_from_disk<file_scene_show_parallax>("scenes_parallax.dat"));
     }
 
     std::vector<file_scene_show_viewpoint> fio_scenes::load_scenes_show_viewpoint()
     {
-        return load_from_disk<file_scene_show_viewpoint>("scenes_show_viewpoint.dat");
+        return to_host<file_scene_show_viewpoint>(load_from_disk<file_scene_show_viewpoint>("scenes_show_viewpoint.dat"));
     }
 
     std::vector<file_scene_show_text> fio_scenes::load_scenes_show_text()
     {
-        return load_from_disk<file_scene_show_text>("scenes_show_text.dat");
+        return to_host<file_scene_show_text>(load_from_disk<file_scene_show_text>("scenes_show_text.dat"));
     }
 
     std::map<Uint8, Uint8> fio_scenes::load_game_scenes()
@@ -143,7 +203,7 @@ namespace format_v4 {
         if (FILEPATH.length() == 0) {
             return res;
         }
-        FILE *fp = fopen(filename.c_str(), "rb");
+        FILE *fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
         if (!fp) {
             std::cout << "ERROR: file_io::load_from_disk - file '" << filename << "' not found." << std::endl;
             return res;
@@ -165,7 +225,7 @@ namespace format_v4 {
     template <class T> void fio_scenes::save_data_to_disk(std::string file, std::vector<T> data)
     {
         std::string filename = std::string(FILEPATH) + "scenes/" + file;
-        FILE *fp = fopen(filename.c_str(), "wb");
+        FILE *fp = fopen(StringUtils::clean_filename(filename).c_str(), "wb");
         if (!fp) {
             std::cout << "ERROR: file_io::save_data_to_disk - file '" << filename << "' not found." << std::endl;
             return;

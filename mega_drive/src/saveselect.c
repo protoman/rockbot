@@ -1,4 +1,6 @@
+#include "transition.h"
 #include "saveselect.h"
+#include "sprite_guard.h"
 
 #include "resources.h"
 #include "saveselect_data.h"
@@ -57,7 +59,7 @@ static void icons_draw(void)
             if (!sp) break;
             // frame 0 = disabled art, frame 1 = enabled (see the converter)
             SPR_setAutoAnimation(sp, FALSE);
-            SPR_setFrame(sp, (mask & (1u << i)) ? 1 : 0);
+            spr_set_frame(sp, (mask & (1u << i)) ? 1 : 0);
             icons[s][i] = sp;
         }
         Sprite *ps = SPR_addSprite(picon_def[save_slot_player(s) & 3],
@@ -65,7 +67,7 @@ static void icons_draw(void)
                                    TILE_ATTR(PAL3, FALSE, FALSE, FALSE));
         if (ps) {
             SPR_setAutoAnimation(ps, FALSE);
-            SPR_setFrame(ps, 1);
+            spr_set_frame(ps, 1);
             icons[s][9] = ps;
         }
     }
@@ -73,7 +75,8 @@ static void icons_draw(void)
 
 static void draw_rows(void)
 {
-    static u16 cells[SAVE_ROW_W * SAVE_ROW_H * SAVE_SLOT_COUNT];
+    u16 *cells = screen_cells(SAVE_ROW_W * SAVE_ROW_H * SAVE_SLOT_COUNT);
+    if (!cells) return;
     for (u8 s = 0; s < SAVE_SLOT_COUNT; s++) {
         u16 pal = (s == sel) ? P_EN : P_DIS;
         for (u16 r = 0; r < SAVE_ROW_H; r++) {
@@ -90,17 +93,13 @@ static void draw_rows(void)
 
 static void draw_labels(void)
 {
-    char buf[24];
+    // PC draw_save_details draws no slot-number text: the row is icons only
+    // (and "NO SAVE" for an empty slot). The old "SLOT N" label sat on top of
+    // the icon sprites.
     for (u8 s = 0; s < SAVE_SLOT_COUNT; s++) {
-        u16 ty = ROW0 + s * SAVE_ROW_H + 2;
-        buf[0] = 'S'; buf[1] = 'L'; buf[2] = 'O'; buf[3] = 'T';
-        buf[4] = ' '; buf[5] = (char)('1' + s); buf[6] = 0;
-        VDP_drawText(buf, 2, ty);
-        // An occupied slot shows its icons (sprites, icons_draw) instead of
-        // the old "N CLEARED" text; empty slots keep the PC's "NO SAVE".
         if (!save_slot_exists(s)) {
-            strcpy(buf, "NO SAVE");
-            VDP_drawText(buf, 13, ty);
+            u16 ty = ROW0 + s * SAVE_ROW_H + 2;
+            VDP_drawText("NO SAVE", 2, ty);
         }
     }
 }
@@ -108,11 +107,11 @@ static void draw_labels(void)
 s16 save_selector(bool is_new_game)
 {
     stage_release_map();
-    // The title calls SPR_end(): without this the icon sprites below are all
+    // The title calls sprites_end(): without this the icon sprites below are all
     // NULL (SPR_addSprite fails with the engine ended), which is exactly what
     // happened — the slot rows came up empty. The stage select re-inits the
     // same way.
-    SPR_initEx(504);
+    sprites_begin(SPRITE_VRAM_TILES);
     VDP_setHorizontalScroll(BG_A, 0);
     VDP_setVerticalScroll(BG_A, 0);
     VDP_setHorizontalScroll(BG_B, 0);
@@ -158,7 +157,7 @@ s16 save_selector(bool is_new_game)
         } else if (pressed & (BUTTON_START | BUTTON_A | BUTTON_C)) {
             if (is_new_game || save_slot_exists(sel)) {
                 icons_clear();
-                SPR_end();
+                sprites_end();
                 return (s16)sel;
             }
             // no SFX here: menu PCM used to load the XGM2 Z80 driver before
@@ -166,7 +165,7 @@ s16 save_selector(bool is_new_game)
             // is a later milestone; menus stay silent.
         } else if (pressed & BUTTON_B) {
             icons_clear();
-            SPR_end();
+            sprites_end();
             return -1;
         }
 

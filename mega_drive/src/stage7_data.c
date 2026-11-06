@@ -61,20 +61,26 @@ static const u8 stage7_terrain[3][2800] = {
 };
 
 static const StageLink stage7_links[14] = {
-    { 0, 134, 0, 1, 18, 13 }, // link0
-    { 1, 21, 13, 0, 181, 0 }, // link1
-    { 2, 53, 13, 1, 29, 0 }, // link2
-    { 1, 1, 0, 2, 1, 13 }, // link3
-    { 2, 91, 0, 1, 59, 13 }, // link4
-    { 1, 59, 0, 2, 111, 13 }, // link5
-    { 2, 111, 0, 1, 79, 13 }, // link6
-    { 1, 62, 0, 2, 114, 13 }, // link7
-    { 2, 156, 13, 1, 97, 0 }, // link8
-    { 1, 82, 13, 2, 161, 0 }, // link9
-    { 2, 177, 13, 1, 118, 0 }, // link10
-    { 1, 102, 13, 2, 181, 0 }, // link11
-    { 2, 181, 13, 1, 122, 0 }, // link12
-    { 1, 116, 13, 2, 195, 0 }, // link13
+    { 0, 134, 0, 1, 18, 13, 1, 1, 0 }, // link0
+    { 1, 21, 13, 0, 181, 0, 18, 1, 0 }, // link1
+    { 2, 53, 13, 1, 29, 0, 3, 1, 0 }, // link2
+    { 1, 1, 0, 2, 1, 13, 1, 1, 0 }, // link3
+    { 2, 91, 0, 1, 59, 13, 1, 1, 0 }, // link4
+    { 1, 59, 0, 2, 111, 13, 1, 1, 0 }, // link5
+    { 2, 111, 0, 1, 79, 13, 1, 1, 0 }, // link6
+    { 1, 62, 0, 2, 114, 13, 1, 1, 0 }, // link7
+    { 2, 156, 13, 1, 97, 0, 3, 1, 0 }, // link8
+    { 1, 82, 13, 2, 161, 0, 18, 1, 0 }, // link9
+    { 2, 177, 13, 1, 118, 0, 2, 1, 0 }, // link10
+    { 1, 102, 13, 2, 181, 0, 4, 1, 0 }, // link11
+    { 2, 181, 13, 1, 122, 0, 18, 1, 0 }, // link12
+    { 1, 116, 13, 2, 195, 0, 4, 1, 0 }, // link13
+};
+
+static const u8 stage7_bg_color[3][3] = {
+    { 0, 0, 0 }, // map 0
+    { 0, 0, 0 }, // map 1
+    { 0, 0, 0 }, // map 2
 };
 
 static const StageBgInfo stage7_bg_info[3] = {
@@ -495,7 +501,8 @@ const StageDef stage7_def = {
     .map_defs = stage7_map_defs, .tile_sets = stage7_tile_sets, .palettes = stage7_palettes,
     .terrain = &stage7_terrain[0][0],
     .links = stage7_links, .link_count = 14,
-    .bg_info = stage7_bg_info, .bg_pal = stage7_bg_pal, .bg_tiles = stage7_bg_tiles,
+    .bg_info = stage7_bg_info, .bg_color = &stage7_bg_color[0][0],
+    .bg_pal = stage7_bg_pal, .bg_tiles = stage7_bg_tiles,
     .bg_tiles_n = stage7_bg_tiles_n, .bg_maps = stage7_bg_maps, .bg_map_h = stage7_bg_map_h,
     .scroll_lock_n = stage7_scroll_lock_n, .scroll_lock = &stage7_scroll_lock[0][0], .scroll_lock_max = 17,
     .tile3_mask = &stage7_tile3_mask[0][0],
@@ -506,7 +513,8 @@ const StageDef stage7_def = {
     .anim_slots = &stage7_anim_slots[0][0], .anim_frames = &stage7_anim_frames[0][0],
     .enemy_defs = stage7_enemy_defs, .enemy_def_count = STAGE7_ENEMY_DEF_COUNT,
     .enemy_spawns = stage7_enemy_spawns, .enemy_spawn_count = STAGE7_ENEMY_SPAWN_COUNT,
-    .enemy_ai = stage7_enemy_ai, .enemy_proj = stage7_enemy_proj, .enemy_proj_max = STAGE7_ENEMY_PROJ_MAX,
+    .enemy_ai = stage7_enemy_ai, .enemy_react = stage7_enemy_react,
+    .enemy_proj = stage7_enemy_proj, .enemy_proj_max = STAGE7_ENEMY_PROJ_MAX,
     .object_defs = stage7_object_defs, .object_def_count = STAGE7_OBJECT_DEF_COUNT,
     .object_spawns = stage7_object_spawns, .object_spawn_count = STAGE7_OBJECT_SPAWN_COUNT,
 };

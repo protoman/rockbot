@@ -117,7 +117,11 @@ enum E_PLATFORM {
     PLATFORM_RASPBERRY,
     PLATFORM_POCKETGO,
     PLATFORM_XBOX,
+    // Switch config files store this index. PS3 and Vita stay after it so a
+    // config written by this port is not treated as a platform change.
     PLATFORM_SWITCH,
+    PLATFORM_PS3,
+    PLATFORM_VITA,
     PLATFORM_COUNT
 };
 

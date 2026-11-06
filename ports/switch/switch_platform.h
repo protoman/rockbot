@@ -15,6 +15,8 @@ void shutdown();
 // Prefer argv0 (nro path from hbmenu); fall back to getcwd.
 void get_filepath(std::string &filepath, int maxpathlen, const char *argv0 = nullptr);
 bool is_applet_mode();
+// nxlink stdout (SDL_MAIN_HANDLED already redirects it). One line, trailing newline included.
+void log(const char *fmt, ...);
 
 // --- Graphics / video ---
 SDL_Surface *set_video_mode(int res_w, int res_h, int colors);

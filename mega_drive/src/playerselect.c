@@ -1,7 +1,9 @@
+#include "transition.h"
 #include "playerselect.h"
 
 #include "resources.h"
 #include "stage.h"
+#include "config.h"
 #include "psel_bg_tiles.h"
 #include "psel_bg_map.h"
 #include "player_data.h"
@@ -52,7 +54,8 @@ static void draw_portrait(void)
     VDP_loadTileData(p_tiles[sel], PSEL_PORT_BASE, p_tile_n[sel], DMA_QUEUE);
     PAL_setPalette(PSEL_PAL_PORT, p_pal[sel]->data, DMA_QUEUE);
     u16 w = PSEL_P1_MAP_W;
-    static u16 cells[PSEL_P1_MAP_W * PSEL_P1_MAP_H];
+    u16 *cells = screen_cells(PSEL_P1_MAP_W * PSEL_P1_MAP_H);
+    if (!cells) return;
     for (u16 y = 0; y < p_map_h[sel]; y++) {
         for (u16 x = 0; x < w; x++) {
             cells[y * w + x] = TILE_ATTR_FULL(PSEL_PAL_PORT, FALSE, FALSE, FALSE,
@@ -74,7 +77,7 @@ static void draw_name(void)
 
 u8 player_select_run(void)
 {
-    SPR_end();
+    sprites_end();
     stage_release_map();
     VDP_setHorizontalScroll(BG_A, 0);
     VDP_setVerticalScroll(BG_A, 0);
@@ -84,13 +87,15 @@ u8 player_select_run(void)
     PAL_setPalette(PSEL_PAL_BG, psel_bg_pal.data, DMA_QUEUE);
     PAL_setPalette(PAL0, pal_ui.data, DMA_QUEUE);
 
-    static u16 bgcells[PSEL_BG_MAP_W * PSEL_BG_MAP_H];
-    for (u16 i = 0; i < PSEL_BG_MAP_W * PSEL_BG_MAP_H; i++) {
-        bgcells[i] = TILE_ATTR_FULL(PSEL_PAL_BG, FALSE, FALSE, FALSE,
-                                    PSEL_BG_BASE + psel_bg_map[i]);
+    u16 *bgcells = screen_cells(PSEL_BG_MAP_W * PSEL_BG_MAP_H);
+    if (bgcells) {
+        for (u16 i = 0; i < PSEL_BG_MAP_W * PSEL_BG_MAP_H; i++) {
+            bgcells[i] = TILE_ATTR_FULL(PSEL_PAL_BG, FALSE, FALSE, FALSE,
+                                        PSEL_BG_BASE + psel_bg_map[i]);
+        }
+        VDP_setTileMapDataRect(BG_A, bgcells, 0, 0, PSEL_BG_MAP_W, PSEL_BG_MAP_H,
+                               PSEL_BG_MAP_W, CPU);
     }
-    VDP_setTileMapDataRect(BG_A, bgcells, 0, 0, PSEL_BG_MAP_W, PSEL_BG_MAP_H,
-                           PSEL_BG_MAP_W, CPU);
 
     sel = 0;
     draw_portrait();
@@ -103,6 +108,15 @@ u8 player_select_run(void)
     VDP_setReg(17, 0);
     VDP_setReg(18, 0);
 
+    // PC select_player (sceneslib.cpp:547): only two players until the game
+    // has been finished once (game_config.game_finished), which the ending
+    // sets. The port also spells out why the other two are missing - the PC
+    // just stops the cursor, which reads as a broken screen.
+    const u8 max = config.game_finished ? PSEL_MAX : 2;
+    if (!config.game_finished) {
+        draw_centered("FINISH THE GAME TO UNLOCK", 23);
+        draw_centered("PLAYERS 3 AND 4", 24);
+    }
     u16 prev = JOY_readJoypad(JOY_1);
     while (TRUE) {
         u16 pad = JOY_readJoypad(JOY_1);
@@ -110,11 +124,11 @@ u8 player_select_run(void)
         prev = pad;
 
         if (pressed & BUTTON_RIGHT) {
-            sel = (sel + 1) % PSEL_MAX;
+            sel = (u8)((sel + 1) % max);
             draw_portrait();
             draw_name();
         } else if (pressed & BUTTON_LEFT) {
-            sel = (sel + PSEL_MAX - 1) % PSEL_MAX;
+            sel = (u8)((sel + max - 1) % max);
             draw_portrait();
             draw_name();
         } else if (pressed & (BUTTON_START | BUTTON_A | BUTTON_C)) {

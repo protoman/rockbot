@@ -119,6 +119,24 @@ def convert(name, spec):
     qpal = q.getpalette()
     colors = [tuple(md_round(v) for v in qpal[i*3:i*3+3]) for i in range(spec["colors"])]
 
+    # BUG-004: keep whichever fit (MEDIANCUT or Ward+Lloyd) has the lower
+    # weighted error. Dithered specs keep Pillow's own indices.
+    fit_map = None
+    if not spec.get("dither"):
+        import palfit
+        wts = {}
+        for c in opaque:
+            k = (md_round(c[0]), md_round(c[1]), md_round(c[2]))
+            wts[k] = wts.get(k, 0) + 1
+        cand = palfit.fit(wts, spec["colors"])
+        e_old = palfit.error(wts, [c for c in colors if len(c) == 3])
+        e_new = palfit.error(wts, cand)
+        print(f"  palfit {name}: mediancut err {e_old:.1f} -> ward+lloyd {e_new:.1f}")
+        if e_new < e_old:
+            colors = list(cand)
+            fit_map = {k: min(range(len(colors)), key=lambda i: sum(
+                (colors[i][j] - k[j]) ** 2 for j in range(3))) for k in wts}
+
     # index 0 reserved/transparent, real colors at 1..15
     palette = [(0, 0, 0)] + colors
     while len(palette) < 16:
@@ -130,9 +148,13 @@ def convert(name, spec):
 
     qidx = list(q.getdata())
     out = []
-    for qi, m in zip(qidx, mask):
+    rgb_px = list(rgb.getdata())
+    for qi, m, rp in zip(qidx, mask, rgb_px):
         if m:
             out.append(0)
+            continue
+        if fit_map is not None:
+            out.append(lut[colors[fit_map[(md_round(rp[0]), md_round(rp[1]), md_round(rp[2]))]]])
             continue
         c = colors[qi] if qi < len(colors) else colors[0]
         if c not in lut:
@@ -221,7 +243,18 @@ def convert_hud_ball(src_name="hp_ball.png", out_name="hud_hp_ball.png"):
                     idx = 0
                 else:
                     c = (md_round(p[0]), md_round(p[1]), md_round(p[2]))
-                    idx = 15 if c == (219, 219, 219) else nearest_index(c)
+                    if out_name == "hud_wpn_ball.png":
+                        # The weapon row is drawn with PAL2 (the player's
+                        # weapon palette): black outline -> index 7, white
+                        # highlight -> 10, green fill -> 13 (weapon color 1).
+                        if c == (0, 0, 0):
+                            idx = 7
+                        elif c == (219, 219, 219):
+                            idx = 10
+                        else:
+                            idx = 13
+                    else:
+                        idx = 15 if c == (219, 219, 219) else nearest_index(c)
                 data[y * n * 16 + f * 16 + x] = idx
     out.putdata(data)
     os.makedirs(OUT_DIR, exist_ok=True)
@@ -230,11 +263,143 @@ def convert_hud_ball(src_name="hp_ball.png", out_name="hud_hp_ball.png"):
     return True
 
 
+def convert_bomb_explosion():
+    """PC graphicsLib::draw_explosion art (images/animations/big_boss_explosion.png:
+    7 frames of 56x56, 100ms each) -> PAL0 strip for the bomb explosion sprite."""
+    src = os.path.join(ROCKBOT, "build/games/RockDroid1/images/animations/"
+                       "big_boss_explosion.png")
+    if not os.path.exists(src):
+        print(f"  SKIP bomb_explosion: {src} not found")
+        return False
+    img = load_rgba(src)
+    fw = 56
+    n = img.size[0] // fw
+    px = img.load()
+    out = Image.new("P", (n * fw, fw))
+    out.putpalette([v for c in PAL_UI_RGB for v in c] + [0] * (768 - 16 * 3))
+    data = [0] * (n * fw * fw)
+    for f in range(n):
+        for y in range(fw):
+            for x in range(fw):
+                p = px[f * fw + x, y]
+                idx = 0 if p[3] == 0 else nearest_index(
+                    (md_round(p[0]), md_round(p[1]), md_round(p[2])))
+                data[y * n * fw + f * fw + x] = idx
+    out.putdata(data)
+    os.makedirs(OUT_DIR, exist_ok=True)
+    out.save(os.path.join(OUT_DIR, "bomb_explosion.png"))
+    print(f"  OK bomb_explosion.png: {img.size} -> {out.size} ({n} frames, PAL0)")
+    return True
+
+
+def convert_death_explosion():
+    """Boss-death ring art (PC game::classic_style_draw_boss_death):
+    images/backgrounds/classic_style_death_explosion.png = 5 frames of 24x24.
+    Quantized to PAL0 (sprites draw it with the enemy/UI line) and emitted as a
+    plain 24x24 SPRITE strip; the plane blit of the PC becomes 8 sprites in
+    explosion.c."""
+    src = os.path.join(ROCKBOT, "build/games/RockDroid1/images/backgrounds/"
+                       "classic_style_death_explosion.png")
+    if not os.path.exists(src):
+        print(f"  SKIP death_explosion: {src} not found")
+        return False
+    img = load_rgba(src)
+    fw = 24
+    n = img.size[0] // fw
+    px = img.load()
+    out = Image.new("P", (n * fw, fw))
+    out.putpalette([v for c in PAL_UI_RGB for v in c] + [0] * (768 - 16 * 3))
+    data = [0] * (n * fw * fw)
+    for f in range(n):
+        for y in range(fw):
+            for x in range(fw):
+                p = px[f * fw + x, y]
+                if p[3] == 0:
+                    idx = 0
+                else:
+                    idx = nearest_index((md_round(p[0]), md_round(p[1]),
+                                         md_round(p[2])))
+                data[y * n * fw + f * fw + x] = idx
+    out.putdata(data)
+    os.makedirs(OUT_DIR, exist_ok=True)
+    out.save(os.path.join(OUT_DIR, "death_explosion.png"))
+    print(f"  OK death_explosion.png: {img.size} -> {out.size} ({n} frames, PAL0)")
+    return True
+
+
+# Transient effects (src/effects.c): dash dust, water splash, teleport beam and
+# the water bubble — the PC art the game blits onto the screen. One PAL0 strip
+# each, frames packed left to right, every frame padded to an 8-pixel cell (the
+# size resources.res must declare).
+# The teleport beam is authored with two COLORCYCLE keys (green/magenta) that
+# the PC swaps at runtime (draw::set_teleport_small_colors). The port shows the
+# effect only around a stage warp, where the PC uses its default pair —
+# objects/object.cpp:378 grey + white — so the keys are replaced before
+# quantizing instead of leaving the green/magenta pattern.
+EFFECT_STRIPS = [
+    # dust: the art is 8x16 per frame but only the top 8 rows are painted —
+    # the PC's animation is st_size(8, 8) and takes exactly those rows.
+    ("fx_dust", "build/games/RockDroid1/images/animations/dash_dust.png", 8, None, 8),
+    ("fx_splash", "build/games/RockDroid1/images/animations/water_splash.png", 32, None),
+    ("fx_teleport", "build/games/RockDroid1/images/sprites/teleport_small.png", 32,
+     [((55, 255, 0), (112, 110, 110)), ((255, 0, 255), (235, 235, 235))]),
+    ("fx_bubble", "build/games/RockDroid1/images/animations/bubble.png", 4, None),
+    # DYNAMITE FLASH stars (draw::show_flash): 3 frames of 8x8
+    ("fx_flash", "build/shared/images/flash.png", 8, None),
+]
+
+
+def convert_pal0_strip(name, src_rel, fw, replace, fh=None):
+    """Strip -> res/<name>.png quantized to PAL0 (index 0 transparent)."""
+    src = os.path.join(ROCKBOT, src_rel)
+    if not os.path.exists(src):
+        print(f"  SKIP {name}: {src} not found")
+        return False
+    img = load_rgba(src)
+    if replace:
+        px = img.load()
+        for y in range(img.size[1]):
+            for x in range(img.size[0]):
+                p = px[x, y]
+                if p[3] == 0:
+                    continue
+                for src_rgb, dst_rgb in replace:
+                    if p[:3] == src_rgb:
+                        px[x, y] = dst_rgb + (255,)
+    n = max(1, img.size[0] // fw)
+    if fh is None:
+        fh = img.size[1]
+    cw, ch = (fw + 7) & ~7, (fh + 7) & ~7
+    px = img.load()
+    out = Image.new("P", (n * cw, ch))
+    out.putpalette([v for c in PAL_UI_RGB for v in c] + [0] * (768 - 16 * 3))
+    data = [0] * (n * cw * ch)
+    for f in range(n):
+        for y in range(fh):
+            for x in range(fw):
+                p = px[f * fw + x, y]
+                if p[3] == 0:
+                    continue
+                data[y * n * cw + f * cw + x] = nearest_index(
+                    (md_round(p[0]), md_round(p[1]), md_round(p[2])))
+    out.putdata(data)
+    os.makedirs(OUT_DIR, exist_ok=True)
+    out.save(os.path.join(OUT_DIR, f"{name}.png"))
+    print(f"  OK {name}.png: {img.size} -> {out.size} "
+          f"({n} frames {cw}x{ch}, PAL0)")
+    return True
+
+
 def main():
     explicit = sys.argv[1:]
     targets = explicit or list(ASSETS)
     ok = sum(1 for n in targets if n in ASSETS and convert(n, ASSETS[n]))
     n = len(targets)
+    if not explicit or "death_explosion" in explicit:
+        ok += convert_death_explosion()
+    if not explicit or "bomb_explosion" in explicit:
+        ok += convert_bomb_explosion()
+        n += 1
     if not explicit or "hud_hp_ball" in explicit:
         ok += convert_hud_ball()
         n += 1
@@ -244,6 +409,11 @@ def main():
     if not explicit or "hud_wpn_ball" in explicit:
         ok += convert_hud_ball("wpn_ball.png", "hud_wpn_ball.png")
         n += 1
+    for name, rel, fw, replace, *rest in EFFECT_STRIPS:
+        if not explicit or name in explicit:
+            ok += convert_pal0_strip(name, rel, fw, replace,
+                                     rest[0] if rest else None)
+            n += 1
     print(f"{ok}/{n} converted -> {OUT_DIR}")
 
 

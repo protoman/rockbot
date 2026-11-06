@@ -4,7 +4,8 @@
 
 // Priorities: XGM2 uses 7 for its music PCM; SFX sit at 6 (xgm2.h), so two
 // SFX on the same channel replace each other but music is never cut.
-// Channels: 2 player, 3 enemies/boss, 4 objects/UI.
+// Channels: 2 player, 3 enemies/boss/objects/UI. XGM2 has only three
+// PCM channels (PCM0..PCM2); SOUND_PCM_CH4 would write past the tables.
 typedef struct {
     const u8 *data;
     u32 len;
@@ -18,23 +19,42 @@ static const SfxDef sfx_def[SFX_COUNT] = {
     [SFX_JUMP]         = { sfx_player_jump,        sizeof(sfx_player_jump),        SOUND_PCM_CH2, 6 },
     [SFX_PLAYER_HIT]   = { sfx_player_hit,         sizeof(sfx_player_hit),         SOUND_PCM_CH2, 6 },
     [SFX_PLAYER_DEATH] = { sfx_player_death,       sizeof(sfx_player_death),       SOUND_PCM_CH2, 6 },
-    // Charge loop: channel 4 and a LOWER priority than the UI/object effects
+    // Charge loop: channel 3 and a LOWER priority than the UI/object effects
     // (6), so a pill or a menu beep during a charge still plays and the charge
     // simply resumes on its next re-trigger. Channel 2 would cut the buster.
-    [SFX_CHARGING1]    = { sfx_charging1,          sizeof(sfx_charging1),          SOUND_PCM_CH4, 5 },
-    [SFX_CHARGING2]    = { sfx_charging2,          sizeof(sfx_charging2),          SOUND_PCM_CH4, 5 },
+    [SFX_CHARGING1]    = { sfx_charging1,          sizeof(sfx_charging1),          SOUND_PCM_CH3, 5 },
+    [SFX_CHARGING2]    = { sfx_charging2,          sizeof(sfx_charging2),          SOUND_PCM_CH3, 5 },
     [SFX_NPC_HIT]      = { sfx_npc_hit,            sizeof(sfx_npc_hit),            SOUND_PCM_CH3, 6 },
     [SFX_NPC_KILLED]   = { sfx_npc_killed,         sizeof(sfx_npc_killed),         SOUND_PCM_CH3, 6 },
     [SFX_EXPLOSION]    = { sfx_big_explosion,      sizeof(sfx_big_explosion),      SOUND_PCM_CH3, 6 },
-    [SFX_PILL]         = { sfx_got_energy_pill,    sizeof(sfx_got_energy_pill),    SOUND_PCM_CH4, 6 },
-    [SFX_ITEM]         = { sfx_got_item,           sizeof(sfx_got_item),           SOUND_PCM_CH4, 6 },
-    [SFX_TELEPORT]     = { sfx_teleporter_activated, sizeof(sfx_teleporter_activated), SOUND_PCM_CH4, 6 },
-    [SFX_CURSOR]       = { sfx_cursor,             sizeof(sfx_cursor),             SOUND_PCM_CH4, 6 },
+    [SFX_PILL]         = { sfx_got_energy_pill,    sizeof(sfx_got_energy_pill),    SOUND_PCM_CH3, 6 },
+    [SFX_ITEM]         = { sfx_got_item,           sizeof(sfx_got_item),           SOUND_PCM_CH3, 6 },
+    [SFX_TELEPORT]     = { sfx_teleporter_activated, sizeof(sfx_teleporter_activated), SOUND_PCM_CH3, 6 },
+    [SFX_WATER_ENTER]  = { sfx_water_enter,        sizeof(sfx_water_enter),        SOUND_PCM_CH3, 5 },
+    [SFX_WATER_LEAVE]  = { sfx_water_leave,        sizeof(sfx_water_leave),        SOUND_PCM_CH3, 5 },
+    [SFX_DOOR_OPEN]    = { sfx_door_open,          sizeof(sfx_door_open),          SOUND_PCM_CH3, 6 },
+    [SFX_GOT_WEAPON]   = { sfx_got_weapon,         sizeof(sfx_got_weapon),         SOUND_PCM_CH3, 6 },
+    [SFX_STAGE_SELECTED] = { sfx_stage_selected,   sizeof(sfx_stage_selected),     SOUND_PCM_CH3, 6 },
+    [SFX_BLOCK_APPEAR]  = { sfx_disappearning_block, sizeof(sfx_disappearning_block), SOUND_PCM_CH2, 7 },
+    [SFX_OBJECT_BREAK]  = { sfx_object_break,      sizeof(sfx_object_break),       SOUND_PCM_CH2, 6 },
+    [SFX_BEAM]          = { sfx_beam,              sizeof(sfx_beam),               SOUND_PCM_CH2, 6 },
+    [SFX_REFLECT]       = { sfx_shot_reflected,    sizeof(sfx_shot_reflected),     SOUND_PCM_CH3, 5 },
+    [SFX_SHORYUKEN]     = { sfx_shoryuken_girl,    sizeof(sfx_shoryuken_girl),     SOUND_PCM_CH2, 6 },
+    [SFX_AXE]           = { sfx_axe,               sizeof(sfx_axe),                SOUND_PCM_CH2, 6 },
+    [SFX_RECHARGE]      = { sfx_recharge,          sizeof(sfx_recharge),           SOUND_PCM_CH3, 6 },
+    [SFX_CURSOR]       = { sfx_cursor,             sizeof(sfx_cursor),             SOUND_PCM_CH3, 6 },
 };
+
+static bool sfx_enabled = TRUE;
+
+void sfx_set_enabled(bool enabled)
+{
+    sfx_enabled = enabled;
+}
 
 void sfx_play(SfxId id)
 {
-    if (id >= SFX_COUNT) return;
+    if (!sfx_enabled || id >= SFX_COUNT) return;
     const SfxDef *d = &sfx_def[id];
     if (!d->data) return;
     XGM2_playPCMEx(d->data, d->len, d->ch, d->prio, FALSE, FALSE);

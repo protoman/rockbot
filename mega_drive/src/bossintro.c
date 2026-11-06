@@ -1,4 +1,10 @@
+#include "transition.h"
+#include "dbgprint.h"
 #include "bossintro.h"
+#include "pal_safe.h"
+#include "sprite_guard.h"
+
+#include "music.h"
 
 #include "resources.h"
 #include "stage_data.h"
@@ -6,23 +12,75 @@
 #include "ssel_data.h"   // ssel_boss_names[stage]
 #include "boss_intro_bg_tiles.h"
 #include "boss_intro_bg_map.h"
+#include "castle64_map.h"
+#include "castle_path.h"
+#include "castle64_tiles.h"
+#include "castle64_pal.h"
 
 #include <string.h>
 
 #define BOSS_INTRO_PAL       PAL1
 #define BOSS_INTRO_TILE_BASE TILE_USER_INDEX
 #define BOSS_INTRO_FRAMES    384      // 6.4s @60fps (PC wait_and_update_screen)
+#define CASTLE_FRAMES        390      // PC classic_style_castle_intro: 6500ms
 
 // PC draws the boss at y = BOSS_INTRO_BG_POS_Y - h/2 = 96 - h/2 (240px),
 // name centred at y=200; both shifted up 16 for the MD 224 crop.
 #define BOSS_INTRO_BOSS_Y    80
 #define BOSS_INTRO_NAME_ROW  23
 
-void boss_intro_run(u8 stage)
+// PC stage_select::classic_style_castle_intro (stage_select.cpp:600), shown
+// before a castle #1 stage. Full-screen art through the four-line pipeline
+// (tools/title64.py), same drawing path as the title.
+static void castle_screen(u8 stage)
 {
-    SPR_end();
-    SPR_initEx(504);
+    VDP_loadTileData(castle64_tiles_data, TILE_USER_INDEX,
+                     CASTLE64_TILE_COUNT, DMA);
+    for (u8 L = 0; L < 4; L++)
+        pal_load((u16)(PAL0 + L), castle64_pal[L]);
+    VDP_setBackgroundColor(0);
+    // The art goes on BG_B so BG_A is free for the path overlay (castle_path.c).
+    VDP_clearPlane(BG_A, TRUE);
+    u16 *cells = screen_cells(CASTLE64_W * CASTLE64_H);
+    if (cells) {
+        for (u16 i = 0; i < CASTLE64_W * CASTLE64_H; i++) {
+            u16 e = castle64_map[i];
+            cells[i] = (u16)((e & ~TILE_INDEX_MASK) |
+                             (TILE_USER_INDEX + (e & TILE_INDEX_MASK)));
+        }
+        VDP_setTileMapDataRect(BG_B, cells, 0, 0, CASTLE64_W, CASTLE64_H,
+                               CASTLE64_W, CPU);
+    }
+    music_play(MUSIC_CASTLE_INTRO);
+    // PC classic_style_castle_intro: the path to this stage is drawn first (the
+    // last segment animated), then the screen holds for 6.5s. Stage 9 is the
+    // first castle stage.
+    castle_path_run((u8)(stage - 9));
+    for (u16 f = 0; f < CASTLE_FRAMES; f++) {
+        SYS_doVBlankProcess();
+        VDP_setReg(17, 0);
+        VDP_setReg(18, 0);
+    }
+    // leave the planes as boss_intro_run expects: BG_A clear, BG_B blank
+    VDP_clearPlane(BG_A, TRUE);
+    VDP_fillTileMapRect(BG_B,
+                        TILE_ATTR_FULL(PAL0, FALSE, FALSE, FALSE, TILE_FONT_INDEX),
+                        0, 0, 64, 32);
+}
+
+bool boss_intro_run(u8 stage, u16 beaten_mask)
+{
+    // PC classic_style_boss_intro starts with this return (sceneslib.cpp:682):
+    // a beaten stage gets no screen AND no jingle. Keeping the test here means
+    // no call path can play the music without the presentation.
+    if (beaten_mask & (1u << stage)) return FALSE;
+
+    sprites_end();      // restarted below: the castle path needs the heap the engine takes
     stage_release_map();
+#ifdef MD_HEAP_TRACE
+    dbg_print("HEAP boss_intro free=%u largest=%u\n", (unsigned)MEM_getFree(),
+            (unsigned)MEM_getLargestFreeBlock());
+#endif
 
     VDP_setHorizontalScroll(BG_A, 0);
     VDP_setVerticalScroll(BG_A, 0);
@@ -30,18 +88,30 @@ void boss_intro_run(u8 stage)
     VDP_setVerticalScroll(BG_B, 0);
     VDP_clearPlane(BG_B, TRUE);
 
+    if (stage >= 9) castle_screen(stage);
+    sprites_begin(SPRITE_VRAM_TILES);
+
+    // The castle track must be gone before this one starts: stop it and give the
+    // Z80 driver two frames to act on it, instead of swapping its sample table
+    // under a track that is still playing (heard as both playing at once).
+    music_stop();
+    SYS_doVBlankProcess();
+    SYS_doVBlankProcess();
+    music_play(MUSIC_BOSS_INTRO);
     VDP_loadTileData(boss_intro_bg_tiles_data, BOSS_INTRO_TILE_BASE,
                      BOSS_INTRO_BG_TILE_COUNT, DMA_QUEUE);
     PAL_setPalette(BOSS_INTRO_PAL, boss_intro_bg_pal.data, DMA_QUEUE);
     PAL_setPalette(PAL0, pal_ui.data, DMA_QUEUE);
 
-    static u16 cells[BOSS_INTRO_BG_MAP_W * BOSS_INTRO_BG_MAP_H];
-    for (u16 i = 0; i < BOSS_INTRO_BG_MAP_W * BOSS_INTRO_BG_MAP_H; i++) {
-        cells[i] = TILE_ATTR_FULL(BOSS_INTRO_PAL, FALSE, FALSE, FALSE,
-                                  BOSS_INTRO_TILE_BASE + boss_intro_bg_map[i]);
+    u16 *cells = screen_cells(BOSS_INTRO_BG_MAP_W * BOSS_INTRO_BG_MAP_H);
+    if (cells) {
+        for (u16 i = 0; i < BOSS_INTRO_BG_MAP_W * BOSS_INTRO_BG_MAP_H; i++) {
+            cells[i] = TILE_ATTR_FULL(BOSS_INTRO_PAL, FALSE, FALSE, FALSE,
+                                      BOSS_INTRO_TILE_BASE + boss_intro_bg_map[i]);
+        }
+        VDP_setTileMapDataRect(BG_A, cells, 0, 0, BOSS_INTRO_BG_MAP_W,
+                               BOSS_INTRO_BG_MAP_H, BOSS_INTRO_BG_MAP_W, CPU);
     }
-    VDP_setTileMapDataRect(BG_A, cells, 0, 0, BOSS_INTRO_BG_MAP_W,
-                           BOSS_INTRO_BG_MAP_H, BOSS_INTRO_BG_MAP_W, CPU);
 
     // The stage's boss def carries the sprite sheet (STAND row, frame 0).
     const EnemyDef *boss = NULL;
@@ -57,27 +127,33 @@ void boss_intro_run(u8 stage)
                             160 - boss->spr->w / 2,
                             BOSS_INTRO_BOSS_Y - boss->spr->h / 2,
                             TILE_ATTR(PAL0, FALSE, FALSE, FALSE));
-        if (spr) SPR_setAnim(spr, 0);
+        if (spr) spr_set_anim(spr, 0);
     }
 
-    // Boss name, centred (PC draw_centered_text(200, botname)).
-    if (stage < 9 && ssel_boss_names[stage][0]) {
+    // Boss name, centred (PC draw_centered_text(200, botname)). The text
+    // palette is GLOBAL state: the stage select borrows PAL1 and the dialogs
+    // PAL3, so a screen that forgot to restore left this name drawn with the
+    // boss-intro BACKGROUND palette - a solid bar of glyph cells (black ink on
+    // black, or inverted). Force PAL0 (pal_ui: 0 = black, 15 = font white).
+    VDP_setTextPlane(BG_A);
+    VDP_setTextPalette(PAL0);
+    if (stage < SSEL_STAGE_SLOTS && ssel_boss_names[stage][0]) {
         const char *n = ssel_boss_names[stage];
         u8 len = strlen(n);
         VDP_drawText(n, (len < 40) ? (40 - len) / 2 : 0, BOSS_INTRO_NAME_ROW);
     }
 
-    // Flush the queued DMA NOW: if the player skips on the first frame the
-    // pending palette/tile transfers would otherwise land after the caller's
-    // (CPU) stage palette writes and clobber them.
+    // Flush the queued DMA NOW so the first displayed frame already has its
+    // palette and background tiles.
     SYS_doVBlankProcess();
     VDP_setReg(17, 0);
     VDP_setReg(18, 0);
 
-    // PC waits 6400ms; allow skipping with a button.
+    // PC `graphicsLib::wait_and_update_screen(6400)` reads NO input: the boss
+    // intro is a fixed 6.4 s hold and cannot be skipped. The port used to skip
+    // on any pad button, which also made it disappear instantly when a button
+    // from the stage select was still held (BUG-015).
     for (u16 f = 0; f < BOSS_INTRO_FRAMES; f++) {
-        u16 pad = JOY_readJoypad(JOY_1);
-        if (pad & (BUTTON_START | BUTTON_A | BUTTON_B | BUTTON_C)) break;
         SPR_update();
         SYS_doVBlankProcess();
         VDP_setReg(17, 0);
@@ -85,5 +161,6 @@ void boss_intro_run(u8 stage)
     }
 
     if (spr) SPR_releaseSprite(spr);
-    SPR_end();   // the caller (runStage) re-inits the sprite engine
+    sprites_end();   // the caller (runStage) re-inits the sprite engine
+    return TRUE;
 }

@@ -4,6 +4,17 @@ Working dir: `mega_drive/` (SGDK/MarsDev project). Game source: **parent dir** `
 
 Language: **English** for all code, comments and docs.
 
+## Git (owner rules, 2026-10-26)
+
+- **Commit after every fix or feature**, as soon as it builds - one commit per
+  unit, message with the reproduction/measurement when there is one.
+- **Only `mega_drive/` goes into commits.** The parent repository (the PC game:
+  `../game.cpp`, `../build/...`, ...) is read-only reference: never stage it,
+  even when `git status` shows it modified. Stage files by path
+  (`git add src/foo.c tools/bar.py`), never `git add -A` / `git add .`.
+- Files the owner edits by hand (`TODO.txt`, `tools/emu.sh`) are committed only
+  when asked.
+
 ## SDK (already installed, do not rebuild)
 
 - SDK root: `/mnt/ExtraData/Devel/SDK/MegaDrive/`
@@ -12,8 +23,16 @@ Language: **English** for all code, comments and docs.
 - Env: `source /mnt/ExtraData/Devel/SDK/MegaDrive/mars/mars.sh` (already in `~/.bashrc`)
   - exports `MARSDEV`, `GDK=$MARSDEV/m68k-elf`, adds `$GDK/bin` to PATH
 - Build this project: `cd mega_drive && make` → `out/rom.bin` (padded to 128K
-  multiples; 384K since the SFX PCM landed)
+  multiples; 2 MB since the music landed)
   - `make debug` / `make clean`. Makefile sets `GDK ?=` then includes `$GDK/makefile.gen`.
+  - **Verify the build by `make`'s EXIT CODE, never by grepping the log.** This
+    toolchain emits Portuguese messages: `erro:` (error) and `aviso:` (warning),
+    lowercase — `grep -E "error|Error"` matches nothing while the build is
+    failing, and a stale `out/rom.bin` then looks green. Use
+    `make > log 2>&1; echo "exit=$?"` and, if in doubt,
+    `grep -E "erro:|error:"`.
+  - Before launching an emulator, confirm `out/rom.bin` is newer than the newest
+    source file. Both mistakes have already wasted play-test runs.
 - Templates: `marsdev/examples/sgdk-skeleton` (origin of this project), `sgdk/SGDK/sample/` (official)
 - Known-fixed template bug: removed orphan `src/boot/rom_head.c` (conflicted with `sega.o`) and `main()` → `main(bool hardReset)`. Do not re-add `rom_head.c`.
 
@@ -101,7 +120,102 @@ SGDK is **C only**. Verified: SGDK headers have **no `extern "C"` guards**; the 
 
 Complementary: `sample/game/sonic/` (1032 l) — 2-plane parallax, HUD, entities, `XGM2`, `SYS_setVBlankCallback`, `DMA_setBufferSize`.
 
+## Context budget — keep sessions long
+
+Sessions are ending early because context is spent on things that do not need
+it. Rules, in order of impact:
+
+1. **Verify offline before running anything.** `tools/title64.py --preview`
+   rebuilds a screen from the emitted data, `check_vram.py` prints the VRAM
+   budget and the transition fallbacks, and the converters print per-stage
+   palette errors and per-part colour counts. That answers most questions
+   without an emulator. One deliberate launch only to *confirm* a result.
+2. **Never read a whole file.** Locate with `grep -n`, then `sed -n 'a,bp'` for
+   at most ~80 lines. Do not re-read what codegraph or an earlier tool result
+   already returned.
+3. **Do not look at screenshots unless numbers cannot answer it.** Prefer
+   sampling pixels and printing dominant colours (the scripts in the session
+   notes do this). When an image is unavoidable, crop the region, not the screen.
+4. **One shell call per question.** Batch the greps, sed patches and builds into
+   a single command with a compact filter (`grep -E 'erro|parts:'`), not a chain
+   of exploratory calls.
+5. **Never dump generated data.** Stage data files, tile strips and masks are
+   picked with `grep -h '<field>' -A2`, never printed whole.
+6. **Land work as you go.** Finish a unit, build it, commit it, and append one
+   line to `HANDOUT.md`. Then a session can stop anywhere without losing state,
+   and a context compaction costs nothing.
+7. **When half the context is gone, rewrite the handoff then**, not at the end —
+   writing it from a compacted summary loses the details that mattered.
+
+Compaction itself is a client setting, not something these rules can switch on;
+what they can do is keep the working set small enough that a compact or restart
+is cheap.
+
 ## Emulator (verified)
+
+**Read `blastem_debug.md` before launching anything.** It has the ask-first
+rule, the pre-flight checks, the KDEBUG/`kprintf` console recipe, the SRAM
+backup/restore steps and the list of what is not reachable on this machine.
+
+Hard rules, because they were broken twice in one session (2026-10-21):
+
+- **Standing permission for TEST runs (granted 2026-10-25).** The owner allows
+  the agent to launch the emulator for tests without asking each time, provided
+  test builds run with audio off (`config_force_silent()`, applied automatically
+  when `MD_NO_AUDIO`/`MD_PROFILE`/`MD_TEST_STAGE`/`MD_LINK_TRACE` is defined).
+  Still binding: one instance at a time, never launch over a running one, stop
+  it when the test ends (close it in the same turn - never leave an instance
+  running between turns), and ask again for anything the owner should watch.
+- **A run that must return numbers (profile, `dbg_print`, any KDEBUG text) is
+  launched ONLY with the `script -qf` recipe from `blastem_debug.md`** ->
+  `/tmp/opencode/md-emu/kdebug.log`. `tools/emu.sh start` does NOT capture
+  `kprintf`: stdout stays empty and BlastEm opens its own debugger window
+  instead. Before asking for such a run, open `blastem_debug.md` and write the
+  exact capture command into the ask. Release builds print nothing
+  (`dbg_print` needs `-DMD_DEBUG` or a trace/profile flag). Broken 2026-10-28:
+  a profile run through `emu.sh start` captured nothing.
+- **Plan the run 2-4 steps ahead (owner rule, 2026-10-29).** A run that only answers
+  one question, followed by "now let's log X", is a wasted round. Before asking for a
+  launch that is meant to DIAGNOSE something, all of this is done and written in the ask:
+  1. **Every suspect is listed and instrumented in ONE build** - state, timing, readback
+     against the expected data, a control for each reader/writer used (so a failing
+     probe cannot be blamed on the probe), and the alternative ways of doing the same
+     thing as experiments inside the same boot (a ladder), not as later builds.
+  2. **A table maps each possible outcome to the next step**, and the likely fix is
+     already built behind a compile-time flag, so a clean result needs no new round.
+  3. **An analysis script is written and tested on an old log** before the run
+     (`tools/walkdiag_report.py` is the model: parse, verdict per suspect, first
+     failing step), so the answer is read the moment the log exists.
+  4. **The ask also says what the log still cannot tell** (no good boot to compare,
+     other hardware/emulator) and what is being done about it.
+  Per-step state lines + a probe at every checkpoint beat one dump at the end: the log
+  must show the FIRST step after which things go wrong. If a run answers only part of
+  the question, say so and prepare the whole remainder before asking again.
+- **Ask before every launch.** One explicit permission = one launch. A retry
+  with different flags, a `stdbuf`, a different terminal — all new launches,
+  all need a new ask.
+- **Prepare everything BEFORE asking (owner rule, 2026-10-26).** The ask has to
+  arrive with the work already done: instrumentation compiled in, probes and
+  dumps written, the analysis script ready, the exact launch command decided,
+  and the ROM already built. A launch is one step — the owner must never wait
+  while the build or the probe is still being written. If a run answers nothing,
+  report and prepare the next one; do not rebuild-then-relaunch under the same
+  permission.
+- **A run is ONLY the run (owner rule, 2026-10-26).** The launch step contains the
+  launch (and, if the capture is part of the prepared plan, the capture) and
+  nothing else: no writing scripts, no building, no analysis, no source edits in
+  that step. Scripts, probes, build and the exact commands are ready beforehand;
+  the log/screenshot analysis is a separate step after the emulator is closed.
+  This includes a *verification* run that follows a test the
+  user just played, and any run where the agent drives the pad itself: a
+  session-long "let's profile" authorises exactly the launch that was asked for,
+  not the ones the agent invents afterwards (broken on 2026-10-24: two
+  auto-driven launches after the user's profiled run).
+- Before asking, run the pre-flight checks (`command -v`, `ps`, window search)
+  in their own call. Never put a launch and the check that justifies it in the
+  same shell command.
+- If the first attempt yields no data, **stop and report**; do not try a
+  variant to "just see if it works".
 
 ```bash
 flatpak run --branch=stable --arch=x86_64 --command=Fusion --file-forwarding \
@@ -157,28 +271,132 @@ user's desktop. Ask before launching. Never launch repeatedly to explore — one
 deliberate run per question, then `tools/emu.sh stop`. Prefer deriving answers
 from already-captured screenshots/assets over running the emulator again.
 
+## Out of scope (do not report as a gap)
+
+- **Localisation / language selection.** The PC ships EN + PT strings; this
+  port is **English only** (owner's decision, asked three times). `tools/audit_pc.py`
+  lists `selected_language` as out of scope for that reason.
+- **Trophies / extras screen.** Not in this version (owner's decision).
+- **Separate SFX volume.** XGM2 exposes a master volume for the FM/PSG music
+  only; PCM effects have no runtime volume control, so the port keeps SFX on/off
+  and a 4-step MUSIC VOL. Revisit only if the driver changes.
+
+## Editable stage data (source of truth)
+
+- `data/games/RockDroid1/` is the **master** game data and is what every
+  converter reads (`tools/*.py` use `ROOT/data/games/RockDroid1`). The parent
+  `rockbot/build/games/RockDroid1` is never read again, so edits made here
+  survive every `make assets`.
+- It is already converted to the port's geometry: **14 game rows (224p)** in
+  file slots 0..13 (slot 14 is unused padding of the PC struct), link rows and
+  spawn Y remapped. `tools/import_pc_data.py` did that once from the PC data (now DISARMED, BUG-055: data/ and images/ are hand-owned);
+  the converters no longer crop anything. Re-running it overwrites the data
+  (it backs up first) and is only for a fresh PC import.
+- `data/fonts` and `data/shared` are symlinks to the parent's read-only shared
+  art (the editor wants them next to `games/`).
+- Editor: the PC Qt editor copied into `editor/` (Qt5/Qt6, **CMake**), pointed
+  at this tree with `ROCKBOT_EDITOR_PATH`. Build `make editor` (CMake configure
+  + build into `editor/build/`), run `tools/editor.sh` (or
+  `ROCKBOT_EDITOR_PATH=$PWD/data editor/editor`).
+- After editing maps/enemies/objects: `make` (or `make assets`) regenerates
+  `src/stageN_*` from the edited data, then the ROM.
+- The editor shows the same 14 rows the game uses; Edit > Shift Down / Shift Up
+  move the room's tiles, objects and enemies by one row (links are untouched).
+
+## Bug workflow — reproduce offline BEFORE fixing (standing rule)
+
+Every reported bug gets an **offline reproduction first**, then a fix, then the
+same reproduction proves the fix — no emulator round-trip needed to know whether
+it worked:
+
+1. Write the reproduction as a check in `tools/` (or extend an existing one:
+   `audit_data.py`, `audit_links.py`, `check_vram.py`, `check_palettes.py`,
+   `check_terrain.py`, `check_fx.py`) or as an assert-based self-check next to
+   the code. It must **fail on the current tree** and say what it saw.
+2. Fix the code until that check passes.
+3. Only then consider a play-test, for things no check can see (feel, colour).
+
+If a bug cannot be reproduced offline yet, that is the first task — build the
+harness for it (e.g. a headless driver of the physics/arrival math in Python
+mirroring the C, or a converter-side assertion) instead of guessing a fix.
+State the reproduction in the commit message.
+
+## Captures are evidence only if they are game frames
+
+`tools/emu_shot` records the window size next to every shot and **drops** any
+capture whose geometry is not a plain multiple of the 320x224 screen. Reason
+(2026-10-25): a burst of "transition" frames came out 1182x494 - the window
+manager had resized/dialog-focused something else - and they read as a black
+screen with garbage edges. `tools/check_captures.py <glob>` screens a batch
+before it is used as evidence.
+
+## Performance work — host cost tests before the emulator
+
+A slowdown is a bug and follows the same rule: reproduce it offline first.
+`tools/run_host_tests.sh` compiles the **real** `src/object.c` against counting
+stubs (`tests/host/`) and prints the work one frame costs as a function of the
+number of visible objects: type-predicate answers, terrain lookups, sprite
+calls, plus an estimated `objects_update` cost in the profiler's subticks
+(calibrated on the CHAOS CITY measurement: 1280 subticks = one 60 Hz frame).
+
+    tools/run_host_tests.sh          # prints the table, exits 1 on a regression
+
+Use it before and after a change; the pre-fix numbers for the 2026-10-24
+"slowdown with objects on screen" report were 7/21/36/50 predicate answers per
+frame (2/6/10/14 objects, ≈347 subticks at 14) and are now 0 (≈171). Only then
+consider `make profile` on hardware, and only when the model says the frame is
+near the 1280-subtick budget.
+
+## PC parity audit (never wait for a play-test to find these)
+
+Before saying a feature is "done", read the PC enum/field the converter
+consumes and check the port implements **every value the data uses**, not just
+the action name. `pc_gaps.md` is the running list; regenerate its data half
+with `tools/audit_data.py` (AI actions AND their option field, objects,
+terrain) plus `tools/check_palettes.py` / `tools/check_vram.py`.
+
+The APE BOT ceiling jump is the cautionary case: the AI action `JUMP` was
+"supported", but its *option* `TO_ROOF` was ignored, so a movement the PC has
+turned into a plain hop and only a play-test noticed.
+
 ## Port status
 
-- Milestone 1: intro logos (`src/main.c` `showIntro()`).
-- Milestone 2: title screen (`showTitle()`). Menu **not** done — START skips straight to the stage.
-- Milestone 3: **intro stage CHAOS CITY** — map scroll, player walk/jump/collision.
-- Stage 0 milestone table + session notes: **`stage0_plan.md`** (single source
-  of truth). Current: M0 maps/links/collision, M1 parallax bg, M2 tile3 baked,
-  M3 text HP debug overlay, M4 attack + shots, M5 enemies (5 types),
-  M6 objects (pills/1UP/fall+fly platforms/checkpoint) DONE + platform bug
-  fixes (side collision, land-activation, carry) built; user to re-test.
-  **Next: M6b boss teleporter object (type 32) — research in stage0_plan.md
-  M7a section.** Then M7 boss. Backlog after M6 (user order): charged-shot
-  projectiles like PC, halve enemy speed, hit pushback + hit anim, menu,
-  boss, stage select.
+- Feature-by-feature comparison with the PC game (boot, loop, player, enemies,
+  objects, stage, HUD, audio, saves): **`pc_features_vs_md.md`**.
+- Stages 0..13 are converted (14 of 20). The first nine (0..8) play: maps,
+  parallax, enemies, objects, shots, HUD, menu, save/load, stage select.
+  Stages 9..13 (castle #1) are reachable: the stage-select centre slot
+  unlocks after intro + 8 bosses and returns the first unbeaten castle stage;
+  castle stages show `classic_style_castle.png` before their boss intro.
+  Stages 14..19 are placeholders (`use_second_castle=0`).
+  Bosses and music still out (see roadmap).
+- Intro + title: the title now draws the **PC art at 59 colours over four
+  palette lines** (`tools/title64.py`, per-8x8-tile palette line). Recipe and
+  caveats in `stage0_plan.md` -> "Four palette lines per screen".
+- **Colourcycle** (CRAM rotation instead of tile-frame animation) is live in
+  stages 1, 2, 3, 6, 8: art width decides the technique (a 16 px strip = one
+  frame = rotation; wider = several frames = tile animation). Details, per-stage
+  bands and the palette-pool layout are in `stage0_plan.md` -> "Colourcycle".
+- Known colour work left: `mega_drive/images/tilesets/anim/` art is hand-owned
+  and takes precedence over the PC data; `bugs.md` BUG-001 (title, fixed),
+  BUG-003 (fixed), BUG-004 (palette budget: DEEP JUNGLE is the worst at 33
+  colours for 15 slots - the per-stage weighted errors are printed by every
+  build) and roadmap item 15 (waterfall gap, needs a reproduction).
+- Session notes and the milestone history: **`stage0_plan.md`** (single source of
+  truth).
 
-Flow in `main.c`: `showIntro()` → `showTitle()` (waits for START) → `runStage()`.
+Flow in `main.c`: `showIntro()` (logos) → `scene_play(SCENE_OPENING_UNBEATEN)`
+(PC intro scene) → `showTitle()` (waits for START) → `runStage()`.
 
 **Files**
 
 | file | role |
 |---|---|
-| `src/main.c` | boot, intro, title, stage loop |
+| `src/main.c` | boot, intro logos, title, stage loop |
+| `src/scene.{c,h}` | PC scene player: clear/text/parallax/images, START aborts |
+| `src/config.{c,h}` | options screen (audio/input/extras/leave), SRAM-persisted |
+| `src/dialogs.{c,h}` | PC boss-room dialog pages (dead start-stage half skipped) |
+| `src/scenes_data.{c,h}` | generated: op lists, text, clear areas, parallax |
 | `src/stage.{c,h}` | `stage_load`, `stage_terrain(x,y)`, `stage_update_camera` |
 | `src/stage0_data.{c,h}` | generated `u8 terrain[200*15]` + `STAGE0_TERRAIN(x,y)` |
 | `src/player.{c,h}` | physics, AABB collision, sprite, ladder grab. `PLAYER_BOX_*`, `ANIM_*` |
@@ -188,17 +406,27 @@ Flow in `main.c`: `showIntro()` → `showTitle()` (waits for START) → `runStag
 | `src/stage0_enemies.{c,h}` | generated: defs, spawns, `palette_ui_enemies` |
 | `src/stage0_objects.{c,h}` | generated: object defs, spawns |
 | `tools/convert_assets.py` | logos → indexed PNG |
+| `tools/check_fx.py` | verifies each `fx_*` PNG against its resources.res frame size |
+| `tools/title64.py` | full-screen image → 4-palette-line art (tiles/map/palettes as C arrays, `--preview`)
 | `tools/convert_stage.py` | stage/map data → `res/stage0_map*.png` + `src/stage0_data.*` + parallax `res/stage0_bg*.png` |
 | `tools/convert_player.py` | `p1.png` → `res/player.png` (anim rows, palette swap) |
 | `tools/convert_enemies.py` | enemy .dat/.png → `res/enemy_*.png`, `res/shot.png`, `src/stage0_enemies.*` |
 | `tools/convert_objects.py` | object .dat/.png → `res/object_*.png`, `src/stage0_objects.*` |
 | `tools/pal_ui.py` | single source of truth for the PAL0 UI/enemy palette |
 | `tools/img2tiles.py` | image → minimal tile set + tilemap (UI screens, HUD) |
+| `tools/convert_scenes.py` | PC scene tables → `src/scenes_data.*` + `res/scene_par*.png` |
+| `tools/add_stage.py` | one stage end to end: converters, resources, registry, `STAGES` |
+| `tools/audit_data.py` | read-only: terrain/object/NPC/AI coverage per stage (`--game RockDroid2` audits the sequel) |
+| `tools/check_terrain.py` | every terrain id the data uses is implemented (`src/stage_data.h` + a code path) |
 | `tools/convert_sfx.py` | PC `sfx/*.wav` → `res/sfx/*.wav` + `res/sfx_pcm.res` (XGM2 PCM) |
 | `src/sfx.{c,h}` | sound effects (XGM2 PCM, channels 2..4) |
 | `tools/tiles_merge.py` | shared pieces across decomposed screens |
 | `src/menu.{c,h}` | in-game START menu (window/panel over the stage) |
 | `src/hud.{c,h}` | HP balls + boss row (sprites; PAL0 via tools/pal_ui.py) |
+| `src/effects.{c,h}` | transient effects: dash dust, water splash/bubble, teleport beam |
+| `src/tooltip.{c,h}` | weapon tooltip after a menu pick: PC box + icon + name (PAL3, plane cells, one redraw) |
+| `src/tooltip_data.{c,h}` | generated: tooltip box tiles/map, 18 icon tiles, per-icon palette |
+| `tools/convert_tooltip.py` | PC `weapon_tooltip.png` + `icons.png` → `src/tooltip_data.*` (`--preview N`) |
 | `src/eshot.{c,h}` | enemy AI projectiles |
 | `res/resources.res` | rescomp manifest |
 
