@@ -607,7 +607,18 @@ void classnpc::move() {
 
 
     if (hitPoints.current > 0) {
+        // NPCs keep running their AI a bit outside the screen, but must not shoot from there
+        size_t shots_before = projectile_list.size();
+        size_t queued_before = projectile_to_be_added_list.size();
         execute_ai();
+        if (is_on_visible_screen() == false) {
+            if (projectile_list.size() > shots_before) {
+                projectile_list.erase(projectile_list.begin() + shots_before, projectile_list.end());
+            }
+            if (projectile_to_be_added_list.size() > queued_before) {
+                projectile_to_be_added_list.erase(projectile_to_be_added_list.begin() + queued_before, projectile_to_be_added_list.end());
+            }
+        }
 	}
 
     if (can_fly == false && position.y >= RES_H+1) {
