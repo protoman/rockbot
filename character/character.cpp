@@ -1670,7 +1670,7 @@ bool character::slide(st_float_position mapScrolling)
     // start slide
     if (state.animation_type != ANIM_TYPE_SLIDE && _dash_button_released == true) {
         if (moveCommands.dash == 1) {
-            if (did_hit_ground == true || (did_hit_ground == false && _can_execute_airdash == true)) {
+            if (did_hit_ground == true || (did_hit_ground == false && _can_execute_airdash == true && position.y >= 0)) { // no air dash above the top of the screen
                 _can_execute_airdash = false;
                 _air_dashed = (did_hit_ground == false);
                 set_animation_type(ANIM_TYPE_SLIDE);
@@ -1805,6 +1805,9 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
         } else {
             // after an air dash there is no new jump until landing (or grabbing a ladder)
             if (_air_dashed == true && hit_ground() == false) {
+                jump_button_released = false;
+            } else if (position.y < 0 && _obj_jump.is_started() == true) {
+                // no double jump while above the top of the screen (sky)
                 jump_button_released = false;
             } else if (_is_falling == false && (_obj_jump.is_started() == false || (character_max_jump_number > _obj_jump.get_max_jump_number()))) {
                 if (_super_jump == true) {
