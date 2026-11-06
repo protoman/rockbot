@@ -134,7 +134,7 @@ build/docker/run.sh psp ports/psp/build.sh        # build one platform inside it
 build/packages/release_all.sh --bump minor --game both --docker   # every platform, both games
 ```
 
-* [docs/Docker.md](docs/Docker.md): the images, where the SDKs come from, backup and restore.
+* [docs/Docker.md](docs/Docker.md): using the images to build packages; [docs/DockerImages.md](docs/DockerImages.md): building the images, where each SDK comes from, backup and restore.
 * [docs/Releasing.md](docs/Releasing.md): the release script, packages, adding a new port.
 * [ports/](ports/): platform-specific code and notes (`psp`, `ps3`, `vita`, `switch`, `pandora`, `windows`, ...).
 

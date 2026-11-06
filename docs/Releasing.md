@@ -53,7 +53,7 @@ Notes:
 1. `ports/<name>/build.sh [1|2]` builds and stages the package; `build/packages/<Name>.sh` calls it and writes `Rockbot<N>_<Name>_<version>.<ext>` (copy `Vita.sh`).
 2. Add `"<name>|./<Name>.sh"` to `TARGETS` in `build/packages/release_all.sh`.
 3. For `--docker`: add a stage `<name>` to `ports/docker/Dockerfile`, add it to `build/docker/build_images.sh` and `build/docker/run.sh`. The target then runs in the image `rockbot-<name>` automatically.
-4. Add a row to the table above and in `docs/Docker.md`.
+4. Add a row to the table above and in `docs/Docker.md` and `docs/DockerImages.md`.
 
 ## Binary names
 

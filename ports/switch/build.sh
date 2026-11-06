@@ -14,7 +14,7 @@
 # DEVKITPRO must point at a devkitPro tree with devkitA64, libnx and the switch-sdl2* portlibs
 # (default /mnt/ExtraData/Devel/SDK/Switch/devkitpro). It is made once by copying /opt/devkitpro out of the
 # official devkitpro/devkita64 Docker image after `dkp-pacman -S switch-sdl2 switch-sdl2_image
-# switch-sdl2_mixer switch-sdl2_ttf switch-sdl2_gfx switch-pkg-config` (see docs/Docker.md).
+# switch-sdl2_mixer switch-sdl2_ttf switch-sdl2_gfx switch-pkg-config` (see docs/DockerImages.md).
 
 set -euo pipefail
 
