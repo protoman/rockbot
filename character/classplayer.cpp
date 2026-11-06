@@ -215,8 +215,8 @@ void classPlayer::recharge(e_energy_types _en_type, int value)
 
 bool classPlayer::shouryuken()
 {
-    // trying to start command (can only start if standing)
-    if (moveCommands.up != 0 && moveCommands.dash != 0 && state.animation_type == ANIM_TYPE_STAND)  {
+    // trying to start command (can only start if standing on the ground: against a wall the animation can fall back to STAND in the air, which allowed to chain shoryukens forever)
+    if (moveCommands.up != 0 && moveCommands.dash != 0 && state.animation_type == ANIM_TYPE_STAND && hit_ground() == true)  {
         set_animation_type(ANIM_TYPE_SPECIAL_ATTACK);
         _can_execute_airdash = false;
         soundManager.play_sfx(SFX_SHORYUKEN_GIRL);
