@@ -70,6 +70,7 @@ character::character() : hitPoints(1, 1), last_hit_time(0), is_player_type(false
     _hit_ground = false;
     _dashed_jump = false;
     _can_execute_airdash = true;
+    _air_dashed = false;
     _player_must_reset_colors = false;
     hit_animation_count = 0;
     _attack_frame_n = -1;
@@ -146,6 +147,7 @@ void character::charMove() {
     }
     if (did_hit_ground == true) {
         _can_execute_airdash = true;
+        _air_dashed = false;
     }
 
 
@@ -1670,6 +1672,7 @@ bool character::slide(st_float_position mapScrolling)
         if (moveCommands.dash == 1) {
             if (did_hit_ground == true || (did_hit_ground == false && _can_execute_airdash == true)) {
                 _can_execute_airdash = false;
+                _air_dashed = (did_hit_ground == false);
                 set_animation_type(ANIM_TYPE_SLIDE);
                 state.slide_distance = 0;
                 _dash_button_released = false;
@@ -1773,6 +1776,11 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
         return false;
     }
 
+    // grabbing a ladder gives the jump back
+    if (is_in_stairs_frame()) {
+        _air_dashed = false;
+    }
+
     if (timer.getTimer() < jump_lock_timer) { // some effect blocked jumping
         //std::cout << ">>>>>>>>>>>>>>>>> jump blocked[" << name << "]. Lock-Time: [" << jump_lock_timer << "], timer: {" << timer.getTimer() << "]" << std::endl;
         return false;
@@ -1795,7 +1803,10 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
                 }
             }
         } else {
-            if (_is_falling == false && (_obj_jump.is_started() == false || (character_max_jump_number > _obj_jump.get_max_jump_number()))) {
+            // after an air dash there is no new jump until landing (or grabbing a ladder)
+            if (_air_dashed == true && hit_ground() == false) {
+                jump_button_released = false;
+            } else if (_is_falling == false && (_obj_jump.is_started() == false || (character_max_jump_number > _obj_jump.get_max_jump_number()))) {
                 if (_super_jump == true) {
                     _super_jump = false;
                     //std::cout << "### CHARACTER::SUPER-JUMP #1" << std::endl;
@@ -2087,6 +2098,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 
                 if (map_block == BLOCK_Y || map_block == BLOCK_XY) {
                     _can_execute_airdash = true;
+                    _air_dashed = false;
                 }
                 // INSIDE PLATFORM OBJECT, MUST DIE
                 if (map_block == BLOCK_INSIDE_OBJ) {
@@ -2099,6 +2111,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
         map_block = res_collision_object._block;
         if (map_block == BLOCK_Y || map_block == BLOCK_XY) {
             _can_execute_airdash = true;
+            _air_dashed = false;
         }
     }
 
