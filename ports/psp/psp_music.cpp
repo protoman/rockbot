@@ -1,0 +1,223 @@
+#include "psp_music.h"
+
+#ifdef PSP
+
+#include <xmp.h>
+#include <pspkernel.h>
+#include <cstdlib>
+#include <cstring>
+#include <strings.h>
+#include <string>
+
+#include "psp_platform.h"
+#include "../../aux_tools/stringutils.h"
+
+namespace psp_music {
+
+namespace {
+
+const unsigned int MAGIC = 0x504d5801; // "XMP"+1: tells our handles from Mix_Music pointers
+
+struct XmpMusic {
+    unsigned int magic;
+    xmp_context ctx;
+    void *data;        // module file, kept until the handle is freed
+    long size;
+    bool started;      // xmp_start_player() called
+    int xmp_loop;      // xmp_play_buffer() loop argument: 0 = forever, N = play N times
+    volatile bool playing;
+};
+
+XmpMusic *g_current = NULL;
+volatile int g_volume = 128;
+volatile unsigned int g_decode_us = 0;
+
+// libxmp renders at 22.05 kHz (half the mixing work: the PSP CPU is shared with the game) and every stereo
+// frame is written twice to get the mixer's 44.1 kHz. Tracker samples are low rate, the difference is small.
+void hook(void *udata, Uint8 *stream, int len)
+{
+    XmpMusic *m = (XmpMusic *)udata;
+    if (m == NULL || !m->playing) {
+        std::memset(stream, 0, len);
+        return;
+    }
+    static Uint32 half[2048]; // up to 8192 bytes of output per call (mixer chunk is 1024 frames = 4096 bytes)
+    int out_frames = len / 4;
+    if (out_frames > 4096) {
+        out_frames = 4096;
+    }
+    const int in_frames = out_frames / 2;
+    const unsigned int t0 = sceKernelGetSystemTimeLow();
+    int r = xmp_play_buffer(m->ctx, half, in_frames * 4, m->xmp_loop);
+    g_decode_us += sceKernelGetSystemTimeLow() - t0;
+    if (r < 0) { // end of the module (or an error): silence from now on
+        m->playing = false;
+        std::memset(stream, 0, len);
+        return;
+    }
+    const int volume = g_volume;
+    Uint32 *out = (Uint32 *)stream;
+    for (int i = 0; i < in_frames; i++) {
+        Uint32 frame = half[i];
+        if (volume < 128) {
+            Sint16 left = (Sint16)((Sint16)(frame & 0xFFFF) * volume >> 7);
+            Sint16 right = (Sint16)((Sint16)(frame >> 16) * volume >> 7);
+            frame = ((Uint32)(Uint16)right << 16) | (Uint16)left;
+        }
+        out[2*i] = frame;
+        out[2*i + 1] = frame;
+    }
+    if (out_frames * 4 < len) { // odd sizes: silence for the rest
+        std::memset(stream + out_frames * 4, 0, len - out_frames * 4);
+    }
+}
+
+void stop_current()
+{
+    if (g_current != NULL) {
+        Mix_HookMusic(NULL, NULL); // takes the audio lock: the hook is not running after this
+        g_current->playing = false;
+        if (g_current->started) {
+            xmp_end_player(g_current->ctx);
+            g_current->started = false;
+        }
+        g_current = NULL;
+    }
+}
+
+} // namespace
+
+bool is_tracker_file(const char *file)
+{
+    if (file == NULL) {
+        return false;
+    }
+    const char *dot = std::strrchr(file, '.');
+    if (dot == NULL) {
+        return false;
+    }
+    return strcasecmp(dot, ".mod") == 0 || strcasecmp(dot, ".s3m") == 0 ||
+           strcasecmp(dot, ".xm") == 0 || strcasecmp(dot, ".it") == 0;
+}
+
+SoundMusic *load(const char *file)
+{
+    SDL_RWops *rw = psp_platform::rw_from_file(file, "rb");
+    if (rw == NULL) {
+        psp_platform::log("psp_music: cannot open '%s' (%s)", file ? file : "(null)", SDL_GetError());
+        return NULL;
+    }
+    const Sint64 size = SDL_RWsize(rw);
+    if (size <= 0 || size > 8 * 1024 * 1024) {
+        SDL_RWclose(rw);
+        psp_platform::log("psp_music: bad size %ld for '%s'", (long)size, file);
+        return NULL;
+    }
+    void *data = std::malloc((size_t)size);
+    if (data == NULL || SDL_RWread(rw, data, 1, (size_t)size) != (size_t)size) {
+        std::free(data);
+        SDL_RWclose(rw);
+        psp_platform::log("psp_music: cannot read '%s'", file);
+        return NULL;
+    }
+    SDL_RWclose(rw);
+
+    XmpMusic *m = (XmpMusic *)std::calloc(1, sizeof(XmpMusic));
+    if (m == NULL) {
+        std::free(data);
+        return NULL;
+    }
+    m->magic = MAGIC;
+    m->data = data;
+    m->size = (long)size;
+    m->ctx = xmp_create_context();
+    if (m->ctx == NULL || xmp_load_module_from_memory(m->ctx, m->data, m->size) < 0) {
+        psp_platform::log("psp_music: libxmp cannot load '%s'", file);
+        if (m->ctx != NULL) {
+            xmp_free_context(m->ctx);
+        }
+        std::free(data);
+        std::free(m);
+        return NULL;
+    }
+    psp_platform::log("psp_music: loaded '%s' (%ld bytes)", file, (long)size);
+    return (SoundMusic *)m;
+}
+
+bool owns(const SoundMusic *music)
+{
+    return music != NULL && ((const XmpMusic *)music)->magic == MAGIC;
+}
+
+int play(SoundMusic *music, int loops)
+{
+    XmpMusic *m = (XmpMusic *)music;
+    if (!owns(music)) {
+        return -1;
+    }
+    Mix_HaltMusic();
+    stop_current();
+    if (xmp_start_player(m->ctx, 22050, 0) < 0) {
+        psp_platform::log("psp_music: xmp_start_player failed");
+        return -1;
+    }
+    // cheap mixing: nearest-neighbour interpolation and no DSP filters (the PSP CPU is shared with the game)
+    xmp_set_player(m->ctx, XMP_PLAYER_INTERP, XMP_INTERP_NEAREST);
+    xmp_set_player(m->ctx, XMP_PLAYER_DSP, 0);
+    m->started = true;
+    m->xmp_loop = (loops < 0) ? 0 : loops + 1;
+    m->playing = true;
+    g_current = m;
+    Mix_HookMusic(hook, m);
+    return 0;
+}
+
+void halt()
+{
+    stop_current();
+}
+
+void free_music(SoundMusic *music)
+{
+    XmpMusic *m = (XmpMusic *)music;
+    if (!owns(music)) {
+        return;
+    }
+    if (g_current == m) {
+        stop_current();
+    }
+    xmp_release_module(m->ctx);
+    xmp_free_context(m->ctx);
+    std::free(m->data);
+    m->magic = 0;
+    std::free(m);
+}
+
+void set_volume(int volume)
+{
+    if (volume >= 0) {
+        g_volume = volume > 128 ? 128 : volume;
+    }
+}
+
+unsigned int take_decode_us()
+{
+    const unsigned int us = g_decode_us;
+    g_decode_us = 0;
+    return us;
+}
+
+} // namespace psp_music
+
+#else
+namespace psp_music {
+bool is_tracker_file(const char *) { return false; }
+SoundMusic *load(const char *) { return NULL; }
+bool owns(const SoundMusic *) { return false; }
+int play(SoundMusic *, int) { return -1; }
+void halt() {}
+void free_music(SoundMusic *) {}
+void set_volume(int) {}
+unsigned int take_decode_us() { return 0; }
+}
+#endif

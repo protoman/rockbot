@@ -1,3 +1,6 @@
+#ifdef PSP
+#include "../ports/psp/psp_platform.h"
+#endif
 #include "fps_control.h"
 
 #include <algorithm>    // std::find
@@ -27,6 +30,9 @@ void fps_control::initialize()
 
 bool fps_control::limit()
 {
+#ifdef PSP
+    psp_platform::tick(); // profiling: counts game logic ticks (the game skips drawing every other one)
+#endif
     if (timer.is_paused()) {
         return true;
     }
@@ -47,7 +53,7 @@ bool fps_control::limit()
 
     if (current_ticks < target_ticks)
     {
-        SDL_Delay(target_ticks - current_ticks);
+        timer.delay(target_ticks - current_ticks);
         current_ticks = timer.getTimer();
     }
 

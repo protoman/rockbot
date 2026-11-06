@@ -9,11 +9,12 @@
 
 #define STAGE4_ENEMY_DEF_COUNT 8
 #define STAGE4_ENEMY_SPAWN_COUNT 44
-#define STAGE4_ENEMY_PROJ_MAX 20
+#define STAGE4_ENEMY_PROJ_MAX 36
 
 extern const EnemyDef stage4_enemy_defs[STAGE4_ENEMY_DEF_COUNT];
 extern const EnemySpawn stage4_enemy_spawns[STAGE4_ENEMY_SPAWN_COUNT];
 extern const EnemyAi stage4_enemy_ai[STAGE4_ENEMY_DEF_COUNT][20];
+extern const EnemyAi stage4_enemy_react[STAGE4_ENEMY_DEF_COUNT][6];
 extern const EnemyProj stage4_enemy_proj[STAGE4_ENEMY_PROJ_MAX];
 
 #endif

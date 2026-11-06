@@ -1,0 +1,14 @@
+# Editor build artifacts (sources are tracked, outputs are not)
+editor/build/
+editor/editor
+editor/*.o
+editor/moc_*.cpp
+editor/moc_*.h
+editor/ui_*.h
+editor/qrc_*.cpp
+editor/CMakeCache.txt
+editor/CMakeFiles/
+
+# transient backup made by tools/import_pc_data.py
+data/backup_pre_import_*/
+res/.assets.cache.json

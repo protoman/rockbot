@@ -4,7 +4,7 @@
 The PC's save screen (scenesLib::draw_save_details, sceneslib.cpp:916) shows,
 next to each occupied slot, one icon per stage/weapon plus the selected
 player's icon. The source sheet is 288x32 RGBA: 18 icons of 16x16, each with
-TWO frames stacked vertically — top = "not owned" (disabled), bottom = "owned"
+TWO frames stacked vertically — top = coloured ("owned"), bottom = grey ("not owned")
 (graphicsLib::draw_weapon_tooltip_icon, graphicslib.cpp:1357).
 
 Index map (same order the PC uses, draw_save_details):
@@ -26,7 +26,7 @@ from PIL import Image
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
-SRC = os.path.join(ROCKBOT, "build/games/RockDroid1/images/icons.png")
+SRC = os.path.join(ROOT, "data/games/RockDroid1/images/icons.png")
 RES = os.path.join(ROOT, "res")
 
 ICON = 16
@@ -98,10 +98,10 @@ def main():
         out = Image.new("P", (ICON * 2, ICON))
         out.putpalette([v for c in pal for v in c])
         data = [0] * (ICON * 2 * ICON)
-        for f in range(2):                     # 0 = disabled, 1 = enabled
+        for f in range(2):                     # 0 = disabled, 1 = enabled (the sheet's TOP half is the coloured art)
             for y in range(ICON):
                 for x in range(ICON):
-                    r, g, b, a = px[i * ICON + x, f * ICON + y]
+                    r, g, b, a = px[i * ICON + x, (1 - f) * ICON + y]
                     if a < 128 or is_key((r, g, b)):
                         continue
                     data[y * ICON * 2 + f * ICON + x] = slot(

@@ -1,4 +1,6 @@
 #!/bin/bash
+# Keep file/version.h equal to build/packages/version_name.txt
+"$(dirname "${BASH_SOURCE[0]}")/build/packages/sync_version.sh"
 
 set -e
 
@@ -8,10 +10,10 @@ set -e
 # ./emsdk install latest
 # ./emsdk activate latest
 # source ./emsdk_env.sh
-# Check with: emcc -v
+# Check with: emcc -v (the build below uses em++ so the C++ standard library is always linked)
 
 # Compile all C++ files to WebAssembly (index.html output)
-emcc -flto -O3 -fno-exceptions -fno-rtti \
+em++ -flto -O3 -fno-exceptions -fno-rtti \
 main.cpp \
 ./shareddata.cpp \
 ./game.cpp \
@@ -71,7 +73,7 @@ main.cpp \
 -sSTACK_SIZE=50mb \
 -sTOTAL_MEMORY=128mb \
 --preload-file build/fonts/@fonts/ --preload-file build/games/@games/ --preload-file build/shared/@shared/ \
---closure 1 -sEXPORTED_RUNTIME_METHODS=['allocate','ALLOC_NORMAL'] \
+--closure 1 \
 -o wasm/game.js
 
 echo "

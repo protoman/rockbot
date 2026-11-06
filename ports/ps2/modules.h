@@ -2,6 +2,53 @@
 #include <stdio.h>
 #endif
 
+#include <string.h>
+#include <string>
+#include <kernel.h>
+#include <delaythread.h>
+#include <sifrpc.h>
+#include <loadfile.h>
+
+// RPC server ids
+#define PS2_RPC_FILEIO 0x80000001
+#define PS2_RPC_AUDSRV 0x870884e
+#define PS2_RPC_PAD_NEW 0x80000100
+#define PS2_RPC_PAD_OLD 0x80000101
+
+/**
+ * @brief Check if an RPC server is already registered on the IOP.
+ *
+ * Used to avoid loading a second copy of a module the launcher (ps2link,
+ * wLaunchELF, ...) or the BIOS already provided.
+ */
+static bool PS2_rpc_available(unsigned int sid)
+{
+    SifRpcClientData_t client;
+    memset(&client, 0, sizeof(client));
+    if (SifBindRpc(&client, sid, 0) < 0) {
+        return false;
+    }
+    for (int i = 0; i < 20 && client.server == NULL; i++) {
+        DelayThread(10000); // 10ms, up to 200ms
+    }
+    return client.server != NULL;
+}
+
+/**
+ * @brief Load an IOP module shipped next to the game data.
+ *
+ * Modules are loaded from the game directory (host:, mass:, cdfs:, ...)
+ * instead of being embedded in the ELF: modules embedded in EE RAM and
+ * loaded with SifExecModuleBuffer() are accepted by the IOP but never
+ * register their RPC servers with this SDK, while SifLoadModule() works.
+ */
+static int PS2_load_module(const char *name)
+{
+    std::string path = FILEPATH + "modules/" + name;
+    return SifLoadModule(path.c_str(), 0, NULL);
+}
+
+
 //#include <tamtypes.h>
 //#include <kernel.h>
 //#include <sifrpc.h>
@@ -142,6 +189,46 @@ void PS2_init() {
     // Apply the SBV LMB patch to allow modules to be loaded from a buffer in EE RAM.
     sbv_patch_enable_lmb();
     */
+
+    SifInitRpc(0);
+}
+
+/**
+ * @brief Load the IOP modules the game needs, from FILEPATH/modules/.
+ *
+ * Called after FILEPATH has been resolved to its final device (host:, mass:,
+ * cdfs:, ...).
+ */
+void PS2_load_modules() {
+    // newlib's file I/O goes through the "fileio" RPC server. ps2link and
+    // similar launchers already provide it; when booting the ELF directly
+    // (e.g. PCSX2, or a disc/USB launcher) we have to load it ourselves.
+    if (!PS2_rpc_available(PS2_RPC_FILEIO)) {
+        PS2_load_module("fileio.irx");
+    }
+
+    // stdio is imported by padman/freesd/audsrv; harmless if already loaded.
+    PS2_load_module("stdio.irx");
+
+    // Controller: sio2man + padman. Skip when the launcher/BIOS already
+    // registered the pad RPC server.
+    if (!PS2_rpc_available(PS2_RPC_PAD_NEW) && !PS2_rpc_available(PS2_RPC_PAD_OLD)) {
+        PS2_load_module("sio2man.irx");
+        PS2_load_module("padman.irx");
+    }
+
+    // Audio: audsrv_init() spins forever when its RPC server is missing, and
+    // the game calls it during boot. audsrv imports cdvdman and libsd; the
+    // ps2sdk freesd.irx provides libsd.
+    if (!PS2_rpc_available(PS2_RPC_AUDSRV)) {
+        SifLoadModule("rom0:CDVDMAN", 0, NULL);
+        PS2_load_module("freesd.irx");
+        PS2_load_module("audsrv.irx");
+    }
+
+    // Memory card services for saves.
+    SifLoadModule("rom0:MCMAN", 0, NULL);
+    SifLoadModule("rom0:MCSERV", 0, NULL);
 }
 
 

@@ -15,12 +15,14 @@ CTestTestfile.cmake
 CMakeUserPresets.json
 Testing/
 install_manifest.txt
-build/cmake/
-build/cmake-windows-*/
 build/deps/
-build/windows-dlls-*/
+
+# Build trees of every platform (CMake build folders, staged output): see docs/Docker.md
+res/
 build/rockbot.exe
 build/*.dll
+
+# PlayStation 3 build output
 
 # Game artifiacts
 rockbot
@@ -41,6 +43,12 @@ build/packages/win32
 build/scenesviewer
 build/packages/Android/
 build/packages/Dingux/
+build/packages/pandora/rockbot*/
+build/packages/*.pnd
+build/packages/GameCube/
+build/packages/Wii/
+build/packages/*.vpk
+build/packages/*.nro
 build/packages/PS2/
 build/packages/PSP/
 build/packages/psp_dist/
@@ -98,3 +106,17 @@ mega_drive/screenshots/
 
 # Python bytecode caches
 __pycache__/
+
+# PS3 package output
+build/packages/PS3/
+build/packages/*.pkg
+
+# Release build output
+build/packages/Wii/
+build/packages/appimage/
+build/packages/deb/
+build/packages/linux/
+build/packages/raspberry/
+build/packages/release_logs/
+build/rockbot_*
+*.AppImage

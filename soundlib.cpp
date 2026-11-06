@@ -469,17 +469,6 @@ string soundLib::get_filename_for_music(string filename)
                 filename = old_filename;
             }
         }
-    } else {
-#if defined(ANDROID)
-        std::size_t found = filename.find_last_of("/");
-        if (found != std::string::npos) {
-            std::string mp3_filename = filename.substr(0,found) + "/mp3/" + filename.substr(found+1) + ".mp3";
-            std::cout << "###ROCKBOT### - mp3_filename[" + mp3_filename + "]" << std::endl;
-            if (fio.file_exists(mp3_filename)) {
-                filename = mp3_filename;
-            }
-        }
-#endif
     }
     filename = StringUtils::clean_filename(filename);
     return filename;

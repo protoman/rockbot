@@ -19,13 +19,15 @@ public:
     static void release();
     SoundChunk *get_sfx(std::string filename);
     SoundChunk *get_shared_sfx(std::string filename);
+    void preload_projectile_sfx(); // loads every projectile sound now, so firing never reads a file mid-game
+    void preload_gameplay_sfx();   // same for the doors, teleporter, platform, thunder and dinosaur sounds
     CURRENT_FILE_FORMAT::file_projectilev3 get_projectile(int n);
     int get_projectile_list_size();
 
     CURRENT_FILE_FORMAT::file_npc_v3_1_2* get_enemy(int n);
     CURRENT_FILE_FORMAT::file_npc_extra_data* get_enemy_extra_data(int n);
     int get_enemy_list_size();
-#ifdef WII
+#if defined(WII) || defined(PS3)
     void short_to_little_endian(short &s);
     void u_short_to_little_endian(unsigned short &s);
     void sint16_to_little_endian(int16_t &i);
@@ -38,13 +40,14 @@ private:
     ~GameMediator();
     GameMediator(GameMediator const&){};             // copy constructor is private
     GameMediator& operator=(GameMediator const&){return *this;};  // assignment operator is private
-#ifdef WII
+#if defined(WII) || defined(PS3)
     void wii_convert_npc_list();
     void wii_convert_object_list();
     void wii_convert_ai_list();
     void wii_convert_projectile_list();
     void wii_convert_player_list();
     void wii_convert_anim_tile_list();
+    void wii_convert_enemy_extra_data_list();
 #endif
 
 public:

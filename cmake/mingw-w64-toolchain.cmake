@@ -3,6 +3,8 @@
 # Required cache vars (pass with -D):
 #   MINGW_TARGET_TRIPLET  e.g. x86_64-w64-mingw32 or i686-w64-mingw32
 #   MINGW_SDL_PREFIX      absolute path to installed SDL mingw root
+# Environment (set by build-windows.sh):
+#   MINGW_ROOT            llvm-mingw / MinGW-w64 toolchain root (its bin/ is in PATH)
 
 if(NOT MINGW_TARGET_TRIPLET)
     if(DEFINED ENV{MINGW_TARGET_TRIPLET} AND NOT "$ENV{MINGW_TARGET_TRIPLET}" STREQUAL "")
@@ -44,6 +46,9 @@ set(CMAKE_FIND_ROOT_PATH
     "/usr/${MINGW_TARGET_TRIPLET}"
     "${MINGW_SDL_PREFIX}"
 )
+if(DEFINED ENV{MINGW_ROOT} AND NOT "$ENV{MINGW_ROOT}" STREQUAL "")
+    list(APPEND CMAKE_FIND_ROOT_PATH "$ENV{MINGW_ROOT}/${MINGW_TARGET_TRIPLET}")
+endif()
 
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)

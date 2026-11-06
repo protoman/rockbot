@@ -568,8 +568,8 @@ void classnpc::move_projectiles()
 					break;
 				}
 			}
-            if (projectile_erased) {
-                continue;
+            if (projectile_erased) { // the iterator is no longer valid: the others are handled next frame
+                break;
             }
 		}
 	}
@@ -585,6 +585,34 @@ void classnpc::show_projectiles()
     }
 }
 
+
+// true if there is a solid block, at the NPC's body height, between the NPC and the nearest edge of the visible screen
+bool classnpc::is_wall_between_screen()
+{
+    if (gameControl.get_current_map_obj() == NULL) {
+        return false;
+    }
+    float scroll_x = gameControl.get_current_map_obj()->getMapScrolling().x;
+    float center_x = position.x + frameSize.width/2;
+    float edge_x = scroll_x;
+    if (center_x > scroll_x + RES_W/2) {
+        edge_x = scroll_x + RES_W;
+    }
+    int tile_from = (int)(center_x < edge_x ? center_x : edge_x) / TILESIZE;
+    int tile_to = (int)(center_x < edge_x ? edge_x : center_x) / TILESIZE;
+    int tile_y[2];
+    tile_y[0] = (int)(position.y + frameSize.height/3) / TILESIZE;
+    tile_y[1] = (int)(position.y + frameSize.height*2/3) / TILESIZE;
+    for (int tx = tile_from; tx <= tile_to; tx++) {
+        for (int j = 0; j < 2; j++) {
+            int lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(tx, tile_y[j]));
+            if (lock != TERRAIN_UNBLOCKED && lock != TERRAIN_WATER) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 // executes the NPC sub-IA behavior
 void classnpc::move() {
@@ -607,7 +635,18 @@ void classnpc::move() {
 
 
     if (hitPoints.current > 0) {
+        // NPCs run their AI a bit outside the screen (and may shoot from there), but not when solid ground is between them and the visible screen
+        size_t shots_before = projectile_list.size();
+        size_t queued_before = projectile_to_be_added_list.size();
         execute_ai();
+        if (is_on_visible_screen() == false && is_wall_between_screen() == true) {
+            if (projectile_list.size() > shots_before) {
+                projectile_list.erase(projectile_list.begin() + shots_before, projectile_list.end());
+            }
+            if (projectile_to_be_added_list.size() > queued_before) {
+                projectile_to_be_added_list.erase(projectile_to_be_added_list.begin() + queued_before, projectile_to_be_added_list.end());
+            }
+        }
 	}
 
     if (can_fly == false && position.y >= RES_H+1) {

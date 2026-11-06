@@ -1502,6 +1502,65 @@ rotate through all three states across captures (screenshots in
 3. Rates must be harmonised per stage: the water family (100-120 ms) becomes one
    band, the borders/lava family (200-300 ms) another.
 
+### Colourcycle, 2026-10-19 update: art width decides the technique
+
+The explicit block list is gone: a strip that is exactly **16 px wide holds one
+frame** and is converted to a CRAM rotation; anything wider holds several frames
+and stays on the tile-animation path. That makes the art the declaration of
+intent (to convert a block, save it as a single 16x16 frame), and it keeps the
+multi-frame blocks (water borders, magnets, palmtrees, explosion) untouched.
+
+Rules the converter now enforces on single-frame (16px) blocks used by a
+colourcycle stage:
+
+- fewer than 3 colours -> **hard error, build stops**, naming the file;
+- more than 3 colours -> reported and folded into the nearest band colour;
+- one pool per stage, so the colour set used by the most cells sets the band and
+  blocks whose colours differ stay on tile animation (reported).
+
+Result: water + the whole waterfall family + the water surface share one blue
+band in FLOWER FIELDS and ATLANTIDA (10 blocks), lava owns DARK MINE's band, the
+platforms own stages 1/8. Animation slots dropped from 10,8,14 to 6,0,6 (stage 2)
+and 11,11,9 to 3,3,1 (stage 3), and **`check_vram.py` reports 0 transition
+fallbacks** - the last fade (stage 2 map 2 -> map 1) now fits.
+
+## Four palette lines per screen (title done; recipe for the scenes)
+
+`tools/title64.py` turns one full-screen image into 4-palette-line art: the
+art's colours are reduced to ~59, each 8x8 tile is assigned the line that holds
+most of its colours (fit-first, so all four lines get used), and everything is
+emitted as C arrays.
+
+- `<name>_tiles.h/.c` u32 tile data, pixel values are the **slot** inside a line
+  (8 longs per tile, high nibble = leftmost pixel);
+- `<name>_map.h/.c` u16 per cell, `(line << 13) | tile_index` - the palette field
+  travels in the map, so a tile may be reused on any line;
+- `<name>_pal.h/.c` 4 x 16 CRAM words. Line 0 slot 0 is the backdrop and slot 15
+  must be the font's white (`VDP_drawText` draws glyphs at index 15); the art's
+  own white therefore lives at another slot.
+
+Runtime rules that made it land:
+
+- write the tileset with **`DMA`** (immediate) and the palettes with **`CPU`**
+  writes; queued CRAM DMA does not reliably arrive here;
+- keep the map entry's palette bits when adding the tileset base:
+  `(e & ~TILE_INDEX_MASK) | (TITLE_TILE_BASE + (e & TILE_INDEX_MASK))`.
+
+**Layered elements.** `--part FILE:X,Y:FIRST:COUNT` (repeatable) pastes an
+element at X,Y and lets only its tiles use palette lines FIRST..FIRST+COUNT-1, so
+elements cannot steal each other's slots; the per-tile line is chosen from the
+part that owns most of the tile. The title uses `art/title.png` (18,4) and
+`art/sub_title.png` (162,38) on line 0, and `art/title_rock_and_beta.png`
+(148,48) on lines 1-2 - 58 colours, and the art has exactly 58 MD-ramp colours,
+so nothing is dropped. 210 of 401 tiles still fold a shade (the characters' soft
+shading); giving them a third line barely changes that (214 -> 210), so the
+folding is a per-tile colour count, not a line budget, and it does not show in
+the preview.
+
+`--preview out.png` rebuilds the screen from exactly the emitted data, so the
+quantiser can be validated without an emulator. Quality note: for the title 281
+of 1120 tiles fold a shade because 59 colours cannot cover every tile's palette.
+
 ## Notes / conventions
 
 - **Stage defs and LTO**: `stage_defs[]` is marked
@@ -1551,3 +1610,276 @@ rotate through all three states across captures (screenshots in
   tileset pillars — **addressed 2026-10-18**: the stage tileset (up to 144
   tiles from index 16) overlapped the bg block that started at 144; the bg
   block now starts at 160 (see the VRAM layout note). Confirm on screen.
+
+## Intro scene (2026-10-19)
+
+`main.c`: `showIntro()` (logos) → `scene_play(0)` → `showTitle()`.
+
+- **Data**: `tools/convert_scenes.py` reads `scenes/scenes_list.dat`
+  (512 B/record = name 30 + pad + 20 ops × 24) and the per-op tables, and
+  emits `src/scenes_data.{c,h}`: op lists (type, seek, delay_after), all 19
+  text records verbatim, clear areas, parallax records. Struct sizes are in
+  the tool header (they are C++ x86 layouts, not the PC editor's `.json`).
+- **Intro script** (scene 0, "Opening Unbeaten #1"): clear → text 0 → clear →
+  music 0 → parallax 0 → clear → texts 1..4. PC scene-list index comes from
+  `game_scenes.dat` byte 3 (id 1 = intro unbeaten → scene 0).
+- **Text**: SGDK 8×8 font on BG_A, packed at 8 px/line (user allowed tighter
+  spacing; PC uses 12). Vertical position mirrors PC (center y=120 → 104 on the
+  224-line screen), progressive at 2 frames/char (PC 30 ms). Lines are drawn
+  left-to-right from the *same* text files; empty rows keep their slot
+  (text/2 has one) but are skipped when drawing. START aborts the whole scene
+  (PC `_interrupt_scene`), which lands on the title.
+- **Parallax**: both layers baked to 512 px (plane width) and decomposed by
+  `img2tiles.py` into 172 + 884 tiles (VRAM 17..1072, font at 1440). Layer 0
+  (`city_bg_1`, speed 1) on BG_B, layer 1 (`city_bg_3`, speed 3) on BG_A, so
+  its colorkey sky shows the layer behind — same as the PC's alpha blit.
+  Vertical placement uses the stage rule `vsram = 16 - adjust_y`; scroll
+  speed is `speed*100 px/s` in 8.8 fixed point, wrapping at 512 px.
+  `city_bg_1` is tiled by its real 256 px period (not 384) so the wrap is
+  seamless; `city_bg_3` is cropped from 963 to 512 px (plane limit).
+- Audio ops are no-ops. Show-image / viewpoint / animation are skipped: the
+  68x68 character art has 2–3k colours and needs a reduction pass first.
+- Offline check: converter dumps the op list; `/tmp/scene_f0.png` was rebuilt
+  from the emitted maps/palettes (layering, transparency, offsets OK).
+  `make check-vram` still OK (9 stages, 0 fallbacks).
+- **Emulator-verified 2026-10-19** (one run, shots in `/tmp/opencode/md-emu/`):
+  logos -> centered "20XX A.D." -> city parallax -> progressive dialog ->
+  START -> title. Bug found and fixed: the text struct's `transition_type`
+  (offset 64) was read as `position_type` (offset 68); every page rendered at
+  the bottom-left. Parallax palette matches the emitted palettes (emulator
+  readback differs by the usual 3->8-bit expansion only).
+
+## Stages 9..13 + dynamic VRAM (2026-10-19)
+
+Real stage count is 14, not 20: `game_properties_v301.dat` has
+`use_second_castle = 0` and 14..19 are placeholders (`Fire Bot`,
+`Stage [16]`…), so castle #2 is not part of this game.
+
+- **Pipeline**: `tools/add_stage.py N` runs `convert_stage.py N`,
+  `convert_enemies.py N`, `convert_objects.py N`, the `img2tiles` pass for
+  each `res/stageN_bgM.png`, then inserts the `res/resources.res` block
+  (SPRITE lines parsed from the converters, de-duplicated against symbols
+  already declared; TILESET/PALETTE/MAP for the 3 maps; bg palettes),
+  registers the include + `&stageN_def` in `src/stage_data.c`, bumps
+  `STAGE_DEFINED_COUNT`, and appends N to `STAGES` in the Makefile. The asset
+  recipe now loops over `STAGES` (one block instead of 9 repeated ones).
+  Idempotent: re-running skips existing blocks/entries.
+- **VRAM layout is per map now** (`stage_layout_bg/anim` in stage.c): stage
+  tileset at 16, parallax right after it, animated frames after that, sprite
+  pool at 936. The old fixed layout (tileset <=144, bg at 160, anim at 520)
+  overflowed on FROZEN LAIR map 1, whose rendered map has **202** unique 8x8
+  tiles (76 unique 16x16 tiles expand to 230, rescomp dedups to 202).
+  `check_vram.py` derives the same sum per stage/map; it reports
+  `OK (14 stages, 0 transition fallbacks)` and no longer reserves a global
+  360-tile bg block. `transition.c` computes the free block the same way and
+  its unpack buffer grew to 256 tiles.
+- **Water/ice (FROZEN LAIR)**: first stage to use them. `ground_pair` no longer
+  treats WATER as ground (previously the player could stand on it); in water
+  gravity is 0.09 and max fall 2 (PC jump acceleration *0.3); on ICE accel
+  drops to 0.15 and decel to 0.03 (PC starts its inertia object on ice).
+  DOOR still has no cells anywhere.
+- **Palette**: LAVA PIT 14 colours (exact), RECYCLE FACTORY 12 (exact), SPACE
+  BASE 20 (err 164), POWER GRID 26 (err 245), FROZEN LAIR **56 (err 2324)** —
+  the new BUG-004 outlier.
+- **Offline validation**: `make` exit 0, ROM 1.31M, `check-vram` green; the
+  generic spawn scan (bottom-up first solid row at x=144 with clearance) lands
+  on SOLID in all 15 new maps. Boss-intro names now come from
+  `ssel_data.c` slots 0..13 (`SSEL_STAGE_SLOTS`).
+- **Not reachable yet**: the select screen is the 3x3 boss grid. The castle
+  map (`castle_data_v301.dat`, `castle1_points.dat`) and the centre-slot
+  transition are not ported.
+
+## Castle flow + castle screen (2026-10-19)
+
+- **Reachable**: `stage_select_run(player, mask)` unlocks the centre slot when
+  `mask & 0x1FF` (intro + 8 boss bits, PC `can_access_castle`) and returns the
+  first unbeaten castle #1 stage (`get_last_castle_stage` logic, 9..13). The
+  centre's bottom bar then shows that stage's boss/stage names.
+- **Castle screen**: PC `classic_style_castle_intro` (stage_select.cpp:600,
+  3000ms) drawn by `boss_intro_run()` for stage >= 9, before the boss bg.
+  Art is 320x240/162 colours, so it goes through the four-line pipeline:
+  `tools/crop_image.py` cuts 4 horizontal 56px bands, `tools/title64.py`
+  gives each band ONE palette line. That is the title's rule (one line per
+  8x8 tile, split spatially): an unsplit 4-line run produced the "square
+  patch" mosaic. Band boundaries are visible on close look; the art is
+  otherwise coherent (59 colours of 162).
+- **Fixed**: stage clear called `save_slot_set_stage(slot, 0)` — every stage
+  set bit 0 instead of its own bit, so boss progress was never recorded.
+- **Not ported**: `castle_data_v301.dat` / `castle1_points.dat` — the PC game
+  code never reads them at runtime (only the editor), so they are not needed
+  for this flow.
+
+## Techno bug pass (2026-10-19, user list)
+
+- **Enemies on stairs**: PC `hit_ground` treats STAIR as floor for NPCs
+  (character.cpp:1399). `feet_solid()` now returns true on a STAIR tile, so
+  the android no longer falls through ladder columns.
+- **Enemy facing**: PC `execute_ai_action_trow_projectile` turns toward the
+  player only when `move_speed > 0`. The port turned for every SHOT_DIR; a
+  stationary shooter now keeps its editor-placed direction.
+- **Projectiles cross walls**: PC only calls `check_map_collision()` for
+  ZIGZAG / AHEAD_AND_BACK / bouncing trajectories. LINEAR, DIAGONAL, ARC,
+  FOLLOWER and TARGET shots fly on. Removed the wall probe from `shot.c` and
+  `eshot.c` (the port had applied the "any tile but UNBLOCKED/WATER" rule to
+  every shot).
+- **Big HP/MP pickups**: object types 5 (big energy, +8 HP) and 6/8 (weapon
+  big/small, +8/+3 gauge) added to `convert_objects.py`'s gravity pickups and
+  to `object.c`; new sprites in `resources.res`. TECHNO's 15 object spawns now
+  include them.
+- **Disappearing blocks** (type 2): converter accepts them; `object.c` treats
+  them as platforms while visible and toggles 90/120 frames (PC 1500/2000ms).
+  Stage 8's three blocks are in the spawn table.
+- **Scroll-lock**: walking into a SCROLL_LOCK column now calls
+  `stage_autoscroll()` (PC `horizontal_screen_move`): camera slides one screen
+  in 40 frames while the player moves 40px past the lock, so the next section
+  is reachable. Previously the camera was only clamped.
+- **Stairs, player side**: grab detection now samples 1/3 and 2/3 of the body
+  like PC `is_on_stairs` (centre-tile only missed ladders the body partly
+  covered), the up-grab checks the row above the player, and a 12-frame
+  `ladder_lock` after jumping off matches PC `STAIRS_GRAB_TIMEOUT` (200ms).
+- **Transitions**: `check-vram` reports `0 transition fallbacks` for all 14
+  stages, so TECHNO's links scroll (the fade only triggers when the spare VRAM
+  block cannot hold the destination window). Re-test on the new ROM.
+
+## Player hitbox matched to the PC (2026-10-19)
+
+`sprite_hit_area` in `player_list_v3_1_1.dat` is (5,3,16,26) on the 29x29
+art — dumped with the real C++ struct via g++, not guessed. The port used
+6,4,25,29: a **19px-wide** box. On a 1-tile (16px) ladder shaft the box
+overlapped both side walls after the x-centring, so `unstick_x` /
+`step_x_solid` pinned the player ("falling from stairs ... stuck") and the
+wider box let him drift into the ladder column when walking over it.
+Now L=5, T=3, R=21, B=29 (16x26): centring on a ladder puts the box exactly
+on the tile. The right fire origin is pinned at `ix+21` (PC
+`position.x + 29 - 8`), independent of the box width.
+
+## Ending scenes (2026-10-19)
+
+- `convert_scenes.py` now parses `scenes_show_image.dat` and emits a
+  `SceneImage` table (13 records). The six portraits used by endings 2..5
+  (record ids 6/8/9/10/11/12: betabot, dr_destrin, rockbot_left, rockbot,
+  candybot, kittybot) are copied to `res/scene_img<id>.png` and decomposed by
+  `img2tiles.py` (68x68 -> 9x9 cells, 68..78 unique tiles each, 16-colour
+  quantisation). Other image records have NULL art (lab scene not ported).
+- `scene.c` plane scheme: BG_B = art/background, BG_A = text overlay filled
+  with the blank tile (transparent); text boxes stay solid black (PAL0).
+  `clear_area` uses PAL1 (colour in entry 1, PAL_setColor global CRAM index),
+  images use PAL2 then PAL3 (two concurrent; `clear_area` resets the
+  allocation), tiles load from TILE_USER_INDEX+1 (tile 16 is the black tile).
+- `MOVE_IMAGE`: static draw is exact (`ini == dest` in every ending record);
+  linear movement (longer axis 1px, `move_delay` per step) erases the old rect
+  with the clear-area tile. START aborts (same as the intro).
+- Trigger in `runStage`: after stage 13's STAGE CLEAR, `scene_play(2 +
+  current_player)` (PC `game_scenes_map[ENDING_PLAYER1..4]`), then the title.
+- ROM stays 1.31M, `check-vram` green. Visual pass pending (portrait palette
+  quality at 15 colours, text over art).
+
+## Options screen (2026-10-19, user spec)
+
+`src/config.c` + `src/config.h`, opened with **B** from the in-game weapon
+menu (PC BTN_R; A stays LEAVE STAGE, C/START resume). Simplified exactly as
+the user asked:
+
+- AUDIO: SOUND ON/OFF. XGM2 exposes no music/SFX volume level (only fades),
+  so the PC volume rows are not shown rather than faking them.
+- INPUT: TURBO MODE, AUTO-CHARGE, CONFIG BUTTONS (A/B/C per action, with a
+  swap so two actions never share a button). The PC analog/digital
+  directional row and selected-joystick row are gone.
+- No platform (PC/Android/...), language, performance or quit-game entries.
+- EXTRAS: MUSIC TEST (the single stage track) and SFX TEST (all 14 effects).
+- LEAVE STAGE: returns through the in-game menu.
+
+Storage: SRAM bytes 48..55 (after the 5 save slots), magic 'OP'. Sound off
+gates `sfx_play` and stops XGM2; re-enabling restarts the stage track.
+Turbo repeats the shot while fire is held (no charge); auto-charge does the
+same for the default weapon only (PC character.cpp:585 / classplayer.cpp:313).
+The options screen draws on BG_A with an opaque tile loaded at 935 (last tile
+before the sprite pool); the weapon panel is redrawn when returning.
+
+## Data audit: what the stages use vs. what the port implements (2026-10-19)
+
+`tools/audit_data.py` (read-only) walks all 14 stages and prints, per stage:
+terrain values, object ids/types, NPC ids + the AI actions their tables use,
+and the second background layer / auto-scroll flags. It applies the same
+sanitisation as the converters (12/13 dropped, garbage AI slots ignored).
+
+Fixed from the audit:
+- **E-Tank / W-Tank** (types 3/4, used in 12 stages) are converted as gravity
+  pickups and stored on the player; the in-game menu uses one with UP (HP) or
+  DOWN (current weapon gauge). Not persisted in SRAM.
+- **1UP** (type 9) now adds a life (cap 9); it was a consumed no-op.
+- **Active disappearing block** (type 14): visible until the player stands on
+  it once, then 90 frames visible / 120 hidden (PC 1500/2000ms).
+- After these, **TECHNO (stage 8) is clean**.
+
+Follow-up (same session) implemented the rest, so the audit now reports
+every stage **clean** except the water/ice note:
+- ARMOR pieces (15/16/17): pickup sets the bit; BODY abilities half damage /
+  extended immunity / spike immunity / no pushback and LEGS double jump /
+  air dash are live (tables from game_armorPieces_v301.dat). ARMS ability is
+  a charged-projectile id on PC (not modelled).
+- SPECIAL_TANK (23): stored; the menu's tank keys use it to refill HP + all
+  gauges. Destructible wall (22): 3 hits from a non-charged shot.
+- BOSS_DOOR (30): opens on player overlap (PC also slides the screen; that
+  part is not ported). Beams (18/19/24/25): 90 frames on/off, damage 4.
+- LR platform (1) ping-pongs over +/-limit carrying the player; castle
+  teleporters (21/26/31) use the same capsule trigger as the stage boss
+  teleporter. Sprites for beams are cropped to the 64x80 cell limit.
+- AI: SPAWN_NPC (converter now includes the target NPC def), DASH, TELEPORT,
+  GRAB_WALL (cling, gravity off), CHANGE_MOVE_TYPE (instant).
+- Terrain: WATER 2057 cells in stage 3 (was walk-on-water before the
+  ground_pair fix; now sinks with reduced gravity — needs a playtest), ICE
+  only in 13, no DOOR/QUICKSAND/CHECKPOINT terrain anywhere. No map uses a
+  second background layer or bg auto-scroll.
+
+## Stage/boss dialogs (2026-10-19)
+
+Checked `build/games/RockDroid1/dialogs/stage_dialogs_<n>.dat` (60 lines each)
+and the PC call sites:
+
+- **Boss dialogs ARE enabled** in classic mode: `game::map_present_boss()`
+  calls `dialogs::show_boss_dialog()` when the stage boss appears in the arena
+  (game.cpp:949). Layout: boss lines 30..35 (two 3-line pages), player lines
+  36 + player*6 .. +5 (also two pages). Stages 0..8 have text; castle stages
+  9..13 have none.
+- **Stage-start dialogs are NOT enabled anywhere**: lines 0..29 exist (6
+  generic + 4 players x 6) but no PC code path reads them, and every stage's
+  `cutscene_pre`/`cutscene_pos` is -1. They are dead editor-generated data.
+
+Port: `tools/convert_dialogs.py` packs the English 14x60 table into
+`src/dialogs_data.c`; `src/dialogs.c` shows the boss pages (verbatim, no faces
+yet) when `enemies_boss_on_screen()` first becomes true in `runStage`. The
+dialog box is drawn on BG_A at the camera's tile offset (cell writes wrap at
+the 64-cell plane), player/enemies/HUD are hidden while it is up, and
+`stage_force_redraw()` restores the map afterwards.
+
+## Play-test palette/animation batch (2026-10-22, offline)
+
+Fixed offline, one play-test pending. Root causes, all found in the data or the
+palette layout — none needed an emulator:
+
+- **BETABOT red body + wrong HP bar colours** were one bug:
+  `rebuild_player_palette()` wrote the HUD bar colours into PAL2 8/9/12, which
+  the player art uses (BETABOT's whole black body is index 8). The HP bar moved
+  to PAL0 (PC `draw_energy_bar` always uses PLAYER 1's weapon-0 colours), the
+  weapon bar keeps PAL2 13/14 + a black PAL0 backdrop sprite.
+- **Dialog text background / A button**: the font paints a whole cell with
+  palette index 0, so the lines must be written with a palette whose 0 is the
+  panel fill (PAL3 entry 0 = teal, entry 15 = white). The A-button art went
+  through `img2tiles.py`, which re-quantizes indexed sources, so its white
+  became a PAL3 border index: it is a font "A" glyph now.
+- **Checkpoint "no animation"**: the object logic was correct
+  (`anim_loop = 1`); PAL0 has one green, so both art frames quantized to the
+  same index and differed by 6 px. `CHECKPOINT_OVERRIDES` in
+  `tools/import_pc_art.py` pins screen/text/LEDs apart (130 px differ now).
+- **Death explosion**: the death branch never called `explosion_update()` (the
+  puffs froze and leaked) and used a 3-puff horizontal row. Now the PC pattern:
+  centre puff repeats (0/30/60), four diagonals at ±32 px (18/36/54/72).
+- **Stage-select names**: drawn with the global PAL0, whose entry 0 (CRAM 0)
+  holds the previous map's backdrop colour -> names in that colour on itself.
+  They use PAL1 (0 = black, 15 = grey) and the default font is re-uploaded.
+
+New tripwire: `tools/check_palettes.py` (HUD/PAL2 split, checkpoint frame
+difference, stage-select text palette). A fully transparent sprite frame is
+fine — rescomp emits 0 VDP sprites and SGDK's `loadTiles` skips empty tilesets,
+which is how the weapon bar's empty frames work.

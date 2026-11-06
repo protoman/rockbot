@@ -1,6 +1,52 @@
 ﻿###########################################################################################################################
 ROCKBOT
 ###########################################################################################################################
+
+- revisar as artes (slplash de Android e PSP, por exemplo, ícones, etc)
+-------------------------------------------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+Now, I want to create a general release script.
+The idea is that it will ask about major/minor/mini version and increase itm, then run all the build scripts for the following systems:
+    PS2
+    PSP
+    PS Vita
+    PS3
+    Dingux
+    PocketGo
+    Nintendo Wii
+    Nintendo Switch
+    Linux x64 tar.gz
+    Linux x64 deb
+    Linux x64 appImage
+    Windows x64 i686
+    Android
+    Raspberry Pi
+So, before doing that, check that all the systems listed have build scripts, create if not,
+and make sure all of them can receive parameters like build version or witch project (Rockbot 1 or 2),
+so we can automatize them.
+
+Unify version version_name_v1.txt and version_name_v2.txt into a single gfile - use v2 version as the content.
+The release script should show latest version used and ask if this is a mini, minor or major version,
+and increase that part of the number.
+Format is: M.NN.PPP, where M is major, NN is minor and PPP is mini.
+Update all scripts to use this new file and ask before building witch one you are building.
+
+
+- PS2 port - OK, test in hardware
+- PSP - ok in emulator, closes when launched in real hardware
+    # setup psplink through usb to debug
+
+- PS3 port - continue (it is freezing after a while)
+
+- vita port
+- gamecube port (similar to wii)
+- switch port
+- script that creates a complete release (build all ports)
+- what else?
+
+
 - esc is leaving the game without waiting for A press (android)
 
 - ERROR: fio_strings::load_game_strings_from_file[/home/iuri/Desenvolvimento/rockbot/build/shared/strings_ingame_pt.dat] could not be opened

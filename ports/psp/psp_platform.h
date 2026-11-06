@@ -10,8 +10,24 @@
 
 namespace psp_platform {
 
+// All game surfaces use the PSP GE's native 32-bit layout (R in the low byte), so the screen reaches the
+// texture with one plain copy. With ARGB8888 every frame needed a CPU pass swapping red and blue (5.7 ms).
+static const Uint32 SURFACE_FORMAT = SDL_PIXELFORMAT_ABGR8888;
+
 // --- Bootstrap ---
-void setup();
+// argv0: the program path given by the loader (e.g. ms0:/PSP/GAME/Rockbot1/EBOOT.PBP). The data
+// folder is taken from it; the current directory is not reliable when launched from the XMB.
+void setup(const char *argv0 = NULL);
+// Appends a line to <game folder>/rockbot_boot.log (diagnostics on real hardware).
+void log(const char *fmt, ...);
+// Tells the hang watchdog the game is alive (called once per frame).
+void heartbeat();
+// Called once per game logic tick (fps_control::limit): the perf line reports ticks per second.
+void tick();
+// Profiling of the screen update (microseconds): texture upload, clear+copy, present.
+void flip_timing(unsigned int swap_us, unsigned int upload_us, unsigned int copy_us, unsigned int present_us);
+// Options read at boot from empty marker files next to EBOOT.PBP.
+bool use_rgb565();   // rgb565.txt: 16-bit screen texture (half the upload, slightly fewer colors)
 void get_filepath(std::string &filepath, int maxpathlen);
 
 // --- Graphics / fonts / video ---
@@ -40,6 +56,11 @@ unsigned int ram_available();
 // --- SDL layer hooks (called from sdl_layer.cpp) ---
 void adjust_window_size(int requested_w, int requested_h, int *win_w, int *win_h, Uint32 *window_flags);
 void adjust_display_format_alpha(SDL_Surface *surface);
+// Destination rect for presenting the game frame on the 480x272 LCD.
+// Returns false when the frame should fill the whole screen (stretched).
+// Otherwise keeps the game's aspect ratio, centered with black bars; the GU
+// renderer does this scaling in hardware, so it costs nothing extra.
+bool get_present_rect(int game_w, int game_h, SDL_Rect *dst);
 RWopsPtr *rw_from_file(const char *file, const char *mode);
 void prepare_color_key(SDL_Surface *surface, int sdl2_flag);
 SoundChunk *load_wav(const char *file);

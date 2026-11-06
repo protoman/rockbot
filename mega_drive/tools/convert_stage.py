@@ -13,7 +13,7 @@ Writes:
   src/stage0_data.h/.c      terrain grids, links, background info
 
 Stage 0 progression (from stages_v301.dat links, positions are Uint8;
-y values after the top-row crop, see crop_top_row):
+y values after the top-row crop done by tools/import_pc_data.py):
   link2: map 0 (136,13) -> map 1 (198,0)  climb down the ladder at x=136
   link3: map 1 (1,0)    -> map 0 (139,13) climb up the ladder at x=1
 
@@ -22,12 +22,13 @@ Usage: python3 tools/convert_stage.py
 import os
 import struct
 import sys
+from collections import Counter
 from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
-DATA = os.path.join(ROCKBOT, "build/games/RockDroid1")
+DATA = os.path.join(ROOT, "data/games/RockDroid1")
 IMAGES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "images")  # hand-owned art
 RES = os.path.join(ROOT, "res")
 SRC = os.path.join(ROOT, "src")
@@ -36,13 +37,16 @@ STAGE_STRUCT = 438
 MAP_STRUCT = 15078
 MAP_TILES_OFF = 78
 TILE_STRUCT = 5
-MAP_W, MAP_H = 200, 14   # output size: 320x224 NTSC (top PC row cropped)
-MAP_H_SRC = 15           # PC maps are 15 rows (240px)
+MAP_W, MAP_H = 200, 14   # 320x224 NTSC; the data is already cropped to 14 rows
+MAP_H_SRC = 15           # file slot stride (slot 14 is unused padding)
 TILE = 16
 STAGE_INDEX = int(sys.argv[1]) if len(sys.argv) > 1 else 0
 PFX = "stage%d" % STAGE_INDEX
 UP = PFX.upper()
 MAPS_PER_STAGE = 3
+# object tables (same records convert_objects.py reads)
+OBJ_DEF_SIZE, OBJ_SPAWN_SIZE = 84, 18
+OBJ_TYPE_BOSS_DOOR = 30
 
 COLORKEY = (75, 125, 125)
 KEY_TOL = 6   # art sometimes paints the backdrop with the colorkey a few units
@@ -55,6 +59,13 @@ def is_key(c):
             and abs(c[2] - COLORKEY[2]) <= KEY_TOL)
 MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)
 MAX_COLORS = 15  # index 0 stays reserved for transparency
+MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)   # 3-bit ramp (see pal_ui)
+
+
+def md3(v):
+    """8-bit channel -> MD 3-bit level (0..7)."""
+    v = max(0, min(255, v))
+    return min(range(8), key=lambda i: abs(MD_LEVELS[i] - v))
 
 # Animated tiles: file_anim_block is char filename[30] + int frame_delay[6]
 # with C++ alignment (56 bytes), stored as a raw array in anim_block_list.dat.
@@ -104,12 +115,46 @@ def read_links(n):
         frm, to, ox, oy, dx, dy, size, bidir, door, typ = struct.unpack("bbbbbbbbbb", b)
         if frm < 0 or to < 0:
             continue  # unused slot
-        links.append((i, frm & 0xFF, to & 0xFF, ox & 0xFF, oy & 0xFF, dx & 0xFF, dy & 0xFF))
+        links.append((i, frm & 0xFF, to & 0xFF, ox & 0xFF, oy & 0xFF,
+                      dx & 0xFF, dy & 0xFF, size & 0xFF,
+                      1 if bidir else 0, (typ + 256) & 0xFF))
     return links
 
 
+def read_boss_door_cells():
+    """Map cells covered by a boss door object, per map.
+
+    PC `classMap::load_map` (classmap.cpp:173-190) builds `wall_scroll_lock`
+    from the tiles BUT counts a cell covered by a boss door as wall, so the door
+    column locks the scroll even though the tiles behind it are open (CASTLE 5's
+    boss room is entered through a 16x64 door in a hole in the wall). Without
+    this the view scrolled over the closed door.
+    """
+    defs = open(os.path.join(DATA, "game_object_list.dat"), "rb").read()
+    spawns = open(os.path.join(DATA, "map_object_data.dat"), "rb").read()
+    cells = [set() for _ in range(MAPS_PER_STAGE)]
+    for i in range(len(spawns) // OBJ_SPAWN_SIZE):
+        r = spawns[i * OBJ_SPAWN_SIZE:(i + 1) * OBJ_SPAWN_SIZE]
+        (oid, _pad, sx, sy, _dir, _p2, _lx, _ly, _mdest,
+         st, mp, _dl, _dm, _p3) = struct.unpack_from("<bbhhbBhhbbbbbb", r)
+        if oid < 0 or st != STAGE_INDEX or mp >= MAPS_PER_STAGE:
+            continue
+        b = defs[oid * OBJ_DEF_SIZE:(oid + 1) * OBJ_DEF_SIZE]
+        if struct.unpack_from("<b", b, 60)[0] != OBJ_TYPE_BOSS_DOOR:
+            continue
+        w = struct.unpack_from("<b", b, 76)[0]
+        h = struct.unpack_from("<b", b, 77)[0]
+        # spawn positions are TILE positions (PC multiplies by TILESIZE)
+        for x in range(sx, sx + max(1, w // TILE)):
+            for y in range(sy, sy + max(1, h // TILE)):
+                if 0 <= x < MAP_W and 0 <= y < MAP_H:
+                    cells[mp].add((x, y))
+        print(f"  map {mp}: boss door at ({sx},{sy}) {w}x{h} -> scroll lock "
+              f"column {sx}")
+    return cells
+
+
 def read_anim_blocks():
-    """anim_block_list.dat: raw array of file_anim_block (no count prefix)."""
     with open(os.path.join(DATA, "anim_block_list.dat"), "rb") as f:
         raw = f.read()
     blocks = []
@@ -133,17 +178,25 @@ def read_map(stage_n, map_n):
     bg0_adjust_y, = struct.unpack("<h", rec[30:32])
     bg0_speed = struct.unpack("<b", rec[32:33])[0]
     bg0_auto = rec[33]      # E_BG_SCROLL_MODE: 0 = NONE (static, PC)
+    # backgrounds[1] (offset 36) is a SECOND scrolling layer. The MD has only
+    # two free scrollable planes (BG_A = map, BG_B = bg0), so the two layers
+    # have to share one scroll rate: convert_background() composites it.
+    rec1 = raw[36:72]
+    bg1_name = rec1[0:30].split(b"\0")[0].decode("latin1")
+    bg1_adjust_y, = struct.unpack("<h", rec1[30:32])
+    bg1_speed = struct.unpack("<b", rec1[32:33])[0]
     t = raw[MAP_TILES_OFF:MAP_TILES_OFF + MAP_W * MAP_H_SRC * TILE_STRUCT]
     cells = []
     for x in range(MAP_W):
         col = []
-        for y in range(MAP_H_SRC):
+        for y in range(MAP_H):          # game rows only (tools/import_pc_data.py)
             v = t[(x * MAP_H_SRC + y) * TILE_STRUCT:(x * MAP_H_SRC + y) * TILE_STRUCT + TILE_STRUCT]
             locked = v[0]
             t1x, t1y, t3x, t3y = struct.unpack("bbbb", v[1:5])
             col.append((locked, t1x, t1y, t3x, t3y))
         cells.append(col)
-    return bg, (bg0_name, bg0_adjust_y, bg0_speed, bg0_auto), cells
+    return (bg, (bg0_name, bg0_adjust_y, bg0_speed, bg0_auto),
+            (bg1_name, bg1_adjust_y, bg1_speed), cells)
 
 
 # ---- colourcycle ---------------------------------------------------------
@@ -161,20 +214,15 @@ CYCLE_STAGES = {1, 2, 3, 6, 8}
 CYCLE_BAND = (12, 13, 14)          # PAL3 entries that rotate, in order
 CYCLE_STABLE = 15                  # PAL3 stable colour for art black
 CYCLE_FRAMES = 12                  # fallback step (200ms at 60fps)
-# Blocks converted to CRAM rotation. Their art now lives in
-# mega_drive/images/tilesets/anim (hand-owned, MD-level colours). A block whose
-# art has exactly three colours rotates exactly; extra shades are folded into
-# the nearest band colour (reported at conversion time).
-CYCLE_BLOCKS = {
-    "water_1.png", "water_2.png", "water_2a.png", "water_2b.png",
-    "green_water_1.png", "green_water_2.png",
-    "lava1.png", "lava2.png",
-    "lightbulb_small.png",
-    "move_left_platform_1.png", "move_left_platform_2.png",
-    "move_left_platform_3.png",
-    "move_right_platform_1.png", "move_right_platform_2.png",
-    "move_right_platform_3.png",
-}
+# The art itself declares the technique: a strip that is exactly TILE (16px)
+# wide holds ONE frame and is drawn as a CRAM rotation; anything wider holds
+# several frames and stays on the tile-animation path. A single-frame strip
+# must therefore have exactly 3 colours (the band) - the converter fails the
+# build if it has fewer, and reports the fold if it has more.
+
+def block_is_single_frame(name):
+    """True for a one-frame strip (16px wide) -> CRAM rotation candidate."""
+    return Image.open(anim_path(name)).width == TILE
 
 
 def to_cram(c):
@@ -243,77 +291,78 @@ def cyc_frame0_px(fn, band):
     return out
 
 
+from palfit import _d2, _ward_merge, _lloyd   # noqa: E402
+
+
 def build_palette(rgbs):
     """One master palette shared by every map of the stage.
 
-    Colors beyond MAX_COLORS are merged into their nearest neighbour
-    (squared RGB distance) instead of being truncated, so no art color
-    silently collapses to palette index 1."""
-    uniq = []
-    for c in rgbs:
-        if c not in uniq:
-            uniq.append(c)
-    while len(uniq) > MAX_COLORS:
-        bi, bj, bd = 0, 1, 1 << 30
-        for i in range(len(uniq)):
-            for j in range(i + 1, len(uniq)):
-                a, b = uniq[i], uniq[j]
-                d = (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2
-                if d < bd:
-                    bd, bi, bj = d, i, j
-        del uniq[bj]
+    `rgbs` is a Counter {colour: weight}: how many screen pixels show it (tiles
+    are weighted by how often the maps place them, not once per unique tile).
+    Colours beyond MAX_COLORS are merged by weighted error (Ward) and then
+    refined (Lloyd) - see BUG-004.
+
+    Returns (palette, lut, weighted mean squared error).
+    """
+    weight = dict(rgbs)
+    art = dict(weight)                       # the art's own colours
+    uniq = _ward_merge(weight, MAX_COLORS)
+    if len(art) > MAX_COLORS:
+        uniq = _lloyd(weight, uniq)
     pal = [(0, 0, 0)] + uniq
     while len(pal) < 16:
         pal.append((0, 0, 0))
-    lut = {}
-    for c in set(rgbs):
+    lut, err, total = {}, 0, 0
+    for c, n in art.items():
         best, bd = 1, 1 << 30
         for i, p in enumerate(uniq):
-            d = (c[0] - p[0]) ** 2 + (c[1] - p[1]) ** 2 + (c[2] - p[2]) ** 2
+            d = _d2(c, p)
             if d < bd:
                 bd, best = d, i + 1
         lut[c] = best
-    return pal, lut
+        err += bd * n
+        total += n
+    return pal, lut, err / max(1, total)
+
+
+TILE_USES = Counter()   # (cx,cy) -> placements in the map last read
 
 
 def collect_map(map_n):
     """Return (cells, used-tile coords) for one map."""
-    _, _, cells = read_map(STAGE_INDEX, map_n)
+    _, _, _, cells = read_map(STAGE_INDEX, map_n)
     used, seen = [], set()
+    TILE_USES.clear()
     for x in range(MAP_W):
-        for y in range(MAP_H_SRC):
+        for y in range(MAP_H):
             _, t1x, t1y, t3x, t3y = cells[x][y]
             for (cx, cy) in ((t1x, t1y), (t3x, t3y)):
                 if cx < 0 or cy < 0:
                     continue
+                TILE_USES[(cx, cy)] += 1
                 if (cx, cy) not in seen:
                     seen.add((cx, cy))
                     used.append((cx, cy))
     return cells, used
 
 
-def crop_top_row(cells, links, map_n):
-    """Drop the top row so the map fits 14 rows (224px, no vertical scroll).
-    If any link touches this map at row 0, copy the top row onto row 1
-    first so its tiles/links stay reachable. Link rows: 0 stays 0,
-    everything else shifts up by one."""
-    touches = any((frm == map_n and oy == 0) or (to == map_n and dy == 0)
-                  for (_, frm, to, ox, oy, dx, dy) in links)
-    if touches:
-        for x in range(MAP_W):
-            cells[x][1] = cells[x][0]
-    return [col[1:] for col in cells]
+def tile_weight(uses):
+    """Weight of a tile in the palette fit: a ground tile placed 150 times must
+    not drown a platform placed 3 times, so the weight grows like sqrt(uses)."""
+    return 1 + int(uses ** 0.5)
 
 
-def collect_colors(used, ts_px):
-    rgbs = []
+def collect_colors(used, ts_px, uses=None):
+    """Counter {colour: weight} for the tiles in `used` ((cx,cy) list)."""
+    rgbs = Counter()
     for (cx, cy) in used:
+        w = tile_weight(uses.get((cx, cy), 1)) if uses else 1
         for yy in range(TILE):
             for xx in range(TILE):
                 r, g, b, a = ts_px[cx * TILE + xx, cy * TILE + yy]
                 if a == 0 or is_key((r, g, b)):
                     continue
-                rgbs.append((md_round(r), md_round(g), md_round(b)))
+                rgbs[(md_round(r), md_round(g), md_round(b))] += w
     return rgbs
 
 
@@ -385,27 +434,84 @@ def convert_map(map_n, ts_px, cells, used, palette, lut, frame0_px, slot_of,
     return img, terrain
 
 
-BG_PLANE_W = 512  # BG_B plane is 64 tiles wide; art is baked to this width
+BG_PLANE_W = 512  # BG_B plane is 64 tiles wide; the art is baked to this width
 
 
-def convert_background(map_n, name, adjust_y, speed):
-    """Bake one parallax background to 512px wide (art + first 192 cols
-    appended) so the plane wraps naturally at its own width — no runtime
-    seam handling. Own palette (PAL3 at runtime)."""
-    src = Image.open(os.path.join(DATA, "images/map_backgrounds", name)).convert("RGBA")
-    h = (src.height + 7) & ~7   # SGDK wants height as a multiple of 8
-    bg = Image.new("RGBA", (BG_PLANE_W, h), (0, 0, 0, 255))
+def bg_plane(src, h):
+    """Plane content: the PC art at its own width, then its first
+    (512 - w) columns, padded to `h` (a multiple of 8).
+
+    The PC repeats a background at its own width (its left and right columns
+    match: `clouds.png` column 0 == column 319) and the owner wants that exact
+    spacing, so the art is NOT resampled or cropped. BG_B wraps at 512 px, which
+    is not a multiple of the 320 px art, so the wrap joins art column 191 to
+    column 0 - a break every 512 px of parallax travel. That is accepted as the
+    price of the PC's art: the 128-tile plane that would fix it does not fit the
+    VRAM/SDK layout (bugs.md BUG-049/052)."""
+    bg = Image.new("RGBA", (BG_PLANE_W, h), (0, 0, 0, 0))
     bg.paste(src, (0, 0))
-    bg.paste(src.crop((0, 0, BG_PLANE_W - src.width, src.height)), (src.width, 0))
+    tail = BG_PLANE_W - src.width
+    if tail > 0:
+        bg.paste(src.crop((0, 0, tail, src.height)), (src.width, 0))
+    return bg
+
+
+def background_exists(name):
+    """TRUE for a real background file. The PC data has records with unused
+    slots full of 0xFF bytes (RockDroid2 stage 14), which are not names."""
+    if not name or not name.lower().endswith(".png"):
+        return False
+    if not all(c.isalnum() or c in "_-." for c in name):
+        return False
+    return os.path.exists(os.path.join(DATA, "images/map_backgrounds", name))
+
+
+def unkey(im):
+    """The PC colorkey (and any alpha-0 pixel) becomes fully transparent."""
+    px = im.load()
+    for y in range(im.height):
+        for x in range(im.width):
+            r, g, b, a = px[x, y]
+            if a == 0 or is_key((r, g, b)):
+                px[x, y] = (0, 0, 0, 0)
+    return im
+
+
+def convert_background(map_n, name, adjust_y, speed, over=None):
+    """Bake one parallax background to the 512 px plane, repeating a strip
+    whose period divides that width so the wrap has no seam (bg_period).
+
+    `over` is the PC's backgrounds[1] (name, adjust_y, speed): a second layer
+    composited on top of this one. It is a compromise, not a port - see the
+    caller."""
+    src = unkey(Image.open(os.path.join(DATA, "images/map_backgrounds", name)).convert("RGBA"))
+    if over:
+        o_name, o_adj, o_speed = over
+        top = unkey(Image.open(os.path.join(DATA, "images/map_backgrounds",
+                                            o_name)).convert("RGBA"))
+        dy = o_adj - adjust_y
+        art = Image.new("RGBA", src.size, (0, 0, 0, 0))
+        art.paste(src, (0, 0))
+        for x in range(0, src.width, max(1, top.width)):
+            art.paste(top, (x, dy), top)
+        src = art
+        print(f"  bg{map_n}: layer1 {o_name} {top.size} composited at "
+              f"dy={dy} (its own speed {o_speed} vs {speed} cannot be "
+              f"independent on one plane)")
+    h = (src.height + 7) & ~7   # SGDK wants height as a multiple of 8
+    bg = bg_plane(src, h)
     px = bg.load()
+    # The colorkey is transparent (PC): those pixels are palette index 0, so the
+    # plane shows the map's background colour (CRAM 0) through them.
+    clear = [px[x, y][3] == 0 for y in range(bg.height) for x in range(bg.width)]
     rgbs = [(md_round(px[x, y][0]), md_round(px[x, y][1]), md_round(px[x, y][2]))
             for y in range(bg.height) for x in range(bg.width)]
-    pal, lut = build_palette(rgbs)
+    pal, lut, _bg_err = build_palette(Counter(c for c, t in zip(rgbs, clear) if not t))
     img = Image.new("P", (BG_PLANE_W, bg.height))
     img.putpalette([v for c in pal for v in c])
-    img.putdata([lut.get(c, 1) for c in rgbs])
+    img.putdata([0 if t else lut.get(c, 1) for c, t in zip(rgbs, clear)])
     out = os.path.join(RES, f"{PFX}_bg{map_n}.png")
-    img.save(out)
+    img.save(out, transparency=0)   # img2tiles must read index 0 as alpha 0, not black
     print(f"  bg{map_n}: {name} {src.size} -> {img.size} "
           f"(adjust_y={adjust_y} speed={speed}) -> res/{PFX}_bg{map_n}.png")
     return {"present": 1, "adjust_y": adjust_y, "speed": speed}
@@ -423,24 +529,87 @@ def main():
     os.makedirs(RES, exist_ok=True)
     os.makedirs(SRC, exist_ok=True)
 
-    maps_data, all_rgbs, scroll_locks = [], [], []
+    maps_data, all_rgbs, scroll_locks = [], Counter(), []
     lock_terrain = {1, 3, 4, 6, 10}
+    door_cells = read_boss_door_cells()
     for m in range(MAPS_PER_STAGE):
         cells, used = collect_map(m)
-        all_rgbs += collect_colors(used, ts_px)
+        all_rgbs += collect_colors(used, ts_px, TILE_USES)
         maps_data.append((cells, used))
         scroll_locks.append([
             x for x in range(MAP_W)
-            if all(cells[x][y][0] in lock_terrain for y in range(MAP_H_SRC))
+            if all(cells[x][y][0] in lock_terrain
+                   or (x, y) in door_cells[m] for y in range(MAP_H))
         ])
-    maps_data = [(crop_top_row(cells, links, m), used)
+    maps_data = [(cells, used)
                  for m, (cells, used) in enumerate(maps_data)]
 
     anim_blocks = read_anim_blocks()
 
-    # colourcycle pool: which blocks of this stage are drawn as a CRAM rotation
+    # A map cell has only one tile on the MD (PC can draw tile1 and tile3 on
+    # top of each other). When both layers have art, keep the one with fewer
+    # transparent pixels: the more opaque tile is the one that actually fills
+    # the cell. This is what fixes Daisie's one-tile waterfall gap (the
+    # half-transparent waterfall_top was winning over the opaque water tile).
+    def tile_opacity(tx, ty):
+        if tx < 0 or ty < 0:
+            return -1
+        opaque = 0
+        for yy in range(TILE):
+            for xx in range(TILE):
+                r, g, b, a = ts_px[tx * TILE + xx, ty * TILE + yy]
+                if a != 0 and not is_key((r, g, b)):
+                    opaque += 1
+        return opaque
+
+    def gid_opacity(gid):
+        im = Image.open(anim_path(anim_blocks[gid][0])).convert("RGBA")
+        px = im.load()
+        opaque = 0
+        for yy in range(TILE):
+            for xx in range(TILE):
+                r, g, b, a = px[xx, yy]
+                if a != 0 and not is_key((r, g, b)):
+                    opaque += 1
+        return opaque
+
+    def resolve_layers(cells):
+        for col in cells:
+            for i, (locked, t1x, t1y, t3x, t3y) in enumerate(col):
+                p1 = None
+                p3 = None
+                if t1x >= 0 and t1y >= 0:
+                    p1 = tile_opacity(t1x, t1y)
+                elif t1x < -1 and t1y == 0:
+                    gid = (-t1x) - 2
+                    if gid < len(anim_blocks):
+                        p1 = gid_opacity(gid)
+                if t3x >= 0 and t3y >= 0:
+                    p3 = tile_opacity(t3x, t3y)
+                elif t3x < -1:
+                    gid = (-t3x) - 2
+                    if gid < len(anim_blocks):
+                        p3 = gid_opacity(gid)
+                # Only the two-animated-tile overlap needs this rule (Daisie's
+                # waterfall); static/static and static/animated overlaps are
+                # meaningful foreground art and must keep their normal order.
+                a1 = (t1x < -1 and t1y == 0)
+                a3 = (t3x < -1)
+                if (STAGE_INDEX == 2 and a1 and a3 and
+                        p1 is not None and p3 is not None and p1 > p3):
+                    col[i] = (locked, t1x, t1y, -1, -1)
+
+    for cells, _ in maps_data:
+        resolve_layers(cells)
+
+    # colourcycle pool: which blocks of this stage are drawn as a CRAM rotation.
+    # There is ONE pool per stage (a set of PAL3 entries), so the colour set
+    # used by the most cells sets the band; blocks whose colours differ cannot
+    # share it and stay on tile animation (reported at conversion time).
     stage_band, cycle_gids, cyc_frame0 = [], set(), {}
+    cycle_frames = CYCLE_FRAMES
     if STAGE_INDEX in CYCLE_STAGES:
+        cand, cells_of = set(), {}
         for cells, _ in maps_data:
             for col in cells:
                 for (_, t1x, t1y, t3x, t3y) in col:
@@ -448,11 +617,10 @@ def main():
                     if t1x < -1 and t1y == 0: gid = (-t1x) - 2
                     if t3x < -1: gid = (-t3x) - 2
                     if (gid is not None and gid < len(anim_blocks)
-                            and anim_blocks[gid][0] in CYCLE_BLOCKS):
-                        cycle_gids.add(gid)
-        cols = set()
-        cycle_frames = CYCLE_FRAMES
-        for gid in sorted(cycle_gids):
+                            and block_is_single_frame(anim_blocks[gid][0])):
+                        cand.add(gid)
+                        cells_of[gid] = cells_of.get(gid, 0) + 1
+        for gid in sorted(cand):
             fn = anim_blocks[gid][0]
             n = len(block_colours(fn))
             if n < 3:
@@ -464,16 +632,32 @@ def main():
             if n > 3:
                 print(f"    colourcycle: {fn} has {n} colours -> folding into "
                       f"the band (draw 3 for an exact rotation)")
-            if not cols:
-                ms = anim_blocks[gid][1][0]
-                cycle_frames = max(2, min(60, (ms * 60 + 500) // 1000))
-            cols |= block_colours(fn)
-        stage_band = cycle_band(cols)
-        for gid in sorted(cycle_gids):
-            cyc_frame0[gid] = cyc_frame0_px(anim_blocks[gid][0], stage_band)
-        print(f"  colourcycle: {len(cycle_gids)} blocks, band {stage_band} at "
-              f"PAL3 {CYCLE_BAND} + stable {CYCLE_STABLE}, "
-              f"{cycle_frames} frames/step")
+        if cand:
+            groups = {}
+            for gid in sorted(cand):
+                key = tuple(sorted(block_colours(anim_blocks[gid][0])))
+                groups.setdefault(key, []).append(gid)
+            best = max(groups.values(),
+                       key=lambda g: sum(cells_of[x] for x in g))
+            cycle_gids = set(best)
+            for g in groups.values():
+                if g is best:
+                    continue
+                for gid in g:
+                    print(f"    colourcycle: {anim_blocks[gid][0]} stays on tile "
+                          f"animation in stage {STAGE_INDEX}: its colours differ "
+                          f"from the stage band")
+            ms = anim_blocks[sorted(best)[0]][1][0]
+            cycle_frames = max(2, min(60, (ms * 60 + 500) // 1000))
+            cols = set()
+            for gid in best:
+                cols |= block_colours(anim_blocks[gid][0])
+            stage_band = cycle_band(cols)
+            for gid in sorted(cycle_gids):
+                cyc_frame0[gid] = cyc_frame0_px(anim_blocks[gid][0], stage_band)
+            print(f"  colourcycle: {len(cycle_gids)} blocks, band {stage_band} "
+                  f"at PAL3 {CYCLE_BAND} + stable {CYCLE_STABLE}, "
+                  f"{cycle_frames} frames/step")
 
     mask_bytes = (MAP_W * MAP_H + 7) // 8
     tile3_masks = []
@@ -516,16 +700,23 @@ def main():
     print(f"anim slots per map: {[len(g) for g in anim_slot_gids]} (max {anim_slot_max})")
 
     all_gids = sorted({g for gs in anim_slot_gids for g in gs})
+    anim_uses = Counter()          # placements per animated block (palette weight)
+    for slots, gids in zip(anim_cell_slot, anim_slot_gids):
+        for v in slots:
+            if v:
+                anim_uses[gids[v - 1]] += 1
     strips = {}
     for gid in all_gids:
         fn = anim_blocks[gid][0]
         im = Image.open(anim_path(fn)).convert("RGBA")
         strips[gid] = im
         nf = max(1, im.width // TILE)
-        all_rgbs += collect_colors([(f, 0) for f in range(nf)], im.load())
+        all_rgbs += collect_colors([(f, 0) for f in range(nf)], im.load(),
+                                   {(f, 0): anim_uses.get(gid, 1) for f in range(nf)})
 
-    palette, lut = build_palette(all_rgbs)
-    print(f"master palette: {len(set(all_rgbs))} unique colors -> {MAX_COLORS} slots max")
+    palette, lut, pal_err = build_palette(all_rgbs)
+    print(f"master palette: {len(all_rgbs)} unique colors -> {MAX_COLORS} "
+          f"slots max, weighted error {pal_err:.0f}")
 
     def frame_tiles(im, frame):
         px = im.load()
@@ -591,12 +782,36 @@ def main():
         print(f"  map {m}: tile3={sum(bin(b).count('1') for b in tile3_masks[m])} "
               f"anim_cells={n}")
 
-    bg_infos, bg_names = [], []
+    bg_infos, bg_names, bg_colors = [], [], []
     for m in range(MAPS_PER_STAGE):
-        _, bg0, _ = read_map(STAGE_INDEX, m)
+        bg_rgb, bg0, bg1, _ = read_map(STAGE_INDEX, m)
+        # PC classmap.cpp:244 clears the screen with map_data.background_color
+        # before drawing the background image: everything the image does not
+        # cover is this colour (the MD backdrop, CRAM 0).
+        bg_colors.append(tuple(md3(v) for v in bg_rgb))
         name, adj, spd, auto = bg0
+        over = bg1 if background_exists(bg1[0]) else None
         if name:
-            info = convert_background(m, name, adj, spd)
+            info = convert_background(m, name, adj, spd, over)
+            # backgrounds[1] is composited into the bg0 bake (the MD has one
+            # parallax plane), and the PC scrolls that layer on its own
+            # (backgrounds[1].auto_scroll: UP/DOWN on stage 6 and on several
+            # RockDroid2 maps). When bg0 is static, the baked layer inherits
+            # the mode/speed so the composite still moves.
+            if not auto and bg1[0] and over is not None:
+                b1_auto = read_map(STAGE_INDEX, m)[2]
+                # read_map returns name/adj/speed only for bg1; re-read the mode
+                import struct as _st
+                with open(os.path.join(DATA, "maps_v2.dat"), "rb") as _f:
+                    _f.seek((STAGE_INDEX * MAPS_PER_STAGE + m) * MAP_STRUCT)
+                    _raw = _f.read(MAP_STRUCT)
+                b1_mode = _raw[36 + 33]
+                if 1 <= b1_mode <= 5:
+                    auto = b1_mode
+                    spd = bg1[2]
+                    print(f"    !! map {m}: bg0 is static, backgrounds[1] "
+                          f"auto_scroll={b1_mode} speed={bg1[2]} -> the baked "
+                          f"layer scrolls with that mode")
             info["auto_scroll"] = auto
             bg_infos.append(info)
             bg_names.append(name)
@@ -637,10 +852,14 @@ def main():
     c.append("};\n\n")
 
     c.append(f"static const StageLink {PFX}_links[{max(1,len(links))}] = {{\n")
-    for (i, frm, to, ox, oy, dx, dy) in links:
-        oy = 0 if oy == 0 else oy - 1
-        dy = 0 if dy == 0 else dy - 1
-        c.append(f"    {{ {frm}, {ox}, {oy}, {to}, {dx}, {dy} }}, // link{i}\n")
+    for (i, frm, to, ox, oy, dx, dy, size, bidir, typ) in links:
+        c.append(f"    {{ {frm}, {ox}, {oy}, {to}, {dx}, {dy}, "
+                 f"{size}, {bidir}, {typ} }}, // link{i}\n")
+    c.append("};\n\n")
+
+    c.append(f"static const u8 {PFX}_bg_color[{MAPS_PER_STAGE}][3] = {{\n")
+    for m, col in enumerate(bg_colors):
+        c.append(f"    {{ {col[0]}, {col[1]}, {col[2]} }}, // map {m}\n")
     c.append("};\n\n")
 
     c.append(f"static const StageBgInfo {PFX}_bg_info[{MAPS_PER_STAGE}] = {{\n")
@@ -747,7 +966,8 @@ def main():
              f".palettes = {PFX}_palettes,\n")
     c.append(f"    .terrain = &{PFX}_terrain[0][0],\n")
     c.append(f"    .links = {PFX}_links, .link_count = {len(links)},\n")
-    c.append(f"    .bg_info = {PFX}_bg_info, .bg_pal = {PFX}_bg_pal, "
+    c.append(f"    .bg_info = {PFX}_bg_info, .bg_color = &{PFX}_bg_color[0][0],\n")
+    c.append(f"    .bg_pal = {PFX}_bg_pal, "
              f".bg_tiles = {PFX}_bg_tiles,\n")
     c.append(f"    .bg_tiles_n = {PFX}_bg_tiles_n, .bg_maps = {PFX}_bg_maps, "
              f".bg_map_h = {PFX}_bg_map_h,\n")
@@ -768,7 +988,8 @@ def main():
              f".enemy_def_count = {UP}_ENEMY_DEF_COUNT,\n")
     c.append(f"    .enemy_spawns = {PFX}_enemy_spawns, "
              f".enemy_spawn_count = {UP}_ENEMY_SPAWN_COUNT,\n")
-    c.append(f"    .enemy_ai = {PFX}_enemy_ai, .enemy_proj = {PFX}_enemy_proj, "
+    c.append(f"    .enemy_ai = {PFX}_enemy_ai, .enemy_react = {PFX}_enemy_react,\n")
+    c.append(f"    .enemy_proj = {PFX}_enemy_proj, "
              f".enemy_proj_max = {UP}_ENEMY_PROJ_MAX,\n")
     c.append(f"    .object_defs = {PFX}_object_defs, "
              f".object_def_count = {UP}_OBJECT_DEF_COUNT,\n")

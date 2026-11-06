@@ -47,8 +47,11 @@ fi
 export ANDROID_HOME ANDROID_NDK_HOME PELYA_ANDROID_SDK
 export PATH="$PELYA_ANDROID_SDK:$ANDROID_NDK_HOME:$ANDROID_HOME/build-tools/$ANDROID_BUILD_TOOLS:$PATH"
 
-VERSION_NAME="$(tr -d '[:space:]' < "$PACKAGES_DIR/version_name_v${VERSION_NUMBER}.txt")"
-VERSION_CODE="$(printf '%s' "$VERSION_NAME" | tr -d '.')"
+VERSION_NAME="$(tr -d '[:space:]' < "$PACKAGES_DIR/version_name.txt")"
+# Android versionCode (always increasing); see build/packages/common.sh
+source "$PACKAGES_DIR/common.sh"
+sync_version_header
+VERSION_CODE="$(version_code)"
 # Building 4 ABIs in Docker often OOMs; default to arm64-v8a. Override with ANDROID_ABIS.
 ANDROID_ABIS="${ANDROID_ABIS:-arm64-v8a}"
 # Cap ndk-build parallelism to reduce peak memory.
@@ -100,7 +103,7 @@ fi
 
 APP_DIR="$PELYA_ANDROID_SDK/project/jni/application/rockbot"
 WORK_DIR="$PACKAGES_DIR/Android"
-OUT_APK="$PACKAGES_DIR/RockBot_Android_${VERSION_NAME}.apk"
+OUT_APK="$PACKAGES_DIR/Rockbot${VERSION_NUMBER}_Android_${VERSION_NAME}.apk"
 
 echo "📁 Syncing sources into Pelya application/rockbot..."
 mkdir -p "$APP_DIR"
@@ -135,7 +138,7 @@ safe_cp "$ANDROID_FILES/AndroidAppSettings.cfg" "$APP_DIR/AndroidAppSettings.cfg
 
 echo "📁 Packaging game data (RockDroid${VERSION_NUMBER})..."
 rm -rf "$WORK_DIR"
-mkdir -p "$WORK_DIR/data/games" "$WORK_DIR/data/games/RockDroid${VERSION_NUMBER}/music/mp3"
+mkdir -p "$WORK_DIR/data/games"
 
 for required in \
     "$GAME_DATA_ROOT/fonts" \
@@ -152,20 +155,6 @@ rsync -a --exclude='.svn' "$GAME_DATA_ROOT/fonts" "$WORK_DIR/data/"
 rsync -a --exclude='.svn' "$GAME_DATA_ROOT/shared" "$WORK_DIR/data/"
 rsync -a --exclude='.svn' "$GAME_DATA_ROOT/games/RockDroid${VERSION_NUMBER}" "$WORK_DIR/data/games/"
 
-shopt -s nullglob
-for filename in "$GAME_DATA_ROOT/games/RockDroid${VERSION_NUMBER}/music/"*; do
-    basename="${filename##*/}"
-    case "$basename" in
-        *.mod|*.s3m|*.xm|*.it|*.MOD|*.S3M|*.XM|*.IT)
-            ffmpeg -y -i "$filename" -vn -ar 44100 -ac 2 -b:a 48k \
-                "$WORK_DIR/data/games/RockDroid${VERSION_NUMBER}/music/mp3/${basename}.mp3" \
-                </dev/null >/dev/null 2>&1
-            ;;
-    esac
-done
-shopt -u nullglob
-
-rm -rf "$WORK_DIR/data/games/RockDroid${VERSION_NUMBER}/music/ogg"
 rm -f "$WORK_DIR/data"/game*.sav "$WORK_DIR/data"/config_v*.sav
 
 (
@@ -335,7 +324,7 @@ fi
 
 echo "📦 Found APK: $UNSIGNED_APK"
 
-TEMP_APK="$PACKAGES_DIR/TEMP_RockBot_Android_${VERSION_NAME}.apk"
+TEMP_APK="$PACKAGES_DIR/TEMP_Rockbot${VERSION_NUMBER}_Android_${VERSION_NAME}.apk"
 rm -f "$TEMP_APK" "$OUT_APK"
 cp "$UNSIGNED_APK" "$TEMP_APK"
 zip -d "$TEMP_APK" 'META-INF/*' 2>/dev/null || true

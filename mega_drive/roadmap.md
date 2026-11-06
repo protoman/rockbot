@@ -42,15 +42,15 @@ anything) and the bottom bar prints `NOT CONVERTED YET` for those slots.
 Converting the remaining stages is still open (the converters are already
 parameterised by stage index).
 
-## 4. Terrain: DOOR / WATER / ICE  **[DONE — nothing to do]**
+## 4. Terrain: DOOR / WATER / ICE  **[WATER+ICE MINIMAL, DOOR UNUSED]**
 
-Scanned the converted terrain (`src/stage0..2_data.c`): **none of the three
-appears in any converted stage.** Only SOLID, STAIR, SPIKE, MOVE_LEFT/RIGHT
-and SCROLL_LOCK are used.
+Stages 0..8 use only SOLID, STAIR, SPIKE, MOVE_LEFT/RIGHT and SCROLL_LOCK.
 
-- DOOR (3) / WATER (5) / ICE (6): 0 cells in stages 0..2 → not implemented
-  (nothing to test against; YAGNI). Implement them when a stage that uses
-  them is converted.
+- FROZEN LAIR (13) is the first stage with WATER (map 0: 216 cells) and ICE
+  (map 0: 73, map 1: 79). Minimal port: water is no longer ground (the player
+  falls in), gravity drops to 0.09 and max fall to 2; ice uses accel 0.15 /
+  decel 0.03 so the player slides. Both are untested in play.
+- DOOR (3) still has 0 cells in every converted stage.
 - SCROLL_LOCK (10) *is* used (stage 1 map 1 col 59, map 2 col 97) and is
   already handled: `tools/convert_stage.py` uses `lock_terrain = {1,3,4,6,10}`
   (mirroring PC `classmap.cpp:186`) to emit the per-column camera locks, and
@@ -179,7 +179,19 @@ becomes worth it: (a) accept one colour for all three rows, (b) draw the gauges
 on the VDP **window plane** with tiles (per-tile palette bits, no scrolling) —
 that also frees the sprite pool entirely.
 
-## 12. Animated tiles: colour cycling instead of frame sets
+## 12. Animated tiles: colour cycling instead of frame sets  **[DONE]**
+
+Done 2026-10-19. The art width decides: a 16px-wide strip is one frame and
+becomes a CRAM rotation (3 band entries in PAL3, plus a stable entry for art
+black), anything wider stays on tile animation. One pool per stage, chosen by
+the colour set with the most cells. Live in stages 1, 2, 3, 6, 8: water +
+waterfalls + water surface (10 blocks), lava, and the moving platforms.
+Animation slots dropped 10,8,14 -> 6,0,6 (stage 2) and 11,11,9 -> 3,3,1
+(stage 3); the water borders, magnets and palmtrees stay multi-frame by
+decision. Full detail in `stage0_plan.md` -> "Colourcycle".
+
+Original note follows.
+
 
 `anim_tiles.dat` is **0 bytes** — the animated tiles come from
 `anim_block_list.dat` + the map data. The payoff is ROM + per-frame upload
@@ -196,14 +208,23 @@ colours change) — check the frames before assuming.
 Cycling a CRAM entry per frame costs no tiles and no ROM. Worth doing where the
 animation is a pure palette pulse (the port currently bakes every frame).
 
-## 13. More stages  **[DONE]**
+## 13. More stages  **[DONE — 14 converted]**
 
-The select offers 9 slots; only 3 stages were converted, so 6 slots were
-dead. All nine are now converted (`STAGE_DEFINED_COUNT 9`): CHAOS CITY,
-DEEP JUNGLE, FLOWER FIELDS, ATLANTIDA, DESERT, MUMMY, SPIKE, TECHNO, CASTLE —
-`tools/convert_stage.py N` + `convert_enemies.py N` + `convert_objects.py N`
-+ the `img2tiles` bg steps, one resources.res block per stage, and the
-`stage_defs[]` registry. ROM went 640K -> 896K.
+`STAGE_DEFINED_COUNT 14`: stages 0..13 (intro, 8 bosses, castle #1 stages
+9..13 = LAVA PIT, SPACE BASE, POWER GRID, RECYCLE FACTORY, FROZEN LAIR).
+`tools/add_stage.py N` now does the whole add (`convert_stage` +
+`convert_enemies` + `convert_objects` + the bg `img2tiles`, the resources
+block, the registry and the Makefile `STAGES` list). ROM 1.0M -> 1.31M.
+
+The asset recipe now loops over `STAGES` instead of one block per stage, and
+the VRAM layout is derived per map (tileset -> bg -> anim) because FROZEN LAIR
+map 1 needs 202 unique 8x8 tiles (the old fixed 144-tile block overflowed).
+
+Castle flow: after intro + 8 bosses the select centre unlocks and returns the
+first unbeaten castle #1 stage (`get_last_castle_stage`); castle stages draw
+`classic_style_castle.png` for 3s before their boss intro. `castle_data_*.dat`
+/ `castle*_points.dat` are editor-only in the PC code (nothing reads them at
+runtime), so they are not ported. Ending after stage 13 is still open.
 
 Stage 3 (ATLANTIDA) and stage 8 (TECHNO) were verified in-emulator (load,
 render, scroll); the rest use the same pipeline but are **not** played through
@@ -225,10 +246,13 @@ img2tiles black-palette bug (the green sky), enemy/object spawn visibility, the
 thick-wall horizontal collision, the intro logo padding and the flipped-frame
 offset. Full detail in `stage0_plan.md` -> "Room transition: the real scroll".
 
-Known fallback: stage 2 map 2 -> map 1 still fades (61/81 tiles needed, 56
-free). Verified: CHAOS CITY links, arrival state, wall clamp, intro alignment.
-Not yet: the return trip by hand, the flip on screen, the other 8 stages'
-parallax, and the fade fallback itself.
+**Update 2026-10-19**: the colourcycle conversion freed enough animation tiles
+that the last fallback is gone — `tools/check_vram.py` now reports **0
+transition fallbacks** (stage 2 map 2 has 80+ free where 81 were needed before
+the waterfall family was converted). The verification pass also covered the
+other 8 stages' parallax and the flipped-frame offset (both OK).
+Still not verified by hand: the return trip, and the fade path is now unreachable
+in the converted stages.
 
 ## 15. Waterfall gap (stage 2 map 2, cols 133/134 row 7)
 
@@ -237,6 +261,13 @@ animated column (rows 0..6 and 8..14 are anim cells; columns 135/136 are fully
 animated). The PC's data follows the same rule as our converter
 (`init_animated_tiles`), so it is a rendering difference, not a converter bug —
 compare against the PC at that spot; the anim art may span two cells.
+
+**Update 2026-10-19**: re-checked the data — in stage 2 map 2 the columns 133/134
+of row 7 are *empty* (`locked=0, t1=-1,-1, t3=-1,-1`), and the anim cells in
+that map are the water surfaces at row 11 plus the row-2 over-player decor, so
+the original report's coordinates no longer describe the data. The waterfalls in
+that stage are now colourcycled, which changes how the column renders. Needs a
+fresh reproduction with the camera position before touching anything.
 
 ## Execution order
 

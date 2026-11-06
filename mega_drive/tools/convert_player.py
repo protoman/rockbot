@@ -19,6 +19,7 @@ Writes res/player_p1..p4.png. See res/resources.res for the SPRITE lines.
 Usage: python3 tools/convert_player.py
 """
 import os
+import re
 import sys
 from PIL import Image
 
@@ -41,6 +42,15 @@ PLACEHOLDER_WEAPON1 = 13
 PLACEHOLDER_WEAPON2 = 14
 PLACEHOLDER_WEAPON3 = 15
 
+# PAL2 entries reserved for the classic HP bar strip: colour 1, colour 2 and
+# the black gaps. The bar is a sprite on the PLAYER palette line (the only line
+# whose colours belong to the player), so the player art must not use these
+# indices - otherwise writing the bar colours recolours the sprite (the bar on
+# 8/9/12 turned BETABOT's black body red). They are remapped to the nearest
+# free entry below; ~700 px of the four sheets in total, mostly 1-2 px details.
+HP_C1, HP_C2, HP_BLACK = 2, 3, 4
+HP_RESERVED = (HP_C1, HP_C2, HP_BLACK)
+
 
 
 # animation row -> (source frame indices, per-frame time in 1/60s)
@@ -54,12 +64,25 @@ ANIMS = [
     ("ATTACK",   [11],           [9]),
     ("HIT",      [15, 16],       [6, 6]),
     ("TELEPORT", [0, 1, 2],      [12, 6, 6]),
-    ("STAIRS",   [17],           [0]),
+    # 17 = climb pose, 18 = the half-body pose played while grabbing/leaving
+    # a ladder (PC ANIM_TYPE_STAIRS_SEMI). Both live in ONE animation because
+    # rescomp dropped the trailing 15th animation for player 1 only, which made
+    # ANIM_STAIRS_SEMI (14) out of range on ROCKBOT and crashed SPR_update
+    # (BUG-043). player.c selects frame 1 for the semi pose.
+    ("STAIRS",   [17, 18],       [0, 0]),
     ("SLIDE",    [20],           [0]),
     # classplayer.cpp:606 addSpriteFrame(ANIM_TYPE_STAIRS_ATTACK, 19)
     ("STAIRS_ATTACK", [19],      [9]),
     # classplayer.cpp:616 addSpriteFrame(ANIM_TYPE_SHIELD, 22, ..., 100)
     ("SHIELD",   [22],           [100]),
+    # classplayer.cpp:627 addSpriteFrame(ANIM_TYPE_SPECIAL_ATTACK, 29, ..., 200)
+    ("SPECIAL",  [29],           [200]),
+    # classplayer.cpp:625 addSpriteFrame(ANIM_TYPE_GOT_WEAPON, 26/27, ..., 200)
+    ("GOT_WEAPON", [26, 27],     [200, 200]),
+    # classplayer.cpp:587-589: firing while the current anim is WALK shows the
+    # walk-attack row; :585 the air one is a single 80ms frame.
+    ("WALK_ATTACK", [12, 13, 14], [9, 9, 9]),
+    ("JUMP_ATTACK", [10],         [5]),
 ]
 
 MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)
@@ -106,8 +129,29 @@ def main():
 
         src = sheet.load()
 
+        # Free the HP-bar entries: any art pixel using 2/3/4 moves to the
+        # nearest colour the sheet actually has. Done per player because the
+        # four palettes differ.
+        avail = [i for i in range(1, PLACEHOLDER_WEAPON1) if i not in HP_RESERVED]
+        idx_map = list(range(16))
+        for r in HP_RESERVED:
+            c = palette[r]
+            idx_map[r] = min(
+                avail,
+                key=lambda i: sum((a - b) ** 2 for a, b in zip(palette[i], c)))
+            print(f"  player {n}: PAL2[{r}] {c} reserved for the HP bar -> "
+                  f"art uses {idx_map[r]} {palette[idx_map[r]]}")
+        # Only now that the art pixels moved: the HP-bar entries hold THIS
+        # player's weapon-0 colours, so the PNG previews what the game writes
+        # (player.c rebuild_player_palette sets the same three CRAM entries).
+        if c1:
+            palette[HP_C1] = tuple(md_round(v) for v in c1)
+        if c2:
+            palette[HP_C2] = tuple(md_round(v) for v in c2)
+        palette[HP_BLACK] = (0, 0, 0)
+
         def frame_idx(f):
-            return [src[f * FRAME + x, y]
+            return [idx_map[src[f * FRAME + x, y]]
                     for y in range(FRAME) for x in range(FRAME)]
 
         out = Image.new("P", (cols * CELL, rows * CELL))
@@ -136,6 +180,23 @@ def main():
                 for y in range(FRAME):
                     for x in range(FRAME):
                         data[(oy + y) * cols * CELL + ox + x] = idxs[y * FRAME + x]
+        # rescomp DROPS an animation whose frames are all transparent, and every
+        # later animation then shifts down by one at runtime (players 1 and 3
+        # have no SPECIAL art: WALK_ATTACK played the JUMP_ATTACK art, GOT_WEAPON
+        # the walk-attack one, JUMP_ATTACK (13) was out of range). Keep the slot
+        # alive with a copy of the first STAND frame; the pose is only reachable
+        # through the shoryuken, where an invisible player would be worse anyway.
+        for r, (name, frames, _) in enumerate(ANIMS):
+            cells = range(len(frames))
+            if any(data[(r * CELL + y) * cols * CELL + c * CELL + x]
+                   for c in cells for y in range(CELL) for x in range(CELL)):
+                continue
+            for y in range(CELL):
+                for x in range(CELL):
+                    data[(r * CELL + y) * cols * CELL + x] = data[y * cols * CELL + x]
+            row_dx[r] = row_dx[0]
+            print(f"  player {n}: animation {r} {name} has no art - placeholder "
+                  f"(copy of STAND) so rescomp keeps the slot")
         flip_rows.append(row_dx)
         out.putdata(data)
         os.makedirs(RES, exist_ok=True)
@@ -145,9 +206,18 @@ def main():
               f"flip_dx={row_dx}")
 
     times = "[" + "".join("[" + ",".join(str(t) for t in a[2]) + "]" for a in ANIMS) + "]"
-    print(f"SPRITE time array: {times}")
-    for n, _, _, _ in players:
-        print(f'SPRITE player_p{n}_sprite "player_p{n}.png" 32p 32p FAST {times}')
+    # Rewrite the SPRITE lines so the animation list can never drift from the
+    # sheet's row order (a missing row = SPR_setAnim past the table = crash).
+    res_path = os.path.join(ROOT, "res", "resources.res")
+    if os.path.exists(res_path):
+        text = open(res_path).read()
+        for n, _, _, _ in players:
+            line = (f'SPRITE player_p{n}_sprite "player_p{n}.png" 32p 32p '
+                    f'FAST {times}')
+            text = re.sub(r'^SPRITE\s+player_p%d_sprite\b.*$' % n, line, text,
+                          flags=re.M)
+            print(line)
+        open(res_path, "w").write(text)
 
     # Sprite X correction while HFliped, one per animation row (player.h's
     # ANIM_* order == ANIMS above). Generated because it depends on the art.

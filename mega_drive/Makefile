@@ -7,101 +7,37 @@ export GDK ?= /opt/toolchains/mars/m68k-elf
 # Every file in res/ is generated from the PC game data by tools/*.py. A
 # plain `make` regenerates whatever changed (stamp vs converter scripts and
 # PC source assets) before rescomp runs, so resources are never stale.
-# Force a full regeneration with `make assets` after touching res/.
+# Force a full regeneration with `make assets` (tools/build_assets.py --force).
 PYTHON   ?= /home/iuri/python3/bin/python3
 PCROOT   := ..
+# Editable game data: a COPY of the PC build/games/RockDroid1 that the editor
+# (editor/, tools/editor.sh) edits and every converter reads. The parent
+# rockbot/build/games copy is never used again, so map edits survive a rebuild.
+GAMEDATA := data/games/RockDroid1
 IMAGES   := images
 ASSET_STAMP := res/.assets.stamp
-ASSET_TOOLS := $(wildcard tools/*.py)
-ASSET_DATA  := $(shell find $(PCROOT)/build/games/RockDroid1 \
-                            $(PCROOT)/build/shared/images \
-                            -type f \( -name '*.png' -o -name '*.dat' \) \
-                            2>/dev/null)
-# hand-owned art: the sprite converters read images/, so a hand edit must
-# invalidate the asset stamp too
-ASSET_DATA  += $(shell find $(IMAGES) -type f -name '*.png' 2>/dev/null)
+# Converted stages, in index order (tools/add_stage.py appends here).
+STAGES := 0 1 2 3 4 5 6 7 8 9 10 11 12 13
 
-$(ASSET_STAMP): $(ASSET_TOOLS) $(ASSET_DATA)
-	$(PYTHON) tools/convert_assets.py
-	$(PYTHON) tools/convert_stage.py 0
-	$(PYTHON) tools/convert_enemies.py 0
-	$(PYTHON) tools/convert_objects.py 0
-	$(PYTHON) tools/img2tiles.py res/stage0_bg0.png --name stage0_bg0
-	$(PYTHON) tools/img2tiles.py res/stage0_bg1.png --name stage0_bg1
-	$(PYTHON) tools/convert_stage.py 1
-	$(PYTHON) tools/convert_enemies.py 1
-	$(PYTHON) tools/convert_objects.py 1
-	$(PYTHON) tools/img2tiles.py res/stage1_bg0.png --name stage1_bg0
-	$(PYTHON) tools/img2tiles.py res/stage1_bg1.png --name stage1_bg1
-	$(PYTHON) tools/img2tiles.py res/stage1_bg2.png --name stage1_bg2
-	$(PYTHON) tools/convert_stage.py 2
-	$(PYTHON) tools/convert_enemies.py 2
-	$(PYTHON) tools/convert_objects.py 2
-	$(PYTHON) tools/img2tiles.py res/stage2_bg0.png --name stage2_bg0
-	$(PYTHON) tools/img2tiles.py res/stage2_bg1.png --name stage2_bg1
-	$(PYTHON) tools/img2tiles.py res/stage2_bg2.png --name stage2_bg2
-	$(PYTHON) tools/convert_stage.py 3
-	$(PYTHON) tools/convert_enemies.py 3
-	$(PYTHON) tools/convert_objects.py 3
-	$(PYTHON) tools/img2tiles.py res/stage3_bg0.png --name stage3_bg0
-	$(PYTHON) tools/img2tiles.py res/stage3_bg1.png --name stage3_bg1
-	$(PYTHON) tools/img2tiles.py res/stage3_bg2.png --name stage3_bg2
-	$(PYTHON) tools/convert_stage.py 4
-	$(PYTHON) tools/convert_enemies.py 4
-	$(PYTHON) tools/convert_objects.py 4
-	$(PYTHON) tools/img2tiles.py res/stage4_bg0.png --name stage4_bg0
-	$(PYTHON) tools/img2tiles.py res/stage4_bg1.png --name stage4_bg1
-	$(PYTHON) tools/img2tiles.py res/stage4_bg2.png --name stage4_bg2
-	$(PYTHON) tools/convert_stage.py 5
-	$(PYTHON) tools/convert_enemies.py 5
-	$(PYTHON) tools/convert_objects.py 5
-	$(PYTHON) tools/img2tiles.py res/stage5_bg0.png --name stage5_bg0
-	$(PYTHON) tools/img2tiles.py res/stage5_bg1.png --name stage5_bg1
-	$(PYTHON) tools/img2tiles.py res/stage5_bg2.png --name stage5_bg2
-	$(PYTHON) tools/convert_stage.py 6
-	$(PYTHON) tools/convert_enemies.py 6
-	$(PYTHON) tools/convert_objects.py 6
-	$(PYTHON) tools/img2tiles.py res/stage6_bg0.png --name stage6_bg0
-	$(PYTHON) tools/img2tiles.py res/stage6_bg1.png --name stage6_bg1
-	$(PYTHON) tools/img2tiles.py res/stage6_bg2.png --name stage6_bg2
-	$(PYTHON) tools/convert_stage.py 7
-	$(PYTHON) tools/convert_enemies.py 7
-	$(PYTHON) tools/convert_objects.py 7
-	$(PYTHON) tools/img2tiles.py res/stage7_bg0.png --name stage7_bg0
-	$(PYTHON) tools/img2tiles.py res/stage7_bg1.png --name stage7_bg1
-	$(PYTHON) tools/img2tiles.py res/stage7_bg2.png --name stage7_bg2
-	$(PYTHON) tools/convert_stage.py 8
-	$(PYTHON) tools/convert_enemies.py 8
-	$(PYTHON) tools/convert_objects.py 8
-	$(PYTHON) tools/img2tiles.py res/stage8_bg0.png --name stage8_bg0
-	$(PYTHON) tools/img2tiles.py res/stage8_bg1.png --name stage8_bg1
-	$(PYTHON) tools/img2tiles.py res/stage8_bg2.png --name stage8_bg2
-	$(PYTHON) tools/convert_players.py
-	$(PYTHON) tools/convert_weapons.py
-	$(PYTHON) tools/convert_player.py
-	$(PYTHON) tools/convert_save_icons.py
-	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/boss_intro/boss_intro_bg.png \
-	    --name boss_intro_bg --crop-h 224
-	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/player_selection.png \
-	    --name psel_bg --crop-h 224
-	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/player_select_p1.png --name psel_p1
-	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/player_select_p2.png --name psel_p2
-	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/player_select_p3.png --name psel_p3
-	$(PYTHON) tools/img2tiles.py $(IMAGES)/backgrounds/player_select_p4.png --name psel_p4
-	$(PYTHON) tools/convert_stage_select.py
-	$(PYTHON) tools/convert_save_selector.py
-	$(PYTHON) tools/img2tiles.py \
-	    $(PCROOT)/build/games/RockDroid1/images/backgrounds/weapon_menu.png \
-	    --name menu --crop-top 16
-	$(PYTHON) tools/img2tiles.py \
-	    $(IMAGES)/logo.png \
-	    --name title --crop-h 224
-	$(PYTHON) tools/convert_sfx.py
-	$(PYTHON) tools/gen_gpl.py
-	@touch $@
+# Stage editor (Qt5/Qt6, CMake): the PC editor copied into editor/, pointed at
+# data/. Build files stay in editor/build/, the binary lands in editor/editor
+# where tools/editor.sh expects it.
+editor:
+	cmake -S editor -B editor/build -DCMAKE_BUILD_TYPE=Release
+	cmake --build editor/build -j4
 
-.PHONY: assets
-assets: $(ASSET_STAMP)
+# tools/build_assets.py decides by CONTENT which converters have to run (the
+# editor rewrites every .dat on save, so mtimes say nothing) and gives
+# unchanged outputs their old mtime back; it touches the stamp only when some
+# generated file really changed, so rescomp / gcc rebuild just what moved.
+$(ASSET_STAMP): FORCE
+	$(PYTHON) tools/build_assets.py
+
+FORCE:
+
+.PHONY: assets editor
+assets:
+	$(PYTHON) tools/build_assets.py --force
 
 # Verify the tile layout still fits the fixed VRAM blocks (tileset / parallax
 # / animated slots / sprite pool) and list the room transitions that fall back
@@ -111,6 +47,77 @@ assets: $(ASSET_STAMP)
 check-vram: all
 	$(PYTHON) tools/check_vram.py
 
+# The hand-written fill tiles (scene/config "solid black") are 8 longwords of
+# 4bpp tile data, where a wrong constant silently becomes a stripe pattern
+# (BUG-044: 0x11111111 instead of 0xFF000000 = two white bars per tile).
+.PHONY: check-fills
+check-fills:
+	$(PYTHON) tools/check_fill_tiles.py
+
+.PHONY: check-sram
+check-sram:
+	$(PYTHON) tools/check_sram_window.py
+
+# A bare PAL_set*(.., CPU) can be redirected to the wrong CRAM entry by a DMA or
+# the vblank handler between its address write and its data words (BUG-044
+# follow-up: the boot grey ramp landed 8 or 10 entries down). All CPU-method
+# writes must go through src/pal_safe.h.
+.PHONY: check-pal
+check-pal:
+	$(PYTHON) tools/check_pal_writes.py
+
+# The "got armor" pages must describe the ability the piece actually installs
+# (BUG: ROCKBOT's legs page said air dash while the piece grants double jump -
+# dialogs.c keyed its labels off a different enum order than player.c). Also
+# checks the per-player ability tables against game_armorPieces_v301.dat.
+.PHONY: check-armor
+check-armor:
+	$(PYTHON) tools/check_armor_dialog.py
+
+# The boss-intro jingle must never be reachable without the presentation: a
+# stage already beaten shows nothing (PC classic_style_boss_intro returns before
+# the screen and the music). Also guards music_stop() against early-returning on
+# the port's own 'playing' flag, which can leave a stale track audible.
+.PHONY: check-boss-intro
+check-boss-intro:
+	$(PYTHON) tools/check_boss_intro_gate.py
+
+# The stage-select boss/stage names sit on their own black band, drawn with
+# PAL0 (pal_ui) loaded through pal_safe - borrowing the PC bar art and PAL1 made
+# them unreadable again after some stages (BUG-014 relapse).
+.PHONY: check-ssel-text
+check-ssel-text:
+	$(PYTHON) tools/check_stage_select_text.py
+
+# Every baked scrolling strip must wrap where its content repeats: the stage
+# parallax keeps the PC's art width (seam accepted), the ending layers and the
+# cutscene parallax wrap at their baked period. Also flags any converter that
+# changes an image's WIDTH (the class of bug fixed in BUG-049/052).
+.PHONY: check-width
+check-width:
+	$(PYTHON) tools/audit_scroll_width.py
+
+# A boss door is a scroll lock: the PC counts the cells a door object covers as
+# wall when it builds wall_scroll_lock (classmap.cpp:173-190), so the view stops
+# at the closed door instead of scrolling into the arena behind it.
+.PHONY: check-door-lock
+check-door-lock:
+	$(PYTHON) tools/check_door_scroll_lock.py
+
+# A room narrower than the view cannot keep both scroll locks out; the PC keeps
+# the camera it had (it only blocks moving a lock column into the view), so the
+# port must not pin it to the left wall (CASTLE 5 arrived one tile left).
+.PHONY: check-narrow-scroll
+check-narrow-scroll:
+	$(PYTHON) tools/check_narrow_room_scroll.py
+
+# The parallax strips are baked 512 px wide (the BG_B plane) and must repeat
+# over that width: the PC art repeats at its own 320 px, which does not divide
+# 512, so tiling it directly left a seam (clouds_misalign.png).
+.PHONY: check-bg-seam
+check-bg-seam:
+	$(PYTHON) tools/check_bg_seam.py
+
 # Run the built ROM in BlastEm (native binary, see tools/emu.sh EMU_BIN).
 # This goes through tools/emu.sh instead of launching the emulator directly:
 # that kills a previous instance and relaunches while the window comes up
@@ -118,9 +125,17 @@ check-vram: all
 #   -g forces software rendering. It was required for the flatpak build under
 #   Wayland (the GL renderer froze ~half the time); kept by default here as it
 #   is the known-good path — try `make run EMU_ARGS=` if you want GL.
+# Profiling build: per-second scanline cost of each part of the stage loop,
+# printed over KDEBUG (see images/../PLAN.md "Runtime verification"). Needs a
+# clean build because the flags are not part of the object dependencies.
+.PHONY: profile
+profile:
+	$(MAKE) clean
+	$(MAKE) EXTRA_FLAGS=-DMD_PROFILE
+
 .PHONY: run
 run: check-vram
-	bash tools/emu.sh start-ready out/rom.bin
+	bash tools/emu.sh start out/rom.bin
 
 include $(GDK)/makefile.gen
 

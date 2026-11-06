@@ -218,6 +218,27 @@ struct st_color {
  * @brief
  *
  */
+// Copies of a surface (copy constructor / assignment).
+// PS3: SDL_DisplayFormatAlpha() of the SDL 1.3 snapshot converts to ARGB8888 through an
+// RLE-accelerated colorkey->alpha conversion, which loses the transparency of the
+// object sprites (teal boxes around items). Duplicate in the original pixel format
+// instead: colorkey and blend state are preserved, no RLE, and half the memory.
+static inline SDL_Surface *rb_duplicate_surface(SDL_Surface *surface)
+{
+#ifdef PS3
+    return SDL_ConvertSurface(surface, surface->format, SDL_SWSURFACE);
+#else
+    SDL_Surface *copy = SDLL_DisplayFormatAlpha(surface);
+    if (copy != NULL) {
+        // DisplayFormatAlpha turns the colorkey pixels into alpha-0 pixels (SDL2) or drops the key (SDL1).
+        // Keep the key on the copy too: with a blend mode that ignores alpha (the PSP uses BLENDMODE_NONE for
+        // speed) the transparent pixels were drawn as solid teal boxes around items.
+        SDLL_SetColorKey(copy, SDL_SRCCOLORKEY, SDLL_MapRGB(copy, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+    }
+    return copy;
+#endif
+}
+
 struct graphicsLib_gSurface {
     private:
         SDL_Surface *gSurface;
@@ -303,7 +324,7 @@ struct graphicsLib_gSurface {
                 show_debug = false;
                 gSurface = NULL;
                 if (original.width > 0 && original.gSurface != NULL) {
-                    gSurface = SDLL_DisplayFormatAlpha(original.gSurface);
+                    gSurface = rb_duplicate_surface(original.gSurface);
                 }
                 if (gSurface == NULL) {
                     width = 0;
@@ -389,7 +410,7 @@ struct graphicsLib_gSurface {
                 show_debug = false;
                 gSurface = NULL;
                 if (original.width > 0 && original.gSurface != NULL) {
-                    gSurface = SDLL_DisplayFormatAlpha(original.gSurface);
+                    gSurface = rb_duplicate_surface(original.gSurface);
                 }
                 if (gSurface == NULL) {
                     width = 0;
@@ -488,6 +509,14 @@ struct graphicsLib_gSurface {
 
             Uint32 new_color_n = SDLL_MapRGB(gSurface, new_color.r, new_color.g, new_color.b);
 
+            // RLE-accelerated surfaces have no pixel data until they are locked
+            // (SDL frees it after encoding); writing without a lock dereferences NULL.
+            SDLL_LockSurface(gSurface);
+            if (gSurface->pixels == NULL) {
+                SDLL_UnlockSurface(gSurface);
+                return;
+            }
+
             if (key_n == 0) {
                 for (unsigned int i=0; i<colorkey1_points.size(); i++) {
                     put_pixel(colorkey1_points.at(i).x, colorkey1_points.at(i).y, new_color_n);
@@ -501,6 +530,7 @@ struct graphicsLib_gSurface {
                     put_pixel(colorkey3_points.at(i).x, colorkey3_points.at(i).y, new_color_n);
                 }
             }
+            SDLL_UnlockSurface(gSurface);
         }
 
         void enable_show_debug() {
@@ -574,7 +604,7 @@ struct graphicsLib_gSurface {
             if (x >= gSurface->w || y >= gSurface->h) {
                 return 0;
             }
-            if (is_rle_enabled) {
+            if (is_rle_enabled || gSurface->pixels == NULL) {
                 return 0;
             }
 
@@ -613,6 +643,9 @@ struct graphicsLib_gSurface {
                 return;
             }
             if (x < 0 || x >= gSurface->w || y < 0 || y >= gSurface->h) {
+                return;
+            }
+            if (gSurface->pixels == NULL) {
                 return;
             }
             int bpp =

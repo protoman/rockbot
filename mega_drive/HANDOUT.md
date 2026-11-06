@@ -1,136 +1,527 @@
 # Handout — next session
 
-Briefing for whoever picks this up. **The authoritative docs are
-`stage0_plan.md` (milestones, conventions, gotchas) and `roadmap.md` (open
-work, in order)** — read those first; this file is the short version.
+Briefing for whoever picks this up. **Authoritative docs: `stage0_plan.md`
+(milestones, conventions, recipes) and `roadmap.md` (open work, in order);
+`bugs.md` for deviations and `lessons_learned.md` for traps.** This file is the
+short version.
 
 ## Build & run
 
 ```bash
 cd mega_drive
-make run          # builds, then runs in BlastEm
+make                 # assets (auto when tools/art change) + ROM -> out/rom.bin, ~896K
+make check-vram      # VRAM budget + colourcycle pool guard + transition fallbacks
+make run             # builds, then ONE BlastEm launch (tools/emu.sh start)
+make run EMU_ARGS=   # GL renderer instead of software
 ```
 
-`make run` builds and then runs `tools/emu.sh start-ready out/rom.bin`, which uses
-the **native BlastEm 1.0.0** at `/mnt/ExtraData/programas/blastem64-1.0.0/blastem`
-(the flathub flatpak is gone — its sandbox under Wayland wedged on startup). The
-harness kills a previous instance and relaunches while the window comes up black,
-so a bad start no longer needs a manual kill; there is no auto-timeout, so stop it
-with `tools/emu.sh stop`. `-g` (software rendering) is still the default — it was
-required for the flatpak; for GL on the native build use `make run EMU_ARGS=`.
+- Emulator: native BlastEm 1.0.0 (`tools/emu.sh`, `EMU_BIN`). No retry loop and
+  no readiness wait any more — the native build does not wedge.
+- **Launch discipline (user rule): never launch the emulator without saying so
+  first**, one deliberate run per question, and stop it when done
+  (`tools/emu.sh stop`). The user types while the window opens and keypresses
+  reach the emulator.
+- **Check the build really happened** before trusting a capture: `make` must
+  exit 0 (the toolchain prints `Erro` in Portuguese, so grepping for "error"
+  misses failures) and `out/rom.bin` must be newer than the newest source.
+  Capture scripts must take the ROM path as an argument — a hardcoded path cost
+  two wrong conclusions last session.
 
-ROM is `out/rom.bin` (== `out/release/rom.bin`), 1.0 M. Kega Fusion also works.
+## State at hand-off
 
-## Test harness
+- All nine selectable stages play (maps, parallax, enemies, objects, shots,
+  HUD, menu, save/load, stage select). Bosses are in progress; music is integrated (see below).
+- **Stages 0..13 are converted** (14 of 20) and **all reachable**: 9..13 are
+  castle #1 (LAVA PIT, SPACE BASE, POWER GRID, RECYCLE FACTORY, FROZEN LAIR).
+  The select's centre slot becomes the castle once intro + 8 bosses are
+  beaten (PC `can_access_castle`); it returns the first unbeaten castle stage,
+  and a castle #1 stage shows the castle screen before the boss intro.
+  `tools/add_stage.py N` does a whole stage; the asset recipe loops over
+  `STAGES`. VRAM bases are derived per map (tileset -> bg -> anim), so FROZEN
+  LAIR map 1's 202-tile tileset fits. ROM 1.84M (the music blobs are ~240K). FROZEN LAIR is the palette
+  outlier (56 colours, BUG-004) and the first WATER/ICE stage (minimal
+  physics). Endings 2..5 play after stage 13 (`scene_play(2+player)`); the
+  six portraits are in the build (visual pass pending).
+- **Stage select (2026-10-21)**: defeated boss faces are grey. The face
+  tiles stay in VRAM; `grey_beaten_faces()` switches their tilemap palette
+  bits to PAL1, which holds a 16-entry grey ramp generated from the PAL0 UI
+  colours. The cursor moved to PAL0 (its art indices are remapped in
+  `tools/convert_stage_select.py`).
+- **Weapon menu (2026-10-20)**: the font has transparent background pixels, so
+  it was showing the stage parallax on BG_B as orange stripes. The menu now
+  blanks BG_B and points the backdrop at black while open, then rebuilds the
+  parallax, the animated-tile block and all four palette lines on close
+  (`stage_redraw_anim()`). The grid is aligned to the BG tile bars: icons at
+  x=14+80*col, y=41+24*row; bars at tile columns 3+10*col, rows 5/8/11.
+  Play-tested: stages 1 (DEEP JUNGLE), 3 (ATLANTIDA water), 4 (Mummy) and
+  6 (DARK MINE) start; menu opens with all weapons and closes with the stage
+  parallax/animated lamps intact.
+- **Session 2026-10-21 (later)**: fixed and verified **BUG-017** (falling into
+  water now enters it: `ground_pair()` excluded WATER), **BUG-007** (charge
+  survives room links; `player_place()` no longer clears it, the reset moved to
+  `respawn_player()`), **BUG-016** (link arrivals keep the horizontal offset
+  inside the band via `stage_link_band_off`, and `stage_arrival_camera_x()`
+  clamps the negative camera produced by `scroll_lock_span()`), and BUG-005
+  (stair-return arrival nudged out of the link band). **BUG-006** fixes are in
+  (live door state wins over the converted lock table; doors re-close on
+  respawn) but not yet checked in-game. Debug readout: KDEBUG via
+  `script -qf` — see `blastem_debug.md`.
+- **HUD boxes (2026-10-21)**: the bar sprites are added hidden now, so no
+  black HUD boxes during "MISSION STARTED"; the weapon/HP icon sits over an
+  explicit 8x8 black box (bar frame 0) with the PC's 1px gap under the 56px
+  bar (PC draw.cpp:1328 uses y=54 on a bar ending at 53).
+- **Title** renders the layered PC art at ~58 colours over four palette lines
+  (`tools/title64.py`), verified on hardware against the user's reference.
+- **Colourcycle** (CRAM rotation instead of tile-frame animation) live in stages
+  1, 2, 3, 6, 8; art width decides the technique (16 px strip = one frame).
+- Room transitions: **no fallbacks left** (`make check-vram` reports 0).
+- Bugs: BUG-001 fixed, BUG-002 closed by design, BUG-003 fixed, BUG-004 tracked
+  (palette budget; DEEP JUNGLE is the outlier at 33 colours for 15 slots — every
+  build prints a weighted error per stage).
+- **Intro scene** (2026-10-19): plays the PC script 0 between the logos and the
+  title (text pages + city parallax). START skips it. Emulator-verified
+  2026-10-19: logos -> "20XX A.D." centered -> parallax city -> typed text ->
+  START -> title. `scene_text_pos.position` must be read at byte 68 (64 is
+  transition_type; reading it put every page bottom-left).
+- **Title finished** (2026-10-19): layered art in `art/` — `title.png` (18,4),
+  `sub_title.png` (162,38), `title_rock_and_beta.png` (148,48) — wired as
+  `--part ...:0:1`, `:0:1`, `:1:1`. 17 colours, 0 folded tiles. Three `--rekey`
+  lines in the Makefile brighten the pink and orange armour and warm the skin;
+  the art files themselves are untouched.
+- **Drops + progress** (2026-10-19): regular enemies drop PC-ratio pills (big/
+  small energy, big/small weapon, 4.5s lifetime); a new SRAM item record
+  (byte 88 + slot*12) persists lives, the three tanks and armor across stages;
+  first clears of stages 1..8 show `YOU GOT <weapon>` for 5s.
+- **Items + armor** (2026-10-19): menu has the PC 4-column weapon grid using
+  the original 8x8 icon art (`menu_icons.png`, shared 15-colour palette;
+  hand-owned source is `images/menu_icons.png` and overrides the converter);
+  COIL FROG and JET EAGLE are selectable (stage 1 / 6), with item physics and
+  ammo drain; ARMS armor swaps the full-charge shot for
+  the per-player projectile (SUPER SHOT / SEMI / LASER / HADOUKEN); armor
+  pickups show the CANOTUS dialog; SHORYUKEN (UP+DASH) is implemented. The
+  save selector no longer draws "SLOT N" text over the icons (PC has no slot
+  labels). Exact item-platform motion still needs playtesting.
+- **Title/config** (2026-10-19): title menu has NEW / LOAD / CONFIG / ABOUT;
+  CONFIG reuses the options screen; ABOUT shows a compact credits page.
+  CONFIG now persists `game_finished`; only two players are selectable until
+  the stage-13 ending plays, then all four (PC select_player).
+- **AI + sub-bosses** (2026-10-19): AI actions 7 (invert shot), 8 (air walk),
+  9 (fall to ground) and 18 (jump-attack) added; walk options 3 (saved point),
+  5 (random direction) and 6 (opposite/away from screen centre) supported.
+  Enemies carry `is_sub_boss` and `respawn_delay`; respawning enemies revive at
+  their spawn point after the PC delay, sub-bosses always drop big energy, and
+  boss doors wait until the boss/sub-boss left of them is dead.
+- **Projectiles + weaknesses** (2026-10-19): player FOLLOW / CENTERED /
+  ZIGZAG / BOMB / FREEZE / LASER trajectories implemented (SONAR bounces on
+  solid tiles, DESERT STORM homes, MAGIC STAR tracks the player then flies,
+  TIMED BOMB/DYNAMITE fuse + burst); enemy SIN / BOMB / FREEZE / CENTERED /
+  ZIGZAG / FALL_BOMB no longer fall back to straight. Every enemy now carries
+  the PC `weakness[9]` multipliers, and shots use the selected weapon's
+  entry. Bomb bursts still use the small explosion puff, not the PC 56px art.
+- **Map/stair fixes** (2026-10-19): links now carry the PC band width
+  (`file_link.size`), reverse direction (`bidirecional`) and type, so the wide
+  stairways in DEEP JUNGLE and SUN-GOD REALM trigger; door columns are added
+  to the scroll lock at runtime and the SUN-GOD sub-boss doors moved up one
+  tile with the map crop; falling through a stair now uses the PC
+  `middle_y_point_lock` rule instead of the body centre. Reflected shots are
+  harmless after the bounce and charged shots ignore shields (PC
+  `vanishes_on_hit`); shielded enemy shots bounce off the player shield.
+- **Death/clear flow** (2026-10-19): deaths freeze the world for 1.5s with
+  explosion puffs, then respawn at the checkpoint; out of lives shows GAME OVER
+  -> PRESS START (lives reset to 5, saved). Boss death plays a 2s explosion
+  ring before the clear screen. `runStage` now returns LEFT/CLEARED/GAME_OVER and
+  `playSession` sends clears/game overs to the stage select (intro stage game
+  over restarts it; stage 13's ending returns to the title). Approximations:
+  no PC ring-explosion art, no player_victory flash/pose, no fade.
+- **Ending parade + credits** (2026-10-19): after the stage-13 scene the
+  port plays the PC walking parade (the three `player_walking_layer*.png`
+  pieces on two planes, the two front layers split by `HSCROLL_LINE` so they
+  move at different speeds and the player sprite walks off-screen), then a
+  boss parade (one boss sprite + stage/boss name per defined stage) and the
+  scrolling `game_credits.txt`. START skips each part. The PC's full normal-
+  enemy line is approximated by the bosses; the walking art is 15-colour
+  decomposed (see `HANDOUT` ending notes).
+- **Boss presentation** (2026-10-19): the stage boss now drops in from 160px
+  above its spawn when it first reaches the screen; the boss dialog and HP row
+  wait for the drop to finish and shots cannot damage it mid-drop. The PC
+  white blink and intro-sprite animation are still approximated by the drop.
+- **Water jump** (2026-10-19): jumping while the feet tile is WATER now uses
+  the PC 0.9x initial speed with the 0.3x gravity already in place.
+- **Status/feedback** (2026-10-19): DYNAMITE now arms the PC 3.5s freeze
+  (weak enemies stop AI and are hidden, enemy shots clear) and the projectile
+  lives as long as the effect; QUAKE shots shake both planes by the PC +/-2 px;
+  zig-zag/laser projectiles flip their sprite when they reverse. ABOUT now has
+  the PC site/bugs/Twitter/Facebook links, and EXTRAS has a CREDITS entry that
+  runs the same scroll as the ending.
+- **Transition/heap** (2026-10-20): DMA queue 500 -> 192 freed enough heap
+  for the destination `MAP_create` (the Mummy stair fade was an out-of-memory
+  fallback, fail code 3); the transition hscroll sign was fixed, stage_load
+  starts at the exact arrival camera, and the post-load arrival redraw is
+  skipped (it was the one-frame dark/orange flash). Normal display-off stage
+  load remains for transitions.
+- **Animation/objects** (2026-10-20): animated cells are rewritten to frame 0
+  during stage_load, so Daisie's palms no longer freeze on one tile until the
+  first animation tick; map objects now use PC `object::gravity()` (all types
+  except the PC exclusion list) while on screen.
+- **Overlapping map tiles** (2026-10-20): when PC tile1 and tile3 both
+  cover one cell, the converter now keeps the tile with fewer transparent
+  pixels (the one that fills the cell). This fixes Daisie's one-tile waterfall
+  gap; Daisie palms also use their frame-0 animated cells from the start.
+- **Water SFX** (2026-10-20): entering/leaving water plays the PC
+  `water_enter` / `water_leave` samples; both are also in the EXTRAS SFX test.
+- **More SFX** (2026-10-20): door opening, got-weapon and stage-select
+  confirmation now use the PC samples; all are in the EXTRAS SFX test.
+- **Door / weapon / stage-select SFX** (2026-10-20): boss doors, the
+  first-clear weapon screen and stage-select movement/confirm now use the PC
+  samples.
+- **HUD weapon colour** (2026-10-20): the weapon gauge row is drawn with the
+  player palette (PAL2); its green fill is mapped to palette index 13, so it
+  follows the selected weapon/player colour instead of staying green.
+- **Ladder/object fixes** (2026-10-20): bottom-of-map links now fire while
+  the player is on a ladder or standing at the bottom edge; object gravity
+  matches PC passability (only UNBLOCKED/WATER/SPIKE are passable, so boxes
+  stop on stairs) and excludes all active-platform/block types. The
+  overlapping-tile rule is restricted to two animated tiles (waterfall).
+- **Block timers / lava** (2026-10-20): disappearing-block #1/#2/#3 now use
+  their PC `obj_timer` as the initial hidden delay (1000/2000/3000 ms), so
+  they no longer toggle in sync; active blocks use their own visible timer.
+  Spike/lava terrain damage is now lethal (PC 188), not 4.
+- **Menu polish** (2026-10-20): title defaults to LOAD when a save exists;
+  the weapon menu shows a gauge bar, tank counts (E/W/S) and restores the
+  panel before redrawing text so old glyphs no longer show through.
+- **Menu/select follow-up** (2026-10-20): stage select defaults to the centre
+  slot; the weapon menu borrows the panel's dark backdrop for CRAM0 while
+  open, so font background pixels no longer create coloured text boxes.
+- **Dialog/background + stage6** (2026-10-20): dialog boxes use system tile
+  15 (tile 935 overlapped an animated slot and was overwritten); the
+  overlapping-tile opacity rule is stage-2-only so Dynamite's map strips are
+  untouched.
+- **Ladder bottom links** (2026-10-20): a link on the last map row now fires
+  as soon as the feet enter that row. The old PC-style T2B band began below
+  the map, so dropping/jumping off a bottom ladder never teleported.
+- **Ladder bottom rung** (2026-10-20): if the last rung is the map's last
+  row and there is no teleporter link, stepping off is clamped to that row
+  instead of dropping out of the map and respawning. Ladders ending over a
+  real pit still fall.
+- **SFX channel fix** (2026-10-20): XGM2 has only PCM0..PCM2; UI/object
+  sounds were sent to `SOUND_PCM_CH4` (enum 3), which writes past the PCM
+  tables and corrupts the Z80 command jump table. BlastEm then died with
+  "multi-byte Z80 instruction at 4001" on the first menu beep. UI/objects
+  now use `SOUND_PCM_CH3` (PCM2).
+- **Music** (2026-10-20): `tools/convert_music.py` converts every PC
+  MOD/S3M source to VGM; rescomp packs them as XGM2 resources (30 tracks,
+  ~240K ROM). `src/music.c` maps title/intro/select/boss/final/clear/game-over/
+  ending tracks and all 14 stage themes. The castle intro uses
+  `rockbot_stage_start.mod` in place of the PC MP3. SFX still use the same
+  XGM2 driver on PCM2/3.
+- **Lava/spike contact** (2026-10-20): the damage scan skipped the feet
+  row because the hitbox bottom is exclusive. Standing/landing on a SPIKE
+  tile (the lava pool at the start of DARK MINE) did nothing. The scan now
+  includes `bottom >> 4`.
+- **GOLD CART wall hop** (2026-10-20): the PC runs a walker's
+  `always_move_ahead` self-loop and jumps once when the next tile is blocked
+  with open space above. DARK MINE's GOLD CART now does that instead of
+  stopping at low walls.
+- **Dialog advance** (2026-10-20): armor/boss pages now wait for a fresh
+  JUMP press. Previously a held fire button counted as the advance press and
+  releasing it closed the page.
+- **Top ladder links** (2026-10-20): a top-row STAIR link now fires only
+  while the player is still on the ladder. Stepping off at the top no longer
+  falls into the PC's oversized bottom/top link band and teleports him down.
+- **Ladder drop / menu bars** (2026-10-20): the ladder-rest ground pair is
+  disabled during the 12-frame drop lock, so jumping off a ladder actually
+  falls. The weapon menu gauge is now a solid white tile strip and the font
+  uses PAL0 (UI) explicitly.
+- **Boss door / shots / menu grid** (2026-10-20): boss-door columns no
+  longer stay camera-locked after the door opens; SONAR WAVE reverses X only
+  on a wall; normal damage-3 weapon shots (DESERT STORM) are consumed on hit
+  instead of inheriting the full-charge pierce; DYNAMITE FLASH is an instant
+  freeze with no projectile and frozen enemies stay visible; menu up/down
+  moves a full grid row, bars are white tiles under the icons.
+- **Replay music** (2026-10-20): when a beaten stage skips the boss intro,
+  its old boss-intro jingle is stopped explicitly before the stage theme.
+- **Stair fall** (2026-10-20): `ground_pair` no longer treats UNBLOCKED
+  feet over a STAIR centre as floor. That latch was stopping every ladder
+  drop as soon as the feet left the stair row.
+- **Weapon bar colours** (2026-10-20): each in-game menu bar now uses
+  `player_data[].wcol[weapon].color1` quantised to MD 3:3:3, via PAL0 entries
+  1..11. The white fallback remains for unset colours.
+- **Menu text/bar layout** (2026-10-20): PAL0 slot 1 is kept black (the
+  font's background pixel), bar colours moved to slots 2..12; bars now sit on
+  the icon row (5 + row*3).
+- **Classic UI pass** (2026-10-20): HUD HP/weapon/boss rows are now vertical
+  bars from `art/energy_bar_vertical.png` (HP uses weapon-0 colours in PAL2
+  8/9, weapon uses 13/14, boss uses PAL0), and HUD sprites are forced above
+  the player with `SPR_MIN_DEPTH`. The in-game menu uses the PC
+  `classic_style_weapon_menu.png` panel. Stage select now swaps the centre
+  player face for `stage_select_castle.png` (Dr Destrin mark) once all eight
+  bosses are beaten.
+- **HUD bar crash** (2026-10-20): the 7 HUD bar chunks were emitted as a
+  vertical strip and rescomp only saw one frame; `SPR_setFrame()` then
+  corrupted the sprite frame pointer. They are now a horizontal 56x8 strip
+  with one animation of 7 frames.
+- **HUD 1% bars** (2026-10-20): each classic bar is three stacked sprites
+  (24+24+8 px) with 51 frames. The frame index is the fill height in pixels,
+  so the gauge updates every percent and the unfilled part is solid black.
+- **HUD icons / menu indicator** (2026-10-20): the classic HUD now has the
+  small weapon icon under the HP/weapon bars (PAL0-converted icons), and the
+  in-game menu shows the selected weapon icon + name at the bottom.
+- **JET EAGLE / menu fill** (2026-10-20): JET EAGLE checks its own and the
+  rider's next box against terrain and disappears on contact, so it cannot
+  carry the player into walls. Menu text now sits on classic tile 16 (flat
+  dark fill); tile 4 was a border pattern and caused striped text.
+- **Menu fonts/grey icons** (2026-10-20): text rows use the classic panel's
+  flat tile 16; PAL0/PAL1 are flushed before drawing. Unselected weapon icons
+  and bars use a grey palette/tile; rows 0/2 share the same tile-row offset.
+- **Menu palette flush** (2026-10-20): PAL0/PAL1/PAL3 are written with the
+  display disabled instead of racing the tile DMA; this is the remaining font
+  background fix.
+- Last commit: load menu palettes with display disabled.
+- Boss dialogs are in: shown when the boss first appears (stages 0..8).
+  Stage-start dialogs are dead PC data (no reader, cutscene_pre/pos = -1).
+- Audit (`tools/audit_data.py`): every stage reports clean except the WATER
+  note (stage 3, and 13's water/ice). Armor/tanks/destructible/boss doors/
+  beams/LR platform/castle teleporters and the missing AI actions are in.
+  Approximations are listed in stage0_plan's "Data audit" section.
 
-`tools/emu.sh` — source it, or use the CLI:
-`emu_start [rom]`, `emu_start_ready [rom] [tries] [wait]`, `emu_stop`,
-`emu_status`, `emu_window`, `emu_key KEY [ms]`, `emu_keys_up`, `emu_shot NAME`,
-`emu_shot_blank`. BlastEm's keymap: `z` = pad A, `x` = pad B, `c` = pad C,
-`enter` = START, arrows = d-pad. Screenshots go to `/tmp/opencode/md-emu/`.
+## Next work, in order
 
-Two things that waste time if forgotten:
-- The emulator wedges with a black screen often. `emu_start_ready` retries;
-  `emu_shot_blank` detects it. It is not the ROM.
-- BlastEm sometimes misses a keyup, leaving a pad button stuck so the game
-  spins in its "wait for release" loop (looks like a frozen menu). Call
-  `emu_keys_up`.
+### 1. Ending — IMPLEMENTED (needs a visual pass)
 
-### Reaching a specific stage or boss (learned the hard way)
+PC scene lists 2..5 are the endings (Rockbot/Betabot/Candy/Kitty). They use
+`MOVE_IMAGE` ops with 68x68 portraits over a clear-area colour, then text
+pages. `scenes_data.c` already holds their op lists/text; `scene.c` skips the
+image op.
 
-Add a **temporary** hook at the top of `main()` that boots straight into a
-stage, with the index in SRAM (word 200 = stage, low byte; word 206 = player):
+Done (commit pending): `tools/convert_scenes.py` bakes the six ending
+portraits (ids 6/8/9/10/11/12) to `res/scene_img*.png`, img2tiles decomposes
+them, and `scenes_data.c` now has the `SceneImage` table. `scene.c` draws them
+on BG_B (PAL2/PAL3), uses PAL1 for `clear_area` and keeps the text overlay on
+BG_A (blank outside the box). Stage 13's clear plays `scene_play(2+player)`
+before returning to the title. Lab-scene art (records 1-4/7) and animated
+image movement are still unported. The rest of this section is the design it
+was built from:
+- BG_B = background/images, BG_A = text overlay. `clear_screen` fills BG_A
+  with the blank tile (pixels 0 = transparent) and BG_B with the black tile.
+  `text_play` keeps filling its own box with the black tile (PAL0 entry 1);
+  outside it BG_A stays transparent and the art shows through.
+- `clear_area` uses PAL1: set PAL1 entry 1 to the PC RGB and fill a BG_B
+  rect with the solid tile. (PAL0 stays text/black.)
+- Images use PAL2 and PAL3 (two concurrent max; endings never show 3:
+  scene 3's second clear-area wipes before the third). Reset the line/tile
+  allocation on CLEAR_SCREEN/CLEAR_AREA; load each image's tiles at
+  `TILE_USER_INDEX` + running offset, draw its 9x9 map into BG_B at
+  `x>>3, y>>3`.
+- Art: `dr_destrin`, `rockbot`, `rockbot_left`, `betabot`, `candybot`,
+  `kittybot` (68x68, 1.2k-3k colours) through `img2tiles.py` at 15 colours
+  into `res/scene_img_*.png` + generated tiles/map; emit a `SceneImage`
+  table from `tools/convert_scenes.py` (it currently skips those records).
+- `MOVE_IMAGE` movement: ini -> dest by speed_x/y (sceneshow.cpp:160), step
+  every `move_delay`; endings are static (ini == dest) except none, so the
+  static draw is the requirement. If movement is added, erase the old rect
+  with the clear-area tile before drawing the next (uniform background).
+- Trigger: after stage 13's stage-clear, run scene `2 + player` (PC
+  `game_scenes_map[ENDING_PLAYER1..4]`), then the title. No fades exist in the
+  PC player — do not invent them.
 
-```c
-    save_init();
-    { u8 tstage = (u8)(SRAM_readWord(200) & 0x0F);
-      current_player = (u8)(SRAM_readWord(206) & 0x03);
-      if (tstage <= 8) runStage(tstage); }
-```
+### 2. Scenes — intro DONE; show-image is the ending's blocker
 
-Seed it from the host (the file BlastEm actually uses):
+The PC stores a scene as a **script of operations**, one table per op type,
+assembled by name (`file/v4/file_scene_v4.h`, `sceneslib.cpp`,
+`scenes/sceneshow.cpp`). Ops carry `blocking` (parallel allowed) and
+`move_delay`. Data in `build/games/RockDroid1/scenes/`:
 
-```
-~/.var/app/com.retrodev.blastem/data/blastem/rom/save.sram
-slot 0 at byte 8: magic u16 0x5242, stages u16, player u16 (big-endian)
-```
+| file | size | contents |
+|---|---|---|
+| `game_scenes.dat` | 16 B | scene-list head |
+| `scenes_list.dat` | 3072 B | scene records |
+| `scenes_show_image.dat` | 1404 B | image + ini/dest pos, copy area, delay |
+| `scenes_show_text.dat` | 1368 B | text file, position type, speed |
+| `scenes_show_viewpoint.dat` | 104 B | viewport pans |
+| `scenes_show_animation.dat` | 420 B | sprite animation |
+| `scenes_clear_area.dat` | 44 B | colour-fill rectangles |
+| `scenes_parallax.dat` | 552 B | parallax setup |
+| `scenes_play_music/sfx.dat` | 180/64 B | audio cues (stub: no audio yet) |
+| `scenes/text/*.txt` | — | the dialog text |
 
-**Do not warp the player to a boss** — map 0 has a scroll-lock column at 179
-(x=2864) that stops the camera at ~2557, so the arena is never visible. Instead
-add a temporary **link** near the spawn (`src/stage0_data.c`, e.g.
-`{ 0, 10, 8, 0, 182, 3 }` + `link_count` 2→3) or a second boss teleporter, and
-walk into it: a link calls `stage_arrival_camera()` → `scroll_lock_span()`,
-which lands the camera past the lock. That is how the boss fight was verified.
+Done (commit `14f24cf2`): `tools/convert_scenes.py` emits the op lists, text
+lines (verbatim, 8 px spacing) and clear areas to `src/scenes_data.*`; the
+intro's two parallax layers are baked to 512 px and decomposed by
+`img2tiles.py`. `src/scene.c` plays clear / text / clear-area / parallax and
+aborts on START. `main.c` is now `showIntro() -> scene_play(0) -> showTitle()`.
+Audio ops are stubbed; show-image / viewpoint / animation are skipped (their
+art needs the colour-reduction pass: the 68x68 characters have 2-3k colours).
+Next: that art pass, then the ending scenes (2..5) and the lab scene (1).
 
-**Always revert temp hooks before committing** (and note that
-`/tmp/opencode/main.c.pre_playtest` is a hook-free copy).
+**User's decisions**: port the **intro** first, **text verbatim**, and it is
+fine to **tighten the line spacing** to fit 224 lines.
 
-## Gotchas
+### 3. Stages — done (0..13 reachable)
 
-- `make` re-runs the asset pipeline when anything in `tools/*.py` or
-  `images/*.png` changes, **regenerating** `src/*_data.c` and
-  `src/stage*_enemies.c`. Hand-edits to generated files do not survive.
-- Deleting a `res/` PNG that `rescomp` still lists leaves a stale dependency —
-  `rm -rf out/release/_deps/res out/release/res` if make complains.
-- `stage_defs[]` needs `__attribute__((used))` or LTO drops stages 1..8.
-- MD CRAM word is `(R<<1)|(G<<5)|(B<<9)` (white `0x0EEE`).
+Castle flow is in: select centre unlocks when save bits 0..8 are set, shows
+the castle stage's names, returns the first unbeaten castle #1 stage, and
+`boss_intro_run()` draws `classic_style_castle.png` (four palette lines via
+`tools/title64.py` + `tools/crop_image.py` bands) for 3s before the boss
+intro. `save_slot_set_stage()` now records the *played* stage (it used to
+hardcode 0, so boss stages never set their own bit).
 
-## What was done in the last session
+Stages 14..19 are **placeholders** in the PC data (`Fire Bot`, `Stage [16]`,
+…), and `game_properties_v301.dat` has `use_second_castle = 0`, so they are
+not part of the game. Do not convert them unless the user says otherwise.
 
-All 9 selectable stages converted (was 3); weapons (buster + 8 boss weapons,
-per-weapon palette/ammo/projectiles, menu switching); shield (ROCKBOT,
-DOWN+A); enemy shield types; real HUD (weapon gauge, lives); plus fixes:
-stage-start spawn position (was spawning on the ceiling / losing the player),
-projectile flip when firing left, platform crush kill, large projectiles dying
-at spawn, enemies spawning inside the floor, walkers turning in place at
-cliffs, conveyor not carrying you into pits, the sprite flash on a room change,
-and BlastEm's startup freeze. Commits `7c689221` … `aa4abaee`.
+### 4. Ending — DONE (visual pass pending)
 
-Verified in-emulator: spawn in all 9 stages, boss fight (MILONGA BOT renders,
-walks, fires, HP row drops), shield frame, weapons' projectiles/palettes.
+Scene lists 2..5, the three-layer walking parade, boss parade and credits are
+in (`src/ending.c`). The PC full normal-enemy line is approximated by the
+stage bosses. `game_finished` is set before the ending and unlocks players 3/4.
+Known approximation: the walking layers are pinned to the MD crop/tile grid
+(row 8 / row 15) and use a 320px repeat instead of the PC's exact layer offsets.
 
-## Open work, in order
+### 5. Options / config — DONE (2026-10-19)
 
-### 1. Room transition — the real scroll (designed, not started)
+Implemented in `src/config.c` with the user's simplifications: AUDIO
+(SOUND ON/OFF), INPUT (TURBO, AUTO-CHARGE, BUTTONS — no analog/joystick),
+EXTRAS (music/sfx test), LEAVE STAGE; no platform/language/performance/quit.
+Opened with B from the in-game menu; stored in SRAM bytes 48..55.
 
-Today a link does a palette fade (safe, no more one-frame map swap). The PC
-scrolls the old screen out and the new one in vertically
-(`game.cpp:1067+`). Design, with the measured numbers, is in
-`stage0_plan.md` → "Room transition":
+### 6. AI / bosses — REACTIONS DONE (2026-10-21); boss patterns next
 
-- Build the temporary combined tilemap in RAM (40x56 = 4480 bytes), write the
-  visible 40x28 slice to the plane each frame while sliding. Enemies/objects
-  simply do not update during the transition.
-- Only the two screens' tiles are needed. The new screen's tiles are copied to
-  a spare VRAM base and its plane entries written with that offset; the old
-  screen keeps base 16. The animated-tile block (496..927) has ~120 tiles of
-  slack in the worst case.
-- Blocker to know: each map has its **own tileset in the same 128-tile VRAM
-  block** (stage tiles 16..143). A stage's three-map tile union is up to 193
-  tiles (137/139/156/193/91/168/108/71/86 for stages 0..8). The alternative is
-  one union tileset per stage shared by its three maps, which needs a
-  converter + `resources.res` change (map PNGs become index maps into a
-  separate tileset PNG — rescomp supports that).
+The state machine was already there (`ai_pick` rolls the 20-state chance table,
+`ai_tick` follows `go_to` chains, `ai_action_run` implements the actions the
+converted data uses). What was missing was the **reaction layer**:
 
-### 2. Waterfall gap
+- `tools/convert_enemies.py` now reads the 6 reactions per AI
+  (`game_ai_list.dat` offset 432, `file_artificial_inteligence.reactions`) and
+  emits `stageN_enemy_react[defs][6]`; reaction spawn targets (REPLACE_NPC /
+  MORPH, e.g. DESTRIN TANK -> DESTRIN SHIP) are added to the stage bundle.
+- `src/enemy.c`: `ai_reaction_pick` tests the six slots in the PC order
+  (range, dead, hit, same-y, same-x, close), `ai_reaction_end` follows the
+  reaction `go_to` (0 = back to the chance roll) and a death reaction runs
+  before the enemy is removed; `AI_REPLACE_NPC` spawns the target and removes
+  the parent.
+- Data that uses it: DYNAMITE BOT (hit -> dash, stages 6 and 13), WASPER
+  (hit -> fly, stage 12), DESTRIN TANK (dead -> DESTRIN SHIP, stage 13).
 
-Stage 2, map 2, **columns 133/134, row 7**: those two cells are *static* water
-tiles inside an animated column (rows 0..6 and 8..14 are anim cells; columns
-135/136 are fully animated). The PC's data is identical (`init_animated_tiles`
-uses the same rule as our converter), so this is a *rendering* difference, not
-a converter bug — compare with the PC at that spot; the anim art may span two
-cells.
+Remaining under this heading: **boss attack patterns**. Bosses share the same
+state machine, so this is now mostly the missing JUMP/TELEPORT animation rows
+(BUG-011, unblocks BUG-010) plus per-boss action selection by distance/HP
+phase; re-check BUG-012 (projectiles at boss death) with real attacks.
 
-### 3. Still unverified (needs play)
+Deliberately **not** ported (user decision 2026-10-21): difficulty select,
+cheats menu, static tile3 foreground art, rain/lightning overlays, save copy,
+language/platform/performance options. See `pc_features_vs_md.md` §11.
 
-Weapons in a stage where you legitimately own one (beat a stage first), spike
-damage, the platform crush (stage 6 + a ceiling), the bosses for stages 1..8
-(only MILONGA BOT was watched), the LARVA-in-the-ground report (both FLOWER
-FIELDS LARVA spawns now sit correctly, likely already fixed).
+## Editable game data + stage editor (2026-10-22)
 
-### 4. Roadmap leftovers
+The data in `data/games/RockDroid1` is **already converted** to the port's
+geometry: the PC 15 rows were cropped to 14 game rows (slots 0..13; slot 14 is
+unused padding of the PC struct), link rows remapped (row 0 stays, else -1) and
+spawn Y shifted, all by the one-time `tools/import_pc_data.py`. The converters
+stopped cropping, so what the editor edits is exactly what the ROM gets, and
+Shift Down/Up move tiles, objects and enemies (links stay as they are). Verified by regenerating the assets
+after the import: terrain/links/enemies/objects came out identical; only two
+scroll-lock columns (stage 2 map 2, stage 11 map 1) and the stage 1/6/11
+palettes changed, because both are derived from the tiles of the *visible*
+rows now instead of including the cropped row.
 
-`roadmap.md` items 11/12 (HUD ball dedup, colour cycling) — only worth it when
-VRAM/ROM pressure bites; 10 (ending) needs the castle stages + final boss
-first; 9 (music) is blocked on tooling (MOD→VGM, or NeuralNote needs a CLI
-mode and a rebuild).
+## Editable game data + stage editor (2026-10-21)
+
+`data/games/RockDroid1/` is now the master copy of the game data (12 MB copy of
+the PC `build/games/RockDroid1`); all converters read it and never touch the
+parent tree again, so map/enemy/object edits are not overwritten by a rebuild.
+The PC Qt editor was copied to `editor/` (Qt5) with two changes: its `.pro` and
+includes point at `../../file|aux_tools` (the parent's shared sources) and
+`main.cpp` accepts `ROCKBOT_EDITOR_PATH` for the data root. Build with
+`make editor` (CMake, Qt5 or Qt6), launch with `tools/editor.sh`. Verified
+headlessly (`QT_QPA_PLATFORM=offscreen`) that it loads `data/games/RockDroid1`
+without crashing; a missing font no longer aborts it. The editor shows the
+224p view (the converter cuts the top row). **Edit > Shift Down** moves the
+current room one tile down for that cut: rows 2..14 take rows 1..13, rows 0
+and 1 receive the old first row, the old bottom row is discarded, objects and
+enemies move with it, links are untouched. **Edit > Shift Up** is the mirror:
+rows 0..12 take rows 1..13, rows 13 and 14 receive the old last row, the old
+first row is discarded.
+
+## Tools
+
+- `tools/title64.py --part FILE:X,Y:FIRST:COUNT` + `--preview out.png` — the
+  preview rebuilds the screen from exactly the emitted data; use it before any
+  emulator run.
+- `tools/check_vram.py` — tile budget, colourcycle pool guard, transition
+  fallbacks.
+- `tools/audit_links.py` — read-only: for every stage link (both directions)
+  it reproduces the ROM's arrival math against the generated terrain and flags
+  SOLID/SPIKE/WATER/OUT/NO-FLOOR arrivals. Found the stage-4 return arrival is
+  clean (BUG-005 is dynamic, not a placement bug).
+- `tools/convert_stage.py N` — prints the stage's palette error.
+- `tools/emu.sh {start|stop|shot|keys_up}`.
+
+## Traps from last session (all in `lessons_learned.md`)
+
+- `PAL_setColor()` / `PAL_getColor()` take a **global CRAM index** (PAL3 entry
+  12 is CRAM 60); the tilemap's palette field is the 2-bit *line*, `<< 13`.
+- A **queued CRAM DMA does not land** here: palettes with `CPU` writes, tiles
+  with `DMA`.
+- **A preview that shares the emitter's layout bug validates itself** — derive
+  the preview from the emitted layout, not the intermediate state (#27).
+- PC art backgrounds may be a **near miss of the colorkey** — `(72,126,124)` vs
+  `(75,125,125)`; flood-fill with tolerance (`title64.py`).
+- **One palette line per 8x8 tile** is the hardware rule: split art
+  *spatially* (parts), not by colour clustering.
+- Emulator palette readback differs from the MD ramp by ±10-15 grey levels
+  (BlastEm's 3->8-bit expansion) — that is not a bug.
+- **BUG-044 (white stripes)**: the two hand-written "solid black" fill tiles were
+  `0x11111111` — that is bitplanes 0..3 on pixels 3 and 7, i.e. index 15 bars, not
+  a fill. `0xFF000000` per row is a solid index 1. They are `scene.c:black_tile`
+  and `config.c:cfg_black`; the latter shares tile 702 with `stage_sky_tile()`, so
+  it also striped the stage sky and the transition bands. Repro/fix check:
+  `make check-fills` (`tools/check_fill_tiles.py`).
+- 2026-10-27 music: mod2vgm rewritten (replayer, fitted FM voices from tools/mod2vgm/voice_table.inc via fit_voices, percussion as real samples on the DAC, frame-quantised VGM). Score vs libxmp over 30 modules: chroma 0.80 mel 0.72 env 0.73 onset 0.63 (was 0.49/0.21/0.37/0.32). ROM 2.0 -> 3.54 MB. Re-fit: tools/mod2vgm/build/fit_voices out.inc -b 1200 <mods>; score: tools/mod2vgm/evaluate_all.sh
+- 2026-10-27 audit pass (PC vs port): fire rays/beams (Castle 1), enemy anim rows (WALK_AIR/SLIDE/JUMP_ATTACK), missile direction rows, sub-boss explosions, quake ground damage + jump lock, enemy shot min damage 2, contact damage 4 unless NPC frame > 29px, vulnerable_area hit rect, boss 1.5 s AI delay, conveyor speed, projectile sounds. See bugs.md 'audit' lines.
+- 2026-10-30 armor pages: dialogs.c had legs/body labels keyed off a different
+  enum order than player.c, so ROCKBOT's legs piece read "DASH IN MIDDLE-AIR."
+  for the double jump (and body was wrong for all 4 values). Repro:
+  `make check-armor` (`tools/check_armor_dialog.py`) - 12 pages (4 players x
+  arms/body/legs) + the per-player ability tables vs game_armorPieces_v301.dat.
+- 2026-10-30 boss intro: a beaten stage replay skipped the presentation but the
+  jingle could still be heard. The gate now lives inside `boss_intro_run()`
+  (PC `classic_style_boss_intro` returns before screen AND music) and
+  `music_stop()` always stops XGM2 instead of trusting the port's own `playing`
+  flag. Check: `make check-boss-intro` (`tools/check_boss_intro_gate.py`).
+- 2026-10-30 stage select names: own black band instead of the PC bar art +
+  borrowed PAL1 (BUG-014 relapse after some stages). `draw_names()` loads PAL0
+  (pal_ui: 0 = black, 15 = ink) through `pal_safe.h` and paints rows 25..27 with
+  `VDP_clearTextArea` before drawing. Check: `make check-ssel-text`.
+- 2026-10-30 boss door: `solid_now()` keyed the door off `started` (the "sequence
+  ran" latch), so once opened+closed it stopped blocking and the DESTRIN SHIP
+  teleported inside it. Now `!door_open`. Repro: `tools/run_host_tests.sh`
+  (`tests/host/door_block_test.c`).
+- 2026-10-30 parallax seams: the strips were baked as art + 192 px, but BG_B
+  wraps at 512 and the PC art repeats at 320 - the wrap joined the wrong
+  columns (clouds jumped). `convert_stage.py` now bakes a 256 px strip (period
+  crop / flat-window drop / squeeze, best first). Check: `make check-bg-seam`.
+- 2026-10-30 narrow rooms: `scroll_lock_span` pinned the camera to the left wall
+  when a room is narrower than the view, which the PC never does - CASTLE 5's
+  rooms arrived one tile left. The camera now keeps the value the caller set.
+  Check: `make check-narrow-scroll`.
+- 2026-10-30 boss door as scroll lock: the lock tables came from terrain only,
+  so the closed door's column was not a lock and the view scrolled past it
+  (CASTLE 5's boss room). `convert_stage.py` now counts the cells a boss door
+  object covers as wall, like PC `classMap::load_map`. Check:
+  `make check-door-lock`.
+- 2026-10-30 ending walk: the three layers scrolled with offsets wrapping at the
+  art's 320 px inside a 512 px plane, so the ground/sky jumped every 320 px of
+  travel (this was the `clouds_misalign.png` report). Layers are now baked to a
+  256 px period over the 512 px plane and wrap at 512. `make check-bg-seam`.
+- 2026-10-30 parallax: owner's call - the stage strips keep the PC art at its own
+  320 px width (no resample); the 512 px plane wrap seam stays. The ending walk
+  (the real `clouds_misalign.png`) is fixed by baking its layers 256-periodic.
+  `make check-bg-seam` checks both rules.
+- 2026-10-30 ending dialog faces: the portraits' own background (the PC clear
+  colour) quantised greenish next to the blue box, and they were drawn 16 px low
+  (CLEAR_AREA applied the 240->224 crop, MOVE_IMAGE did not). The face background
+  is now repainted a pure dark blue, `md_color()` packs CRAM the hardware way
+  (bits 11-9/7-5/3-1) and images get `y - 24` (one extra tile up).
+- 2026-10-31 room slide: incoming enemy/object previews, parallax remapped to the outgoing PAL3 (no more sky), 8px steps held 2 frames (PC pace). Built, not play-tested.
+- 2026-10-31 BUG-004: palette fit by Ward merge + Lloyd refine, tiles weighted by placements (sqrt). Same-weight error vs old: stage1 1089->141, s2 324->151, s4 554->147, s5 246->188, s13 2429->1214. Not yet seen on screen.
+- 2026-10-31 palfit.py shared fit; img2tiles/convert_tooltip/convert_assets keep the lower-error of mediancut vs Ward+Lloyd. Scene images err 826->645, 744->354, 728->346, 612->494, 326->171, 1357->525. Logos exact already.

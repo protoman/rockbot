@@ -21,12 +21,25 @@ typedef enum {
     SFX_PILL,           // small energy pill
     SFX_ITEM,           // 1UP
     SFX_TELEPORT,       // boss teleporter
+    SFX_WATER_ENTER,    // player enters water
+    SFX_WATER_LEAVE,    // player leaves water
+    SFX_DOOR_OPEN,      // boss door
+    SFX_GOT_WEAPON,     // weapon acquisition screen
+    SFX_STAGE_SELECTED, // stage select confirm
     SFX_CURSOR,         // menu open/cursor
+    SFX_BLOCK_APPEAR,   // disappearing block becoming visible
+    SFX_OBJECT_BREAK,   // destructible wall destroyed
+    SFX_BEAM,           // ray / lava beam firing
+    SFX_REFLECT,        // shot reflected by a shield (PC SFX_SHOT_REFLECTED)
+    SFX_SHORYUKEN,      // shoryuken start (PC SFX_SHORYUKEN_GIRL)
+    SFX_RECHARGE,       // big energy pill (PC SFX_GOT_ENERGY_BIG, recharge.wav)
+    SFX_AXE,            // KITTY CLAW enemy projectile (axe.wav)
     SFX_COUNT
 } SfxId;
 
 // Fire-and-forget; ignored if a same-or-higher priority effect is playing on
 // that channel, and a no-op for effects without a sample.
 void sfx_play(SfxId id);
+void sfx_set_enabled(bool enabled);   // options screen SOUND: ON/OFF
 
 #endif

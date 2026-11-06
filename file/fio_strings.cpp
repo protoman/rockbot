@@ -75,7 +75,7 @@ namespace format_v4 {
     {
         std::vector<std::string> res;
         filename = StringUtils::clean_filename(filename);
-        std::ifstream fp(filename.c_str());
+        std::ifstream fp(StringUtils::clean_filename(filename).c_str());
 
         if (!fp.is_open()) {
             std::cout << "ERROR: fio_strings::load_game_strings_from_file[" << filename << "] could not be opened" << std::endl;
@@ -165,7 +165,7 @@ namespace format_v4 {
     {
         bool res = false;
         FILE *fp;
-        fp = fopen(filename.c_str(), "rb");
+        fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
         if (fp) {
             res = true;
             fclose(fp);
@@ -1206,7 +1206,7 @@ namespace format_v4 {
     {
         std::vector<std::string> res;
         filename = StringUtils::clean_filename(filename);
-        std::ifstream fp(filename.c_str());
+        std::ifstream fp(StringUtils::clean_filename(filename).c_str());
 
         if (!fp.is_open()) {
 #ifdef ANDROID
@@ -1257,7 +1257,7 @@ namespace format_v4 {
             filename = StringUtils::clean_filename(filename);
         }
         if (file_exists(filename)) {
-            std::ifstream fp(filename.c_str());
+            std::ifstream fp(StringUtils::clean_filename(filename).c_str());
             std::string str;
             while (getline(fp, str)) {
                 if (str.length() > 0) {

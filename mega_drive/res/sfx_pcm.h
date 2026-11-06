@@ -16,6 +16,18 @@ extern const u8 sfx_big_explosion[17408];
 extern const u8 sfx_got_energy_pill[8192];
 extern const u8 sfx_got_item[4864];
 extern const u8 sfx_teleporter_activated[18688];
+extern const u8 sfx_water_enter[5376];
+extern const u8 sfx_water_leave[6656];
+extern const u8 sfx_door_open[16128];
+extern const u8 sfx_got_weapon[86272];
+extern const u8 sfx_stage_selected[86784];
+extern const u8 sfx_disappearning_block[19456];
+extern const u8 sfx_object_break[3840];
+extern const u8 sfx_beam[10240];
+extern const u8 sfx_shot_reflected[1536];
+extern const u8 sfx_shoryuken_girl[11008];
+extern const u8 sfx_recharge[28160];
+extern const u8 sfx_axe[7168];
 extern const u8 sfx_cursor[2560];
 
 #endif // _RES_SFX_PCM_H_

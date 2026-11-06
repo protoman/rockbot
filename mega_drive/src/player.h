@@ -7,9 +7,15 @@
 
 // Hitbox relative to the sprite origin.
 // Source art is 29x29 (file_player_v3_1.sprite_size), padded to 32x32.
-#define PLAYER_BOX_L 6
-#define PLAYER_BOX_T 4
-#define PLAYER_BOX_R 25
+// PC player hitbox: file_player_v3_1_1.sprite_hit_area = (5,3,16,26) on the
+// 29x29 art, i.e. x 5..21 and y 3..29. The old 6..25 box was 19px wide and
+// did not fit a 1-tile ladder shaft: centring on the ladder left the box
+// overlapping both side walls, so unstick_x pinned the player ("stuck at
+// some position") and walking across a ladder top pushed him into the
+// column. Ladder centring now lands the 16px box exactly on the tile.
+#define PLAYER_BOX_L 5
+#define PLAYER_BOX_T 3
+#define PLAYER_BOX_R 21
 #define PLAYER_BOX_B 29
 
 #define PLAYER_PAL PAL2
@@ -29,6 +35,12 @@
 #define ANIM_SLIDE    7
 #define ANIM_STAIRS_ATTACK 8
 #define ANIM_SHIELD   9
+#define ANIM_SPECIAL  10   // SHORYUKEN (PC ANIM_TYPE_SPECIAL_ATTACK, frame 29)
+#define ANIM_GOT_WEAPON 11 // PC ANIM_TYPE_GOT_WEAPON (frames 26/27, stage clear)
+#define ANIM_WALK_ATTACK 12 // PC ANIM_TYPE_WALK_ATTACK (frames 12/13/14): firing
+                            // while walking, NOT the plain ATTACK row
+#define ANIM_JUMP_ATTACK 13 // PC ANIM_TYPE_JUMP_ATTACK (frame 10)
+                            // pose shown when grabbing/leaving a ladder
 
 typedef struct {
     Sprite *spr;
@@ -53,6 +65,12 @@ typedef struct {
     // palette swap on indices 13/14/15 (player_data[].wcol[])
     u8 weapon;
     u8 ammo[PLAYER_WEAPON_N];   // PC game_save.items.weapons[] gauge (0..28)
+    // PC game_save.items.energy_tanks / weapon_tanks (stored consumables,
+    // used from the in-game menu), persisted per save slot.
+    u8 tanks_hp;
+    u8 tanks_wp;
+    u8 tanks_sp;
+    u8 armor;       // bit0 ARMS, bit1 BODY, bit2 LEGS (PC game_save.armor_pieces)
     // charge shot (PC check_must_attack: press = normal, hold >= 1000ms
     // = semi, >= 2200ms = full, fire on release)
     u16 charge_frames;
@@ -66,11 +84,22 @@ typedef struct {
 
 extern Player player;
 
+// Stage setup: position, hp, weapons, palette, sprite. Persistent progress
+// (lives/tanks/armor) is NOT touched — see player_new_game/player_set_progress.
 void player_init(void);
+
+// NEW GAME: PC reset_lifes() defaults (5 on normal) and empty inventory.
+void player_new_game(void);
+// Restore progress from a save slot (values clamped to the PC limits).
+void player_set_progress(u8 lives, u8 tanks_hp, u8 tanks_wp, u8 tanks_sp,
+                         u8 armor);
+// Out of lives (PC game over): reset only the life counter, keep the tanks.
+void player_reset_lives(void);
 
 // Selected player 0..3 (player-select screen). Changes the sprite sheet +
 // palette used in-game (each player has different weapon colours/abilities).
 void player_set_number(u8 n);
+u8 player_number(void);
 const SpriteDefinition *player_definition(void);
 
 // Per-player abilities (from player_list_v3_1_1.dat, src/player_data.c):
@@ -95,13 +124,37 @@ u8 player_weapon_ammo(void);        // 0 = can't fire (PC classplayer.cpp:336)
 void player_use_weapon_ammo(void);  // one unit per shot
 void player_refill_weapons(void);   // PC refill_weapons(), at stage start
 
-// Lives (PC game_save.items.lifes): one per death, 5 at stage start. When they
-// run out the caller should leave the stage (PC: game over).
+// Lives (PC game_save.items.lifes): one per death, persisted across stages in
+// the save slot. When they run out the caller shows GAME OVER.
 u8 player_lives(void);
+void player_add_life(void);              // OBJ_LIFE pickup
+void player_add_tank(bool hp);           // OBJ_ENERGY_TANK / OBJ_WEAPON_TANK
+void player_add_special_tank(void);      // OBJ_SPECIAL_TANK
+bool player_use_tank(bool hp);           // menu: refill HP / current gauge (+special)
+void player_add_armor(u8 kind);          // 0 arms, 1 body, 2 legs
+u8 player_armor_ability(u8 kind);        // per-player special ability value
+s8 player_full_proj_id(void);                  // own full-charge projectile (-1 = none)
+s8 player_normal_proj_id(void);                // default-weapon projectile of this player (-1 = the buster)
+u8 player_armor_shot_id(void);           // ARMS charged projectile, 0xFF = none
+u16 player_weapon_color(u8 weapon);      // PC weapon_colors[weapon].color1, MD CRAM
+bool player_can_shoryuken(void);         // LEGS SHORYUKEN ability
+bool player_is_shoryuken(void);          // attack hitbox active
 bool player_out_of_lives(void);
+
+// Force an animation row (stage-clear poses; the physics state is ignored).
+void player_force_anim(u8 anim);
 
 // pad = JOY_readJoypad(JOY_1)
 void player_update(u16 pad);
+
+// The pad state the player last processed (JET EAGLE reads UP/DOWN from it).
+u16 player_pad(void);
+// Walked into a SCROLL_LOCK column? (PC process_special_map_points)
+void player_check_scroll_lock(u16 pad);
+
+// PC update_stage_scrolling: push the player back if autoscroll left him off
+// the left edge (2 tiles out = death).
+void player_screen_edge_update(void);
 
 // World-space hitbox, for camera focus and map-link overlap tests.
 void player_get_box(s16 *left, s16 *top, s16 *right, s16 *bottom);
@@ -113,6 +166,8 @@ void player_place(s16 worldX, s16 worldY);
 // Re-place the player sprite for the current camera (after player_place +
 // stage_arrival_camera, so it does not flash at its old screen position).
 void player_sync_sprite(void);
+// Sprite X offset against the hitbox for the current pose (flip + ladder art).
+s16 player_sprite_dx(void);
 
 // Reload the player palette (PAL2). Needed after a full-palette fade, which
 // blacks out PAL2 as well and nothing else restores it.
@@ -123,16 +178,34 @@ void player_restore_palette(void);
 const Palette *player_palette_def(void);
 
 // Contact/projectile damage. Respects the invulnerability window; at hp 0
-// respawns at the stage start with full hp.
+// starts the death sequence (player hidden, world frozen by the caller).
 void player_take_damage(u8 amount);
+
+// Refuse jumps for `frames` frames (enemy ground quake; PC block_jump).
+void player_block_jump(u16 frames);
+
+// Enemy FREEZE weapon (DYNAMITE FLASH): no input for 3500 ms, except while the
+// post-hit invulnerability runs (PC classPlayer::execute).
+void player_freeze(void);
+
+// Death sequence: player_is_dying() while dead; player_death_update() ticks
+// it and respawns at the checkpoint when lives remain, returning FALSE when
+// the sequence ended (then check player_out_of_lives for game over).
+bool player_is_dying(void);
+bool player_death_update(void);
 
 // Instant death, ignoring invulnerability: a platform pressing the player
 // into a solid tile (PC damage(999)).
 void player_crush(void);
 
+// COIL FROG spring (PC obj_jump.start(true): 1.4x jump speed).
+void player_super_jump(void);
+
 // Record the respawn point (worldX, feet-Y worldY) when touching a
-// checkpoint object. Death and pit-falls respawn there while on that map.
+// checkpoint object. Death and pit-falls respawn there (its own room, like the
+// PC). Cleared when a new stage starts.
 void player_set_checkpoint(s16 worldX, s16 worldY);
+void player_clear_checkpoint(void);
 
 // Hide/show the player sprite (in-game menu overlay).
 void player_set_visible(bool visible);

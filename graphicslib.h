@@ -174,6 +174,7 @@ public:
     void showSurfacePortion(struct graphicsLib_gSurface* surfaceOrigin, const struct st_rectangle origin_rect, struct st_rectangle destiny_rect);
     void showSurfaceAt(struct graphicsLib_gSurface*, struct st_position, bool fix_colors);
     void show_white_surface_at(struct graphicsLib_gSurface*, struct st_position);
+    void drop_unused_colorkey(struct graphicsLib_gSurface* gSurface);
     void initSurface(struct st_size, graphicsLib_gSurface *);
 
     void clear_surface(struct graphicsLib_gSurface&surface);

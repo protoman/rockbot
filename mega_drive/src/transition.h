@@ -25,7 +25,36 @@
 // destination screen is the one on screen and the caller must finish the room
 // change: stage_load(to_map), player_place(player_x, player_y),
 // stage_arrival_camera(), player_sync_sprite().
+//
+// `old_shift`: the destination camera cannot always put the arrival where the
+// player stands (map edge, scroll lock), so the OUTGOING screen is moved by the
+// residual instead (dest screen X of the player minus his old screen X): the two
+// ladders stay on one column through the slide. The outgoing screen is leaving
+// and the player belongs to the incoming one, so only the old half moves.
 bool transition_scroll(u8 from_map, u8 to_map, s16 to_cam_x,
-                       s16 player_x, s16 player_y, bool top_to_bottom);
+                       s16 player_x, s16 player_y, bool top_to_bottom,
+                       s16 old_shift);
+
+// Diagnostic: why the last transition fell back to the fade.
+// 1 same map, 2 no VRAM, 3 MAP_create, 4 unpack, 5 >256 tiles, 6 no room.
+extern u8 transition_fail_code;
+extern u8 transition_fail_map;
+extern u16 transition_fail_free_kb;
+
+// Scratch RAM lent while no transition runs (contents are not preserved).
+void *transition_scratch_tiles(u16 *bytes);
+void *transition_scratch_cells(u16 *bytes);
+
+// Scratch for building one screen's tile map before it is written to the plane.
+// The screens used to own a private 40x28 buffer each (10 x 2240 B of BSS, ~22 KB of the
+// ~20 KB heap budget - BUG-045: the DMA queue allocation failed). They are never on screen
+// together and never during a room change, so they share the transition's cell buffer.
+// NULL when `words` does not fit (the caller skips the draw).
+static inline u16 *screen_cells(u16 words)
+{
+    u16 bytes;
+    u16 *p = (u16 *)transition_scratch_cells(&bytes);
+    return ((u32)words * 2 <= bytes) ? p : (u16 *)0;
+}
 
 #endif

@@ -57,6 +57,13 @@ extern CURRENT_FILE_FORMAT::st_save game_save;
 
 #include "data/datautil.h"
 
+// Tanks and other items also count as selectable "weapons" (index >= MAX_WEAPON_N) but have no colour entry:
+// reading weapon_colors[] there walked past the array. They use the default colours.
+static inline int safe_weapon_color_index(int weapon_n)
+{
+    return (weapon_n >= 0 && weapon_n < MAX_WEAPON_N) ? weapon_n : 0;
+}
+
 draw::draw() : _rain_pos(0), _effect_timer(0), _flash_pos(0), _flash_timer(0), screen_gfx(SCREEN_GFX_NONE), flash_effect_enabled(false)
 {
     for (int i=0; i<FLASH_POINTS_N; i++) {
@@ -886,7 +893,7 @@ void draw::draw_game_menu_weapon_bar(int selected_weapon_n, int weapon_n, int pe
     graphLib.draw_small_weapon_icon_at(weapon_n, st_position(x-10, y+1), selected_weapon_n == weapon_n);
 
     if (selected_weapon_n == weapon_n && weapon_n < WEAPON_ITEM_ETANK) {
-        hud_player_wpn_ball.change_colorkey_color(COLOR_KEY_GREEN, GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[weapon_n].color1);
+        hud_player_wpn_ball.change_colorkey_color(COLOR_KEY_GREEN, GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[safe_weapon_color_index(weapon_n)].color1);
     }
 
     if (weapon_n != WEAPON_DEFAULT && weapon_n >= WEAPON_ITEM_ETANK) {
@@ -905,8 +912,8 @@ void draw::draw_game_menu_weapon_bar(int selected_weapon_n, int weapon_n, int pe
         st_color bar_color1 = st_color(100, 100, 100);
         st_color bar_color2 = st_color(70, 70, 70);
         if (selected_weapon_n == weapon_n) {
-            bar_color1 = GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[weapon_n].color1;
-            bar_color2 = GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[weapon_n].color2;
+            bar_color1 = GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[safe_weapon_color_index(weapon_n)].color1;
+            bar_color2 = GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[safe_weapon_color_index(weapon_n)].color2;
         }
         //graphLib.clear_area(x, y, 51, 10, 230, 230, 230);
         graphLib.clear_area(x+1, y+1, 49, 8, 0, 0, 0);
@@ -1212,7 +1219,7 @@ void draw::show_hud(int hp, int player_n, int selected_weapon, int selected_weap
 
     if (selected_weapon != WEAPON_DEFAULT && selected_weapon < WEAPON_ITEM_ETANK) {
         // draw weapon
-        hud_player_wpn_ball.change_colorkey_color(COLOR_KEY_GREEN, GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[selected_weapon].color1);
+        hud_player_wpn_ball.change_colorkey_color(COLOR_KEY_GREEN, GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[safe_weapon_color_index(selected_weapon)].color1);
         int wpn_percent = (100 * selected_weapon_value) / fio.get_heart_pieces_number(game_save);
         draw_enery_ball(wpn_percent, 62, hud_player_wpn_ball);
     } else if (selected_weapon != WEAPON_DEFAULT && selected_weapon >= WEAPON_ITEM_ETANK) {
@@ -1307,8 +1314,8 @@ void draw::draw_energy_bar(short hp, short player_n, short weapon_n, short max_h
     st_color color1(10, 10, 10);
     st_color color2(10, 10, 10);
     if (player_n != -1) {
-        st_color weapon_color1 = GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[weapon_n].color1;
-        st_color weapon_color2 = GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[weapon_n].color2;
+        st_color weapon_color1 = GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[safe_weapon_color_index(weapon_n)].color1;
+        st_color weapon_color2 = GameMediator::get_instance()->player_list_v3_1[PLAYER_1].weapon_colors[safe_weapon_color_index(weapon_n)].color2;
         color1 = st_color(weapon_color1.r, weapon_color1.g, weapon_color1.b);    // player color or weapon color
         color2 = st_color(weapon_color2.r, weapon_color2.g, weapon_color2.b);    // player color or weapon color
     }
@@ -1369,6 +1376,7 @@ void draw::add_dynamic_background(string filename, int auto_scroll_mode, st_colo
         graphLib.initSurface(st_size(temp_surface.width, temp_surface.height), &maps_dynamic_background_list.find(filename)->second);
         graphLib.clear_surface_area(0, 0, temp_surface.width, temp_surface.height, bg_color.r, bg_color.g, bg_color.b, maps_dynamic_background_list.find(filename)->second);
         graphLib.copyArea(st_position(0, 0), &temp_surface, &maps_dynamic_background_list.find(filename)->second);
+        graphLib.drop_unused_colorkey(&maps_dynamic_background_list.find(filename)->second); // opaque layer: plain-copy blits
     }
 }
 

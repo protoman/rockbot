@@ -9,6 +9,16 @@
 #define SAVE_SLOT_COUNT 5
 #define SAVE_MAGIC 0x5242       // 'RB'
 
+// Persistent player progress per slot (PC game_save.items + armor_pieces):
+// lives, the three tank counters and the armor bitmask.
+typedef struct {
+    u8 lives;
+    u8 tanks_hp;
+    u8 tanks_wp;
+    u8 tanks_sp;
+    u8 armor;
+} SaveItems;
+
 void save_init(void);
 
 bool save_exists(void);                 // any slot valid
@@ -21,5 +31,9 @@ void save_slot_set_stage(u8 slot, u8 stage);
 void save_slot_clear(u8 slot);
 u8 save_slot_player(u8 slot);          // selected player 0..3 (0 if unset)
 void save_slot_set_player(u8 slot, u8 player);
+
+// FALSE when the slot predates the progress record (caller uses defaults).
+bool save_slot_read_items(u8 slot, SaveItems *out);
+void save_slot_write_items(u8 slot, const SaveItems *in);
 
 #endif

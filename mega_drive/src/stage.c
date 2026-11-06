@@ -1,9 +1,13 @@
+#include "dbgprint.h"
 #include "stage.h"
+#include "pal_safe.h"
 #include "sfx.h"
 
 #include "resources.h"
 #include "enemy.h"
 #include "explosion.h"
+#include "effects.h"
+#include "tooltip.h"
 #include "object.h"
 #include "player.h"
 #include "shot.h"
@@ -13,57 +17,215 @@
 Map *stage_map;
 Vect2D_s16 camera;
 u8 stage_current_map;
+s16 stage_pending_camera_x = -1;
+bool stage_load_in_place;
 
 #define STAGE_MASK_BYTES ((stage_def->map_w * stage_def->map_h + 7) / 8)
 
 static u8 anim_frame[STAGE_ANIM_SLOT_MAX];
 static u16 anim_timer[STAGE_ANIM_SLOT_MAX];
 
+u16 stage_bg_tile_base;
+u16 stage_anim_tile_base;
+
+// Sprite-engine generation (see stage.h): every pool destroy/create bumps it,
+// so modules can tell that the handles they hold are stale and must not be
+// released into the new pool.
+u16 spr_gen = 1;
+
+void sprites_begin(u16 vram)
+{
+    SPR_initEx(vram);
+    spr_gen++;
+}
+
+void sprites_end(void)
+{
+    SPR_end();
+    spr_gen++;
+}
+
+// Per-map VRAM layout (see stage.h): tileset, then parallax, then anim frames.
+u16 stage_layout_bg(u8 map)
+{
+    return TILE_USER_INDEX + stage_def->tile_sets[map]->numTile;
+}
+
+u16 stage_layout_anim(u8 map)
+{
+    return stage_layout_bg(map) +
+           (stage_def->bg_pal[map] ? stage_def->bg_tiles_n[map] : 0);
+}
+
+// The current map's terrain slice, cached at stage_load: this function is the
+// hottest in the frame (every physics probe, enemy, object and projectile goes
+// through it), and the generic form pays a 32-bit multiply for the map offset
+// on every call.
+static const u8 *terrain_cur;
+
+// Terrain lookups are the hottest primitive (hundreds per frame from the
+// player, enemies, shots and objects). The current map's geometry is cached in
+// plain statics and the row offset comes from a table: the 68000 has no fast
+// multiply (the old ty * map_w cost ~70 cycles per call).
+static u16 terr_row_off[32];
+static s16 terr_w, terr_h;
+
+static void stage_terrain_cache(void)
+{
+    terr_w = (s16)stage_def->map_w;
+    terr_h = (s16)stage_def->map_h;
+    for (s16 y = 0; y < 32 && y < terr_h; y++) terr_row_off[y] = (u16)(y * terr_w);
+}
+
 u16 stage_terrain_at(u8 map, s16 tileX, s16 tileY)
 {
+    if (map == stage_current_map && terrain_cur) {
+        if ((u16)tileX >= (u16)terr_w) return TERRAIN_SOLID;
+        if ((u16)tileY >= (u16)terr_h) return TERRAIN_UNBLOCKED;
+        return terrain_cur[terr_row_off[tileY] + tileX];
+    }
     if (map >= stage_def->map_count) return TERRAIN_SOLID;
     if (tileX < 0 || tileX >= stage_def->map_w) return TERRAIN_SOLID;
     if (tileY < 0 || tileY >= stage_def->map_h) return TERRAIN_UNBLOCKED;
-    return stage_def->terrain[map * stage_def->map_w * stage_def->map_h
-                              + tileY * stage_def->map_w + tileX];
+    const u8 *base = stage_def->terrain
+                     + (u16)map * stage_def->map_w * stage_def->map_h;
+    return base[tileY * stage_def->map_w + tileX];
 }
 
 // Parallax background on BG_B from the decomposed art (tools/img2tiles.py):
 // the unique tiles + a 64-wide tilemap replace the old full-image draw, so
 // VRAM holds ~232 tiles instead of 768 (bg0) and ~26 instead of 896 (bg1) —
 // bg1's tiles used to run into the animated-tile block.
+static void apply_bg_color(u8 map_index);   // PC map_data.background_color
+
+// A tile whose pixels are all palette index 0: on a plane that is transparent,
+// so whatever is behind (the backdrop colour = PC background_color) shows.
+static const u32 zero_tile[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+
+u16 stage_sky_tile(void)
+{
+    return SPR_CFG_BLACK_TILE;
+}
+
+static void stage_sky_tile_load(void)
+{
+    VDP_loadTileData(zero_tile, SPR_CFG_BLACK_TILE, 1, DMA_QUEUE);
+}
+
 static void bg_upload_tiles_maps(u8 map_index)
 {
     if (!stage_def->bg_pal[map_index]) return;
-    PAL_setPalette(BG_PAL, stage_def->bg_pal[map_index]->data, CPU);
-    VDP_loadTileData(stage_def->bg_tiles[map_index], TILE_BG_INDEX,
+    stage_sky_tile_load();
+    pal_load(BG_PAL, stage_def->bg_pal[map_index]->data);
+    VDP_loadTileData(stage_def->bg_tiles[map_index], stage_bg_tile_base,
                      stage_def->bg_tiles_n[map_index], DMA);
 
     const u16 *m = stage_def->bg_maps[map_index];
     u16 row[64];
+    // Rows the background art does not reach are NOT the art's first tile: the
+    // PC clears the screen with map_data.background_color and draws the image
+    // over it. A blank (transparent) tile lets that colour - the MD backdrop,
+    // set by apply_bg_color() - show through.
     const u16 sky = TILE_ATTR_FULL(BG_PAL, FALSE, FALSE, FALSE,
-                                   TILE_BG_INDEX + m[0]);
+                                   stage_sky_tile());
     for (u16 y = 0; y < 32; y++) {
         for (u16 x = 0; x < 64; x++) {
             row[x] = (y < stage_def->bg_map_h[map_index])
                          ? TILE_ATTR_FULL(BG_PAL, FALSE, FALSE, FALSE,
-                                          TILE_BG_INDEX + m[y * 64 + x])
+                                          stage_bg_tile_base + m[y * 64 + x])
                          : sky;
         }
         VDP_setTileMapData(VDP_BG_B, row, y * 64, 64, 2, CPU);
     }
 }
 
+// BG_B's current scroll, mirrored here: the tooltip backs its box with a fill
+// tile on that plane (BG index 0 is transparent, BUG-042), so it must know
+// where a screen cell actually lands on the scrolled parallax plane.
+s16 stage_bg_hscroll;
+s16 stage_bg_vscroll;
+
 // Draw the parallax background of the given map on BG_B.
+// PC E_BG_SCROLL_MODE (defines.h:1332): the background can move on its own,
+// independent of the camera. The PC accumulates bg_scroll per frame; here the
+// offset is derived from the frames since the map loaded, which cannot drift
+// and is also valid in the middle of a room transition.
+static u16 bg_tick;
+static s16 bg_base_vscroll;
+
+static s16 bg_auto_hscroll(u8 map)
+{
+    const StageBgInfo *i = &stage_def->bg_info[map];
+    if (i->auto_scroll != 3 && i->auto_scroll != 4 && i->auto_scroll != 5)
+        return 0;
+    const s8 spd = i->speed ? i->speed : 1;
+    s32 d = ((s32)bg_tick * spd) / 10;
+    d %= 512;
+    return (i->auto_scroll == 4) ? (s16)d : (s16)-d;   // 3 LEFT, 5 DIAGONAAL
+}
+
+static s16 bg_auto_vscroll(u8 map)
+{
+    const StageBgInfo *i = &stage_def->bg_info[map];
+    if (i->auto_scroll != 1 && i->auto_scroll != 2 && i->auto_scroll != 5)
+        return 0;
+    const s8 spd = i->speed ? i->speed : 1;
+    s32 d = ((s32)bg_tick * spd) / 10;
+    d %= 256;                      // the plane is 32 rows tall
+    return (i->auto_scroll == 2) ? (s16)d : (s16)-d;   // 1 UP, 2 DOWN
+}
+
+s16 stage_bg_auto_hscroll(u8 map) { return bg_auto_hscroll(map); }
+s16 stage_bg_auto_vscroll(u8 map) { return bg_auto_vscroll(map); }
+void stage_bg_tick(void) { bg_tick++; }
+
 static void bg_load(u8 map_index)
 {
     VDP_clearPlane(BG_B, TRUE);
+    stage_bg_hscroll = 0;
+    bg_tick = 0;
     VDP_setHorizontalScroll(BG_B, 0);
+
+    // The blank sky tile is shared with the config screen (SPR_CFG_BLACK_TILE,
+    // see stage.h): config loads its own opaque fill there, so it must be put
+    // back on EVERY map load - not only when this map has parallax art, and not
+    // only when the map is entered from the transition (BUG-044).
+    stage_sky_tile_load();
 
     const StageBgInfo *info = &stage_def->bg_info[map_index];
     if (!info->present || !stage_def->bg_pal[map_index]) return;
     bg_upload_tiles_maps(map_index);
 }
+
+#ifdef MD_TRANS_DEBUG
+// Probe: read BG_B back from VRAM and compare with the map's parallax tiles
+// (the stairs_return glitch: wrong rows after a room change). Logged per bad row.
+#include "dbglog.h"
+#include "tdump.h"
+void stage_dbg_bg_check(const char *tag)
+{
+    const u8 m_i = stage_current_map;
+    if (!stage_def->bg_info[m_i].present || !stage_def->bg_pal[m_i]) return;
+    const u16 *m = stage_def->bg_maps[m_i];
+    u16 bad_rows = 0, first = 0xFFFF;
+    for (u16 y = 0; y < 32; y++) {
+        u16 bad = 0, rowv[40];
+        tdump_read((u16)(VDP_getBGBAddress() + y * 128), rowv, 40);
+        for (u16 x = 0; x < 40; x++) {
+            const u16 want = (y < stage_def->bg_map_h[m_i])
+                ? (u16)(stage_bg_tile_base + m[y * 64 + x]) : stage_sky_tile();
+            const u16 got = rowv[x] & 0x7FF;
+            if (got != want) bad++;
+        }
+        if (bad) { bad_rows++; if (first == 0xFFFF) first = y; }
+    }
+    if (bad_rows || (tag[0] == 0x2B && tag[1] == 0x33))
+    dbg_log("BGC %s map=%u bad_rows=%u first=%d vs=%d base=%u h=%u\n", tag, (unsigned)m_i,
+            (unsigned)bad_rows, (int)(first == 0xFFFF ? -1 : first),
+            (int)stage_bg_vscroll, (unsigned)stage_bg_tile_base,
+            (unsigned)stage_def->bg_map_h[m_i]);
+}
+#endif
 
 static void clamp_camera(void)
 {
@@ -73,16 +235,41 @@ static void clamp_camera(void)
     if (camera.y > (stage_def->map_h * stage_def->tile) - 224) camera.y = (stage_def->map_h * stage_def->tile) - 224;
 }
 
+static u16 room_cache_gen;          // bumped by stage_load: the walls changed
+
 // ---- PC scroll lock (classmap.cpp:459/475) ------------------------------
-static bool column_locked(s16 tile_x)
+// One bit per tile column (maps are at most 256 wide). The old per-call walk of
+// the lock list plus every object cost ~700 subticks per scan, and two scans ran
+// each time the player changed column (profile CASTLE 5, autopilot walk: ~200
+// subticks/frame). The table is rebuilt only when the stage reloads or the object
+// set changes - the same keys the scan caches already used.
+static u8 lock_bits[32];
+static u16 lock_gen = 0xFFFF;
+static u8 lock_objs = 0xFF;
+static u8 lock_map = 0xFF;
+
+static void lock_table_ensure(void)
 {
-    if (tile_x < 0 || tile_x >= stage_def->map_w) return FALSE;
+    if (lock_gen == room_cache_gen && lock_objs == objects_count() &&
+        lock_map == stage_current_map) return;
+    for (u8 i = 0; i < sizeof lock_bits; i++) lock_bits[i] = 0;
     const u8 *cols = stage_def->scroll_lock
                       + (u16)stage_current_map * stage_def->scroll_lock_max;
     const u8 n = stage_def->scroll_lock_n[stage_current_map];
     for (u8 i = 0; i < n; i++)
-        if (cols[i] == tile_x) return TRUE;
-    return FALSE;
+        lock_bits[cols[i] >> 3] |= (u8)(1 << (cols[i] & 7));
+    // PC classmap.cpp:171-191: a boss door locks the columns it occupies even
+    // when the map tiles under it are empty. Use the live door state: once it
+    // has opened, those columns must no longer hold the camera back.
+    objects_boss_door_columns(lock_bits, stage_def->map_w);
+    lock_gen = room_cache_gen; lock_objs = objects_count(); lock_map = stage_current_map;
+}
+
+static bool column_locked(s16 tile_x)
+{
+    if (tile_x < 0 || tile_x >= stage_def->map_w) return FALSE;
+    lock_table_ensure();
+    return (lock_bits[tile_x >> 3] >> (tile_x & 7)) & 1;
 }
 
 static void scroll_lock_camera(s16 prev_x)
@@ -118,24 +305,74 @@ static void scroll_lock_camera(s16 prev_x)
     }
 }
 
+// The one rule every camera placement must satisfy (PC classmap.cpp:459/475,
+// which never lets the view cross a locked column): the camera stays >=
+// (c<<4)+2 for the nearest locked column c on the player's left and <=
+// (c<<4)-307 for the nearest one on his right. It is applied after EVERY camera
+// change (arrival, room slide, follow, respawn), not just where a bug was
+// reported: a camera set by any other path (kept screen X, teleport, boss
+// door) can no longer leave a lock inside the view - tools/check_arrival_locks.py.
+// A room narrower than the view has no camera satisfying both bounds; the
+// camera is then pinned to the left lock (PC get_first_lock_on_left), so no
+// column left of the room shows; the right wall is inside the view.
 static void scroll_lock_span(s16 focus_x)
 {
-    s16 cl = (camera.x + 14) >> 4;
-    s16 cr = (camera.x + 306) >> 4;
-    for (s16 c = cl + 1; c < cr; c++) {
-        if (!column_locked(c)) continue;
-        if (focus_x >= ((s16)c << 4) + 8) {
-            if (camera.x < ((c << 4) + 2)) camera.x = (c << 4) + 2;
-        } else {
-            if (camera.x > ((c << 4) - 307)) camera.x = (c << 4) - 307;
-        }
+    // The scan costs ~700 subticks (every column check walks the lock list and
+    // the objects), so the result is kept until the player changes column, the
+    // stage reloads or the object set changes (profile 2026-10-28, castle 3).
+    static s16 key_fc = -32768, lo, hi;
+    static u16 key_gen;
+    static u8 key_objs;
+    const s16 fc = (s16)((focus_x - 8) >> 4);       // last column "left of" the player
+    if (fc != key_fc || key_gen != room_cache_gen || key_objs != objects_count()) {
+        lo = -32000; hi = 32000;
+        for (s16 c = fc; c >= fc - 24 && c >= 0; c--)
+            if (column_locked(c)) { lo = (s16)((c << 4) + 2); break; }
+        for (s16 c = fc + 1; c <= fc + 24 && c < stage_def->map_w; c++)
+            if (column_locked(c)) { hi = (s16)((c << 4) - 307); break; }
+        key_fc = fc; key_gen = room_cache_gen; key_objs = objects_count();
     }
+    if (lo > hi) return;            // room narrower than the view: no camera can
+                                    // keep both locks out, and the PC does not
+                                    // invent one - changeScrolling() only blocks
+                                    // moving a locked column into the view, it
+                                    // never repositions the camera. Pinning to
+                                    // `lo` shifted every such room left by up to
+                                    // a tile (CASTLE 5's first room arrived one
+                                    // tile left, report 2026-10-30).
+    if (camera.x < lo) camera.x = lo;
+    else if (camera.x > hi) camera.x = hi;
+}
+
+// The room around world X `x`: the nearest scroll-locked columns (room walls /
+// closed boss doors) on each side, exclusive bounds in tile columns. A room can
+// be narrower than the 320px view, so enemies of the room next door are on
+// screen yet walled off from the player; they must not act (or shoot) across
+// the wall. Computed once per frame by enemies_update, not per enemy.
+
+void stage_room_span(s16 x, s16 *lo, s16 *hi)
+{
+    static s16 c_col = -1, c_lo, c_hi;
+    static u16 c_gen = 0xFFFF;
+    const s16 col0 = x >> 4;
+    if (col0 == c_col && c_gen == room_cache_gen) { *lo = c_lo; *hi = c_hi; return; }
+    // Enemies only act within the camera window, so 24 columns each way is
+    // enough (an unbounded scan of a wide room cost a third of a frame).
+    const s16 col = x >> 4;
+    s16 l = col - 24, h = col + 24;
+    for (s16 c = col - 1; c > l; c--)
+        if (column_locked(c)) { l = c; break; }
+    for (s16 c = col + 1; c < h; c++)
+        if (column_locked(c)) { h = c; break; }
+    *lo = l;
+    *hi = h;
+    c_col = col0; c_lo = l; c_hi = h; c_gen = room_cache_gen;
 }
 
 // ---- animated tiles + above-player tile3 ------------------------------
 // Animations are compacted PER MAP (only the visible map needs VRAM): the
 // converter emits one slot list per map plus a per-cell slot map (0 = none,
-// else slot+1). stage_load loads the current map's slots at TILE_ANIM_BASE.
+// else slot+1). stage_load loads the current map's slots at stage_anim_tile_base.
 static void stage_map_patch(Map *map, u16 *buf, u16 x, u16 y,
                             MapUpdateType type, u16 size)
 {
@@ -156,7 +393,8 @@ static void stage_map_patch(Map *map, u16 *buf, u16 x, u16 y,
             u16 attr = (map->baseTile & TILE_ATTR_PALETTE_MASK) |
                        (t3 ? TILE_ATTR_PRIORITY_MASK : 0);
             u16 quad = (tx & 1) | ((ty & 1) << 1);
-            buf[i] = attr | (TILE_ANIM_BASE + anim_frame[sv - 1] * 4 + quad);
+            buf[i] = attr | (stage_anim_tile_base
+                             + (u16)(sv - 1) * TILE_ANIM_STRIDE + quad);
         } else if (t3) {
             buf[i] |= TILE_ATTR_PRIORITY_MASK;
         }
@@ -251,6 +489,10 @@ void stage_cycle_update(void)
     cycle_dirty = TRUE;
 }
 
+// Rewrite the visible map cells of animated slot `s` to use `base` (the
+// current frame's four tiles). The converted map initially points at the
+// static art in the tileset, so this must also run for frame 0; otherwise
+// Daisie's palm trees all show the same tile until the first animation tick.
 static void stage_anim_reset(void)
 {
     u8 n = stage_def->anim_slot_n[stage_current_map];
@@ -258,8 +500,9 @@ static void stage_anim_reset(void)
         u16 idx = stage_current_map * stage_def->anim_slot_max + s;
         anim_frame[s] = 0;
         anim_timer[s] = stage_def->anim_slots[idx].delay[0];
+        u16 base = stage_anim_tile_base + s * TILE_ANIM_STRIDE;
         VDP_loadTileData((const u32 *)stage_def->anim_frames[idx][0],
-                         TILE_ANIM_BASE + s * TILE_ANIM_STRIDE, 4, DMA_QUEUE);
+                         base, 4, DMA_QUEUE);
     }
 }
 
@@ -274,83 +517,101 @@ void stage_anim_update(void)
         anim_frame[s]++;
         if (anim_frame[s] >= slot->frames) anim_frame[s] = 0;
         anim_timer[s] = slot->delay[anim_frame[s]];
-        u16 base = TILE_ANIM_BASE + s * TILE_ANIM_STRIDE + anim_frame[s] * 4;
+        // The slot's cells always point at its own 4 tiles, so animating is a
+        // single 4-tile DMA into that block - no tilemap writes.
+        u16 base = stage_anim_tile_base + s * TILE_ANIM_STRIDE;
         VDP_loadTileData((const u32 *)stage_def->anim_frames[idx][anim_frame[s]],
                          base, 4, DMA_QUEUE);
-
-        // rewrite the visible cells of this slot
-        const u8 *cell_slot = stage_def->anim_cell_slot
-                              + stage_current_map * stage_def->map_w * stage_def->map_h;
-        u16 pal = STAGE_PAL << TILE_ATTR_PALETTE_SFT;
-        s16 cx0 = camera.x >> 4, cy0 = camera.y >> 4;
-        for (s16 cy = cy0; cy <= cy0 + 14; cy++) {
-            if (cy < 0 || cy >= stage_def->map_h) continue;
-            for (s16 cx = cx0; cx <= cx0 + 20; cx++) {
-                if (cx < 0 || cx >= stage_def->map_w) continue;
-                u16 n2 = cy * stage_def->map_w + cx;
-                if (cell_slot[n2] != s + 1) continue;
-                s16 sx = cx * stage_def->tile - camera.x;
-                s16 sy = cy * stage_def->tile - camera.y;
-                if (sx < -stage_def->tile || sx >= 320 ||
-                    sy < -stage_def->tile || sy >= 224) continue;
-                bool t3 = stage_def->tile3_mask[stage_current_map * STAGE_MASK_BYTES
-                                                + (n2 >> 3)] & (1 << (n2 & 7));
-                u16 a = pal | (t3 ? TILE_ATTR_PRIORITY_MASK : 0);
-                u16 tx = cx * 2, ty = cy * 2;
-                VDP_setTileMapXY(STAGE_PLANE, a | (base + 0), tx,     ty);
-                VDP_setTileMapXY(STAGE_PLANE, a | (base + 1), tx + 1, ty);
-                VDP_setTileMapXY(STAGE_PLANE, a | (base + 2), tx,     ty + 1);
-                VDP_setTileMapXY(STAGE_PLANE, a | (base + 3), tx + 1, ty + 1);
-            }
-        }
     }
+}
+
+bool stage_map_ready(void)
+{
+    return stage_map != NULL;
 }
 
 void stage_load(u8 map_index)
 {
+    room_cache_gen++;
     if (map_index >= stage_def->map_count) map_index = 0;
     stage_current_map = map_index;
+    terrain_cur = stage_def->terrain
+                  + (u16)map_index * stage_def->map_w * stage_def->map_h;
+    stage_terrain_cache();
 
     bool wasEnabled = VDP_isEnable();
-    VDP_setEnable(FALSE);
-
-    VDP_clearPlane(BG_A, TRUE);
-    VDP_clearPlane(BG_B, TRUE);
+    const bool in_place = stage_load_in_place;
+    stage_load_in_place = FALSE;
+    if (!in_place) {
+        VDP_setEnable(FALSE);
+        VDP_setVerticalScroll(STAGE_PLANE, 0);   // a slide leaves BG_A's ring scrolled (transition.c)
+        VDP_clearPlane(BG_A, TRUE);
+        VDP_clearPlane(BG_B, TRUE);
+    }
 
     // Load tileset and palettes. CRAM writes are only reliable with the
     // display disabled (or during vblank): PAL1/PAL3 use CPU writes here
     // and work; PAL0 used a queued DMA that does not land in this window
     // (the CRAM readback showed the enemies/objects/HUD line still holding
     // another, one-step-darker palette).
-    PAL_setPalette(STAGE_PAL, stage_def->palettes[map_index]->data, CPU);
+    if (in_place)
+        PAL_setPalette(STAGE_PAL, stage_def->palettes[map_index]->data,
+                       DMA_QUEUE);
+    else
+        pal_load(STAGE_PAL, stage_def->palettes[map_index]->data);
     // PAL0 = shared font + enemy/object/HUD palette. Loaded from the
     // rescomp PALETTE resource (same mechanism as the working PAL1/PAL3
     // lines) instead of the C array, which did not stick: the CRAM readback
     // showed PAL0 holding another palette while PAL1 decoded exactly.
-    PAL_setPalette(PAL0, pal_ui.data, CPU);
-    VDP_loadTileSet(stage_def->tile_sets[map_index], TILE_USER_INDEX, DMA);
+    if (in_place)
+        PAL_setPalette(PAL0, pal_ui.data, DMA_QUEUE);
+    else
+        pal_load(PAL0, pal_ui.data);
+    apply_bg_color(map_index);
 
-    // Flush anything the previous map queued, then drop it: MAP_create()
-    // allocates the Map plus its unpacked metatile/block/index buffers from
-    // the heap, so without this every room change leaked ~1.5KB — repeated
-    // up/down links filled the heap until the game corrupted itself and the
-    // emulator died.
-    SYS_doVBlankProcess();
+    // Flush anything the previous map queued, then drop it BEFORE the tileset
+    // load. A compressed tileset allocated its unpack buffer from the heap,
+    // and with the old map still resident that allocation could fail — the
+    // library then left the PREVIOUS tileset in VRAM and the new map rendered
+    // with garbage tiles after a room transition. Stage tilesets are stored
+    // uncompressed now (res/resources.res NONE), and freeing first also gives
+    // MAP_create the largest contiguous block.
+    // In-place: keep the transition's last frame displayed. Do not flush the
+    // queued palette/tileset now; they flush together at the end, after the
+    // real map tilemap is written (otherwise T2B shows one white frame).
+    if (!in_place) {
+        SYS_doVBlankProcess();
+    } else {
+        // Flush the queued palette while the transition's last frame is still
+        // shown, then load the base tileset synchronously. MAP_scrollToEx
+        // below writes tilemap entries that reference these base tiles; if the
+        // tileset is only queued, that first real-map frame shows blank/white
+        // tiles (the T2B stair flash).
+        SYS_doVBlankProcess();
+    }
     stage_release_map();
+    VDP_loadTileSet(stage_def->tile_sets[map_index], TILE_USER_INDEX, DMA);
+    stage_bg_tile_base = stage_layout_bg(map_index);
+    stage_anim_tile_base = stage_layout_anim(map_index);
 
     stage_map = MAP_create(stage_def->map_defs[map_index], STAGE_PLANE,
                            TILE_ATTR_FULL(STAGE_PAL, FALSE, FALSE, FALSE, TILE_USER_INDEX));
     if (!stage_map) {
         // Out of heap: bail with the display restored (leaving it disabled
-        // here would black the screen silently).
+        // here would black the screen silently). BUG-040: the caller must not
+        // keep going with a NULL map (drawing it crashed in setMapRow).
+        dbg_print("stage_load: MAP_create failed (free=%u largest=%u)\n",
+                (unsigned)MEM_getFree(),
+                (unsigned)MEM_getLargestFreeBlock());
         VDP_setEnable(wasEnabled);
         return;
     }
     MAP_setDataPatchCallback(stage_map, stage_map_patch);
 
-    camera.x = 0;
+    camera.x = (stage_pending_camera_x >= 0) ? stage_pending_camera_x : 0;
     camera.y = 0;
-    MAP_scrollToEx(stage_map, 0, 0, TRUE);   // full draw on first load
+    stage_pending_camera_x = -1;
+    MAP_scrollToEx(stage_map, camera.x, camera.y, TRUE);   // full draw on first load
 
     bg_load(map_index);
     stage_cycle_pal3_apply();                // PAL3 art: fix the palette bits
@@ -360,6 +621,8 @@ void stage_load(u8 map_index)
     shots_reset();
     eshots_reset();
     explosion_reset();
+    effects_reset();
+    tooltip_hide();
     enemies_reset();
     objects_reset();
 
@@ -368,7 +631,7 @@ void stage_load(u8 map_index)
 
     // Flush any pending transfers and restore display
     SYS_doVBlankProcess();
-    VDP_setEnable(wasEnabled);
+    if (!in_place) VDP_setEnable(wasEnabled);
 
 
     // BG vertical scroll (PC draws the bg at screen y = adjust_y, classmap
@@ -382,10 +645,17 @@ void stage_load(u8 map_index)
     // VDP enabled — the bg_load write landed inside the disabled window
     // and was lost (art sat at y=0: moon at top, skyline mid-screen).
     // The -16 corrects for the cropped top PC row (240 -> 224 screen).
-    if (stage_def->bg_info[map_index].present)
-        VDP_setVerticalScroll(BG_B, -((s16)stage_def->bg_info[map_index].adjust_y - 16));
-    else
+    if (stage_def->bg_info[map_index].present) {
+        bg_base_vscroll =
+            (s16)(-((s16)stage_def->bg_info[map_index].adjust_y - 16));
+        stage_bg_vscroll =
+            (s16)(bg_base_vscroll + bg_auto_vscroll(map_index));
+        VDP_setVerticalScroll(BG_B, stage_bg_vscroll);
+    } else {
+        stage_bg_vscroll = 0;
+        bg_base_vscroll = 0;
         VDP_setVerticalScroll(BG_B, 0);
+    }
 }
 
 // PC test_teleport/check_player_is_on_teleport (game.cpp:638-661, 771-835).
@@ -398,9 +668,14 @@ void stage_load(u8 map_index)
 #define LINK_TRANS_T2B 0
 #define LINK_TRANS_B2T 1
 
-static bool link_region(s16 px, s16 py, u8 tx, u8 ty, u8 trans)
+static bool link_region(s16 px, s16 py, s16 py_centre, u8 tx, u8 ty,
+                        u8 size, u8 trans)
 {
-    if (px < (s16)tx * stage_def->tile || px > (s16)tx * stage_def->tile + stage_def->tile)
+    // PC check_player_is_on_teleport: lim2 = temp_x*TILESIZE + size*TILESIZE
+    // (size is the band width in tiles; wide stairways use it).
+    s16 lim1 = (s16)tx * stage_def->tile;
+    s16 lim2 = lim1 + (s16)(size ? size : 1) * stage_def->tile;
+    if (px < lim1 || px > lim2)
         return FALSE;
     s16 lim3 = (s16)ty * stage_def->tile + 8;
     s16 lim4 = (s16)ty * stage_def->tile + stage_def->tile;
@@ -410,8 +685,54 @@ static bool link_region(s16 px, s16 py, u8 tx, u8 ty, u8 trans)
     } else {
         lim3 -= 27;     // PC lim3 -= 27.2 truncated (only ty=0 bands fire)
     }
+    // Links on the last map row: the player is clamped or standing on the
+    // bottom edge, so he can never satisfy py < lim4. Fire as soon as the
+    // feet enter the link row (py = bottom - 8), which is where a ladder
+    // releases him. The PC's T2B band shift would put lim3 below the map.
+    // Bottom map row: judge by the BODY CENTRE, not the feet sample. With the
+    // feet rule the band started 8 px above the row, so an arrival clamped to
+    // the bottom landed inside it and had to be nudged a whole tile up the
+    // ladder (BUG-005). Centre + row top keeps him at the bottom of the
+    // screen and still fires as soon as he descends into the last row.
+    if (ty >= (u8)(stage_def->map_h - 1))
+        return py_centre >= (s16)ty * stage_def->tile;
     return py > lim3 && py < lim4;
 }
+
+// TRUE while the player box sits inside ANY link band of the current map,
+// in either direction, with the same geometry stage_check_link uses but
+// without the latch/suppressions. Used to nudge a link arrival out of the
+// band it just came through (BUG-005: the player never left the link, so the
+// return link stayed latched and never fired).
+bool stage_link_band_hit(s16 left, s16 top, s16 right, s16 bottom)
+{
+    const s16 px = (left + right) >> 1;
+    const s16 py = bottom - 8;
+
+    for (u8 i = 0; i < stage_def->link_count; i++) {
+        const StageLink *lk = &stage_def->links[i];
+        u8 tx, ty, trans;
+
+        if (lk->map_from == stage_current_map) {
+            tx = lk->tile_x;
+            ty = lk->tile_y;
+            trans = (lk->tile_y > lk->dst_y) ? LINK_TRANS_T2B : LINK_TRANS_B2T;
+        } else if (lk->map_to == stage_current_map && lk->bidir) {
+            tx = lk->dst_x;
+            ty = lk->dst_y;
+            trans = (lk->tile_y < lk->dst_y) ? LINK_TRANS_T2B : LINK_TRANS_B2T;
+        } else {
+            continue;
+        }
+        if (link_region(px, py, (top + bottom) >> 1, tx, ty, lk->size, trans))
+            return TRUE;
+    }
+    return FALSE;
+}
+
+s16 stage_link_band_off;   // player centre minus trigger band start (px)
+u8 stage_link_type;        // PC LINK_TYPES of the link that just fired (>=2: teleporter)
+u8 stage_link_size;        // its trigger band width in tiles
 
 bool stage_check_link(s16 left, s16 top, s16 right, s16 bottom,
                       u8 *to_map, s16 *to_x, s16 *to_y, u8 *to_trans)
@@ -435,8 +756,8 @@ bool stage_check_link(s16 left, s16 top, s16 right, s16 bottom,
             tx = lk->tile_x;  ty = lk->tile_y;
             dst_map = lk->map_to;  dst_x = lk->dst_x;  dst_y = lk->dst_y;
             trans = (lk->tile_y > lk->dst_y) ? LINK_TRANS_T2B : LINK_TRANS_B2T;
-        } else if (lk->map_to == stage_current_map) {
-            // reverse: both stage 0 links are bidirectional (game.cpp:650-661)
+        } else if (lk->map_to == stage_current_map && lk->bidir) {
+            // reverse (game.cpp:650-661): only when the link is bidirectional
             tx = lk->dst_x;  ty = lk->dst_y;
             dst_map = lk->map_from;  dst_x = lk->tile_x;  dst_y = lk->tile_y;
             trans = (lk->tile_y < lk->dst_y) ? LINK_TRANS_T2B : LINK_TRANS_B2T;
@@ -444,7 +765,25 @@ bool stage_check_link(s16 left, s16 top, s16 right, s16 bottom,
             continue;
         }
 
-        hit = link_region(px, py, tx, ty, trans);
+        hit = link_region(px, py, (top + bottom) >> 1, tx, ty, lk->size, trans);
+
+        // A stair tile on the top row is the mouth of a ladder: the link is
+        // only valid while the player is still climbing/hanging on it. Once
+        // he steps off at the top, the PC band (lim3 -= 27) still covers the
+        // floor below, which used to teleport him back down.
+        if (hit && ty == 0 &&
+            stage_terrain_at(stage_current_map, tx, ty) == TERRAIN_STAIR &&
+            !player.on_ladder)
+            hit = FALSE;
+
+        // PC only fires a top/bottom transition when the player is partly
+        // off-screen (game.cpp:801); teleporter links are exempt. A player
+        // hanging on the ladder at the bottom/top is explicitly allowed:
+        // the port clamps his feet flush with the map edge, so the old test
+        // (bottom < 220) suppressed the bottom teleporter link entirely.
+        const bool bottom_link = (ty >= (u8)(stage_def->map_h - 1));
+        if (hit && lk->type < 2 && !player.on_ladder && !bottom_link &&
+            top > 0 && bottom < 220) hit = FALSE;
 
         if (link_latch == (s8)i) {
             if (!hit) link_latch = -1;   // cleared on region miss only
@@ -452,6 +791,14 @@ bool stage_check_link(s16 left, s16 top, s16 right, s16 bottom,
         }
         if (hit) {
             link_latch = (s8)i;
+            // PC keeps the player's horizontal position on a scroll link and
+            // moves the map instead (game.cpp:762). Save the offset inside
+            // the trigger band so wide links (stage 3 uses sizes 4, 7, 8, 18)
+            // land at the same relative place instead of snapping to the
+            // destination tile centre.
+            stage_link_band_off = px - (s16)tx * stage_def->tile;
+            stage_link_type = lk->type;
+            stage_link_size = lk->size;
             *to_map = dst_map;
             *to_x   = (s16)dst_x * stage_def->tile;
             *to_y   = (s16)dst_y * stage_def->tile;
@@ -469,6 +816,9 @@ void stage_update_camera(s16 focusX, s16 focusY)
     const s16 dzx = 12; // horizontal deadzone
     const s16 dzy = 8;  // vertical deadzone
     const s16 prev_x = camera.x;
+    // PC QUAKE screen adjust: the player's pumpkin/quake weapon and any enemy
+    // QUAKE projectile (APE BOT) both shake the planes by +-2px.
+    const s16 shake = (s16)(shot_shake_x() + eshots_shake_x());
 
     if (focusX > camera.x + cx + dzx)       camera.x = focusX - cx - dzx;
     else if (focusX < camera.x + cx - dzx)  camera.x = focusX - cx + dzx;
@@ -478,7 +828,13 @@ void stage_update_camera(s16 focusX, s16 focusY)
 
     clamp_camera();
     scroll_lock_camera(prev_x);
-    MAP_scrollTo(stage_map, camera.x, camera.y);
+    // The invariant, whatever moved the camera - but only when it moved: the PC
+    // starts a stage at scroll 0 and only blocks the scroll while it moves, so a
+    // start inside a room narrower than the view (castle 5 map 0) stays at the
+    // far left instead of jumping to the room's left wall on the first frame.
+    if (camera.x != prev_x) scroll_lock_span(focusX);
+    clamp_camera();
+    if (stage_map) MAP_scrollTo(stage_map, camera.x + shake, camera.y);
 
     // Parallax: horizontal scroll derived DIRECTLY from camera.x at
     // speed/10, wrapped into (-512, 0]. PC accumulates camera_dx per frame
@@ -486,12 +842,80 @@ void stage_update_camera(s16 focusX, s16 focusY)
     // and cannot drift/jitter when the camera sits on a deadzone edge (the
     // accumulated version moved the bg a few px on its own).
     const StageBgInfo *info = &stage_def->bg_info[stage_current_map];
-    if (info->present && info->speed) {
-        s32 scroll = -((s32)camera.x * info->speed) / 10;
-        scroll %= 512;
-        if (scroll > 0) scroll -= 512;
-        VDP_setHorizontalScroll(BG_B, (s16)scroll);
+    if (info->present && (info->speed || info->auto_scroll)) {
+        s16 scroll;
+        if (info->auto_scroll == 3 || info->auto_scroll == 4 ||
+            info->auto_scroll == 5) {
+            // PC classmap.cpp:592: with an auto-scroll mode the background no
+            // longer follows the camera, it moves by speed/10 per frame.
+            scroll = bg_auto_hscroll(stage_current_map);
+        } else {
+            s32 v = -((s32)(camera.x + shake) * info->speed) / 10;
+            v %= 512;
+            if (v > 0) v -= 512;
+            scroll = (s16)v;
+        }
+        stage_bg_hscroll = scroll;
+        VDP_setHorizontalScroll(BG_B, scroll);
     }
+    if (info->present && (info->auto_scroll == 1 ||
+                          info->auto_scroll == 2 ||
+                          info->auto_scroll == 5)) {
+        stage_bg_vscroll = (s16)(bg_base_vscroll +
+                                 bg_auto_vscroll(stage_current_map));
+        VDP_setVerticalScroll(BG_B, stage_bg_vscroll);
+    }
+}
+
+// PC game::horizontal_screen_move (game.cpp, called when a boss door has
+// finished opening): shift the view by one screen with a short scroll. The
+// door then closes behind the player, so it is one-way.
+// PC game::horizontal_screen_move (game.cpp:1174), the door case: the view
+// slides one screen while the player is pushed only ~2.5 tiles forward, so he
+// ends up near the LEFT edge of the new screen (he used to be carried the full
+// screen, which left him on the right).
+//   TRANSITION_STEP 4 px, move_limit = RES_W/4 - TILESIZE/4 = 76 steps,
+//   player_move_x = (TILESIZE*2.5)/move_limit per step (40 px total).
+// The PC runs a step every ~2ms; on the MD two steps per frame keeps it smooth
+// without being a single 320 px jump.
+#define DOOR_SCROLL_STEP   4
+#define DOOR_SCROLL_STEPS  ((320 / DOOR_SCROLL_STEP) - (16 / DOOR_SCROLL_STEP))
+#define DOOR_PLAYER_MOVE_F 34      // 40 px over 76 steps, in 1/64 px (34/64 = 0.53)
+
+void stage_horizontal_screen_move(s16 dir)
+{
+    const s16 max = stage_def->map_w * stage_def->tile - 320;
+    const StageBgInfo *info = &stage_def->bg_info[stage_current_map];
+    // 40 px over 76 steps, accumulated in 1/64 px so the player moves smoothly.
+    fix16 player_acc = 0;
+    for (u8 i = 0; i < DOOR_SCROLL_STEPS; i++) {
+        camera.x += dir * DOOR_SCROLL_STEP;
+        if (camera.x < 0) camera.x = 0;
+        if (camera.x > max) camera.x = max;
+        if (stage_map) MAP_scrollTo(stage_map, camera.x, camera.y);
+        if (info->present && info->speed) {
+            s32 scroll = -((s32)camera.x * info->speed) / 10;
+            scroll %= 512;
+            if (scroll > 0) scroll -= 512;
+            stage_bg_hscroll = (s16)scroll;
+            VDP_setHorizontalScroll(BG_B, (s16)scroll);
+        }
+        player_acc += DOOR_PLAYER_MOVE_F;
+        player.x += F16_toInt(player_acc);
+        player_acc &= 63;                     // keep the sub-pixel remainder
+        player_sync_sprite();
+        // The camera moved: doors/enemies/objects keep their WORLD position,
+        // so their sprites must follow (the sub-boss door used to stay glued
+        // to the screen while the stage slid under it).
+        enemies_sync_sprites();
+        objects_sync_sprites();
+        if ((i & 1) == 0) {                   // 2 steps per frame
+            SPR_update();
+            SYS_doVBlankProcess();
+        }
+    }
+    SPR_update();
+    SYS_doVBlankProcess();
 }
 
 // Force a complete MAP redraw. Needed whenever the camera jumps a large
@@ -500,18 +924,74 @@ void stage_update_camera(s16 focusX, s16 focusY)
 // columns on screen (background "blinking").
 void stage_force_redraw(void)
 {
+    // BUG-040: stage_load() can fail (no heap for MAP_create) and leaves
+    // stage_map == NULL; redrawing then read a NULL map and crashed.
+    if (!stage_map) return;
     clamp_camera();
     MAP_scrollToEx(stage_map, camera.x, camera.y, TRUE);
 }
 
+void stage_autoscroll(s8 dir)
+{
+    const s16 maxcam = stage_def->map_w * stage_def->tile - 320;
+    s16 target = camera.x + dir * 320;
+    if (target < 0) target = 0;
+    if (target > maxcam) target = maxcam;
+    s16 remain = target - camera.x;
+    if (!remain) return;
+
+    // Camera 8px/frame, player 1px/frame (PC: 4px + 0.5px over 76 frames at
+    // 50Hz). Same 40-frame duration, player ends 40px (2.5 tiles) past the
+    // lock, near the left/right edge of the incoming screen.
+    const s16 cam_step = (remain > 0) ? 8 : -8;
+    const s16 ply_step = (remain > 0) ? 1 : -1;
+    u8 frames = (u8)((remain > 0 ? remain : -remain) / 8);
+    for (u8 i = 0; i < frames; i++) {
+        camera.x += cam_step;
+        player.x += ply_step;
+        if (stage_map) MAP_scrollTo(stage_map, camera.x, camera.y);
+        player_sync_sprite();
+        SPR_update();
+        SYS_doVBlankProcess();
+        VDP_setReg(17, 0);
+        VDP_setReg(18, 0);
+    }
+}
+
+// Re-apply the colourcycle band after something else used PAL3 (the dialog
+// panel loads its own palette into that line).
+void stage_restore_cycle(void)
+{
+    stage_cycle_pal3_apply();
+}
+
 void stage_restore_palette(void)
 {
-    PAL_setPalette(STAGE_PAL, stage_def->palettes[stage_current_map]->data, CPU);
+    pal_load(STAGE_PAL, stage_def->palettes[stage_current_map]->data);
+    apply_bg_color(stage_current_map);
+}
+
+// PC map_data.background_color: the backdrop colour behind both planes. CRAM 0
+// belongs to PAL0 (UI/font), so it is written directly after that palette is
+// loaded - the HUD and text use index 0 as "transparent" anyway.
+static void apply_bg_color(u8 map_index)
+{
+    if (!stage_def->bg_color) return;
+    const u8 *c = &stage_def->bg_color[map_index * 3];
+    PAL_setColor(0, RGB3_3_3_TO_VDPCOLOR(c[0], c[1], c[2]));
 }
 
 void stage_redraw_bg(void)
 {
     bg_load(stage_current_map);
+}
+
+// Reload the current map's animated tile frames. An overlay (the weapon
+// menu) can overwrite the animation block with its own tiles; the BG reload
+// does not cover it, so callers must restore it after the overlay closes.
+void stage_redraw_anim(void)
+{
+    stage_anim_reset();
 }
 
 // Drop the stage map: its engine keeps deferred plane updates that flush on
@@ -531,10 +1011,20 @@ void stage_release_map(void)
 // map0 (139,13) the view must not span the 137/138 divider.
 void stage_arrival_camera(s16 focusX, s16 focusY)
 {
-    camera.x = stage_arrival_camera_x(stage_current_map, focusX);
+    stage_arrival_camera_at(stage_arrival_camera_x(stage_current_map, focusX),
+                            focusY);
+}
+
+void stage_arrival_camera_at(s16 cam_x, s16 focusY)
+{
+    const s16 old_x = camera.x;
+    camera.x = cam_x;
     camera.y = focusY - 112;
     clamp_camera();
-    stage_force_redraw();
+    // After stage_load, its first draw already used this exact camera. A
+    // second full redraw here happens with the display enabled and is the
+    // one-frame tilemap/TILESET flash seen after the Mummy stair.
+    if (camera.x != old_x) stage_force_redraw();
 }
 
 // Same camera X, computed without touching the plane: used by the room
@@ -542,13 +1032,31 @@ void stage_arrival_camera(s16 focusX, s16 focusY)
 // column_locked() must see the destination map's scroll locks).
 s16 stage_arrival_camera_x(u8 map, s16 focus_x)
 {
+    return stage_arrival_camera_keep(map, focus_x, 160);
+}
+
+// Same, but the camera is placed so `focus_x` lands at screen column
+// `screen_x` instead of the middle. A room change keeps the player at the SAME
+// screen X on both halves of the slide (PC game.cpp:716: new scroll = old scroll
+// - teleporter_dist, i.e. the two link tiles line up); centring the destination
+// instead left the halves up to 152px apart whenever the origin camera was
+// clamped by a map edge or a scroll lock.
+s16 stage_arrival_camera_keep(u8 map, s16 focus_x, s16 screen_x)
+{
     const u8 save_map = stage_current_map;
     const s16 save_x = camera.x;
     const s16 save_y = camera.y;
     stage_current_map = map;
-    camera.x = focus_x - 160;
+    camera.x = focus_x - screen_x;
     clamp_camera();
     scroll_lock_span(focus_x);
+    // scroll_lock_span can push the camera negative: a locked column `c`
+    // sets camera.x = (c<<4) - 307, which is -3 for c=19. The room
+    // transition then loaded the destination screen with a negative camera
+    // and drew garbage tiles (seen in ATLANTIDA, TRANS 0->1 cam-3).
+    if (camera.x < 0) camera.x = 0;
+    if (camera.x > (stage_def->map_w * stage_def->tile) - 320)
+        camera.x = (stage_def->map_w * stage_def->tile) - 320;
     const s16 res = camera.x;
     camera.x = save_x;
     camera.y = save_y;
@@ -570,13 +1078,19 @@ static s16 first_lock_on_bottom(s16 tilex, s16 w, s16 h)
 
     for (s16 i = stage_def->map_h - 1; i >= above + 1; i--) {
         u16 t = stage_terrain_at(stage_current_map, tilex, i);
-        if (t == TERRAIN_UNBLOCKED || t == TERRAIN_EASYBLOCK || t == TERRAIN_HARDBLOCK)
+        // PC classmap.cpp:get_first_lock_on_bottom: WATER is not a lock, here or
+        // in the tiles above. Treating it as one made the SEAHORSE boss
+        // teleporter (a water column) find no ground and drop the player at
+        // row 0, inside the ceiling.
+        if (t == TERRAIN_UNBLOCKED || t == TERRAIN_WATER ||
+            t == TERRAIN_EASYBLOCK || t == TERRAIN_HARDBLOCK)
             continue;
         bool bad = FALSE;
         for (s16 j = i - 1; j >= i - above && !bad; j--) {
             for (s16 k = 0; k < right; k++) {
                 if (tilex + k >= stage_def->map_w) { bad = TRUE; break; }
-                if (stage_terrain_at(stage_current_map, tilex + k, j) != TERRAIN_UNBLOCKED) {
+                const u16 t2 = stage_terrain_at(stage_current_map, tilex + k, j);
+                if (t2 != TERRAIN_UNBLOCKED && t2 != TERRAIN_WATER) {
                     bad = TRUE;
                     break;
                 }
@@ -606,4 +1120,9 @@ void stage_teleport_boss(u8 dest_map, u8 dest_tx, u8 dest_ty)
     player_place(px, py);
     stage_arrival_camera(px + (PLAYER_BOX_L + PLAYER_BOX_R) / 2,
                          py + (PLAYER_BOX_T + PLAYER_BOX_B) / 2);
+    // PC object.cpp:520 draws images/sprites/teleport_small.png at the
+    // teleporter while it warps. The port warps in one frame, so the beam
+    // plays at the destination instead — centred on the 29x29 player art,
+    // and after the camera has moved to the arrival room.
+    fx_teleport(px - 2, py - 2);
 }

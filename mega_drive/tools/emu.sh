@@ -95,6 +95,64 @@ emu_quit_menu() {
 }
 
 # ---------------------------------------------------------------- control
+# Record the game window as a lossless video, so a room transition (28 frames,
+# ~0.5 s) is captured densely instead of hoping a screenshot lands inside it.
+# emu_record NAME SECONDS [FPS]
+# Rapid per-WINDOW screenshots (import grabs the window contents, so nothing on
+# top of it matters - unlike x11grab, which filmed the terminal once). No sleep:
+# a 28-frame room slide at 60 fps needs a burst, not a paced loop.
+# emu_burst NAME COUNT
+emu_burst() {
+    local name=${1:-b} count=${2:-20} wid
+    wid=$(emu_window) || { echo "emu: no window" >&2; return 1; }
+    [ -z "$wid" ] && { echo "emu: no window" >&2; return 1; }
+    local i f size kept=0
+    for i in $(seq -w 1 "$count"); do
+        f="$EMU_WORK/${name}${i}.png"
+        import -window "$wid" "$f" 2>/dev/null || continue
+        size=$(identify -format "%wx%h" "$f" 2>/dev/null || echo "?")
+        case "$size" in
+            320x224|320x240|640x448|640x480) kept=$((kept+1)) ;;
+            *) rm -f "$f" ;;
+        esac
+    done
+    echo "emu_burst: $kept/${count} usable frames of ${name}"
+}
+
+# Burst that starts the instant a pattern appears in the emulator's KDEBUG log.
+# A room transition is ~28 frames: waiting for the LINK trace line (printed just
+# before transition_scroll) puts the whole slide inside the burst, instead of
+# guessing a delay.  emu_burst_on LOG PATTERN NAME COUNT
+emu_burst_on() {
+    local log=${1:?log} pat=${2:?pattern} name=${3:-b} count=${4:-30}
+    local i
+    for i in $(seq 1 400); do
+        if grep -aq -- "$pat" "$log" 2>/dev/null; then
+            emu_burst "$name" "$count"
+            return $?
+        fi
+        sleep 0.02
+    done
+    echo "emu_burst_on: pattern '$pat' never appeared in $log" >&2
+    return 1
+}
+
+emu_record() {
+    local name=${1:?name} secs=${2:-4} fps=${3:-60} wid geo x y w h
+    wid=$(emu_window) || { echo "emu: no window" >&2; return 1; }
+    [ -z "$wid" ] && { echo "emu: no window" >&2; return 1; }
+    geo=$(xdotool getwindowgeometry --shell "$wid")
+    x=$(echo "$geo" | sed -n 's/^X=//p')
+    y=$(echo "$geo" | sed -n 's/^Y=//p')
+    w=$(echo "$geo" | sed -n 's/^WIDTH=//p')
+    h=$(echo "$geo" | sed -n 's/^HEIGHT=//p')
+    # the X11 window carries a small border; grab the client area
+    ffmpeg -hide_banner -loglevel error -y \
+        -f x11grab -framerate "$fps" -video_size "${w}x${h}" -i "${DISPLAY}+${x},${y}" \
+        -t "$secs" -c:v ffv1 -pix_fmt bgr0 "$EMU_WORK/$name.mkv" || return 1
+    echo "$EMU_WORK/$name.mkv  (${w}x${h} @ ${fps}fps, ${secs}s)"
+}
+
 emu_stop() {
     # 1) normal exit first (flushes SRAM)
     emu_quit_menu || true
@@ -183,7 +241,23 @@ emu_shot() {
     wid=$(emu_window) || { echo "emu: no window" >&2; return 1; }
     [ -z "$wid" ] && { echo "emu: no window" >&2; return 1; }
     sleep 0.3
-    timeout 8 import -window "$wid" "$EMU_WORK/$name.png" 2>/dev/null && echo "$EMU_WORK/$name.png"
+    timeout 8 import -window "$wid" "$EMU_WORK/$name.png" 2>/dev/null || return 1
+    # A capture is only usable as game evidence if the window still has the
+    # game's aspect: the window manager can resize it, and `import` then happily
+    # grabs whatever geometry exists - a batch of frames in 2026-10-25 came out
+    # 1182x494 (a resized/dialog window) and looked like a black screen with
+    # garbage edges. Record the size next to every shot and refuse alien ones.
+    local size
+    size=$(identify -format "%wx%h" "$EMU_WORK/$name.png" 2>/dev/null || echo "?")
+    echo "$size" > "$EMU_WORK/$name.size"
+    case "$size" in
+        320x224|320x240|640x448|640x480|960x672|960x720)
+            echo "$EMU_WORK/$name.png  ($size)" ;;
+        *)
+            echo "emu: BAD CAPTURE $name ($size) - window geometry changed, frame not game data" >&2
+            rm -f "$EMU_WORK/$name.png"
+            return 2 ;;
+    esac
 }
 
 # Release every mapped key. BlastEm can miss a keyup, which leaves a pad button
@@ -246,22 +320,11 @@ emu_shot_blank() {
     [ "$n" -le 1 ]
 }
 
-# start, wait for a drawing screen, relaunch while it stays black.
-#   emu_start_ready [rom] [tries] [wait_s]
+# start the emulator. The native BlastEm build no longer wedges on startup, so
+# there is no retry loop and no readiness wait any more (the old flatpak build
+# needed both). Kept as a separate name because the test scripts call it.
 emu_start_ready() {
-    local rom=${1:-$EMU_ROM_DEFAULT} tries=${2:-3} wait=${3:-12} i
-    for i in $(seq 1 "$tries"); do
-        emu_start "$rom" || { sleep 2; continue; }
-        sleep "$wait"
-        if ! emu_shot_blank .emu_probe; then
-            return 0
-        fi
-        echo "emu: black screen after ${wait}s (attempt $i/$tries) - restarting" >&2
-        emu_stop
-        sleep 2
-    done
-    echo "emu: still blank after ${tries} attempts" >&2
-    return 1
+    emu_start "$@"
 }
 
 # ---------------------------------------------------------------- dispatch

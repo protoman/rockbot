@@ -1,3 +1,6 @@
+#ifdef PS3
+#include "ports/ps3/ps3_platform.h"
+#endif
 #include "inputlib.h"
 
 #include <iostream>
@@ -16,6 +19,10 @@ extern game gameControl;
 #define DOUBLE_TAP_DELTA 500
 
 extern bool leave_game;
+
+#ifdef PLAYSTATION2
+#include "ports/ps2/ps2_pad.h"
+#endif
 
 #ifdef SDL3
 #undef SDL_KEYDOWN
@@ -37,7 +44,7 @@ extern bool leave_game;
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-inputLib::inputLib() : _used_keyboard(false), held_button_count(0), held_button_timer(0), cheat_input_count(0), cheat_input_previous(-1)
+inputLib::inputLib() : _used_keyboard(false), _start_latch(false), held_button_count(0), held_button_timer(0), cheat_input_count(0), cheat_input_previous(-1)
 {
 	for (int i=0; i<BTN_COUNT; i++) {
 		p1_input[i] = 0;
@@ -66,6 +73,11 @@ inputLib::inputLib() : _used_keyboard(false), held_button_count(0), held_button_
 
 void inputLib::init_joystick()
 {
+#ifdef PLAYSTATION2
+    // SDL's PS2 joystick layer hangs during SDL_Init; use libpad directly.
+    ps2_pad_init();
+    return;
+#endif
 #ifdef ANDROID
     __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::init_joystick - %i joysticks were found.", SDLL_NumJoysticks() );
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### INPUT::init_joystick - The names of the joysticks are:");
@@ -79,6 +91,10 @@ void inputLib::init_joystick()
 
 void inputLib::change_joystick()
 {
+#ifdef PLAYSTATION2
+    // Single fixed pad on PS2; nothing to switch.
+    return;
+#endif
     SDLL_JoystickClose(joystick1);
     joystick1 = SDLL_JoystickOpen(SharedData::get_instance()->game_config.selected_input_device);
 }
@@ -86,8 +102,16 @@ void inputLib::change_joystick()
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
+bool inputLib::start_pressed()
+{
+    bool pressed = (p1_input[BTN_START] == 1) || _start_latch;
+    _start_latch = false;
+    return pressed;
+}
+
 void inputLib::clean()
 {
+    _start_latch = false;
 	for (int i=0; i<BTN_COUNT; i++) {
         if (i != BTN_ATTACK) { // don't clean attack to save charging
             p1_input[i] = 0;
@@ -99,6 +123,7 @@ void inputLib::clean()
 
 void inputLib::clean_all()
 {
+    _start_latch = false;
     for (int i=0; i<BTN_COUNT; i++) {
         p1_input[i] = 0;
     }
@@ -132,6 +157,77 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
     for (int i=0; i<BTN_COUNT; i++) {
         p1_previous_input[i] = p1_input[i];
     }
+
+#ifdef PLAYSTATION2
+    // Read the PS2 pad directly (SDL's joystick subsystem is not initialised).
+    if (SharedData::get_instance()->game_config.input_type == INPUT_TYPE_DOUBLE ||
+        SharedData::get_instance()->game_config.input_type == INPUT_TYPE_JOYSTICK) {
+        unsigned int ps2_buttons = ps2_pad_read_buttons();
+        for (int i=0; i<BTN_COUNT; i++) {
+            if (SharedData::get_instance()->game_config.button_codes[i].type != JOYSTICK_INPUT_TYPE_BUTTON) {
+                continue;
+            }
+            int value = SharedData::get_instance()->game_config.button_codes[i].value;
+            if (value < 0 || value >= 12) {
+                continue;
+            }
+            int pressed = (ps2_buttons & ps2_pad_button_bits[value]) ? 1 : 0;
+            if (pressed == 1 && p1_input[i] == 0 && i == BTN_JUMP) {
+                p1_input[BTN_JUMP_TIMER] = timer.getTimer();
+            }
+            p1_input[i] = pressed;
+        }
+        // Directions: analog stick (when present) and/or d-pad.
+        int lx = 0, ly = 0;
+        bool have_axes = ps2_pad_read_axes(&lx, &ly) != 0;
+        const int deadzone = 40;
+        p1_input[BTN_UP] = ((have_axes && ly < -deadzone) || (ps2_buttons & PAD_UP)) ? 1 : 0;
+        p1_input[BTN_DOWN] = ((have_axes && ly > deadzone) || (ps2_buttons & PAD_DOWN)) ? 1 : 0;
+        p1_input[BTN_LEFT] = ((have_axes && lx < -deadzone) || (ps2_buttons & PAD_LEFT)) ? 1 : 0;
+        p1_input[BTN_RIGHT] = ((have_axes && lx > deadzone) || (ps2_buttons & PAD_RIGHT)) ? 1 : 0;
+    }
+#endif
+
+#ifdef PS3
+    // SDL_PSL1GHT only counts pads during SDL_Init, so poll libio directly.
+    // The rest of the game expects *events* (a button sets p1_input on press and
+    // clears it on release; input.clean() clears it in between so that menus move
+    // one step per press). Turn the polled state into the same press/release
+    // transitions instead of re-asserting a held button every frame.
+    if (SharedData::get_instance()->game_config.input_type == INPUT_TYPE_DOUBLE ||
+        SharedData::get_instance()->game_config.input_type == INPUT_TYPE_JOYSTICK) {
+        static bool ps3_was_pressed[BTN_COUNT] = { false };
+        unsigned int ps3_buttons = 0;
+        int ps3_lx = 128, ps3_ly = 128;
+        ps3_platform::pad_read(&ps3_buttons, &ps3_lx, &ps3_ly);
+        const int deadzone = 48;
+        for (int i=0; i<BTN_COUNT; i++) {
+            if (SharedData::get_instance()->game_config.button_codes[i].type != JOYSTICK_INPUT_TYPE_BUTTON) {
+                continue;
+            }
+            int value = SharedData::get_instance()->game_config.button_codes[i].value;
+            if (value < 0 || value >= 16) {
+                continue;
+            }
+            bool pressed = ((ps3_buttons >> value) & 1u) ? true : false;
+            // the left analog stick also moves (on top of the d-pad)
+            if (i == BTN_LEFT && ps3_lx < 128 - deadzone) { pressed = true; }
+            if (i == BTN_RIGHT && ps3_lx > 128 + deadzone) { pressed = true; }
+            if (i == BTN_UP && ps3_ly < 128 - deadzone) { pressed = true; }
+            if (i == BTN_DOWN && ps3_ly > 128 + deadzone) { pressed = true; }
+
+            if (pressed && !ps3_was_pressed[i]) {
+                p1_input[i] = 1;
+                if (i == BTN_JUMP) {
+                    p1_input[BTN_JUMP_TIMER] = timer.getTimer();
+                }
+            } else if (!pressed && ps3_was_pressed[i]) {
+                p1_input[i] = 0;
+            }
+            ps3_was_pressed[i] = pressed;
+        }
+    }
+#endif
 
     int newWidth = 0, newHeight = 0;
     bool resized = false;
@@ -197,6 +293,9 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
                     ) {
                         p1_input[i] = 1;
                         _used_keyboard = true;
+                        if (i == BTN_START) {
+                            _start_latch = true;
+                        }
                         if (i == BTN_JUMP) {
                             p1_input[BTN_JUMP_TIMER] = timer.getTimer();
                         }
@@ -247,6 +346,9 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
                 for (int i=0; i<BTN_COUNT; i++) {
                     if (SharedData::get_instance()->game_config.button_codes[i].type == JOYSTICK_INPUT_TYPE_BUTTON && SharedData::get_instance()->game_config.button_codes[i].value != -1 && SharedData::get_instance()->game_config.button_codes[i].value == event.jbutton.button) {
                         p1_input[i] = 1;
+                        if (i == BTN_START) {
+                            _start_latch = true;
+                        }
                         if (i == BTN_JUMP) {
                             p1_input[BTN_JUMP_TIMER] = timer.getTimer();
                         }
@@ -390,6 +492,14 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
                 }
     */
 
+#ifdef WII
+                // Wii / GameCube: the D-pad is a joystick hat (bits: up 1, right 2, down 4, left 8)
+                p1_input[BTN_UP] = (event.jhat.value & 1) ? 1 : 0;
+                p1_input[BTN_RIGHT] = (event.jhat.value & 2) ? 1 : 0;
+                p1_input[BTN_DOWN] = (event.jhat.value & 4) ? 1 : 0;
+                p1_input[BTN_LEFT] = (event.jhat.value & 8) ? 1 : 0;
+                _used_keyboard = false;
+#endif
                 // prevent double-direction input //
                 if (p1_input[BTN_LEFT] == 1) {
                     p1_input[BTN_RIGHT] = 0;
@@ -468,7 +578,7 @@ int inputLib::wait_scape_time(int wait_period) {
 	wait_period = now_time + wait_period;
 
 	while (now_time < wait_period) {
-        if (p1_input[BTN_START] == 1) {
+        if (start_pressed()) {
 			return 1;
 #if !defined(PLAYSTATION2) && !defined(PSP) && !defined(WII) && !defined(DREAMCAST)
         } else if (p1_input[BTN_QUIT] == 1) {
@@ -586,11 +696,18 @@ bool inputLib::pick_key_or_button(CURRENT_FILE_FORMAT::st_game_config &game_conf
 
 int inputLib::get_joysticks_number()
 {
+#ifdef PLAYSTATION2
+    return ps2_pad_available() ? 1 : 0;
+#else
     return SDLL_NumJoysticks();
+#endif
 }
 
 string inputLib::get_joystick_name(int n)
 {
+#ifdef PLAYSTATION2
+    return std::string("PS2 Controller");
+#endif
     const char * name = SDLL_JoystickName(n);
     if (name) {
         return std::string(name);

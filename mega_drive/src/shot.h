@@ -18,8 +18,13 @@ void shot_fire(s16 x, s16 y, s16 dir, s16 dy);
 // LINEAR at speed 3, 2 frames at 100ms (character.cpp:735-738).
 void shot_charge_fire(s16 x, s16 y, s16 dir, u8 level);
 
+// PC projectile QUAKE screen adjust (+/-2px); 0 when no QUAKE shot is alive.
+s16 shot_shake_x(void);
+
 // Move shots, wall/screen cull, enemy hit tests. After enemies_update().
 void shot_update(void);
+// TRUE (and the held MAGIC STAR is consumed) when it absorbs an enemy shot.
+bool shots_circle_absorb(void);
 
 // Hide/show every live shot sprite (in-game menu overlay).
 void shots_set_visible(bool visible);

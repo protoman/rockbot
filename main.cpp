@@ -1,11 +1,41 @@
+// SDL3: the SDL_main.h entry-point code must live in exactly one translation unit.
+#define ROCKBOT_DEFINE_MAIN
 #ifdef WII
 #include <fat.h>
+#include <sys/stat.h>
 #endif
 
 #ifdef PSP
 #include "ports/psp/psp_platform.h"
 // PSP crt0 calls main(); do not let SDL2 rename it to SDL_main.
 #undef main
+#endif
+
+#ifdef PS3
+#include "ports/ps3/ps3_platform.h"
+#endif
+
+#ifdef VITA
+#include "ports/vita/vita_platform.h"
+#endif
+
+#ifdef SWITCH
+#include "ports/switch/switch_platform.h"
+#endif
+
+#ifdef WII
+#include "ports/ogc/ogc_platform.h"
+#endif
+
+// Boot log of the ports that write one next to their data (diagnostics on real hardware).
+#if defined(PSP)
+#define BOOT_LOG psp_platform::log
+#elif defined(VITA)
+#define BOOT_LOG vita_platform::log
+#elif defined(SWITCH)
+#define BOOT_LOG switch_platform::log
+#elif defined(WII)
+#define BOOT_LOG ogc_platform::log
 #endif
 
 #ifdef ANDROID
@@ -31,7 +61,9 @@
 
 
 // ************** CODE AND DEBUG flags ************** //
-#define PS2LOADFROMFIXEDPOINT 1
+// Debug: forces FILEPATH to a fixed USB path. Leave disabled so the game uses
+// its working directory (host:, cdfs:, mass:/... depending on the launcher).
+//#define PS2LOADFROMFIXEDPOINT 1
 //#define DISABLESOUND 1
 #define PS2LINK 1
 
@@ -65,29 +97,43 @@ jobject activity_ref;
     #include <sys/stat.h>
     #include <unistd.h>
     #include <sys/param.h>
-#elif defined(PLAYSTATION2) || defined(DINGUX) || defined(PSP) || defined(ANDROID) || defined(OPEN_PANDORA) || defined(WII) || defined(POCKETGO)
+#elif defined(PLAYSTATION2) || defined(DINGUX) || defined(PSP) || defined(ANDROID) || defined(OPEN_PANDORA) || defined(WII) || defined(POCKETGO) || defined(VITA) || defined(SWITCH)
     #include <unistd.h>
 #elif defined(WIN32)
     #include <direct.h>
+    #ifndef SDL3
     #undef main // to build on win32
+    #endif
 #endif
 
 #if defined(WIN32)
-    std::string EXEC_NAME = std::string("rockbot.exe");
+    std::string EXEC_NAME = std::string("rockbot_windows.exe");
 #elif defined(ANDROID)
     std::string EXEC_NAME("");
 #elif defined(PLAYSTATION2)
-    std::string EXEC_NAME("rockbot.elf");
+    std::string EXEC_NAME("rockbot_playstation2.elf");
 #elif defined(PSP)
     std::string EXEC_NAME("EBOOT.PBP");
+#elif defined(PS3)
+    std::string EXEC_NAME("EBOOT.BIN");
+#elif defined(VITA)
+    std::string EXEC_NAME("eboot.bin");
+#elif defined(SWITCH)
+    std::string EXEC_NAME("rockbot_switch.nro");
+#elif defined(GAMECUBE)
+    std::string EXEC_NAME("rockbot_gamecube.dol");
 #elif defined(WII)
-    std::string EXEC_NAME("boot.dol");
+    std::string EXEC_NAME("boot.dol"); // the Homebrew Channel needs this name (the build writes rockbot_wii.dol)
 #elif defined(DINGUX)
-    std::string EXEC_NAME("rockbot.dge");
+    std::string EXEC_NAME("rockbot_dingux.dge");
 #elif defined(POCKETGO)
     std::string EXEC_NAME("rockbot_pocketgo");
+#elif defined(OPEN_PANDORA)
+    std::string EXEC_NAME("rockbot_pandora");
+#elif defined(OSX)
+    std::string EXEC_NAME("rockbot_osx");
 #else
-    std::string EXEC_NAME("rockbot");
+    std::string EXEC_NAME("rockbot_linux"); // the Raspberry Pi package ships rockbot_raspberry
 #endif
 
 // EXTERNAL GLOBALS
@@ -145,6 +191,7 @@ void PS2_copy_to_memorycard(std::string file_in, std::string file_out)
         std::cout << "ERROR: Could not open write file '" << file_out << "'" << std::endl;
         graphLib.show_debug_msg("ERROR #2");
         graphLib.show_debug_msg(file_out);
+        fclose(fp_read);
         return;
     } else {
         std::cout << "WARNING: Opened file '" << file_out << "'" << std::endl;
@@ -204,6 +251,12 @@ void get_filepath()
     }
 #elif defined(PSP)
     psp_platform::get_filepath(FILEPATH, MAXPATHLEN);
+#elif defined(PS3)
+    ps3_platform::get_filepath(FILEPATH, MAXPATHLEN);
+#elif defined(VITA)
+    vita_platform::get_filepath(FILEPATH, MAXPATHLEN);
+#elif defined(SWITCH)
+    switch_platform::get_filepath(FILEPATH, MAXPATHLEN);
 #else
     char *buffer = new char[MAXPATHLEN];
     char *res = getcwd(buffer, MAXPATHLEN);
@@ -224,6 +277,29 @@ void get_filepath()
     delete[] buffer;
 #endif
 
+#if defined(WII)
+    // The Homebrew Channel starts the game inside its folder, but GameCube loaders (Swiss, SD Gecko
+    // loaders) and emulators that load the .dol directly leave the working directory at the SD root:
+    // when games/ is not here, look for the data folder on the SD adapters.
+    {
+        struct stat st;
+        if (stat((FILEPATH + "games").c_str(), &st) != 0) {
+            fatInitDefault(); // mounts the SD Gecko / SD2SP2 slots (sd:, carda:, cardb:)
+            const char* roots[] = { "sd:", "carda:", "cardb:" };
+            const char* folders[] = { "/apps/rockbot1/", "/apps/rockbot2/", "/apps/rockbot/", "/rockbot1/", "/rockbot2/", "/rockbot/" };
+            bool found = false;
+            for (size_t r = 0; !found && r < sizeof(roots) / sizeof(roots[0]); r++) {
+                for (size_t f = 0; !found && f < sizeof(folders) / sizeof(folders[0]); f++) {
+                    std::string dir = std::string(roots[r]) + folders[f];
+                    if (stat((dir + "games").c_str(), &st) == 0) {
+                        FILEPATH = dir;
+                        found = true;
+                    }
+                }
+            }
+        }
+    }
+#endif
 #if defined(PLAYSTATION2) && defined(PS2LOADFROMFIXEDPOINT) // DEBUG
     FILEPATH = "mass:/PS2/Rockbot/";
 #elif DREAMCAST
@@ -266,6 +342,9 @@ void detect_language() {
 
 void main_loop()
 {
+#ifdef PS3
+    ps3_platform::update();
+#endif
     timer.start_ticker();
     gameControl.show_game(true, true);
     draw_lib.update_screen();
@@ -277,9 +356,20 @@ void main_loop()
 
 int main(int argc, char *argv[])
 {
-
+#ifdef BOOT_LOG
+#ifdef WII
+    BOOT_LOG("---- boot (argc=%d)", argc);
+#endif
+#endif
 #ifdef PSP
-    psp_platform::setup();
+    psp_platform::setup(argc > 0 ? argv[0] : NULL);
+#endif
+#ifdef PS3
+    ps3_platform::setup(argc > 0 ? argv[0] : NULL);
+#endif
+#ifdef SWITCH
+    switch_platform::setup(argc > 0 ? argv[0] : NULL);
+    switch_platform::log("main: argc=%d argv0='%s' base dir='%s'", argc, argc > 0 && argv[0] ? argv[0] : "(none)", switch_platform::base_dir().c_str());
 #endif
     for (int i=0; i<FLAG_COUNT; i++) {
         GAME_FLAGS[i] = false;
@@ -287,14 +377,18 @@ int main(int argc, char *argv[])
     UNUSED(argc);
 
     string argvString = "";
-    argvString = string(argv[0]);
+    if (argc > 0 && argv != NULL && argv[0] != NULL) {
+        argvString = string(argv[0]);
+    }
 
     fflush(stdout);
 
     get_filepath();
     // fallback in case getcwd returns null
     if (FILEPATH.size() == 0) {
-        FILEPATH = argvString.substr(0, argvString.size()-EXEC_NAME.size());
+        if (argvString.size() >= EXEC_NAME.size()) {
+            FILEPATH = argvString.substr(0, argvString.size()-EXEC_NAME.size());
+        }
     }
 
 #ifdef PLAYSTATION2
@@ -314,6 +408,9 @@ int main(int argc, char *argv[])
         FILEPATH = "cdfs:";
         PS2_load_CDROM();
     }
+
+    // Load IOP modules once FILEPATH points at the final device.
+    PS2_load_modules();
 #endif
 
 
@@ -340,10 +437,10 @@ int main(int argc, char *argv[])
                 GAME_FLAGS[FLAG_PLAYER3] = true;
             } else if (temp_argv == "--player4") {
                 GAME_FLAGS[FLAG_PLAYER4] = true;
-            } else if (temp_argv == "--gamename" && argc >= i+1) {
+            } else if (temp_argv == "--gamename" && argc > i+1) {
                 std::string game_name(argv[i+1]);
                 gameControl.set_selected_game(game_name);
-            } else if (temp_argv == "--stage" && argc >= i+1) {
+            } else if (temp_argv == "--stage" && argc > i+1) {
                 std::string stage_n_str(argv[i+1]);
                 sscanf(stage_n_str.c_str(), "%d", &current_stage);
             }
@@ -363,6 +460,12 @@ int main(int argc, char *argv[])
     #elif WIN32
         SAVEPATH =  std::string(getenv("APPDATA")) + "/rockdroid";
         _mkdir(SAVEPATH.c_str());
+    #elif PS3
+        ps3_platform::get_savepath(SAVEPATH);
+    #elif VITA
+        vita_platform::get_savepath(SAVEPATH);
+    #elif SWITCH
+        switch_platform::get_savepath(SAVEPATH);
     #else
         SAVEPATH = GAMEPATH;
     #endif
@@ -374,6 +477,9 @@ int main(int argc, char *argv[])
     fio.load_config(SharedData::get_instance()->game_config);
 #endif
 
+#ifdef BOOT_LOG
+    BOOT_LOG("main: config loaded, FILEPATH='%s'", FILEPATH.c_str());
+#endif
     detect_language();
     // force disable old music flag
     SharedData::get_instance()->game_config.android_use_mod_music = 0;
@@ -381,6 +487,9 @@ int main(int argc, char *argv[])
     // INIT GRAPHICS
     if (graphLib.initGraphics() != true) {
         fflush(stdout);
+#ifdef BOOT_LOG
+        BOOT_LOG("initGraphics failed");
+#endif
         return -1;
     }
 
@@ -391,10 +500,16 @@ int main(int argc, char *argv[])
 #endif
 
 
+#ifdef BOOT_LOG
+    BOOT_LOG("main: graphics ok");
+#endif
     //GAMENAME = std::string("RockBot");
     gameControl.select_game_screen();
     GAMENAME = gameControl.get_selected_game();
     graphLib.set_window_title(GAMENAME);
+#ifdef BOOT_LOG
+    BOOT_LOG("main: game selected '%s'", GAMENAME.c_str());
+#endif
 
     fflush(stdout);
 
@@ -403,6 +518,9 @@ int main(int argc, char *argv[])
     //GAMENAME = std::string("RockBot");
 
     if (GAMENAME == "") {
+#ifdef BOOT_LOG
+        BOOT_LOG("no game found under '%s'", GAMEPATH.c_str());
+#endif
         graphLib.draw_text(20, 20, strings_map::get_instance()->get_ingame_string(strings_ingame_engineerror) + std::string(":"));
         graphLib.draw_text(20, 32, strings_map::get_instance()->get_ingame_string(strings_ingame_nogames));
 
@@ -440,7 +558,13 @@ int main(int argc, char *argv[])
 #endif
 
 
+#ifdef BOOT_LOG
+    BOOT_LOG("main: graphLib.preload");
+#endif
     graphLib.preload();
+#ifdef BOOT_LOG
+    BOOT_LOG("main: draw_lib.preload");
+#endif
 
 #ifdef PLAYSTATION2
     //fio.load_config(game_config);
@@ -448,8 +572,13 @@ int main(int argc, char *argv[])
 #endif
 
     draw_lib.preload();
+    GameMediator::get_instance()->preload_projectile_sfx();
+    GameMediator::get_instance()->preload_gameplay_sfx();
 
 
+#ifdef BOOT_LOG
+    BOOT_LOG("main: preload done, starting intro");
+#endif
     gameControl.currentStage = INTRO_STAGE;
 
     // === DEBUG === //
@@ -484,9 +613,25 @@ int main(int argc, char *argv[])
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop(main_loop, 0, 1);
 #else
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
+    try {
+        while (run_game) {
+            main_loop();
+        }
+    } catch (const std::exception &e) {
+        // a bad index/size from a damaged data file: leave cleanly (audio, video) instead of aborting
+        std::cout << "FATAL: " << e.what() << std::endl;
+        fflush(stdout);
+        soundManager.close_audio();
+        graphicsLib::safe_sdl_quit();
+        return 1;
+    }
+#else
+    // built without exceptions (Android, some consoles): nothing to catch
     while (run_game) {
         main_loop();
     }
+#endif
     GameMediator::release();
     soundManager.close_audio();
     graphicsLib::safe_sdl_quit();

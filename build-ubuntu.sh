@@ -1,4 +1,6 @@
 #!/bin/bash
+# Keep file/version.h equal to build/packages/version_name.txt
+"$(dirname "${BASH_SOURCE[0]}")/build/packages/sync_version.sh"
 set -e
 set -o pipefail
 
@@ -105,7 +107,7 @@ esac
 
 export QT_SELECT=qt5
 
-CMAKE_BUILD_DIR="${SCRIPT_DIR}/build/cmake"
+CMAKE_BUILD_DIR="${SCRIPT_DIR}/res/cmake"
 echo "📁 Building rockbot with CMake (SDL${USE_SDL_VERSION})..."
 rm -rf "$CMAKE_BUILD_DIR"
 cmake -S "$SCRIPT_DIR" -B "$CMAKE_BUILD_DIR" \

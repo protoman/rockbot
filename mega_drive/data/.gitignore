@@ -1,0 +1,3 @@
+# The port's master copy of the game data is versioned even though the parent
+# repo's .gitignore ignores some of these file names.
+!**/stages_v301.dat
