@@ -457,6 +457,7 @@ bool game::show_game_intro()
     psp_platform::log("intro: before main_screen");
 #endif
     scenes.main_screen();
+    checkpoint.reset(); // a new (or loaded) game never starts from the checkpoint of a previous one
 
     // Pick stage before loading maps — avoids constructing two full stages
     // back-to-back (OOM / EXIT #21 on PSP).
@@ -1669,6 +1670,7 @@ void game::return_to_intro_screen()
     player1.set_weapon(WEAPON_DEFAULT, false);
 
     scenes.main_screen();
+    checkpoint.reset(); // a new (or loaded) game never starts from the checkpoint of a previous one
     currentStage = INTRO_STAGE;
     leave_game = false;
 

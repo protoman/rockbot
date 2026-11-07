@@ -179,6 +179,11 @@ namespace format_v4 {
             damaged_boss_with_only_normal = true;
             used_e_tanks = 0;
             used_w_tanks = 0;
+            // a new game must not keep anything from the previous one (tanks, lives, bolts, shop items...)
+            items = st_items();
+            for (int i=0; i<FS_COMMON_ITEMS_MAX; i++) {
+                collect_items[i] = st_collect_items();
+            }
         }
     };
 
