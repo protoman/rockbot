@@ -119,6 +119,7 @@ public:
     st_rectangle get_vulnerable_area(int anim_type=-1);         // used for collision agains projectiles, takes vulnerable_area into account
     void set_platform(object*);
     object* get_platform();
+    void set_platform_pointer(object* obj) { _platform = obj; } // only re-points (the object moved inside its list), no state change
     int get_direction() const;
     void set_direction(int direction);
     void clean_projectiles();

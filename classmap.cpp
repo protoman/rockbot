@@ -2368,7 +2368,19 @@ void classMap::move_objects(bool paused)
 	for (object_it = object_list.begin(); object_it != object_list.end(); object_it++) {
 		if ((*object_it).finished() == true) {
             //std::cout << "### erased object[" << (*object_it).get_name() << "]" << std::endl;
+            // the player must not keep standing on an object that is gone (e.g. eagle-jet vanishing against a wall):
+            // drop the platform, or re-point it if the erase shifts the platform's slot
+            object* player_platform = gameControl.get_player_platform();
+            object* erased_obj = &(*object_it);
+            if (player_platform == erased_obj) {
+                gameControl.get_player()->set_platform(NULL);
+                player_platform = NULL;
+            }
+            bool platform_after_erased = (player_platform != NULL && player_platform > erased_obj && player_platform < &(*object_list.begin()) + object_list.size());
             object_list.erase(object_it);
+            if (platform_after_erased == true) {
+                gameControl.get_player()->set_platform_pointer(player_platform - 1);
+            }
 			break;
 		} else {
             //std::cout << "### EXECUTE object[" << (*object_it).get_name() << "]" << std::endl;
