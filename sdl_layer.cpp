@@ -38,6 +38,9 @@ static int sdl3_next_track_id = 0;
 int SDLL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha)
 {
 	SDL_SetSurfaceAlphaMod(surface, alpha);
+	// RLE + colorkey + alpha blending on a 32-bit surface with an alpha channel draws the colorkey colour opaque
+	// (the RLE alpha encoder ignores the key; seen with the stage select cursor on the PSP, reproduced with stock SDL2)
+	SDL_SetSurfaceRLE(surface, 0);
 	return SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND);
 }
 
@@ -492,6 +495,9 @@ SDL_Texture *texture = NULL;
 int SDLL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha)
 {
 	SDL_SetSurfaceAlphaMod(surface, alpha);
+	// RLE + colorkey + alpha blending on a 32-bit surface with an alpha channel draws the colorkey colour opaque
+	// (the RLE alpha encoder ignores the key; seen with the stage select cursor on the PSP, reproduced with stock SDL2)
+	SDL_SetSurfaceRLE(surface, 0);
 	return SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_BLEND);
 }
 
