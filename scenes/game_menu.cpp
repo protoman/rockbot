@@ -91,10 +91,12 @@ short game_menu::show_main_config(short stage_finished, bool called_from_game)
 
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_audio)));
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_input)));
+    // the PSP has no platform-specific entry: it runs with the screen borders and has nothing to configure
+    short platform_entry_skipped = 0;
 #if defined(PC)
     options.push_back(st_menu_option("PC"));
 #elif PSP
-    options.push_back(st_menu_option("PSP"));
+    platform_entry_skipped = 1;
 #elif SWITCH
     options.push_back(st_menu_option("SWITCH"));
 #elif WII
@@ -139,19 +141,22 @@ short game_menu::show_main_config(short stage_finished, bool called_from_game)
         }
         graphLib.clear_area(config_text_pos.x-1, config_text_pos.y-1, RES_W,  180, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
         draw_lib.update_screen();
-        if (selected_option == 0) { // CONFIG AUDIO //
+        // entry ids below keep the layout with the platform entry, even when it is not shown
+        short picked_entry = selected_option;
+        if (platform_entry_skipped == 1 && picked_entry >= 2) {
+            picked_entry++;
+        }
+        if (picked_entry == 0) { // CONFIG AUDIO //
             show_config_audio();
-        } else if (selected_option == 1) { // CONFIG INPUT //
+        } else if (picked_entry == 1) { // CONFIG INPUT //
             key_map key_mapper;
             key_mapper.config_input();
-        } else if (selected_option == 2) { // CONFIG PLATFORM //
+        } else if (picked_entry == 2) { // CONFIG PLATFORM //
 #ifdef PC
             show_config_video();
             //show_config_android(); // line used for test/debug
 #elif ANDROID
             show_config_android();
-#elif PSP
-            psp_platform::show_config_video();
 #elif SWITCH
             switch_platform::show_config_video();
 #elif WII
@@ -159,16 +164,16 @@ short game_menu::show_main_config(short stage_finished, bool called_from_game)
 #elif PLAYSTATION2
             show_config_PS2();
 #endif
-        } else if (selected_option == 3) { // LANGUAGE //
+        } else if (picked_entry == 3) { // LANGUAGE //
             show_config_language();
-        } else if (selected_option == 4) { // PERFORMANCE //
+        } else if (picked_entry == 4) { // PERFORMANCE //
             show_config_performance();
-        } else if (selected_option == 5) { // EXTRAS //
+        } else if (picked_entry == 5) { // EXTRAS //
             show_config_extras();
-        } else if (selected_option == 6) { // LEAVE STAGE //
+        } else if (picked_entry == 6) { // LEAVE STAGE //
             res = 1;
             break;
-        } else if (selected_option == 7) { // QUIT GAME //
+        } else if (picked_entry == 7) { // QUIT GAME //
             dialogs dialogs_obj;
             if (dialogs_obj.show_leave_game_dialog() == true) {
                 gameControl.save_game(); // same as leaving the stage: keep armor pieces, items, etc.
