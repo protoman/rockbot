@@ -21,6 +21,8 @@
 
 #ifdef SWITCH
 #include "ports/switch/switch_platform.h"
+// hbmenu calls main(); nxlink and applet setup live in switch_platform::setup().
+#undef main
 #endif
 
 #ifdef WII
@@ -119,7 +121,7 @@ jobject activity_ref;
 #elif defined(VITA)
     std::string EXEC_NAME("eboot.bin");
 #elif defined(SWITCH)
-    std::string EXEC_NAME("rockbot_switch.nro");
+    std::string EXEC_NAME("rockbot.nro");
 #elif defined(GAMECUBE)
     std::string EXEC_NAME("rockbot_gamecube.dol");
 #elif defined(WII)
@@ -233,9 +235,10 @@ void PS2_create_save_icons()
 #endif
 
 
-void get_filepath()
+void get_filepath(const char *argv0)
 {
 #ifdef WIN32
+    UNUSED(argv0);
     char* buffer;
     if( (buffer = _getcwd( NULL, 0 )) != NULL ) {
         FILEPATH = std::string(buffer);
@@ -243,6 +246,7 @@ void get_filepath()
     }
     delete[] buffer;
 #elif defined OSX
+    UNUSED(argv0);
     char path[1024];
     uint32_t size = sizeof(path);
     if (_NSGetExecutablePath(path, &size) == 0) {
@@ -250,14 +254,18 @@ void get_filepath()
         FILEPATH = FILEPATH.substr(0, FILEPATH.length()-7);
     }
 #elif defined(PSP)
+    UNUSED(argv0);
     psp_platform::get_filepath(FILEPATH, MAXPATHLEN);
 #elif defined(PS3)
+    UNUSED(argv0);
     ps3_platform::get_filepath(FILEPATH, MAXPATHLEN);
 #elif defined(VITA)
+    UNUSED(argv0);
     vita_platform::get_filepath(FILEPATH, MAXPATHLEN);
 #elif defined(SWITCH)
-    switch_platform::get_filepath(FILEPATH, MAXPATHLEN);
+    switch_platform::get_filepath(FILEPATH, MAXPATHLEN, argv0);
 #else
+    UNUSED(argv0);
     char *buffer = new char[MAXPATHLEN];
     char *res = getcwd(buffer, MAXPATHLEN);
 
@@ -368,8 +376,8 @@ int main(int argc, char *argv[])
     ps3_platform::setup(argc > 0 ? argv[0] : NULL);
 #endif
 #ifdef SWITCH
-    switch_platform::setup(argc > 0 ? argv[0] : NULL);
-    switch_platform::log("main: argc=%d argv0='%s' base dir='%s'", argc, argc > 0 && argv[0] ? argv[0] : "(none)", switch_platform::base_dir().c_str());
+    switch_platform::setup();
+    switch_platform::log("main: argc=%d argv0='%s'", argc, argc > 0 && argv[0] ? argv[0] : "(none)");
 #endif
     for (int i=0; i<FLAG_COUNT; i++) {
         GAME_FLAGS[i] = false;
@@ -383,11 +391,12 @@ int main(int argc, char *argv[])
 
     fflush(stdout);
 
-    get_filepath();
+    get_filepath(argv[0]);
     // fallback in case getcwd returns null
     if (FILEPATH.size() == 0) {
         if (argvString.size() >= EXEC_NAME.size()) {
             FILEPATH = argvString.substr(0, argvString.size()-EXEC_NAME.size());
+            GAMEPATH = FILEPATH;
         }
     }
 
@@ -464,9 +473,8 @@ int main(int argc, char *argv[])
         ps3_platform::get_savepath(SAVEPATH);
     #elif VITA
         vita_platform::get_savepath(SAVEPATH);
-    #elif SWITCH
-        switch_platform::get_savepath(SAVEPATH);
     #else
+        // Switch included: get_filepath() already pointed GAMEPATH at the nro folder.
         SAVEPATH = GAMEPATH;
     #endif
 
@@ -492,6 +500,13 @@ int main(int argc, char *argv[])
 #endif
         return -1;
     }
+
+#ifdef SWITCH
+    if (switch_platform::is_applet_mode()) {
+        graphLib.show_debug_msg("WARN: applet mode (low RAM)");
+        graphLib.show_debug_msg("Use title redirection");
+    }
+#endif
 
 #ifdef ANDROID
     game_services.init_android_button_size();
@@ -533,7 +548,10 @@ int main(int argc, char *argv[])
         graphicsLib::safe_sdl_quit();
         return 0;
     }
-    FILEPATH += std::string("/games/") + GAMENAME + std::string("/");
+    if (!FILEPATH.empty() && FILEPATH[FILEPATH.size() - 1] != '/') {
+        FILEPATH += "/";
+    }
+    FILEPATH += std::string("games/") + GAMENAME + std::string("/");
 #ifdef PC
     graphLib.set_window_icon();
 #endif

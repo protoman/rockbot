@@ -283,7 +283,9 @@ elseif(ROCKBOT_WII)
         add_definitions(-DGAMECUBE)
     endif()
 elseif(ROCKBOT_SWITCH)
-    add_definitions(-DSWITCH -DHANDHELD -D__SWITCH__)
+    # SDL_MAIN_HANDLED: hbmenu calls main(). The port sets up nxlink itself
+    # (ports/switch/switch_platform.cpp); SDL must not rename main to SDL_main.
+    add_definitions(-DSWITCH -DHANDHELD -D__SWITCH__ -DSDL_MAIN_HANDLED)
 elseif(ROCKBOT_VITA)
     # VITA also selects the PS Vita code paths; SDL_MAIN_HANDLED is not used (SDL2 provides SDL_main).
     add_definitions(-DVITA -DHANDHELD)
@@ -369,6 +371,9 @@ set(SOURCES
 )
 if(ROCKBOT_PSP)
     list(APPEND SOURCES ports/psp/psp_platform.cpp ports/psp/psp_music.cpp)
+endif()
+if(ROCKBOT_SWITCH)
+    list(APPEND SOURCES ports/switch/switch_platform.cpp)
 endif()
 
 # Header Files

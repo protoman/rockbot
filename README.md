@@ -171,3 +171,4 @@ build/packages/release_all.sh --bump minor --game both --docker   # every platfo
   Iuri Fiedoruk and Arismeire Kümmer Silva Fiedoruk and respective collaborators, all rights reserved.
 
 Details: [docs/LICENSE.TXT](docs/LICENSE.TXT). Credits for Rockbot 2: `Rockbot2_Credits.txt`.
+
