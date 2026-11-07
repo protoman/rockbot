@@ -159,7 +159,8 @@ private:
 
     // WEAPON ICON TOOLTIP
     const st_position* _weapon_tooltip_pos_ref;         // holds a pointer to the position it must follow in dynamic animation type
-    int _weapon_tooltip_timer;                          // timer, if less than current time, will show the tooltip
+    unsigned long _weapon_tooltip_timer;                          // timer, if less than current time, will show the tooltip
+    bool _weapon_tooltip_pending;                       // tooltip requested, countdown not started yet
     short _weapon_tooltip_n;                            // weapon number to show
     const Uint8* _weapon_tooltip_direction_ref;         // reference to player direction, so we can draw the icon in the correct position
     st_float_position *_map_scroll_ref;                 // reference to map scroll, so we can adjust position

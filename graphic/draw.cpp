@@ -71,6 +71,7 @@ draw::draw() : _rain_pos(0), _effect_timer(0), _flash_pos(0), _flash_timer(0), s
         flash_points[i].y = rand() % RES_H;
     }
     _weapon_tooltip_timer = 0;
+    _weapon_tooltip_pending = false;
     _weapon_tooltip_n = 0;
     _weapon_tooltip_pos_ref = NULL;
     _weapon_tooltip_direction_ref = NULL;
@@ -841,12 +842,22 @@ void draw::add_weapon_tooltip(short weapon_n, const st_position &player_pos, con
 {
     _weapon_tooltip_n = weapon_n;
     _weapon_tooltip_pos_ref = &player_pos;
-    _weapon_tooltip_timer = timer.getTimer() + 1500;
+    // the 1.5s countdown starts when the tooltip is first drawn in gameplay (see show_weapon_tooltip):
+    // changing weapon inside the paused menu would use a clock that is rewound on unpause, and the tooltip would stay on
+    _weapon_tooltip_timer = 0;
+    _weapon_tooltip_pending = true;
     _weapon_tooltip_direction_ref = &direction;
 }
 
 void draw::show_weapon_tooltip()
 {
+    if (_weapon_tooltip_pending == true) {
+        if (timer.is_paused() == true) {
+            return;
+        }
+        _weapon_tooltip_timer = timer.getTimer() + 1500;
+        _weapon_tooltip_pending = false;
+    }
     if (timer.getTimer() < _weapon_tooltip_timer) {
         int adjust_x = 5;
         int adjust_y = 4-TILESIZE;
