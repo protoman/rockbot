@@ -2548,10 +2548,12 @@ st_rectangle character::get_vulnerable_area(int anim_type)
     if (vulnerable_area_box.w != 0 && vulnerable_area_box.h != 0) { // use vulnerable area
         y = position.y + vulnerable_area_box.y;
         if (have_background_graphics() == false) {
+            // the area is defined for the sprite as drawn facing right: when facing left it is mirrored inside the frame
+            // (same rule as get_hitbox). Before, facing right moved it by -x instead of +x, away from the boss's face.
             if (state.direction == ANIM_DIRECTION_LEFT) {
-                x = position.x - GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x;
+                x = position.x + frameSize.width - vulnerable_area_box.x - vulnerable_area_box.w;
             } else {
-                x = position.x - vulnerable_area_box.x;
+                x = position.x + vulnerable_area_box.x;
             }
             //if (!is_player()) std::cout << "### HITAREA (custom vulnerable-area, no BG) - NPC[" << name << "] - x[" << x << "], y[" << y << "], graph.w[" << graphLib.character_graphics_background_list.find(name)->second.width << "]" << std::endl;
         } else {
