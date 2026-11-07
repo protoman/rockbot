@@ -1886,7 +1886,10 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
                 //std::cout << "CHAR::JUMP - ADJUST" << std::endl;
                 position.y += TILESIZE;
             }
-            _force_jump = false;
+            // landing on the coil during a jump sets super+force jump in this very step: keep it, or the big jump is lost
+            if (_super_jump == false) {
+                _force_jump = false;
+            }
         }
         if (_obj_jump.is_started() == true && jump_speed < 0.0 && abs(jump_speed) < 1.0 && abs(jump_last_moved) < 1.0) {
             std::cout << "CHAR::JUMP - INTERRUMP #1" << std::endl;
