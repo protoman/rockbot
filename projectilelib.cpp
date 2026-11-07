@@ -480,11 +480,28 @@ graphicsLib_gSurface *projectile::get_surface()
 
 	if (_id == -1) {
         if (graphLib.projectile_surface[0].surface[temp_direction].get_surface() == NULL) {
+#if defined(SWITCH)
+            // Lazy flip (preload only kept RIGHT to save RAM).
+            if (temp_direction == ANIM_DIRECTION_LEFT &&
+                graphLib.projectile_surface[0].surface[ANIM_DIRECTION_RIGHT].get_surface() != NULL) {
+                graphLib.flip_image(graphLib.projectile_surface[0].surface[ANIM_DIRECTION_RIGHT],
+                                    graphLib.projectile_surface[0].surface[ANIM_DIRECTION_LEFT],
+                                    flip_type_horizontal);
+            } else
+#endif
             graphLib.show_debug_msg("projectile surface error #1");
         }
         return &graphLib.projectile_surface[0].surface[temp_direction];
 	} else {
         if (graphLib.projectile_surface[_id].surface[temp_direction].get_surface() == NULL) {
+#if defined(SWITCH)
+            if (temp_direction == ANIM_DIRECTION_LEFT &&
+                graphLib.projectile_surface[_id].surface[ANIM_DIRECTION_RIGHT].get_surface() != NULL) {
+                graphLib.flip_image(graphLib.projectile_surface[_id].surface[ANIM_DIRECTION_RIGHT],
+                                    graphLib.projectile_surface[_id].surface[ANIM_DIRECTION_LEFT],
+                                    flip_type_horizontal);
+            } else
+#endif
             graphLib.show_debug_msg("projectile surface error #2");
         }
         return &graphLib.projectile_surface[_id].surface[temp_direction];

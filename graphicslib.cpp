@@ -472,14 +472,15 @@ void graphicsLib::surfaceFromFile(const std::string& filename, struct graphicsLi
         }
     }
     if (res->get_surface() == NULL) {
-        std::cout << "ERROR::surfaceFromFile - error loading file: '" << filename << "'" << std::endl;
+        std::string clean_filename = StringUtils::clean_filename(filename);
+        std::cout << "ERROR::surfaceFromFile - error loading file: '" << clean_filename << "'" << std::endl;
         _debug_msg_pos = 1;
-        show_debug_msg(filename);
+        show_debug_msg(clean_filename);
         _debug_msg_pos = 0;
         fflush(stdout);
         timer.delay(1000);
         show_debug_msg("EXIT #05");
-        exception_manager::throw_file_not_found_exception(std::string("graphicsLib::surfaceFromFile"), filename);
+        exception_manager::throw_file_not_found_exception(std::string("graphicsLib::surfaceFromFile"), clean_filename);
     } else {
         if (res->get_surface() != NULL) {
             res->width = res->get_surface()->w;
@@ -2309,6 +2310,9 @@ void graphicsLib::set_video_mode()
 #elif defined(PSP)
     _video_filter = VIDEO_FILTER_NOSCALE;
     game_screen = psp_platform::set_video_mode(RES_W, RES_H, VIDEO_MODE_COLORS);
+#elif defined(SWITCH)
+    _video_filter = VIDEO_FILTER_NOSCALE;
+    game_screen = switch_platform::set_video_mode(RES_W, RES_H, VIDEO_MODE_COLORS);
 #elif defined(DREAMCAST)
     game_screen = SDLL_SetVideoMode(RES_W, RES_H, 24, SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_FULLSCREEN);
 #elif defined(PLAYSTATION2)
@@ -2398,7 +2402,11 @@ void graphicsLib::preload_images()
         if (filename.length() > 0 && filename.find(".png") != std::string::npos) {
             //std::cout << "GRAPHLIB::preload_images - i[" << i << "], list.size[" << projectile_surface.size() << "]" << std::endl;
             surfaceFromFile(filename, &projectile_surface.at(i).surface[ANIM_DIRECTION_RIGHT]);
+#if defined(SWITCH)
+            // Defer flip — doubling every projectile during preload OOMs in applet mode (EXIT #05).
+#else
             flip_image(projectile_surface.at(i).surface[ANIM_DIRECTION_RIGHT], projectile_surface.at(i).surface[ANIM_DIRECTION_LEFT], flip_type_horizontal);
+#endif
 		}
 	}
 

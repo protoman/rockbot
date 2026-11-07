@@ -26,6 +26,7 @@ on:
           - windows
           - android
           - psp
+          - switch
 
 defaults:
   run:
@@ -194,3 +195,44 @@ jobs:
         with:
           files: |
             build/packages/RockBot_PSP_*.zip
+
+  Switch:
+    # Uses official devkitpro/devkita64 Docker image; SDL is always SDL2 for Switch.
+    if: ${{ (github.event.inputs.platform || 'all') == 'all' || (github.event.inputs.platform || 'all') == 'switch' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+            /opt/hostedtoolcache/CodeQL /usr/local/share/boost || true
+          docker system prune -af || true
+          df -h
+
+      - name: Build RockDroid 1 NRO
+        env:
+          NCPU: 2
+        run: ./build-switch.sh 1 --pull
+
+      - name: Build RockDroid 2 NRO
+        env:
+          NCPU: 2
+        run: ./build-switch.sh 2 --pull
+
+      - name: Upload Switch packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: rockbot-switch
+          path: build/packages/RockBot_Switch_*.zip
+          if-no-files-found: error
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: |
+            build/packages/RockBot_Switch_*.zip
