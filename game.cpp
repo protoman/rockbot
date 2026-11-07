@@ -266,6 +266,10 @@ void game::start_stage()
 
     loaded_stage.reload_stage();
 
+    if (_boss_rush_active == true) { // boss rush: the fight happens in the boss room, not at the start of the stage
+        boss_rush_place_in_boss_room();
+    }
+
     player1.cancel_slide();
     player1.reset_jump();
 
@@ -291,7 +295,11 @@ void game::start_stage()
         timer.delay(20);
     }
     loaded_stage.add_autoscroll_delay();
-    show_player_teleport(PLAYER_INITIAL_X_POS, -1);
+    if (_boss_rush_active == true) {
+        show_player_teleport(checkpoint.x, checkpoint.y);
+    } else {
+        show_player_teleport(PLAYER_INITIAL_X_POS, -1);
+    }
     show_game(false, false);
     // reset timers for objects
     loaded_stage.reset_objects_timers();
@@ -388,6 +396,9 @@ void game::restart_stage()
     player1.set_animation_type(ANIM_TYPE_TELEPORT);
 
     player1.reset_hp();
+    if (_boss_rush_active == true) {
+        player1.refill_weapons();
+    }
     player1.reset_jump();
     player1.cancel_slide();
     loaded_stage.reset_stage_maps();
@@ -464,6 +475,10 @@ bool game::show_game_intro()
 #ifdef PSP
     psp_platform::log("intro: before pick_stage+initGame");
 #endif
+    if (scenes.boss_rush_selected == true) {
+        start_boss_rush();
+        return true;
+    }
     currentStage = scenes.pick_stage(INTRO_STAGE);
     initGame();
 
@@ -1127,7 +1142,7 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss, bool is_stage
     }
     // TODO: add a delay here
 
-    if (is_stage_boss) {
+    if (is_stage_boss && _boss_rush_active == false) {
         input.clean_all();
         // 5. show boss dialog
         dialogs boss_dialog;
@@ -1503,6 +1518,10 @@ void game::player_victory()
 
 void game::got_weapon()
 {
+    if (_boss_rush_active == true) {
+        boss_rush_boss_defeated();
+        return;
+    }
     //bool must_show_got_weapon = false;
     bool must_show_got_weapon = true    ;
     if (game_save.stages[currentStage] == 0) {
@@ -1628,6 +1647,10 @@ void game::modern_style_got_weapon()
 
 void game::leave_stage()
 {
+    if (_boss_rush_active == true) { // leaving a boss rush fight ends the run
+        boss_rush_exit(false);
+        return;
+    }
     save_game();
     draw_lib.set_flash_enabled(false);
     freeze_weapon_effect = FREEZE_EFFECT_NONE;
@@ -1657,7 +1680,11 @@ void game::leave_stage()
 void game::return_to_intro_screen()
 {
     save_game();
+    go_to_title_screen();
+}
 
+void game::go_to_title_screen()
+{
     draw_lib.set_flash_enabled(false);
     freeze_weapon_effect = FREEZE_EFFECT_NONE;
     GAME_FLAGS[FLAG_INVINCIBLE] = invencible_old_value;
@@ -1673,6 +1700,11 @@ void game::return_to_intro_screen()
     checkpoint.reset(); // a new (or loaded) game never starts from the checkpoint of a previous one
     currentStage = INTRO_STAGE;
     leave_game = false;
+
+    if (scenes.boss_rush_selected == true) {
+        start_boss_rush();
+        return;
+    }
 
     if (game_save.stages[INTRO_STAGE] == 0 && !GAME_FLAGS[FLAG_ALL_WEAPONS]) {
         currentStage = INTRO_STAGE;
@@ -1733,6 +1765,10 @@ void game::exit_game()
 
 void game::show_ending()
 {
+    if (_boss_rush_active == true) { // the final boss is just another fight in the boss rush
+        boss_rush_boss_defeated();
+        return;
+    }
     // save the data indicating game was finished, so user can see ending later or get access to more features
     bool show_new_characters_warning = true;
     if (SharedData::get_instance()->game_config.game_finished == true) { // already finished the game before
@@ -2192,6 +2228,9 @@ void game::set_current_save_slot(short n)
 
 void game::save_game()
 {
+    if (_boss_rush_active == true) { // boss rush never changes the save files
+        return;
+    }
     if (fio.write_save(game_save, current_save_slot) == false) {
         show_savegame_error();
         return;
@@ -2426,6 +2465,9 @@ void game::object_teleport_boss(st_position dest_pos, Uint8 dest_map, Uint8 tele
 
 bool game::show_config(short finished_stage)
 {
+    if (_boss_rush_active == true) {
+        finished_stage = 1; // allows leaving (which ends the run)
+    }
     game_menu menu;
     if (menu.show_main_config(finished_stage, true) == 1) {
         input.clean();
@@ -2506,4 +2548,203 @@ void game::set_current_stage(int stage)
 void game::showGotArmorDialog(e_ARMOR_PIECES armor_type)
 {
     game_dialogs.showGotArmorDialog(armor_type);
+}
+
+
+// ********************************************************************************************** //
+//                                                                                                //
+//  BOSS RUSH - extra mode (after the game is finished): all stage bosses, castle ones included,  //
+//  in random order, each one fought in its own boss room. All weapons, no tanks. Energy and      //
+//  weapons are refilled after each boss. Nothing is saved.                                       //
+//                                                                                                //
+// ********************************************************************************************** //
+bool game::is_boss_rush() const
+{
+    return _boss_rush_active;
+}
+
+// finds where the boss of a stage is placed (map and tile), false if the stage has no boss
+bool game::boss_rush_find_boss(int stage_n, int &map_n, st_position &boss_tile)
+{
+    CURRENT_FILE_FORMAT::file_stage temp_stage;
+    fio.read_stage(temp_stage, stage_n);
+    int boss_id = temp_stage.boss.id_npc;
+    if (boss_id < 0) {
+        return false;
+    }
+    // the mediator only holds the NPCs of the loaded stage, so read the list of the wanted one
+    std::vector<CURRENT_FILE_FORMAT::file_map_npc_v2> stage_npcs = fio.read_map_enemy_list(stage_n);
+    for (unsigned int i=0; i<stage_npcs.size(); i++) {
+        const CURRENT_FILE_FORMAT::file_map_npc_v2& npc_data = stage_npcs[i];
+        if (npc_data.id_npc == boss_id && npc_data.stage_id == stage_n) {
+            map_n = npc_data.map_id;
+            boss_tile = npc_data.start_point;
+            return true;
+        }
+    }
+    return false;
+}
+
+void game::boss_rush_show_title(const std::string& line1, const std::string& line2, int wait_ms)
+{
+    soundManager.stop_music();
+    graphLib.blank_screen();
+    graphLib.draw_centered_text(100, line1);
+    graphLib.draw_centered_text(120, line2);
+    graphLib.wait_and_update_screen(wait_ms);
+}
+
+void game::start_boss_rush()
+{
+    scenes.boss_rush_selected = false;
+    _boss_rush_active = true;
+
+    // temporary progression: every weapon (and coil/jet) available, no tank of any kind
+    for (int i=0; i<=STAGE8; i++) {
+        game_save.stages[i] = 1;
+    }
+    game_save.items.energy_tanks = 0;
+    game_save.items.weapon_tanks = 0;
+    game_save.items.special_tanks = 0;
+
+    // every stage that has a boss placed in its maps
+    _boss_rush_queue.clear();
+    for (int i=0; i<STAGE_COUNT; i++) {
+        int map_n = 0;
+        st_position boss_tile;
+        if (boss_rush_find_boss(i, map_n, boss_tile) == true) {
+            _boss_rush_queue.push_back(i);
+        }
+    }
+    if (_boss_rush_queue.empty()) {
+        boss_rush_exit(false);
+        return;
+    }
+    // random order (Fisher-Yates)
+    for (int i=(int)_boss_rush_queue.size()-1; i>0; i--) {
+        int j = rand() % (i+1);
+        int temp = _boss_rush_queue[i];
+        _boss_rush_queue[i] = _boss_rush_queue[j];
+        _boss_rush_queue[j] = temp;
+    }
+    _boss_rush_index = 0;
+
+    currentStage = _boss_rush_queue[0];
+    initGame();
+    checkpoint.reset();
+    char round_str[40];
+    snprintf(round_str, sizeof(round_str), "ROUND 1/%d", (int)_boss_rush_queue.size());
+    boss_rush_show_title("BOSS RUSH", round_str, 1800);
+    _boss_rush_start_ticks = SDL_GetTicks(); // the timer starts with the first fight
+    _boss_rush_total_ms = 0;
+    start_stage();
+}
+
+void game::boss_rush_start_fight()
+{
+    currentStage = _boss_rush_queue[_boss_rush_index];
+    loaded_stage = stage(currentStage, &player1);
+    checkpoint.reset();
+    char round_str[40];
+    snprintf(round_str, sizeof(round_str), "ROUND %d/%d", (int)_boss_rush_index+1, (int)_boss_rush_queue.size());
+    boss_rush_show_title("BOSS RUSH", round_str, 1800);
+    start_stage();
+}
+
+// called after the stage maps are loaded: puts the screen on the boss room and sets the "checkpoint" there,
+// so the player starts (and restarts, if dying) right in front of the boss
+void game::boss_rush_place_in_boss_room()
+{
+    int map_n = 0;
+    st_position boss_tile;
+    if (boss_rush_find_boss(currentStage, map_n, boss_tile) == false) {
+        return;
+    }
+    loaded_stage.set_current_map(map_n);
+    classMap* boss_map = loaded_stage.get_current_map();
+
+    // a boss room starts on a fully locked column (door) at its left, the screen is scrolled until that column is the first one
+    int boss_px = boss_tile.x*TILESIZE;
+    int lock_px = boss_map->get_first_lock_on_left(boss_tile.x);
+    int scroll_x = 0;
+    if (lock_px != -1 && boss_px >= lock_px && boss_px < lock_px + RES_W) {
+        scroll_x = lock_px;
+    } else { // no clear room limit: just center the boss
+        scroll_x = boss_px - RES_W/2;
+        int max_scroll = MAP_W*TILESIZE - RES_W;
+        if (scroll_x > max_scroll) {
+            scroll_x = max_scroll;
+        }
+        if (scroll_x < 0) {
+            scroll_x = 0;
+        }
+    }
+    checkpoint.map = map_n;
+    checkpoint.map_scroll_x = scroll_x;
+    checkpoint.x = scroll_x + TILESIZE*3;
+    checkpoint.y = (MAP_H-1)*TILESIZE; // search for the ground from the bottom of the map
+    loaded_stage.reset_current_map();
+}
+
+std::string game::boss_rush_format_time(Uint32 total_ms)
+{
+    Uint32 hours = total_ms / 3600000;
+    Uint32 minutes = (total_ms / 60000) % 60;
+    Uint32 seconds = (total_ms / 1000) % 60;
+    Uint32 millis = total_ms % 1000;
+    char time_str[40];
+    snprintf(time_str, sizeof(time_str), "%02u:%02u:%02u:%03u", (unsigned int)hours, (unsigned int)minutes, (unsigned int)seconds, (unsigned int)millis);
+    return std::string(time_str);
+}
+
+void game::boss_rush_boss_defeated()
+{
+    // the run time stops the moment the last boss is defeated
+    if (_boss_rush_index+1 >= _boss_rush_queue.size()) {
+        _boss_rush_total_ms = SDL_GetTicks() - _boss_rush_start_ticks;
+    }
+    player_victory();
+
+    // same cleanup done when leaving a stage
+    draw_lib.set_flash_enabled(false);
+    freeze_weapon_effect = FREEZE_EFFECT_NONE;
+    GAME_FLAGS[FLAG_INVINCIBLE] = invencible_old_value;
+    input.clean();
+    player1.reset_charging_shot();
+    player1.set_weapon(WEAPON_DEFAULT, false);
+
+    // full energy and weapons for the next one
+    player1.reset_hp();
+    player1.refill_weapons();
+
+    _boss_rush_index++;
+    if (_boss_rush_index >= _boss_rush_queue.size()) {
+        boss_rush_exit(true);
+    } else {
+        boss_rush_start_fight();
+    }
+}
+
+// ends the run and goes back to the game-start screen
+void game::boss_rush_exit(bool completed)
+{
+    if (completed == true) {
+        soundManager.stop_music();
+        graphLib.blank_screen();
+        graphLib.draw_centered_text(70, "BOSS RUSH");
+        graphLib.draw_centered_text(90, "COMPLETE!");
+        graphLib.draw_centered_text(120, "TIME");
+        graphLib.draw_centered_text(138, boss_rush_format_time(_boss_rush_total_ms));
+        graphLib.draw_centered_text(200, "PRESS A BUTTON TO CONTINUE");
+        draw_lib.update_screen();
+        input.clean();
+        timer.delay(500);
+        input.wait_keypress();
+    }
+    _boss_rush_active = false;
+    _boss_rush_queue.clear();
+    _boss_rush_index = 0;
+    scenes.boss_rush_selected = false;
+    GAME_FLAGS[FLAG_INVINCIBLE] = invencible_old_value;
+    go_to_title_screen();
 }

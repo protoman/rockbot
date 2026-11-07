@@ -37,6 +37,8 @@ public:
     void show_ending_scenes(e_PLAYERS selected_player);
     void classic_style_castle_intro(short stage_id);
 
+    bool boss_rush_selected = false;                    // set by main_screen() when the player picked BOSS RUSH
+
 private:
     // preload/unload
     void preload_faces();/// @TODO: move to graphLib and create a function show_face(st_position)

@@ -143,8 +143,18 @@ void scenesLib::main_screen()
     } else {
         options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_loadgame), true));
     }
+    // extra mode, only after the game was finished: between "load game" and "config"
+    int boss_rush_n = -1;
+    if (SharedData::get_instance()->game_config.game_finished == true) {
+        options.push_back(st_menu_option("BOSS RUSH"));
+        boss_rush_n = options.size()-1;
+    }
+    int config_n = options.size();
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_config)));
+    int about_n = options.size();
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_about)));
+    int cheats_n = options.size();                      // the cheats entry is added at the end of the list by the cheat code
+    boss_rush_selected = false;
 
     option_picker main_picker(false, st_position(20, (RES_H*0.5)-graphLib.RES_DIFF_H), options, false);
 
@@ -196,21 +206,24 @@ void scenesLib::main_screen()
                 draw_main();
                 main_picker.draw();
             }
-        } else if (picked_n == 2) { // CONFIG //
+        } else if (picked_n == config_n) { // CONFIG //
             menu.show_main_config(0, false);
 			draw_main();
 			main_picker.draw();
-        } else if (picked_n == 3) { // ABOUT/CREDITS //
+        } else if (picked_n == about_n) { // ABOUT/CREDITS //
             // only wait for keypress if user did not interrupted credits
             draw_lib.show_about();
             draw_main();
             main_picker.draw();
-        } else if (picked_n == 4) { // CHEATS //
+        } else if (boss_rush_n != -1 && picked_n == boss_rush_n) { // BOSS RUSH //
+            repeat_menu = false;
+            boss_rush_selected = true;
+        } else if (picked_n == cheats_n) { // CHEATS //
             show_cheats_menu();
             draw_main();
             main_picker.draw();
         } else if (picked_n == MAIN_MENU_CHEAT_RETURN) { // LEAVING CHEATS MENU ITEM //
-            picked_n = 4;
+            picked_n = cheats_n;
             main_picker.add_option_item(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_menu_item_CHEATS)));
             draw_main();
             main_picker.draw();
@@ -222,6 +235,10 @@ void scenesLib::main_screen()
         game_save.difficulty = select_difficulty();
         game_save.selected_player = select_player();
         gameControl.save_game();
+    } else if (boss_rush_selected == true) { // BOSS RUSH: starts from scratch and never touches the save files //
+        game_save.reset();
+        game_save.difficulty = select_difficulty();
+        game_save.selected_player = select_player();
     }
 }
 

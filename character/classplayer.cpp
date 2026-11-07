@@ -952,11 +952,14 @@ void classPlayer::death()
     soundManager.play_sfx(SFX_PLAYER_DEATH);
     gameControl.draw_player_death(realPosition);
 
-    game_save.items.lifes--;
-    if (game_save.items.lifes < 0) {
-        reset_lifes();
-        gameControl.game_over();
-        return;
+    // boss rush has no lives: dying just restarts the fight
+    if (gameControl.is_boss_rush() == false) {
+        game_save.items.lifes--;
+        if (game_save.items.lifes < 0) {
+            reset_lifes();
+            gameControl.game_over();
+            return;
+        }
     }
 
     reset_charging_shot();

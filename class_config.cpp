@@ -217,6 +217,9 @@ st_position class_config::move_weapon_cursor_down()
 
 void class_config::use_tank(int tank_type)
 {
+    if (gameControl.is_boss_rush() == true) { // no tanks in the boss rush
+        return;
+    }
 	int n = 0;
 
     // check tank number

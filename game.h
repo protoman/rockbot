@@ -226,6 +226,10 @@ public:
 
     void game_over();
 
+    // BOSS RUSH: extra mode, available after the game is finished
+    void start_boss_rush();
+    bool is_boss_rush() const;
+
 private:
     void exit_game();
     bool test_teleport(classPlayer *test_player);
@@ -245,6 +249,14 @@ private:
     bool subboss_alive_on_left(short tileX);
     void show_mem_debug(int n);
     void player_victory();
+    void go_to_title_screen();
+    void boss_rush_start_fight();
+    bool boss_rush_find_boss(int stage_n, int &map_n, st_position &boss_tile);
+    void boss_rush_place_in_boss_room();
+    void boss_rush_boss_defeated();
+    void boss_rush_exit(bool completed);
+    std::string boss_rush_format_time(Uint32 total_ms);
+    void boss_rush_show_title(const std::string& line1, const std::string& line2, int wait_ms);
 
 
 
@@ -286,6 +298,12 @@ private:
 
     bool is_game_selected = false;
     bool is_stage_selected = false;
+
+    bool _boss_rush_active = false;
+    std::vector<int> _boss_rush_queue;                  // stages whose boss will be fought, in order
+    unsigned int _boss_rush_index = 0;
+    Uint32 _boss_rush_start_ticks = 0;                  // run timer: when the first fight started
+    Uint32 _boss_rush_total_ms = 0;                     // run time, set when the last boss is defeated
 
 };
 
