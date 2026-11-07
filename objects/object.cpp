@@ -242,6 +242,12 @@ void object::gravity()
     if (is_on_screen() == false) {
         return;
     }
+    gravity_step();
+}
+
+// one gravity step, without the on-screen check (used to settle objects while the map is loaded)
+bool object::gravity_step()
+{
 	// non-falling object types
     if (type == OBJ_MOVING_PLATFORM_UPDOWN || type == OBJ_MOVING_PLATFORM_UP_LOOP
             || type == OBJ_MOVING_PLATFORM_DOWN || type == OBJ_MOVING_PLATFORM_LEFTRIGHT || type == OBJ_DISAPPEARING_BLOCK
@@ -250,19 +256,22 @@ void object::gravity()
             || type == OBJ_DEATHRAY_VERTICAL || type == OBJ_DEATHRAY_HORIZONTAL || type == OBJ_DAMAGING_PLATFORM
             || type == OBJ_CRUSHER || type == OBJ_JUMP_SHOOT_DESTRUCTIBLE_NO_DROP || type == OBJ_EXPANDING_SPIKE
             || (type != OBJ_PLATFORM_WALKER && is_active_platform() == true)) {
-		return;
+		return false;
 	}
+    bool moved = false;
     for (int i=(int)(GRAVITY_SPEED*SharedData::get_instance()->get_movement_multiplier()); i>0; i--) {
         bool can_fall = test_change_position(0, i);
         if (can_fall == true) {
 			position.y += i;
             obj_move_player(0, i);
+            moved = true;
 			break;
 		}
 	}
 	if (position.y > RES_H) {
 		_finished = true;
 	}
+    return moved;
 }
 
 bool object::test_change_position(short xinc, short yinc)
@@ -1815,9 +1824,12 @@ void object::inc_status()
 
 void object::initialize_object_position_to_ground()
 {
-    // RES_H is a good enough limit
-    for (int i=0; i<framesize_h; i++) {
-        gravity();
+    // settle now, while the map is being loaded, even for objects outside the current screen:
+    // otherwise they would be seen falling into place when the player gets close
+    for (int i=0; i<RES_H && _finished == false; i++) {
+        if (gravity_step() == false) {
+            break;
+        }
     }
 }
 

@@ -137,6 +137,7 @@ public:
 private:
     void add_graphic();
     void gravity();
+    bool gravity_step();
     bool test_change_position(short int xinc, short int yinc);
     void obj_move_player(int xinc, int yinc); // if player uses this as platform, move him
 
