@@ -2550,6 +2550,8 @@ void graphicsLib::zoom_image(st_position dest, const graphicsLib_gSurface &pictu
 
     for (float i=0.1; i<1.0; i+=0.03) {
         if ((rotozoom_picture = SDLL_zoomSurface(picture.get_surface(), i, i, smooth)) != NULL) {
+            // the zoom creates a new surface that does not inherit the colorkey: without this the key colour is drawn as a solid box
+            SDLL_SetColorKey(rotozoom_picture, SDL_SRCCOLORKEY, SDLL_MapRGB(game_screen, COLORKEY_R, COLORKEY_G, COLORKEY_B));
             struct st_rectangle origin_rectangle(0, 0, rotozoom_picture->w, rotozoom_picture->h);
 
             st_position dest_zoom(center.x-rotozoom_picture->w/2, center.y-rotozoom_picture->h/2);
