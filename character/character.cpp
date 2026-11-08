@@ -1433,7 +1433,9 @@ bool character::is_on_screen()
     st_float_position scroll = gameControl.get_current_map_obj()->getMapScrolling();
     float pos_x = position.x;
     //float pos_y = position.y; // TBD
-    int frame_w = pos_x+total_frame_size.width;
+    // width of the sprite (a typo here, "pos_x+width", made enemies far behind the screen count as on/near the screen:
+    // they kept running their AI and shooting, and the wall check for off-screen shots did not apply to them)
+    int frame_w = total_frame_size.width;
 
     if (!is_player()) {
         pos_x -= GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x;
@@ -1502,7 +1504,9 @@ bool character::is_on_visible_screen()
     // entre scroll.x e scroll.x+RES_W
     float pos_x = position.x;
     //float pos_y = position.y; // TBD
-    int frame_w = pos_x+total_frame_size.width;
+    // width of the sprite (a typo here, "pos_x+width", made enemies far behind the screen count as on/near the screen:
+    // they kept running their AI and shooting, and the wall check for off-screen shots did not apply to them)
+    int frame_w = total_frame_size.width;
 
     if (!is_player()) {
         pos_x -= GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x;
