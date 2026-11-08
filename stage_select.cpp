@@ -449,7 +449,7 @@ short stage_select::pick_stage_classic_style(int stage_n)
 
     while (finished == false) {
         // clean cursor in old position
-        graphLib.set_surface_alpha(255, stage_selection_cursor_surface);
+        graphLib.set_surface_alpha_colorkey_no_rle(255, stage_selection_cursor_surface);
         int cursor_pos_x = (selection_pos.x * faces_x_spacing) + faces_x_left - 8;
         int cursor_pos_y = (selection_pos.y * faces_y_spacing) + faces_y_top - 9;
         graphLib.showSurfaceRegionAt(&stage_selection_cursor_surface, st_rectangle(0, 0, 48, 48), st_position(cursor_pos_x, cursor_pos_y));
@@ -556,9 +556,9 @@ short stage_select::pick_stage_classic_style(int stage_n)
         cursor_pos_x = (selection_pos.x * faces_x_spacing) + faces_x_left - 8;
         cursor_pos_y = (selection_pos.y * faces_y_spacing) + faces_y_top - 9;
 
-        graphLib.set_surface_alpha(255, stage_selection_cursor_surface);
+        graphLib.set_surface_alpha_colorkey_no_rle(255, stage_selection_cursor_surface);
         graphLib.showSurfaceRegionAt(&stage_selection_cursor_surface, st_rectangle(0, 0, 48, 48), st_position(cursor_pos_x, cursor_pos_y));
-        graphLib.set_surface_alpha(cursor_opacity, stage_selection_cursor_surface);
+        graphLib.set_surface_alpha_colorkey_no_rle(cursor_opacity, stage_selection_cursor_surface);
         graphLib.showSurfaceRegionAt(&stage_selection_cursor_surface, st_rectangle(48, 0, 48, 48), st_position(cursor_pos_x, cursor_pos_y));
 
 

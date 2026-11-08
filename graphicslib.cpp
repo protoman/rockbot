@@ -976,6 +976,18 @@ void graphicsLib::set_surface_alpha(int alpha, graphicsLib_gSurface *surface)
     SDLL_SetAlpha(surface->get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);
 }
 
+// Same as set_surface_alpha(), but never enables RLE: with SDL2, an RLE surface that has a colorkey and is drawn with alpha
+// blending ignores the colorkey and draws the key colour as a solid box (seen on the PSP with the stage select cursor).
+// Meant for small images; the full-screen fades keep using set_surface_alpha() (RLE) for speed.
+void graphicsLib::set_surface_alpha_colorkey_no_rle(int alpha, graphicsLib_gSurface &surface)
+{
+    if (surface.width <= 0 || surface.get_surface() == NULL) {
+        return;
+    }
+    SDLL_SetColorKey(surface.get_surface(), SDL_SRCCOLORKEY, SDLL_MapRGB(game_screen, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+    SDLL_SetAlpha(surface.get_surface(), SDL_SRCALPHA, alpha);
+}
+
 void graphicsLib::set_surface_alpha_nocolorkey(int alpha, graphicsLib_gSurface &surface)
 {
     SDLL_SetAlpha(surface.get_surface(), SDL_RLEACCEL|SDL_SRCALPHA, alpha);

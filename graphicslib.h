@@ -183,6 +183,7 @@ public:
     void set_surface_alpha(int alpha, graphicsLib_gSurface *surface);
 
     void set_surface_alpha_nocolorkey(int alpha, graphicsLib_gSurface &surface);
+    void set_surface_alpha_colorkey_no_rle(int alpha, graphicsLib_gSurface &surface); // small images with colorkey + alpha, without RLE (see the .cpp)
 
     struct graphicsLib_gSurface surfaceFromRegion(struct st_rectangle, struct graphicsLib_gSurface&);
     void blank_screen();
