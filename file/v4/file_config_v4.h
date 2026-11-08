@@ -433,7 +433,11 @@ namespace format_v4 {
             android_touch_controls_size = 1;
             wii_joystick_type = 0;
             playstation2_video_mode = 0;
+#ifdef PSP
+            graphics_performance_mode = PERFORMANCE_MODE_LOW; // room effects (rain, storm, lighting...) make the PSP too slow
+#else
             graphics_performance_mode = PERFORMANCE_MODE_HIGH;
+#endif
             android_button_spacing = 1;
             android_audio_buffer_size = 0;
             old_old_style_music = 0;
