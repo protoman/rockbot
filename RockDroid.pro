@@ -256,19 +256,19 @@ psp {
 
     QMAKE_POST_LINK += /media/iuri/SamsungEXT4/development/SDK/PSP/sdk/bin/mksfo 'Rockbot ' PARAM.SFO $$escape_expand(\n\t)
     QMAKE_POST_LINK += /media/iuri/SamsungEXT4/development/SDK/PSP/sdk/bin/psp-strip rockbot_psp.elf -o rockbot_psp_strip.elf $$escape_expand(\n\t)
-    QMAKE_POST_LINK += /media/iuri/SamsungEXT4/development/SDK/PSP/sdk/bin/pack-pbp EBOOT.PBP PARAM.SFO ./packages/files/psp_icon.png NULL NULL ./packages/files/psp_background.png NULL rockbot_psp_strip.elf NULL $$escape_expand(\n\t)
+    QMAKE_POST_LINK += /media/iuri/SamsungEXT4/development/SDK/PSP/sdk/bin/pack-pbp EBOOT.PBP PARAM.SFO ./packages/files/psp_icon1.png NULL NULL ./packages/files/psp_background1.png NULL rockbot_psp_strip.elf NULL $$escape_expand(\n\t)
 
 #mksfo 'Rockbot ' PARAM.SFO
 #psp-strip rockbot_psp.elf -o rockbot_psp_strip.elf
-#pack-pbp EBOOT.PBP PARAM.SFO ./build/packages/files/psp_icon.png  \
-#        NULL NULL ./build/packages/files/psp_background.png  \
+#pack-pbp EBOOT.PBP PARAM.SFO ./build/packages/files/psp_icon1.png  \
+#        NULL NULL ./build/packages/files/psp_background1.png  \
 #        NULL  rockbot_psp_strip.elf NULL
 #
 #[0]        408 bytes | PARAM.SFO
-#[1]       7146 bytes | ./build/packages/files/psp_icon.png
+#[1]       7146 bytes | ./build/packages/files/psp_icon1.png
 #[2]          0 bytes | NULL
 #[3]          0 bytes | NULL
-#[4]     134559 bytes | ./build/packages/files/psp_background.png
+#[4]     134559 bytes | ./build/packages/files/psp_background1.png
 #[5]          0 bytes | NULL
 #[6]    3783804 bytes | rockbot_psp_strip.elf
 #[7]          0 bytes | NULL

@@ -34,8 +34,8 @@ LIBS    = -lm -lc -lstdc++ -lc -lSDL_mixer -lvorbisidec -logg -lmikmod -lmmio -l
  
 EXTRA_TARGETS   = EBOOT.PBP
 PSP_EBOOT_TITLE = Rockbot 1.0
-PSP_EBOOT_ICON= ./build/packages/files/psp_icon.png
-PSP_EBOOT_PIC1= ./build/packages/files/psp_background.png
+PSP_EBOOT_ICON= ./build/packages/files/psp_icon1.png
+PSP_EBOOT_PIC1= ./build/packages/files/psp_background1.png
 
 include /opt/pspsdk/psp/sdk/lib/build.mak
 include /opt/pspsdk/psp/sdk/lib/build_prx.mak 
