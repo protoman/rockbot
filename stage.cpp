@@ -394,6 +394,10 @@ void stage::check_map_effect()
     }
     // no map effects unless config is set to high-end performance mode
     if (SharedData::get_instance()->game_config.graphics_performance_mode != PERFORMANCE_MODE_HIGH) {
+        // the option can be changed while playing: an effect that is already running must stop at once
+        if (draw_lib.get_gfx() != SCREEN_GFX_NONE) {
+            draw_lib.set_gfx(SCREEN_GFX_NONE, BG_SCROLL_MODE_NONE);
+        }
         return;
     }
 
