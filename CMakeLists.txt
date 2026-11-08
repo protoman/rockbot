@@ -611,8 +611,8 @@ if(ROCKBOT_PSP)
         set(_psp_icon "${_psp_files}/psp_icon1.png")
         set(_psp_bg "${_psp_files}/psp_background1.png")
     else()
-        set(_psp_icon "${_psp_files}/psp_icon.png")
-        set(_psp_bg "${_psp_files}/psp_background.png")
+        set(_psp_icon "${_psp_files}/psp_icon2.png")
+        set(_psp_bg "${_psp_files}/psp_background2.png")
     endif()
     create_pbp_file(
         TARGET rockbot
