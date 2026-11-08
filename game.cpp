@@ -1229,9 +1229,11 @@ void game::remove_players_slide()
 
 //TRANSITION_TOP_TO_BOTTOM, TRANSITION_BOTTOM_TO_TOP
 void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classPlayer *pObj) {
-	graphicsLib_gSurface temp_screen;
+    // two screen-sized surfaces (current screen and new map) instead of one double-height buffer: a single
+    // 320x480 block (600KB) could not be found in the PSP's fixed 20MB heap in Rockbot 2, while 300KB blocks can
+    graphicsLib_gSurface old_screen;
+    graphicsLib_gSurface temp_map_area;
     short i = 0;
-    graphLib.initSurface(st_size(RES_W, RES_H*2), &temp_screen);
 
     classMap* temp_map = &loaded_stage.maps[map_n];
 
@@ -1245,8 +1247,6 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
         temp_map->set_bg_scroll(0);
         temp_map->set_foreground_postion(st_float_position(0, 0));
     }
-
-    graphLib.copyArea(st_rectangle(0, i*TRANSITION_STEP, RES_W, RES_H), st_position(0, 0), &temp_screen, &graphLib.gameScreen);
 
     // if map destiny and map origin are the same, adjust player's X position
     if (loaded_stage.get_current_map_number() == map_n) {
@@ -1264,33 +1264,40 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
 
     // draw the offscreen with the new loaded map
 	if (type == TRANSITION_TOP_TO_BOTTOM || type == TRANSITION_BOTTOM_TO_TOP) {
-        // copy current screen to temp
-		if (type == TRANSITION_TOP_TO_BOTTOM) {
-            graphLib.copy_gamescreen_area(st_rectangle(0, 0, RES_W, RES_H), st_position(0, 0), &temp_screen);
-		} else if (type == TRANSITION_BOTTOM_TO_TOP) {
-            graphLib.copy_gamescreen_area(st_rectangle(0, 0, RES_W, RES_H), st_position(0, RES_H), &temp_screen);
-        }
+        // copy current screen
+        graphLib.initSurface(st_size(RES_W, RES_H), &old_screen);
+        graphLib.copy_gamescreen_area(st_rectangle(0, 0, RES_W, RES_H), st_position(0, 0), &old_screen);
 
         temp_map->set_scrolling(st_float_position(adjust_x, 0));
 
-		// copy the new screen to the temp_area
-        graphicsLib_gSurface temp_map_area;
+		// draw the new map (kept until the end of the transition)
         temp_map->get_map_area_surface(temp_map_area);
-		if (type == TRANSITION_TOP_TO_BOTTOM) {
-            graphLib.copyArea(st_rectangle(0, 0, RES_W, RES_H), st_position(0, RES_H), &temp_map_area, &temp_screen);
-		} else if (type == TRANSITION_BOTTOM_TO_TOP) {
-            graphLib.copyArea(st_rectangle(0, 0, RES_W, RES_H), st_position(0, 0), &temp_map_area, &temp_screen);
-		}
-        temp_map_area.freeGraphic();
+
+        // without both images there is nothing to slide: skip the animation instead of drawing from missing surfaces
+        const bool can_slide = (old_screen.get_surface() != NULL && temp_map_area.get_surface() != NULL);
 
 		// now, show the transition
         short int extra_y = 0;
         for (i=0; i<(RES_H)/TRANSITION_STEP; i++) {
-            if (type == TRANSITION_TOP_TO_BOTTOM) {
-                graphLib.copyArea(st_rectangle(0, i*TRANSITION_STEP, RES_W, RES_H), st_position(0, 0), &temp_screen, &graphLib.gameScreen);
-            } else if (type == TRANSITION_BOTTOM_TO_TOP) {
-                graphLib.copyArea(st_rectangle(0, RES_H-i*TRANSITION_STEP, RES_W, RES_H), st_position(0, 0), &temp_screen, &graphLib.gameScreen);
-			}
+            // the screen scrolls over the two images: the old one leaves and the new map enters
+            const int moved = i*TRANSITION_STEP;
+            if (can_slide) {
+                if (type == TRANSITION_TOP_TO_BOTTOM) {
+                    if (RES_H-moved > 0) {
+                        graphLib.copyArea(st_rectangle(0, moved, RES_W, RES_H-moved), st_position(0, 0), &old_screen, &graphLib.gameScreen);
+                    }
+                    if (moved > 0) {
+                        graphLib.copyArea(st_rectangle(0, 0, RES_W, moved), st_position(0, RES_H-moved), &temp_map_area, &graphLib.gameScreen);
+                    }
+                } else if (type == TRANSITION_BOTTOM_TO_TOP) {
+                    if (moved > 0) {
+                        graphLib.copyArea(st_rectangle(0, RES_H-moved, RES_W, moved), st_position(0, 0), &temp_map_area, &graphLib.gameScreen);
+                    }
+                    if (RES_H-moved > 0) {
+                        graphLib.copyArea(st_rectangle(0, 0, RES_W, RES_H-moved), st_position(0, moved), &old_screen, &graphLib.gameScreen);
+                    }
+                }
+            }
 
             if (i % 5 == 0) {
 				extra_y = 1;
@@ -1364,7 +1371,8 @@ void game::transition_screen(Uint8 type, Uint8 map_n, short int adjust_x, classP
     //temp_map->remove_temp_objects();
 
 
-    temp_screen.freeGraphic();
+    old_screen.freeGraphic();
+    temp_map_area.freeGraphic();
 	pObj->set_teleporter(-1);
     pObj->char_update_real_position();
 }
