@@ -20,6 +20,7 @@ static const Uint32 SURFACE_FORMAT = SDL_PIXELFORMAT_ABGR8888;
 void setup(const char *argv0 = NULL);
 // Appends a line to <game folder>/rockbot_boot.log (diagnostics on real hardware).
 void log(const char *fmt, ...);
+void log_heap(const char *tag); // malloc heap usage (the 20MB heap is separate from the system free memory shown by log())
 // Tells the hang watchdog the game is alive (called once per frame).
 void heartbeat();
 // Called once per game logic tick (fps_control::limit): the perf line reports ticks per second.

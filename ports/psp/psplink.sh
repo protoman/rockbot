@@ -3,7 +3,7 @@
 #
 # On the PSP: start psplink (from the memory stick) and connect the USB cable.
 #
-#   ports/psp/psplink.sh stage      builds nothing; copies the last build into the folder served to the PSP
+#   ports/psp/psplink.sh stage [1|2] builds nothing; copies the last build (game 1 or 2, default 1) into the folder served to the PSP
 #   ports/psp/psplink.sh host       serves that folder as host0: (run it, leave it running)
 #   ports/psp/psplink.sh shell      opens pspsh (in another terminal) - then type:  ldstart host0:/rockbot.prx
 #   ports/psp/psplink.sh addr <pc>  maps a crash address to a function. Give the module load address too:
@@ -20,11 +20,14 @@ SERVE="$ROOT/res/psp/psplink_host"
 
 case "${1:-}" in
     stage)
-        [ -f "$ROOT/res/psp/rockbot_psp.prx" ] || { echo "build first: ports/psp/build.sh" >&2; exit 1; }
-        rm -rf "$SERVE"; mkdir -p "$SERVE"
-        cp -a "$ROOT/build/packages/psp_dist/Rockbot1/." "$SERVE/"
+        GAME="${2:-1}"   # must be the game the last build was made for (ports/psp/build.sh <1|2>)
+        [ -f "$ROOT/res/psp/rockbot_psp.prx" ] || { echo "build first: ports/psp/build.sh $GAME" >&2; exit 1; }
+        rm -rf "$SERVE"; mkdir -p "$SERVE/games"
+        cp -r "$ROOT/build/fonts" "$ROOT/build/shared" "$SERVE/"
+        cp -r "$ROOT/build/games/RockDroid${GAME}" "$SERVE/games/"
+        rm -rf "$SERVE/games/RockDroid${GAME}/mp3"
         cp "$ROOT/res/psp/rockbot_psp.prx" "$SERVE/rockbot.prx"
-        echo "staged in $SERVE (rockbot.prx + games/ fonts/ shared/)" ;;
+        echo "staged game $GAME in $SERVE (rockbot.prx + games/ fonts/ shared/)" ;;
     host)
         [ -d "$SERVE" ] || "$0" stage
         echo "serving $SERVE as host0: (Ctrl+C to stop)"

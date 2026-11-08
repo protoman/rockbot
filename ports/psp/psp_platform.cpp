@@ -39,7 +39,9 @@ PSP_MODULE_INFO("Rockbot", PSP_MODULE_USER, 1, 0);
 // "Coprocessor unusable" on the first frame (PPSSPP does not enforce it).
 PSP_MAIN_THREAD_ATTR(PSP_THREAD_ATTR_USER | PSP_THREAD_ATTR_VFPU);
 // Explicit heap: negative "all-but-N" can leave almost nothing under PPSSPP after SDL_Init.
-PSP_HEAP_SIZE_KB(20 * 1024);
+// 20MB was full in Rockbot 2 (19.9MB in use at the first map link: no 300KB block left for the map transition) while the
+// system still had ~22MB free. 28MB leaves ~14MB for threads, audio and SDL.
+PSP_HEAP_SIZE_KB(28 * 1024);
 // 64 KB overflowed silently under the emulator but kills the thread on real hardware.
 PSP_MAIN_THREAD_STACK_SIZE_KB(512);
 
@@ -145,6 +147,12 @@ void log(const char *fmt, ...)
     }
 }
 
+void log_heap(const char *tag)
+{
+    struct mallinfo mi = mallinfo();
+    log("HEAP %s: arena=%dK in-use=%dK free-in-heap=%dK largest-free-chunk=%dK", tag, mi.arena/1024, mi.uordblks/1024, mi.fordblks/1024, mi.keepcost/1024);
+}
+
 static u32 g_swap_us = 0, g_upload_us = 0, g_copy_us = 0, g_present_us = 0;
 static volatile u32 g_ticks = 0;
 
@@ -218,6 +226,15 @@ static int watchdog_thread(SceSize, void *)
             int r = sceKernelReferThreadStatus(g_main_thread, &info);
             log("WATCHDOG: no progress for %ds; main thread ref=%d status=%d waitType=%d waitId=0x%x stackSize=%d priority=%d",
                 idle, r, info.status, info.waitType, (unsigned)info.waitId, (int)info.stackSize, info.currentPriority);
+            if (idle == 10) { // watchdog_exit.txt next to EBOOT.PBP (debugging with psplink): leave the game instead of staying frozen
+                std::string flag = g_base_dir + "watchdog_exit.txt";
+                SceUID fd = sceIoOpen(flag.c_str(), PSP_O_RDONLY, 0777);
+                if (fd >= 0) {
+                    sceIoClose(fd);
+                    log("WATCHDOG: watchdog_exit.txt found, leaving the game");
+                    sceKernelExitGame();
+                }
+            }
         }
     }
     return 0;
@@ -265,7 +282,8 @@ void setup(const char *argv0)
         g_text_addr = mi.text_addr;
         g_text_size = mi.text_size;
     }
-    SceUID wd = sceKernelCreateThread("rockbot_watchdog", watchdog_thread, 0x30, 0x4000, 0, NULL);
+    // priority 24: higher than the main thread (32), or a main thread stuck in a busy loop starves the watchdog and nothing is reported
+    SceUID wd = sceKernelCreateThread("rockbot_watchdog", watchdog_thread, 0x18, 0x4000, 0, NULL);
     if (wd >= 0) {
         sceKernelStartThread(wd, 0, NULL);
     }
@@ -365,6 +383,8 @@ SDL_Surface *create_surface(int width, int height)
     if (!temp_surface) {
         printf("initSurface OOM %dx%d\n", width, height);
         fflush(stdout);
+        log("create_surface %dx%d failed: %s", width, height, SDL_GetError());
+        log_heap("at create_surface failure");
         return NULL;
     }
     SDL_SetSurfaceBlendMode(temp_surface, SDL_BLENDMODE_NONE);
@@ -791,6 +811,7 @@ SDL_Surface *format_text_for_blit(SDL_Surface *text_sf)
 }
 SDL_Surface *render_utf8_text(TTF_Font *, const char *, SDL_Color) { return NULL; }
 std::vector<std::string> read_games_directory(const std::string &) { return std::vector<std::string>(); }
+void log_heap(const char *) {}
 void map_list_reserves(size_t *, size_t *, size_t *, size_t *) {}
 unsigned int ram_available_linear_max() { return 0; }
 unsigned int ram_available() { return 0; }

@@ -905,6 +905,7 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
 #ifdef PSP
     temp_surface = psp_platform::create_surface(size.width, size.height);
     if (!temp_surface) {
+        psp_platform::log("initSurface FAILED %dx%d", (int)size.width, (int)size.height); // the log line itself shows free/largest block
         show_debug_msg("EXIT #21.INIT #1");
         show_debug_msg("EXIT #41.2");
         exception_manager::throw_general_exception(std::string("graphicsLib::initSurface #1"), "NO RAM?");
