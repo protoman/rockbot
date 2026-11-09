@@ -37,7 +37,7 @@ void AnimPackImport::fill_frames_delay_combo(int n)
 void AnimPackImport::on_imageFilename_toolButton_clicked()
 {
     filename = QFileDialog::getOpenFileName((QWidget*)this, tr("Open Image File"), "/home", tr("Image Files (*.png)"));
-    if (filename == NULL || filename.size() == 0) {
+    if (filename.isEmpty()) {
         return;
     }
     ui->imageFilename_lineEdit->setText(filename);

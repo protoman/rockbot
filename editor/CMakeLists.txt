@@ -3,7 +3,7 @@ project(RockbotEditor LANGUAGES C CXX)
 
 # Rockbot level/data editor (Qt widgets). Replaces the old qmake project.
 # Build:  cmake -S editor -B build/editor_cmake && cmake --build build/editor_cmake -j
-# Qt5 is the default: the code still uses QWheelEvent::delta() (removed in Qt6), so Qt6 needs a port first.
+# Builds with Qt5 and Qt6. Qt5 is the default (the Linux/macOS scripts use it); pass -DROCKBOT_EDITOR_QT=6 for Qt6.
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
