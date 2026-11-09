@@ -788,12 +788,12 @@ namespace format_v4 {
             config.reset();
         }
         if (config.sdl_version != SDL_MAJOR_VERSION) {
-            std::cout << "INFO: SDL version changed (config=" << (int)config.sdl_version << ", build=" << SDL_MAJOR_VERSION << "), resetting config." << std::endl;
+//            std::cout << "INFO: SDL version changed (config=" << (int)config.sdl_version << ", build=" << SDL_MAJOR_VERSION << "), resetting config." << std::endl;
             config.reset();
         }
 #ifndef PC
         config.video_filter = VIDEO_FILTER_NOSCALE;
-        std::cout << "IO::load_config - SET video_filter to " << VIDEO_FILTER_NOSCALE << ", value: " << config.video_filter << std::endl;
+//        std::cout << "IO::load_config - SET video_filter to " << VIDEO_FILTER_NOSCALE << ", value: " << config.video_filter << std::endl;
 #endif
 #ifdef PLAYSTATION2
         config.reset();

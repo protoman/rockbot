@@ -365,7 +365,7 @@ void npc_edit::on_npc_edit_tab_frametype_currentIndexChanged(int index)
 
 
 void npc_edit::set_npc_frame() {
-	printf(">> DialogNPCEdit::setNPCFrame - CALLED\n");
+//	printf(">> DialogNPCEdit::setNPCFrame - CALLED\n");
     // @204
     //ui->npc_edit_tab_frameduration->setValue(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frames[Mediator::get_instance()->getPalleteX()].duration);
     //ui->npc_edit_tab_frametype->setCurrentIndex(Mediator::get_instance()->enemy_list.at(Mediator::get_instance()->current_npc_n).frames[Mediator::get_instance()->getPalleteX()].state+1);

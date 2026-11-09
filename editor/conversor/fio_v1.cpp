@@ -51,7 +51,7 @@ void fio_v1::read_game(v1_file_game& data_out) const {
     }
 
 
-    std::cout << "version: " << data_out.version << ", name: '" << data_out.name << "', semi_charged_projectile_id: " << (int)data_out.semi_charged_projectile_id << std::endl;
+//    std::cout << "version: " << data_out.version << ", name: '" << data_out.name << "', semi_charged_projectile_id: " << (int)data_out.semi_charged_projectile_id << std::endl;
 
     fclose(fp);
 

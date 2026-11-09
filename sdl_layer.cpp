@@ -52,8 +52,8 @@ SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
 			height,
 			SDL_WINDOW_RESIZABLE);
 		renderer = SDL_CreateRenderer(window, NULL);
-		printf("Renderer backend: %s\n", SDL_GetRendererName(renderer));
-		printf("SDL version: %s\n", SDLL_GetCompiledVersion());
+//		printf("Renderer backend: %s\n", SDL_GetRendererName(renderer));
+//		printf("SDL version: %s\n", SDLL_GetCompiledVersion());
 	} else {
 		SDL_SetWindowSize(window, width, height);
 	}
@@ -551,10 +551,10 @@ SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
 
 	SDL_RendererInfo info;
 	if (SDL_GetRendererInfo(renderer, &info) == 0) {
-		printf("Renderer backend: %s\n", info.name);
+//		printf("Renderer backend: %s\n", info.name);
 	}
-	printf("SDL version: %s window=%dx%d game=%dx%d\n",
-		SDLL_GetCompiledVersion(), win_w, win_h, width, height);
+//	printf("SDL version: %s window=%dx%d game=%dx%d\n",
+//		SDLL_GetCompiledVersion(), win_w, win_h, width, height);
 
 #ifdef PSP
 	// ABGR8888 (or RGB565 with rgb565.txt) is the PSP's native texture format. With ARGB8888 SDL converts
@@ -1045,8 +1045,8 @@ int SDLL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha)
 
 SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
 {
-	printf("SDL version: %s\n", SDLL_GetCompiledVersion());
-	printf("SDLL_SetVideoMode - Requesting: width=%d, height=%d, bpp=%d, flags=0x%x\n", width, height, bpp, flags);
+//	printf("SDL version: %s\n", SDLL_GetCompiledVersion());
+//	printf("SDLL_SetVideoMode - Requesting: width=%d, height=%d, bpp=%d, flags=0x%x\n", width, height, bpp, flags);
 
 	SDL_Surface *screen = SDL_SetVideoMode(width, height, bpp, flags);
 
@@ -1054,8 +1054,8 @@ SDL_Surface *SDLL_SetVideoMode(int width, int height, int bpp, Uint32 flags)
 		const char *error = SDL_GetError();
 		printf("SDLL_SetVideoMode - ERROR: Failed to set video mode. SDL_GetError: %s\n", error ? error : "(no error message)");
 	} else {
-		printf("SDLL_SetVideoMode - Success: screen=%p, w=%d, h=%d, bpp=%d\n",
-			   (void *)screen, screen->w, screen->h, screen->format->BitsPerPixel);
+//		printf("SDLL_SetVideoMode - Success: screen=%p, w=%d, h=%d, bpp=%d\n",
+//			   (void *)screen, screen->w, screen->h, screen->format->BitsPerPixel);
 	}
 
 	return screen;

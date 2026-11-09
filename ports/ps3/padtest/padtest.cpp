@@ -29,7 +29,7 @@ static void say(const char *fmt, ...)
     va_start(ap, fmt);
     vprintf(fmt, ap);
     va_end(ap);
-    printf("\n");
+//    printf("\n");
     fflush(stdout);
 }
 

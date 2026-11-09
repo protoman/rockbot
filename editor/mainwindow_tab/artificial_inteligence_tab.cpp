@@ -555,7 +555,7 @@ void artificial_inteligence_tab::on_aiReactionAction_comboBox_currentIndexChange
     }
 
     _filling_data = true;
-    std::cout << "reaction current index #1 [" << ui->aiReactionType_comboBox->currentIndex() << "]" << std::endl;
+//    std::cout << "reaction current index #1 [" << ui->aiReactionType_comboBox->currentIndex() << "]" << std::endl;
     Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[ui->aiReactionType_comboBox->currentIndex()].action = index-1; // less one because of "none"
     common::fill_ai_options_combo(index-1, ui->aiReactionParam_comboBox);
 
@@ -567,7 +567,7 @@ void artificial_inteligence_tab::on_aiReactionParam_comboBox_currentIndexChanged
     if (_filling_data == true) {
         return;
     }
-    std::cout << "reaction current index #2 [" << ui->aiReactionType_comboBox->currentIndex() << "]" << std::endl;
+//    std::cout << "reaction current index #2 [" << ui->aiReactionType_comboBox->currentIndex() << "]" << std::endl;
     Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[ui->aiReactionType_comboBox->currentIndex()].extra_parameter = index;
 }
 
@@ -576,7 +576,7 @@ void artificial_inteligence_tab::on_aiReactionType_comboBox_currentIndexChanged(
     if (_filling_data == true) {
         return;
     }
-    std::cout << "reaction current index #3 [" << ui->aiReactionType_comboBox->currentIndex() << "]" << std::endl;
+//    std::cout << "reaction current index #3 [" << ui->aiReactionType_comboBox->currentIndex() << "]" << std::endl;
 
     _filling_data = true;
     int action_n = Mediator::get_instance()->ai_list.at(ui->ai_selector->currentIndex()).reactions[index].action;

@@ -45,7 +45,7 @@ void DialogObjectEdit::on_buttonBox_accepted()
 		QMessageBox::warning(this, "Error", "Object name cannot contain dot character.");
 		return;
 	}
-	printf(">> DialogObjectEdit::on_buttonBox_accepted\n");
+//	printf(">> DialogObjectEdit::on_buttonBox_accepted\n");
 	saveObjectData(Mediator::get_instance()->selectedNPC);
 	emit finishedObjectEditor();
 	close();

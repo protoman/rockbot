@@ -216,7 +216,7 @@ int main(int argc, char *argv[])
         std::cout << "Could not read path, fallback to using argv" << std::endl;
         FILEPATH = argvString.substr(0, argvString.size()-EXEC_NAME.size());
     }
-    std::cout << "main - argvString: '" << argvString << "', FILEPATH: '" << FILEPATH << "'" << std::endl; std::fflush(stdout);
+    /* std::cout << "main - argvString: '" << argvString << "', FILEPATH: '" << FILEPATH << "'" << std::endl */; std::fflush(stdout);
 
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0  || (screen = SDLL_SetVideoMode(MAP_W*TILESIZE, MAP_H*TILESIZE*3, 0, 0)) == 0) {
@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
         std::fflush(stdout);
         exit(-1);
     }
-    std::cout << ">>> GRAPHLIB::init DEBUG #1 <<<" << std::endl; std::fflush(stdout);
+    /* std::cout << ">>> GRAPHLIB::init DEBUG #1 <<<" << std::endl */; std::fflush(stdout);
     atexit(SDL_Quit);
 
     // load tileset

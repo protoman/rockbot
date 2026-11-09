@@ -342,10 +342,10 @@ void projectile::inc_zigzag_status()
 {
     status++;
     if (status > hp) {
-        std::cout << "PROJECTILE::inc_zigzag_status - FINISH, status[" << (int)status << "], hp[" << hp << "]" << std::endl;
+//        std::cout << "PROJECTILE::inc_zigzag_status - FINISH, status[" << (int)status << "], hp[" << hp << "]" << std::endl;
         is_finished = true;
     } else {
-        std::cout << "PROJECTILE::inc_zigzag_status - INVERT direction" << std::endl;
+//        std::cout << "PROJECTILE::inc_zigzag_status - INVERT direction" << std::endl;
         direction = !direction;
     }
 }
@@ -394,7 +394,7 @@ void projectile::set_target_position(st_float_position *pos)
 {
 	_target_position = pos;
 	if (_target_position == NULL && _move_type == TRAJECTORY_FOLLOW) { // if a follow projectile could not find any target, act as zig-zag
-        std::cout << "PROJECTILE::set_target_pos - transform into ZIGZAG #1" << std::endl;
+//        std::cout << "PROJECTILE::set_target_pos - transform into ZIGZAG #1" << std::endl;
 		_move_type = TRAJECTORY_ZIGZAG;
     } else 	if (_target_position != NULL && _move_type == TRAJECTORY_TARGET_DIRECTION) { // change type to be the best one to hit player
         // three position (diagonal up, left/right or diagonal down)
@@ -767,7 +767,7 @@ st_float_size projectile::move() {
 
 
 	} else if (_move_type == TRAJECTORY_FOLLOW && _target_position == NULL) {
-        std::cout << "PROJECTILE::set_target_pos - transform into ZIGZAG #2" << std::endl;
+//        std::cout << "PROJECTILE::set_target_pos - transform into ZIGZAG #2" << std::endl;
 		_move_type = TRAJECTORY_ZIGZAG;
     } else 	if ((_move_type == TRAJECTORY_TARGET_DIRECTION || _move_type == TRAJECTORY_TARGET_EXACT) && _target_position == NULL) { // if do not have a target, act as linear
         //std::cout << "PROJECTILE::MOVE #2 - pos[" << position.x << "][" << position.y << "]" << std::endl;

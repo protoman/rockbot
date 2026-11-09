@@ -194,7 +194,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
                 int tile3y = Mediator::get_instance()->maps_data_v2[Mediator::get_instance()->currentStage][Mediator::get_instance()->currentMap].tiles[i][j].tile3.y;
 
                 if (Mediator::get_instance()->currentStage == 7 && Mediator::get_instance()->currentMap == 0 && tile3x != -1 && tile3y != -1) {
-                    std::cout << ">> tile3[" << tile3x << "]["  << tile3y << "]" << std::endl;
+//                    std::cout << ">> tile3[" << tile3x << "]["  << tile3y << "]" << std::endl;
                 }
 
                 if (tile3x > -1 && tile3y != -1) {
@@ -582,7 +582,7 @@ void EditorArea::paintEvent(QPaintEvent *) {
                     } else if (obj_type == OBJ_TIMED_BOMB) {
                         int bomb_direction =Mediator::get_instance()->maps_data_object_list[i].direction;
                         int y_graph_adjust = (bomb_direction * Mediator::get_instance()->object_list.at(obj_id).size.height)*2;
-                        std::cout << "BOMB[" << i << "].direction[" << bomb_direction << "], y_graph_adjust[" << y_graph_adjust << "]" << std::endl;
+//                        std::cout << "BOMB[" << i << "].direction[" << bomb_direction << "], y_graph_adjust[" << y_graph_adjust << "]" << std::endl;
                         QRectF target(QPoint(Mediator::get_instance()->maps_data_object_list[i].start_point.x*TILESIZE*Mediator::get_instance()->zoom - (Mediator::get_instance()->object_list.at(obj_id).size.width-TILESIZE)*Mediator::get_instance()->zoom, Mediator::get_instance()->maps_data_object_list[i].start_point.y*16*Mediator::get_instance()->zoom), QSize(Mediator::get_instance()->object_list.at(obj_id).size.width*Mediator::get_instance()->zoom, Mediator::get_instance()->object_list.at(obj_id).size.height*Mediator::get_instance()->zoom));
                         QRectF source(QPoint(0, y_graph_adjust), QSize(Mediator::get_instance()->object_list.at(obj_id).size.width, Mediator::get_instance()->object_list.at(obj_id).size.height));
                         painter.drawPixmap(target, temp_image, source);
@@ -943,7 +943,7 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
         if (Mediator::get_instance()->editTool == EDITMODE_ERASER && found_npc != -1) {
             Mediator::get_instance()->maps_data_npc_list[found_npc].id_npc = -1;
         } else if (Mediator::get_instance()->editTool == EDITMODE_NORMAL && found_npc == -1 && Mediator::get_instance()->selectedNPC != -1) {
-            std::cout << ">>>>>>>>>>>> add-npc" << std::endl;
+//            std::cout << ">>>>>>>>>>>> add-npc" << std::endl;
             CURRENT_FILE_FORMAT::file_map_npc_v2 new_npc;
             new_npc.id_npc = Mediator::get_instance()->selectedNPC;
             new_npc.start_point.x = editor_selectedTileX;
@@ -956,7 +956,7 @@ void EditorArea::mousePressEvent(QMouseEvent *event) {
             Mediator::get_instance()->maps_data_npc_list.push_back(new_npc);
             repaint();
         } else if (Mediator::get_instance()->editTool == EDITMODE_NORMAL && found_npc != -1 && Mediator::get_instance()->selectedNPC != -1) {
-			printf(">> EditorArea::mousePressEvent - Adding NPC - place already taken\n");
+//			printf(">> EditorArea::mousePressEvent - Adding NPC - place already taken\n");
 		}
 
 
@@ -1151,7 +1151,7 @@ void EditorArea::fill_area() {
                 searchY = Mediator::get_instance()->getPalleteY();
 				filled1 = 1;
 			} else {
-				printf("1.not filling\n");
+//				printf("1.not filling\n");
 				break;
 			}
 		}
@@ -1169,7 +1169,7 @@ void EditorArea::fill_area() {
                 searchY = Mediator::get_instance()->getPalleteY();
 				filled2 = 1;
 			} else {
-				printf("2.not filling\n");
+//				printf("2.not filling\n");
 				break;
 			}
 		}
@@ -1196,7 +1196,7 @@ void EditorArea::fill_area() {
                 searchY = Mediator::get_instance()->getPalleteY();
 				filled1 = 1;
 			} else {
-				printf("3.not filling\n");
+//				printf("3.not filling\n");
 				break;
 			}
 		}
@@ -1214,7 +1214,7 @@ void EditorArea::fill_area() {
                 searchY = Mediator::get_instance()->getPalleteY();
 				filled2 = 1;
 			} else {
-				printf("4.not filling\n");
+//				printf("4.not filling\n");
 				break;
 			}
 		}

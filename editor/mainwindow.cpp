@@ -93,9 +93,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     int theme = settings.value(CONFIG_THEME_KEY, 0).toInt();
     Mediator::get_instance()->app_theme = theme;
     scenes_window->update_app_theme();
-    std::cout << "LOAD #1 - Mediator::get_instance()->app_theme[" << Mediator::get_instance()->app_theme << "]" << std::endl;
+//    std::cout << "LOAD #1 - Mediator::get_instance()->app_theme[" << Mediator::get_instance()->app_theme << "]" << std::endl;
     if (theme == 1) {
-        std::cout << "LOAD #1 - Mediator::get_instance() - DARK" << std::endl;
+//        std::cout << "LOAD #1 - Mediator::get_instance() - DARK" << std::endl;
         on_actionDark_triggered();
     }
 }
@@ -226,7 +226,7 @@ void MainWindow::on_actionOpen_triggered()
 
 void MainWindow::on_pallete_signalPalleteChanged()
 {
-	printf("DEBUG on_pallete_signalPalleteChanged\n");
+//	printf("DEBUG on_pallete_signalPalleteChanged\n");
 }
 
 
@@ -249,7 +249,7 @@ void MainWindow::on_MainWindow_iconSizeChanged(QSize iconSize)
 
 void MainWindow::on_listWidget_currentRowChanged(int currentRow)
 {
-	printf(">>>> MainWindow::on_listWidget_currentRowChanged, row: %d\n", currentRow);
+//	printf(">>>> MainWindow::on_listWidget_currentRowChanged, row: %d\n", currentRow);
     Mediator::get_instance()->selectedNPC = currentRow;
 }
 
@@ -642,7 +642,7 @@ void MainWindow::on_scenes_editor_window_closed()
 
 void MainWindow::on_swap_stages_window_closed()
 {
-    std::cout << ">>>>>> on_swap_stages_window_closed" << std::endl;
+//    std::cout << ">>>>>> on_swap_stages_window_closed" << std::endl;
     map_edit_tab->update_edit_area();
 }
 
@@ -659,7 +659,7 @@ void MainWindow::on_actionRun_Stage_2_triggered()
     file += QString(".exe");
 #endif
     file += QString(" --quickload --allweapons --gamename \"") + QString(GAMENAME.c_str()) + QString("\"") + QString(" --stage ") + QString::number(Mediator::get_instance()->currentStage);
-    std::cout << "file[" << file.toStdString() << "]" << std::endl;
+//    std::cout << "file[" << file.toStdString() << "]" << std::endl;
     process.start(file);
 }
 

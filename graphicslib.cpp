@@ -79,11 +79,11 @@ bool graphicsLib::sdl_initialized = false;
 void graphicsLib::safe_sdl_quit()
 {
     if (sdl_initialized) {
-        printf("graphicsLib::safe_sdl_quit - Calling SDLL_Quit()\n");
+//        printf("graphicsLib::safe_sdl_quit - Calling SDLL_Quit()\n");
         SDLL_Quit();
         sdl_initialized = false;
     } else {
-        printf("graphicsLib::safe_sdl_quit - SDLL_Quit() already called, skipping\n");
+//        printf("graphicsLib::safe_sdl_quit - SDLL_Quit() already called, skipping\n");
     }
 }
 
@@ -153,7 +153,7 @@ bool graphicsLib::initGraphics()
 #if defined(WII)
     if (SDLL_NumJoysticks() <= 0) {
         ogc_platform::log("No joysticks found, exiting");
-        std::cout << "No joysticks found" << std::endl;
+//        std::cout << "No joysticks found" << std::endl;
         fflush(stdout);
 
         graphicsLib::safe_sdl_quit();
@@ -1188,7 +1188,7 @@ void graphicsLib::draw_error_text(const std::string &text)
 
     for (int i=0; i<=parts_n; i++) {
         std::string sub_text = text.substr(i*max_len, max_len);
-        std::cout << "text.length[" << text.length() << "], parts_n[" << parts_n << "], i[" << i << "], sub_text[" << sub_text << "]" << std::endl;
+//        std::cout << "text.length[" << text.length() << "], parts_n[" << parts_n << "], i[" << i << "], sub_text[" << sub_text << "]" << std::endl;
 #ifdef PSP
         SDL_Surface* textSF = psp_platform::render_error_text(error_font, sub_text.c_str(), font_color);
 #else
@@ -1654,7 +1654,7 @@ void graphicsLib::scale2x(SDL_Surface* surface, SDL_Surface* dest, bool smooth_s
         }
     }
 
-    std::cout << "scale2x::smooth_scale: " << smooth_scale << ", bpp: " << bpp << std::endl;
+//    std::cout << "scale2x::smooth_scale: " << smooth_scale << ", bpp: " << bpp << std::endl;
 
         const int wd = ((dest->w / scale) < (surface->w)) ? (dest->w / scale) : (surface->w);
         const int hg = ((dest->h) < (surface->h*scale)) ? (dest->h / scale) : (surface->h);
@@ -1816,7 +1816,7 @@ void graphicsLib::scale2x(SDL_Surface* surface, SDL_Surface* dest, bool smooth_s
 	   break;
 	 }
 	 default:
-	   std::cout << "Unsupported bitdepth.n(" << bpp << ")" << std::endl;
+//	   std::cout << "Unsupported bitdepth.n(" << bpp << ")" << std::endl;
 	   break;
 	}
 
@@ -2043,7 +2043,7 @@ void graphicsLib::draw_explosion(st_position pos)
 
 void graphicsLib::show_debug_msg(string msg)
 {
-    std::cout << "show_debug_msg - msg: " << msg << std::endl;
+//    std::cout << "show_debug_msg - msg: " << msg << std::endl;
     std::fflush(stdout);
     clear_area(0, 0, RES_W, 50, 50, 50, 50);
     draw_error_text(msg);
@@ -2529,7 +2529,7 @@ void graphicsLib::flip_image(const graphicsLib_gSurface &original, graphicsLib_g
             } else if(flip_mode == flip_type_vertical) {
                 res.put_pixel(x, ry, pixel );
             } else {
-                std::cout << "UNKNOWN flip mode [" << flip_mode << "]" << std::endl;
+//                std::cout << "UNKNOWN flip mode [" << flip_mode << "]" << std::endl;
                 char enum_str[20];
                 snprintf(enum_str, 20, "%d", flip_mode);
                 exception_manager::throw_param_exception(std::string("graphicsLib::flip_image, invalid mode"), std::string(enum_str));

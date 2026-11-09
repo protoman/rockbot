@@ -104,7 +104,7 @@ classnpc::classnpc(int stage_id, int map_id, int main_id, st_position npc_pos, s
     static_bg_pos = st_position(npc_pos.x * TILESIZE, npc_pos.y * TILESIZE);
     position.x = npc_pos.x;
     position.y = npc_pos.y;
-    if (name == "BUBBLEMAN BIG FISH") std::cout << "### NPC::INIT::1 (custom vulnerable-area, with BG) - NPC[" << name << "] - direction[" << (int)state.direction << "], pos.x[" << get_int_position().x << "], real.pos.x[" << realPosition.x << "], bg.pos.x[" << GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x << "], graph.w[" << graphLib.character_graphics_background_list.find(name)->second.width << "]" << std::endl;
+    if (name == "BUBBLEMAN BIG FISH") /* std::cout << "### NPC::INIT::1 (custom vulnerable-area, with BG) - NPC[" << name << "] - direction[" << (int)state.direction << "], pos.x[" << get_int_position().x << "], real.pos.x[" << realPosition.x << "], bg.pos.x[" << GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x << "], graph.w[" << graphLib.character_graphics_background_list.find(name)->second.width << "]" << std::endl */;
     _is_spawn = true;
     _initialized = 0;
     _screen_blinked = false;
@@ -335,7 +335,7 @@ void classnpc::npc_set_direction(short dir)
 
 void classnpc::npc_set_initialized(short init)
 {
-    std::cout << ">>>> NPC::npc_set_initialized[" << name << "], init[" << init << "]" << std::endl;
+//    std::cout << ">>>> NPC::npc_set_initialized[" << name << "], init[" << init << "]" << std::endl;
     _initialized = init;
 }
 

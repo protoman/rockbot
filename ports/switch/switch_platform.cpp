@@ -52,7 +52,7 @@ void setup()
 
     if (is_applet_mode()) {
         // Album applet ≈ 40MB heap — RockDroid2 preload can OOM mid-image (EXIT #05).
-        printf("WARNING: Switch applet mode (low memory). Launch via title redirection.\n");
+//        printf("WARNING: Switch applet mode (low memory). Launch via title redirection.\n");
         fflush(stdout);
     }
 }
@@ -71,7 +71,7 @@ void log(const char *fmt, ...)
     va_start(ap, fmt);
     std::vprintf(fmt, ap);
     va_end(ap);
-    std::printf("\n");
+//    std::printf("\n");
     std::fflush(stdout);
 }
 

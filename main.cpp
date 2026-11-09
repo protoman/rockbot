@@ -185,7 +185,7 @@ void PS2_copy_to_memorycard(std::string file_in, std::string file_out)
         graphLib.show_debug_msg(file_in);
         return;
     } else {
-        std::cout << "WARNING: Opened file '" << file_in << "'" << std::endl;
+//        std::cout << "WARNING: Opened file '" << file_in << "'" << std::endl;
     }
     file_out = SAVEPATH + "/" + file_out;
     FILE *fp_write = fopen(file_out.c_str(), "wb");
@@ -196,7 +196,7 @@ void PS2_copy_to_memorycard(std::string file_in, std::string file_out)
         fclose(fp_read);
         return;
     } else {
-        std::cout << "WARNING: Opened file '" << file_out << "'" << std::endl;
+//        std::cout << "WARNING: Opened file '" << file_out << "'" << std::endl;
     }
 
     int a;

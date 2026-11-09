@@ -1289,7 +1289,7 @@ namespace format_v4 {
 
         sprintf(file_chr, "%d.txt", text_scene_n);
         std::string filename = FILEPATH + "scenes/text/" + get_language_filename_prefix(language) + "/" + std::string(file_chr);
-        std::cout << "FIO:_STRINGS::write_scene_text_file[" << filename << "]" << std::endl;
+//        std::cout << "FIO:_STRINGS::write_scene_text_file[" << filename << "]" << std::endl;
         // fill empty spaces
         if (list.size() < SCENE_TEXT_LINES_N) {
             for (int i=list.size(); i<SCENE_TEXT_LINES_N; i++) {

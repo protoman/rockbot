@@ -1087,7 +1087,7 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss, bool is_stage
 	// 3. move boss from top to ground
     classnpc* boss_ref = loaded_stage.get_near_boss();
     if (boss_ref == NULL) {
-        std::cout << "GAME::map_present_boss - no boss found" << std::endl;
+//        std::cout << "GAME::map_present_boss - no boss found" << std::endl;
         return;
     }
     if (boss_ref != NULL) {
@@ -1539,7 +1539,7 @@ void game::got_weapon()
 
     player_victory();
 
-    std::cout << "GAME::got_weapon::must_show_got_weapon[" << must_show_got_weapon << "]" << std::endl;
+//    std::cout << "GAME::got_weapon::must_show_got_weapon[" << must_show_got_weapon << "]" << std::endl;
 
     if (must_show_got_weapon == true && currentStage != 0 && currentStage <= 8) {
         // TODO: create a modern got-weapon screen
@@ -1549,7 +1549,7 @@ void game::got_weapon()
             modern_style_got_weapon();
         }
     } else {
-        std::cout << "GAME::got_weapon::must_show_got_weapon - Ignored" << std::endl;
+//        std::cout << "GAME::got_weapon::must_show_got_weapon - Ignored" << std::endl;
     }
     game_save.stages[currentStage] = 1;
     leave_stage();

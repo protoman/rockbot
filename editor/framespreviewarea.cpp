@@ -139,14 +139,14 @@ void framesPreviewArea::paintEvent(QPaintEvent *) {
 
 
 void framesPreviewArea::mousePressEvent(QMouseEvent *event) {
-	printf(">> INSIDE npcPreviewArea::mousePressEvent, editMode: %d, editTool: %d\n", Mediator::get_instance()->editMode, Mediator::get_instance()->editTool);
+//	printf(">> INSIDE npcPreviewArea::mousePressEvent, editMode: %d, editTool: %d\n", Mediator::get_instance()->editMode, Mediator::get_instance()->editTool);
 
 	QPoint pnt = event->pos();
 	// checks if click was inside the image
 	if (pnt.x() <= image_w*2 && pnt.y() <= image_h*2) {
 		editor_selectedTileX = pnt.x()/img_grid_w/2;
 		editor_selectedTileY = pnt.y()/img_grid_h/2;
-		printf(">> npcPreviewArea::mousePressEvent - x: %d, y: %d\n", editor_selectedTileX, editor_selectedTileY);
+//		printf(">> npcPreviewArea::mousePressEvent - x: %d, y: %d\n", editor_selectedTileX, editor_selectedTileY);
 		Mediator::get_instance()->setPalleteX(editor_selectedTileX);
 		Mediator::get_instance()->setPalleteY(editor_selectedTileY);
 		emit clickedIn();

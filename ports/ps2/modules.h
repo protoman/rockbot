@@ -82,7 +82,7 @@ void PS2loadMinimal() {
 		if (ret < 0) {
 			printf("Error '%d' loading module rom0:MCMAN\n", ret);
 		} else {
-			printf("Module rom0:MCMAN loaded\n");
+//			printf("Module rom0:MCMAN loaded\n");
 		}
 	#endif
 	ret = SifLoadModule("rom0:MCSERV", 0, NULL);

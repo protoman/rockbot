@@ -54,7 +54,7 @@ void get_filepath()
     //std::cout << "SAVEPATH: " << SAVEPATH << ", mkdir-res: " << res << ", errno: " << errno << std::endl;
 #elif WIN32
     SAVEPATH =  std::string(getenv("APPDATA")) + "/rockbot";
-    std::cout << "SAVEPATH: " << SAVEPATH << std::endl;
+//    std::cout << "SAVEPATH: " << SAVEPATH << std::endl;
     _mkdir(SAVEPATH.c_str());
 #elif DREAMCAST
     SAVEPATH = "/vmu/a1";

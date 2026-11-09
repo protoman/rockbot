@@ -371,7 +371,7 @@ bool load_fonts(const char *path,
         fflush(stdout);
         return false;
     }
-    printf("PSP font ok height=%d ascent=%d\n", TTF_FontHeight(*font), TTF_FontAscent(*font));
+//    printf("PSP font ok height=%d ascent=%d\n", TTF_FontHeight(*font), TTF_FontAscent(*font));
     fflush(stdout);
     return true;
 }

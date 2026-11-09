@@ -47,7 +47,7 @@ void convert_dialog_strings(v1_file_stage stage_v1, CURRENT_FILE_FORMAT::file_st
     // line-1
     for (int i=0; i<V1_FS_DIALOG_LINES; i++) {
         std::string line = std::string(stage_v1.intro_dialog.line1[i]) + "\n";
-        std::cout << "LINE#1[" << i << "]: " << line << ", common_strings.size(): " << dialog_strings.size() << std::endl;
+//        std::cout << "LINE#1[" << i << "]: " << line << ", common_strings.size(): " << dialog_strings.size() << std::endl;
         dialog_strings.push_back(line);
     }
 

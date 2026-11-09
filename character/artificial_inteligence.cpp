@@ -46,7 +46,7 @@ artificial_inteligence::artificial_inteligence() :  walk_range(TILESIZE*6), targ
     _show_reset_stand = false;
     _auto_respawn_timer = timer.getTimer() + GameMediator::get_instance()->get_enemy(_number)->respawn_delay;
     if (GameMediator::get_instance()->get_enemy(_number)->respawn_delay > 0) {
-        std::cout << ">>>>>>>>>> AI::CONSTRUCTOR[" << name << "], id[" <<_number << "], respawn_delay[" << GameMediator::get_instance()->get_enemy(_number)->respawn_delay << "], auto_respawn_timer[" << (int)_auto_respawn_timer << "], current_time[" << (int)timer.getTimer() << "]" << std::endl;
+//        std::cout << ">>>>>>>>>> AI::CONSTRUCTOR[" << name << "], id[" <<_number << "], respawn_delay[" << GameMediator::get_instance()->get_enemy(_number)->respawn_delay << "], auto_respawn_timer[" << (int)_auto_respawn_timer << "], current_time[" << (int)timer.getTimer() << "]" << std::endl;
     }
 
     _dest_point = position;
@@ -175,12 +175,12 @@ void artificial_inteligence::check_ai_reaction()
     }
 
     if (dist_players.dist < TILESIZE*4 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_ON_RANGE].action > 0) {
-        std::cout << "AI::execute_ai::check_ai_reaction::AI_REACTION_PLAYER_ON_RANGE" << std::endl;
+//        std::cout << "AI::execute_ai::check_ai_reaction::AI_REACTION_PLAYER_ON_RANGE" << std::endl;
         _reaction_type = AI_REACTION_PLAYER_ON_RANGE;
         start_reaction = true;
     // dead
     } else if (hitPoints.current <= 0 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_DEAD].action > 0) {
-        std::cout << "AI::execute_ai::check_ai_reaction::AI_REACTION_DEAD" << std::endl;
+//        std::cout << "AI::execute_ai::check_ai_reaction::AI_REACTION_DEAD" << std::endl;
         _reaction_type = AI_REACTION_DEAD;
         start_reaction = true;
 
@@ -196,19 +196,19 @@ void artificial_inteligence::check_ai_reaction()
         gameControl.get_current_map_obj()->add_animation(anim2);
     // hit (comes after death to avoid not firing that reaction that has priority)
     } else if (_was_hit == true && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_HIT].action > 0) {
-        std::cout << "AI::execute_ai::check_ai_reaction::AI_REACTION_HIT" << std::endl;
+//        std::cout << "AI::execute_ai::check_ai_reaction::AI_REACTION_HIT" << std::endl;
         _reaction_type = AI_REACTION_HIT;
         start_reaction = true;
     } else if (dist_players.dist < walk_range && diff_y < 2 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_SAME_Y].action > 0) {
-        std::cout << "AI::execute_ai::check_ai_reaction::AI_REACTION_PLAYER_SAME_Y" << std::endl;
+//        std::cout << "AI::execute_ai::check_ai_reaction::AI_REACTION_PLAYER_SAME_Y" << std::endl;
         _reaction_type = AI_REACTION_PLAYER_SAME_Y;
         start_reaction = true;
     } else if (dist_players.dist < walk_range && diff_x < TILESIZE && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_SAME_X].action > 0) {
-        std::cout << "AI::execute_ai::check_ai_reaction::AI_REACTION_PLAYER_SAME_X" << std::endl;
+//        std::cout << "AI::execute_ai::check_ai_reaction::AI_REACTION_PLAYER_SAME_X" << std::endl;
         _reaction_type = AI_REACTION_PLAYER_SAME_X;
         start_reaction = true;
     } else if (dist_players.dist < walk_range/4 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_CLOSE].action > 0) {
-        std::cout << "AI::execute_ai::check_ai_reaction::AI_REACTION_PLAYER_CLOSE" << std::endl;
+//        std::cout << "AI::execute_ai::check_ai_reaction::AI_REACTION_PLAYER_CLOSE" << std::endl;
         _reaction_type = AI_REACTION_PLAYER_CLOSE;
         start_reaction = true;
     }
@@ -2472,12 +2472,12 @@ void artificial_inteligence::ia_action_teleport()
                 // find wall to the left
                 if (_parameter == AI_ACTION_TELEPORT_OPTION_LEFT || (_parameter == AI_ACTION_TELEPORT_OPTION_AHEAD && state.direction == ANIM_DIRECTION_LEFT)) {
                     st_position dest_pos = gameControl.get_current_map_obj()->get_first_lock_in_direction(st_position(position.x, position.y+frameSize.height/2), st_size(walk_range, 0), ANIM_DIRECTION_LEFT);
-                    std::cout << "AI::teleport[left] - x[" << position.x <<"], dest_pos.x[" << dest_pos.x << "]" << std::endl;
+//                    std::cout << "AI::teleport[left] - x[" << position.x <<"], dest_pos.x[" << dest_pos.x << "]" << std::endl;
                     position.x = dest_pos.x;
                 // find wall to the right
                 } else if (_parameter == AI_ACTION_TELEPORT_OPTION_RIGHT || (_parameter == AI_ACTION_TELEPORT_OPTION_AHEAD && state.direction == ANIM_DIRECTION_RIGHT)) {
                     st_position dest_pos = gameControl.get_current_map_obj()->get_first_lock_in_direction(st_position(position.x+frameSize.width, position.y+frameSize.height/2), st_size(walk_range, 0), ANIM_DIRECTION_RIGHT);
-                    std::cout << "AI::teleport[right] - x[" << position.x <<"], dest_pos.x[" << dest_pos.x << "]" << std::endl;
+//                    std::cout << "AI::teleport[right] - x[" << position.x <<"], dest_pos.x[" << dest_pos.x << "]" << std::endl;
                     position.x = dest_pos.x-frameSize.width;
                 } else if (_parameter == AI_ACTION_TELEPORT_OPTION_TO_PLAYER) {
                     struct_player_dist dist_npc_player = dist_npc_players();

@@ -359,7 +359,7 @@ void soundLib::play_music_once()
         res = SDLL_Mix_PlayMusic(music, 1);
         SDLL_Mix_VolumeMusic(SharedData::get_instance()->game_config.volume_music);
     } else {
-        std::cout << ">> soundLib::play_music_once: music is null" << std::endl;
+//        std::cout << ">> soundLib::play_music_once: music is null" << std::endl;
     }
 }
 
@@ -394,7 +394,7 @@ void soundLib::load_stage_music(std::string filename) {
     if (filename.length() > 0) {
         load_music(filename);
 	} else {
-        std::cout << "soundLib::load_stage_music - music filename undefined." << std::endl;
+//        std::cout << "soundLib::load_stage_music - music filename undefined." << std::endl;
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::load_stage_music - music is NULL ###");
 #endif

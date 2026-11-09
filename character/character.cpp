@@ -995,7 +995,7 @@ void character::show_at(st_position pos)
     st_rectangle vulnerable_area = get_vulnerable_area();
     if (!is_player()) {
         vulnerable_area.x -= gameControl.get_current_map_obj()->getMapScrolling().x;
-        if (name == "OCTOPUS") std::cout << "DRAW_VUL-AREA[" << name << "]pos[" << position.x - gameControl.get_current_map_obj()->getMapScrolling().x << "][" << position.y << "], vul-area[" << vulnerable_area.x << "][" << vulnerable_area.y << "][" << vulnerable_area.w << "][" << vulnerable_area.h << "], scroll.x[" << gameControl.get_current_map_obj()->getMapScrolling().x << "]" << std::endl;
+        if (name == "OCTOPUS") /* std::cout << "DRAW_VUL-AREA[" << name << "]pos[" << position.x - gameControl.get_current_map_obj()->getMapScrolling().x << "][" << position.y << "], vul-area[" << vulnerable_area.x << "][" << vulnerable_area.y << "][" << vulnerable_area.w << "][" << vulnerable_area.h << "], scroll.x[" << gameControl.get_current_map_obj()->getMapScrolling().x << "]" << std::endl */;
         graphLib.draw_rectangle(vulnerable_area, 255, 0, 0, 180);
     }
 #endif
@@ -1896,7 +1896,7 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
             }
         }
         if (_obj_jump.is_started() == true && jump_speed < 0.0 && abs(jump_speed) < 1.0 && abs(jump_last_moved) < 1.0) {
-            std::cout << "CHAR::JUMP - INTERRUMP #1" << std::endl;
+//            std::cout << "CHAR::JUMP - INTERRUMP #1" << std::endl;
             _obj_jump.interrupt();
         }
 
@@ -2944,7 +2944,7 @@ void character::set_platform(object* obj)
     }
     _obj_jump.finish();
     if (obj != NULL) {
-        std::cout << "### CHARACTER[" << name << "].set_platform[" << obj->get_name() << "]" << std::endl;
+//        std::cout << "### CHARACTER[" << name << "].set_platform[" << obj->get_name() << "]" << std::endl;
 		if (state.animation_type == ANIM_TYPE_JUMP) {
             set_animation_type(ANIM_TYPE_STAND);
         } else if (state.animation_type == ANIM_TYPE_JUMP_ATTACK) {
@@ -3190,7 +3190,7 @@ void character::execute_jump()
 void character::fall()
 {
     if (name == "OCTOPUS TENTACLE") {
-        std::cout << "######## OCTOPUS TENTACLE::fall #1" << std::endl;
+//        std::cout << "######## OCTOPUS TENTACLE::fall #1" << std::endl;
     }
     _obj_jump.finish();
     // already on the ground
@@ -3220,7 +3220,7 @@ void character::fall()
 void character::fall_to_ground()
 {
     if (name == "OCTOPUS TENTACLE") {
-        std::cout << "######## OCTOPUS TENTACLE::fall_to_ground #1" << std::endl;
+//        std::cout << "######## OCTOPUS TENTACLE::fall_to_ground #1" << std::endl;
     }
     _obj_jump.finish();
     if (hit_ground() == true) {

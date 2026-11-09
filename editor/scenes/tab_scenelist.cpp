@@ -91,7 +91,7 @@ void TabScenelist::reload()
 void TabScenelist::update_app_theme()
 {
     ui->scenes_tableView->setAlternatingRowColors(true);
-    std::cout << "LOAD #2 - Mediator::get_instance()->app_theme[" << Mediator::get_instance()->app_theme << "]" << std::endl;
+//    std::cout << "LOAD #2 - Mediator::get_instance()->app_theme[" << Mediator::get_instance()->app_theme << "]" << std::endl;
     if (Mediator::get_instance()->app_theme == 0) {
         ui->scenes_tableView->setStyleSheet("alternate-background-color: #dafeff; background-color: #dddddd; font-color:black; color:black;");
     } else {

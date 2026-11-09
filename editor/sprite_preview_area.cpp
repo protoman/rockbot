@@ -93,21 +93,21 @@ void sprite_preview_area::paintEvent(QPaintEvent *)
     int vulnerable_h = temp_npc.vulnerable_area.h;
 
     if (vulnerable_x != 0 || vulnerable_y != 0 || vulnerable_w > 0 || vulnerable_h > 0) {
-        std::cout << "################### must draw vulnerable-area" << std::endl;
+//        std::cout << "################### must draw vulnerable-area" << std::endl;
         int bg_w_diff = 0;
         if (bg_w > 0) {
             bg_w_diff = bg_w*2 - temp_npc.vulnerable_area.w*2;
         }
         int hitx = center_x - temp_npc.vulnerable_area.x*2 + bg_w_diff;
 
-        std::cout << "center_x[" << center_x << "], total_w[" << total_w << "], x[" << temp_npc.vulnerable_area.x << "], total_w[" << total_w << "], w[" << temp_npc.vulnerable_area.w << "], bg_w_diff[" << bg_w_diff << "], hitx[" << hitx << "]" << std::endl;
+//        std::cout << "center_x[" << center_x << "], total_w[" << total_w << "], x[" << temp_npc.vulnerable_area.x << "], total_w[" << total_w << "], w[" << temp_npc.vulnerable_area.w << "], bg_w_diff[" << bg_w_diff << "], hitx[" << hitx << "]" << std::endl;
 
         int hity = center_y+adjust_y+temp_npc.vulnerable_area.y*2;
         int hitw = temp_npc.vulnerable_area.w*2;
         int hith = temp_npc.vulnerable_area.h*2;
         painter.drawRect(hitx, hity, hitw, hith);
-    } else {
-        std::cout << "################### ignore vulnerable-area - current-npc[" << Mediator::get_instance()->current_npc_n << "], vulnerable_w[" << vulnerable_w << "], vulnerable_h[" << vulnerable_h << "]" << std::endl;
+//    } else {
+//        std::cout << "################### ignore vulnerable-area - current-npc[" << Mediator::get_instance()->current_npc_n << "], vulnerable_w[" << vulnerable_w << "], vulnerable_h[" << vulnerable_h << "]" << std::endl;
     }
 
     // draw attack_position, if set
