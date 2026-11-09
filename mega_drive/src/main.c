@@ -1450,6 +1450,7 @@ int main(bool hardReset)
             if (slot < 0) continue;              // backed out -> title
             save_slot_clear((u8)slot);
             current_save_slot = (u8)slot;
+            stage_select_reset_cursor();
             // PC main_screen: NEW GAME -> select_player() before the stage.
             current_player = player_select_run();
             player_new_game();          // 5 lives, empty inventory

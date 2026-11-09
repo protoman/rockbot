@@ -1399,7 +1399,7 @@ void player_update(u16 pad)
     }
     prev_pad = pad;
 
-    if (player.on_ground) { air_jump_used = FALSE; air_dash_used = FALSE; }
+    if (player.on_ground || player.on_ladder) { air_jump_used = FALSE; air_dash_used = FALSE; }
     // PC blocks jumping mid air-dash (character.cpp:1761).
     if (player.sliding && !player.on_ground) jump_timer = 0;
     if (coyote_timer > 0 && jump_timer > 0) {
@@ -1412,7 +1412,7 @@ void player_update(u16 pad)
         coyote_timer = 0;
         jump_timer = 0;
     } else if (jump_timer > 0 && !player.on_ground &&
-               player_can_double_jump() && !air_jump_used) {
+               player_can_double_jump() && !air_jump_used && !air_dash_used) {
         // PC can_double_jump (P2 CANDY): one extra jump while airborne.
         sfx_play(SFX_JUMP);
         player.vy = -JUMP_VEL;

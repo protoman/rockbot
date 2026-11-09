@@ -42,6 +42,10 @@ static u16 cells[SSEL_MAP_W * SSEL_MAP_H];
 static s8 sx, sy;
 static u16 sel_mask;            // beaten-stage bits for this save slot
 static bool castle_unlocked;
+// PC remembers the last played stage: the cursor returns to it (centre the first time).
+static s8 last_sx = 1, last_sy = 1;
+
+void stage_select_reset_cursor(void) { last_sx = 1; last_sy = 1; }
 
 // PC get_last_castle_stage(): the first unbeaten castle #1 stage (9..13).
 static u8 castle_next_stage(void)
@@ -185,8 +189,8 @@ u8 stage_select_run(u8 player, u16 stage_mask)
                              TILE_ATTR(SSEL_PAL_PLAYER, FALSE, FALSE, FALSE));
     }
 
-    sx = 1;                 // default to the centre slot
-    sy = 1;
+    sx = last_sx;           // centre slot the first time, then the last played
+    sy = last_sy;
     draw_names();               // borrows PAL1 for the lines, restores PAL0
     SYS_doVBlankProcess();      // flush queued DMA before input
 
@@ -210,6 +214,7 @@ u8 stage_select_run(u8 player, u16 stage_mask)
                     u8 st = castle_next_stage();
                     // castle_next_stage() ends on 13 even when it is beaten
                     if (!(stage_mask & (1u << st))) sfx_play(SFX_STAGE_SELECTED);
+                    last_sx = sx; last_sy = sy;
                     sprites_end();
                     return st;            // unbeaten castle #1 stage
                 }
@@ -219,6 +224,7 @@ u8 stage_select_run(u8 player, u16 stage_mask)
                     // The confirm sound belongs to the boss intro: a beaten stage
                     // gets neither (PC classic_style_boss_intro returns first).
                     if (!(stage_mask & (1u << st))) sfx_play(SFX_STAGE_SELECTED);
+                    last_sx = sx; last_sy = sy;
                     sprites_end();
                     return st;
                 }

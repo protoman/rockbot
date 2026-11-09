@@ -97,9 +97,16 @@ static bool blocks(s16 l, s16 t, s16 r, s16 b)
     return objects_block_box(l, t, r, b);
 }
 
+extern void host_terrain_set(const unsigned char *src, short w, short h);
+
 int main(void)
 {
     host_terrain_fill(TERRAIN_UNBLOCKED);
+    {   /* a floor under the door: objects with gravity settle at load now */
+        static unsigned char t[200 * 14];
+        for (int x = 0; x < 200; x++) t[12 * 200 + x] = TERRAIN_SOLID;
+        host_terrain_set(t, 200, 14);
+    }
     build_stage();
     objects_reset();
 

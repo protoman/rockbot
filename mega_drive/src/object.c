@@ -457,6 +457,16 @@ void objects_reset(void)
             SPR_setVisibility(o->spr, HIDDEN);
         }
     }
+
+    // PC (405490fa): objects settle on the ground while the map loads, off
+    // screen ones included, so none is seen falling into place on room entry.
+    for (u8 i = 0; i < obj_count; i++) {
+        MapObj *o = &objs[i];
+        if (!(o->flags & ODF_GRAVITY)) continue;
+        const s16 floor_y = stage_def->map_h * stage_def->tile;
+        while (o->y <= floor_y && platform_can_move(o, 1)) o->y++;
+        if (o->y <= floor_y) { o->grounded = TRUE; o->rest_y = o->y; }
+    }
 }
 
 // Enemy drop tables (PC classMap::drop_item, classmap.cpp:996). The PC picks

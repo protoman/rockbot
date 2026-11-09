@@ -10,4 +10,6 @@
 // first unbeaten castle #1 stage (9..13, PC get_last_castle_stage).
 u8 stage_select_run(u8 player, u16 stage_mask);  // player 0..3, beaten bits
 
+void stage_select_reset_cursor(void);            // new game / load: cursor back to the centre
+
 #endif
