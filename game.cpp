@@ -1537,8 +1537,8 @@ void game::got_weapon()
         boss_rush_boss_defeated();
         return;
     }
-    //bool must_show_got_weapon = false;
-    bool must_show_got_weapon = true    ;
+    // the "you got" screen is only for the first time the stage is beaten (the boss fight itself is unchanged)
+    bool must_show_got_weapon = false;
     if (game_save.stages[currentStage] == 0) {
         must_show_got_weapon = true;
         game_save.finished_stages++;

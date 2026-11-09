@@ -158,6 +158,8 @@ classMap *stage::get_current_map()
         char error_msg[255];
         snprintf(error_msg, sizeof(error_msg), "(stage::get_current_map): Invalid currenct map value[%d]", currentMap);
         //throw std::invalid_argument(error_msg);
+        std::cout << "ERROR: " << error_msg << " - using map 0" << std::endl;
+        currentMap = 0; // maps[currentMap] would read outside the array
     }
 
     return &maps[currentMap];
