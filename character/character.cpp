@@ -759,17 +759,6 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool al
         _player_must_reset_colors = true;
 
 
-        // second projectile for player that fires multiple ones
-        if ((attack_id == 0 || attack_id == _normal_shot_projectile_id || (attack_id == game_data.semi_charged_projectile_id && always_charged == true)) && is_player() && _simultaneous_shots > 1) { /// @TODO - move number of simultaneous shots to character/data-file
-            int pos_x_second = proj_pos.x+TILESIZE;
-            if (state.direction == ANIM_DIRECTION_RIGHT) {
-                pos_x_second = proj_pos.x-TILESIZE;
-            }
-            projectile_list.push_back(projectile(attack_id, state.direction, st_position(pos_x_second, proj_pos.y+5), is_player(), _number));
-            projectile &temp_proj2 = projectile_list.back();
-            temp_proj2.set_is_permanent();
-            temp_proj2.set_owner(this);
-        }
         if (attack_id == 0 || attack_id == _normal_shot_projectile_id) { // handle normal attack differences depending on player
             if (updown_trajectory == 1) {
                 temp_proj.set_trajectory(TRAJECTORY_DIAGONAL_UP);
@@ -807,6 +796,19 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool al
                 }
             }
 		}
+
+        // second projectile for player that fires multiple ones. It is added after the first one is fully set up:
+        // push_back can reallocate the list, which left temp_proj dangling for the code above
+        if ((attack_id == 0 || attack_id == _normal_shot_projectile_id || (attack_id == game_data.semi_charged_projectile_id && always_charged == true)) && is_player() && _simultaneous_shots > 1) { /// @TODO - move number of simultaneous shots to character/data-file
+            int pos_x_second = proj_pos.x+TILESIZE;
+            if (state.direction == ANIM_DIRECTION_RIGHT) {
+                pos_x_second = proj_pos.x-TILESIZE;
+            }
+            projectile_list.push_back(projectile(attack_id, state.direction, st_position(pos_x_second, proj_pos.y+5), is_player(), _number));
+            projectile &temp_proj2 = projectile_list.back();
+            temp_proj2.set_is_permanent();
+            temp_proj2.set_owner(this);
+        }
 
 		attack_state = ATTACK_START;
 		state.attack_timer = timer.getTimer();
