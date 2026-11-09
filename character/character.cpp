@@ -1403,7 +1403,11 @@ bool character::hit_ground() // indicates if character is standing above ground
             break;
         } else {
             int pointLock2 = gameControl.getMapPointLock(st_position(map_tile_x.at(i), map_tile_y2));
-            if (pointLock1 != pointLock2) {
+            // a ladder tile at the body (or feet) and free air at the other point is not ground for the player:
+            // it made falling past a ladder count as landed (jump after an air dash, drop-from-ladder flag cleared too early)
+            bool stair_vs_free = is_player() && (pointLock1 == TERRAIN_STAIR || pointLock2 == TERRAIN_STAIR) &&
+                                 (pointLock2 == TERRAIN_UNBLOCKED || pointLock2 == TERRAIN_WATER || pointLock2 == TERRAIN_STAIR);
+            if (pointLock1 != pointLock2 && stair_vs_free == false) {
                 _hit_ground = true;
                 break;
             }
