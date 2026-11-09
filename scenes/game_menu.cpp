@@ -640,6 +640,11 @@ void game_menu::music_player()
     timer.delay(10);
     char value[5]; // for now, we handle only 0-999
 
+    // opened from the in-game menu: the stage (or boss) music must come back when leaving
+    const bool in_game = gameControl.game_started();
+    const bool was_boss_music = soundManager.get_is_playing_boss_music();
+    bool music_changed = false;
+
     int max = CASTLE1_STAGE5;
     // check stages that have music for max-value, default is castle 1.5
     for (int i=0; i<FS_MAX_STAGES; i++) {
@@ -674,6 +679,7 @@ void game_menu::music_player()
             soundManager.stop_music();
             soundManager.load_stage_music(stages_data.stages[music_number].bgmusic_filename);
             soundManager.play_music();
+            music_changed = true;
         } else if (input.p1_input[BTN_LEFT] == 1) {
             if (music_number == 0) {
                 music_number = max;
@@ -691,6 +697,15 @@ void game_menu::music_player()
         draw_lib.update_screen();
     }
     graphLib.clear_area(config_text_pos_x, config_text_pos_y-1, RES_W, RES_H, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
+
+    if (music_changed == true && in_game == true) { // the test track replaced the stage music
+        if (was_boss_music == true) {
+            soundManager.stop_music();
+            soundManager.play_boss_music();
+        } else {
+            gameControl.restart_stage_music();
+        }
+    }
 }
 
 void game_menu::sfx_player()
@@ -709,6 +724,7 @@ void game_menu::sfx_player()
 
     int max = SFX_GOT_ENERGY_BIG;
 
+    const bool was_boss_music = soundManager.get_is_playing_boss_music();
     soundManager.stop_music();
 
     while (true) {
@@ -750,5 +766,9 @@ void game_menu::sfx_player()
         draw_lib.update_screen();
     }
     graphLib.clear_area(config_text_pos_x, config_text_pos_y-1, RES_W, RES_H, CONFIG_BGCOLOR_R, CONFIG_BGCOLOR_G, CONFIG_BGCOLOR_B);
-    soundManager.play_music();
+    if (was_boss_music == true) { // do not turn the boss music into the stage music
+        soundManager.play_boss_music();
+    } else {
+        soundManager.play_music();
+    }
 }
