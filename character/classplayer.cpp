@@ -186,6 +186,8 @@ bool classPlayer::get_item(object_collision &obj_info)
             if (game_save.items.lifes < 9) {
                 game_save.items.lifes++; // max 9
             }
+            res = true; // picked up: without this the 1UP was reported as a solid object and blocked the player's move
+            break;
         default:
 			break;
 		}
