@@ -52,10 +52,12 @@ SoundChunk* GameMediator::get_sfx(std::string filename)
 
 SoundChunk *GameMediator::get_shared_sfx(string filename)
 {
-    std::map<std::string, SoundChunk*>::iterator it = sfx_map.find(filename);
+    // own key: a game sound and a shared sound with the same file name are different files
+    const std::string key = "shared/" + filename;
+    std::map<std::string, SoundChunk*>::iterator it = sfx_map.find(key);
     if (it == sfx_map.end()) {
         SoundChunk* sfx = soundManager.load_shared_sfx_from_file(filename);
-        sfx_map.insert(std::pair<std::string, SoundChunk*>(filename, sfx));
+        sfx_map.insert(std::pair<std::string, SoundChunk*>(key, sfx));
         return sfx;
     } else {
         return it->second;

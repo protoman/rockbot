@@ -915,6 +915,7 @@ void graphicsLib::initSurface(struct st_size size, struct graphicsLib_gSurface* 
     if (rgb_surface != NULL) {
         temp_surface = SDLL_DisplayFormat(rgb_surface);
         if (!temp_surface) {
+            SDLL_FreeSurface(rgb_surface);
             show_debug_msg("EXIT #21.INIT #1");
             show_debug_msg("EXIT #41.2");
             exception_manager::throw_general_exception(std::string("graphicsLib::initSurface #1"), "NO RAM?");
