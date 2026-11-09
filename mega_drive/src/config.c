@@ -383,6 +383,14 @@ static void extras_menu(void)
     }
 }
 
+// PC dialogs::show_leave_game_dialog(): yes/no, defaults to NO; B = NO.
+static bool confirm_leave(void)
+{
+    const char *items[2] = { "NO", "YES" };
+    u8 sel = 0;
+    return menu_list("LEAVE THE STAGE?", items, 2, &sel) == 1;
+}
+
 bool config_run(bool in_game)
 {
     // The caller opens this with B still held: wait for the release or the
@@ -398,6 +406,7 @@ bool config_run(bool in_game)
         else if (r == 1) input_menu();
         else if (r == 2) extras_menu();
         else if (r == 3) {
+            if (!confirm_leave()) continue;
             config_save();
             return TRUE;
         }
