@@ -989,9 +989,10 @@ void classPlayer::death()
 
 void classPlayer::reset_lifes()
 {
-    if (game_save.difficulty != DIFFICULTY_EASY) {
+    // easy 9 lives, normal 5, hard 3 (the tests were "!=", so normal and hard got 9 and easy got 5)
+    if (game_save.difficulty == DIFFICULTY_EASY) {
         game_save.items.lifes = 9;
-    } else if (game_save.difficulty != DIFFICULTY_NORMAL) {
+    } else if (game_save.difficulty == DIFFICULTY_NORMAL) {
         game_save.items.lifes = 5;
     } else {
         game_save.items.lifes = 3;
