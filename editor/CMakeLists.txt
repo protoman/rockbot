@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(RockbotEditor LANGUAGES C CXX)
 
-# Rockbot level/data editor (Qt widgets). Replaces Rockbot_Editor.pro (qmake).
+# Rockbot level/data editor (Qt widgets). Replaces the old qmake project.
 # Build:  cmake -S editor -B build/editor_cmake && cmake --build build/editor_cmake -j
 # Qt5 is the default: the code still uses QWheelEvent::delta() (removed in Qt6), so Qt6 needs a port first.
 
@@ -19,6 +19,12 @@ if(ROCKBOT_EDITOR_QT STREQUAL "")
 endif()
 find_package(Qt${ROCKBOT_EDITOR_QT} REQUIRED COMPONENTS Widgets)
 message(STATUS "Rockbot editor: using Qt${ROCKBOT_EDITOR_QT}")
+
+# SDL version define, as the qmake build passed (-DSDL2 / -DSDL3); 1 or empty adds nothing
+set(USE_SDL_VERSION "" CACHE STRING "SDL major version the editor sources are built for (2 or 3)")
+if(USE_SDL_VERSION STREQUAL "2" OR USE_SDL_VERSION STREQUAL "3")
+    add_compile_definitions(SDL${USE_SDL_VERSION})
+endif()
 
 # the sources need -fpermissive (as in the qmake project)
 add_compile_options(-fpermissive -g)

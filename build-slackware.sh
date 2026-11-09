@@ -71,16 +71,11 @@ fi
 make clean
 make build/rockbot
 
-echo "📁 Building rockbot-editor the project..."
-cd editor
-
-if $USE_SDL2; then
-    qmake Rockbot_Editor.pro CONFIG+=linux QMAKE_CCFLAGS+=-DSDL2 QMAKE_CXXFLAGS+=-DSDL2
-else
-    qmake Rockbot_Editor.pro CONFIG+=linux
-fi
-
-make
+echo "📁 Building rockbot-editor with CMake..."
+SDLV=""
+if $USE_SDL2; then SDLV=2; fi
+cmake -S editor -B build/editor_cmake -DCMAKE_BUILD_TYPE=Release -DUSE_SDL_VERSION="$SDLV"
+cmake --build build/editor_cmake -j"$(nproc)"
 echo "✅ Build completed successfully"
 
 echo

@@ -84,61 +84,17 @@ cmake -S "$SCRIPT_DIR" -B "$CMAKE_BUILD_DIR" \
 NPROC="$(sysctl -n hw.ncpu 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || echo 4)"
 cmake --build "$CMAKE_BUILD_DIR" -j"$NPROC"
 
-echo "📁 Building rockbot-editor with qmake..."
-cd "${SCRIPT_DIR}/editor"
-
-EDITOR_PRO="Rockbot_Editor.pro"
-# Rockbot_Editor.pro hardcodes CONFIG += linux; flip to macosx for this build only.
-cp "$EDITOR_PRO" "${EDITOR_PRO}.bak"
-restore_editor_pro() {
-    if [ -f "${SCRIPT_DIR}/editor/${EDITOR_PRO}.bak" ]; then
-        mv -f "${SCRIPT_DIR}/editor/${EDITOR_PRO}.bak" "${SCRIPT_DIR}/editor/${EDITOR_PRO}"
-    fi
-}
-trap restore_editor_pro EXIT
-
-if command -v gsed >/dev/null 2>&1; then
-    gsed -i \
-        -e 's/^CONFIG += linux/#CONFIG += linux/' \
-        -e 's/^#CONFIG += macosx/CONFIG += macosx/' \
-        "$EDITOR_PRO"
-else
-    sed -i.bak2 \
-        -e 's/^CONFIG += linux/#CONFIG += linux/' \
-        -e 's/^#CONFIG += macosx/CONFIG += macosx/' \
-        "$EDITOR_PRO"
-    rm -f "${EDITOR_PRO}.bak2"
-fi
-
-qmake "$EDITOR_PRO" \
-    CONFIG+=macosx \
-    CONFIG-=app_bundle \
-    CONFIG+=sdk_no_version_check \
-    DEFINES+=SDL${USE_SDL_VERSION} \
-    QMAKE_CCFLAGS+=-DSDL${USE_SDL_VERSION} \
-    QMAKE_CXXFLAGS+=-DSDL${USE_SDL_VERSION} \
-    "QMAKE_MAC_SDK=${MAC_SDK}"
-
-# Align deploy target with the RockDroid macOS convention / SDL requirements.
-if command -v gsed >/dev/null 2>&1; then
-    gsed -i 's/-mmacosx-version-min=[0-9.]*/-mmacosx-version-min=10.7/g' Makefile
-else
-    sed -i.bak 's/-mmacosx-version-min=[0-9.]*/-mmacosx-version-min=10.7/g' Makefile
-    rm -f Makefile.bak
-fi
-
-# Generate ui_*.h next to sources (qmake FORMS + nested dirs can miss these).
-while IFS= read -r -d '' f; do
-    base="$(basename "$f" .ui)"
-    echo "Generating ui_${base}.h from $f"
-    uic "$f" -o "ui_${base}.h"
-done < <(find . -name '*.ui' -print0)
-
+echo "📁 Building rockbot-editor with CMake..."
+# Qt5 from Homebrew (QT5_PREFIX) (the editor code is not Qt6-ready); output is build/editor (no .app bundle)
 rm -rf "${SCRIPT_DIR}/build/editor" "${SCRIPT_DIR}/build/editor.app"
-make -j"$NPROC"
-
-restore_editor_pro
-trap - EXIT
+EDITOR_BUILD_DIR="${SCRIPT_DIR}/build/editor_cmake"
+cmake -S "${SCRIPT_DIR}/editor" -B "$EDITOR_BUILD_DIR" \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_PREFIX_PATH="${QT5_PREFIX}" \
+    -DCMAKE_OSX_DEPLOYMENT_TARGET=10.7 \
+    -DCMAKE_OSX_SYSROOT="${MAC_SDK}" \
+    -DUSE_SDL_VERSION="${USE_SDL_VERSION}"
+cmake --build "$EDITOR_BUILD_DIR" -j"$NPROC"
 
 echo "✅ Build completed successfully"
 

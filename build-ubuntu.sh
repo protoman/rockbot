@@ -116,30 +116,12 @@ cmake -S "$SCRIPT_DIR" -B "$CMAKE_BUILD_DIR" \
 
 cmake --build "$CMAKE_BUILD_DIR" -j"$(nproc)"
 
-echo "📁 Building rockbot-editor the project (qmake)..."
-cd "${SCRIPT_DIR}/editor"
-
-case "$USE_SDL_VERSION" in
-    3)
-        qmake Rockbot_Editor.pro \
-            CONFIG+=linux \
-            QMAKE_CCFLAGS+=-DSDL3 \
-            QMAKE_CXXFLAGS+=-DSDL3 \
-            DEFINES+=SDL3
-        ;;
-    2)
-        qmake Rockbot_Editor.pro \
-            CONFIG+=linux \
-            QMAKE_CCFLAGS+=-DSDL2 \
-            QMAKE_CXXFLAGS+=-DSDL2 \
-            DEFINES+=SDL2
-        ;;
-    *)
-        qmake Rockbot_Editor.pro CONFIG+=linux
-        ;;
-esac
-
-make
+echo "📁 Building rockbot-editor with CMake..."
+EDITOR_BUILD_DIR="${SCRIPT_DIR}/build/editor_cmake"
+cmake -S "${SCRIPT_DIR}/editor" -B "$EDITOR_BUILD_DIR" \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DUSE_SDL_VERSION="${USE_SDL_VERSION}"
+cmake --build "$EDITOR_BUILD_DIR" -j"$(nproc)"
 echo "✅ Build completed successfully"
 
 
