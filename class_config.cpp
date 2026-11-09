@@ -237,6 +237,20 @@ void class_config::use_tank(int tank_type)
 	if (tank_type == TANK_ENERGY && player_ref->get_hp().current == player_ref->get_hp().total) {
 		return;
 	}
+    // weapon and special tanks were consumed even with every weapon (and, for the special one, the HP) already full
+    if (tank_type == TANK_WEAPON || tank_type == TANK_SPECIAL) {
+        bool weapons_full = true;
+        for (int i=WEAPON_APEBOT; i<WEAPON_ITEM_COIL; i++) {
+            if (player_ref->get_weapon_value(i) < player_ref->get_hp().total) {
+                weapons_full = false;
+                break;
+            }
+        }
+        bool hp_full = (player_ref->get_hp().current >= player_ref->get_hp().total);
+        if (weapons_full == true && (tank_type == TANK_WEAPON || hp_full == true)) {
+            return;
+        }
+    }
 	if (tank_type == TANK_ENERGY || tank_type == TANK_SPECIAL) {
         int diff = player_ref->get_hp().current - player_ref->get_hp().total;
         int play_times = diff/6;
@@ -361,7 +375,8 @@ bool class_config::execute_ingame_menu()
                 return true;
             }
             draw_ingame_menu();
-        } else if (input.p1_input[BTN_DASH] == 1) {
+        } else if (input.p1_input[BTN_DASH] == 1 && (game_save.stages[gameControl.currentStage] != 0 || gameControl.is_boss_rush() == true)) {
+            // same rule as the "leave stage" entry of the menu (disabled until the stage is finished)
             SharedData::get_instance()->leave_stage_request = true;
             ingame_menu_active = false;
             gameControl.game_unpause();
