@@ -133,7 +133,7 @@ void artificial_inteligence::check_ai_reaction()
                     _parameter = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].extra_parameter;
                     reaction_loop_check.push_back(_current_ai_type);
                     //std::cout << "AI::execute_ai::check_ai_reaction - FIRST, reaction_goto[" << reaction_goto << "], _current_ai_type[" << _current_ai_type << "], _parameter[" << _parameter << "]" << std::endl;
-                } else { // TODO: add loop check
+                } else {
                     int next_item = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to;
                     //std::cout << "AI::execute_ai::check_ai_reaction - CHECK - next_item[" << next_item << "], ai_chain_n[" << _ai_chain_n << "], current_ai_type[" << _current_ai_type << "], param[" << _parameter << "]" << std::endl;
                     if (next_item != AI_ACTION_GOTO_CHANCE) {
@@ -239,7 +239,8 @@ void artificial_inteligence::define_ai_next_step()
 {
     // could not execute shot, ignore next step
     bool must_ignore_next = (shot_success == false && _current_ai_type == AI_ACTION_SHOT_PROJECTILE_AHEAD);
-    if (must_ignore_next == false && (_initialized == 0 || GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to == AI_ACTION_GOTO_CHANCE)) { // CHANCE
+    // a failed shot also goes to a random state, instead of following the state's go_to
+    if (must_ignore_next == true || _initialized == 0 || GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to == AI_ACTION_GOTO_CHANCE) { // CHANCE
         _initialized = 1;
         reaction_loop_check.clear();
         int rand_n = rand() % 100;
