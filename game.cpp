@@ -1400,14 +1400,18 @@ void game::horizontal_screen_move(short direction, bool is_door, short tileX)
         // if there is a subboss alive, near left, you can't open
         if (subboss_alive_on_left(tileX) == true) {
             std::cout << "[ERROR]: Oh no! Door can't be open because there is an alive sub-boss on its left side." << std::endl;
-            game_unpause();
+            if (game_is_already_paused == false) {
+                game_unpause();
+            }
             return;
         }
         loaded_stage.show_stage();
 	}
 
     if (scroll_move.x == 0) {
-        game_unpause();
+        if (game_is_already_paused == false) {
+            game_unpause();
+        }
         return;
     }
     int move_limit = (RES_W/abs((float)scroll_move.x)) - TILESIZE/abs((float)scroll_move.x);

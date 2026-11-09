@@ -294,6 +294,13 @@ bool class_config::execute_ingame_menu()
 {
     st_position old_pos;
 
+    // focus lost / app in background: open the menu (pauses the game) once, if not already open
+    if (input.pause_request == true) {
+        input.pause_request = false;
+        if (ingame_menu_active == false && gameControl.game_started() == true) {
+            input.p1_input[BTN_START] = 1;
+        }
+    }
 
     if (input.p1_input[BTN_START] == 1 || (ingame_menu_active == true && input.p1_input[BTN_JUMP] == 1)) {
 

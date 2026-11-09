@@ -73,6 +73,10 @@ long timerLib::get_ticks()
 
 void timerLib::pause()
 {
+    // already paused: keep the original pause start, or the time paused so far would be lost at unpause
+    if (_paused == true) {
+        return;
+    }
     _paused = true;
     _paused_timer = getTimer();
 }

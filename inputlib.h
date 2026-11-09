@@ -68,6 +68,7 @@ public:
     Uint8 p1_input[BTN_COUNT];
     Uint8 p1_previous_input[BTN_COUNT];
     Uint8 p1_save_input[BTN_COUNT];
+    bool pause_request = false; // set when the window loses focus / the app goes to background; the in-game menu consumes it
 
 
 private:

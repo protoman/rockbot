@@ -46,6 +46,7 @@ void dialogs::show_dialog(std::string face_file, bool top_side, std::string line
         return;
     }
 
+    const bool was_paused = timer.is_paused(); // a dialog opened over a paused game must leave it paused
     gameControl.game_pause();
 
     draw_dialog_bg();
@@ -72,7 +73,9 @@ void dialogs::show_dialog(std::string face_file, bool top_side, std::string line
 
     input.clean_confirm_button();
     input.wait_keypress();
-    gameControl.game_unpause();
+    if (was_paused == false) {
+        gameControl.game_unpause();
+    }
 
 }
 
@@ -89,6 +92,7 @@ bool dialogs::show_yes_no_dialog(string lines[3])
     bool repeat_menu = true;
     int picked_n = -1;
 
+    const bool was_paused = timer.is_paused(); // opened from the in-game menu: it must stay paused after "no"
     gameControl.game_pause();
 
     input.clean();
@@ -126,8 +130,12 @@ bool dialogs::show_yes_no_dialog(string lines[3])
     timer.delay(200);
     graphLib.copyArea(st_position(0, 0), &bgCopy, &graphLib.gameScreen);
     draw_lib.update_screen();
-    if (res == false && gameControl.game_started()) {
-        gameControl.game_unpause();
+    if (was_paused == false) {
+        if (gameControl.game_started()) {
+            gameControl.game_unpause();
+        } else {
+            timer.unpause(); // outside a game (menus): the timer was left paused after the dialog
+        }
     }
 
     return res;
@@ -139,6 +147,7 @@ void dialogs::show_timed_dialog(std::string face_file, bool is_left, std::string
 	std::string temp_text;
 	char temp_char;
 
+    const bool was_paused = timer.is_paused();
     gameControl.game_pause();
 
     draw_lib.update_screen();
@@ -166,7 +175,9 @@ void dialogs::show_timed_dialog(std::string face_file, bool is_left, std::string
 
 
     timer.delay(delay);
-    gameControl.game_unpause();
+    if (was_paused == false) {
+        gameControl.game_unpause();
+    }
 }
 
 

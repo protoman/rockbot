@@ -254,6 +254,21 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
             }
         #endif
 
+        // window lost focus or app went to background: ask the game to pause (opens the in-game menu)
+        #if defined(SDL3)
+            if (event.type == SDL_EVENT_WINDOW_FOCUS_LOST || event.type == SDL_EVENT_WILL_ENTER_BACKGROUND) {
+                pause_request = true;
+            }
+        #elif defined(SDL2)
+            if ((event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_FOCUS_LOST) || event.type == SDL_APP_WILLENTERBACKGROUND) {
+                pause_request = true;
+            }
+        #else
+            if (event.type == SDL_ACTIVEEVENT && event.active.gain == 0 && (event.active.state & SDL_APPINPUTFOCUS)) {
+                pause_request = true;
+            }
+        #endif
+
         if (resized) {
             SharedData* data = SharedData::get_instance();
             data->scaleX = newWidth / static_cast<float>(RES_W);

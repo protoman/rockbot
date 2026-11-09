@@ -34,6 +34,7 @@ bool fps_control::limit()
     psp_platform::tick(); // profiling: counts game logic ticks (the game skips drawing every other one)
 #endif
     if (timer.is_paused()) {
+        timer.delay(10); // paused loop (in-game menu): without this it spins at 100% CPU
         return true;
     }
     ++frame_count;
