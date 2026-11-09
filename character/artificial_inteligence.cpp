@@ -90,7 +90,7 @@ void artificial_inteligence::execute_ai()
     // check if action is finished
     if (_current_ai_type == -1 || _ai_state.sub_status == IA_ACTION_STATE_FINISHED) {
         if (_current_ai_type != AI_ACTION_WAIT_RANDOM_TIME) { // this AI will set the delay itself
-            if (_reaction_type == 0) {
+            if (_reaction_state == 0) { // not in a reaction (reaction type 0 is a valid reaction, PLAYER_ON_RANGE)
                 int delay = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to_delay;
                 _ai_timer = timer.getTimer() + delay;
             } else {
@@ -174,12 +174,12 @@ void artificial_inteligence::check_ai_reaction()
         diff_x = abs((dist_players.pObj->getPosition().x+dist_players.pObj->get_size().width) - position.x);
     }
 
-    if (dist_players.dist < TILESIZE*4 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_ON_RANGE].action > 0) {
+    if (dist_players.dist < TILESIZE*4 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_ON_RANGE].action >= 0) {
 //        std::cout << "AI::execute_ai::check_ai_reaction::AI_REACTION_PLAYER_ON_RANGE" << std::endl;
         _reaction_type = AI_REACTION_PLAYER_ON_RANGE;
         start_reaction = true;
     // dead
-    } else if (hitPoints.current <= 0 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_DEAD].action > 0) {
+    } else if (hitPoints.current <= 0 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_DEAD].action >= 0) {
 //        std::cout << "AI::execute_ai::check_ai_reaction::AI_REACTION_DEAD" << std::endl;
         _reaction_type = AI_REACTION_DEAD;
         start_reaction = true;
@@ -195,19 +195,19 @@ void artificial_inteligence::check_ai_reaction()
         anim2.set_initial_delay(500);
         gameControl.get_current_map_obj()->add_animation(anim2);
     // hit (comes after death to avoid not firing that reaction that has priority)
-    } else if (_was_hit == true && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_HIT].action > 0) {
+    } else if (_was_hit == true && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_HIT].action >= 0) {
 //        std::cout << "AI::execute_ai::check_ai_reaction::AI_REACTION_HIT" << std::endl;
         _reaction_type = AI_REACTION_HIT;
         start_reaction = true;
-    } else if (dist_players.dist < walk_range && diff_y < 2 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_SAME_Y].action > 0) {
+    } else if (dist_players.dist < walk_range && diff_y < 2 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_SAME_Y].action >= 0) {
 //        std::cout << "AI::execute_ai::check_ai_reaction::AI_REACTION_PLAYER_SAME_Y" << std::endl;
         _reaction_type = AI_REACTION_PLAYER_SAME_Y;
         start_reaction = true;
-    } else if (dist_players.dist < walk_range && diff_x < TILESIZE && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_SAME_X].action > 0) {
+    } else if (dist_players.dist < walk_range && diff_x < TILESIZE && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_SAME_X].action >= 0) {
 //        std::cout << "AI::execute_ai::check_ai_reaction::AI_REACTION_PLAYER_SAME_X" << std::endl;
         _reaction_type = AI_REACTION_PLAYER_SAME_X;
         start_reaction = true;
-    } else if (dist_players.dist < walk_range/4 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_CLOSE].action > 0) {
+    } else if (dist_players.dist < walk_range/4 && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_PLAYER_CLOSE].action >= 0) {
 //        std::cout << "AI::execute_ai::check_ai_reaction::AI_REACTION_PLAYER_CLOSE" << std::endl;
         _reaction_type = AI_REACTION_PLAYER_CLOSE;
         start_reaction = true;
@@ -218,8 +218,8 @@ void artificial_inteligence::check_ai_reaction()
     if (start_reaction == true) {
         //std::cout << "AI::execute_ai::check_ai_reaction::start_reaction" << std::endl;
         // do not start a walk-reaction in middle air
+        // the reaction action is the AI_ACTION value itself (-1 = none, as the editor saves it)
         int react_type = GameMediator::get_instance()->ai_list.at(_number).reactions[_reaction_type].action;
-        react_type--;
         if (react_type == AI_ACTION_WALK && hit_ground() == false && can_fly == false) {
             for (int i=0; i<RES_H; i++) {
                 gravity(false);
@@ -870,13 +870,14 @@ void artificial_inteligence::ia_action_quake_attack()
         _ai_state.initial_position.x = 0;
     } else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
         _ai_state.initial_position.x++;
-        if (_ai_state.initial_position.x % 20) {
+        // the old test ("x % 20", "x % 25") was true on almost every frame, so the screen stayed shifted to
+        // one side for the whole quake instead of shaking: alternate sides every 2 frames
+        if ((_ai_state.initial_position.x / 2) % 2 == 0) {
             graphLib.set_screen_adjust(st_position(-QUAKE_SCREEN_MOVE, 0));
-            ground_damage_players();
-        } else if (_ai_state.initial_position.x % 25) {
+        } else {
             graphLib.set_screen_adjust(st_position(QUAKE_SCREEN_MOVE, 0));
-            ground_damage_players();
         }
+        ground_damage_players();
         _ai_state.timer = timer.getTimer() + 500;
         if (_ai_state.initial_position.x > 200) {
             graphLib.set_screen_adjust(st_position(0, 0));
