@@ -100,6 +100,7 @@ private:
     Sint8 _id;
     st_size _size;
     Uint8 animation_pos;
+    bool _ring_shrinking = false; // TRAJECTORY_RING: going back from the biggest frame
     unsigned int animation_timer;
     Uint8 direction;
     unsigned int move_timer;

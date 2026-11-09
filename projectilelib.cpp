@@ -1043,8 +1043,8 @@ void projectile::draw() {
     //std::cout << "PROJECTILE::DRAW[" << (int)_id << "] at[" << position.x << "][" << position.y << "]" << std::endl;
 
 	if (animation_pos >= _max_frames) {
-        if (_move_type == TRAJECTORY_RING) { // ring will be kept at last two frames
-            animation_pos = _max_frames-2;
+        if (_move_type == TRAJECTORY_RING) { // ring goes back after the last frame (see animation step below)
+            animation_pos = _max_frames-1;
         } else if (_move_type == TRAJECTORY_SLASH) {
             is_finished = true;
         } else {
@@ -1127,7 +1127,26 @@ void projectile::draw() {
     }
 
     if (animation_timer < timer.getTimer()) {
-        if (_move_type != TRAJECTORY_LASER) {
+        if (_move_type == TRAJECTORY_RING) {
+            // grows from the first (small) to the last (big) frame, then shrinks back, and so on
+            if (_max_frames < 2) {
+                animation_pos = 0;
+            } else if (_ring_shrinking == false) {
+                if (animation_pos + 1 >= _max_frames) {
+                    _ring_shrinking = true;
+                    animation_pos = _max_frames - 2;
+                } else {
+                    animation_pos++;
+                }
+            } else {
+                if (animation_pos == 0) {
+                    _ring_shrinking = false;
+                    animation_pos = 1;
+                } else {
+                    animation_pos--;
+                }
+            }
+        } else if (_move_type != TRAJECTORY_LASER) {
             animation_pos++;
         } else {
             if (status == TRAJECTORY_DIAGONAL_DOWN) {
