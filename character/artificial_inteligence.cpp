@@ -275,6 +275,9 @@ void artificial_inteligence::execute_ai_step()
 {
     //std::cout << "AI::execute_ai::execute_ai_step[" << _current_ai_type << "]" << std::endl;
     _ai_timer = timer.getTimer() + 20;
+    if (_current_ai_type != AI_ACTION_FLY) {
+        must_show_dash_effect = false; // the fly dash trail must not stay on after the action ends
+    }
     if (_current_ai_type == AI_ACTION_WALK) {
         execute_ai_step_walk();
     } else if (_current_ai_type == AI_ACTION_FLY) {
@@ -1378,6 +1381,9 @@ void artificial_inteligence::execute_ai_step_fly()
         } else if (_parameter == AI_ACTION_FLY_OPTION_DRILL_DOWN) { // DRILL_DOWN is similar to move-down, but NPC is ghostly (can walk walls) and when on walls, move 1/4 of speed.Also, it randomizes its x point when restarted
             _dest_point.y = RES_H + frameSize.height + TILESIZE;
             _ghost_move_speed_reducer = 4;
+            if (_saved_walk_range == -1) { // restored when the drill ends, so it does not change the range of the next actions
+                _saved_walk_range = walk_range;
+            }
             walk_range = RES_H + TILESIZE*4;
         } else if (_parameter == AI_ACTION_FLY_OPTION_VERTICAL_CENTER) {
             _dest_point.y = RES_H/2 - frameSize.height/2;
@@ -1455,6 +1461,21 @@ void artificial_inteligence::execute_ai_step_fly()
             }
         }
 
+        // the move code does not turn the NPC (that part of check_can_move_to_point never runs), so face the target
+        if (_parameter == AI_ACTION_FLY_OPTION_TO_RANDOM_POINT || _parameter == AI_ACTION_FLY_OPTION_RANDOM_X) {
+            if (_dest_point.x < position.x) {
+                set_direction(ANIM_DIRECTION_LEFT);
+            } else if (_dest_point.x > position.x) {
+                set_direction(ANIM_DIRECTION_RIGHT);
+            }
+        } else if (_parameter == AI_ACTION_FLY_OPTION_TO_SAVED_POINT) {
+            if (_saved_point.x < position.x) {
+                set_direction(ANIM_DIRECTION_LEFT);
+            } else if (_saved_point.x > position.x) {
+                set_direction(ANIM_DIRECTION_RIGHT);
+            }
+        }
+
         set_animation_type(ANIM_TYPE_WALK_AIR);
         _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
 
@@ -1497,6 +1518,10 @@ void artificial_inteligence::execute_ai_step_fly()
                 position.y = -TILESIZE*2;
                 randomize_x_point(TILESIZE*3);
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+                if (_saved_walk_range != -1) {
+                    walk_range = _saved_walk_range;
+                    _saved_walk_range = -1;
+                }
             } else {
                 can_move_struct check_move_res = check_can_move_to_point(_dest_point, 0, move_speed, false, false);
                 float adjusted_move_speed = move_speed;
@@ -1917,6 +1942,22 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
         }
     }
 
+    // same for vertical moves: without it a fast NPC stops up to speed-1 pixels away from the floor/ceiling
+    if (can_pass_walls == false && move_inc.can_move_y == false && speed_y != 0 && abs(speed_y) > 1) {
+        int abs_speed_y = abs(speed_y);
+        int multiplier_y = 1;
+        if (speed_y < 0) {
+            multiplier_y = -1;
+        }
+        for (int i=abs_speed_y-1; i>=1; i--) {
+            can_move_struct try_inc = check_can_move_to_point(dest_point, speed_x, i*multiplier_y, can_pass_walls, must_walk_along_wall);
+            if (try_inc.can_move_y == true) {
+                move_inc = try_inc;
+                break;
+            }
+        }
+    }
+
     move_blocked_x_axis = !move_inc.can_move_x;
     move_blocked_y_axis = !move_inc.can_move_y;
     //std::cout << "AI::move_to_point[" << name << "] - pos.x[" << position.x << "], dest.x[" << dest_point.x << "], move_inc.result[" << (int)move_inc.result << "], move_inc.can_move_x[" << move_inc.can_move_x << "], move_inc.can_move_y[" << move_inc.can_move_y << "]" << std::endl;
@@ -2127,12 +2168,18 @@ bool artificial_inteligence::check_moving_along_wall(int xinc, int yinc)
 
 void artificial_inteligence::randomize_x_point(int max_adjust)
 {
+    if (max_adjust < 1) {
+        return;
+    }
     int rand_x = rand() % max_adjust*2;
     position.x = position.x + rand_x - max_adjust;
 }
 
 int artificial_inteligence::create_rand_x_point(int max_range)
 {
+    if (max_range < 1) {
+        return position.x; // walk_range 0 would divide by zero
+    }
     int rand_x = position.x;
     int scroll_x = gameControl.get_current_map_obj()->getMapScrolling().x;
     int loop_count = 0;
@@ -2153,6 +2200,9 @@ int artificial_inteligence::create_rand_x_point(int max_range)
 
 int artificial_inteligence::create_rand_y_point(int max_range)
 {
+    if (max_range < 1) {
+        return position.y;
+    }
     int rand_y = position.y;
     int loop_count = 0;
     while (loop_count < 100) {
@@ -2172,6 +2222,9 @@ int artificial_inteligence::create_rand_y_point(int max_range)
 
 st_position artificial_inteligence::create_rand_point(int max_range)
 {
+    if (max_range < 1) {
+        return st_position(position.x, position.y);
+    }
     int rand_x = position.x;
     int rand_y = position.y;
     int scroll_x = gameControl.get_current_map_obj()->getMapScrolling().x;

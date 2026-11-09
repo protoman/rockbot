@@ -243,6 +243,7 @@ protected:
 protected:
     st_size distance; /**< TODO */
     short int walk_range;								// defines how long from the start point it can go /**< TODO */
+    short int _saved_walk_range = -1;                   // walk_range before a drill-down changed it (-1 = not changed)
     character *target;									// number of the player that is target /**< TODO */
     float speed_y; /**< TODO */
     float acceleration_y; /**< TODO */
