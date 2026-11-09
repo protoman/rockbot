@@ -1088,6 +1088,9 @@ void game::map_present_boss(bool show_dialog, bool is_static_boss, bool is_stage
     classnpc* boss_ref = loaded_stage.get_near_boss();
     if (boss_ref == NULL) {
 //        std::cout << "GAME::map_present_boss - no boss found" << std::endl;
+        // without this the flag stayed set, which freezes the AI of every enemy for the rest of the stage, and the music was left stopped
+        SharedData::get_instance()->is_showing_boss_intro = false;
+        restart_stage_music();
         return;
     }
     if (boss_ref != NULL) {
