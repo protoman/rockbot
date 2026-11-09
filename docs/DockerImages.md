@@ -171,6 +171,10 @@ with your own keystore when you release (`build/packages/android_build.sh`).
 
 ## Backup and restore
 
+Pre-built exports of the images are available online:
+[Google Drive folder](https://drive.google.com/drive/folders/1Qw5Fu7C9WlFpWcYOf-Nd6gDxcSflFGzw?usp=drive_link). Download the files to a folder, point
+`DOCKER_EXPORT_DIR` at it and run `build/docker/import.sh`; this saves downloading and installing every SDK.
+
 ```
 build/docker/export.sh                # every rockbot-* image -> $DOCKER_EXPORT_DIR/<image>.tar.zst (~8 GB)
 build/docker/import.sh                # load them all back, e.g. after reinstalling the machine

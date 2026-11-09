@@ -58,7 +58,7 @@ fixed name.
 
 * A C++11 compiler and CMake
 * SDL 1.2, SDL2 or SDL3, with the `image`, `mixer`, `ttf` and `gfx` libraries
-* Qt 5 (only for the editor)
+* Qt 5 or Qt 6 (only for the editor; built with CMake, see below)
 
 ## Build (Linux)
 
@@ -75,6 +75,13 @@ Or build only the game, with the development packages already installed:
 ```
 
 The binary is written to `build/rockbot_linux`.
+
+The editor is a separate CMake project (`editor/CMakeLists.txt`), built with Qt 5 by default:
+
+```bash
+cmake -S editor -B build/editor_cmake -DCMAKE_BUILD_TYPE=Release     # add -DROCKBOT_EDITOR_QT=6 for Qt 6
+cmake --build build/editor_cmake -j"$(nproc)"                        # writes build/editor
+```
 
 ## Run
 
@@ -133,6 +140,12 @@ build/docker/build_images.sh                      # build the SDK images once
 build/docker/run.sh psp ports/psp/build.sh        # build one platform inside its image
 build/packages/release_all.sh --bump minor --game both --docker   # every platform, both games
 ```
+
+**Ready-made images:** instead of building the images yourself (it needs every SDK downloaded), you can
+download the exported images from the
+[Google Drive folder](https://drive.google.com/drive/folders/1Qw5Fu7C9WlFpWcYOf-Nd6gDxcSflFGzw?usp=drive_link) and load them with `build/docker/import.sh`
+(set `DOCKER_EXPORT_DIR` to the folder where you saved the `.tar.zst` files). After that
+`build/docker/run.sh <platform> <script>` works as shown above.
 
 * [docs/Docker.md](docs/Docker.md): using the images to build packages; [docs/DockerImages.md](docs/DockerImages.md): building the images, where each SDK comes from, backup and restore.
 * [docs/Releasing.md](docs/Releasing.md): the release script, packages, adding a new port.
