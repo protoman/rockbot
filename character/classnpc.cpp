@@ -496,35 +496,38 @@ void classnpc::move_projectiles()
     std::vector<projectile>::iterator it;
     st_rectangle player_hitbox = gameControl.get_current_map_obj()->get_player_hitbox();
 
-	for (it=projectile_list.begin(); it<projectile_list.end(); it++) {
+    // erasing a finished projectile used to "break" out of the loop, so the other projectiles of this NPC skipped their
+    // move and collision check in that frame: now the loop goes on with the next one
+    it = projectile_list.begin();
+    while (it != projectile_list.end()) {
         st_float_size moved = (*it).move();
         // check collision agains players
 
         if ((*it).is_finished == true) {
-            projectile_list.erase(it);
-            break;
+            it = projectile_list.erase(it);
+            continue;
         }
 
         if ((*it).is_reflected == true) {
+            ++it;
             continue;
-		}
+        }
 
         if (_is_player_friend == false) { // NPC attacking players
 
-            if ((*it).is_finished == true) {
-                projectile_list.erase(it);
-                break;
-            }
             if ((*it).get_move_type() == TRAJECTORY_QUAKE) {
                 ground_damage_players();
+                ++it;
                 continue;
             } else if ((*it).get_move_type() == TRAJECTORY_PUSH_BACK) {
                 //@TODO
                 push_back_players(!state.direction);
+                ++it;
                 continue;
             } else if ((*it).get_move_type() == TRAJECTORY_PULL) {
                 //@TODO
                 pull_players(!state.direction);
+                ++it;
                 continue;
             }
 
@@ -563,15 +566,16 @@ void classnpc::move_projectiles()
 					}
 				}
                 if ((*it).is_finished == true) {
-					projectile_list.erase(it);
+					it = projectile_list.erase(it);
 					projectile_erased = true;
 					break;
 				}
 			}
-            if (projectile_erased) { // the iterator is no longer valid: the others are handled next frame
-                break;
+            if (projectile_erased) { // "it" already points to the next projectile
+                continue;
             }
 		}
+        ++it;
 	}
     projectile_list.insert(projectile_list.end(), projectile_to_be_added_list.begin(), projectile_to_be_added_list.end());
     projectile_to_be_added_list.clear();
