@@ -898,8 +898,8 @@ namespace format_v4 {
         if (data_out.items.energy_tanks > 9) {
             data_out.items.energy_tanks = 9;
         }
-        if (data_out.items.special_tanks > 1) {
-            data_out.items.special_tanks = 1;
+        if (data_out.items.special_tanks > 9) { // the pickup allows up to 9 (it was capped to 1 here, so loading lost them)
+            data_out.items.special_tanks = 9;
         }
 
         fclose(fp);

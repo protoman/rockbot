@@ -199,8 +199,14 @@ void scenesLib::main_screen()
             if (selected_save != -1) {
                 gameControl.set_current_save_slot(selected_save);
                 if (have_save == true) {
-                    fio.read_save(game_save, gameControl.get_current_save_slot());
-                    repeat_menu = false;
+                    if (fio.read_save(game_save, gameControl.get_current_save_slot()) == true) {
+                        repeat_menu = false;
+                    } else {
+                        soundManager.play_sfx(SFX_NPC_HIT);
+                        input.clean_all();
+                        draw_main();
+                        main_picker.draw();
+                    }
                 }
             } else {
                 input.clean_all();
@@ -797,8 +803,8 @@ short scenesLib::select_save(bool is_new_game)
         if (fio.save_exists(i) == false) {
             save_slot_exists[i] = false;
         } else {
-            fio.read_save(save_detail_array[i], i);
-            save_slot_exists[i] = true;
+            // a save that cannot be read is shown as empty (it used to show default values and then "load" the previous game state)
+            save_slot_exists[i] = fio.read_save(save_detail_array[i], i);
         }
     }
 
