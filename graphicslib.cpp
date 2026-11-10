@@ -36,6 +36,9 @@ extern soundLib soundManager;
 
 
 #include "graphicslib.h"
+#ifdef PS3
+#include "ports/ps3/ps3_platform.h"
+#endif
 #include "aux_tools/replay.h"
 
 #include "file/format.h"
@@ -497,6 +500,23 @@ void graphicsLib::surfaceFromFile(const std::string& filename, struct graphicsLi
     }
 }
 
+#ifdef PS3
+// console debugging: raw pixel of a surface (0 if it can not be read), see rockbot_ps3.log
+static unsigned int ps3_debug_pixel(SDL_Surface *s, int x, int y)
+{
+    if (s == NULL || s->format == NULL || s->format->BytesPerPixel != 4 || x >= s->w || y >= s->h) {
+        return 0;
+    }
+    SDLL_LockSurface(s);
+    unsigned int px = 0;
+    if (s->pixels != NULL) {
+        px = *(const Uint32 *)((const Uint8 *)s->pixels + (size_t)y * s->pitch + (size_t)x * 4);
+    }
+    SDLL_UnlockSurface(s);
+    return px;
+}
+#endif
+
 void graphicsLib::loadTileset(std::string file)
 {
     string filename = FILEPATH + "images/tilesets/" + file;
@@ -511,6 +531,10 @@ void graphicsLib::loadTileset(std::string file)
         show_debug_msg("EXIT #06");
         exception_manager::throw_file_not_found_exception(std::string("graphicsLib::loadTileset"), filename);
 	}
+#ifdef PS3
+    ps3_platform::log("loadTileset %s: %dx%d bpp=%d flags=%x px(0,0)=%08x px(40,40)=%08x px(100,100)=%08x", file.c_str(), tileset->w, tileset->h,
+                      tileset->format->BytesPerPixel, (unsigned)tileset->flags, ps3_debug_pixel(tileset, 0, 0), ps3_debug_pixel(tileset, 40, 40), ps3_debug_pixel(tileset, 100, 100));
+#endif
 }
 
 
