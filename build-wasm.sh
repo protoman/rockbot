@@ -38,6 +38,7 @@ main.cpp \
 ./character/character_animation.cpp \
 ./character/artificial_inteligence.cpp \
 ./character/ai_movement.cpp \
+./character/ai_jump.cpp \
 ./character/ai_actions.cpp \
 ./character/classnpc.cpp \
 ./projectilelib.cpp \

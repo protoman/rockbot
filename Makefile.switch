@@ -98,6 +98,7 @@ SRC_CPP := \
 	character/classnpc.cpp \
 	character/artificial_inteligence.cpp \
 	character/ai_movement.cpp \
+	character/ai_jump.cpp \
 	character/ai_actions.cpp \
 	character/character_animation.cpp \
 	character/movement/jump.cpp \

@@ -355,6 +355,7 @@ set(SOURCES
     graphic/animation.cpp
     character/artificial_inteligence.cpp
     character/ai_movement.cpp
+    character/ai_jump.cpp
     character/ai_actions.cpp
     options/key_map.cpp
     graphic/draw.cpp
