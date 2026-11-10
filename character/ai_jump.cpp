@@ -53,6 +53,150 @@ void artificial_inteligence::ia_action_jump_to_player()
     }
 }
 
+// start of a jump to a point: direction, parabola and the starting position (too short jumps are skipped)
+void artificial_inteligence::jump_to_point_start(st_position point, float xinc)
+{
+    int jump_dist = abs(position.x - point.x);
+    if (jump_dist < TILESIZE/2) { // avoid too short jumps
+        _ai_state.sub_action_sub_status = IA_ACTION_STATE_FINISHED;
+        return;
+    }
+    if (position.x < point.x) {
+        set_direction(ANIM_DIRECTION_RIGHT);
+    } else {
+        set_direction(ANIM_DIRECTION_LEFT);
+    }
+    if (xinc <= 0) {
+        jump_pos_x = position.x - point.x;
+    } else {
+        jump_pos_x = point.x - position.x;
+    }
+    _trajectory_parabola = trajectory_parabola(jump_pos_x);
+    _ai_state.initial_position.x = position.x;
+    _ai_state.initial_position.y = position.y;
+    set_animation_type(ANIM_TYPE_JUMP);
+    _ai_state.sub_action_sub_status = IA_ACTION_STATE_EXECUTING;
+    _last_jump_yinc = 0;
+    _ignore_gravity = true; // disable gravity
+    _origin_point.x = 0; // used when can't move x to continue increasing value for the parabola method
+}
+
+// one step of the jump along the parabola: wall and ceiling hits, jump attack, landing
+void artificial_inteligence::jump_to_point_step(float xinc, float jump_yinc_multiplier)
+{
+    bool can_move_x = test_change_position(xinc, 0);
+    if (can_move_x == false) { // hit a wall, fall
+        _origin_point.x += xinc;
+        xinc = 0;
+    }
+
+    // TODO - add multiplier
+
+    int new_x = abs((position.x + _origin_point.x) - _ai_state.initial_position.x);
+    int new_y = _ai_state.initial_position.y - (_trajectory_parabola.get_y_point(new_x) * jump_yinc_multiplier);
+    int yinc = position.y - new_y;
+
+    if (abs(yinc) >= TILESIZE) {
+        if (yinc > 0) {
+            yinc = TILESIZE-1;
+        } else {
+            yinc = -(TILESIZE-1);
+        }
+    }
+    if (yinc >= TILESIZE-1) { // never move more than tilesize, no matter if will change jump behavior or else you could end up out of screen
+        yinc = TILESIZE-2;
+    }
+
+    position.x += xinc;
+    bool can_move_y = false;
+    can_move_y = test_change_position(0, yinc*-1);
+
+    // check hit-head when going up
+    if (yinc > 0 && can_move_y == false) { // falling. @NOTE: y values are inverted, so > 0 meand going up and < 0 meand going down
+        bool found_point = false;
+        if (_last_jump_yinc > 0 || yinc != 0) {
+            // reduce Y in case hit head
+            for (int i=yinc*-1; i>0; i--) {
+                can_move_y = test_change_position(0, i);
+                if (can_move_y == true) {
+                    yinc = i;
+                    found_point = true;
+                    break;
+                }
+            }
+        }
+        // ignore Y movement if can't move in this axis
+        /// @TODO: increase X virtual position until the point the NPC starts falling
+        if (found_point == false) {
+            int temp_xinc = 1;
+            if (state.direction() == ANIM_DIRECTION_LEFT) {
+                temp_xinc = -1;
+            }
+            int temp_yinc = 1;
+            int temp_pos_x = new_x;
+
+            int loop_count = 0;
+            while (loop_count < 1000) { // search for the point when parabole changes signal
+                int temp_new_y = _ai_state.initial_position.y - _trajectory_parabola.get_y_point(temp_pos_x);
+                temp_yinc = position.y - temp_new_y;
+
+                if (temp_yinc >= 0) {
+                    int temp_diff = position.x - temp_pos_x;
+                    _origin_point.x += temp_diff;
+                    break;
+                }
+                temp_pos_x += temp_xinc;
+                loop_count++;
+            }
+            //std::cout << "AI::ia_action_jump_to_point - LEAVE #1" << std::endl;
+            return;
+        }
+    }
+
+
+    // jump-attack
+    if (yinc < 0 && can_move_y == true && jump_attack_type != -1) {
+        if (have_frame_graphic(state.direction(), ANIM_TYPE_JUMP_ATTACK, 0) == true) {
+            set_animation_type(ANIM_TYPE_JUMP_ATTACK);
+        }
+        throw_projectile(jump_attack_type, false);
+        jump_attack_type = -1;
+    }
+
+
+    // check ground when falling
+    if (yinc < 0 && can_move_y == false) { // falling. @NOTE: y values are inverted, so > 0 meand going up and < 0 meand going down
+        bool found_point = false;
+        if (_last_jump_yinc > 0 || yinc != 0) {
+            // reduce Y in case hit ground
+            for (int i=yinc; i>=0; i--) {
+                can_move_y = test_change_position(0, i);
+                if (can_move_y == true) {
+                    yinc = i;
+                    found_point = true;
+                    break;
+                }
+            }
+        }
+        if (found_point == false) {
+            _ignore_gravity = false; // enable gravity
+            _ai_state.sub_action_sub_status = IA_ACTION_STATE_FINISHED;
+            set_animation_type(ANIM_TYPE_STAND);
+            moveCommands.right = 0;
+            moveCommands.left = 0;
+            _ai_timer = timer.getTimer() + 500;
+            if (xinc == 0) { // if didn't moved x, then must change AI to other action
+                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+            }
+            //std::cout << "AI::ia_action_jump_to_point - FINISH" << std::endl;
+            return;
+        }
+    }
+    position.y -= yinc;
+    _last_jump_yinc = yinc;
+    //std::cout << "AI::ia_action_jump_to_point - xinc[" << xinc << "], yinc[" << yinc << "]" << std::endl;
+}
+
 void artificial_inteligence::ia_action_jump_to_point(st_position point)
 {
     float xinc = 0;
@@ -71,141 +215,9 @@ void artificial_inteligence::ia_action_jump_to_point(st_position point)
     }
 
     if (_ai_state.sub_action_sub_status == IA_ACTION_STATE_INITIAL) {
-        int jump_dist = abs(position.x - point.x);
-        if (jump_dist < TILESIZE/2) { // avoid too short jumps
-            _ai_state.sub_action_sub_status = IA_ACTION_STATE_FINISHED;
-            return;
-        }
-        if (position.x < point.x) {
-            set_direction(ANIM_DIRECTION_RIGHT);
-        } else {
-            set_direction(ANIM_DIRECTION_LEFT);
-        }
-        if (xinc <= 0) {
-            jump_pos_x = position.x - point.x;
-        } else {
-            jump_pos_x = point.x - position.x;
-        }
-        _trajectory_parabola = trajectory_parabola(jump_pos_x);
-        _ai_state.initial_position.x = position.x;
-        _ai_state.initial_position.y = position.y;
-        set_animation_type(ANIM_TYPE_JUMP);
-        _ai_state.sub_action_sub_status = IA_ACTION_STATE_EXECUTING;
-        _last_jump_yinc = 0;
-        _ignore_gravity = true; // disable gravity
-        _origin_point.x = 0; // used when can't move x to continue increasing value for the parabola method
+        jump_to_point_start(point, xinc);
     } else if (_ai_state.sub_action_sub_status == IA_ACTION_STATE_EXECUTING) {
-        bool can_move_x = test_change_position(xinc, 0);
-        if (can_move_x == false) { // hit a wall, fall
-            _origin_point.x += xinc;
-            xinc = 0;
-        }
-
-        // TODO - add multiplier
-
-        int new_x = abs((position.x + _origin_point.x) - _ai_state.initial_position.x);
-        int new_y = _ai_state.initial_position.y - (_trajectory_parabola.get_y_point(new_x) * jump_yinc_multiplier);
-        int yinc = position.y - new_y;
-
-        if (abs(yinc) >= TILESIZE) {
-            if (yinc > 0) {
-                yinc = TILESIZE-1;
-            } else {
-                yinc = -(TILESIZE-1);
-            }
-        }
-        if (yinc >= TILESIZE-1) { // never move more than tilesize, no matter if will change jump behavior or else you could end up out of screen
-            yinc = TILESIZE-2;
-        }
-
-        position.x += xinc;
-        bool can_move_y = false;
-        can_move_y = test_change_position(0, yinc*-1);
-
-        // check hit-head when going up
-        if (yinc > 0 && can_move_y == false) { // falling. @NOTE: y values are inverted, so > 0 meand going up and < 0 meand going down
-            bool found_point = false;
-            if (_last_jump_yinc > 0 || yinc != 0) {
-                // reduce Y in case hit head
-                for (int i=yinc*-1; i>0; i--) {
-                    can_move_y = test_change_position(0, i);
-                    if (can_move_y == true) {
-                        yinc = i;
-                        found_point = true;
-                        break;
-                    }
-                }
-            }
-            // ignore Y movement if can't move in this axis
-            /// @TODO: increase X virtual position until the point the NPC starts falling
-            if (found_point == false) {
-                int temp_xinc = 1;
-                if (state.direction() == ANIM_DIRECTION_LEFT) {
-                    temp_xinc = -1;
-                }
-                int temp_yinc = 1;
-                int temp_pos_x = new_x;
-
-                int loop_count = 0;
-                while (loop_count < 1000) { // search for the point when parabole changes signal
-                    int temp_new_y = _ai_state.initial_position.y - _trajectory_parabola.get_y_point(temp_pos_x);
-                    temp_yinc = position.y - temp_new_y;
-
-                    if (temp_yinc >= 0) {
-                        int temp_diff = position.x - temp_pos_x;
-                        _origin_point.x += temp_diff;
-                        break;
-                    }
-                    temp_pos_x += temp_xinc;
-                    loop_count++;
-                }
-                //std::cout << "AI::ia_action_jump_to_point - LEAVE #1" << std::endl;
-                return;
-            }
-        }
-
-
-        // jump-attack
-        if (yinc < 0 && can_move_y == true && jump_attack_type != -1) {
-            if (have_frame_graphic(state.direction(), ANIM_TYPE_JUMP_ATTACK, 0) == true) {
-                set_animation_type(ANIM_TYPE_JUMP_ATTACK);
-            }
-            throw_projectile(jump_attack_type, false);
-            jump_attack_type = -1;
-        }
-
-
-        // check ground when falling
-        if (yinc < 0 && can_move_y == false) { // falling. @NOTE: y values are inverted, so > 0 meand going up and < 0 meand going down
-            bool found_point = false;
-            if (_last_jump_yinc > 0 || yinc != 0) {
-                // reduce Y in case hit ground
-                for (int i=yinc; i>=0; i--) {
-                    can_move_y = test_change_position(0, i);
-                    if (can_move_y == true) {
-                        yinc = i;
-                        found_point = true;
-                        break;
-                    }
-                }
-            }
-            if (found_point == false) {
-                _ignore_gravity = false; // enable gravity
-                _ai_state.sub_action_sub_status = IA_ACTION_STATE_FINISHED;
-                set_animation_type(ANIM_TYPE_STAND);
-                moveCommands.right = 0;
-                moveCommands.left = 0;
-                _ai_timer = timer.getTimer() + 500;
-                if (xinc == 0) { // if didn't moved x, then must change AI to other action
-                    _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-                }
-                //std::cout << "AI::ia_action_jump_to_point - FINISH" << std::endl;
-                return;
-            }
-        }
-        position.y -= yinc;
-        _last_jump_yinc = yinc;
-        //std::cout << "AI::ia_action_jump_to_point - xinc[" << xinc << "], yinc[" << yinc << "]" << std::endl;
+        jump_to_point_step(xinc, jump_yinc_multiplier);
     }
 }
 

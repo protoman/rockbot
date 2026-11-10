@@ -128,6 +128,8 @@ protected:
      */
     void ia_action_jump_to_player();
     void ia_action_jump_to_point(st_position point);
+    void jump_to_point_start(st_position point, float xinc);
+    void jump_to_point_step(float xinc, float jump_yinc_multiplier);
     void ia_action_jump_to_random();
     void ia_action_jump_ahead();
     void ia_action_jump_long_ahead();
