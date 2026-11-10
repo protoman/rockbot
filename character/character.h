@@ -219,6 +219,8 @@ public:
     bool is_stage_boss();
     bool is_final_game_boss();
     void clean_character_graphics_list();
+    st_char_sprite_data *sprite_set();                      // this character's frames (graphLib.character_graphics_list[name]); NULL if there are none
+
     bool have_background_graphics();
     void cancel_slide();
     virtual float get_hit_push_back_n();
@@ -378,6 +380,11 @@ protected:
     int _progressive_appear_pos;                            // used by spawn-npc to show just a part of the NPC
     bool _is_stage_boss;                                    // used in NPC class. Indicates if this is the stage-boss
     bool _is_final_game_boss = false;                      // this enemy is the final game boss or spawns it
+    // cached lookup of sprite_set(): the map entry is found again only when its name or the list changed
+    st_char_sprite_data *_sprite_set = NULL;
+    unsigned int _sprite_set_generation = 0;
+    std::string _sprite_set_name;
+
     bool _dropped_from_stairs;                              // used to avoid grabbing stairs again when dropped from it
     classjump _obj_jump;
     short character_max_jump_number;                                    // used for double or triple jumping

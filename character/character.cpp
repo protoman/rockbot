@@ -528,16 +528,16 @@ void character::clear_move_commands()
 // ********************************************************************************************** //
 void character::change_char_color(Sint8 colorkey_n, st_color new_color, bool full_change=true)
 {
-    if (graphLib.character_graphics_list.find(name) == graphLib.character_graphics_list.end()) {
+    if (sprite_set() == NULL) {
         return;
     }
     if (full_change == false) {
-        graphLib.change_surface_color(colorkey_n, new_color, &(graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
+        graphLib.change_surface_color(colorkey_n, new_color, &(*sprite_set()).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
 	} else {
         for (int i=0; i<2; i++) {
 			for (int j=0; j<ANIM_TYPE_COUNT; j++) {
 				for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
-                    graphLib.change_surface_color(colorkey_n, new_color, &(graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface);
+                    graphLib.change_surface_color(colorkey_n, new_color, &(*sprite_set()).frames[i][j][k].frameSurface);
 				}
 			}
 		}
@@ -560,7 +560,7 @@ ATTACK_TYPES character::check_must_attack(bool always_charged)
     if (state.animation_type == ANIM_TYPE_TELEPORT) {
         return ATTACK_TYPE_NOATTACK;
     }
-    if (graphLib.character_graphics_list.find(name) == graphLib.character_graphics_list.end()) {
+    if (sprite_set() == NULL) {
         return ATTACK_TYPE_NOATTACK;
     }
 
@@ -705,7 +705,7 @@ st_position character::get_attack_position(short direction)
 /// @TODO: this must be moved to player, as character attack must be very simple
 void character::attack(bool dont_update_colors, short updown_trajectory, bool always_charged)
 {
-    if (attack_state != ATTACK_NOT && (timer.getTimer()-state.attack_timer) >= (graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].delay) {
+    if (attack_state != ATTACK_NOT && (timer.getTimer()-state.attack_timer) >= (*sprite_set()).frames[state.direction][state.animation_type][state.animation_state].delay) {
 		attack_state = ATTACK_NOT;
 	}
 
@@ -910,7 +910,6 @@ void character::show_previous_sprites()
 
     }
     // show previous frames
-    std::map<std::string, st_char_sprite_data>::iterator it_graphic = graphLib.character_graphics_list.find(name);
     for (int i=0; i<previous_position_list.size(); i++) {
         // only show each two frames
         if (i%2 == 0) {
@@ -1048,7 +1047,7 @@ void character::show_sprite()
             state.animation_timer = timer.getTimer() + 180;
 		} else {
             short direction = ANIM_DIRECTION_RIGHT;
-            int delay = (graphLib.character_graphics_list.find(name)->second).frames[direction][state.animation_type][state.animation_state].delay;
+            int delay = (*sprite_set()).frames[direction][state.animation_type][state.animation_state].delay;
             state.animation_timer = timer.getTimer() + delay;
         }
     }
@@ -1064,11 +1063,11 @@ void character::reset_sprite_animation_timer()
         short direction = ANIM_DIRECTION_RIGHT;
 
         int delay = 100;
-        if (graphLib.character_graphics_list.find(name) != graphLib.character_graphics_list.end()) {
+        if (sprite_set() != NULL) {
             if (direction < CHAR_ANIM_DIRECTION_COUNT) {
                 if (state.animation_type < ANIM_TYPE_COUNT) {
                     if (state.animation_state < ANIM_FRAMES_COUNT) {
-                        delay = (graphLib.character_graphics_list.find(name)->second).frames[direction][state.animation_type][state.animation_state].delay;
+                        delay = (*sprite_set()).frames[direction][state.animation_type][state.animation_state].delay;
                     }
                 }
             }
@@ -1129,9 +1128,8 @@ graphicsLib_gSurface *character::get_current_frame_surface(short direction, shor
         frame_n = 0;
     }
 
-    std::map<std::string, st_char_sprite_data>::iterator it_graphic;
-    it_graphic = graphLib.character_graphics_list.find(name);
-    if (it_graphic == graphLib.character_graphics_list.end()) {
+    st_char_sprite_data *sprites = sprite_set();
+    if (sprites == NULL) {
         std::cout << "ERROR: #1 character::show_sprite_graphic - Could not find graphic for NPC [" << name << "]" << std::endl;
         return NULL;
     }
@@ -1150,7 +1148,7 @@ graphicsLib_gSurface *character::get_current_frame_surface(short direction, shor
             frame_n = 0;
             state.animation_state = 0;
             _was_animation_reset = true;
-            return &it_graphic->second.frames[direction][type][frame_n].frameSurface;
+            return &sprites->frames[direction][type][frame_n].frameSurface;
         }
         state.animation_state = 0;
         _was_animation_reset = true;
@@ -1166,7 +1164,7 @@ graphicsLib_gSurface *character::get_current_frame_surface(short direction, shor
         }
     }
 
-    return &it_graphic->second.frames[direction][type][frame_n].frameSurface;
+    return &sprites->frames[direction][type][frame_n].frameSurface;
 }
 
 void character::reset_gravity_speed()
@@ -2379,9 +2377,9 @@ void character::addSpriteFrame(int anim_type, int posX, graphicsLib_gSurface &sp
 
     for (int anim_direction=0; anim_direction<=1; anim_direction++) {
         for (int i=0; i<ANIM_FRAMES_COUNT; i++) { // find the last free frame
-            if ((graphLib.character_graphics_list.find(name)->second).frames[anim_direction][anim_type][i].frameSurface.get_surface() == NULL) {
+            if ((*sprite_set()).frames[anim_direction][anim_type][i].frameSurface.get_surface() == NULL) {
 
-                st_spriteFrame *sprite = &(graphLib.character_graphics_list.find(name)->second).frames[anim_direction][anim_type][i];
+                st_spriteFrame *sprite = &(*sprite_set()).frames[anim_direction][anim_type][i];
                 graphicsLib_gSurface gsurface = graphLib.surfaceFromRegion(spriteArea, spritesSurface);
 
                 // RIGHT
@@ -2395,11 +2393,11 @@ void character::addSpriteFrame(int anim_type, int posX, graphicsLib_gSurface &sp
                 }
 
 
-                (graphLib.character_graphics_list.find(name)->second).frames[anim_direction][anim_type][i].frameSurface.init_colorkeys();
-                (graphLib.character_graphics_list.find(name)->second).frames[anim_direction][anim_type][i].delay = delay;
+                (*sprite_set()).frames[anim_direction][anim_type][i].frameSurface.init_colorkeys();
+                (*sprite_set()).frames[anim_direction][anim_type][i].delay = delay;
 
                 if (anim_type == ANIM_TYPE_STAIRS_MOVE || anim_type == ANIM_TYPE_STAIRS_SEMI) {
-                    st_spriteFrame *sprite = &(graphLib.character_graphics_list.find(name)->second).frames[anim_direction][anim_type][i+1];
+                    st_spriteFrame *sprite = &(*sprite_set()).frames[anim_direction][anim_type][i+1];
                     if (anim_direction != 0) {
                         graphicsLib_gSurface gsurface_flip;
                         graphLib.flip_image(gsurface, gsurface_flip, flip_type_horizontal);
@@ -2407,8 +2405,8 @@ void character::addSpriteFrame(int anim_type, int posX, graphicsLib_gSurface &sp
                     } else {
                         graphLib.set_spriteframe_surface(sprite, gsurface);
                     }
-                    (graphLib.character_graphics_list.find(name)->second).frames[anim_direction][anim_type][i+1].frameSurface.init_colorkeys();
-                    (graphLib.character_graphics_list.find(name)->second).frames[anim_direction][anim_type][i+1].delay = delay;
+                    (*sprite_set()).frames[anim_direction][anim_type][i+1].frameSurface.init_colorkeys();
+                    (*sprite_set()).frames[anim_direction][anim_type][i+1].delay = delay;
                 }
 
 
@@ -2589,6 +2587,17 @@ st_rectangle character::get_vulnerable_area(int anim_type)
 
 
 
+st_char_sprite_data *character::sprite_set()
+{
+    if (_sprite_set_generation != graphLib.character_graphics_generation || _sprite_set_name != name) {
+        std::map<std::string, st_char_sprite_data>::iterator it = graphLib.character_graphics_list.find(name);
+        _sprite_set = (it != graphLib.character_graphics_list.end()) ? &(it->second) : NULL;
+        _sprite_set_generation = graphLib.character_graphics_generation;
+        _sprite_set_name = name;
+    }
+    return _sprite_set;
+}
+
 // ********************************************************************************************** //
 // adds an entry into character_graphics_list map, if needed                                      //
 // ********************************************************************************************** //
@@ -2605,6 +2614,7 @@ void character::add_graphic()
     if (it == graphLib.character_graphics_list.end()) { // there is no graphic with this key yet, add it
         std::pair<std::string, st_char_sprite_data> temp_data(temp_name, st_char_sprite_data());
         graphLib.character_graphics_list.insert(temp_data);
+        graphLib.character_graphics_generation++;
     }
 }
 
@@ -2617,7 +2627,7 @@ bool character::have_frame_graphics()
         for (int i=0; i<2; i++) {
 			for (int j=0; j<ANIM_TYPE_COUNT; j++) {
 				for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
-                    if ((graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface.width > 0 && (graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface.get_surface() != NULL) {
+                    if ((*sprite_set()).frames[i][j][k].frameSurface.width > 0 && (*sprite_set()).frames[i][j][k].frameSurface.get_surface() != NULL) {
 						return true;
 					}
 				}
@@ -2640,6 +2650,7 @@ void character::clean_character_graphics_list()
     it = graphLib.character_graphics_list.find(name);
     if (it != graphLib.character_graphics_list.end()) {
         graphLib.character_graphics_list.erase(it);
+        graphLib.character_graphics_generation++;
     }
 }
 
@@ -2657,7 +2668,7 @@ bool character::have_background_graphics()
 int character::frames_count()
 {
 	for (int i=0; i<ANIM_FRAMES_COUNT; i++) {
-        if ((graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][i].frameSurface.width == 0 || (graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][i].frameSurface.get_surface() == NULL) {
+        if ((*sprite_set()).frames[state.direction][state.animation_type][i].frameSurface.width == 0 || (*sprite_set()).frames[state.direction][state.animation_type][i].frameSurface.get_surface() == NULL) {
 			return i;
 		}
 	}
@@ -2685,7 +2696,7 @@ bool character::have_frame_graphic(int direction, int type, int pos)
     if (pos >= ANIM_FRAMES_COUNT) {
         return false;
     }
-    if ((graphLib.character_graphics_list.find(name)->second).frames[direction][type][pos].frameSurface.width == 0 || (graphLib.character_graphics_list.find(name)->second).frames[direction][type][pos].frameSurface.get_surface() == NULL) {
+    if ((*sprite_set()).frames[direction][type][pos].frameSurface.width == 0 || (*sprite_set()).frames[direction][type][pos].frameSurface.get_surface() == NULL) {
 		return false;
 	}
     return true;
@@ -3447,10 +3458,10 @@ short character::get_anim_type() const
 
 graphicsLib_gSurface *character::get_char_frame(int direction, int type, int frame)
 {
-    if (graphLib.character_graphics_list.find(name) == graphLib.character_graphics_list.end()) {
+    if (sprite_set() == NULL) {
 		return NULL;
 	} else {
-        return &(graphLib.character_graphics_list.find(name)->second).frames[direction][type][frame].frameSurface;
+        return &(*sprite_set()).frames[direction][type][frame].frameSurface;
 	}
 }
 
@@ -3515,7 +3526,7 @@ void character::set_animation_type(ANIM_TYPE type)
         }
     }
     int frame_delay = 20;
-    if (graphLib.character_graphics_list.find(name) != graphLib.character_graphics_list.end()) {
+    if (sprite_set() != NULL) {
         if (state.direction >= CHAR_ANIM_DIRECTION_COUNT) {
             set_direction(0);
         }
@@ -3526,7 +3537,7 @@ void character::set_animation_type(ANIM_TYPE type)
             state.animation_state = 0;
         }
 
-        frame_delay = (graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].delay;
+        frame_delay = (*sprite_set()).frames[state.direction][state.animation_type][state.animation_state].delay;
     }
     state.animation_timer = timer.getTimer() + frame_delay;
     animation_obj.set_type(static_cast<ANIM_TYPE>(state.animation_type));

@@ -316,6 +316,7 @@ public:
 
     // character graphics list map, used in order to avoid duplication of graphics
     std::map<std::string, st_char_sprite_data> character_graphics_list;
+    unsigned int character_graphics_generation = 1;                    // changes whenever an entry of character_graphics_list is added or erased (characters cache a pointer to their entry)
     std::map<std::string, graphicsLib_gSurface> character_graphics_background_list;
     std::map<std::string, graphicsLib_gSurface> character_graphics_background_list_left;
 

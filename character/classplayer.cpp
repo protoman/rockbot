@@ -1019,21 +1019,21 @@ void classPlayer::change_player_color(bool full_change)
         color_n = 0;
     }
     if (full_change == false) {
-        graphLib.change_surface_color(0, weapon_colors[color_n].color1, &(graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
-        graphLib.change_surface_color(1, weapon_colors[color_n].color2, &(graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
-        graphLib.change_surface_color(2, weapon_colors[color_n].color3, &(graphLib.character_graphics_list.find(name)->second).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
+        graphLib.change_surface_color(0, weapon_colors[color_n].color1, &(*sprite_set()).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
+        graphLib.change_surface_color(1, weapon_colors[color_n].color2, &(*sprite_set()).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
+        graphLib.change_surface_color(2, weapon_colors[color_n].color3, &(*sprite_set()).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
     } else {
         for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
             for (int j=0; j<ANIM_TYPE_COUNT; j++) {
                 for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
                     if (weapon_colors[0].color1.r != -1) {
-                        graphLib.change_surface_color(0, weapon_colors[color_n].color1, &(graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface);
+                        graphLib.change_surface_color(0, weapon_colors[color_n].color1, &(*sprite_set()).frames[i][j][k].frameSurface);
                     }
                     if (weapon_colors[0].color2.r != -1) {
-                        graphLib.change_surface_color(1, weapon_colors[color_n].color2, &(graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface);
+                        graphLib.change_surface_color(1, weapon_colors[color_n].color2, &(*sprite_set()).frames[i][j][k].frameSurface);
                     }
                     if (weapon_colors[0].color3.r != -1) {
-                        graphLib.change_surface_color(2, weapon_colors[color_n].color3, &(graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface);
+                        graphLib.change_surface_color(2, weapon_colors[color_n].color3, &(*sprite_set()).frames[i][j][k].frameSurface);
                     }
                 }
             }

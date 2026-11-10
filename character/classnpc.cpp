@@ -173,7 +173,7 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
     for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
 		for (int j=0; j<ANIM_TYPE_COUNT; j++) {
 			for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
-                (graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface.persistent = true;
+                (*sprite_set()).frames[i][j][k].frameSurface.persistent = true;
 			}
 		}
 	}
