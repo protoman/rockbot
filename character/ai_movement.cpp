@@ -751,31 +751,13 @@ bool artificial_inteligence::move_to_point(st_float_position dest_point, float s
     return false;
 }
 
-can_move_struct artificial_inteligence::check_can_move_to_point(st_float_position dest_point, float speed_x, float speed_y, bool can_pass_walls, bool must_walk_along_wall)
+// ghost enemies (can pass walls) slow down when the next step is blocked; others only keep the speed the wall allows
+void artificial_inteligence::reduce_speed_near_walls(float &speed_x, float &speed_y, bool can_pass_walls)
 {
-    float xinc = 0;
-    float yinc = 0;
-
-    // invert direction if needed
-    if (xinc != 0 && position.x > dest_point.x && state.direction() != ANIM_DIRECTION_LEFT) {
-        set_direction(ANIM_DIRECTION_LEFT);
-    }
-    if (xinc != 0 && position.x < dest_point.x && state.direction() != ANIM_DIRECTION_RIGHT) {
-        set_direction(ANIM_DIRECTION_RIGHT);
-    }
-
-    if (abs(dest_point.x - position.x) < speed_x) {
-        speed_x = abs(dest_point.x - position.x);
-    }
-    if (abs(dest_point.y - position.y) < speed_y) {
-        speed_y = abs(dest_point.y - position.y);
-    }
-
     float block_speed_x = speed_x;
     float block_speed_y = speed_y;
 
     if (can_pass_walls == true) {
-        must_walk_along_wall = false; // can't have both flags enabled
         if (_ghost_move_speed_reducer > 0 && speed_x != 0) {
             block_speed_x = speed_x/_ghost_move_speed_reducer;
             if ((int)block_speed_x == 0) {
@@ -811,7 +793,81 @@ can_move_struct artificial_inteligence::check_can_move_to_point(st_float_positio
             speed_y = block_speed_y;
         }
     }
+}
 
+// walking enemies stop before a hole (or a block that appears/disappears with the difficulty). Returns true to stop
+bool artificial_inteligence::walking_over_hole()
+{
+    st_position map_point(position.x/TILESIZE, (position.y + frameSize.height + 3)/TILESIZE);
+    if (state.direction() == ANIM_DIRECTION_RIGHT) {
+        map_point.x = (position.x + frameSize.width)/TILESIZE;
+    }
+    st_position current_map_point((position.x + frameSize.width/2)/TILESIZE, (position.y + frameSize.height + 3)/TILESIZE);
+    int map_lock = gameControl.get_current_map_obj()->getMapPointLock(map_point);
+    int current_map_lock = gameControl.get_current_map_obj()->getMapPointLock(current_map_point);
+
+    if ((can_fall_during_move == false || can_fall_during_move == true && map_lock == TERRAIN_SPIKE) && map_lock != current_map_lock) {
+        if (map_lock == TERRAIN_UNBLOCKED || map_lock == TERRAIN_WATER || (map_lock == TERRAIN_EASYMODEBLOCK && game_save.difficulty != DIFFICULTY_EASY) || (map_lock == TERRAIN_HARDMODEBLOCK && game_save.difficulty != DIFFICULTY_HARD)) {
+            //std::cout << "AI::check_can_move_to_point - LEAVE #3 - can_fall_during_move[" << can_fall_during_move << "]" << std::endl;
+            return true;
+        }
+    }
+    return false;
+}
+
+// "always move ahead" enemies check a whole tile ahead and, on a step they can climb, switch to a single jump.
+// Returns true when the AI was changed to the jump
+bool artificial_inteligence::jump_over_obstacle_ahead(float xinc, float speed_x, float speed_y)
+{
+    int xinc2 = xinc + TILESIZE;
+    if (xinc < 0) {
+        xinc2 = xinc - TILESIZE;
+    }
+
+    st_position map_point_ahead((position.x+xinc2)/TILESIZE, (position.y + frameSize.height-2)/TILESIZE);
+    int map_lock_ahead = gameControl.get_current_map_obj()->getMapPointLock(map_point_ahead);
+    st_position map_point_top((position.x+xinc2)/TILESIZE, (position.y - TILESIZE + frameSize.height-2)/TILESIZE);
+    int map_lock_top = gameControl.get_current_map_obj()->getMapPointLock(map_point_top);
+
+
+
+    if (hit_ground() == true && speed_y == 0 && speed_x != 0) { // check if is trying to move on X axis only
+        if ((map_lock_ahead != TERRAIN_WATER && map_lock_ahead != TERRAIN_UNBLOCKED) && (map_lock_top == TERRAIN_WATER || map_lock_top == TERRAIN_UNBLOCKED)) { // check that the terrain over the block is free
+            /// @TODO - implement have a way to change AI type only for a short period then return to the current one
+            _current_ai_type = AI_ACTION_JUMP;
+            _parameter = AI_ACTION_JUMP_OPTION_ONCE;
+            _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
+            _ai_state.main_status = 0;
+            return true;
+        }
+    }
+    return false;
+}
+
+can_move_struct artificial_inteligence::check_can_move_to_point(st_float_position dest_point, float speed_x, float speed_y, bool can_pass_walls, bool must_walk_along_wall)
+{
+    float xinc = 0;
+    float yinc = 0;
+
+    // invert direction if needed
+    if (xinc != 0 && position.x > dest_point.x && state.direction() != ANIM_DIRECTION_LEFT) {
+        set_direction(ANIM_DIRECTION_LEFT);
+    }
+    if (xinc != 0 && position.x < dest_point.x && state.direction() != ANIM_DIRECTION_RIGHT) {
+        set_direction(ANIM_DIRECTION_RIGHT);
+    }
+
+    if (abs(dest_point.x - position.x) < speed_x) {
+        speed_x = abs(dest_point.x - position.x);
+    }
+    if (abs(dest_point.y - position.y) < speed_y) {
+        speed_y = abs(dest_point.y - position.y);
+    }
+
+    if (can_pass_walls == true) {
+        must_walk_along_wall = false; // can't have both flags enabled
+    }
+    reduce_speed_near_walls(speed_x, speed_y, can_pass_walls);
 
     if (dest_point.x > position.x) {
         xinc = speed_x;
@@ -849,44 +905,14 @@ can_move_struct artificial_inteligence::check_can_move_to_point(st_float_positio
     // check that we are not in a infinite loop of walking, because if we do, we don't stop moving
     if (_always_move_ahead == false) {
         if ((type == AI_ACTION_WALK || type == AI_ACTION_DASH) && can_fly == false && can_move_x == true && xinc != 0 && yinc == 0) {
-            st_position map_point(position.x/TILESIZE, (position.y + frameSize.height + 3)/TILESIZE);
-            if (state.direction() == ANIM_DIRECTION_RIGHT) {
-                map_point.x = (position.x + frameSize.width)/TILESIZE;
-            }
-            st_position current_map_point((position.x + frameSize.width/2)/TILESIZE, (position.y + frameSize.height + 3)/TILESIZE);
-            int map_lock = gameControl.get_current_map_obj()->getMapPointLock(map_point);
-            int current_map_lock = gameControl.get_current_map_obj()->getMapPointLock(current_map_point);
-
-            if ((can_fall_during_move == false || can_fall_during_move == true && map_lock == TERRAIN_SPIKE) && map_lock != current_map_lock) {
-                if (map_lock == TERRAIN_UNBLOCKED || map_lock == TERRAIN_WATER || (map_lock == TERRAIN_EASYMODEBLOCK && game_save.difficulty != DIFFICULTY_EASY) || (map_lock == TERRAIN_HARDMODEBLOCK && game_save.difficulty != DIFFICULTY_HARD)) {
-                    //std::cout << "AI::check_can_move_to_point - LEAVE #3 - can_fall_during_move[" << can_fall_during_move << "]" << std::endl;
-                    return can_move_struct(0, 0, false, false, CAN_MOVE_LEAVE_TRUE);
-                }
+            if (walking_over_hole() == true) {
+                return can_move_struct(0, 0, false, false, CAN_MOVE_LEAVE_TRUE);
             }
         }
     // always ahead will try to jump over obstables checking them a whole TILE ahead of time
     } else if (xinc != 0) {
-        int xinc2 = xinc + TILESIZE;
-        if (xinc < 0) {
-            xinc2 = xinc - TILESIZE;
-        }
-
-        st_position map_point_ahead((position.x+xinc2)/TILESIZE, (position.y + frameSize.height-2)/TILESIZE);
-        int map_lock_ahead = gameControl.get_current_map_obj()->getMapPointLock(map_point_ahead);
-        st_position map_point_top((position.x+xinc2)/TILESIZE, (position.y - TILESIZE + frameSize.height-2)/TILESIZE);
-        int map_lock_top = gameControl.get_current_map_obj()->getMapPointLock(map_point_top);
-
-
-
-        if (hit_ground() == true && speed_y == 0 && speed_x != 0) { // check if is trying to move on X axis only
-            if ((map_lock_ahead != TERRAIN_WATER && map_lock_ahead != TERRAIN_UNBLOCKED) && (map_lock_top == TERRAIN_WATER || map_lock_top == TERRAIN_UNBLOCKED)) { // check that the terrain over the block is free
-                /// @TODO - implement have a way to change AI type only for a short period then return to the current one
-                _current_ai_type = AI_ACTION_JUMP;
-                _parameter = AI_ACTION_JUMP_OPTION_ONCE;
-                _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
-                _ai_state.main_status = 0;
-                return can_move_struct(0, 0, false, false, CAN_MOVE_LEAVE_FALSE);
-            }
+        if (jump_over_obstacle_ahead(xinc, speed_x, speed_y) == true) {
+            return can_move_struct(0, 0, false, false, CAN_MOVE_LEAVE_FALSE);
         }
     }
 

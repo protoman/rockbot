@@ -205,6 +205,9 @@ protected:
      */
     bool move_to_point(st_float_position dest_point, float speed_x, float speed_y, bool can_pass_walls, bool must_walk_along_wall);
     can_move_struct check_can_move_to_point(st_float_position dest_point, float speed_x, float speed_y, bool can_pass_walls, bool must_walk_along_wall);
+    void reduce_speed_near_walls(float &speed_x, float &speed_y, bool can_pass_walls);
+    bool walking_over_hole();
+    bool jump_over_obstacle_ahead(float xinc, float speed_x, float speed_y);
     bool check_moving_along_wall(int xinc, int yinc);
     void randomize_x_point(int max_adjust);
     int create_rand_x_point(int max_range);
