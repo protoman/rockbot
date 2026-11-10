@@ -124,6 +124,9 @@ public:
     bool is_obj_ignored_by_enemies(Uint8 obj_type);                 // returns true if object if of type that can be got like energy
 
     void collision_char_object(character*, const float, const short int);
+    bool enter_platform_object(character *charObj, object &temp_obj, int &temp_blocked, const short int y_inc, int temp_obj_y);
+    void merge_blocked(int &blocked, int temp_blocked);
+    bool leave_platform(character *charObj, int blocked, const short int y_inc);
 
     object_collision get_obj_collision() const;
 
