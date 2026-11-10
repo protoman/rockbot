@@ -130,6 +130,43 @@ void game::initGame()
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
+// replay test only (ROCKBOT_REPLAY_WEAPON=<number>, once): the player starts with that weapon selected and full energy
+static void replay_give_weapon(classPlayer &player)
+{
+    static bool done = false;
+    const char *weapon = getenv("ROCKBOT_REPLAY_WEAPON");
+    if (done == true || weapon == NULL) {
+        return;
+    }
+    done = true;
+    int weapon_n = atoi(weapon);
+    if (weapon_n > 0 && weapon_n < WEAPON_COUNT) {
+        game_save.items.weapons[weapon_n] = 99;
+        player.set_weapon(weapon_n, false);
+    }
+}
+
+// replay test only (ROCKBOT_REPLAY_DROP=<ms>,<pixels>, once): at that virtual time the player is lifted by that many pixels and falls
+static void replay_drop_player(classPlayer &player)
+{
+    static bool done = false;
+    const char *drop = getenv("ROCKBOT_REPLAY_DROP");
+    if (done == true || drop == NULL) {
+        return;
+    }
+    int at_ms = 0;
+    int pixels = 0;
+    if (sscanf(drop, "%d,%d", &at_ms, &pixels) != 2) {
+        done = true;
+        return;
+    }
+    if ((int)replay::now() >= at_ms) {
+        done = true;
+        st_float_position pos = player.getPosition();
+        player.set_position(st_position((int)pos.x, (int)pos.y - pixels));
+    }
+}
+
 // replay test only (ROCKBOT_REPLAY_PROJECTILES=1, once): moves every projectile type of the game for up to 200 steps, in both
 // directions, and writes where it went. Used to check refactorings of projectile::move
 static void replay_trace_projectile_paths()
@@ -238,6 +275,8 @@ void game::show_game(bool can_characters_move, bool can_scroll_stage)
 
     if (replay::tracing()) { // test replay (aux_tools/replay.h): one line per frame
         replay_trace_projectile_paths();
+        replay_give_weapon(player1);
+        replay_drop_player(player1);
         replay::trace("F %lu stage=%d map=%d scroll=%.2f wpn=%d | P %s", replay::now(), currentStage, (int)loaded_stage.get_current_map_number(),
                       (double)loaded_stage.getMapScrolling().x, (int)player1.get_selected_weapon(), player1.replay_trace().c_str());
         classMap *trace_map = loaded_stage.get_current_map();

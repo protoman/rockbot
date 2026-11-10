@@ -703,7 +703,19 @@ void projectile::move_fall_bomb(st_float_size &moved)
         // check if hit ground
         int point_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(position.x/TILESIZE, position.y/TILESIZE));
         int first_bottom_lock = gameControl.get_current_map_obj()->get_first_lock_on_bottom(position.x + get_size().width/2, -1);
-        if ((position.y > first_bottom_lock*TILESIZE || position.y > RES_H-TILESIZE) && point_lock != TERRAIN_WATER && point_lock != TERRAIN_UNBLOCKED) { // hit ground, lets change to explosion
+        // a platform above the floor stops the bomb too (the player can take cover under it): the bomb must not be inside a wall
+        // already, and its bottom is entering a solid block
+        bool hit_platform = false;
+        int bottom_y = position.y + get_size().height;
+        if (position.y >= 0 && bottom_y >= 0) {
+            int top_lock = point_lock;
+            int below_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position((position.x + get_size().width/2)/TILESIZE, bottom_y/TILESIZE));
+            if ((top_lock == TERRAIN_UNBLOCKED || top_lock == TERRAIN_WATER) && (below_lock == TERRAIN_SOLID || below_lock == TERRAIN_ICE || below_lock == TERRAIN_MOVE_LEFT || below_lock == TERRAIN_MOVE_RIGHT)) {
+                hit_platform = true;
+                position.y = (bottom_y/TILESIZE)*TILESIZE; // same height the floor case has when it explodes
+            }
+        }
+        if (hit_platform == true || ((position.y > first_bottom_lock*TILESIZE || position.y > RES_H-TILESIZE) && point_lock != TERRAIN_WATER && point_lock != TERRAIN_UNBLOCKED)) { // hit ground, lets change to explosion
             /// morph into a bigger explosion
             _points = 5000;
             _effect_timer = timer.getTimer()+1600;

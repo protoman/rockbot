@@ -38,3 +38,9 @@ pseudo-random moments, which also reaches stage select, enemies and deaths.
 every projectile type of the game for up to 200 steps (both directions, with an owner and a target) and writes
 `PRJ <id>/<direction> step=... pos=... moved=... fin=... refl=... dir=...` lines. Use it before touching
 `projectile::move`/`draw`, whose trajectories the normal scenarios hardly reach.
+
+## Test helpers (environment)
+
+* `ROCKBOT_REPLAY_WEAPON=<n>`: the player starts with weapon `n` selected and full energy (9 = frog coil). See `coil.replay`, which
+  places the coil and jumps onto it.
+* `ROCKBOT_REPLAY_DROP=<ms>,<pixels>`: at that virtual time the player is lifted by that many pixels and falls (to test landings).
