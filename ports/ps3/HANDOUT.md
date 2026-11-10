@@ -1,6 +1,6 @@
 # PS3 port — handoff
 
-Last updated: 2026-11-03. Read this before continuing the PS3 port.
+Last updated: 2026-11-10. Read this before continuing the PS3 port.
 
 ## State in one line
 
@@ -84,6 +84,32 @@ Not yet verified on real hardware. No `.pkg` has been produced yet.
    Fix in `sdl_layer.cpp` (PS3 only): `SDLL_DisplayFormat` converts to the video format
    without RLE, and `SDLL_SetColorKey`/`SDLL_SetAlpha` drop `SDL_RLEACCEL`.
    Verified in RPCS3: scrolling is correct.
+
+## Real-console findings (2026-11-10, first tests on hardware)
+
+What was wrong on a real PS3 (all fine in RPCS3), and what was done:
+
+1. **Stage drew as the colour-key colour** (no tiles, no background): `read_stage_maps_v2` (and four more readers) opened
+   their files with `in|binary|app`. Fixed: plain read mode. A failed read left the map at its defaults (colour -1,-1,-1).
+2. **Byte-swap bugs** in `GameMediator`/`file_io` helpers: `short_to_little_endian` and `int_to_little_endian` shifted signed
+   values (wrong whenever the low byte is >= 128: animated-tile frame delays, HP/ids >= 128); `walk_range` was swapped twice;
+   `vulnerable_area` and the castle dialog string ids were never converted. All fixed (the 16/32-bit helpers use
+   `__builtin_bswap`). Scenes, maps, game, projectile, player and AI data were audited and are complete. Saves/config are
+   written and read natively (not portable to a PC).
+3. **Save could not be overwritten** (errno 13 on `fopen("wb")` and `"r+b"`, `rename` over it gives EEXIST) for the
+   `Rockbot1_00.sav` the first (frozen) session had created: mode 0644, uid 0, gid 65535, right size. Creating new files
+   works. The cause of that one file is not proven (a file left in a bad state by the first session is the best guess).
+   `file_io.cpp` now writes saves/config with fallbacks (wb, r+b, .tmp+rename, `<name>.new`; readers use the newest) and
+   verifies the size on disk (PSL1GHT `librt/write.c` returns the byte count even when the lv2 write failed).
+4. **Freeze after the boss** = the save-error screen waiting for a button without flipping the screen; the system callback
+   (PS button) only ran in the flip. `ps3_platform::update()` now runs on every flip and every pad poll (throttled).
+5. **Debugging on the console**: `PS3_TRACE("...")` writes progress lines to `/dev_hdd0/tmp/rockbot/rockbot_ps3.log`
+   (buffered, fsync'ed on flush; also slow frames over 45 ms, sfx plays, RSX wraps, pad changes). Read it over FTP while
+   the game runs. The game DATA is read from the installed `/dev_hdd0/game/ROCKBOT01/USRDIR/games/Rockbot1/`, not from the
+   `ps3load` upload (which only sends the EBOOT); `ports/ps3/build.sh --no-package` does not refresh the EBOOT.
+6. Stalls seen on hardware: ~20 frames at 56 ms after a `.mod` music load, 540-640 ms at the boss start (boss music/scene
+   loading). Jumping itself showed no slow frames (threshold 45 ms).
+7. Open: one unexplained power-off of the console while loading a game (no log survived; the log is now fsync'ed).
 
 ## Open items
 

@@ -430,11 +430,7 @@ void pad_read(unsigned int *buttons, int *lx, int *ly)
     if (b != last_buttons) {
         log("rockbot: pad buttons %04x", b);
     }
-    if ((b & (1u << 5)) && !(last_buttons & (1u << 5))) { // R3: next debug variant
-        g_debug_variant = (g_debug_variant + 1) % 5;
-        g_variant_changed_flip = g_flip_counter;
-        log("rockbot: debug variant %d", g_debug_variant);
-    }
+    // (R3 used to cycle the stage-drawing debug variants; removed, the variants stay at 0)
     last_buttons = b;
     last_lx = d.ANA_L_H;
     last_ly = d.ANA_L_V;
