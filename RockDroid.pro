@@ -344,6 +344,8 @@ SOURCES += main.cpp \
     stage.cpp \
     classmap.cpp \
     character/classplayer.cpp \
+    character/classplayer_attack.cpp \
+    character/classplayer_weapons.cpp \
     timerlib.cpp \
     sceneslib.cpp \
     soundlib.cpp \

@@ -32,6 +32,8 @@ main.cpp \
 ./character/movement/inertia.cpp \
 ./character/movement/jump.cpp \
 ./character/classplayer.cpp \
+./character/classplayer_attack.cpp \
+./character/classplayer_weapons.cpp \
 ./character/character_animation.cpp \
 ./character/artificial_inteligence.cpp \
 ./character/ai_movement.cpp \

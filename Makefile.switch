@@ -92,6 +92,8 @@ SRC_CPP := \
 	character/character_combat.cpp \
 	character/character_movement.cpp \
 	character/classplayer.cpp \
+	character/classplayer_attack.cpp \
+	character/classplayer_weapons.cpp \
 	character/classnpc.cpp \
 	character/artificial_inteligence.cpp \
 	character/ai_movement.cpp \
