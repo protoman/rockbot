@@ -180,6 +180,11 @@ protected:
     bool throw_projectile(int projectile_type, bool invert_direction);
     void throw_direction_projectile(int direction);
     void execute_ai_step_fly();
+    void fly_start();
+    void fly_update();
+    void fly_shoot_while_moving();
+    void fly_zigzag_update();
+    void fly_sin_update();
     void execute_ai_save_point();
     void execute_ai_step_dash();
     void execute_ai_step_change_animation_type();

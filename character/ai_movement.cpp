@@ -619,389 +619,418 @@ void artificial_inteligence::execute_ai_step_walk()
 
 void artificial_inteligence::execute_ai_step_fly()
 {
-    // INITIALIZATION
     if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
-        must_show_dash_effect = false;
-        previous_position_list.clear();
-        if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER || _parameter == AI_ACTION_FLY_OPTION_DASH_TO_PLAYER) {
-            struct_player_dist dist_players = dist_npc_players();
-            _dest_point = dist_players.pObj->getPosition();
-            if (_parameter == AI_ACTION_FLY_OPTION_DASH_TO_PLAYER) {
-                must_show_dash_effect = true;
-            }
-            if (dist_players.pObj->getPosition().x < position.x) {
-                set_direction(ANIM_DIRECTION_LEFT);
-            } else {
-                set_direction(ANIM_DIRECTION_RIGHT);
-            }
-        } else if (_parameter == AI_ACTION_FLY_OPTION_TO_RANDOM_POINT) {
-            int rand_x = create_rand_x_point(walk_range);
-            int rand_Y = create_rand_y_point(walk_range);
-            _dest_point = st_position(rand_x, rand_Y);
-        } else if (_parameter == AI_ACTION_FLY_OPTION_RANDOM_X) {
-            int rand_x = create_rand_x_point(walk_range);
-            _dest_point = st_position(rand_x, position.y);
-        } else if (_parameter == AI_ACTION_FLY_OPTION_RANDOM_Y) {
-            int rand_y = create_rand_y_point(walk_range);
-            _dest_point = st_position(position.x, rand_y);
-        } else if (_parameter == AI_ACTION_FLY_OPTION_HORIZONTAL_AHEAD) {
-            if (state.direction() == ANIM_DIRECTION_LEFT) {
-                _dest_point.x = position.x - frameSize.width/2 - walk_range;
-            } else {
-                _dest_point.x = position.x + frameSize.width/2 + walk_range;
-            }
-        } else if (_parameter == AI_ACTION_FLY_OPTION_UP) {
-            _dest_point.y = position.y - walk_range;
-        } else if (_parameter == AI_ACTION_FLY_OPTION_DOWN) {
-            _dest_point.y = position.y + walk_range;
-        } else if (_parameter == AI_ACTION_FLY_OPTION_FALL) {
-            _dest_point.y = RES_H + frameSize.height + 2;
-        } else if (_parameter == AI_ACTION_FLY_OPTION_DRILL_DOWN) { // DRILL_DOWN is similar to move-down, but NPC is ghostly (can walk walls) and when on walls, move 1/4 of speed.Also, it randomizes its x point when restarted
-            _dest_point.y = RES_H + frameSize.height + TILESIZE;
-            _ghost_move_speed_reducer = 4;
-            if (_saved_walk_range == -1) { // restored when the drill ends, so it does not change the range of the next actions
-                _saved_walk_range = walk_range;
-            }
-            walk_range = RES_H + TILESIZE*4;
-        } else if (_parameter == AI_ACTION_FLY_OPTION_VERTICAL_CENTER) {
-            _dest_point.y = RES_H/2 - frameSize.height/2;
-        } else if (_parameter == AI_ACTION_FLY_OPTION_PLAYER_DIRECTION) {
-            struct_player_dist dist_players = dist_npc_players();
-            if (dist_players.pObj->getPosition().x < position.x) {
-                set_direction(ANIM_DIRECTION_LEFT);
-                _dest_point.x = position.x - walk_range;
-            } else {
-                set_direction(ANIM_DIRECTION_RIGHT);
-                _dest_point.x = position.x + walk_range;
-            }
-            _dest_point.y = position.y;
-        } else if (_parameter == AI_ACTION_FLY_OPTION_OPOSITE_WALL) {
-            if (realPosition.x > RES_W/2) {
-                set_direction(ANIM_DIRECTION_LEFT);
-                _dest_point.x = position.x - walk_range;
-            } else {
-                set_direction(ANIM_DIRECTION_RIGHT);
-                _dest_point.x = position.x + walk_range;
-            }
-            _dest_point.y = position.y;
-            _origin_point.x = position.x;
-        } else if (_parameter == AI_ACTION_FLY_OPTION_OPOSITE_SHOOT_1) {
-            if (realPosition.x + frameSize.width/2 > RES_W/2) {
-                set_direction(ANIM_DIRECTION_LEFT);
-                _dest_point.x = position.x - walk_range;
-            } else {
-                set_direction(ANIM_DIRECTION_RIGHT);
-                _dest_point.x = position.x + walk_range;
-            }
-            _dest_point.y = position.y;
-            _origin_point.x = position.x;
-            _counter = 0;
-        } else if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER_X) {
-            struct_player_dist dist_players = dist_npc_players();
-            if (dist_players.pObj->getPosition().x < position.x) {
-                set_direction(ANIM_DIRECTION_LEFT);
-            } else {
-                set_direction(ANIM_DIRECTION_RIGHT);
-            }
-            _dest_point.x = dist_players.pObj->getPosition().x;
-            _dest_point.y = position.y;
-        } else if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER_Y) {
-            struct_player_dist dist_players = dist_npc_players();
-            _dest_point.x = position.x;
-            _dest_point.y = dist_players.pObj->getPosition().y;
-        } else if (_parameter == AI_ACTION_FLY_OPTION_ZIGZAG_AHEAD || _parameter == AI_ACTION_FLY_OPTION_SIN_AHEAD) {
-            _sin_x = 0;
-            if (state.direction() == ANIM_DIRECTION_LEFT) {
-                _dest_point.x = position.x - frameSize.width/2 - walk_range;
-            } else {
-                _dest_point.x = position.x + frameSize.width/2 + walk_range;
-            }
-            _ai_state.initial_position.x = 0;
-            _ai_state.initial_position.y = position.y;
-            _dest_point.y = position.y;
-            //std::cout << "### AI_ACTION_FLY_OPTION_ZIGZAG_AHEAD.INIT - direction[" << (int)state.direction() << "], pos.x[" << position.x << "], dest.x[" << _dest_point.x << "], dest.y[" << _dest_point.y << "]" << std::endl;
-        } else if (_parameter == AI_ACTION_FLY_OPTION_DOWN_RANDOM_DIAGONAL) {
-            _ai_state.initial_position.x = position.x;
-            _ai_state.initial_position.y = position.y;
-            _angle = 30 + rand() % 20;
-        } else if (_parameter == AI_ACTION_FLY_OPTION_DIAGONAL_UP || _parameter == AI_ACTION_FLY_OPTION_DIAGONAL_DOWN) {
-            _ai_state.initial_position.x = position.x;
-            _ai_state.initial_position.y = position.y;
-            if (state.direction() == ANIM_DIRECTION_LEFT) {
-                _dest_point.x = position.x - frameSize.width/2 - walk_range;
-            } else {
-                _dest_point.x = position.x + frameSize.width/2 + walk_range;
-            }
-            if (_parameter == AI_ACTION_FLY_OPTION_DIAGONAL_UP) {
-                _dest_point.y = position.y - walk_range;
-            } else {
-                _dest_point.y = position.y + walk_range;
-            }
-        }
-
-        // the move code does not turn the NPC (that part of check_can_move_to_point never runs), so face the target
-        if (_parameter == AI_ACTION_FLY_OPTION_TO_RANDOM_POINT || _parameter == AI_ACTION_FLY_OPTION_RANDOM_X) {
-            if (_dest_point.x < position.x) {
-                set_direction(ANIM_DIRECTION_LEFT);
-            } else if (_dest_point.x > position.x) {
-                set_direction(ANIM_DIRECTION_RIGHT);
-            }
-        } else if (_parameter == AI_ACTION_FLY_OPTION_TO_SAVED_POINT) {
-            if (_saved_point.x < position.x) {
-                set_direction(ANIM_DIRECTION_LEFT);
-            } else if (_saved_point.x > position.x) {
-                set_direction(ANIM_DIRECTION_RIGHT);
-            }
-        }
-
-        set_animation_type(ANIM_TYPE_WALK_AIR);
-        _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
-
-    // EXECUTION
+        fly_start();
     } else {
-        //std::cout << "AI::execute_ai_step_fly::EXECUTE, param[" << _parameter << "]" << std::endl;
-        if (state.animation_type() == ANIM_TYPE_TURN && have_frame_graphic(state.direction(), state.animation_type(), (state.animation_state()+1)) == false) {
-            set_animation_type(ANIM_TYPE_STAND);
-            turn_around();
+        fly_update();
+    }
+}
+
+// sets the destination, direction and variables of the chosen fly option
+void artificial_inteligence::fly_start()
+{
+    must_show_dash_effect = false;
+    previous_position_list.clear();
+    if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER || _parameter == AI_ACTION_FLY_OPTION_DASH_TO_PLAYER) {
+        struct_player_dist dist_players = dist_npc_players();
+        _dest_point = dist_players.pObj->getPosition();
+        if (_parameter == AI_ACTION_FLY_OPTION_DASH_TO_PLAYER) {
+            must_show_dash_effect = true;
+        }
+        if (dist_players.pObj->getPosition().x < position.x) {
+            set_direction(ANIM_DIRECTION_LEFT);
+        } else {
+            set_direction(ANIM_DIRECTION_RIGHT);
+        }
+    } else if (_parameter == AI_ACTION_FLY_OPTION_TO_RANDOM_POINT) {
+        int rand_x = create_rand_x_point(walk_range);
+        int rand_Y = create_rand_y_point(walk_range);
+        _dest_point = st_position(rand_x, rand_Y);
+    } else if (_parameter == AI_ACTION_FLY_OPTION_RANDOM_X) {
+        int rand_x = create_rand_x_point(walk_range);
+        _dest_point = st_position(rand_x, position.y);
+    } else if (_parameter == AI_ACTION_FLY_OPTION_RANDOM_Y) {
+        int rand_y = create_rand_y_point(walk_range);
+        _dest_point = st_position(position.x, rand_y);
+    } else if (_parameter == AI_ACTION_FLY_OPTION_HORIZONTAL_AHEAD) {
+        if (state.direction() == ANIM_DIRECTION_LEFT) {
+            _dest_point.x = position.x - frameSize.width/2 - walk_range;
+        } else {
+            _dest_point.x = position.x + frameSize.width/2 + walk_range;
+        }
+    } else if (_parameter == AI_ACTION_FLY_OPTION_UP) {
+        _dest_point.y = position.y - walk_range;
+    } else if (_parameter == AI_ACTION_FLY_OPTION_DOWN) {
+        _dest_point.y = position.y + walk_range;
+    } else if (_parameter == AI_ACTION_FLY_OPTION_FALL) {
+        _dest_point.y = RES_H + frameSize.height + 2;
+    } else if (_parameter == AI_ACTION_FLY_OPTION_DRILL_DOWN) { // DRILL_DOWN is similar to move-down, but NPC is ghostly (can walk walls) and when on walls, move 1/4 of speed.Also, it randomizes its x point when restarted
+        _dest_point.y = RES_H + frameSize.height + TILESIZE;
+        _ghost_move_speed_reducer = 4;
+        if (_saved_walk_range == -1) { // restored when the drill ends, so it does not change the range of the next actions
+            _saved_walk_range = walk_range;
+        }
+        walk_range = RES_H + TILESIZE*4;
+    } else if (_parameter == AI_ACTION_FLY_OPTION_VERTICAL_CENTER) {
+        _dest_point.y = RES_H/2 - frameSize.height/2;
+    } else if (_parameter == AI_ACTION_FLY_OPTION_PLAYER_DIRECTION) {
+        struct_player_dist dist_players = dist_npc_players();
+        if (dist_players.pObj->getPosition().x < position.x) {
+            set_direction(ANIM_DIRECTION_LEFT);
+            _dest_point.x = position.x - walk_range;
+        } else {
+            set_direction(ANIM_DIRECTION_RIGHT);
+            _dest_point.x = position.x + walk_range;
+        }
+        _dest_point.y = position.y;
+    } else if (_parameter == AI_ACTION_FLY_OPTION_OPOSITE_WALL) {
+        if (realPosition.x > RES_W/2) {
+            set_direction(ANIM_DIRECTION_LEFT);
+            _dest_point.x = position.x - walk_range;
+        } else {
+            set_direction(ANIM_DIRECTION_RIGHT);
+            _dest_point.x = position.x + walk_range;
+        }
+        _dest_point.y = position.y;
+        _origin_point.x = position.x;
+    } else if (_parameter == AI_ACTION_FLY_OPTION_OPOSITE_SHOOT_1) {
+        if (realPosition.x + frameSize.width/2 > RES_W/2) {
+            set_direction(ANIM_DIRECTION_LEFT);
+            _dest_point.x = position.x - walk_range;
+        } else {
+            set_direction(ANIM_DIRECTION_RIGHT);
+            _dest_point.x = position.x + walk_range;
+        }
+        _dest_point.y = position.y;
+        _origin_point.x = position.x;
+        _counter = 0;
+    } else if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER_X) {
+        struct_player_dist dist_players = dist_npc_players();
+        if (dist_players.pObj->getPosition().x < position.x) {
+            set_direction(ANIM_DIRECTION_LEFT);
+        } else {
+            set_direction(ANIM_DIRECTION_RIGHT);
+        }
+        _dest_point.x = dist_players.pObj->getPosition().x;
+        _dest_point.y = position.y;
+    } else if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER_Y) {
+        struct_player_dist dist_players = dist_npc_players();
+        _dest_point.x = position.x;
+        _dest_point.y = dist_players.pObj->getPosition().y;
+    } else if (_parameter == AI_ACTION_FLY_OPTION_ZIGZAG_AHEAD || _parameter == AI_ACTION_FLY_OPTION_SIN_AHEAD) {
+        _sin_x = 0;
+        if (state.direction() == ANIM_DIRECTION_LEFT) {
+            _dest_point.x = position.x - frameSize.width/2 - walk_range;
+        } else {
+            _dest_point.x = position.x + frameSize.width/2 + walk_range;
+        }
+        _ai_state.initial_position.x = 0;
+        _ai_state.initial_position.y = position.y;
+        _dest_point.y = position.y;
+        //std::cout << "### AI_ACTION_FLY_OPTION_ZIGZAG_AHEAD.INIT - direction[" << (int)state.direction() << "], pos.x[" << position.x << "], dest.x[" << _dest_point.x << "], dest.y[" << _dest_point.y << "]" << std::endl;
+    } else if (_parameter == AI_ACTION_FLY_OPTION_DOWN_RANDOM_DIAGONAL) {
+        _ai_state.initial_position.x = position.x;
+        _ai_state.initial_position.y = position.y;
+        _angle = 30 + rand() % 20;
+    } else if (_parameter == AI_ACTION_FLY_OPTION_DIAGONAL_UP || _parameter == AI_ACTION_FLY_OPTION_DIAGONAL_DOWN) {
+        _ai_state.initial_position.x = position.x;
+        _ai_state.initial_position.y = position.y;
+        if (state.direction() == ANIM_DIRECTION_LEFT) {
+            _dest_point.x = position.x - frameSize.width/2 - walk_range;
+        } else {
+            _dest_point.x = position.x + frameSize.width/2 + walk_range;
+        }
+        if (_parameter == AI_ACTION_FLY_OPTION_DIAGONAL_UP) {
+            _dest_point.y = position.y - walk_range;
+        } else {
+            _dest_point.y = position.y + walk_range;
+        }
+    }
+
+    // the move code does not turn the NPC (that part of check_can_move_to_point never runs), so face the target
+    if (_parameter == AI_ACTION_FLY_OPTION_TO_RANDOM_POINT || _parameter == AI_ACTION_FLY_OPTION_RANDOM_X) {
+        if (_dest_point.x < position.x) {
+            set_direction(ANIM_DIRECTION_LEFT);
+        } else if (_dest_point.x > position.x) {
+            set_direction(ANIM_DIRECTION_RIGHT);
+        }
+    } else if (_parameter == AI_ACTION_FLY_OPTION_TO_SAVED_POINT) {
+        if (_saved_point.x < position.x) {
+            set_direction(ANIM_DIRECTION_LEFT);
+        } else if (_saved_point.x > position.x) {
+            set_direction(ANIM_DIRECTION_RIGHT);
+        }
+    }
+
+    set_animation_type(ANIM_TYPE_WALK_AIR);
+    _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
+}
+
+// one step of the chosen fly option
+void artificial_inteligence::fly_update()
+{
+    //std::cout << "AI::execute_ai_step_fly::EXECUTE, param[" << _parameter << "]" << std::endl;
+    if (state.animation_type() == ANIM_TYPE_TURN && have_frame_graphic(state.direction(), state.animation_type(), (state.animation_state()+1)) == false) {
+        set_animation_type(ANIM_TYPE_STAND);
+        turn_around();
+        _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        return;
+    }
+
+    if (_parameter == AI_ACTION_FLY_OPTION_HORIZONTAL_AHEAD) {
+        if (move_to_point(_dest_point, move_speed, 0, is_ghost, false) == true) {
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-            return;
+        }
+    } else if (_parameter == AI_ACTION_FLY_OPTION_HORIZONTAL_TURN) {
+        if (state.animation_type() != ANIM_TYPE_TURN) {
+            if (have_frame_graphic(state.direction(), ANIM_TYPE_TURN, 0) == false) {
+                turn_around();
+                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+            } else {
+                set_animation_type(ANIM_TYPE_TURN);
+            }
+            state.set_animation_state(0);
+            distance.width = 0;
+            state.set_animation_timer(timer.getTimer() + 200);
+        }
+    } else if (_parameter == AI_ACTION_FLY_OPTION_UP) {
+        if (move_to_point(_dest_point, 0, move_speed, is_ghost, false) == true) {
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        }
+    } else if (_parameter == AI_ACTION_FLY_OPTION_DOWN) {
+        if (move_to_point(_dest_point, 0, move_speed, is_ghost, false) == true) {
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        }
+    } else if (_parameter == AI_ACTION_FLY_OPTION_DRILL_DOWN) {
+        if (position.y >= RES_H+TILESIZE) {
+            position.y = -TILESIZE*2;
+            randomize_x_point(TILESIZE*3);
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+            if (_saved_walk_range != -1) {
+                walk_range = _saved_walk_range;
+                _saved_walk_range = -1;
+            }
+        } else {
+            can_move_struct check_move_res = check_can_move_to_point(_dest_point, 0, move_speed, false, false);
+            float adjusted_move_speed = move_speed;
+            if (!check_move_res.can_move_y) {
+                adjusted_move_speed = move_speed / _ghost_move_speed_reducer;
+            }
+            if (adjusted_move_speed <= 0.0) {
+                adjusted_move_speed = 1.0;
+            }
+            move_to_point(_dest_point, 0, adjusted_move_speed, true, false);
+        }
+    } else if (_parameter == AI_ACTION_FLY_OPTION_FALL) {
+        if (move_to_point(_dest_point, 0, move_speed, is_ghost, false) == true) {
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        }
+    } else if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER || _parameter == AI_ACTION_FLY_OPTION_TO_RANDOM_POINT || _parameter == AI_ACTION_FLY_OPTION_RANDOM_X || _parameter == AI_ACTION_FLY_OPTION_RANDOM_Y) {
+        if (move_to_point(_dest_point, move_speed, move_speed, is_ghost, false) == true) {
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        }
+    } else if (_parameter == AI_ACTION_FLY_OPTION_DASH_TO_PLAYER) {
+        if (move_to_point(_dest_point, move_speed*2, move_speed*2, is_ghost, false) == true) {
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        }
+    } else if (_parameter == AI_ACTION_FLY_OPTION_TO_SAVED_POINT) {
+        //std::cout << "AI_ACTION_FLY_OPTION_TO_SAVED_POINT - point[" << _saved_point.x << "][" << _saved_point.y << "]" << std::endl;
+        if (move_to_point(_saved_point, move_speed, move_speed, is_ghost, false) == true) {
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        }
+    } else if (_parameter == AI_ACTION_FLY_OPTION_VERTICAL_CENTER) {
+        if (move_to_point(_dest_point, 0, move_speed, is_ghost, false) == true) {
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        }
+    } else if (_parameter == AI_ACTION_FLY_OPTION_PLAYER_DIRECTION) {
+        if (move_to_point(_dest_point, move_speed, 0, is_ghost, false) == true) {
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
         }
 
-        if (_parameter == AI_ACTION_FLY_OPTION_HORIZONTAL_AHEAD) {
-            if (move_to_point(_dest_point, move_speed, 0, is_ghost, false) == true) {
-                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-            }
-        } else if (_parameter == AI_ACTION_FLY_OPTION_HORIZONTAL_TURN) {
-            if (state.animation_type() != ANIM_TYPE_TURN) {
-                if (have_frame_graphic(state.direction(), ANIM_TYPE_TURN, 0) == false) {
-                    turn_around();
-                    _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-                } else {
-                    set_animation_type(ANIM_TYPE_TURN);
-                }
-                state.set_animation_state(0);
-                distance.width = 0;
-                state.set_animation_timer(timer.getTimer() + 200);
-            }
-        } else if (_parameter == AI_ACTION_FLY_OPTION_UP) {
-            if (move_to_point(_dest_point, 0, move_speed, is_ghost, false) == true) {
-                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-            }
-        } else if (_parameter == AI_ACTION_FLY_OPTION_DOWN) {
-            if (move_to_point(_dest_point, 0, move_speed, is_ghost, false) == true) {
-                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-            }
-        } else if (_parameter == AI_ACTION_FLY_OPTION_DRILL_DOWN) {
-            if (position.y >= RES_H+TILESIZE) {
-                position.y = -TILESIZE*2;
-                randomize_x_point(TILESIZE*3);
-                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-                if (_saved_walk_range != -1) {
-                    walk_range = _saved_walk_range;
-                    _saved_walk_range = -1;
-                }
-            } else {
-                can_move_struct check_move_res = check_can_move_to_point(_dest_point, 0, move_speed, false, false);
-                float adjusted_move_speed = move_speed;
-                if (!check_move_res.can_move_y) {
-                    adjusted_move_speed = move_speed / _ghost_move_speed_reducer;
-                }
-                if (adjusted_move_speed <= 0.0) {
-                    adjusted_move_speed = 1.0;
-                }
-                move_to_point(_dest_point, 0, adjusted_move_speed, true, false);
-            }
-        } else if (_parameter == AI_ACTION_FLY_OPTION_FALL) {
-            if (move_to_point(_dest_point, 0, move_speed, is_ghost, false) == true) {
-                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-            }
-        } else if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER || _parameter == AI_ACTION_FLY_OPTION_TO_RANDOM_POINT || _parameter == AI_ACTION_FLY_OPTION_RANDOM_X || _parameter == AI_ACTION_FLY_OPTION_RANDOM_Y) {
-            if (move_to_point(_dest_point, move_speed, move_speed, is_ghost, false) == true) {
-                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-            }
-        } else if (_parameter == AI_ACTION_FLY_OPTION_DASH_TO_PLAYER) {
-            if (move_to_point(_dest_point, move_speed*2, move_speed*2, is_ghost, false) == true) {
-                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-            }
-        } else if (_parameter == AI_ACTION_FLY_OPTION_TO_SAVED_POINT) {
-            //std::cout << "AI_ACTION_FLY_OPTION_TO_SAVED_POINT - point[" << _saved_point.x << "][" << _saved_point.y << "]" << std::endl;
-            if (move_to_point(_saved_point, move_speed, move_speed, is_ghost, false) == true) {
-                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-            }
-        } else if (_parameter == AI_ACTION_FLY_OPTION_VERTICAL_CENTER) {
-            if (move_to_point(_dest_point, 0, move_speed, is_ghost, false) == true) {
-                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-            }
-        } else if (_parameter == AI_ACTION_FLY_OPTION_PLAYER_DIRECTION) {
-            if (move_to_point(_dest_point, move_speed, 0, is_ghost, false) == true) {
-                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-            }
+    } else if (_parameter == AI_ACTION_FLY_OPTION_OPOSITE_WALL) {
+        if (move_to_point(_dest_point, move_speed, 0, is_ghost, false) == true) {
+            // invert direction so the character won't be facing the wall
+            invert_left_right_direction();
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        }
+    } else if (_parameter == AI_ACTION_FLY_OPTION_OPOSITE_SHOOT_1) {
+        int dist = abs(position.x - _origin_point.x);
+        if (dist > 120 * _counter) {
+        fly_shoot_while_moving();
+        }
+        if (move_to_point(_dest_point, move_speed, move_speed, is_ghost, false) == true) {
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        }
+    } else if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER_X) {
 
-        } else if (_parameter == AI_ACTION_FLY_OPTION_OPOSITE_WALL) {
-            if (move_to_point(_dest_point, move_speed, 0, is_ghost, false) == true) {
-                // invert direction so the character won't be facing the wall
-                invert_left_right_direction();
-                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-            }
-        } else if (_parameter == AI_ACTION_FLY_OPTION_OPOSITE_SHOOT_1) {
-            int dist = abs(position.x - _origin_point.x);
-            if (dist > 120 * _counter) {
-                _counter++;
+        struct_player_dist dist_players = dist_npc_players();
 
-                int proj_direction = state.direction();
-                projectile_list.push_back(projectile(_parameter, proj_direction, get_attack_position(), is_player(), _number));
-                projectile &temp_proj = projectile_list.back();
-                temp_proj.play_sfx(true);
-                temp_proj.set_owner(this);
+        _dest_point.x = dist_players.pObj->getPosition().x;
+        if (dist_players.pObj->getPosition().x < position.x) {
+            set_direction(ANIM_DIRECTION_LEFT);
+        } else {
+            set_direction(ANIM_DIRECTION_RIGHT);
+        }
 
-                if (GameMediator::get_instance()->get_projectile(_parameter).trajectory == TRAJECTORY_CENTERED) {
-                    temp_proj.set_owner_direction(state.direction_ref());
-                    temp_proj.set_owner_position(&position);
-                }
-
-                if (GameMediator::get_instance()->get_projectile(_parameter).trajectory == TRAJECTORY_TARGET_DIRECTION || GameMediator::get_instance()->get_projectile(_parameter).trajectory == TRAJECTORY_TARGET_EXACT || GameMediator::get_instance()->get_projectile(_parameter).trajectory == TRAJECTORY_ARC_TO_TARGET || GameMediator::get_instance()->get_projectile(_parameter).trajectory == TRAJECTORY_FOLLOW) {
-                    if (!is_player() && gameControl.get_current_map_obj()->_player_ref != NULL) {
-                        character* p_player = gameControl.get_current_map_obj()->_player_ref;
-                        temp_proj.set_target_position(p_player->get_position_ref());
-                    }
-                }
-
-                _did_shot = true;
-            }
-            if (move_to_point(_dest_point, move_speed, move_speed, is_ghost, false) == true) {
-                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-            }
-        } else if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER_X) {
-
-            struct_player_dist dist_players = dist_npc_players();
-
-            _dest_point.x = dist_players.pObj->getPosition().x;
-            if (dist_players.pObj->getPosition().x < position.x) {
-                set_direction(ANIM_DIRECTION_LEFT);
-            } else {
-                set_direction(ANIM_DIRECTION_RIGHT);
-            }
-
-            if (abs(dist_players.pObj->getPosition().x - position.x) < TILESIZE/2) {
-                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-            } else if (move_to_point(_dest_point, move_speed, 0, is_ghost, false) == true) {
-                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-            }
-        } else if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER_Y) {
-            if (move_to_point(_dest_point, 0, move_speed, is_ghost, false) == true) {
-                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-            }
-        } else if (_parameter == AI_ACTION_FLY_OPTION_ZIGZAG_AHEAD) {
-            if (position.x != _dest_point.x) {
-                if (_ai_state.initial_position.y == position.y) {
-                    _dest_point.y = position.y - TILESIZE;
-                } else if (position.y <= _ai_state.initial_position.y - TILESIZE) {
-                    _dest_point.y = position.y + TILESIZE;
-                } else if (hit_ground() == true) {
-                    _dest_point.y = position.y - TILESIZE;
-                }
-                //std::cout << "### AI::AI_ACTION_FLY_OPTION_ZIGZAG_AHEAD - pos.y[" << position.y << "], dest.y[" << _dest_point.y << "]" << std::endl;
-            }
-
-            int pos_x_before = position.x;
-
-            bool res_moved = move_to_point(_dest_point, move_speed, 2, is_ghost, false);
-            bool reached_point = position.x == _dest_point.x && position.y == _dest_point.y;
-
-            if ((move_blocked_x_axis == true && move_blocked_y_axis == false && (res_moved == true || (move_speed != 0 && pos_x_before == position.x))) || reached_point == true) {
-                turn_around();
-                if (state.direction() == ANIM_DIRECTION_LEFT) {
-                    _dest_point.x = position.x - frameSize.width/2 - walk_range;
-                } else {
-                    _dest_point.x = position.x + frameSize.width/2 + walk_range;
+        if (abs(dist_players.pObj->getPosition().x - position.x) < TILESIZE/2) {
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        } else if (move_to_point(_dest_point, move_speed, 0, is_ghost, false) == true) {
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        }
+    } else if (_parameter == AI_ACTION_FLY_OPTION_TO_PLAYER_Y) {
+        if (move_to_point(_dest_point, 0, move_speed, is_ghost, false) == true) {
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        }
+    } else if (_parameter == AI_ACTION_FLY_OPTION_ZIGZAG_AHEAD) {
+        fly_zigzag_update();
+    } else if (_parameter == AI_ACTION_FLY_OPTION_SIN_AHEAD) {
+        fly_sin_update();
+    } else if (_parameter == AI_ACTION_FLY_OPTION_DOWN_RANDOM_DIAGONAL) {
+        position.y += move_speed;
+        int radius = position.y - _ai_state.initial_position.y;
+        if (state.direction() == ANIM_DIRECTION_LEFT) {
+            position.x = _ai_state.initial_position.x - (radius * sin(_angle));
+        } else {
+            position.x = _ai_state.initial_position.x + (radius * sin(_angle));
+        }
+        //std::cout << "AI_ACTION_FLY_OPTION_DOWN_RANDOM_DIAGONAL - angle[" << _angle << "], x[" << position.x << "]" << std::endl;
+        if (position.y > RES_H) {
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+            position.x = _ai_state.initial_position.x;
+        }
+        //var x = radius * Math.sin(Math.PI * 2 * angle / 360);
+    } else if (_parameter == AI_ACTION_FLY_OPTION_UP_UNTIL_GROUND) {
+        st_position current_map_point((position.x + frameSize.width/2)/TILESIZE, (position.y + frameSize.height)/TILESIZE);
+        int lock = gameControl.get_current_map_obj()->getMapPointLock(current_map_point);
+        if (lock == TERRAIN_UNBLOCKED || lock == TERRAIN_WATER) {
+            // small adjust to get perfect y
+            for (int i=move_speed-1; i>0; i--) {
+                st_position current_map_point((position.x + frameSize.width/2)/TILESIZE, (position.y + i + frameSize.height)/TILESIZE);
+                int lock = gameControl.get_current_map_obj()->getMapPointLock(current_map_point);
+                if (lock != TERRAIN_UNBLOCKED && lock != TERRAIN_WATER) {
+                    position.y -= i-1;
+                    break;
                 }
             }
-
-        } else if (_parameter == AI_ACTION_FLY_OPTION_SIN_AHEAD) {
-
-            float dist_y = abs(position.y - _dest_point.y);
-            _sin_x += 0.12;
-            float sin_value = (TILESIZE*3)*sin(_sin_x);
-
-            if (position.x == _dest_point.x && dist_y < 0.2) {
-                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-            } else {
-                if (move_to_point(_dest_point, move_speed, 0, is_ghost, false) == true) {
-                    if (dist_y > 0.2) {
-
-                        double move_adjust_y = 0.1;
-                        if (dist_y > sin_value) {
-                            move_adjust_y = sin_value;
-                        } else {
-                            if (dist_y > 10) {
-                                move_adjust_y = 5;
-                            } else if (dist_y > 3) {
-                                move_adjust_y = 1;
-                            }
-                        }
-
-                        position.y = _ai_state.initial_position.y + move_adjust_y;
-                    } else {
-                        _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-                    }
-                } else {
-                    // reached x, use small y-movement to reach point
-                    position.y = _ai_state.initial_position.y + sin_value;
-                }
-            }
-        } else if (_parameter == AI_ACTION_FLY_OPTION_DOWN_RANDOM_DIAGONAL) {
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        } else {
+            position.y -= move_speed;
+        }
+    } else if (_parameter == AI_ACTION_FLY_OPTION_DOWN_INTO_GROUND) {
+        if (position.y + frameSize.height + move_speed < RES_H-TILESIZE/2) {
             position.y += move_speed;
-            int radius = position.y - _ai_state.initial_position.y;
-            if (state.direction() == ANIM_DIRECTION_LEFT) {
-                position.x = _ai_state.initial_position.x - (radius * sin(_angle));
-            } else {
-                position.x = _ai_state.initial_position.x + (radius * sin(_angle));
+        } else {
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        }
+    } else if (_parameter == AI_ACTION_FLY_OPTION_DIAGONAL_UP || _parameter == AI_ACTION_FLY_OPTION_DIAGONAL_DOWN) {
+        /*
+        int move_speed_y = move_speed;
+        int move_speed_x = move_speed;
+        if (_parameter == AI_ACTION_FLY_OPTION_DIAGONAL_UP) {
+            move_speed_y = -move_speed;
+        }
+        if (state.direction() == ANIM_DIRECTION_DOWN_LEFT) {
+            int move_speed_x = -move_speed;
+        }
+        */
+        can_move_struct check_move_res = check_can_move_to_point(_dest_point, move_speed, move_speed, false, false);
+        if (check_move_res.can_move_x == false || check_move_res.can_move_y == false) {
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+        }
+        move_to_point(_dest_point, move_speed, move_speed, is_ghost, false);
+    }
+}
+
+// OPOSITE_SHOOT_1: a shot every 120 pixels moved
+void artificial_inteligence::fly_shoot_while_moving()
+{
+    int dist = abs(position.x - _origin_point.x);
+    if (dist > 120 * _counter) {
+        _counter++;
+
+        int proj_direction = state.direction();
+        projectile_list.push_back(projectile(_parameter, proj_direction, get_attack_position(), is_player(), _number));
+        projectile &temp_proj = projectile_list.back();
+        temp_proj.play_sfx(true);
+        temp_proj.set_owner(this);
+
+        if (GameMediator::get_instance()->get_projectile(_parameter).trajectory == TRAJECTORY_CENTERED) {
+            temp_proj.set_owner_direction(state.direction_ref());
+            temp_proj.set_owner_position(&position);
+        }
+
+        if (GameMediator::get_instance()->get_projectile(_parameter).trajectory == TRAJECTORY_TARGET_DIRECTION || GameMediator::get_instance()->get_projectile(_parameter).trajectory == TRAJECTORY_TARGET_EXACT || GameMediator::get_instance()->get_projectile(_parameter).trajectory == TRAJECTORY_ARC_TO_TARGET || GameMediator::get_instance()->get_projectile(_parameter).trajectory == TRAJECTORY_FOLLOW) {
+            if (!is_player() && gameControl.get_current_map_obj()->_player_ref != NULL) {
+                character* p_player = gameControl.get_current_map_obj()->_player_ref;
+                temp_proj.set_target_position(p_player->get_position_ref());
             }
-            //std::cout << "AI_ACTION_FLY_OPTION_DOWN_RANDOM_DIAGONAL - angle[" << _angle << "], x[" << position.x << "]" << std::endl;
-            if (position.y > RES_H) {
-                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-                position.x = _ai_state.initial_position.x;
-            }
-            //var x = radius * Math.sin(Math.PI * 2 * angle / 360);
-        } else if (_parameter == AI_ACTION_FLY_OPTION_UP_UNTIL_GROUND) {
-            st_position current_map_point((position.x + frameSize.width/2)/TILESIZE, (position.y + frameSize.height)/TILESIZE);
-            int lock = gameControl.get_current_map_obj()->getMapPointLock(current_map_point);
-            if (lock == TERRAIN_UNBLOCKED || lock == TERRAIN_WATER) {
-                // small adjust to get perfect y
-                for (int i=move_speed-1; i>0; i--) {
-                    st_position current_map_point((position.x + frameSize.width/2)/TILESIZE, (position.y + i + frameSize.height)/TILESIZE);
-                    int lock = gameControl.get_current_map_obj()->getMapPointLock(current_map_point);
-                    if (lock != TERRAIN_UNBLOCKED && lock != TERRAIN_WATER) {
-                        position.y -= i-1;
-                        break;
+        }
+
+        _did_shot = true;
+    }
+}
+
+// ZIGZAG_AHEAD: moves forward going up and down, turning around at walls
+void artificial_inteligence::fly_zigzag_update()
+{
+    if (position.x != _dest_point.x) {
+        if (_ai_state.initial_position.y == position.y) {
+            _dest_point.y = position.y - TILESIZE;
+        } else if (position.y <= _ai_state.initial_position.y - TILESIZE) {
+            _dest_point.y = position.y + TILESIZE;
+        } else if (hit_ground() == true) {
+            _dest_point.y = position.y - TILESIZE;
+        }
+        //std::cout << "### AI::AI_ACTION_FLY_OPTION_ZIGZAG_AHEAD - pos.y[" << position.y << "], dest.y[" << _dest_point.y << "]" << std::endl;
+    }
+
+    int pos_x_before = position.x;
+
+    bool res_moved = move_to_point(_dest_point, move_speed, 2, is_ghost, false);
+    bool reached_point = position.x == _dest_point.x && position.y == _dest_point.y;
+
+    if ((move_blocked_x_axis == true && move_blocked_y_axis == false && (res_moved == true || (move_speed != 0 && pos_x_before == position.x))) || reached_point == true) {
+        turn_around();
+        if (state.direction() == ANIM_DIRECTION_LEFT) {
+            _dest_point.x = position.x - frameSize.width/2 - walk_range;
+        } else {
+            _dest_point.x = position.x + frameSize.width/2 + walk_range;
+        }
+    }
+}
+
+// SIN_AHEAD: moves forward following a sine wave
+void artificial_inteligence::fly_sin_update()
+{
+
+    float dist_y = abs(position.y - _dest_point.y);
+    _sin_x += 0.12;
+    float sin_value = (TILESIZE*3)*sin(_sin_x);
+
+    if (position.x == _dest_point.x && dist_y < 0.2) {
+        _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+    } else {
+        if (move_to_point(_dest_point, move_speed, 0, is_ghost, false) == true) {
+            if (dist_y > 0.2) {
+
+                double move_adjust_y = 0.1;
+                if (dist_y > sin_value) {
+                    move_adjust_y = sin_value;
+                } else {
+                    if (dist_y > 10) {
+                        move_adjust_y = 5;
+                    } else if (dist_y > 3) {
+                        move_adjust_y = 1;
                     }
                 }
-                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-            } else {
-                position.y -= move_speed;
-            }
-        } else if (_parameter == AI_ACTION_FLY_OPTION_DOWN_INTO_GROUND) {
-            if (position.y + frameSize.height + move_speed < RES_H-TILESIZE/2) {
-                position.y += move_speed;
+
+                position.y = _ai_state.initial_position.y + move_adjust_y;
             } else {
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             }
-        } else if (_parameter == AI_ACTION_FLY_OPTION_DIAGONAL_UP || _parameter == AI_ACTION_FLY_OPTION_DIAGONAL_DOWN) {
-            /*
-            int move_speed_y = move_speed;
-            int move_speed_x = move_speed;
-            if (_parameter == AI_ACTION_FLY_OPTION_DIAGONAL_UP) {
-                move_speed_y = -move_speed;
-            }
-            if (state.direction() == ANIM_DIRECTION_DOWN_LEFT) {
-                int move_speed_x = -move_speed;
-            }
-            */
-            can_move_struct check_move_res = check_can_move_to_point(_dest_point, move_speed, move_speed, false, false);
-            if (check_move_res.can_move_x == false || check_move_res.can_move_y == false) {
-                _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-            }
-            move_to_point(_dest_point, move_speed, move_speed, is_ghost, false);
+        } else {
+            // reached x, use small y-movement to reach point
+            position.y = _ai_state.initial_position.y + sin_value;
         }
     }
 }
