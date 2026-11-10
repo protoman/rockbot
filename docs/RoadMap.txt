@@ -3,7 +3,6 @@ ROCKBOT
 ###########################################################################################################################
 
 -------------------------------------------------------------------------------------------------------------------------------
-
 -------------------------------------------------------------------------------------------------------------------------------
 
 Now, I want to create a general release script.
@@ -32,12 +31,8 @@ and increase that part of the number.
 Format is: M.NN.PPP, where M is major, NN is minor and PPP is mini.
 Update all scripts to use this new file and ask before building witch one you are building.
 
-
 - PS2 port - OK, test in hardware
-- PSP - ok in emulator, closes when launched in real hardware
-    # setup psplink through usb to debug
-
-- PS3 port - continue (it is freezing after a while)
+- PS3 port - OK, test in hardware
 
 - vita port
 - gamecube port (similar to wii)
@@ -50,35 +45,7 @@ Update all scripts to use this new file and ask before building witch one you ar
 
 - ERROR: fio_strings::load_game_strings_from_file[/home/iuri/Desenvolvimento/rockbot/build/shared/strings_ingame_pt.dat] could not be opened
 
-- teleport on stairs is not working anymore
-
-- re-create the SDK environments for Dingux, Pocket-Go, etc.
-- add Readme.md.
-- Improve build, scripts should set all path for the SDKs itself.
-- move build scripts to a packages/scripts sub-folder
-- also, do not drop files at the packages folder itself, but on sub-directories
-
 =======================================================================================================================================
-
-
-- Darkbot's dash passes through the player without making touch damage due to some issue in hit-area.
-    # maybe it is because of slide collision that is smaller
-
-- After Android releases:
-    # Rename games folders from RockDroid to Rockbot
-    # try porting to PS2 again
-    # get version from a text file, unify with android build
-
-=======================================================================================================================================
-
-
-- (build) fazer o sign do android ser independente, para pedir a chave ao invés de usar a minha
-
-- crash ao apertar esc (antes do menu aparecer) ?
-    # happened when trying to open the quit menu and pressing esc twice
-    if (music != nullptr) {
-        Mix_FreeMusic(music);
-    }
 
 
 
