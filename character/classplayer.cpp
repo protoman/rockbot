@@ -754,6 +754,7 @@ void classPlayer::execute_projectiles()
                     int multiplier = GameMediator::get_instance()->get_enemy(gameControl.get_current_map_obj()->_npc_list.at(i).get_number())->weakness[wpn_id].damage_multiplier;
 
                     if (multiplier <= 0) { // immune to this weapon: the shot is used up instead of flying through the enemy
+                        soundManager.play_sfx(SFX_SHOT_REFLECTED); // the "no effect" sound (same as a reflected shot)
                         (*it).consume_projectile();
                         continue;
                     }
