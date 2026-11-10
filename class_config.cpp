@@ -326,11 +326,7 @@ bool class_config::execute_ingame_menu()
         if (ingame_menu_active) {
             gameControl.game_pause();
             generate_weapons_matrix();
-#if !defined(HANDHELD) && !defined(PLAYSTATION2)
-            // 21 full-screen software alpha blits: a visible delay on the weak platforms (PSP, Wii, Dingux,
-            // PocketGo, PS2), where the menu simply opens at once. The menu is drawn over it anyway.
-            draw_lib.fade_out_screen(0, 0, 0, 300);
-#endif
+            // no gradual fade to black here: the menu opens at once on every platform
             draw_ingame_menu();
         } else {
             gameControl.game_unpause();
