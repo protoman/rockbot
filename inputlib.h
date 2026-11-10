@@ -53,6 +53,9 @@ public:
     std::string get_key_name(int key);
 
     void read_input();
+    void apply_replay_buttons();
+    void read_ps2_pad();
+    void read_ps3_pad();
     void read_input(bool check_input_reset, bool must_check_input_cheat);
     void check_cheat_input();
     void reset_cheat_input_sequence();

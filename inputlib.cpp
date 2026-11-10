@@ -146,20 +146,9 @@ void inputLib::save()
 //                                                                                                //
 // ********************************************************************************************** //
 
-void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
+// test replay: the buttons come from the script (held state, re-applied on every read)
+void inputLib::apply_replay_buttons()
 {
-    _used_keyboard = false;
-    if (check_input_reset == false) {
-        held_button_count = 0;
-        held_button_timer = timer.getTimer();
-    }
-
-    // copy last input
-    for (int i=0; i<BTN_COUNT; i++) {
-        p1_previous_input[i] = p1_input[i];
-    }
-
-    // test replay: the buttons come from the script (held state, re-applied on every read)
     if (replay::enabled()) {
         replay::update_buttons();
         for (int i=0; i<BTN_JUMP_TIMER; i++) {
@@ -178,7 +167,11 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
             p1_input[i] = held;
         }
     }
+}
 
+// PS2: reads the pad directly (SDL's joystick subsystem is not initialised)
+void inputLib::read_ps2_pad()
+{
 #ifdef PLAYSTATION2
     // Read the PS2 pad directly (SDL's joystick subsystem is not initialised).
     if (SharedData::get_instance()->game_config.input_type == INPUT_TYPE_DOUBLE ||
@@ -208,7 +201,11 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
         p1_input[BTN_RIGHT] = ((have_axes && lx > deadzone) || (ps2_buttons & PAD_RIGHT)) ? 1 : 0;
     }
 #endif
+}
 
+// PS3: polls libio and turns the state into press/release events
+void inputLib::read_ps3_pad()
+{
 #ifdef PS3
     // SDL_PSL1GHT only counts pads during SDL_Init, so poll libio directly.
     // The rest of the game expects *events* (a button sets p1_input on press and
@@ -249,6 +246,24 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
         }
     }
 #endif
+}
+
+void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
+{
+    _used_keyboard = false;
+    if (check_input_reset == false) {
+        held_button_count = 0;
+        held_button_timer = timer.getTimer();
+    }
+
+    // copy last input
+    for (int i=0; i<BTN_COUNT; i++) {
+        p1_previous_input[i] = p1_input[i];
+    }
+
+    apply_replay_buttons();
+    read_ps2_pad();
+    read_ps3_pad();
 
     int newWidth = 0, newHeight = 0;
     bool resized = false;
