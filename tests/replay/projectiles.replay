@@ -1,0 +1,4 @@
+# Rockbot: just reaches the first frame of the stage; used with ROCKBOT_REPLAY_PROJECTILES=1 (compare.sh "proj" scenarios)
+300 +START
+500 -START
+9000 END

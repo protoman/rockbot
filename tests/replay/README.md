@@ -31,3 +31,10 @@ The run uses an empty temporary HOME and the `games/` folder of this repository;
 `<ms> +BUTTON|-BUTTON ... | END`, times in virtual milliseconds (see the header of `aux_tools/replay.h`). The
 included script presses START for the player selection, then walks right pressing jump, shoot and dash at
 pseudo-random moments, which also reaches stage select, enemies and deaths.
+
+## Projectile paths
+
+`compare.sh` also has two "proj" scenarios (`projectiles.replay`): with `ROCKBOT_REPLAY_PROJECTILES=1` the first frame moves
+every projectile type of the game for up to 200 steps (both directions, with an owner and a target) and writes
+`PRJ <id>/<direction> step=... pos=... moved=... fin=... refl=... dir=...` lines. Use it before touching
+`projectile::move`/`draw`, whose trajectories the normal scenarios hardly reach.

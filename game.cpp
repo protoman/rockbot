@@ -130,6 +130,38 @@ void game::initGame()
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
+// replay test only (ROCKBOT_REPLAY_PROJECTILES=1, once): moves every projectile type of the game for up to 200 steps, in both
+// directions, and writes where it went. Used to check refactorings of projectile::move
+static void replay_trace_projectile_paths()
+{
+    static bool done = false;
+    if (done == true || getenv("ROCKBOT_REPLAY_PROJECTILES") == NULL) {
+        return;
+    }
+    done = true;
+    int count = GameMediator::get_instance()->get_projectile_list_size();
+    for (int id=0; id<count; id++) {
+        for (int dir=0; dir<2; dir++) {
+            Uint8 owner_direction = (dir == 0) ? ANIM_DIRECTION_LEFT : ANIM_DIRECTION_RIGHT;
+            st_float_position owner_pos(120, 120);
+            st_float_position target_pos(220, 100);
+            projectile proj(id, owner_direction, st_position(120, 120), true, 0);
+            proj.set_owner_position(&owner_pos);
+            proj.set_owner_direction(&owner_direction);
+            proj.set_target_position(&target_pos);
+            for (int step=0; step<200; step++) {
+                st_float_size moved = proj.move();
+                st_float_position pos = proj.get_position();
+                replay::trace("PRJ %d/%d step=%d pos=%.3f,%.3f moved=%.3f,%.3f fin=%d refl=%d dir=%d\n", id, dir, step, (double)pos.x, (double)pos.y,
+                              (double)moved.width, (double)moved.height, (int)proj.is_finished, (int)proj.is_reflected, (int)proj.get_direction());
+                if (proj.is_finished == true) {
+                    break;
+                }
+            }
+        }
+    }
+}
+
 void game::show_game(bool can_characters_move, bool can_scroll_stage)
 {
     if (leave_game == true) {
@@ -204,6 +236,7 @@ void game::show_game(bool can_characters_move, bool can_scroll_stage)
     fps_manager.limit();
 
     if (replay::tracing()) { // test replay (aux_tools/replay.h): one line per frame
+        replay_trace_projectile_paths();
         replay::trace("F %lu stage=%d map=%d scroll=%.2f wpn=%d | P %s", replay::now(), currentStage, (int)loaded_stage.get_current_map_number(),
                       (double)loaded_stage.getMapScrolling().x, (int)player1.get_selected_weapon(), player1.replay_trace().c_str());
         classMap *trace_map = loaded_stage.get_current_map();
