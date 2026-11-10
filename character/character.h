@@ -247,6 +247,8 @@ public:
 
 private:
     ATTACK_TYPES check_must_attack(bool always_charged);
+    int choose_attack_projectile(ATTACK_TYPES must_attack, bool always_charged);
+    void link_projectile_to_owner_and_target(projectile &temp_proj, int proj_trajectory);
     void check_charging_colors(bool always_charged);
 
 protected:

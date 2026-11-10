@@ -197,23 +197,12 @@ st_position character::get_attack_position(short direction)
 
 
 /// @TODO: this must be moved to player, as character attack must be very simple
-void character::attack(bool dont_update_colors, short updown_trajectory, bool always_charged)
+// projectile id of the shot, by the kind of attack (normal, semi-charged, fully charged). -1 = none
+int character::choose_attack_projectile(ATTACK_TYPES must_attack, bool always_charged)
 {
-    if (attack_state != ATTACK_NOT && (timer.getTimer()-state.attack_timer) >= (*sprite_set()).frame_delay(state.direction(), state.animation_type(), state.animation_state())) {
-		attack_state = ATTACK_NOT;
-	}
-
-    ATTACK_TYPES must_attack = check_must_attack(always_charged);
-    check_charging_colors(always_charged);
-    attack_button_last_state = moveCommands.attack;
-
-
     int attack_id = -1;
 
-
-    if (must_attack == ATTACK_TYPE_NOATTACK) {
-        return;
-    } else if (must_attack == ATTACK_TYPE_NORMAL) {
+    if (must_attack == ATTACK_TYPE_NORMAL) {
         if (always_charged == true) {
             attack_id = game_data.semi_charged_projectile_id;
         } else {
@@ -228,7 +217,51 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool al
     } else if (must_attack == ATTACK_TYPE_FULLYCHARGED) {
         attack_id = _charged_shot_projectile_id;
     }
+    return attack_id;
+}
 
+// shots that follow the owner (centered, slash) or aim at the player/nearest enemy
+void character::link_projectile_to_owner_and_target(projectile &temp_proj, int proj_trajectory)
+{
+    if (proj_trajectory == TRAJECTORY_CENTERED || proj_trajectory == TRAJECTORY_SLASH) {
+        temp_proj.set_owner_direction(state.direction_ref());
+        temp_proj.set_owner_position(&position);
+		}
+    if (proj_trajectory == TRAJECTORY_TARGET_DIRECTION || proj_trajectory == TRAJECTORY_TARGET_EXACT || proj_trajectory == TRAJECTORY_ARC_TO_TARGET || proj_trajectory == TRAJECTORY_FOLLOW) {
+        // NPC
+        if (!is_player() && gameControl.get_current_map_obj()->_player_ref != NULL) {
+            character* p_player = gameControl.get_current_map_obj()->_player_ref;
+            temp_proj.set_target_position(p_player->get_position_ref());
+        // PLAYER
+        } else {
+            classnpc* temp_npc = NULL;
+            if (proj_trajectory == TRAJECTORY_TARGET_DIRECTION || proj_trajectory == TRAJECTORY_TARGET_EXACT || proj_trajectory == TRAJECTORY_ARC_TO_TARGET) {
+                temp_npc = gameControl.get_current_map_obj()->find_nearest_npc(st_position(position.x, position.y));
+            } else {
+                temp_npc = gameControl.get_current_map_obj()->find_nearest_npc_on_direction(st_position(position.x, position.y), state.direction());
+            }
+            if (temp_npc != NULL) {
+                temp_proj.set_target_position(temp_npc->get_position_ref());
+            }
+        }
+		}
+}
+
+void character::attack(bool dont_update_colors, short updown_trajectory, bool always_charged)
+{
+    if (attack_state != ATTACK_NOT && (timer.getTimer()-state.attack_timer) >= (*sprite_set()).frame_delay(state.direction(), state.animation_type(), state.animation_state())) {
+		attack_state = ATTACK_NOT;
+	}
+
+    ATTACK_TYPES must_attack = check_must_attack(always_charged);
+    check_charging_colors(always_charged);
+    attack_button_last_state = moveCommands.attack;
+
+
+    if (must_attack == ATTACK_TYPE_NOATTACK) {
+        return;
+    }
+    int attack_id = choose_attack_projectile(must_attack, always_charged);
 
     if (attack_id != -1) {
         if (attack_id == _charged_shot_projectile_id || attack_id == game_data.semi_charged_projectile_id) {
@@ -263,28 +296,7 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool al
 
         int proj_trajectory = GameMediator::get_instance()->get_projectile(attack_id).trajectory;
         temp_proj.set_owner(this);
-        if (proj_trajectory == TRAJECTORY_CENTERED || proj_trajectory == TRAJECTORY_SLASH) {
-            temp_proj.set_owner_direction(state.direction_ref());
-            temp_proj.set_owner_position(&position);
-		}
-        if (proj_trajectory == TRAJECTORY_TARGET_DIRECTION || proj_trajectory == TRAJECTORY_TARGET_EXACT || proj_trajectory == TRAJECTORY_ARC_TO_TARGET || proj_trajectory == TRAJECTORY_FOLLOW) {
-            // NPC
-            if (!is_player() && gameControl.get_current_map_obj()->_player_ref != NULL) {
-                character* p_player = gameControl.get_current_map_obj()->_player_ref;
-                temp_proj.set_target_position(p_player->get_position_ref());
-            // PLAYER
-            } else {
-                classnpc* temp_npc = NULL;
-                if (proj_trajectory == TRAJECTORY_TARGET_DIRECTION || proj_trajectory == TRAJECTORY_TARGET_EXACT || proj_trajectory == TRAJECTORY_ARC_TO_TARGET) {
-                    temp_npc = gameControl.get_current_map_obj()->find_nearest_npc(st_position(position.x, position.y));
-                } else {
-                    temp_npc = gameControl.get_current_map_obj()->find_nearest_npc_on_direction(st_position(position.x, position.y), state.direction());
-                }
-                if (temp_npc != NULL) {
-                    temp_proj.set_target_position(temp_npc->get_position_ref());
-                }
-            }
-		}
+        link_projectile_to_owner_and_target(temp_proj, proj_trajectory);
 
         // second projectile for player that fires multiple ones. It is added after the first one is fully set up:
         // push_back can reallocate the list, which left temp_proj dangling for the code above
