@@ -101,6 +101,26 @@ struct st_char_sprite_data {
         }
     }
 
+    // --- queries on the frames (a frame exists when its surface was loaded) ---
+    bool has_frame(int direction, int type, int pos) const {
+        if (pos < 0 || pos >= ANIM_FRAMES_COUNT) {
+            return false;
+        }
+        const graphicsLib_gSurface &surface = frames[direction][type][pos].frameSurface;
+        return !(surface.width == 0 || surface.get_surface() == NULL);
+    }
+    int frames_count(int direction, int type) const { // number of frames from the first to the first missing one
+        for (int i=0; i<ANIM_FRAMES_COUNT; i++) {
+            if (has_frame(direction, type, i) == false) {
+                return i;
+            }
+        }
+        return ANIM_FRAMES_COUNT;
+    }
+    int frame_delay(int direction, int type, int pos) const { // how long the frame is shown (ms)
+        return frames[direction][type][pos].delay;
+    }
+
     // copy constructor //
     st_char_sprite_data (const st_char_sprite_data& other)
     {

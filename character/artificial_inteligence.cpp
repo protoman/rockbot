@@ -1175,7 +1175,7 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
             }
         }
         state.set_animation_state(0);
-        state.set_animation_timer(timer.getTimer() + (*sprite_set()).frames[state.direction()][state.animation_type()][state.animation_state()].delay);
+        state.set_animation_timer(timer.getTimer() + (*sprite_set()).frame_delay(state.direction(), state.animation_type(), state.animation_state()));
         _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
         _did_shot = false;
     } else {
@@ -1204,7 +1204,7 @@ void artificial_inteligence::execute_shot_multiple_projectile()
             set_animation_type(ANIM_TYPE_ATTACK);
         }
         state.set_animation_state(0);
-        state.set_animation_timer(timer.getTimer() + (*sprite_set()).frames[state.direction()][state.animation_type()][state.animation_state()].delay);
+        state.set_animation_timer(timer.getTimer() + (*sprite_set()).frame_delay(state.direction(), state.animation_type(), state.animation_state()));
         _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
         _did_shot = false;
     } else {

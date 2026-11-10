@@ -705,7 +705,7 @@ st_position character::get_attack_position(short direction)
 /// @TODO: this must be moved to player, as character attack must be very simple
 void character::attack(bool dont_update_colors, short updown_trajectory, bool always_charged)
 {
-    if (attack_state != ATTACK_NOT && (timer.getTimer()-state.attack_timer) >= (*sprite_set()).frames[state.direction()][state.animation_type()][state.animation_state()].delay) {
+    if (attack_state != ATTACK_NOT && (timer.getTimer()-state.attack_timer) >= (*sprite_set()).frame_delay(state.direction(), state.animation_type(), state.animation_state())) {
 		attack_state = ATTACK_NOT;
 	}
 
@@ -1047,7 +1047,7 @@ void character::show_sprite()
             state.set_animation_timer(timer.getTimer() + 180);
 		} else {
             short direction = ANIM_DIRECTION_RIGHT;
-            int delay = (*sprite_set()).frames[direction][state.animation_type()][state.animation_state()].delay;
+            int delay = (*sprite_set()).frame_delay(direction, state.animation_type(), state.animation_state());
             state.set_animation_timer(timer.getTimer() + delay);
         }
     }
@@ -1067,7 +1067,7 @@ void character::reset_sprite_animation_timer()
             if (direction < CHAR_ANIM_DIRECTION_COUNT) {
                 if (state.animation_type() < ANIM_TYPE_COUNT) {
                     if (state.animation_state() < ANIM_FRAMES_COUNT) {
-                        delay = (*sprite_set()).frames[direction][state.animation_type()][state.animation_state()].delay;
+                        delay = (*sprite_set()).frame_delay(direction, state.animation_type(), state.animation_state());
                     }
                 }
             }
@@ -2667,12 +2667,7 @@ bool character::have_background_graphics()
 
 int character::frames_count()
 {
-	for (int i=0; i<ANIM_FRAMES_COUNT; i++) {
-        if ((*sprite_set()).frames[state.direction()][state.animation_type()][i].frameSurface.width == 0 || (*sprite_set()).frames[state.direction()][state.animation_type()][i].frameSurface.get_surface() == NULL) {
-			return i;
-		}
-	}
-	return ANIM_FRAMES_COUNT;
+    return (*sprite_set()).frames_count(state.direction(), state.animation_type());
 }
 
 void character::advance_to_last_frame()
@@ -2693,13 +2688,7 @@ bool character::is_on_last_animation_frame()
 
 bool character::have_frame_graphic(int direction, int type, int pos)
 {
-    if (pos >= ANIM_FRAMES_COUNT) {
-        return false;
-    }
-    if ((*sprite_set()).frames[direction][type][pos].frameSurface.width == 0 || (*sprite_set()).frames[direction][type][pos].frameSurface.get_surface() == NULL) {
-		return false;
-	}
-    return true;
+    return (*sprite_set()).has_frame(direction, type, pos);
 }
 
 bool character::is_on_quicksand()
@@ -3537,7 +3526,7 @@ void character::set_animation_type(ANIM_TYPE type)
             state.set_animation_state(0);
         }
 
-        frame_delay = (*sprite_set()).frames[state.direction()][state.animation_type()][state.animation_state()].delay;
+        frame_delay = (*sprite_set()).frame_delay(state.direction(), state.animation_type(), state.animation_state());
     }
     state.set_animation_timer(timer.getTimer() + frame_delay);
     animation_obj.set_type(static_cast<ANIM_TYPE>(state.animation_type()));
