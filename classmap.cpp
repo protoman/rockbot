@@ -306,12 +306,20 @@ void classMap::draw_map_tiles()
 void classMap::draw_animated_tiles(graphicsLib_gSurface &surface)
 {
     //scroll.x - dest.x
-    for (int i=0; i<anim_tile_list.size(); i++) {
-
-        int pos_x = anim_tile_list.at(i).dest_x-scroll.x;
-        if (pos_x >= -TILESIZE && pos_x <= RES_W+1) {
-            st_position dest_pos(pos_x, anim_tile_list.at(i).dest_y);
-            graphLib.place_anim_tile(anim_tile_list.at(i).anim_tile_id, dest_pos, &surface);
+    // the list is built column by column (init_animated_tiles), so it is sorted by dest_x: start at the first visible
+    // column and stop after the last one instead of testing every animated tile of the map
+    const int first_visible_x = (int)floor(scroll.x) - TILESIZE - 1;
+    std::vector<anim_tile_desc>::iterator anim_it = std::lower_bound(anim_tile_list.begin(), anim_tile_list.end(), first_visible_x, [](const anim_tile_desc &tile, int x) {
+        return tile.dest_x < x;
+    });
+    for (; anim_it != anim_tile_list.end(); anim_it++) {
+        int pos_x = anim_it->dest_x-scroll.x;
+        if (pos_x > RES_W+1) {
+            break;
+        }
+        if (pos_x >= -TILESIZE) {
+            st_position dest_pos(pos_x, anim_it->dest_y);
+            graphLib.place_anim_tile(anim_it->anim_tile_id, dest_pos, &surface);
         }
     }
 
@@ -320,6 +328,7 @@ void classMap::draw_animated_tiles(graphicsLib_gSurface &surface)
 
 void classMap::init_animated_tiles()
 {
+    anim_tile_list.clear(); // loading the map again appended a second copy of every animated tile (drawn twice, and not sorted)
     // draw the tiles of the screen region
     struct st_position pos_origin;
     struct st_position pos_destiny;
