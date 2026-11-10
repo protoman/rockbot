@@ -956,7 +956,8 @@ void object::move(bool paused)
             obj_move_player(0, yinc);
 			distance += abs((float)yinc);
 		} else {
-            distance = limit - distance + yinc;
+            // same as the left-right platform: the way back is as long as the distance already moved
+            distance = limit - distance;
             invert_direction_y();
         }
 	} else if (type == OBJ_FALL_PLATFORM) {
