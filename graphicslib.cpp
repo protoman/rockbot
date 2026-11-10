@@ -1139,6 +1139,9 @@ int graphicsLib::draw_progressive_text(short x, short y, const std::string &text
     for (i=0; i<text.size(); i++) {
         input.read_input();
         temp_char = utf8_substr2(text, i, 1);
+        if (temp_char.length() == 0) { // "i" counts bytes but the substring counts characters: past the last character of a text with accents
+            break;
+        }
 
         temp_text = "";
 
@@ -1418,6 +1421,7 @@ void graphicsLib::load_icons()
     filename = FILEPATH + "images/icons_small.png";
 	surfaceFromFile(filename, &tmp);
 
+    small_weapon_icons.clear(); // loading the icons again appended a second copy (the big icons were already cleared)
     if (tmp.width > 0) {
     for (int i=0; i<(tmp.width/8); i++) {
 		small_weapon_icons.push_back(graphicsLib_gSurface());
@@ -1427,6 +1431,7 @@ void graphicsLib::load_icons()
     }
     filename = FILEPATH + "images/icons_small_disabled.png";
     surfaceFromFile(filename, &tmp);
+    small_weapon_icons_disabled.clear();
     if (tmp.width > 0) {
     for (int i=0; i<(tmp.width/8); i++) {
         small_weapon_icons_disabled.push_back(graphicsLib_gSurface());
