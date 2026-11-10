@@ -658,23 +658,31 @@ void graphicsLib::placeTile(struct st_position pos_origin, struct st_position po
     origin_rectangle.h = TILESIZE;
 
 
-    pos_destiny.x += _screen_adjust.x;
-    pos_destiny.y += _screen_adjust.y;
+    // the screen shake (quake, train) is applied when drawing on the screen: baking it into the map's cached surface left
+    // the map displaced after the shake ended, until the cache was redrawn
+    if (gSurface == &gameScreen) {
+        pos_destiny.x += _screen_adjust.x;
+        pos_destiny.y += _screen_adjust.y;
+    }
     copySDLArea(origin_rectangle, pos_destiny, tileset, gSurface->get_surface());
 }
 
 void graphicsLib::place_easymode_block_tile(st_position destiny, graphicsLib_gSurface& surface)
 {
-    destiny.x += _screen_adjust.x;
-    destiny.y += _screen_adjust.y;
+    if (&surface == &gameScreen) {
+        destiny.x += _screen_adjust.x;
+        destiny.y += _screen_adjust.y;
+    }
 
     copySDLArea(st_rectangle(0, 0, TILESIZE, TILESIZE), destiny, _easymode_block.get_surface(), surface.get_surface());
 }
 
 void graphicsLib::place_hardmode_block_tile(st_position destiny, graphicsLib_gSurface &surface)
 {
-    destiny.x += _screen_adjust.x;
-    destiny.y += _screen_adjust.y;
+    if (&surface == &gameScreen) {
+        destiny.x += _screen_adjust.x;
+        destiny.y += _screen_adjust.y;
+    }
     copySDLArea(st_rectangle(0, 0, TILESIZE, TILESIZE), destiny, _hardmode_block.get_surface(), surface.get_surface());
 }
 
@@ -711,8 +719,10 @@ void graphicsLib::place_anim_tile(int anim_tile_id, st_position pos_destiny, str
     origin_rectangle.w = TILESIZE;
     origin_rectangle.h = TILESIZE;
 
-    pos_destiny.x += _screen_adjust.x;
-    pos_destiny.y += _screen_adjust.y;
+    if (dest_surface == &gameScreen) { // see placeTile
+        pos_destiny.x += _screen_adjust.x;
+        pos_destiny.y += _screen_adjust.y;
+    }
 
     copySDLArea(origin_rectangle, pos_destiny, tile_ref->get_surface(), dest_surface->get_surface());
 
