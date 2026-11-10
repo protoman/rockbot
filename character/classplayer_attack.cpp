@@ -83,6 +83,117 @@ bool classPlayer::shouryuken()
     return false;
 }
 
+// shot with the default weapon (buster): charge, diagonal aim, and the color reset after a charged shot
+void classPlayer::attack_with_default_weapon(bool always_charged)
+{
+    /// @NOTE: desabilitei o tiro em diagonal pois vai precisar mudanças no sistema de arquivos para comportar as poses/frames de ataque para cima e para baixo
+
+    if (SharedData::get_instance()->game_config.auto_charge_mode && !is_dead()) {
+        if (moveCommands.attack == 1) {
+            moveCommands.attack = 0;
+            attack_button_released = true;
+        } else {
+            moveCommands.attack = 1;
+            attack_button_released = false;
+        }
+    }
+
+    bool is_on_ground = hit_ground();
+    if (can_shoot_diagonal() == true && moveCommands.up != 0 && is_on_ground == true) {
+        character::attack(false, 1, always_charged);
+    } else if (can_shoot_diagonal() == true && moveCommands.down != 0 && is_on_ground == true) {
+        character::attack(false, -1, always_charged);
+    } else {
+        character::attack(false, 0, always_charged);
+    }
+    if (_player_must_reset_colors == true) {
+        _player_must_reset_colors = false;
+        change_player_color(true);
+    }
+}
+
+// coil/jet/tanks are "weapons" in the list: uses the item. Returns the weapon id to shoot (0 = nothing to shoot, -1 = item that
+// is only a shot, like the coil that cannot be placed because another player object exists)
+short int classPlayer::use_weapon_item(int used_weapon)
+{
+    short int weapon_id = 0;
+
+    if (used_weapon == WEAPON_ITEM_COIL) {
+        if (gameControl.get_current_map_obj()->have_player_object() == true) {
+            weapon_id = -1;
+        } else {
+            add_coil_object();
+        }
+        //set_weapon(WEAPON_DEFAULT, true);
+    } else if (used_weapon == WEAPON_ITEM_JET) {
+        if (gameControl.get_current_map_obj()->have_player_object() == true) {
+            weapon_id = -1;
+        } else {
+            add_jet_object();
+        }
+        //set_weapon(WEAPON_DEFAULT, true);
+    } else if (used_weapon == WEAPON_ITEM_ETANK) {
+        class_config config_manager;
+        config_manager.set_player_ref(this);
+        config_manager.use_tank(TANK_ENERGY);
+        set_weapon(WEAPON_DEFAULT, true);
+    } else if (used_weapon == WEAPON_ITEM_WTANK) {
+        class_config config_manager;
+        config_manager.set_player_ref(this);
+        config_manager.use_tank(TANK_WEAPON);
+        set_weapon(WEAPON_DEFAULT, true);
+    } else if (used_weapon == WEAPON_ITEM_STANK) {
+        class_config config_manager;
+        config_manager.set_player_ref(this);
+        config_manager.use_tank(TANK_SPECIAL);
+        set_weapon(WEAPON_DEFAULT, true);
+    } else {
+        weapon_id = used_weapon;
+    }
+    return weapon_id;
+}
+
+// links the new projectile to what it needs: owner, nearest enemy as target, and the aiming animation
+void classPlayer::setup_weapon_projectile(projectile &temp_proj, int weapon_trajectory)
+{
+    if (weapon_trajectory == TRAJECTORY_CENTERED || weapon_trajectory == TRAJECTORY_SLASH) {
+        temp_proj.set_owner_direction(state.direction_ref());
+        temp_proj.set_owner_position(&position);
+    } else if (weapon_trajectory == TRAJECTORY_CHAIN) {
+        temp_proj.set_owner_position(&position);
+        temp_proj.set_owner_direction(state.direction_ref());
+
+    } else if (weapon_trajectory == TRAJECTORY_FOLLOW) {
+        st_rectangle hitbox = get_hitbox();
+        classnpc* temp = gameControl.get_current_map_obj()->find_nearest_npc(st_position(hitbox.x+hitbox.w/2, hitbox.y+hitbox.h/2));
+        if (temp != NULL) {
+            temp_proj.set_target_position(temp->get_position_ref());
+        }
+    } else if (weapon_trajectory == TRAJECTORY_TARGET_DIRECTION || weapon_trajectory == TRAJECTORY_TARGET_EXACT || weapon_trajectory == TRAJECTORY_ARC_TO_TARGET) {
+        st_rectangle hitbox = get_hitbox();
+        st_position player_pos(hitbox.x+hitbox.w/2, hitbox.y+hitbox.h/2);
+        classnpc* temp = gameControl.get_current_map_obj()->find_nearest_npc_on_direction(player_pos, state.direction());
+        if (temp != NULL) {
+            temp_proj.set_target_position(temp->get_position_ref());
+        }
+        if (weapon_trajectory == TRAJECTORY_ARC_TO_TARGET) {
+            set_animation_type(ANIM_TYPE_ATTACK_DIAGONAL_UP);
+        } else if (temp != NULL && (weapon_trajectory == TRAJECTORY_TARGET_DIRECTION || weapon_trajectory == TRAJECTORY_TARGET_EXACT)) {
+            st_rectangle npc_hitbox = temp->get_hitbox();
+            st_position npc_pos(npc_hitbox.x + (npc_hitbox.w/2), npc_hitbox.y + (npc_hitbox.h/2));
+            // check if fire if diagonal (distY > distX)
+            int distY = abs(npc_pos.y-(player_pos.y-TILESIZE*2));
+            if (distY > 0) {
+                if (npc_pos.y > player_pos.y) {
+                    set_animation_type(ANIM_TYPE_ATTACK_DIAGONAL_DOWN);
+                } else {
+                    set_animation_type(ANIM_TYPE_ATTACK_DIAGONAL_UP);
+                }
+            }
+        }
+    }
+}
+
 void classPlayer::attack(bool dont_update_colors)
 {
     UNUSED(dont_update_colors);
@@ -104,30 +215,7 @@ void classPlayer::attack(bool dont_update_colors)
     }
 
     if (selected_weapon == WEAPON_DEFAULT) {
-        /// @NOTE: desabilitei o tiro em diagonal pois vai precisar mudanças no sistema de arquivos para comportar as poses/frames de ataque para cima e para baixo
-
-        if (SharedData::get_instance()->game_config.auto_charge_mode && !is_dead()) {
-            if (moveCommands.attack == 1) {
-                moveCommands.attack = 0;
-                attack_button_released = true;
-            } else {
-                moveCommands.attack = 1;
-                attack_button_released = false;
-            }
-        }
-
-        bool is_on_ground = hit_ground();
-        if (can_shoot_diagonal() == true && moveCommands.up != 0 && is_on_ground == true) {
-            character::attack(false, 1, always_charged);
-        } else if (can_shoot_diagonal() == true && moveCommands.down != 0 && is_on_ground == true) {
-            character::attack(false, -1, always_charged);
-        } else {
-            character::attack(false, 0, always_charged);
-        }
-        if (_player_must_reset_colors == true) {
-            _player_must_reset_colors = false;
-            change_player_color(true);
-        }
+        attack_with_default_weapon(always_charged);
         return;
     } else if (game_save.items.weapons[selected_weapon] <= 0) {
         return;
@@ -166,40 +254,7 @@ void classPlayer::attack(bool dont_update_colors)
             proj_pos = st_position(position.x+frameSize.width-TILESIZE*2, position.y+frameSize.height/2);
         }
 
-        short int weapon_id = 0;
-
-        if (used_weapon == WEAPON_ITEM_COIL) {
-            if (gameControl.get_current_map_obj()->have_player_object() == true) {
-                weapon_id = -1;
-            } else {
-                add_coil_object();
-            }
-            //set_weapon(WEAPON_DEFAULT, true);
-        } else if (used_weapon == WEAPON_ITEM_JET) {
-            if (gameControl.get_current_map_obj()->have_player_object() == true) {
-                weapon_id = -1;
-            } else {
-                add_jet_object();
-            }
-            //set_weapon(WEAPON_DEFAULT, true);
-        } else if (used_weapon == WEAPON_ITEM_ETANK) {
-            class_config config_manager;
-            config_manager.set_player_ref(this);
-            config_manager.use_tank(TANK_ENERGY);
-            set_weapon(WEAPON_DEFAULT, true);
-        } else if (used_weapon == WEAPON_ITEM_WTANK) {
-            class_config config_manager;
-            config_manager.set_player_ref(this);
-            config_manager.use_tank(TANK_WEAPON);
-            set_weapon(WEAPON_DEFAULT, true);
-        } else if (used_weapon == WEAPON_ITEM_STANK) {
-            class_config config_manager;
-            config_manager.set_player_ref(this);
-            config_manager.use_tank(TANK_SPECIAL);
-            set_weapon(WEAPON_DEFAULT, true);
-        } else {
-            weapon_id = used_weapon;
-        }
+        short int weapon_id = use_weapon_item(used_weapon);
 
         if (weapon_id == 0) { /// @TODO - this is a temporary exit to handle incomplete weapons
             return;
@@ -221,42 +276,7 @@ void classPlayer::attack(bool dont_update_colors)
 
 
         int weapon_trajectory = GameMediator::get_instance()->get_projectile(game_data.weapons[weapon_id].id_projectile).trajectory;
-        if (weapon_trajectory == TRAJECTORY_CENTERED || weapon_trajectory == TRAJECTORY_SLASH) {
-            temp_proj.set_owner_direction(state.direction_ref());
-            temp_proj.set_owner_position(&position);
-        } else if (weapon_trajectory == TRAJECTORY_CHAIN) {
-            temp_proj.set_owner_position(&position);
-            temp_proj.set_owner_direction(state.direction_ref());
-
-        } else if (weapon_trajectory == TRAJECTORY_FOLLOW) {
-            st_rectangle hitbox = get_hitbox();
-            classnpc* temp = gameControl.get_current_map_obj()->find_nearest_npc(st_position(hitbox.x+hitbox.w/2, hitbox.y+hitbox.h/2));
-            if (temp != NULL) {
-                temp_proj.set_target_position(temp->get_position_ref());
-            }
-        } else if (weapon_trajectory == TRAJECTORY_TARGET_DIRECTION || weapon_trajectory == TRAJECTORY_TARGET_EXACT || weapon_trajectory == TRAJECTORY_ARC_TO_TARGET) {
-            st_rectangle hitbox = get_hitbox();
-            st_position player_pos(hitbox.x+hitbox.w/2, hitbox.y+hitbox.h/2);
-            classnpc* temp = gameControl.get_current_map_obj()->find_nearest_npc_on_direction(player_pos, state.direction());
-            if (temp != NULL) {
-                temp_proj.set_target_position(temp->get_position_ref());
-            }
-            if (weapon_trajectory == TRAJECTORY_ARC_TO_TARGET) {
-                set_animation_type(ANIM_TYPE_ATTACK_DIAGONAL_UP);
-            } else if (temp != NULL && (weapon_trajectory == TRAJECTORY_TARGET_DIRECTION || weapon_trajectory == TRAJECTORY_TARGET_EXACT)) {
-                st_rectangle npc_hitbox = temp->get_hitbox();
-                st_position npc_pos(npc_hitbox.x + (npc_hitbox.w/2), npc_hitbox.y + (npc_hitbox.h/2));
-                // check if fire if diagonal (distY > distX)
-                int distY = abs(npc_pos.y-(player_pos.y-TILESIZE*2));
-                if (distY > 0) {
-                    if (npc_pos.y > player_pos.y) {
-                        set_animation_type(ANIM_TYPE_ATTACK_DIAGONAL_DOWN);
-                    } else {
-                        set_animation_type(ANIM_TYPE_ATTACK_DIAGONAL_UP);
-                    }
-                }
-            }
-        }
+        setup_weapon_projectile(temp_proj, weapon_trajectory);
 
         if (selected_weapon != WEAPON_DEFAULT) {
             if (weapon_trajectory == TRAJECTORY_QUAKE) {

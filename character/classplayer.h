@@ -130,6 +130,9 @@ private:
     void init_weapon_colors();
     bool get_item(object_collision& obj_info);
     void attack(bool dont_update_colors = false);
+    void attack_with_default_weapon(bool always_charged);
+    short int use_weapon_item(int used_weapon);
+    void setup_weapon_projectile(projectile &temp_proj, int weapon_trajectory);
 
     /**
      * @brief damage all NPCs that are touching ground and inside game-screen area
