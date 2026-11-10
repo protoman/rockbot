@@ -254,6 +254,9 @@ protected:
     bool slide(st_float_position mapScrolling);
     bool jump(int, st_float_position);
     st_map_collision map_collision(const float incx, const short int incy, st_float_position mapScrolling, int hitbox_anim_type=-1);
+    bool collision_with_objects(const float incx, const short incy, int &map_block);
+    void player_touch_npcs(const float incx, const short incy, int py_adjust);
+    void update_water_splash(const short incy, const int *map_x_points, const int *map_y_points);
     bool is_on_teleporter_capsulse(object* object);
     bool is_on_teleport_platform(object* object);
     void check_map_collision_point(int &map_block, int &new_map_lock, int &old_map_lock, int mode_xy);

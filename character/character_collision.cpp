@@ -207,27 +207,10 @@ void character::check_platform_move(short map_lock)
     }
 }
 
-st_map_collision character::map_collision(const float incx, const short incy, st_float_position mapScrolling, int hitbox_anim_type)
+// objects touching the character: teleporters, items, platforms. Returns true when the character is inside a platform
+// object and was killed (map_collision then ends with the "solid" result); map_block receives the block of the object
+bool character::collision_with_objects(const float incx, const short incy, int &map_block)
 {
-    UNUSED(mapScrolling);
-
-    int py_adjust = 0;
-    if (is_player() == true) {
-        py_adjust = 8;
-    }
-    int terrain_type = TERRAIN_UNBLOCKED;
-
-    /// @TODO: move to char hitbox
-    if (state.animation_type() == ANIM_TYPE_JUMP || state.animation_type() == ANIM_TYPE_JUMP_ATTACK) {
-        py_adjust = 1;
-    }
-
-    int map_block = BLOCK_UNBLOCKED;
-
-    if (gameControl.get_current_map_obj() == NULL) {
-        return st_map_collision(BLOCK_XY, TERRAIN_SOLID);
-    }
-
     gameControl.get_current_map_obj()->collision_char_object(this, incx, incy);
     object_collision res_collision_object = gameControl.get_current_map_obj()->get_obj_collision();
 
@@ -272,7 +255,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
                 // INSIDE PLATFORM OBJECT, MUST DIE
                 if (map_block == BLOCK_INSIDE_OBJ) {
                     damage(999, true);
-                    return st_map_collision(BLOCK_UNBLOCKED, TERRAIN_SOLID);
+                    return true;
                 }
             }
         }
@@ -283,9 +266,13 @@ st_map_collision character::map_collision(const float incx, const short incy, st
             _air_dashed = false;
         }
     }
+    return false;
+}
 
-
-	if (is_player()) {
+// enemies touching the player: touch damage, or the special attack hitting them
+void character::player_touch_npcs(const float incx, const short incy, int py_adjust)
+{
+    if (is_player()) {
         if (have_shoryuken() == true && state.animation_type() == ANIM_TYPE_SPECIAL_ATTACK) {
             gameControl.get_current_map_obj()->collision_player_special_attack(this, incx, incy, 9, py_adjust);
         } else {
@@ -302,8 +289,59 @@ st_map_collision character::map_collision(const float incx, const short incy, st
             }
         }
 	}
+}
 
+// the player entering/leaving the water: splash animation and sound
+void character::update_water_splash(const short incy, const int *map_x_points, const int *map_y_points)
+{
+	if (is_player()) {
+        // check water splash
+		int point_top = gameControl.getMapPointLock(st_position(map_x_points[1], map_y_points[0]));
+		int point_middle = gameControl.getMapPointLock(st_position(map_x_points[1], map_y_points[1]));
+		int point_bottom = gameControl.getMapPointLock(st_position(map_x_points[1], map_y_points[2]));
 
+		if (incy != 0) {
+			if (point_top == TERRAIN_UNBLOCKED && point_middle == TERRAIN_UNBLOCKED && point_bottom == TERRAIN_WATER && _water_splash == false) {
+				if (incy < 0) {
+					soundManager.play_sfx(SFX_WATER_LEAVE);
+				} else {
+					soundManager.play_sfx(SFX_WATER_ENTER); // both branches played the "leave" sound
+				}
+				_water_splash = true;
+                gameControl.get_current_map_obj()->add_animation(ANIMATION_STATIC, &graphLib.water_splash, st_float_position(position.x, (map_y_points[2]-1)*TILESIZE-TILESIZE/3), st_position(0, -6), 100, 0, ANIM_DIRECTION_LEFT, st_size(32, 23));
+			} else if (point_top == point_bottom && point_top == point_middle && _water_splash == true) {
+				_water_splash = false;
+			}
+        }
+	}
+}
+
+st_map_collision character::map_collision(const float incx, const short incy, st_float_position mapScrolling, int hitbox_anim_type)
+{
+    UNUSED(mapScrolling);
+
+    int py_adjust = 0;
+    if (is_player() == true) {
+        py_adjust = 8;
+    }
+    int terrain_type = TERRAIN_UNBLOCKED;
+
+    /// @TODO: move to char hitbox
+    if (state.animation_type() == ANIM_TYPE_JUMP || state.animation_type() == ANIM_TYPE_JUMP_ATTACK) {
+        py_adjust = 1;
+    }
+
+    int map_block = BLOCK_UNBLOCKED;
+
+    if (gameControl.get_current_map_obj() == NULL) {
+        return st_map_collision(BLOCK_XY, TERRAIN_SOLID);
+    }
+
+    if (collision_with_objects(incx, incy, map_block) == true) {
+        return st_map_collision(BLOCK_UNBLOCKED, TERRAIN_SOLID);
+    }
+
+    player_touch_npcs(incx, incy, py_adjust);
 
     // no need to test map collision if object collision is already X+Y
     if (map_block == BLOCK_XY && incx != 0) {
@@ -457,26 +495,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 		}
 	}
 
-	if (is_player()) {
-        // check water splash
-		int point_top = gameControl.getMapPointLock(st_position(map_x_points[1], map_y_points[0]));
-		int point_middle = gameControl.getMapPointLock(st_position(map_x_points[1], map_y_points[1]));
-		int point_bottom = gameControl.getMapPointLock(st_position(map_x_points[1], map_y_points[2]));
-
-		if (incy != 0) {
-			if (point_top == TERRAIN_UNBLOCKED && point_middle == TERRAIN_UNBLOCKED && point_bottom == TERRAIN_WATER && _water_splash == false) {
-				if (incy < 0) {
-					soundManager.play_sfx(SFX_WATER_LEAVE);
-				} else {
-					soundManager.play_sfx(SFX_WATER_ENTER); // both branches played the "leave" sound
-				}
-				_water_splash = true;
-                gameControl.get_current_map_obj()->add_animation(ANIMATION_STATIC, &graphLib.water_splash, st_float_position(position.x, (map_y_points[2]-1)*TILESIZE-TILESIZE/3), st_position(0, -6), 100, 0, ANIM_DIRECTION_LEFT, st_size(32, 23));
-			} else if (point_top == point_bottom && point_top == point_middle && _water_splash == true) {
-				_water_splash = false;
-			}
-        }
-	}
+    update_water_splash(incy, map_x_points, map_y_points);
 
     return st_map_collision(map_block, terrain_type);
 
