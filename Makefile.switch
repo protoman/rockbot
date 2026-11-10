@@ -88,6 +88,9 @@ SRC_CPP := \
 	classmap.cpp \
 	objects/object.cpp \
 	character/character.cpp \
+	character/character_graphics.cpp \
+	character/character_combat.cpp \
+	character/character_movement.cpp \
 	character/classplayer.cpp \
 	character/classnpc.cpp \
 	character/artificial_inteligence.cpp \

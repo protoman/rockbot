@@ -326,6 +326,9 @@ set(SOURCES
     aux_tools/fps_control.cpp
     aux_tools/replay.cpp
     character/character.cpp
+    character/character_graphics.cpp
+    character/character_combat.cpp
+    character/character_movement.cpp
     data/datautil.cpp
     graphicslib.cpp
     inputlib.cpp
