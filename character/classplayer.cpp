@@ -753,7 +753,8 @@ void classPlayer::execute_projectiles()
                 if ((*it).get_damage() > 0) {
                     int multiplier = GameMediator::get_instance()->get_enemy(gameControl.get_current_map_obj()->_npc_list.at(i).get_number())->weakness[wpn_id].damage_multiplier;
 
-                    if (multiplier <= 0) {
+                    if (multiplier <= 0) { // immune to this weapon: the shot is used up instead of flying through the enemy
+                        (*it).consume_projectile();
                         continue;
                     }
                     gameControl.get_current_map_obj()->_npc_list.at(i).damage((*it).get_damage() * multiplier, ignore_hit_timer);
