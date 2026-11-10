@@ -150,6 +150,7 @@ static void replay_trace_projectile_paths()
             proj.set_owner_direction(&owner_direction);
             proj.set_target_position(&target_pos);
             for (int step=0; step<200; step++) {
+                replay::advance(60); // projectiles move on a timer
                 st_float_size moved = proj.move();
                 st_float_position pos = proj.get_position();
                 replay::trace("PRJ %d/%d step=%d pos=%.3f,%.3f moved=%.3f,%.3f fin=%d refl=%d dir=%d\n", id, dir, step, (double)pos.x, (double)pos.y,
