@@ -35,6 +35,20 @@ static MIX_Mixer *sdl3_mixer = NULL;
 static std::map<int, MIX_Track*> sdl3_tracks;
 static int sdl3_next_track_id = 0;
 
+static void sdl3_collect_finished_tracks()
+{
+	// each played sound creates a track: destroy the ones that already finished (they were never freed before)
+	for (std::map<int, MIX_Track*>::iterator it = sdl3_tracks.begin(); it != sdl3_tracks.end(); ) {
+		if (!MIX_TrackPlaying(it->second) && !MIX_TrackPaused(it->second)) {
+			MIX_DestroyTrack(it->second);
+			it = sdl3_tracks.erase(it);
+		} else {
+			++it;
+		}
+	}
+}
+
+
 int SDLL_SetAlpha(SDL_Surface *surface, Uint32 flag, Uint8 alpha)
 {
 	SDL_SetSurfaceAlphaMod(surface, alpha);
@@ -361,6 +375,7 @@ int SDLL_Mix_PlayMusic(SoundMusic *audio, int loops)
 {
 	if (!sdl3_mixer) return -1;
 
+	sdl3_collect_finished_tracks();
 	MIX_Track *track = MIX_CreateTrack(sdl3_mixer);
 	if (!track) return -1;
 
@@ -382,6 +397,7 @@ int SDLL_Mix_PlayChannel(int channel, SoundChunk *chunk, int loops)
 	(void)channel;
 	if (!sdl3_mixer) return -1;
 
+	sdl3_collect_finished_tracks();
 	MIX_Track *track = MIX_CreateTrack(sdl3_mixer);
 	if (!track) return -1;
 
@@ -403,6 +419,7 @@ int SDLL_Mix_PlayChannelTimed(int channel, SoundChunk *chunk, int loops, int tic
 	(void)channel;
 	if (!sdl3_mixer) return -1;
 
+	sdl3_collect_finished_tracks();
 	MIX_Track *track = MIX_CreateTrack(sdl3_mixer);
 	if (!track) return -1;
 
@@ -427,15 +444,35 @@ int SDLL_Mix_HaltChannel(int channel)
 	auto it = sdl3_tracks.find(channel);
 	if (it != sdl3_tracks.end()) {
 		MIX_StopTrack(it->second, 0);
+		MIX_DestroyTrack(it->second);
 		sdl3_tracks.erase(it);
 	}
 	return 0;
+}
+
+int SDLL_Mix_Playing(int channel)
+{
+	auto it = sdl3_tracks.find(channel);
+	if (it == sdl3_tracks.end()) {
+		return 0;
+	}
+	return MIX_TrackPlaying(it->second) ? 1 : 0;
+}
+
+SoundChunk *SDLL_Mix_GetChunk(int channel)
+{
+	auto it = sdl3_tracks.find(channel);
+	if (it == sdl3_tracks.end()) {
+		return NULL;
+	}
+	return MIX_GetTrackAudio(it->second);
 }
 
 int SDLL_Mix_HaltMusic()
 {
 	for (auto &pair : sdl3_tracks) {
 		MIX_StopTrack(pair.second, 0);
+		MIX_DestroyTrack(pair.second);
 	}
 	sdl3_tracks.clear();
 	return 0;
@@ -973,6 +1010,16 @@ int SDLL_Mix_HaltChannel(int channel)
 	return Mix_HaltChannel(channel);
 }
 
+int SDLL_Mix_Playing(int channel)
+{
+	return Mix_Playing(channel);
+}
+
+SoundChunk *SDLL_Mix_GetChunk(int channel)
+{
+	return Mix_GetChunk(channel);
+}
+
 int SDLL_Mix_HaltMusic()
 {
 #ifdef PSP
@@ -1335,6 +1382,16 @@ int SDLL_Mix_PlayChannelTimed(int channel, SoundChunk *chunk, int loops, int tic
 int SDLL_Mix_HaltChannel(int channel)
 {
 	return Mix_HaltChannel(channel);
+}
+
+int SDLL_Mix_Playing(int channel)
+{
+	return Mix_Playing(channel);
+}
+
+SoundChunk *SDLL_Mix_GetChunk(int channel)
+{
+	return Mix_GetChunk(channel);
 }
 
 int SDLL_Mix_HaltMusic()

@@ -74,18 +74,32 @@ void soundLib::play_repeated_sfx(Uint8 sfx, Uint8 loops) {
 	}
 }
 
+// true if the channel still plays the sound started by play_repeated_sfx: the channel number is reused by other sounds
+// once it finishes, and halting it then cut an unrelated effect
+static bool repeated_sfx_channel_is_ours(int channel, int sfx, SoundChunk *const *sfx_list)
+{
+    if (channel == -1 || sfx < 0 || sfx >= SFX_COUNT) {
+        return false;
+    }
+    return SDLL_Mix_Playing(channel) != 0 && SDLL_Mix_GetChunk(channel) == sfx_list[sfx];
+}
+
 void soundLib::stop_repeated_sfx()
 {
     if (_repeated_sfx_channel == -1) {
         return;
     }
-	SDLL_Mix_HaltChannel(_repeated_sfx_channel);
+    if (repeated_sfx_channel_is_ours(_repeated_sfx_channel, _repeated_sfx, sfx_list) == true) {
+        SDLL_Mix_HaltChannel(_repeated_sfx_channel);
+    }
 	_repeated_sfx = -1;
 	_repeated_sfx_channel = -1;
 }
 
 bool soundLib::is_playing_repeated_sfx() const
 {
+	// "a repeated sfx was started and not stopped": it stays true after the sound ends on its own, on purpose (the charging
+	// code starts CHARGING1 once, and switches to CHARGING2 only if this is still true)
 	if (_repeated_sfx_channel == -1) {
 		return false;
 	}

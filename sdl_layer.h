@@ -398,6 +398,16 @@ int SDLL_Mix_PlayChannelTimed(int channel, SoundChunk *chunk, int loops, int tic
 int SDLL_Mix_HaltChannel(int channel);
 
 /**
+ * @brief Tells if the channel is still playing (non-zero) - a finished channel number can be reused by another sound.
+ */
+int SDLL_Mix_Playing(int channel);
+
+/**
+ * @brief Chunk last played on the channel (NULL if unknown).
+ */
+SoundChunk *SDLL_Mix_GetChunk(int channel);
+
+/**
  * @brief Halts music.
  */
 int SDLL_Mix_HaltMusic();
