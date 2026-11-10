@@ -143,13 +143,70 @@ classnpc::~classnpc()
 {
 }
 
+// frames of the enemy sprite sheet (only when no other enemy of this kind loaded them). False when the image is missing
+bool classnpc::load_npc_sprites(int main_id)
+{
+	graphicsLib_gSurface npc_sprite_surface;
+
+	// only add graphics if there is no graphic for this NPC yet
+	if (have_frame_graphics() == false) {
+		// load the graphic from file and set it into frameset
+        std::string temp_filename = FILEPATH + "images/sprites/enemies/" + graphic_filename;
+        graphLib.surfaceFromFile(temp_filename, &npc_sprite_surface);
+        if (npc_sprite_surface.get_surface() == NULL) {
+            std::cout << "ERROR: initFrames - Error loading player surface from file\n";
+			return false;
+		}
+
+        for (int i=0; i<ANIM_TYPE_COUNT; i++) {
+            for (int j=0; j<ANIM_FRAMES_COUNT; j++) {
+                if (GameMediator::get_instance()->get_enemy(main_id)->sprites[i][j].used == true) {
+                    addSpriteFrame(i, GameMediator::get_instance()->get_enemy(main_id)->sprites[i][j].sprite_graphic_pos_x, npc_sprite_surface, GameMediator::get_instance()->get_enemy(main_id)->sprites[i][j].duration);
+                }
+            }
+        }
+    }
+    return true;
+}
+
+// background image of the enemy (boss rooms etc.), loaded once per enemy name. False when the image is missing
+bool classnpc::load_npc_background(int main_id)
+{
+    std::string bg_filename(GameMediator::get_instance()->get_enemy(main_id)->bg_graphic_filename);
+    if (bg_filename.size() > 0) {
+        _has_background = true;
+        if (have_background_graphics() == false) {
+            graphicsLib_gSurface bg_surface;
+            std::string bg_filename(GameMediator::get_instance()->get_enemy(main_id)->bg_graphic_filename);
+            std::string full_bggraphic_filename = FILEPATH + "images/sprites/enemies/backgrounds/" + bg_filename;
+            graphLib.surfaceFromFile(full_bggraphic_filename, &bg_surface);
+            if (bg_surface.get_surface() == NULL) {
+                std::cout << "ERROR: initFrames - Error loading NPC background surface from file '" << full_bggraphic_filename << std::endl;
+                return false;
+            }
+            graphicsLib_gSurface gsurface_flip;
+            total_frame_size.width = bg_surface.width;
+            total_frame_size.height = bg_surface.height;
+            graphLib.flip_image(bg_surface, gsurface_flip, flip_type_horizontal);
+            graphLib.character_graphics_background_list.insert(std::make_pair(name, std::move(bg_surface)));
+            graphLib.character_graphics_background_list_left.insert(std::make_pair(name, std::move(gsurface_flip)));
+            _has_background = true;
+        } else {
+            static std::map<std::string, graphicsLib_gSurface>::iterator it;
+            it = graphLib.character_graphics_background_list.find(name);
+            total_frame_size.width = (*it).second.width;
+            total_frame_size.height = (*it).second.height;
+        }
+    }
+    return true;
+}
+
 void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
 {
     UNUSED(stage_id);
     UNUSED(map_id);
 	_number = main_id;
 	// TODO - usar operador igual e também para cópia de toda a classe para ela mesma
-	graphicsLib_gSurface npc_sprite_surface;
 
 #ifdef ANDROID
     __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "CLASSNPC::build_basic_npc, id[%d]", _number);
@@ -213,50 +270,12 @@ void classnpc::build_basic_npc(int stage_id, int map_id, int main_id)
 	last_execute_time = 0;
 
 
-	// only add graphics if there is no graphic for this NPC yet
-	if (have_frame_graphics() == false) {
-		// load the graphic from file and set it into frameset
-        std::string temp_filename = FILEPATH + "images/sprites/enemies/" + graphic_filename;
-        graphLib.surfaceFromFile(temp_filename, &npc_sprite_surface);
-        if (npc_sprite_surface.get_surface() == NULL) {
-            std::cout << "ERROR: initFrames - Error loading player surface from file\n";
-			return;
-		}
-
-        for (int i=0; i<ANIM_TYPE_COUNT; i++) {
-            for (int j=0; j<ANIM_FRAMES_COUNT; j++) {
-                if (GameMediator::get_instance()->get_enemy(main_id)->sprites[i][j].used == true) {
-                    addSpriteFrame(i, GameMediator::get_instance()->get_enemy(main_id)->sprites[i][j].sprite_graphic_pos_x, npc_sprite_surface, GameMediator::get_instance()->get_enemy(main_id)->sprites[i][j].duration);
-                }
-            }
-        }
+    if (load_npc_sprites(main_id) == false) {
+        return;
     }
 
-    std::string bg_filename(GameMediator::get_instance()->get_enemy(main_id)->bg_graphic_filename);
-    if (bg_filename.size() > 0) {
-        _has_background = true;
-        if (have_background_graphics() == false) {
-            graphicsLib_gSurface bg_surface;
-            std::string bg_filename(GameMediator::get_instance()->get_enemy(main_id)->bg_graphic_filename);
-            std::string full_bggraphic_filename = FILEPATH + "images/sprites/enemies/backgrounds/" + bg_filename;
-            graphLib.surfaceFromFile(full_bggraphic_filename, &bg_surface);
-            if (bg_surface.get_surface() == NULL) {
-                std::cout << "ERROR: initFrames - Error loading NPC background surface from file '" << full_bggraphic_filename << std::endl;
-                return;
-            }
-            graphicsLib_gSurface gsurface_flip;
-            total_frame_size.width = bg_surface.width;
-            total_frame_size.height = bg_surface.height;
-            graphLib.flip_image(bg_surface, gsurface_flip, flip_type_horizontal);
-            graphLib.character_graphics_background_list.insert(std::make_pair(name, std::move(bg_surface)));
-            graphLib.character_graphics_background_list_left.insert(std::make_pair(name, std::move(gsurface_flip)));
-            _has_background = true;
-        } else {
-            static std::map<std::string, graphicsLib_gSurface>::iterator it;
-            it = graphLib.character_graphics_background_list.find(name);
-            total_frame_size.width = (*it).second.width;
-            total_frame_size.height = (*it).second.height;
-        }
+    if (load_npc_background(main_id) == false) {
+        return;
     }
 
     // can't have ghosts that don't fly

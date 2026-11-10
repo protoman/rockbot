@@ -91,6 +91,8 @@ protected:
      * @param main_id
      */
     void build_basic_npc(int stage_id, int map_id, int main_id);
+    bool load_npc_sprites(int main_id);
+    bool load_npc_background(int main_id);
 
 
 
