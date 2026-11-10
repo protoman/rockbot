@@ -233,6 +233,12 @@ void log(const char *fmt, ...)
     msg[n++] = '\n';
     u32 written = 0;
     sysTtyWrite(0, msg, (u32)n, &written);
+    // also to a file, to find out where the game stops on a real console (no TTY there)
+    FILE *fp = fopen("/dev_hdd0/tmp/rockbot/rockbot_ps3.log", "ab");
+    if (fp) {
+        fwrite(msg, 1, (size_t)n, fp);
+        fclose(fp);
+    }
 #else
     (void)fmt;
 #endif
@@ -249,6 +255,17 @@ void log(const char *fmt, ...)
 #ifdef PS3
 extern "C" s32 rsxContextCallback(gcmContextData *context, u32 count);
 #endif
+
+// Logs every 120th flip (and the first ones), so the log file shows whether the frames stop (hang in or before
+// the flip) or keep coming (the game runs but ignores the pad).
+void flip_heartbeat()
+{
+    static unsigned int flips = 0;
+    flips++;
+    if (flips <= 3 || (flips % 120) == 0) {
+        log("rockbot: flip #%u", flips);
+    }
+}
 
 void rsx_command_buffer_guard()
 {
@@ -330,6 +347,9 @@ void pad_read(unsigned int *buttons, int *lx, int *ly)
     b |= d.BTN_L1       ? (1u << 13) : 0;
     b |= d.BTN_R2       ? (1u << 14) : 0;
     b |= d.BTN_L2       ? (1u << 15) : 0;
+    if (b != last_buttons) {
+        log("rockbot: pad buttons %04x", b);
+    }
     last_buttons = b;
     last_lx = d.ANA_L_H;
     last_ly = d.ANA_L_V;

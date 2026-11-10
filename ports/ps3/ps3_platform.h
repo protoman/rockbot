@@ -17,6 +17,7 @@ void get_savepath(std::string &savepath);
 void update();
 // Keeps the RSX command buffer from filling up. Call before every video flip.
 void rsx_command_buffer_guard();
+void flip_heartbeat();
 // Polls pad 0 through libio (see ps3_platform.cpp). Analog values are 0..255, centre 128.
 void pad_read(unsigned int *buttons, int *lx, int *ly);
 // printf-style debug line to the PPU TTY (RPCS3 TTY.log); no stdio involved.
