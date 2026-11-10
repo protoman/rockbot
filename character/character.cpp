@@ -279,13 +279,8 @@ void character::charMove() {
         }
 
         for (float i=temp_move_speed; i>=0.1; i--) {
-            // movement is too small to change a pixel in player movement, ignore it
-            int adjusted_real_pos = (int)(realPosition.x + i);
-            int real_pos = (int)realPosition.x;
-            if (adjusted_real_pos == real_pos) {
-                break;
-            }
-
+            // (moving left has no "too small to change a pixel" skip, and this one made right-side moves under 1px,
+            // like the hit knockback, travel less than left-side ones: both sides now move the same)
             if (is_player() == false || (realPosition.x + i + frameSize.width/2) < RES_W) {
                 st_map_collision map_col = map_collision(i, 0, gameControl.get_current_map_obj()->getMapScrolling());
                 mapLock = map_col.block;
@@ -2171,7 +2166,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
             map_block = BLOCK_XY;
         }
 	}
-    if ((incy < 0 && ((position.y+incy+frameSize.height < 0) || (incx > 0 && position.y+incx+TILESIZE > MAP_W*TILESIZE)))) {
+    if (incy < 0 && position.y+incy+frameSize.height < 0) {
 		if (map_block == BLOCK_UNBLOCKED) {
 			map_block = BLOCK_Y;
 		} else {
