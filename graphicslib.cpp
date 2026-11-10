@@ -2552,6 +2552,11 @@ void graphicsLib::flip_image(const graphicsLib_gSurface &original, graphicsLib_g
             }
         }
     }
+
+    // the surface was locked above and never unlocked: a locked (RLE) surface can not be blitted from afterwards
+    if (SDLL_MUSTLOCK( original.get_surface() )) {
+        SDLL_UnlockSurface( original.get_surface() );
+    }
 }
 
 void graphicsLib::set_spriteframe_surface(st_spriteFrame *frame, const graphicsLib_gSurface &newSurface)
