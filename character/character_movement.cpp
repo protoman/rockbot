@@ -697,6 +697,51 @@ void character::activate_force_jump()
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
+// pressing the dash button on the ground (or in the air once): starts the slide / air dash
+void character::start_slide(bool did_hit_ground)
+{
+    if (state.animation_type() != ANIM_TYPE_SLIDE && _dash_button_released == true) {
+        if (moveCommands.dash == 1) {
+            if (did_hit_ground == true || (did_hit_ground == false && _can_execute_airdash == true && position.y >= 0)) { // no air dash above the top of the screen
+                _can_execute_airdash = false;
+                _air_dashed = (did_hit_ground == false);
+                set_animation_type(ANIM_TYPE_SLIDE);
+                state.slide_distance = 0;
+                _dash_button_released = false;
+                int adjust_x = -3;
+                if (state.direction() == ANIM_DIRECTION_LEFT) {
+                    adjust_x = frameSize.width+3;
+                }
+                previous_position_list.clear();
+                gameControl.get_current_map_obj()->add_animation(ANIMATION_STATIC, &graphLib.dash_dust, position, st_position(adjust_x, frameSize.height-8), 160, 0, state.direction(), st_size(8, 8));
+            }
+		}
+    }
+}
+
+// the slide cannot go on at the screen or map edges (and the distance is reset). Returns true when blocked
+bool character::slide_blocked_at_edge()
+{
+    // check if trying to leave screen LEFT
+    if (state.direction() == ANIM_DIRECTION_LEFT && position.x <= 0) {
+        state.slide_distance = 0;
+        return true;
+    }
+
+    // check if trying to leave screen RIGHT
+    if (is_player() == true && (realPosition.x + frameSize.width/2) > RES_W) {
+        state.slide_distance = 0;
+        return true;
+    }
+
+    // end of map
+    if (state.direction() == ANIM_DIRECTION_RIGHT && position.x + frameSize.width > MAP_W * TILESIZE) {
+        state.slide_distance = 0;
+        return true;
+    }
+    return false;
+}
+
 bool character::slide(st_float_position mapScrolling)
 {
 	if (is_player() == false) {
@@ -780,24 +825,7 @@ bool character::slide(st_float_position mapScrolling)
         return false;
     }
 
-    // start slide
-    if (state.animation_type() != ANIM_TYPE_SLIDE && _dash_button_released == true) {
-        if (moveCommands.dash == 1) {
-            if (did_hit_ground == true || (did_hit_ground == false && _can_execute_airdash == true && position.y >= 0)) { // no air dash above the top of the screen
-                _can_execute_airdash = false;
-                _air_dashed = (did_hit_ground == false);
-                set_animation_type(ANIM_TYPE_SLIDE);
-                state.slide_distance = 0;
-                _dash_button_released = false;
-                int adjust_x = -3;
-                if (state.direction() == ANIM_DIRECTION_LEFT) {
-                    adjust_x = frameSize.width+3;
-                }
-                previous_position_list.clear();
-                gameControl.get_current_map_obj()->add_animation(ANIMATION_STATIC, &graphLib.dash_dust, position, st_position(adjust_x, frameSize.height-8), 160, 0, state.direction(), st_size(8, 8));
-            }
-		}
-    }
+    start_slide(did_hit_ground);
 
     if (state.animation_type() != ANIM_TYPE_SLIDE) {
         return false;
@@ -813,24 +841,9 @@ bool character::slide(st_float_position mapScrolling)
 		return false;
 	}
 
-    // check if trying to leave screen LEFT
-    if (state.direction() == ANIM_DIRECTION_LEFT && position.x <= 0) {
-        state.slide_distance = 0;
+    if (slide_blocked_at_edge() == true) {
         return false;
     }
-
-    // check if trying to leave screen RIGHT
-    if (is_player() == true && (realPosition.x + frameSize.width/2) > RES_W) {
-        state.slide_distance = 0;
-        return false;
-    }
-
-    // end of map
-    if (state.direction() == ANIM_DIRECTION_RIGHT && position.x + frameSize.width > MAP_W * TILESIZE) {
-        state.slide_distance = 0;
-        return false;
-    }
-
 
     float res_move_x = 0;
     int mapLockAfter = BLOCK_UNBLOCKED;

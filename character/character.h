@@ -255,6 +255,8 @@ protected:
     virtual void attack(bool dont_update_colors, short updown_trajectory, bool always_charged);
     void change_char_color(Sint8 colorkey_n, st_color new_color, bool full_change);
     bool slide(st_float_position mapScrolling);
+    void start_slide(bool did_hit_ground);
+    bool slide_blocked_at_edge();
     bool jump(int, st_float_position);
     st_map_collision map_collision(const float incx, const short int incy, st_float_position mapScrolling, int hitbox_anim_type=-1);
     bool collision_with_objects(const float incx, const short incy, int &map_block);
