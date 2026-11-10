@@ -428,7 +428,10 @@ bool classMap::is_point_solid(st_position pos) const
 {
 	short int lock_p = getMapPointLock(pos);
 
-    if (lock_p == TERRAIN_UNBLOCKED || lock_p != TERRAIN_WATER || lock_p == TERRAIN_CHECKPOINT || lock_p == TERRAIN_SCROLL_LOCK || (lock_p == TERRAIN_EASYMODEBLOCK && game_save.difficulty != 0)) {
+    // "lock_p != TERRAIN_WATER" made this false for everything except water tiles, so the AI jump-to-roof never found a ceiling
+    if (lock_p == TERRAIN_UNBLOCKED || lock_p == TERRAIN_WATER || lock_p == TERRAIN_CHECKPOINT || lock_p == TERRAIN_SCROLL_LOCK ||
+        (lock_p == TERRAIN_EASYMODEBLOCK && game_save.difficulty != DIFFICULTY_EASY) ||
+        (lock_p == TERRAIN_HARDMODEBLOCK && game_save.difficulty != DIFFICULTY_HARD)) {
         return false;
 	}
     return true;
@@ -2035,10 +2038,13 @@ classnpc *classMap::find_nearest_npc_on_direction(st_position pos, int direction
         if (npc_ref->is_dead() == true) {
             continue;
         }
+        if (npc_ref->is_player_friend() == true || npc_ref->is_invisible() == true) { // same targets as find_nearest_npc
+            continue;
+        }
 
-        st_position npc_pos(npc_ref->getPosition().x*TILESIZE, npc_ref->getPosition().y*TILESIZE);
-        npc_pos.x = (npc_pos.x + npc_ref->get_size().width/2)/TILESIZE;
-        npc_pos.y = (npc_pos.y + npc_ref->get_size().height)/TILESIZE;
+        // the NPC's bottom-center, in pixels like "pos" (it multiplied by TILESIZE and divided back, which dropped half
+        // of the width and left only height/TILESIZE of the height)
+        st_position npc_pos((int)npc_ref->getPosition().x + npc_ref->get_size().width/2, (int)npc_ref->getPosition().y + npc_ref->get_size().height);
 
         // if facing left, ignore enemies with X greater than player x
         if (direction == ANIM_DIRECTION_LEFT && npc_pos.x > pos.x) {
