@@ -664,20 +664,25 @@ void classPlayer::execute_projectiles()
         ignore_hit_timer = true;
     }
 
-    for (it=projectile_list.begin(); it<projectile_list.end(); it++) {
+    // erasing a projectile used to "break" out of the loop (and the circle-weapon case even returned), so the other
+    // projectiles skipped their move/collision in that frame: the loop now goes on with the next one
+    it = projectile_list.begin();
+    while (it != projectile_list.end()) {
         if ((*it).is_finished == true) {
-            projectile_list.erase(it);
-            break;
+            it = projectile_list.erase(it);
+            continue;
         }
         st_float_size moved = (*it).move();
 
         /// @TODO projectiles that are tele-guided
         if ((*it).get_move_type() == TRAJECTORY_QUAKE) {
             damage_ground_npcs();
+            ++it;
             continue;
         }
         (*it).draw();
         if ((*it).is_reflected == true) {
+            ++it;
             continue;
         }
 
@@ -685,7 +690,7 @@ void classPlayer::execute_projectiles()
         bool projectile_erased = false;
         for (unsigned int i=0; i<gameControl.get_current_map_obj()->_npc_list.size(); i++) {
             if ((*it).is_finished == true) {
-                projectile_list.erase(it);
+                it = projectile_list.erase(it);
                 projectile_erased = true;
                 break;
             }
@@ -742,7 +747,7 @@ void classPlayer::execute_projectiles()
                         gameControl.get_current_map_obj()->_npc_list.at(i).consume_projectile();
                     }
                     (*it).consume_projectile();
-                    return;
+                    continue; // was "return", which skipped every other projectile (and the queued ones)
                 }
 
                 if ((*it).get_damage() > 0) {
@@ -763,8 +768,8 @@ void classPlayer::execute_projectiles()
         }
 
 
-        if (projectile_erased) { // the iterator is no longer valid: the others are handled next frame
-            break;
+        if (projectile_erased) { // "it" already points to the next projectile
+            continue;
         }
 
         // check collision against objects
@@ -796,6 +801,7 @@ void classPlayer::execute_projectiles()
                 }
             }
         }
+        ++it;
     }
     projectile_list.insert(projectile_list.end(), projectile_to_be_added_list.begin(), projectile_to_be_added_list.end());
     projectile_to_be_added_list.clear();
