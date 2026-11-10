@@ -1473,6 +1473,11 @@ enum e_INPUT_IMAGES {
 //#define SHOW_HITBOXES 1
 //#define SHOW_VULNERABLE_AREAS 1
 
+
+// progress marker in the PS3 log file (ports/ps3/ps3_platform.h defines the real one); nothing on the other platforms
+#if !defined(PS3) && !defined(PS3_TRACE)
+#define PS3_TRACE(...) ((void)0)
+#endif
 #endif // DEFINES_H
 
 

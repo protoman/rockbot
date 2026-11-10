@@ -766,6 +766,8 @@ namespace format_v4 {
         return true;
     }
 
+    static std::string newest_variant(const std::string &path); // defined with the save writers below
+
     void file_io::load_config(format_v4::st_game_config& config)
     {
         std::string filename = std::string(SAVEPATH) + CONFIG_FILENAME;
@@ -792,7 +794,7 @@ namespace format_v4 {
                 config = config_old;
             }
         } else {
-            FILE *fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
+            FILE *fp = fopen(newest_variant(StringUtils::clean_filename(filename)).c_str(), "rb");
             if (!fp) {
                 std::cout << "WARNING: Could not read config file '" << filename.c_str() << "'." << std::endl;
             } else {
@@ -830,80 +832,121 @@ namespace format_v4 {
 
     }
 
-    // Opens a file for writing. If that fails (seen on a real PS3: a save/config file written by an earlier run could not be
-    // opened for writing again, so every save failed), the old file is removed and created anew before giving up.
-    static FILE *open_for_write_with_retry(const std::string &filename)
+    // ---- writing saves and config ------------------------------------------------------------------------------
+    // On a real PS3 a save file the game had created itself could not be opened for writing again (errno 13), so every save
+    // failed. The cause is not known (PSL1GHT's open() chmods every created file, its write() hides lv2 write errors), so on
+    // the PS3 the file is written with several methods in turn, the first that works wins, and what happened is logged:
+    //   1. fopen "wb"   2. fopen "r+b" (rewrite in place, no truncation; the saves have a fixed size)
+    //   3. write "<name>.tmp" and rename it over the file   4. write "<name>.new" (the readers use the newest of both files)
+    // Every method checks fwrite/fclose and the size on disk. Other platforms use method 1 only, as before.
+    static long size_on_disk(const std::string &path)
     {
-        FILE *fp = fopen(filename.c_str(), "wb");
+        FILE *fp = fopen(path.c_str(), "rb");
+        if (fp == NULL) {
+            return -1;
+        }
+        fseek(fp, 0, SEEK_END);
+        long size = ftell(fp);
+        fclose(fp);
+        return size;
+    }
+
+    static bool write_file_with_mode(const std::string &path, const void *data, size_t size, const char *mode)
+    {
+        errno = 0;
+        FILE *fp = fopen(path.c_str(), mode);
         if (fp == NULL) {
 #ifdef PS3
-            ps3_platform::log("open for write failed: '%s' errno=%d, trying to remove and recreate it", filename.c_str(), errno);
+            ps3_platform::log("write '%s' with \"%s\": open failed, errno %d", path.c_str(), mode, errno);
 #endif
-#ifdef PS3
-            // The game itself had created this file and could not open it for writing any more (errno 13). Record what the
-            // file looks like and which kinds of open work, to find out why (nothing is changed by this probe except a test file).
-            {
-                struct stat st;
-                if (stat(filename.c_str(), &st) == 0) {
-                    ps3_platform::log("save file probe: mode=%o uid=%d gid=%d size=%d", (unsigned)st.st_mode, (int)st.st_uid, (int)st.st_gid, (int)st.st_size);
-                } else {
-                    ps3_platform::log("save file probe: stat failed errno=%d", errno);
-                }
-                const char *modes[] = { "rb", "r+b", "ab", "wb" };
-                for (int m = 0; m < 4; m++) {
-                    errno = 0;
-                    FILE *probe_fp = fopen(filename.c_str(), modes[m]);
-                    ps3_platform::log("save file probe: fopen(\"%s\") -> %s (errno %d)", modes[m], probe_fp != NULL ? "ok" : "FAILED", errno);
-                    if (probe_fp != NULL) {
-                        fclose(probe_fp);
-                    }
-                }
-                // a file created now, in the same folder, written twice: does overwriting a file this process made work?
-                std::string test_name = filename + ".probe";
-                for (int round = 0; round < 2; round++) {
-                    errno = 0;
-                    FILE *test_fp = fopen(test_name.c_str(), "wb");
-                    ps3_platform::log("save file probe: test file write #%d -> %s (errno %d)", round + 1, test_fp != NULL ? "ok" : "FAILED", errno);
-                    if (test_fp != NULL) {
-                        fwrite("x", 1, 1, test_fp);
-                        fclose(test_fp);
-                    }
-                }
-                ps3_platform::log_flush();
-            }
-            // permission denied (errno 13) was seen here: try to open the permissions first, and log what the system says
-            int chmod_result = chmod(filename.c_str(), 0666);
-            int chmod_errno = errno;
-            int remove_result = remove(filename.c_str());
-            int remove_errno = errno;
-            ps3_platform::log("open for write failed: chmod=%d (errno %d) remove=%d (errno %d)", chmod_result, chmod_errno, remove_result, remove_errno);
-#else
-            remove(filename.c_str());
-#endif
-            fp = fopen(filename.c_str(), "wb");
-#ifdef PS3
-            if (fp == NULL) {
-                ps3_platform::log("open for write failed again: '%s' errno=%d", filename.c_str(), errno);
-            } else {
-                ps3_platform::log("recreated '%s'", filename.c_str());
-            }
-#endif
+            return false;
         }
-        return fp;
+        bool ok = (fwrite(data, 1, size, fp) == size);
+        if (fflush(fp) != 0) {
+            ok = false;
+        }
+        if (fclose(fp) != 0) {
+            ok = false;
+        }
+#ifdef PS3
+        // PSL1GHT's write() returns the byte count even when the lv2 write failed: read the size back
+        if (ok == true && size_on_disk(path) != (long)size) {
+            ps3_platform::log("write '%s' with \"%s\": size on disk is %ld, expected %d", path.c_str(), mode, size_on_disk(path), (int)size);
+            ok = false;
+        }
+#endif
+        return ok;
+    }
+
+    static bool write_file_with_fallbacks(const std::string &path, const void *data, size_t size)
+    {
+        if (write_file_with_mode(path, data, size, "wb") == true) {
+            return true;
+        }
+#ifdef PS3
+        static unsigned int fallbacks_logged = 0;
+        const bool log_it = (fallbacks_logged < 12);
+        fallbacks_logged++;
+        if (log_it) {
+            struct stat st;
+            if (stat(path.c_str(), &st) == 0) {
+                ps3_platform::log("save probe: '%s' mode=%o uid=%d gid=%d size=%d", path.c_str(), (unsigned)st.st_mode, (int)st.st_uid, (int)st.st_gid, (int)st.st_size);
+            } else {
+                ps3_platform::log("save probe: stat of '%s' failed, errno %d", path.c_str(), errno);
+            }
+            ps3_platform::log_flush();
+        }
+        // 2. rewrite in place (only when the file already has the right size)
+        if (size_on_disk(path) == (long)size && write_file_with_mode(path, data, size, "r+b") == true) {
+            if (log_it) { ps3_platform::log("save: written in place (r+b)"); }
+            return true;
+        }
+        // 3. a new file, renamed over the old one
+        const std::string tmp_path = path + ".tmp";
+        if (write_file_with_mode(tmp_path, data, size, "wb") == true) {
+            errno = 0;
+            if (rename(tmp_path.c_str(), path.c_str()) == 0 && size_on_disk(path) == (long)size) {
+                if (log_it) { ps3_platform::log("save: written through .tmp and rename"); }
+                return true;
+            }
+            if (log_it) { ps3_platform::log("save: rename of '%s' failed, errno %d", tmp_path.c_str(), errno); }
+            remove(tmp_path.c_str());
+        }
+        // 4. a separate file that the readers prefer when it is newer
+        const std::string new_path = path + ".new";
+        if (write_file_with_mode(new_path, data, size, "wb") == true) {
+            if (log_it) { ps3_platform::log("save: written to '%s' (the original could not be written)", new_path.c_str()); }
+            return true;
+        }
+        ps3_platform::log("save: all write methods failed for '%s'", path.c_str());
+        ps3_platform::log_flush();
+#endif
+        return false;
+    }
+
+    // the file to read: on the PS3 "<name>.new" when it exists and is newer than "<name>" (see above)
+    static std::string newest_variant(const std::string &path)
+    {
+#ifdef PS3
+        const std::string new_path = path + ".new";
+        struct stat st_new;
+        if (stat(new_path.c_str(), &st_new) == 0) {
+            struct stat st_main;
+            if (stat(path.c_str(), &st_main) != 0 || st_new.st_mtime >= st_main.st_mtime) {
+                return new_path;
+            }
+        }
+#endif
+        return path;
     }
 
     void file_io::save_config(st_game_config &config) const
     {
-        FILE *fp;
         std::string filename = std::string(SAVEPATH) + CONFIG_FILENAME;
         filename = StringUtils::clean_filename(filename);
-        fp = open_for_write_with_retry(StringUtils::clean_filename(filename));
-        if (!fp) {
-            std::cout << "ERROR: Could not open config file '" << filename << "'." << std::endl;
-            return;
+        if (write_file_with_fallbacks(filename, &config, sizeof(struct format_v4::st_game_config)) == false) {
+            std::cout << "ERROR: Could not write config file '" << filename << "'." << std::endl;
         }
-        fwrite(&config, sizeof(struct format_v4::st_game_config), 1, fp);
-        fclose(fp);
     }
 
 
@@ -922,7 +965,7 @@ namespace format_v4 {
     {
         FILE *fp;
 
-        std::string filename = get_save_filename(save_n);
+        std::string filename = newest_variant(StringUtils::clean_filename(get_save_filename(save_n)));
 
         fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
         if (!fp) {
@@ -996,45 +1039,18 @@ namespace format_v4 {
 
     bool file_io::write_save(format_v4::st_save& data_in, short save_n)
     {
-        FILE *fp;
-
-        std::string filename = get_save_filename(save_n);
-
-        fp = open_for_write_with_retry(StringUtils::clean_filename(filename));
-        if (!fp) {
-            std::cout << "ERROR: Could not open save-file '" << filename << "'." << std::endl;
+        std::string filename = StringUtils::clean_filename(get_save_filename(save_n));
+        if (write_file_with_fallbacks(filename, &data_in, sizeof(struct format_v4::st_save)) == false) {
+            std::cout << "ERROR: Could not write save-file '" << filename << "'." << std::endl;
             return false;
         }
-
-        bool written = (fwrite(&data_in, sizeof(struct format_v4::st_save), 1, fp) == 1);
-        if (fclose(fp) != 0) {
-            written = false;
-        }
-#ifdef PS3
-        // PSL1GHT's write() returns the byte count even when the lv2 write failed (the error return is missing in librt/write.c):
-        // read the size back to be sure the whole save is on the disk
-        if (written == true) {
-            FILE *check_fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
-            long check_size = -1;
-            if (check_fp != NULL) {
-                fseek(check_fp, 0, SEEK_END);
-                check_size = ftell(check_fp);
-                fclose(check_fp);
-            }
-            if (check_size != (long)sizeof(struct format_v4::st_save)) {
-                ps3_platform::log("save check failed: %ld bytes on disk, expected %d", check_size, (int)sizeof(struct format_v4::st_save));
-                written = false;
-            }
-        }
-#endif
-
-        return written;
+        return true;
     }
 
     bool file_io::save_exists(short save_n)
     {
         FILE *fp;
-        std::string filename = get_save_filename(save_n);
+        std::string filename = newest_variant(StringUtils::clean_filename(get_save_filename(save_n)));
 
         fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
         if (fp) {
