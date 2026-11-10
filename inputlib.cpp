@@ -335,12 +335,15 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
                 }
             }
             SDLL_PumpEvents(); // check keyboard events
-#if !defined(PLAYSTATION2) && !defined(PSP) && !defined(WII) && !defined(DREAMCAST)
-            if (event.type == SDL_QUIT) {
-                leave_game = true;
-            }
-#endif
         }
+
+        // closing the window must work whatever the input type is (it was inside the keyboard-only block,
+        // so with a joystick-only configuration the window close button did nothing)
+#if !defined(PLAYSTATION2) && !defined(PSP) && !defined(WII) && !defined(DREAMCAST)
+        if (event.type == SDL_QUIT) {
+            leave_game = true;
+        }
+#endif
 
 
         if (_used_keyboard == true) { // next commands are all joystick only
@@ -534,6 +537,9 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
 void inputLib::check_cheat_input()
 {
     for (int i=0; i<BTN_COUNT; i++) {
+        if (cheat_input_count >= cheat_input_sequence.size()) {
+            return; // sequence complete: another pressed button in the same call indexed past the end of the list
+        }
         if (p1_input[i] == 1) {
             if (cheat_input_sequence.at(cheat_input_count).key_n != i) {
                 reset_cheat_input_sequence();
