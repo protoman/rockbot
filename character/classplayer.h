@@ -127,6 +127,9 @@ public:
 
 private:
     void move();
+    void read_move_commands();
+    void switch_weapon_buttons();
+    bool send_commands_to_platform();
     void death();
     void reset_lifes();
     void init_weapon_colors();

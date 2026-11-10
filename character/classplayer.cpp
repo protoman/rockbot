@@ -299,7 +299,8 @@ void classPlayer::execute()
 
 }
 
-void classPlayer::move()
+// buttons -> move commands (shield stops the movement; diagonal shooters cannot walk while attacking)
+void classPlayer::read_move_commands()
 {
     if (input.p1_input[BTN_DOWN] == 1) {
 		moveCommands.down = 1;
@@ -358,7 +359,11 @@ void classPlayer::move()
             }
         }
     }
+}
 
+// L/R buttons: previous/next weapon
+void classPlayer::switch_weapon_buttons()
+{
 	if (input.p1_input[BTN_L] != 1 && l_key_released == false) {
 		l_key_released = true;
 	}
@@ -385,8 +390,12 @@ void classPlayer::move()
         }
 		r_key_released = false;
 	}
+}
 
-
+// the platform under the player (fly item, moving platform) gets the up/down commands. Returns true when the platform
+// was destroyed (fly item out of energy) and move() must end
+bool classPlayer::send_commands_to_platform()
+{
 	// send commands to the platform in special cases
 	if (_platform != NULL) {
 		if (_platform->get_type() == OBJ_ITEM_FLY && timer.getTimer() > _platform->get_timer()) {
@@ -394,7 +403,7 @@ void classPlayer::move()
             if (game_save.items.weapons[selected_weapon] == 0) {
                 _platform->set_finished(true);
                 _platform = NULL;
-                return;
+                return true;
             }
             _platform->set_timer(timer.getTimer()+240);
 		}
@@ -405,6 +414,16 @@ void classPlayer::move()
 			_platform->command_down();
 		}
 	}
+    return false;
+}
+
+void classPlayer::move()
+{
+    read_move_commands();
+    switch_weapon_buttons();
+    if (send_commands_to_platform() == true) {
+        return;
+    }
 
     if (GameMediator::get_instance()->player_list_v3_1[_number].have_shield == true && moveCommands.up == 0 && moveCommands.down == 0 && moveCommands.left == 0 && moveCommands.right == 0 && moveCommands.jump == 0 && moveCommands.shield == 1) {
 		if (state.animation_type() != ANIM_TYPE_SHIELD) {
