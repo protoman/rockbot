@@ -3021,6 +3021,7 @@ void character::clean_effect_projectiles()
 void character::damage(unsigned int damage_points, bool ignore_hit_timer = false)
 {
     UNUSED(ignore_hit_timer);
+    const bool instant_kill = (damage_points >= 999); // crushers, death rays, "inside an object": the hit invulnerability must not save from them
 	if (is_player() && GAME_FLAGS[FLAG_INVINCIBLE] == true) {
 		return;
 	}
@@ -3044,7 +3045,7 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
 	}
 
 	unsigned int now_timer = timer.getTimer();
-    if (now_timer < hit_duration+last_hit_time) { // is still intangible from last hit
+    if (instant_kill == false && now_timer < hit_duration+last_hit_time) { // is still intangible from last hit
         return;
     }
 
@@ -3113,9 +3114,13 @@ Uint8 character::get_current_hp() const
 	return hitPoints.current;
 }
 
-void character::set_current_hp(Uint8 inc)
+void character::set_current_hp(Uint8 value)
 {
-	hitPoints.current += inc;
+    // it was "current += inc": using an energy tank (set_current_hp(total)) gave current+total, above the maximum
+    if (value > hitPoints.total) {
+        value = hitPoints.total;
+    }
+    hitPoints.current = value;
 }
 
 

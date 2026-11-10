@@ -131,7 +131,7 @@ public:
     bool is_dead() const;
     st_hit_points get_hp() const;
     Uint8 get_current_hp() const;
-    void set_current_hp(Uint8 inc);
+    void set_current_hp(Uint8 value); // sets (and caps at the maximum) the current HP
     void execute_jump();								// execute a complete jump
     void execute_jump_up();					// execute jump until reaches the maximum height
     bool is_jumping();
