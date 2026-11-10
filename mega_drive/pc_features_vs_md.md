@@ -50,7 +50,7 @@ playSession(stage) -> runStage(stage) -> stage_select_run
 
 Design difference (intentional): the PC loads `.dat` files at runtime; the port
 converts them at build time (`tools/convert_*.py`) into C arrays. There is no
-runtime file layer. The editable master copy lives in `data/games/RockDroid1`
+runtime file layer. The editable master copy lives in `data/games/Rockbot1`
 (see `AGENTS.md`).
 
 ---
@@ -269,7 +269,7 @@ converted data.
 - difficulty select, cheats menu, game picker, CLI flags
 - static tile3 foreground art, map gfx overlays (rain/lightning)
 - save copy, language, platform, performance and quit options
-- XP/level/shop/heart-piece systems (not in the shipped RockDroid1 data)
+- XP/level/shop/heart-piece systems (not in the shipped Rockbot1 data)
 
 ---
 

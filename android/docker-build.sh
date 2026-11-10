@@ -136,14 +136,14 @@ safe_cp() {
 
 safe_cp "$ANDROID_FILES/AndroidAppSettings.cfg" "$APP_DIR/AndroidAppSettings.cfg"
 
-echo "📁 Packaging game data (RockDroid${VERSION_NUMBER})..."
+echo "📁 Packaging game data (Rockbot${VERSION_NUMBER})..."
 rm -rf "$WORK_DIR"
 mkdir -p "$WORK_DIR/data/games"
 
 for required in \
     "$GAME_DATA_ROOT/fonts" \
     "$GAME_DATA_ROOT/shared" \
-    "$GAME_DATA_ROOT/games/RockDroid${VERSION_NUMBER}"
+    "$GAME_DATA_ROOT/games/Rockbot${VERSION_NUMBER}"
 do
     if [[ ! -d "$required" ]]; then
         echo "Error: missing game data directory: $required"
@@ -153,7 +153,7 @@ done
 
 rsync -a --exclude='.svn' "$GAME_DATA_ROOT/fonts" "$WORK_DIR/data/"
 rsync -a --exclude='.svn' "$GAME_DATA_ROOT/shared" "$WORK_DIR/data/"
-rsync -a --exclude='.svn' "$GAME_DATA_ROOT/games/RockDroid${VERSION_NUMBER}" "$WORK_DIR/data/games/"
+rsync -a --exclude='.svn' "$GAME_DATA_ROOT/games/Rockbot${VERSION_NUMBER}" "$WORK_DIR/data/games/"
 
 rm -f "$WORK_DIR/data"/game*.sav "$WORK_DIR/data"/config_v*.sav
 

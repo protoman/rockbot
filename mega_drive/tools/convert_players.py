@@ -37,7 +37,7 @@ DUMPER = r'''
 #include <cstdio>
 int main() {
     using namespace format_v4;
-    FILE* f = fopen("data/games/RockDroid1/player_list_v3_1_1.dat", "rb");
+    FILE* f = fopen("data/games/Rockbot1/player_list_v3_1_1.dat", "rb");
     if (!f) { printf("ERROR no file\n"); return 1; }
     for (int i = 0; i < 4; i++) {
         file_player_v3_1_1 p(i);

@@ -3,9 +3,9 @@
 into SGDK resources.
 
 Reads:
-  build/games/RockDroid1/stages_v301.dat      -> stage 0 record + map links
-  build/games/RockDroid1/maps_v2.dat          -> all 3 maps of stage 0
-  build/games/RockDroid1/images/tilesets/<ts> -> tileset PNG
+  build/games/Rockbot1/stages_v301.dat      -> stage 0 record + map links
+  build/games/Rockbot1/maps_v2.dat          -> all 3 maps of stage 0
+  build/games/Rockbot1/images/tilesets/<ts> -> tileset PNG
 
 Writes:
   res/stage0_map<N>.png     full map rendered with the stage tileset
@@ -28,7 +28,7 @@ from PIL import Image
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
-DATA = os.path.join(ROOT, "data/games/RockDroid1")
+DATA = os.path.join(ROOT, "data/games/Rockbot1")
 IMAGES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "images")  # hand-owned art
 RES = os.path.join(ROOT, "res")
 SRC = os.path.join(ROOT, "src")
@@ -458,7 +458,7 @@ def bg_plane(src, h):
 
 def background_exists(name):
     """TRUE for a real background file. The PC data has records with unused
-    slots full of 0xFF bytes (RockDroid2 stage 14), which are not names."""
+    slots full of 0xFF bytes (Rockbot2 stage 14), which are not names."""
     if not name or not name.lower().endswith(".png"):
         return False
     if not all(c.isalnum() or c in "_-." for c in name):
@@ -796,7 +796,7 @@ def main():
             # backgrounds[1] is composited into the bg0 bake (the MD has one
             # parallax plane), and the PC scrolls that layer on its own
             # (backgrounds[1].auto_scroll: UP/DOWN on stage 6 and on several
-            # RockDroid2 maps). When bg0 is static, the baked layer inherits
+            # Rockbot2 maps). When bg0 is static, the baked layer inherits
             # the mode/speed so the composite still moves.
             if not auto and bg1[0] and over is not None:
                 b1_auto = read_map(STAGE_INDEX, m)[2]

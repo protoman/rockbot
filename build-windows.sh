@@ -11,8 +11,8 @@ set -o pipefail
 #   ./build-windows.sh sdl2            → SDL2, x86_64
 #   ./build-windows.sh sdl3            → SDL3, x86_64
 #   ./build-windows.sh sdl2 i686       → SDL2, 32-bit
-#   ./build-windows.sh sdl2 x86_64 1   → also zip the RockDroid1 package
-#   ./build-windows.sh sdl2 x86_64 2   → also zip the RockDroid2 package
+#   ./build-windows.sh sdl2 x86_64 1   → also zip the Rockbot1 package
+#   ./build-windows.sh sdl2 x86_64 2   → also zip the Rockbot2 package
 #
 # The Windows SDK lives next to the other platform SDKs:
 #   $WINDOWS_SDK (default /mnt/ExtraData/Devel/SDK/Windows)
@@ -341,7 +341,7 @@ echo "Note: the Qt editor is not cross-compiled; build it natively on Windows if
 
 if [[ -n "$PACKAGE_VERSION" ]]; then
     VERSION_FILE="${SCRIPT_DIR}/build/packages/version_name.txt"
-    GAME_DATA="${SCRIPT_DIR}/build/games/RockDroid${PACKAGE_VERSION}"
+    GAME_DATA="${SCRIPT_DIR}/build/games/Rockbot${PACKAGE_VERSION}"
     if [[ ! -f "$VERSION_FILE" ]]; then
         echo "Error: missing $VERSION_FILE"
         exit 1
@@ -355,7 +355,7 @@ if [[ -n "$PACKAGE_VERSION" ]]; then
     case "$ARCH" in i686) WIN_TAG="Win32" ;; *) WIN_TAG="Win64" ;; esac
     OUT_ZIP="${SCRIPT_DIR}/build/packages/Rockbot${PACKAGE_VERSION}_${WIN_TAG}_${VERSION_NAME}.zip"
 
-    echo "📦 Packaging ${WIN_TAG} zip for RockDroid${PACKAGE_VERSION} (${VERSION_NAME})..."
+    echo "📦 Packaging ${WIN_TAG} zip for Rockbot${PACKAGE_VERSION} (${VERSION_NAME})..."
     rm -rf "$STAGE"
     mkdir -p "$STAGE/games"
     rsync -a --exclude='.svn' "${SCRIPT_DIR}/build/fonts" "$STAGE/"

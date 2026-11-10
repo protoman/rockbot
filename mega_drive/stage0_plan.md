@@ -7,7 +7,7 @@ build + emulator run before moving on.
 ## Ground rules
 
 - KISS. Minimum code per milestone. No speculative abstraction.
-- Data comes from `build/games/RockDroid1/` files — never invent values.
+- Data comes from `build/games/Rockbot1/` files — never invent values.
 - **Move runtime math to the converter where possible** (user): e.g. scroll
   limits, spawn ranges, frame tables — precompute and store in ROM. Enemy AI
   = simple hand-written C (patrol/turn/contact), not a ported AI data
@@ -1199,7 +1199,7 @@ Six PC behaviours added, each checked against the PC source:
    draws, per occupied slot, one icon per stage/weapon (`draw_weapon_tooltip_icon`,
    graphicslib.cpp:1357: the sheet's top half = not owned, bottom = owned) plus
    the selected player's icon, 18px apart, 12px below the row top. New
-   `tools/convert_save_icons.py` slices `build/games/RockDroid1/images/icons.png`
+   `tools/convert_save_icons.py` slices `build/games/Rockbot1/images/icons.png`
    (288x32 = 18 icons of 16x16 x 2 frames) into 13 SPRITEs (stages 0..8 +
    players) laid out as 32x16 (frame 0 = disabled, 1 = enabled) and the save
    selector draws them on PAL3. The PC's tanks/difficulty parts are NOT drawn
@@ -1834,7 +1834,7 @@ every stage **clean** except the water/ice note:
 
 ## Stage/boss dialogs (2026-10-19)
 
-Checked `build/games/RockDroid1/dialogs/stage_dialogs_<n>.dat` (60 lines each)
+Checked `build/games/Rockbot1/dialogs/stage_dialogs_<n>.dat` (60 lines each)
 and the PC call sites:
 
 - **Boss dialogs ARE enabled** in classic mode: `game::map_present_boss()`

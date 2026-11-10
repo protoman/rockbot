@@ -19,8 +19,8 @@ rm -rf "$ROOT"
 mkdir -p "$ROOT/DEBIAN" "$ROOT/opt/$NAME" "$ROOT/usr/bin" "$ROOT/usr/share/applications" "$ROOT/usr/share/pixmaps"
 cp ../rockbot_linux "$ROOT/opt/$NAME/rockbot_linux"
 stage_game_data "$ROOT/opt/$NAME"
-cp "$PWD/../games/RockDroid$version_number/images/icon_android.png" "$ROOT/usr/share/pixmaps/$NAME.png" 2>/dev/null \
-    || cp "$PWD/../games/RockDroid$version_number/images/icon_32px.png" "$ROOT/usr/share/pixmaps/$NAME.png"
+cp "$PWD/../games/Rockbot$version_number/images/icon_android.png" "$ROOT/usr/share/pixmaps/$NAME.png" 2>/dev/null \
+    || cp "$PWD/../games/Rockbot$version_number/images/icon_32px.png" "$ROOT/usr/share/pixmaps/$NAME.png"
 
 cat > "$ROOT/usr/bin/$NAME" <<LAUNCHER
 #!/bin/sh

@@ -52,8 +52,8 @@ cd "\$HERE/usr/share/$NAME" && exec "\$HERE/usr/bin/rockbot_linux" "\$@"
 APPRUN
 chmod +x "$APPDIR/AppRun" "$APPDIR/usr/bin/rockbot_linux"
 
-ICON_SRC="$PWD/../games/RockDroid$version_number/images/icon_android.png"
-[ -f "$ICON_SRC" ] || ICON_SRC="$PWD/../games/RockDroid$version_number/images/icon_32px.png"
+ICON_SRC="$PWD/../games/Rockbot$version_number/images/icon_android.png"
+[ -f "$ICON_SRC" ] || ICON_SRC="$PWD/../games/Rockbot$version_number/images/icon_32px.png"
 cp "$ICON_SRC" "$APPDIR/$NAME.png"
 cp "$ICON_SRC" "$APPDIR/.DirIcon"
 cat > "$APPDIR/$NAME.desktop" <<DESKTOP

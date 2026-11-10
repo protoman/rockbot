@@ -129,7 +129,7 @@ player.
 
 Every stage currently plays the single `res/music.vgm` (one shared XGM2
 track). The PC build has **29 `.mod` (Amiga/ProTracker) tracks + 1 `.mp3`** in
-`build/games/RockDroid1/music/` (e.g. `rockbot_chaos_city.mod`,
+`build/games/Rockbot1/music/` (e.g. `rockbot_chaos_city.mod`,
 `rockbot_jungle.mod`, `rockbot_stage_complete_00.mod`, `rockbot_opening.mod`).
 
 Two possible routes, both need work:

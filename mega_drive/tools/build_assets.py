@@ -28,10 +28,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)                         # mega_drive/
 PCROOT = os.path.dirname(ROOT)
 PY = os.environ.get("PYTHON", "/home/iuri/python3/bin/python3")
-DATA = "data/games/RockDroid1"
+DATA = "data/games/Rockbot1"
 IMAGES = "images"
 PCIMG = "../build/shared/images"
-PCGAME = "../build/games/RockDroid1"
+PCGAME = "../build/games/Rockbot1"
 STAMP = "res/.assets.stamp"
 CACHE = "res/.assets.cache.json"
 def _stages():

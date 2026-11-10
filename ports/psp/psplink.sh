@@ -24,8 +24,8 @@ case "${1:-}" in
         [ -f "$ROOT/res/psp/rockbot_psp.prx" ] || { echo "build first: ports/psp/build.sh $GAME" >&2; exit 1; }
         rm -rf "$SERVE"; mkdir -p "$SERVE/games"
         cp -r "$ROOT/build/fonts" "$ROOT/build/shared" "$SERVE/"
-        cp -r "$ROOT/build/games/RockDroid${GAME}" "$SERVE/games/"
-        rm -rf "$SERVE/games/RockDroid${GAME}/mp3"
+        cp -r "$ROOT/build/games/Rockbot${GAME}" "$SERVE/games/"
+        rm -rf "$SERVE/games/Rockbot${GAME}/mp3"
         cp "$ROOT/res/psp/rockbot_psp.prx" "$SERVE/rockbot.prx"
         echo "staged game $GAME in $SERVE (rockbot.prx + games/ fonts/ shared/)" ;;
     host)

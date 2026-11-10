@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Pack the PC stage dialog files into C.
 
-build/games/RockDroid1/dialogs/stage_dialogs_<n>.dat (60 lines, English):
+build/games/Rockbot1/dialogs/stage_dialogs_<n>.dat (60 lines, English):
   0..5    stage-start "person" lines
   6..29   stage-start per-player lines (4 players x 6)
   30..35  boss lines (two 3-line pages)
@@ -21,7 +21,7 @@ from PIL import Image
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
-DATA = os.path.join(ROOT, "data/games/RockDroid1/dialogs")
+DATA = os.path.join(ROOT, "data/games/Rockbot1/dialogs")
 SRC = os.path.join(ROOT, "src")
 
 STAGES = 14
@@ -33,7 +33,7 @@ def cstr(s):
 
 
 MD_LEVELS = (0, 36, 73, 109, 146, 182, 219, 255)
-FACES = os.path.join(ROOT, "data/games/RockDroid1/images/faces")
+FACES = os.path.join(ROOT, "data/games/Rockbot1/images/faces")
 RES = os.path.join(ROOT, "res")
 
 

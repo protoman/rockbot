@@ -68,7 +68,7 @@ Language: **English** for all code, comments and docs.
 
 **Intro stage** = `INTRO_STAGE` = index 0 in `STAGE_LIST` (defines.h:39-61). Name in data: **"CHAOS CITY"**, boss **MILONGA BOT**, bgm `rockbot_chaos_city.mod`, tileset `default.png`.
 
-**Data files** — `build/games/RockDroid1/`, read by `file/file_io.cpp`:
+**Data files** — `build/games/Rockbot1/`, read by `file/file_io.cpp`:
 - `stages_v301.dat` — 20 × `sizeof(file_stage)=438` = 8760 B. `read_stage()` `file_io.cpp:428` seeks `438*stage_n`.
   - layout: name[30], bgmusic[30], links[30]×10=300 (off 60), boss off 360 (22 B), tileset[30] off 382, autoscroll[3] off 412
 - `maps_v2.dat` — 60 maps (20 stages × 3) × `sizeof(file_map_v2)=15078` = 904680 B.
@@ -283,9 +283,9 @@ from already-captured screenshots/assets over running the emulator again.
 
 ## Editable stage data (source of truth)
 
-- `data/games/RockDroid1/` is the **master** game data and is what every
-  converter reads (`tools/*.py` use `ROOT/data/games/RockDroid1`). The parent
-  `rockbot/build/games/RockDroid1` is never read again, so edits made here
+- `data/games/Rockbot1/` is the **master** game data and is what every
+  converter reads (`tools/*.py` use `ROOT/data/games/Rockbot1`). The parent
+  `rockbot/build/games/Rockbot1` is never read again, so edits made here
   survive every `make assets`.
 - It is already converted to the port's geometry: **14 game rows (224p)** in
   file slots 0..13 (slot 14 is unused padding of the PC struct), link rows and
@@ -416,7 +416,7 @@ Flow in `main.c`: `showIntro()` (logos) → `scene_play(SCENE_OPENING_UNBEATEN)`
 | `tools/img2tiles.py` | image → minimal tile set + tilemap (UI screens, HUD) |
 | `tools/convert_scenes.py` | PC scene tables → `src/scenes_data.*` + `res/scene_par*.png` |
 | `tools/add_stage.py` | one stage end to end: converters, resources, registry, `STAGES` |
-| `tools/audit_data.py` | read-only: terrain/object/NPC/AI coverage per stage (`--game RockDroid2` audits the sequel) |
+| `tools/audit_data.py` | read-only: terrain/object/NPC/AI coverage per stage (`--game Rockbot2` audits the sequel) |
 | `tools/check_terrain.py` | every terrain id the data uses is implemented (`src/stage_data.h` + a code path) |
 | `tools/convert_sfx.py` | PC `sfx/*.wav` → `res/sfx/*.wav` + `res/sfx_pcm.res` (XGM2 PCM) |
 | `src/sfx.{c,h}` | sound effects (XGM2 PCM, channels 2..4) |

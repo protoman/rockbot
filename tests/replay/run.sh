@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Run the game headless with a replay script and write the per-frame trace (see aux_tools/replay.h).
-# Usage: tests/replay/run.sh <rockbot binary> <script.replay> <trace output> [game folder name, default RockDroid1] [stage, default 0]
+# Usage: tests/replay/run.sh <rockbot binary> <script.replay> <trace output> [game folder name, default Rockbot1] [stage, default 0]
 # The binary is copied to a temp folder (games/fonts/shared are linked) and HOME points to an empty temp folder,
 # so neither your saves nor your config are touched.
 set -euo pipefail
 BIN="$(readlink -f "${1:?binary}")"; SCRIPT="$(readlink -f "${2:?script}")"; TRACE="$(readlink -m "${3:?trace}")"
-GAME="${4:-RockDroid1}"; STAGE="${5:-0}"
+GAME="${4:-Rockbot1}"; STAGE="${5:-0}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 WORK="$(mktemp -d)"; trap 'rm -rf "$WORK"' EXIT
 mkdir -p "$WORK/home" "$WORK/run"

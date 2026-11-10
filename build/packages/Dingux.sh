@@ -20,9 +20,9 @@ mkdir -p "./Dingux/$GAME_DIR/games"
 cp ../rockbot_dingux.dge "./Dingux/$GAME_DIR/"
 rsync -r --exclude=.svn ../fonts "./Dingux/$GAME_DIR/"
 rsync -r --exclude=.svn ../shared "./Dingux/$GAME_DIR/"
-rsync -r --exclude=.svn "../games/RockDroid$version_number" "./Dingux/$GAME_DIR/games"
+rsync -r --exclude=.svn "../games/Rockbot$version_number" "./Dingux/$GAME_DIR/games"
 
-cp "./Dingux/$GAME_DIR/games/RockDroid$version_number/images/icon_32px.png" "./Dingux/$GAME_DIR/rockbot.png"
+cp "./Dingux/$GAME_DIR/games/Rockbot$version_number/images/icon_32px.png" "./Dingux/$GAME_DIR/rockbot.png"
 find "./Dingux/$GAME_DIR" \( -name 'game*.sav' -o -name 'config*.sav' \) -delete
 
 # Strip the staged copy (the build tree keeps the debug info).

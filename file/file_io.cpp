@@ -708,8 +708,8 @@ namespace format_v4 {
         closedir(dir);
 #else
         // TODO: support both
-        res.push_back(std::string("RockDroid1"));
-        res.push_back(std::string("RockDroid2"));
+        res.push_back(std::string("Rockbot1"));
+        res.push_back(std::string("Rockbot2"));
         /*
         if (filename.find("cdfs:") != std::string::npos) {
             // @TODO

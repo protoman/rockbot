@@ -266,7 +266,7 @@ def convert_hud_ball(src_name="hp_ball.png", out_name="hud_hp_ball.png"):
 def convert_bomb_explosion():
     """PC graphicsLib::draw_explosion art (images/animations/big_boss_explosion.png:
     7 frames of 56x56, 100ms each) -> PAL0 strip for the bomb explosion sprite."""
-    src = os.path.join(ROCKBOT, "build/games/RockDroid1/images/animations/"
+    src = os.path.join(ROCKBOT, "build/games/Rockbot1/images/animations/"
                        "big_boss_explosion.png")
     if not os.path.exists(src):
         print(f"  SKIP bomb_explosion: {src} not found")
@@ -298,7 +298,7 @@ def convert_death_explosion():
     Quantized to PAL0 (sprites draw it with the enemy/UI line) and emitted as a
     plain 24x24 SPRITE strip; the plane blit of the PC becomes 8 sprites in
     explosion.c."""
-    src = os.path.join(ROCKBOT, "build/games/RockDroid1/images/backgrounds/"
+    src = os.path.join(ROCKBOT, "build/games/Rockbot1/images/backgrounds/"
                        "classic_style_death_explosion.png")
     if not os.path.exists(src):
         print(f"  SKIP death_explosion: {src} not found")
@@ -339,11 +339,11 @@ def convert_death_explosion():
 EFFECT_STRIPS = [
     # dust: the art is 8x16 per frame but only the top 8 rows are painted —
     # the PC's animation is st_size(8, 8) and takes exactly those rows.
-    ("fx_dust", "build/games/RockDroid1/images/animations/dash_dust.png", 8, None, 8),
-    ("fx_splash", "build/games/RockDroid1/images/animations/water_splash.png", 32, None),
-    ("fx_teleport", "build/games/RockDroid1/images/sprites/teleport_small.png", 32,
+    ("fx_dust", "build/games/Rockbot1/images/animations/dash_dust.png", 8, None, 8),
+    ("fx_splash", "build/games/Rockbot1/images/animations/water_splash.png", 32, None),
+    ("fx_teleport", "build/games/Rockbot1/images/sprites/teleport_small.png", 32,
      [((55, 255, 0), (112, 110, 110)), ((255, 0, 255), (235, 235, 235))]),
-    ("fx_bubble", "build/games/RockDroid1/images/animations/bubble.png", 4, None),
+    ("fx_bubble", "build/games/Rockbot1/images/animations/bubble.png", 4, None),
     # DYNAMITE FLASH stars (draw::show_flash): 3 frames of 8x8
     ("fx_flash", "build/shared/images/flash.png", 8, None),
 ]

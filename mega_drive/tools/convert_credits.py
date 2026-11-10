@@ -8,10 +8,10 @@ import re
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
-SRC = os.path.join(ROOT, "data/games/RockDroid1/game_credits.txt")
+SRC = os.path.join(ROOT, "data/games/Rockbot1/game_credits.txt")
 OUT = os.path.join(ROOT, "src")
 FIO = os.path.join(ROCKBOT, "file/fio_strings.cpp")
-BOSS_SRC = os.path.join(ROOT, "data/games/RockDroid1/boss_credits.txt")
+BOSS_SRC = os.path.join(ROOT, "data/games/Rockbot1/boss_credits.txt")
 
 
 def engine_credits():

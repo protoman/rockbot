@@ -29,7 +29,7 @@ res/ps3/PS3_GAME/
 └── USRDIR/
     ├── EBOOT.BIN
     ├── fonts/
-    ├── games/RockDroid1/
+    ├── games/Rockbot1/
     └── shared/
 ```
 

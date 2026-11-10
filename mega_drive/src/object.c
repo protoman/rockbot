@@ -151,7 +151,7 @@ static bool is_platform(u8 type)
 {
     HOST_PRED();
     // disappearing/active blocks, fall/fly/LR platforms, destructible wall,
-    // boss door, JET EAGLE, damaging platform (RockDroid2 28). COIL (13) is a
+    // boss door, JET EAGLE, damaging platform (Rockbot2 28). COIL (13) is a
     // trigger, not a platform. The slim platform (27) is one-way and is
     // handled by slim_solid_now() instead, so it does not block from the side.
     return type == 1 || type == 2 || type == 10 || type == 11 || type == 12 ||
@@ -722,7 +722,7 @@ void objects_player_land(s16 l, s16 r, s16 top)
         // old y-only test always started the first one in the array
         if (l >= o->x + o->def->w || r <= o->x)
             continue;
-        // RockDroid2 platforms that react to being stood on without moving:
+        // Rockbot2 platforms that react to being stood on without moving:
         // the slim platform opens, the damaging one starts its damage cycle
         // (PC object::start() from classmap.cpp:1715/1740).
         if (o->def->type == 27 || o->def->type == 28) {
@@ -1035,7 +1035,7 @@ void objects_sync_sprites(void)
 // Player shots vs destructible walls. The PC rule (classplayer.cpp:800
 // object_is_affected_by_projectile) is narrow: OBJ_DESTRUCTIBLE_WALL only
 // breaks from an EXPLODING bomb (effect_n == 1 && TRAJECTORY_BOMB/FALL_BOMB,
-// or a projectile with the data flag is_explosive - no RockDroid1 projectile
+// or a projectile with the data flag is_explosive - no Rockbot1 projectile
 // sets it). Every other shot passes straight through. The block types
 // OBJ_DESTRUCTIBLE_NO_DROP/WITH_DROP/JUMP_SHOOT_DESTRUCTIBLE (36/37/42) accept
 // any projectile, so they are handled without the bomb requirement.

@@ -21,7 +21,7 @@ tests/replay/compare.sh /tmp/old_build/rockbot_linux /tmp/new_build/rockbot_linu
 ## One run
 
 ```
-tests/replay/run.sh <binary> tests/replay/intro_rockbot1.replay /tmp/trace.txt [RockDroid1|RockDroid2] [stage]
+tests/replay/run.sh <binary> tests/replay/intro_rockbot1.replay /tmp/trace.txt [Rockbot1|Rockbot2] [stage]
 ```
 
 The run uses an empty temporary HOME and the `games/` folder of this repository; your saves and config are not touched.

@@ -6,7 +6,7 @@ import struct
 import numpy as np
 
 BASE_DIR = "/home/iuri/Desenvolvimento/rockbot/mega_drive/tools/mod2vgm"
-MOD_FILE = sys.argv[1] if len(sys.argv) > 1 else "/home/iuri/Desenvolvimento/rockbot/build/games/RockDroid1/music/rockbot_stage_complete_00.mod"
+MOD_FILE = sys.argv[1] if len(sys.argv) > 1 else "/home/iuri/Desenvolvimento/rockbot/build/games/Rockbot1/music/rockbot_stage_complete_00.mod"
 VGM_FILE = os.path.join(BASE_DIR, "stage_complete.vgm")
 WAV_VGM = os.path.join(BASE_DIR, "stage_complete_vgm.wav")
 WAV_MOD = os.path.join(BASE_DIR, "stage_complete_mod.wav")

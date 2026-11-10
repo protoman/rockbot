@@ -2,12 +2,12 @@
 """Convert stage 0 enemies + the normal projectile for the Mega Drive port.
 
 Reads (never invents values):
-  build/games/RockDroid1/game_enemy_list_3_1_2.dat   6048B records (g++ probe)
-  build/games/RockDroid1/map_npc_data.dat            12B records
-  build/games/RockDroid1/game_projectile_list.dat    104B records
+  build/games/Rockbot1/game_enemy_list_3_1_2.dat   6048B records (g++ probe)
+  build/games/Rockbot1/map_npc_data.dat            12B records
+  build/games/Rockbot1/game_projectile_list.dat    104B records
   images/sprites/enemies/*.png                       hand art (indexed PAL0)
   images/projectiles/projectile_normal.png           hand art (indexed PAL0)
-  build/games/RockDroid1/maps_v2.dat                 terrain for the ground drop
+  build/games/Rockbot1/maps_v2.dat                 terrain for the ground drop
 
 Emits:
   res/enemy_<gfx>.png      SGDK SPRITE sheets: row0 = STAND, row1 = WALK
@@ -47,7 +47,7 @@ from pal_ui import PAL_UI_RGB, to_vdp
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
-DATA = os.path.join(ROOT, "data/games/RockDroid1")
+DATA = os.path.join(ROOT, "data/games/Rockbot1")
 IMAGES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "images")  # hand-owned art
 RES = os.path.join(ROOT, "res")
 SRC = os.path.join(ROOT, "src")

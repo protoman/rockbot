@@ -3,7 +3,7 @@
 
 The PC stores a scene as a list of operations (file/v4/file_scene_v4.h),
 one table per operation type, assembled by name in scenes/sceneshow.cpp.
-This tool reads the tables in build/games/RockDroid1/scenes/ and writes:
+This tool reads the tables in build/games/Rockbot1/scenes/ and writes:
 
   src/scenes_data.h/.c   scene op lists, text lines, clear areas, parallax
   res/scene_par<N>_l<L>.png   parallax layer art baked to 512 px (plane width)
@@ -27,8 +27,8 @@ from PIL import Image
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
-DATA = os.path.join(ROOT, "data/games/RockDroid1/scenes")
-IMAGES = os.path.join(ROOT, "data/games/RockDroid1/images/scenes")
+DATA = os.path.join(ROOT, "data/games/Rockbot1/scenes")
+IMAGES = os.path.join(ROOT, "data/games/Rockbot1/images/scenes")
 RES = os.path.join(ROOT, "res")
 SRC = os.path.join(ROOT, "src")
 

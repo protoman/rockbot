@@ -8,15 +8,15 @@ editor and the converters disagreed about what row 0 was: the editor edited
 editor placed there never reached the ROM.
 
 This tool moves that conversion into the DATA instead: it copies the PC game
-folder into data/games/RockDroid1 and rewrites the copy so the game rows are
+folder into data/games/Rockbot1 and rewrites the copy so the game rows are
 slots 0..13, which is exactly what the editor edits and what the converters
 read (no crop at build time any more).
 
-  data/games/RockDroid1/maps_v2.dat        tiles: row 0 dropped, rows 0..13 =
+  data/games/Rockbot1/maps_v2.dat        tiles: row 0 dropped, rows 0..13 =
                                            old rows 1..14, slot 14 cleared
-  data/games/RockDroid1/stages_v301.dat    link rows: 0 stays 0, else -1
-  data/games/RockDroid1/map_npc_data.dat   spawn y: -1
-  data/games/RockDroid1/map_object_data.dat spawn y: -1 (except platforms,
+  data/games/Rockbot1/stages_v301.dat    link rows: 0 stays 0, else -1
+  data/games/Rockbot1/map_npc_data.dat   spawn y: -1
+  data/games/Rockbot1/map_object_data.dat spawn y: -1 (except platforms,
                                            which the PC already places by row)
 
 The file structs keep their 15-slot layout (they come from the PC headers the
@@ -41,8 +41,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 PCROOT = os.path.dirname(ROOT)
 
-PC_DATA = os.path.join(PCROOT, "build/games/RockDroid1")
-DATA = os.path.join(ROOT, "data/games/RockDroid1")
+PC_DATA = os.path.join(PCROOT, "build/games/Rockbot1")
+DATA = os.path.join(ROOT, "data/games/Rockbot1")
 MARKER = os.path.join(ROOT, "data/.pc_import_done")
 
 MAPS_PER_STAGE = 3

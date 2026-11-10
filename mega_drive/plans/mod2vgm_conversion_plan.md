@@ -206,7 +206,7 @@ flowchart TD
 ### Milestone 6: Quality Verification & Tooling
 - Add automated template generator: `mod2vgm generate-template song.mod -> song_config.json`.
   - Automatically identifies instrument sample names (e.g., strings containing "bass", "lead", "kick", "snare") and assigns reasonable default FM patches or DAC drums.
-- Test conversion against target songs in `RockDroid1/music`.
+- Test conversion against target songs in `Rockbot1/music`.
 - Validate playback in Mega Drive emulators (BlastEm, Genesis Plus GX, Ares) and on real flashcart hardware (Mega EverDrive).
 
 ---

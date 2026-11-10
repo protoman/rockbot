@@ -3,7 +3,7 @@
 # Usage: tests/replay/coil_check.sh <binary> [game]   (prints OK / FAIL)
 set -uo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="${1:?binary}"; GAME="${2:-RockDroid1}"
+BIN="${1:?binary}"; GAME="${2:-Rockbot1}"
 TRACE="$(mktemp)"; trap 'rm -f "$TRACE" "$TRACE.log"' EXIT
 ROCKBOT_REPLAY_WEAPON=9 "$HERE/run.sh" "$BIN" "$HERE/coil.replay" "$TRACE" "$GAME" 0 > /dev/null
 python3 - "$TRACE" <<'PY'

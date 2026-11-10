@@ -23,7 +23,7 @@ for arg in "$@"; do
 done
 choose_game "$game" || exit 1
 
-GAME_NAME="RockDroid$version_number"
+GAME_NAME="Rockbot$version_number"
 GAME_DIR="$SCRIPT_DIR/../games/$GAME_NAME"
 if [ ! -d "$GAME_DIR" ]; then
     echo "Game folder not found: $GAME_DIR"

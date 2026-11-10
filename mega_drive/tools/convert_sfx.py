@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Convert the PC sound effects for the XGM2 driver.
 
-Reads build/games/RockDroid1/sfx/<name>.wav (8 bit, 11 kHz, some stereo) and
+Reads build/games/Rockbot1/sfx/<name>.wav (8 bit, 11 kHz, some stereo) and
 writes, for each SFX the port actually uses:
 
   res/sfx/<name>.wav   2x gain, mixed to mono, 16 bit (rescomp's `XGM2` WAV
@@ -24,7 +24,7 @@ import wave
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
-DATA = os.path.join(ROOT, "data/games/RockDroid1/sfx")
+DATA = os.path.join(ROOT, "data/games/Rockbot1/sfx")
 RES = os.path.join(ROOT, "res")
 GAIN = 2
 

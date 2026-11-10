@@ -24,7 +24,7 @@ stage_game_data "$STAGE"
 PANDORA_SYSROOT="${PANDORA_SYSROOT:-/mnt/ExtraData/Devel/SDK/OpenPandora/arm-angstrom-linux-gnueabi}"
 mkdir -p "$STAGE/lib"
 cp -L "$PANDORA_SYSROOT/usr/lib/libSDL_gfx.so.0" "$STAGE/lib/"
-cp "$STAGE/games/RockDroid$version_number/images/icon_32px.png" "$STAGE/icon.png" 2>/dev/null || cp "$STAGE/rockbot.png" "$STAGE/icon.png"
+cp "$STAGE/games/Rockbot$version_number/images/icon_32px.png" "$STAGE/icon.png" 2>/dev/null || cp "$STAGE/rockbot.png" "$STAGE/icon.png"
 
 # Strip the staged copy (the build tree keeps the debug info).
 STRIP="$(ls "${PANDORA_TOOLCHAIN:-/mnt/ExtraData/Devel/SDK/Pandora}"/*/bin/arm-angstrom-linux-gnueabi-strip /mnt/ExtraData/Devel/SDK/Pandora/*/bin/arm-angstrom-linux-gnueabi-strip 2>/dev/null | head -1 || true)"

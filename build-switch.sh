@@ -3,8 +3,8 @@ set -e
 set -o pipefail
 
 # Usage:
-#   ./build-switch.sh 1                 → RockDroid 1 (Docker / devkitA64)
-#   ./build-switch.sh 2                 → RockDroid 2
+#   ./build-switch.sh 1                 → Rockbot 1 (Docker / devkitA64)
+#   ./build-switch.sh 2                 → Rockbot 2
 #   ./build-switch.sh 1 --pull          → rebuild local image (refresh base + packages)
 #
 # Optional env:
@@ -54,7 +54,7 @@ for required in \
     "$PACKAGES_DIR/version_name.txt" \
     "$REPO_ROOT/build/fonts" \
     "$REPO_ROOT/build/shared" \
-    "$REPO_ROOT/build/games/RockDroid${VERSION_NUMBER}"
+    "$REPO_ROOT/build/games/Rockbot${VERSION_NUMBER}"
 do
     if [[ ! -e "$required" ]]; then
         echo "Error: missing required path: $required"

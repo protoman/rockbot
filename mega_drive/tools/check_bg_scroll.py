@@ -11,7 +11,7 @@ baked layer inherits backgrounds[1]'s mode (tools/convert_stage.py prints the
 substitution). This checks both games' maps against the modes src/stage.c
 implements, so a re-export cannot silently lose a scrolling backdrop.
 
-Usage: tools/check_bg_scroll.py [--game RockDroid1]
+Usage: tools/check_bg_scroll.py [--game Rockbot1]
 """
 import argparse
 import os
@@ -64,7 +64,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--game", default=None)
     args = ap.parse_args()
-    games = [args.game] if args.game else ["RockDroid1", "RockDroid2"]
+    games = [args.game] if args.game else ["Rockbot1", "Rockbot2"]
     ok = handled_modes()
     bad = 0
     for game in games:

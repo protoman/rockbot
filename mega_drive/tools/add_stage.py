@@ -45,7 +45,7 @@ def run(args, capture=False):
 
 
 def stage_name(n):
-    with open(os.path.join(ROOT, "data/games/RockDroid1/stages_v301.dat"), "rb") as f:
+    with open(os.path.join(ROOT, "data/games/Rockbot1/stages_v301.dat"), "rb") as f:
         f.seek(438 * n)
         return f.read(30).split(b"\0")[0].decode("latin1")
 

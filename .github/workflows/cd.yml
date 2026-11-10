@@ -134,13 +134,13 @@ jobs:
           docker system prune -af || true
           df -h
 
-      - name: Build RockDroid 1 APK
+      - name: Build Rockbot 1 APK
         env:
           ANDROID_ABIS: arm64-v8a
           NCPU: 2
         run: ./build-android.sh 1 release --no-sign
 
-      - name: Build RockDroid 2 APK
+      - name: Build Rockbot 2 APK
         env:
           ANDROID_ABIS: arm64-v8a
           NCPU: 2
@@ -170,12 +170,12 @@ jobs:
           docker system prune -af || true
           df -h
 
-      - name: Build RockDroid 1 EBOOT
+      - name: Build Rockbot 1 EBOOT
         env:
           NCPU: 2
         run: ./build-psp.sh 1 --pull
 
-      - name: Build RockDroid 2 EBOOT
+      - name: Build Rockbot 2 EBOOT
         env:
           NCPU: 2
         run: ./build-psp.sh 2 --pull
@@ -211,12 +211,12 @@ jobs:
           docker system prune -af || true
           df -h
 
-      - name: Build RockDroid 1 NRO
+      - name: Build Rockbot 1 NRO
         env:
           NCPU: 2
         run: ./build-switch.sh 1 --pull
 
-      - name: Build RockDroid 2 NRO
+      - name: Build Rockbot 2 NRO
         env:
           NCPU: 2
         run: ./build-switch.sh 2 --pull

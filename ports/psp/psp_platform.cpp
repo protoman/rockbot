@@ -470,7 +470,7 @@ std::vector<std::string> read_games_directory(const std::string &games_path)
     while (!base.empty() && base[base.size() - 1] == '/') {
         base.erase(base.size() - 1);
     }
-    const char *candidates[] = { "RockDroid1", "RockDroid2", NULL };
+    const char *candidates[] = { "Rockbot1", "Rockbot2", NULL };
     for (int i = 0; candidates[i] != NULL; ++i) {
         std::string probe = base + "/" + candidates[i] + "/game_enemy_list.dat";
         SceUID fd = sceIoOpen(StringUtils::clean_filename(probe).c_str(), PSP_O_RDONLY, 0777);

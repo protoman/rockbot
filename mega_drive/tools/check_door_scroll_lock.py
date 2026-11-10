@@ -24,7 +24,7 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-DATA = os.path.join(ROOT, "data/games/RockDroid1")
+DATA = os.path.join(ROOT, "data/games/Rockbot1")
 SRC = os.path.join(ROOT, "src")
 
 MAP_W, MAP_H, TILE = 200, 14, 16

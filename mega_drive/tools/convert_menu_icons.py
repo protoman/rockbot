@@ -19,7 +19,7 @@ from PIL import Image
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
-SRC = os.path.join(ROOT, "data/games/RockDroid1/images/icons_small.png")
+SRC = os.path.join(ROOT, "data/games/Rockbot1/images/icons_small.png")
 HAND = os.path.join(ROOT, "images/menu_icons.png")
 RES = os.path.join(ROOT, "res")
 

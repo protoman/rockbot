@@ -224,7 +224,7 @@ data never uses, therefore unimplemented:
       what the PC's `check_map_collision_point` does with `BLOCK_QUICKSAND`.
       Water now gets its `WATER_SPEED_MULT` (0.7) walk slowdown on the same
       path. **No converted stage paints terrain 9**, so this is engine
-      readiness for RockDroid2 (whose maps do not use it yet either);
+      readiness for Rockbot2 (whose maps do not use it yet either);
       `tools/check_terrain.py` fails the moment a map uses an id the engine
       does not name.
 - **Not a gap**: `TERRAIN_DOOR` (3) only exists for the PC's *tile3* boss-door
@@ -325,19 +325,19 @@ data never uses, therefore unimplemented:
 - [x] Stage music, boss-intro jingle, SFX (XGM2 + PCM).
 - [ ] Music/SFX inside cutscenes (see Scenes above).
 
-## RockDroid2 (sequel data) — what its maps need that the port lacks
+## Rockbot2 (sequel data) — what its maps need that the port lacks
 
-`tools/audit_data.py --game RockDroid2` (reads the PC build tree, which this
+`tools/audit_data.py --game Rockbot2` (reads the PC build tree, which this
 repo does not convert yet) reports the sequel's own feature set, 20 stages of
-which the port converts none. Differences from RockDroid1 worth knowing before
+which the port converts none. Differences from Rockbot1 worth knowing before
 its stages are added:
 
-- **Terrain**: same ids as RockDroid1, plus WATER in stages 8/9 and ICE in
+- **Terrain**: same ids as Rockbot1, plus WATER in stages 8/9 and ICE in
   stage 8. Quicksand (9) is still unused in the shipped data; the engine now
   handles it (above), so a map may start using it.
 - **AI_FLY options 13/14/19** (2026-10-23): the sequel's tables use
   `TO_PLAYER_X`, `TO_PLAYER_Y` and `DASH_TO_PLAYER` (npcs 1, 4, 15, 47, 75),
-  which RockDroid1 never did. Implemented in `enemy.c`
+  which Rockbot1 never did. Implemented in `enemy.c`
   (`AI_FLY_TO_PLAYER_X/_Y`, `AI_FLY_DASH`, 2x speed, no dash sprite effect).
   `audit_data.py` now reports option gaps for both games (`option gaps: 0`).
 - [x] **`OBJ_ACTIVE_OPENING_SLIM_PLATFORM` (27)** (2026-10-23): 5x in stage 5,
@@ -366,7 +366,7 @@ its stages are added:
       BG_B = bg0), so `tools/convert_stage.py` now composites the layer into
       the bg0 bake (`convert_background(..., over=...)`), which puts it behind
       the map instead of in front and scrolls it at bg0's rate. Print-out says
-      so on every conversion. RockDroid1 data has no `backgrounds[1]`, so
+      so on every conversion. Rockbot1 data has no `backgrounds[1]`, so
       nothing changes for the converted stages.
 - [x] **bg `auto_scroll` modes** (`E_BG_SCROLL_MODE`, `defines.h:1332`;
       2026-10-24): the backdrop now moves by itself when a mode is set —
@@ -377,9 +377,9 @@ its stages are added:
       load, so it also holds in the middle of a room transition
       (`transition.c bg_offset`). The converter keeps `backgrounds[1]`'s mode
       when bg0 is static (the second layer is baked into bg0 on MD):
-      RockDroid1 stage 6 and several RockDroid2 maps rely on it.
+      Rockbot1 stage 6 and several Rockbot2 maps rely on it.
       `tools/check_bg_scroll.py` lists every mode in both games' data.
-- **Enemies**: npc ids up to 75 (RockDroid1 stops at 60), i.e. new art and
+- **Enemies**: npc ids up to 75 (Rockbot1 stops at 60), i.e. new art and
   `game_ai_list` rows to convert; every AI *action* they use is already
   implemented.
 

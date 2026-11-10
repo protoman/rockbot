@@ -30,7 +30,7 @@ from PIL import Image
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
-DATA = os.path.join(ROOT, "data/games/RockDroid1")
+DATA = os.path.join(ROOT, "data/games/Rockbot1")
 
 ENEMY_IDS = [1, 21, 23, 37, 45, 51]
 K = 12                      # free slots (index 3..14)

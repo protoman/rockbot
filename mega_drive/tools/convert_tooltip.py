@@ -3,7 +3,7 @@
 
 Sources
   images/shared/backgrounds/weapon_tooltip.png   300x32, 5 colours (the box)
-  data/games/RockDroid1/images/icons.png         288x32, 18 x (16x32) cells
+  data/games/Rockbot1/images/icons.png         288x32, 18 x (16x32) cells
 
 Frame -> a 38x4 map of 8x8 cells plus the deduplicated MD 4bpp tiles. The art
 has only four colours; they land on PAL3 entries 0..3 (interior, black, mid
@@ -33,7 +33,7 @@ sys.path.insert(0, HERE)
 from pal_ui import MD_LEVELS, to_vdp
 
 FRAME_SRC = os.path.join(ROOT, "images/shared/backgrounds/weapon_tooltip.png")
-ICON_SRC = os.path.join(ROOT, "data/games/RockDroid1/images/icons.png")
+ICON_SRC = os.path.join(ROOT, "data/games/Rockbot1/images/icons.png")
 SRC = os.path.join(ROOT, "src")
 
 TILE = 8

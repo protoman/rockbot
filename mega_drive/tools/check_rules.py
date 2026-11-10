@@ -123,7 +123,7 @@ RULES = [
      []),
     ("bg-auto-scroll",
      "PC E_BG_SCROLL_MODE: a background with an auto mode moves by itself "
-     "(LEFT used by RockDroid2 stage 3) instead of following the camera",
+     "(LEFT used by Rockbot2 stage 3) instead of following the camera",
      [("src/stage.c", r"bg_auto_hscroll\(stage_current_map\)"),
       ("src/stage.c", r"stage_bg_auto_hscroll\(u8 map\)")],
      []),

@@ -329,7 +329,7 @@ was built from:
 The PC stores a scene as a **script of operations**, one table per op type,
 assembled by name (`file/v4/file_scene_v4.h`, `sceneslib.cpp`,
 `scenes/sceneshow.cpp`). Ops carry `blocking` (parallel allowed) and
-`move_delay`. Data in `build/games/RockDroid1/scenes/`:
+`move_delay`. Data in `build/games/Rockbot1/scenes/`:
 
 | file | size | contents |
 |---|---|---|
@@ -413,7 +413,7 @@ language/platform/performance options. See `pc_features_vs_md.md` §11.
 
 ## Editable game data + stage editor (2026-10-22)
 
-The data in `data/games/RockDroid1` is **already converted** to the port's
+The data in `data/games/Rockbot1` is **already converted** to the port's
 geometry: the PC 15 rows were cropped to 14 game rows (slots 0..13; slot 14 is
 unused padding of the PC struct), link rows remapped (row 0 stays, else -1) and
 spawn Y shifted, all by the one-time `tools/import_pc_data.py`. The converters
@@ -426,14 +426,14 @@ rows now instead of including the cropped row.
 
 ## Editable game data + stage editor (2026-10-21)
 
-`data/games/RockDroid1/` is now the master copy of the game data (12 MB copy of
-the PC `build/games/RockDroid1`); all converters read it and never touch the
+`data/games/Rockbot1/` is now the master copy of the game data (12 MB copy of
+the PC `build/games/Rockbot1`); all converters read it and never touch the
 parent tree again, so map/enemy/object edits are not overwritten by a rebuild.
 The PC Qt editor was copied to `editor/` (Qt5) with two changes: its `.pro` and
 includes point at `../../file|aux_tools` (the parent's shared sources) and
 `main.cpp` accepts `ROCKBOT_EDITOR_PATH` for the data root. Build with
 `make editor` (CMake, Qt5 or Qt6), launch with `tools/editor.sh`. Verified
-headlessly (`QT_QPA_PLATFORM=offscreen`) that it loads `data/games/RockDroid1`
+headlessly (`QT_QPA_PLATFORM=offscreen`) that it loads `data/games/Rockbot1`
 without crashing; a missing font no longer aborts it. The editor shows the
 224p view (the converter cuts the top row). **Edit > Shift Down** moves the
 current room one tile down for that cut: rows 2..14 take rows 1..13, rows 0

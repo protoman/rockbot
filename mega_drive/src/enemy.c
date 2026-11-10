@@ -81,7 +81,7 @@
 #define AI_FLY_OPPOSITE_SHOOT 12
 #define AI_FLY_RANDOM_X   16
 #define AI_FLY_RANDOM_Y   17
-// RockDroid2's tables use these three (audit_data.py --game RockDroid2):
+// Rockbot2's tables use these three (audit_data.py --game Rockbot2):
 // TO_PLAYER_X/Y track one axis, DASH_TO_PLAYER homes in at double speed.
 #define AI_FLY_TO_PLAYER_X  13
 #define AI_FLY_TO_PLAYER_Y  14

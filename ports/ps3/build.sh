@@ -4,7 +4,7 @@
 # Usage:
 #   ports/ps3/build.sh [1|2] [--no-package] [--pkg]
 #
-#   1|2           which game to package (default 1): build/games/RockDroid<N>
+#   1|2           which game to package (default 1): build/games/Rockbot<N>
 #   --no-package  only compile
 #   --pkg         also create the installable .pkg (for a PS3 running custom
 #                 firmware / HEN, "Install Package Files")
@@ -39,7 +39,7 @@ done
 
 BUILD="$ROOT/res/ps3"
 STAGE="$BUILD/PS3_GAME"
-GAME_DATA="$ROOT/build/games/RockDroid${GAME_NUMBER}"
+GAME_DATA="$ROOT/build/games/Rockbot${GAME_NUMBER}"
 # PS3 title ids are exactly 9 characters.
 APPID="ROCKBOT0${GAME_NUMBER}"
 TITLE="RockBot ${GAME_NUMBER}"

@@ -9,7 +9,7 @@ Reports, for every stage/map:
   * second background layer / auto-scroll flags that the port ignores.
 
 Read-only: prints the report, writes nothing. Usage: tools/audit_data.py
-[--game RockDroid1|RockDroid2]  (RockDroid2 is read from the PC build tree;
+[--game Rockbot1|Rockbot2]  (Rockbot2 is read from the PC build tree;
 it is not converted yet - the report says what WOULD be needed).
 """
 import os
@@ -21,7 +21,7 @@ from collections import Counter, defaultdict
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
-DATA = os.path.join(ROOT, "data/games/RockDroid1")
+DATA = os.path.join(ROOT, "data/games/Rockbot1")
 SRC = os.path.join(ROOT, "src")
 
 MAPS = 3
@@ -76,7 +76,7 @@ OBJ_SUPPORT = {
     22: "ok (destructible wall)", 23: "ok (special tank)",
     24: "ok (beam)", 25: "ok (beam)", 26: "ok (castle teleporter)",
     29: "ok", 30: "ok (boss door)", 31: "ok (platform teleporter)", 32: "ok",
-    # RockDroid2 types, added 2026-10-23 (src/object.c)
+    # Rockbot2 types, added 2026-10-23 (src/object.c)
     27: "ok (one-way, opens when stood on)",
     28: "ok (damages whoever stands on it)",
     33: "ok (crusher: body only, the PC's shaft fill is not drawn)",
@@ -187,7 +187,7 @@ def layer1_flags():
             raw = maps[off:off + MAP_STRUCT]
             # backgrounds[0] at 0, backgrounds[1] at 36 (see convert_stage)
             name = cstr(raw[36:66])
-            # unused slots hold 0xFF bytes (RockDroid2 stage 14), not names
+            # unused slots hold 0xFF bytes (Rockbot2 stage 14), not names
             if not (name.lower().endswith(".png") and
                     all(c.isalnum() or c in "_-." for c in name)):
                 name = ""
@@ -304,7 +304,7 @@ def main():
     IMPLEMENTED = {
         0: {0, 1, 2, 3, 4, 5, 6, 7},          # AI_WALK: all options
         # AI_FLY: 13/14 (TO_PLAYER_X/Y) and 19 (DASH_TO_PLAYER) were
-        # added for RockDroid2's tables (enemy.c AI_FLY_TO_PLAYER_X etc.)
+        # added for Rockbot2's tables (enemy.c AI_FLY_TO_PLAYER_X etc.)
         1: {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16,
             17, 19},
         2: {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10},  # AI_JUMP: every option

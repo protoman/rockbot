@@ -2,10 +2,10 @@
 """Convert stage 0 objects (pills, 1UP, fall/fly platforms, checkpoint).
 
 Reads (never invents values):
-  build/games/RockDroid1/game_object_list.dat   84B records (struct file_object)
-  build/games/RockDroid1/map_object_data.dat    18B records (file_map_object_v2)
+  build/games/Rockbot1/game_object_list.dat   84B records (struct file_object)
+  build/games/Rockbot1/map_object_data.dat    18B records (file_map_object_v2)
   images/sprites/objects/*.png                   hand art (indexed PAL0)
-  build/games/RockDroid1/maps_v2.dat            terrain for the load-time drop
+  build/games/Rockbot1/maps_v2.dat            terrain for the load-time drop
   src/stage0_enemies.c                          shared PAL0 pool (parsed)
 
 Emits:
@@ -47,7 +47,7 @@ from convert_enemies import (  # noqa: E402
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
-DATA = os.path.join(ROOT, "data/games/RockDroid1")
+DATA = os.path.join(ROOT, "data/games/Rockbot1")
 IMAGES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "images")  # hand-owned art
 RES = os.path.join(ROOT, "res")
 SRC = os.path.join(ROOT, "src")
@@ -90,7 +90,7 @@ OBJ_CHECKPOINT = 29
 OBJ_STAGE_BOSS_TELEPORTER = 32
 OBJ_ITEM_FLY = 12
 OBJ_ITEM_JUMP = 13
-# RockDroid2 object types (no RockDroid1 stage spawns them; the behaviour is in
+# Rockbot2 object types (no Rockbot1 stage spawns them; the behaviour is in
 # src/object.c so its maps convert as soon as its stages are added).
 OBJ_ACTIVE_SLIM_PLATFORM = 27
 OBJ_DAMAGING_PLATFORM = 28

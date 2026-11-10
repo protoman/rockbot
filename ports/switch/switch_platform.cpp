@@ -51,7 +51,7 @@ void setup()
     appletSetFocusHandlingMode(AppletFocusHandlingMode_NoSuspend);
 
     if (is_applet_mode()) {
-        // Album applet ≈ 40MB heap — RockDroid2 preload can OOM mid-image (EXIT #05).
+        // Album applet ≈ 40MB heap — Rockbot2 preload can OOM mid-image (EXIT #05).
 //        printf("WARNING: Switch applet mode (low memory). Launch via title redirection.\n");
         fflush(stdout);
     }

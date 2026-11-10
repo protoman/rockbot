@@ -22,7 +22,7 @@ from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PCROOT = os.path.dirname(ROOT)
-BG = os.path.join(PCROOT, "build/games/RockDroid1/images/backgrounds")
+BG = os.path.join(PCROOT, "build/games/Rockbot1/images/backgrounds")
 CROP_Y = 8
 
 # classic_style_castle_intro: first point, then the end of each segment (sceneslib.cpp:871-901)

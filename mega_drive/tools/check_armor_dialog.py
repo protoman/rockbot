@@ -12,8 +12,8 @@ Source of truth is the PC code + data, not a table copied here:
   ../scenes/dialogs.cpp    enum value -> message index (msg1..msg4), and the
                            ARMS page = "SHOOT <projectile name>."
   ../file/fio_strings.cpp  English text of that message
-  data/games/RockDroid1/game_armorPieces_v301.dat   ability per piece/player
-  data/games/RockDroid1/game_projectile_list.dat     projectile id -> name
+  data/games/Rockbot1/game_armorPieces_v301.dat   ability per piece/player
+  data/games/Rockbot1/game_projectile_list.dat     projectile id -> name
 and the port's own text/tables in src/dialogs.c and src/player.c are compared.
 
 Covers all 4 players x 3 armor pieces.
@@ -28,7 +28,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 MD = os.path.dirname(HERE)
 PC = os.path.dirname(MD)
-DATA = os.path.join(MD, "data/games/RockDroid1")
+DATA = os.path.join(MD, "data/games/Rockbot1")
 PORT_DIALOGS = os.path.join(MD, "src/dialogs.c")
 PORT_PLAYER = os.path.join(MD, "src/player.c")
 PLAYERS = ("ROCKBOT", "BETABOT", "CANDYBOT", "KITTYBOT")

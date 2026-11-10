@@ -12,7 +12,7 @@ from PIL import Image
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 RES = os.path.join(ROOT, "res")
-SRC = os.path.join(ROOT, "data/games/RockDroid1/images/icons_small.png")
+SRC = os.path.join(ROOT, "data/games/Rockbot1/images/icons_small.png")
 FIRST = 11
 N = 3
 

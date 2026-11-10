@@ -336,7 +336,7 @@ Fixed (each with its check):
   (`objects_block_box`), like the player.
 - **Charged shot destroyed the destructible block** — the PC
   (`classplayer.cpp:800 object_is_affected_by_projectile`) lets *only an
-  exploding bomb* break `OBJ_DESTRUCTIBLE_WALL` (and no RockDroid1 projectile
+  exploding bomb* break `OBJ_DESTRUCTIBLE_WALL` (and no Rockbot1 projectile
   sets the `is_explosive` data flag), so the block types 36/37/42 are the ones
   any shot may break. `objects_try_hit()` takes a `bomb` flag; a bomb's
   explosion passes it.
@@ -681,7 +681,7 @@ PC's title art — it draws a hand-drawn 15-colour redraw in
 `mega_drive/images/logo.png` (**15** raw colours, 15 after the MD 3:3:3 ramp).
 So the 15-colour limit is the art, not the pipeline: extra palette lines have
 nothing to recover from it. The PC's own art
-(`build/games/RockDroid1/images/logo.png`) has 8417 raw colours and **176** after
+(`build/games/Rockbot1/images/logo.png`) has 8417 raw colours and **176** after
 the ramp, so reproducing *that* would need the 60-colour / four-line quantiser
 described above. The title is drawn from C-side tile + map arrays (not a rescomp
 IMAGE), and the tilemap's 2-bit palette field can carry the line per 8x8 tile, so
@@ -776,7 +776,7 @@ three-colour bands in `mega_drive/images/tilesets/anim/` and are converted by th
 art-width rule (`roadmap.md` item 12).
 
 **What**: `waterfall_top.png` and `water_ground.png` (PC
-`build/games/RockDroid1/images/tilesets/anim/`) are the only animated blocks whose
+`build/games/Rockbot1/images/tilesets/anim/`) are the only animated blocks whose
 **pixel shape** changes between frames, so the CRAM-rotation technique we are
 adopting for the rest of the anim set cannot reproduce them: every other block
 differs from frame to frame only by a colour permutation, these two move pixels
@@ -1925,7 +1925,7 @@ Verified with `MD_TEST_ENDING` captures.
 the owner edits the images by hand from now on; nothing may overwrite them again.
 
 **Change**: `tools/import_pc_art.py` (writes `images/`) and `tools/import_pc_data.py`
-(writes `data/games/RockDroid1`) are disarmed - they exit with a message when run.
+(writes `data/games/Rockbot1`) are disarmed - they exit with a message when run.
 Neither is called by `make` / `tools/build_assets.py`, which read only `images/`
 and `data/`. The converters' "not indexed (run tools/import_pc_art.py)" hints
 now mean "fix the PNG by hand". The PC tree stays read-only reference.

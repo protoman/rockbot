@@ -117,7 +117,7 @@ From the older comparison file (not re-verified)
 - The teleport after-image trail.
 - Drop-table difficulty rows, where only normal is implemented.
 - Autoscroll damage when you are pushed off-screen.
-- Background scroll modes other than horizontal, which only RockDroid2 needs.
+- Background scroll modes other than horizontal, which only Rockbot2 needs.
 - The appear animation and sounds for disappearing blocks, beam sound effects and wall-break sound effects.
 - Screen shake beyond shots, and the full screen blink.
 

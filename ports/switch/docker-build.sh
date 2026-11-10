@@ -28,7 +28,7 @@ echo ">> [docker] Rockbot Switch v${VERSION_NUMBER} (${VERSION_NAME})"
 for required in \
     "$GAME_DATA_ROOT/fonts" \
     "$GAME_DATA_ROOT/shared" \
-    "$GAME_DATA_ROOT/games/RockDroid${VERSION_NUMBER}"
+    "$GAME_DATA_ROOT/games/Rockbot${VERSION_NUMBER}"
 do
     [[ -e "$required" ]] || { echo "Error: missing $required"; exit 1; }
 done
@@ -70,11 +70,11 @@ cp -f "$REPO_ROOT/rockbot.nro" "$STAGE_DIR/$GAME_DIR/"
 rsync -a --exclude='.svn' "$GAME_DATA_ROOT/fonts" "$STAGE_DIR/$GAME_DIR/"
 rsync -a --exclude='.svn' "$GAME_DATA_ROOT/shared" "$STAGE_DIR/$GAME_DIR/"
 rsync -a --exclude='.svn' --exclude='mp3' \
-    "$GAME_DATA_ROOT/games/RockDroid${VERSION_NUMBER}" \
+    "$GAME_DATA_ROOT/games/Rockbot${VERSION_NUMBER}" \
     "$STAGE_DIR/$GAME_DIR/games/"
 
-if [[ -f "$GAME_DATA_ROOT/games/RockDroid${VERSION_NUMBER}/images/icon_32px.png" ]]; then
-    cp -f "$GAME_DATA_ROOT/games/RockDroid${VERSION_NUMBER}/images/icon_32px.png" \
+if [[ -f "$GAME_DATA_ROOT/games/Rockbot${VERSION_NUMBER}/images/icon_32px.png" ]]; then
+    cp -f "$GAME_DATA_ROOT/games/Rockbot${VERSION_NUMBER}/images/icon_32px.png" \
         "$STAGE_DIR/$GAME_DIR/rockbot.png"
 fi
 

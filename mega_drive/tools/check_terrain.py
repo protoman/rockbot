@@ -4,7 +4,7 @@
 The port's physics only reacts to terrain ids it names in src/. A map that
 introduces a value the engine does not handle behaves as UNBLOCKED, which is
 the quietest failure mode there is (the player walks through a wall or never
-sinks into quicksand). RockDroid2 is not converted yet, so it is audited from
+sinks into quicksand). Rockbot2 is not converted yet, so it is audited from
 the PC build tree: whatever its maps use has to be covered by the time its
 stages are added.
 
@@ -20,8 +20,8 @@ ROOT = os.path.dirname(HERE)
 ROCKBOT = os.path.dirname(ROOT)
 SRC = os.path.join(ROOT, "src")
 
-GAMES = [("RockDroid1", os.path.join(ROOT, "data/games/RockDroid1")),
-         ("RockDroid2", os.path.join(ROCKBOT, "build/games/RockDroid2"))]
+GAMES = [("Rockbot1", os.path.join(ROOT, "data/games/Rockbot1")),
+         ("Rockbot2", os.path.join(ROCKBOT, "build/games/Rockbot2"))]
 
 MAPS, MAP_STRUCT, MAP_TILES_OFF = 3, 15078, 78
 MAP_W, MAP_H, TILE_STRUCT = 200, 15, 5

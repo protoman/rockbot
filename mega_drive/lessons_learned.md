@@ -166,7 +166,7 @@ Real mistakes + fixes. Add to this on every session.
 
 **22. Negative tile indices are animated tiles, not empty**
 - `classmap.cpp:296`: `if (pos_origin.x < -1 && pos_origin.y == 0) anim_tile_id = (pos_origin.x * -1) - 2;`
-  So `x < -1 && y == 0` → animated tile (data in `anim_tiles.dat`, which is 0 bytes for RockDroid1 → none defined).
+  So `x < -1 && y == 0` → animated tile (data in `anim_tiles.dat`, which is 0 bytes for Rockbot1 → none defined).
   `-1` in either coordinate means empty.
 - `tools/convert_stage.py` treats any negative coordinate as empty.
 

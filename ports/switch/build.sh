@@ -4,7 +4,7 @@
 # Usage:
 #   ports/switch/build.sh [1|2] [--no-package]
 #
-#   1|2           which game to package (default 1): build/games/RockDroid<N>
+#   1|2           which game to package (default 1): build/games/Rockbot<N>
 #   --no-package  only compile
 #
 # Output: res/switch/Rockbot<N>_Switch/   the folder to copy to the SD card as /switch/rockbot/
@@ -41,7 +41,7 @@ fi
 "$ROOT/build/packages/sync_version.sh"   # file/version.h <- version_name.txt
 
 BUILD="$ROOT/res/switch"
-GAME_DATA="$ROOT/build/games/RockDroid${GAME_NUMBER}"
+GAME_DATA="$ROOT/build/games/Rockbot${GAME_NUMBER}"
 VERSION_NAME="0.0.0"
 [ -f "$ROOT/build/packages/version_name.txt" ] && VERSION_NAME="$(tr -d '[:space:]' < "$ROOT/build/packages/version_name.txt")"
 

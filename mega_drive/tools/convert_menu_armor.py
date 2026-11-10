@@ -21,7 +21,7 @@ import sys
 from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PC_ART = os.path.join(ROOT, "data/games/RockDroid1/images/backgrounds/"
+PC_ART = os.path.join(ROOT, "data/games/Rockbot1/images/backgrounds/"
                             "player_armor_pieces.png")
 RES = os.path.join(ROOT, "res")
 SRC = os.path.join(ROOT, "src")

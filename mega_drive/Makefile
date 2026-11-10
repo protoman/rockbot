@@ -10,10 +10,10 @@ export GDK ?= /opt/toolchains/mars/m68k-elf
 # Force a full regeneration with `make assets` (tools/build_assets.py --force).
 PYTHON   ?= /home/iuri/python3/bin/python3
 PCROOT   := ..
-# Editable game data: a COPY of the PC build/games/RockDroid1 that the editor
+# Editable game data: a COPY of the PC build/games/Rockbot1 that the editor
 # (editor/, tools/editor.sh) edits and every converter reads. The parent
 # rockbot/build/games copy is never used again, so map edits survive a rebuild.
-GAMEDATA := data/games/RockDroid1
+GAMEDATA := data/games/Rockbot1
 IMAGES   := images
 ASSET_STAMP := res/.assets.stamp
 # Converted stages, in index order (tools/add_stage.py appends here).

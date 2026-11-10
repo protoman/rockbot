@@ -21,7 +21,7 @@ applied (real PNG alpha channel, or a pre-baked semi-transparent look), or to dr
 |---|---|---|---|
 | `images/backgrounds/classic_style_stage_select_cursor.png` (each game) | `stage_select.cpp` cursor, alpha 255 and a pulsing alpha | ~4100-4250 | The visible bug: cursor box hides the face. 96x48, two 48x48 frames. |
 | `images/animations/explosion_32.png` (each game) | `graphicslib.cpp` preloaded explosion bubble, alpha 120 | 1440 | Translucent explosion bubble. |
-| Map foreground layers (`map_backgrounds/*` used as the **foreground** image, `backgrounds[1]` in the map data, when its "gfx" value is not 100) | `classmap.cpp` -> `draw::set_dynamic_bg_alpha()` | thousands | Which files depend on the maps that use them as a foreground with transparency. Candidates with key pixels: `clouds.png`, `fg_clouds.png` (RockDroid2), `red_clouds.png`, `clouds_purple.png`, `montains_purple.png`, `montains_rock.png`, `red_castle.png`, `trees.png`, `clouds_anim.png` (RockMix). Skipped when graphics performance mode is LOW. |
+| Map foreground layers (`map_backgrounds/*` used as the **foreground** image, `backgrounds[1]` in the map data, when its "gfx" value is not 100) | `classmap.cpp` -> `draw::set_dynamic_bg_alpha()` | thousands | Which files depend on the maps that use them as a foreground with transparency. Candidates with key pixels: `clouds.png`, `fg_clouds.png` (Rockbot2), `red_clouds.png`, `clouds_purple.png`, `montains_purple.png`, `montains_rock.png`, `red_castle.png`, `trees.png`, `clouds_anim.png` (RockMix). Skipped when graphics performance mode is LOW. |
 
 ## Not affected (no file with key pixels)
 

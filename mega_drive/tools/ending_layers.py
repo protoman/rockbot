@@ -21,7 +21,7 @@ from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-PCGAME = os.path.join(os.path.dirname(ROOT), "build/games/RockDroid1")
+PCGAME = os.path.join(os.path.dirname(ROOT), "build/games/Rockbot1")
 RES = os.path.join(ROOT, "res")
 PLANE_W, PERIOD = 512, 256
 

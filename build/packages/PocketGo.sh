@@ -20,9 +20,9 @@ mkdir -p "./pocketgo/$GAME_DIR/games"
 cp ../rockbot_pocketgo "./pocketgo/$GAME_DIR/"
 rsync -r --exclude=.svn ../fonts "./pocketgo/$GAME_DIR/"
 rsync -r --exclude=.svn ../shared "./pocketgo/$GAME_DIR/"
-rsync -r --exclude=.svn "../games/RockDroid$version_number" "./pocketgo/$GAME_DIR/games"
+rsync -r --exclude=.svn "../games/Rockbot$version_number" "./pocketgo/$GAME_DIR/games"
 
-cp "./pocketgo/$GAME_DIR/games/RockDroid$version_number/images/icon_32px.png" "./pocketgo/$GAME_DIR/rockbot.png"
+cp "./pocketgo/$GAME_DIR/games/Rockbot$version_number/images/icon_32px.png" "./pocketgo/$GAME_DIR/rockbot.png"
 find "./pocketgo/$GAME_DIR" \( -name 'game*.sav' -o -name 'config*.sav' \) -delete
 
 # Strip the staged copy (the build tree keeps the debug info).

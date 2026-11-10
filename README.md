@@ -12,8 +12,8 @@ Two games are included:
 
 | Game | Folder |
 |---|---|
-| **Rockbot 1** | `build/games/RockDroid1` |
-| **Rockbot 2** | `build/games/RockDroid2` |
+| **Rockbot 1** | `build/games/Rockbot1` |
+| **Rockbot 2** | `build/games/Rockbot2` |
 
 See the [manual](docs/manual.pdf) or the [manual\_famicom](docs/manual_famicom.pdf).
 
@@ -119,7 +119,7 @@ Keys and gamepad buttons can be changed in the options menu.
 | Option | Effect |
 |---|---|
 | `--fullscreen` | start in full screen |
-| `--gamename <name>` | select the game folder (for example `RockDroid2`) |
+| `--gamename <name>` | select the game folder (for example `Rockbot2`) |
 | `--quickload` | skip the intro and load the game directly (debug) |
 | `--stage <n>` | start at stage `n` |
 | `--player1` ... `--player4` | pick the player |

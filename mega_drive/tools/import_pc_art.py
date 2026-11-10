@@ -44,7 +44,7 @@ from collections import Counter
 HERE = os.path.dirname(os.path.abspath(__file__))
 PROJ = os.path.dirname(HERE)
 PCROOT = os.path.dirname(PROJ)
-SRC = os.path.join(PCROOT, "build", "games", "RockDroid1", "images")
+SRC = os.path.join(PCROOT, "build", "games", "Rockbot1", "images")
 SHARED = os.path.join(PCROOT, "build", "shared", "images")
 OUT = os.path.join(PROJ, "images")
 RES = os.path.join(PROJ, "res")

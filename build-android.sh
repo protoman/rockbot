@@ -5,8 +5,8 @@ set -e
 set -o pipefail
 
 # Usage:
-#   ./build-android.sh 1                 → RockDroid 1, release (Docker)
-#   ./build-android.sh 2 debug           → RockDroid 2, debug
+#   ./build-android.sh 1                 → Rockbot 1, release (Docker)
+#   ./build-android.sh 2 debug           → Rockbot 2, debug
 #   ./build-android.sh 1 release --no-sign
 #   ./build-android.sh 1 --rebuild-image → force rebuild Docker image
 #
@@ -69,7 +69,7 @@ for required in \
     "$PACKAGES_DIR/files/android/AndroidAppSettings.cfg" \
     "$REPO_ROOT/build/fonts" \
     "$REPO_ROOT/build/shared" \
-    "$REPO_ROOT/build/games/RockDroid${VERSION_NUMBER}"
+    "$REPO_ROOT/build/games/Rockbot${VERSION_NUMBER}"
 do
     if [[ ! -e "$required" ]]; then
         echo "Error: missing required path: $required"

@@ -95,7 +95,7 @@ Options (decide per asset):
 
 ## Original game data formats (verified)
 
-Files in `build/games/RockDroid1/`. `sizeof` measured by compiling the headers.
+Files in `build/games/Rockbot1/`. `sizeof` measured by compiling the headers.
 
 | File | Record | Size | Total |
 |---|---|---|---|
