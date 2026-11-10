@@ -2,6 +2,7 @@
 #include <iostream>
 #include "timerlib.h"
 #include "sdl_layer.h"
+#include "aux_tools/replay.h"
 
 #ifdef PS3
 static unsigned long long rb_ps3_start_ms = 0;
@@ -24,6 +25,10 @@ void timerLib::delay(int waitMS) const
     if (waitMS <= 0) { // a negative value would become a ~49 day Uint32 delay
         return;
     }
+    if (replay::enabled()) { // test replay: virtual clock, nothing sleeps
+        replay::advance(waitMS);
+        return;
+    }
 #ifdef PS3
 	sysUsleep(waitMS * 1000);
 #else
@@ -34,6 +39,10 @@ void timerLib::delay(int waitMS) const
 void timerLib::udelay(int useconds)
 {
     if (useconds <= 0) {
+        return;
+    }
+    if (replay::enabled()) {
+        replay::advance(useconds/1000);
         return;
     }
 #ifdef PS3
@@ -47,6 +56,9 @@ void timerLib::udelay(int useconds)
 
 unsigned long timerLib::getTimer() const
 {
+    if (replay::enabled()) { // test replay: virtual clock
+        return replay::now() - _paused_ticks;
+    }
 #ifdef PS3
 	u64 sec = 0;
 	u64 nsec = 0;

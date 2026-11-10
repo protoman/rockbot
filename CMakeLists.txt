@@ -324,6 +324,7 @@ endif()
 set(SOURCES
     main.cpp
     aux_tools/fps_control.cpp
+    aux_tools/replay.cpp
     character/character.cpp
     data/datautil.cpp
     graphicslib.cpp
@@ -379,6 +380,7 @@ endif()
 # Header Files
 set(HEADERS
     aux_tools/fps_control.h
+    aux_tools/replay.h
     character/character.h
     data/datautil.h
     file/v4/file_config_old.h

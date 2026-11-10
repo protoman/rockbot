@@ -129,6 +129,7 @@ public:
     virtual void damage(unsigned int damage_points, bool ignore_hit_timer);
     virtual void damage_spikes(bool ignore_hit_timer);
     bool is_dead() const;
+    std::string replay_trace(); // one-line state (position, animation, hp, jump...) for the replay traces (see aux_tools/replay.h)
     st_hit_points get_hp() const;
     Uint8 get_current_hp() const;
     void set_current_hp(Uint8 value); // sets (and caps at the maximum) the current HP

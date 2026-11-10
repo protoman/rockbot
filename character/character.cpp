@@ -3608,8 +3608,12 @@ int character::get_armor_arms_attack_id()
     return -1;
 }
 
-
-
-
-
-
+std::string character::replay_trace()
+{
+    char buffer[256];
+    snprintf(buffer, sizeof(buffer), "%s pos=%.3f,%.3f anim=%d/%d dir=%d hp=%d jump=%d fall=%d platform=%d inv=%d shots=%u",
+             name.c_str(), (double)position.x, (double)position.y, (int)state.animation_type, (int)state.animation_state,
+             (int)state.direction, (int)hitPoints.current, (int)_obj_jump.is_started(), (int)_is_falling,
+             (int)(_platform != NULL), (int)state.invisible, get_projectile_count());
+    return std::string(buffer);
+}

@@ -55,6 +55,7 @@ main.cpp \
 ./scenes/sceneshow.cpp \
 ./aux_tools/stringutils.cpp \
 ./aux_tools/fps_control.cpp \
+./aux_tools/replay.cpp \
 ./aux_tools/exception_manager.cpp \
 ./aux_tools/trajectory_parabola.cpp \
 ./sdl_layer.cpp \

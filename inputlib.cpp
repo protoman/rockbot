@@ -14,6 +14,7 @@ extern timerLib timer;
 
 
 #include "game.h"
+#include "aux_tools/replay.h"
 extern game gameControl;
 
 #define DOUBLE_TAP_DELTA 500
@@ -156,6 +157,26 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
     // copy last input
     for (int i=0; i<BTN_COUNT; i++) {
         p1_previous_input[i] = p1_input[i];
+    }
+
+    // test replay: the buttons come from the script (held state, re-applied on every read)
+    if (replay::enabled()) {
+        replay::update_buttons();
+        for (int i=0; i<BTN_JUMP_TIMER; i++) {
+            int held = replay::held(i);
+            if (held == -1) {
+                continue;
+            }
+            if (held == 1 && p1_input[i] == 0) {
+                if (i == BTN_JUMP) {
+                    p1_input[BTN_JUMP_TIMER] = timer.getTimer();
+                }
+                if (i == BTN_START) {
+                    _start_latch = true;
+                }
+            }
+            p1_input[i] = held;
+        }
     }
 
 #ifdef PLAYSTATION2

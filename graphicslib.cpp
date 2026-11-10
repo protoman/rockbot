@@ -36,6 +36,7 @@ extern soundLib soundManager;
 
 
 #include "graphicslib.h"
+#include "aux_tools/replay.h"
 
 #include "file/format.h"
 extern CURRENT_FILE_FORMAT::st_save game_save;
@@ -299,6 +300,10 @@ void graphicsLib::updateScreen()
 	if (!game_screen) {
         std::cout << "ERROR::updateScreen game_screen is NULL\n";
 		return;
+    }
+
+    if (replay::enabled()) { // test replay: presenting the screen takes time (screens that wait for a button rely on it)
+        replay::advance(4);
     }
 
     if (_show_stars == true) {

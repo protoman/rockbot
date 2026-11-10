@@ -1,6 +1,7 @@
 #include <cstring>
 #include <cstdlib>
 #include "game.h"
+#include "aux_tools/replay.h"
 #ifdef PSP
 #include "ports/psp/psp_platform.h"
 #endif
@@ -201,6 +202,19 @@ void game::show_game(bool can_characters_move, bool can_scroll_stage)
         fps_manager.fps_count();
     }
     fps_manager.limit();
+
+    if (replay::tracing()) { // test replay (aux_tools/replay.h): one line per frame
+        replay::trace("F %lu stage=%d map=%d scroll=%.2f wpn=%d | P %s", replay::now(), currentStage, (int)loaded_stage.get_current_map_number(),
+                      (double)loaded_stage.getMapScrolling().x, (int)player1.get_selected_weapon(), player1.replay_trace().c_str());
+        classMap *trace_map = loaded_stage.get_current_map();
+        for (size_t i=0; i<trace_map->_npc_list.size(); i++) {
+            classnpc &trace_npc = trace_map->_npc_list.at(i);
+            if (trace_npc.is_dead() == false && trace_npc.is_on_screen() == true) {
+                replay::trace(" | N%zu %s", i, trace_npc.replay_trace().c_str());
+            }
+        }
+        replay::trace("\n");
+    }
 
     // Ensure we present at most once per frame: flush deferred redraws now
     graphLib.flush_redraw();

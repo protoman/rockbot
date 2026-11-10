@@ -330,6 +330,7 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     aux_tools/fps_control.cpp \
+    aux_tools/replay.cpp \
     character/character.cpp \
     data/datautil.cpp \
     graphicslib.cpp \
