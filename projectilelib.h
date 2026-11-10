@@ -86,6 +86,21 @@ private:
     st_size get_size() const;
 
     void move_ahead(st_float_size &moved);
+    bool move_arc_small(st_float_size &moved);
+    bool move_bomb_rain(st_float_size &moved);
+    bool move_double(st_float_size &moved);
+    void move_bouncing(st_float_size &moved);
+    void move_centered(st_float_size &moved);
+    void move_chain(st_float_size &moved);
+    void move_fall_and_seek(st_float_size &moved);
+    void move_fall_bomb(st_float_size &moved);
+    void move_follow(st_float_size &moved);
+    void move_freeze(st_float_size &moved);
+    void move_large_beam(st_float_size &moved);
+    void move_laser(st_float_size &moved);
+    void move_lighting(st_float_size &moved);
+    void move_quake(st_float_size &moved);
+    void move_spiral(st_float_size &moved);
     void position_to_ground();
     void set_direction_from_xyinc(int xinc, int yinc);
     void set_direction_from_targetpos(int middle_tolerance);

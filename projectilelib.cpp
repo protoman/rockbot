@@ -561,6 +561,369 @@ st_float_position projectile::get_position()
     return position;
 }
 
+// small arc: horizontal speed decays while falling. Returns true when move() must end right away (nothing moved)
+bool projectile::move_arc_small(st_float_size &moved)
+{
+    if (position.y < _size.height || position.y > RES_H) {
+        is_finished = true;
+        return true;
+    }
+
+    if (_speed_x > 0) {
+        if (direction == ANIM_DIRECTION_LEFT || direction == ANIM_DIRECTION_DOWN_LEFT || direction == ANIM_DIRECTION_UP_LEFT) {
+            position.x -= _speed_x;
+            moved.width -= _speed_x;
+        } else {
+            position.x += _speed_x;
+            moved.width += _speed_x;
+        }
+        _speed_x -= _accel_x;
+        if (_speed_x < 0) {
+            _speed_x = 0;
+        }
+    }
+    position.y += get_speed();
+    return false;
+}
+
+// chain: follows the owner arm, grows and returns
+void projectile::move_chain(st_float_size &moved)
+{
+    if (_owner_position != NULL) {
+        //std::cout << "MOVE[CHAIN] - owner.x[" << (int)_owner_position->x << "], owner.direction[" << (int)*_owner_direction << "], owner_is_player[" << _owner_is_player << "]" << std::endl;
+        if (_owner_direction != NULL) {
+            direction = *_owner_direction;
+        }
+        if (_owner_is_player == true) {
+            position.x = _owner_position->x + 5;
+            position.y = _owner_position->y + 14;
+            if (direction == ANIM_DIRECTION_RIGHT) {
+                position.x += TILESIZE;
+            }
+        } else {
+            CURRENT_FILE_FORMAT::file_npc_v3_1_2* npc_ref = GameMediator::get_instance()->get_enemy(_owner_number);
+            if (direction == ANIM_DIRECTION_LEFT) {
+                position.x = _owner_position->x + npc_ref->attack_arm_pos.x;
+            } else {
+                position.x = _owner_position->x - npc_ref->attack_arm_pos.x;
+            }
+            position.y = _owner_position->y + npc_ref->attack_arm_pos.y;
+        }
+    }
+
+    if (status == 0) { // increasing
+        _chain_width += get_speed();
+        if (_chain_width > _size.width) {
+			status = 1;
+		}
+	} else { // returning
+        _chain_width -= get_speed();
+        if (_chain_width <= 0) {
+			is_finished = true;
+		}
+	}
+}
+
+// quake: shakes the screen
+void projectile::move_quake(st_float_size &moved)
+{
+	if (_quake_info.timer < timer.getTimer()) {
+		if (_quake_info.counter1 == 1) {
+			_quake_info.counter1 = 2;
+			graphLib.set_screen_adjust(st_position(-QUAKE_SCREEN_MOVE, 0));
+		} else {
+			_quake_info.counter1 = 1;
+			graphLib.set_screen_adjust(st_position(QUAKE_SCREEN_MOVE, 0));
+		}
+		_quake_info.counter2++;
+        if (_quake_info.counter2 > 50) {
+			_quake_info.counter1 = 0;
+			graphLib.set_screen_adjust(st_position(0, 0));
+			is_finished = true;
+		}
+		_quake_info.timer = timer.getTimer() + QUAKE_TIMER;
+	}
+}
+
+// freeze: ends the freeze effect after its time
+void projectile::move_freeze(st_float_size &moved)
+{
+	if (_quake_info.timer < timer.getTimer()) {
+        freeze_weapon_effect = FREEZE_EFFECT_NONE;
+        draw_lib.set_flash_enabled(false);
+		is_finished = true;
+	}
+}
+
+// centered: around the owner, becomes linear after some time
+void projectile::move_centered(st_float_size &moved)
+{
+    if (_owner_position != NULL) {
+        position.x = _owner_position->x - 15;
+        position.y = _owner_position->y - 10;
+		if (_owner_direction != NULL) {
+			direction = *_owner_direction;
+		}
+        // after some time, change to linear
+        if (status > 0 || _effect_timer < timer.getTimer()) {
+			_move_type = TRAJECTORY_LINEAR;
+		}
+	}
+}
+
+// follow the target
+void projectile::move_follow(st_float_size &moved)
+{
+	int xinc = 0;
+	int yinc = 0;
+	if (_target_position->x > position.x) {
+		xinc = get_speed();
+	} else if (_target_position->x < position.x) {
+		xinc = -get_speed();
+	}
+	if (_target_position->y > position.y) {
+		yinc = get_speed();
+	} else if (_target_position->y < position.y) {
+		yinc = -get_speed();
+	}
+	position.x += xinc;
+	moved.width += xinc;
+	position.y += yinc;
+	moved.height += yinc;
+
+
+    set_direction_from_xyinc(xinc, yinc); // change frame type depending on xinc/yinc
+}
+
+// fall bomb: falls, explodes on the ground
+void projectile::move_fall_bomb(st_float_size &moved)
+{
+    if (_effect_n == 0) {
+        position.y += get_speed();
+        // check if hit ground
+        int point_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(position.x/TILESIZE, position.y/TILESIZE));
+        int first_bottom_lock = gameControl.get_current_map_obj()->get_first_lock_on_bottom(position.x + get_size().width/2, -1);
+        if ((position.y > first_bottom_lock*TILESIZE || position.y > RES_H-TILESIZE) && point_lock != TERRAIN_WATER && point_lock != TERRAIN_UNBLOCKED) { // hit ground, lets change to explosion
+            /// morph into a bigger explosion
+            _points = 5000;
+            _effect_timer = timer.getTimer()+1600;
+
+            _size.width = 56;
+            _size.height = 56;
+            position.x -= 28;
+            position.y -= 48;
+            _max_frames = get_surface()->width / _size.width;
+            _effect_n++;
+            soundManager.play_repeated_sfx(SFX_BIG_EXPLOSION, 1);
+        }
+    } else if (_effect_n == 1 && _effect_timer < timer.getTimer()) {
+        is_finished = true;
+    }
+}
+
+// laser: bounces up to 5 times on walls
+void projectile::move_laser(st_float_size &moved)
+{
+    move_ahead(moved);
+    if (status == TRAJECTORY_DIAGONAL_UP) {
+        position.y -= get_speed();
+        moved.height -= get_speed();
+    } else if (status == TRAJECTORY_DIAGONAL_DOWN) {
+        position.y += get_speed();
+        moved.height += get_speed();
+    }
+    // check for collisions to change direction
+    bool collisionX = check_map_collision(st_position(moved.width, 0));
+    bool collisionY = check_map_collision(st_position(moved.width, moved.height));
+
+    if (collisionX == true || collisionY == true) {
+        if (_effect_n == 5) { // destroy if rebouncing for the fourth time
+            is_finished = true;
+        } else { // rebounce
+            _effect_n++;
+            if (status == TRAJECTORY_LINEAR) {
+                status = TRAJECTORY_DIAGONAL_UP;
+                direction = opposite_direction(direction);
+            // only change trajectory if hit on top/down, otherwise just change direction
+            } else if (status == TRAJECTORY_DIAGONAL_UP && collisionX == false) {
+                status = TRAJECTORY_DIAGONAL_DOWN;
+            } else if (status == TRAJECTORY_DIAGONAL_DOWN && collisionX == false) {
+                status = TRAJECTORY_DIAGONAL_UP;
+            } else {
+                direction = opposite_direction(direction);
+            }
+        }
+    }
+}
+
+// lighting: strikes at intervals ahead of the owner
+void projectile::move_lighting(st_float_size &moved)
+{
+    if (lighting_timer < timer.getTimer()) {
+        if (_effect_n > LIGHTING_FRAMES_N) {
+            play_sfx(false);
+            if (direction == ANIM_DIRECTION_LEFT) {
+                position.x -= RES_W/3;
+            } else {
+                position.x += RES_W/3;
+            }
+            int first_bottom_lock = gameControl.get_current_map_obj()->get_first_lock_on_bottom(position.x + get_size().width/2, -1);
+            _size.height = first_bottom_lock*TILESIZE + TILESIZE;
+            _effect_n = 0;
+            status = 0;
+            if (status > 3) {
+                finish();
+            } else {
+                animation anim2(ANIMATION_STATIC, &graphLib.water_splash, st_float_position(position.x, _size.height-TILESIZE), st_position(0, -8), 80, 2, direction, st_size(32, 23), gameControl.get_current_map_obj()->get_map_scrolling_ref());
+                gameControl.get_current_map_obj()->add_animation(anim2);
+                lighting_timer = timer.getTimer()+LIGHTING_START_DELAY;
+            }
+        }
+    }
+}
+
+// spiral around the start point
+void projectile::move_spiral(st_float_size &moved)
+{
+    angle -= _speed;
+    if (angle <= 0) {
+        angle = 360;
+    }
+    if (_speed/3 > 0.3) {
+        _speed_x += _speed/3;
+    } else {
+        _speed_x += 0.3;
+    }
+    if (_speed_x <= 0) { // prevent zero-speed
+        _speed_x = 0.3;
+    }
+
+    //position.y += 0.5;
+    float rad_angle = (angle * 3.14159265)/180;
+    position.x = _speed_x * cos(rad_angle) + position0.x;
+    position.y = _speed_x * sin(rad_angle) + position0.y;
+    //std::cout << "PROJECTILE::TRAJECTORY_SPIRAL - _speed_x[" << _speed_x << "], x[" << position.x << "], y[" << position.y << "]" << std::endl;
+}
+
+// bouncing on the ground
+void projectile::move_bouncing(st_float_size &moved)
+{
+    // @TODO: bounce condition is hitting ground
+    int moved_x = 0;
+    if (direction == ANIM_DIRECTION_LEFT) {
+        moved_x -= _speed;
+    } else {
+        moved_x += _speed;
+    }
+    position.x += moved_x;
+    // check if hit ground
+
+    if (check_map_collision(st_position(moved_x, 0)) == false) { // hit ground, bounce
+        position.y -= _dist_y;
+        if (_dist_y < TILESIZE-2) {
+            _dist_y += _gravity;
+        }
+    } else {
+        position.y -= abs(_dist_y);
+        // first bounce must be stronger
+        if (status == 0) {
+            _dist_y *= -1.8;
+            status++;
+        } else {
+            _dist_y *= -0.8;
+        }
+
+        if (fabs(_dist_y) < 0.01) {
+            _dist_y = 0;
+        }
+    }
+}
+
+// double shot: asks the owner for two projectiles and ends. Returns true when move() must end right away (nothing moved)
+bool projectile::move_double(st_float_size &moved)
+{
+    if (owner == NULL || is_finished == true) {
+        is_finished = true;
+        return true;
+    }
+    // @TODO: calc the X position given the direction owner is facing and his projectile-origin
+    st_position proj_pos_left = owner->get_attack_position(ANIM_DIRECTION_LEFT);
+    st_position proj_pos_right = owner->get_attack_position(ANIM_DIRECTION_RIGHT);
+    if (_move_type == TRAJECTORY_DOUBLE_LINEAR) {
+        owner->add_projectile(_id, proj_pos_left, TRAJECTORY_LINEAR, ANIM_DIRECTION_LEFT);
+        owner->add_projectile(_id, proj_pos_right, TRAJECTORY_LINEAR, ANIM_DIRECTION_RIGHT);
+    } else {
+        int trajectory = TRAJECTORY_DIAGONAL_UP;
+        // @TODO: compare target position (create method get target in character class)
+        if (owner->getPosition().y < RES_H/2) {
+            trajectory = TRAJECTORY_DIAGONAL_DOWN;
+        }
+        owner->add_projectile(_id, proj_pos_left, trajectory, ANIM_DIRECTION_LEFT);
+        owner->add_projectile(_id, proj_pos_right, trajectory, ANIM_DIRECTION_RIGHT);
+    }
+    is_finished = true;
+    return false;
+}
+
+// bomb rain: asks the owner for falling bombs over time. Returns true when move() must end right away (nothing moved)
+bool projectile::move_bomb_rain(st_float_size &moved)
+{
+    if (owner == NULL || is_finished == true) {
+        is_finished = true;
+        return true;
+    }
+    if (status_timer < timer.getTimer()) {
+        // make the projectile owner to add new one into its list
+        st_position new_proj_pos;
+        new_proj_pos.x = (RES_W-TILESIZE*2)/BOMB_RAIN_N * status  + position0.x;
+        if (direction == ANIM_DIRECTION_LEFT) {
+            new_proj_pos.x = position0.x - ((RES_W-TILESIZE*2)/BOMB_RAIN_N * status);
+        }
+        // adds same type to get properties and graphics, but chances trajectory for a different type
+        owner->add_projectile(_id, new_proj_pos, TRAJECTORY_FALL_BOMB, direction);
+        status_timer = timer.getTimer() + BOMB_RAIN_DELAY;
+        status++;
+        if (status > BOMB_RAIN_N) {
+            is_finished = true;
+        }
+    }
+    return false;
+}
+
+// large beam: grows across the screen
+void projectile::move_large_beam(st_float_size &moved)
+{
+    if (status_timer < timer.getTimer()) {
+        status_timer = timer.getTimer() + LARGE_BEAM_DELAY;
+        status++;
+        if (direction == ANIM_DIRECTION_LEFT) {
+            position.x -= frame_w;
+        }
+        if (status > RES_W/frame_w) {
+            is_finished = true;
+        }
+    }
+}
+
+// falls to the ground, then goes ahead
+void projectile::move_fall_and_seek(st_float_size &moved)
+{
+    if (status == 0) {
+        position.y += get_speed()/2;
+        // check if hit ground
+        int point_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(position.x/TILESIZE, (position.y+TILESIZE)/TILESIZE));
+        if (point_lock != TERRAIN_WATER && point_lock != TERRAIN_UNBLOCKED) { // hit ground, lets change to explosion
+            status++;
+        }
+    } else {
+        if (direction == ANIM_DIRECTION_LEFT) {
+            position.x -= get_speed();
+        } else {
+            position.x += get_speed();
+        }
+    }
+}
+
 st_float_size projectile::move() {
     st_float_size moved;
 
@@ -616,26 +979,9 @@ st_float_size projectile::move() {
         position.y = position0.y - _trajectory_parabola.get_y_point(abs(position.x - position0.x));
 
     } else if (_move_type == TRAJECTORY_ARC_SMALL) {
-        if (position.y < _size.height || position.y > RES_H) {
-            is_finished = true;
+        if (move_arc_small(moved) == true) {
             return st_float_size(0, 0);
         }
-
-        if (_speed_x > 0) {
-            if (direction == ANIM_DIRECTION_LEFT || direction == ANIM_DIRECTION_DOWN_LEFT || direction == ANIM_DIRECTION_UP_LEFT) {
-                position.x -= _speed_x;
-                moved.width -= _speed_x;
-            } else {
-                position.x += _speed_x;
-                moved.width += _speed_x;
-            }
-            _speed_x -= _accel_x;
-            if (_speed_x < 0) {
-                _speed_x = 0;
-            }
-        }
-        position.y += get_speed();
-
     } else if (_move_type == TRAJECTORY_ARC_TO_TARGET) {
         if (_was_parabola_set == false) {
             int temp_target_x = position.x + RES_W/2 - TILESIZE*3;
@@ -663,74 +1009,13 @@ st_float_size projectile::move() {
         }
         // do nothing, it is a bomb, it just stays until explodes
 	} else if (_move_type == TRAJECTORY_CHAIN) {
-        if (_owner_position != NULL) {
-            //std::cout << "MOVE[CHAIN] - owner.x[" << (int)_owner_position->x << "], owner.direction[" << (int)*_owner_direction << "], owner_is_player[" << _owner_is_player << "]" << std::endl;
-            if (_owner_direction != NULL) {
-                direction = *_owner_direction;
-            }
-            if (_owner_is_player == true) {
-                position.x = _owner_position->x + 5;
-                position.y = _owner_position->y + 14;
-                if (direction == ANIM_DIRECTION_RIGHT) {
-                    position.x += TILESIZE;
-                }
-            } else {
-                CURRENT_FILE_FORMAT::file_npc_v3_1_2* npc_ref = GameMediator::get_instance()->get_enemy(_owner_number);
-                if (direction == ANIM_DIRECTION_LEFT) {
-                    position.x = _owner_position->x + npc_ref->attack_arm_pos.x;
-                } else {
-                    position.x = _owner_position->x - npc_ref->attack_arm_pos.x;
-                }
-                position.y = _owner_position->y + npc_ref->attack_arm_pos.y;
-            }
-        }
-
-        if (status == 0) { // increasing
-            _chain_width += get_speed();
-            if (_chain_width > _size.width) {
-				status = 1;
-			}
-		} else { // returning
-            _chain_width -= get_speed();
-            if (_chain_width <= 0) {
-				is_finished = true;
-			}
-		}
+        move_chain(moved);
 	} else if (_move_type == TRAJECTORY_QUAKE) { // shake the screen
-		if (_quake_info.timer < timer.getTimer()) {
-			if (_quake_info.counter1 == 1) {
-				_quake_info.counter1 = 2;
-				graphLib.set_screen_adjust(st_position(-QUAKE_SCREEN_MOVE, 0));
-			} else {
-				_quake_info.counter1 = 1;
-				graphLib.set_screen_adjust(st_position(QUAKE_SCREEN_MOVE, 0));
-			}
-			_quake_info.counter2++;
-            if (_quake_info.counter2 > 50) {
-				_quake_info.counter1 = 0;
-				graphLib.set_screen_adjust(st_position(0, 0));
-				is_finished = true;
-			}
-			_quake_info.timer = timer.getTimer() + QUAKE_TIMER;
-		}
+        move_quake(moved);
 	} else if (_move_type == TRAJECTORY_FREEZE) {
-		if (_quake_info.timer < timer.getTimer()) {
-            freeze_weapon_effect = FREEZE_EFFECT_NONE;
-            draw_lib.set_flash_enabled(false);
-			is_finished = true;
-		}
+        move_freeze(moved);
 	} else if (_move_type == TRAJECTORY_CENTERED) {
-        if (_owner_position != NULL) {
-            position.x = _owner_position->x - 15;
-            position.y = _owner_position->y - 10;
-			if (_owner_direction != NULL) {
-				direction = *_owner_direction;
-			}
-            // after some time, change to linear
-            if (status > 0 || _effect_timer < timer.getTimer()) {
-				_move_type = TRAJECTORY_LINEAR;
-			}
-		}
+        move_centered(moved);
 	} else if (_move_type == TRAJECTORY_ZIGZAG) {
         // reflects only on walls (it used to also turn around when coming back to where it was shot, which looked like bouncing on the player)
         move_ahead(moved);
@@ -750,27 +1035,7 @@ st_float_size projectile::move() {
             inc_zigzag_status();
         }
     } else if (_move_type == TRAJECTORY_FOLLOW && _target_position != NULL) {
-		int xinc = 0;
-		int yinc = 0;
-		if (_target_position->x > position.x) {
-			xinc = get_speed();
-		} else if (_target_position->x < position.x) {
-			xinc = -get_speed();
-		}
-		if (_target_position->y > position.y) {
-			yinc = get_speed();
-		} else if (_target_position->y < position.y) {
-			yinc = -get_speed();
-		}
-		position.x += xinc;
-		moved.width += xinc;
-		position.y += yinc;
-		moved.height += yinc;
-
-
-        set_direction_from_xyinc(xinc, yinc); // change frame type depending on xinc/yinc
-
-
+        move_follow(moved);
 	} else if (_move_type == TRAJECTORY_FOLLOW && _target_position == NULL) {
 //        std::cout << "PROJECTILE::set_target_pos - transform into ZIGZAG #2" << std::endl;
 		_move_type = TRAJECTORY_ZIGZAG;
@@ -784,61 +1049,9 @@ st_float_size projectile::move() {
         }
         // gravity
     } else if (_move_type == TRAJECTORY_FALL_BOMB) {
-        if (_effect_n == 0) {
-            position.y += get_speed();
-            // check if hit ground
-            int point_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(position.x/TILESIZE, position.y/TILESIZE));
-            int first_bottom_lock = gameControl.get_current_map_obj()->get_first_lock_on_bottom(position.x + get_size().width/2, -1);
-            if ((position.y > first_bottom_lock*TILESIZE || position.y > RES_H-TILESIZE) && point_lock != TERRAIN_WATER && point_lock != TERRAIN_UNBLOCKED) { // hit ground, lets change to explosion
-                /// morph into a bigger explosion
-                _points = 5000;
-                _effect_timer = timer.getTimer()+1600;
-
-                _size.width = 56;
-                _size.height = 56;
-                position.x -= 28;
-                position.y -= 48;
-                _max_frames = get_surface()->width / _size.width;
-                _effect_n++;
-                soundManager.play_repeated_sfx(SFX_BIG_EXPLOSION, 1);
-            }
-        } else if (_effect_n == 1 && _effect_timer < timer.getTimer()) {
-            is_finished = true;
-        }
-
+        move_fall_bomb(moved);
     } else if (_move_type == TRAJECTORY_LASER) {
-        move_ahead(moved);
-        if (status == TRAJECTORY_DIAGONAL_UP) {
-            position.y -= get_speed();
-            moved.height -= get_speed();
-        } else if (status == TRAJECTORY_DIAGONAL_DOWN) {
-            position.y += get_speed();
-            moved.height += get_speed();
-        }
-        // check for collisions to change direction
-        bool collisionX = check_map_collision(st_position(moved.width, 0));
-        bool collisionY = check_map_collision(st_position(moved.width, moved.height));
-
-        if (collisionX == true || collisionY == true) {
-            if (_effect_n == 5) { // destroy if rebouncing for the fourth time
-                is_finished = true;
-            } else { // rebounce
-                _effect_n++;
-                if (status == TRAJECTORY_LINEAR) {
-                    status = TRAJECTORY_DIAGONAL_UP;
-                    direction = opposite_direction(direction);
-                // only change trajectory if hit on top/down, otherwise just change direction
-                } else if (status == TRAJECTORY_DIAGONAL_UP && collisionX == false) {
-                    status = TRAJECTORY_DIAGONAL_DOWN;
-                } else if (status == TRAJECTORY_DIAGONAL_DOWN && collisionX == false) {
-                    status = TRAJECTORY_DIAGONAL_UP;
-                } else {
-                    direction = opposite_direction(direction);
-                }
-            }
-        }
-
-
+        move_laser(moved);
     } else if (_move_type == TRAJECTORY_PUSH_BACK) {
         // execution will be handled by move_projectiles() in player/npc classes, only control duration
         if (timer.getTimer() > _effect_timer) {
@@ -851,145 +1064,23 @@ st_float_size projectile::move() {
         }
 
     } else if (_move_type == TRAJECTORY_LIGHTING) {
-        if (lighting_timer < timer.getTimer()) {
-            if (_effect_n > LIGHTING_FRAMES_N) {
-                play_sfx(false);
-                if (direction == ANIM_DIRECTION_LEFT) {
-                    position.x -= RES_W/3;
-                } else {
-                    position.x += RES_W/3;
-                }
-                int first_bottom_lock = gameControl.get_current_map_obj()->get_first_lock_on_bottom(position.x + get_size().width/2, -1);
-                _size.height = first_bottom_lock*TILESIZE + TILESIZE;
-                _effect_n = 0;
-                status = 0;
-                if (status > 3) {
-                    finish();
-                } else {
-                    animation anim2(ANIMATION_STATIC, &graphLib.water_splash, st_float_position(position.x, _size.height-TILESIZE), st_position(0, -8), 80, 2, direction, st_size(32, 23), gameControl.get_current_map_obj()->get_map_scrolling_ref());
-                    gameControl.get_current_map_obj()->add_animation(anim2);
-                    lighting_timer = timer.getTimer()+LIGHTING_START_DELAY;
-                }
-            }
-        }
+        move_lighting(moved);
     } else if (_move_type == TRAJECTORY_SPIRAL) {
-        angle -= _speed;
-        if (angle <= 0) {
-            angle = 360;
-        }
-        if (_speed/3 > 0.3) {
-            _speed_x += _speed/3;
-        } else {
-            _speed_x += 0.3;
-        }
-        if (_speed_x <= 0) { // prevent zero-speed
-            _speed_x = 0.3;
-        }
-
-        //position.y += 0.5;
-        float rad_angle = (angle * 3.14159265)/180;
-        position.x = _speed_x * cos(rad_angle) + position0.x;
-        position.y = _speed_x * sin(rad_angle) + position0.y;
-        //std::cout << "PROJECTILE::TRAJECTORY_SPIRAL - _speed_x[" << _speed_x << "], x[" << position.x << "], y[" << position.y << "]" << std::endl;
+        move_spiral(moved);
     } else if (_move_type == TRAJECTORY_BOUNCING) {
-        // @TODO: bounce condition is hitting ground
-        int moved_x = 0;
-        if (direction == ANIM_DIRECTION_LEFT) {
-            moved_x -= _speed;
-        } else {
-            moved_x += _speed;
-        }
-        position.x += moved_x;
-        // check if hit ground
-
-        if (check_map_collision(st_position(moved_x, 0)) == false) { // hit ground, bounce
-            position.y -= _dist_y;
-            if (_dist_y < TILESIZE-2) {
-                _dist_y += _gravity;
-            }
-        } else {
-            position.y -= abs(_dist_y);
-            // first bounce must be stronger
-            if (status == 0) {
-                _dist_y *= -1.8;
-                status++;
-            } else {
-                _dist_y *= -0.8;
-            }
-
-            if (fabs(_dist_y) < 0.01) {
-                _dist_y = 0;
-            }
-        }
+        move_bouncing(moved);
     } else if (_move_type == TRAJECTORY_DOUBLE_LINEAR || _move_type == TRAJECTORY_DOUBLE_DIAGONAL) {
-        if (owner == NULL || is_finished == true) {
-            is_finished = true;
+        if (move_double(moved) == true) {
             return st_float_size(0, 0);
         }
-        // @TODO: calc the X position given the direction owner is facing and his projectile-origin
-        st_position proj_pos_left = owner->get_attack_position(ANIM_DIRECTION_LEFT);
-        st_position proj_pos_right = owner->get_attack_position(ANIM_DIRECTION_RIGHT);
-        if (_move_type == TRAJECTORY_DOUBLE_LINEAR) {
-            owner->add_projectile(_id, proj_pos_left, TRAJECTORY_LINEAR, ANIM_DIRECTION_LEFT);
-            owner->add_projectile(_id, proj_pos_right, TRAJECTORY_LINEAR, ANIM_DIRECTION_RIGHT);
-        } else {
-            int trajectory = TRAJECTORY_DIAGONAL_UP;
-            // @TODO: compare target position (create method get target in character class)
-            if (owner->getPosition().y < RES_H/2) {
-                trajectory = TRAJECTORY_DIAGONAL_DOWN;
-            }
-            owner->add_projectile(_id, proj_pos_left, trajectory, ANIM_DIRECTION_LEFT);
-            owner->add_projectile(_id, proj_pos_right, trajectory, ANIM_DIRECTION_RIGHT);
-        }
-        is_finished = true;
     } else if (_move_type == TRAJECTORY_BOMB_RAIN) {
-        if (owner == NULL || is_finished == true) {
-            is_finished = true;
+        if (move_bomb_rain(moved) == true) {
             return st_float_size(0, 0);
         }
-        if (status_timer < timer.getTimer()) {
-            // make the projectile owner to add new one into its list
-            st_position new_proj_pos;
-            new_proj_pos.x = (RES_W-TILESIZE*2)/BOMB_RAIN_N * status  + position0.x;
-            if (direction == ANIM_DIRECTION_LEFT) {
-                new_proj_pos.x = position0.x - ((RES_W-TILESIZE*2)/BOMB_RAIN_N * status);
-            }
-            // adds same type to get properties and graphics, but chances trajectory for a different type
-            owner->add_projectile(_id, new_proj_pos, TRAJECTORY_FALL_BOMB, direction);
-            status_timer = timer.getTimer() + BOMB_RAIN_DELAY;
-            status++;
-            if (status > BOMB_RAIN_N) {
-                is_finished = true;
-            }
-        }
-
-
     } else if (_move_type == TRAJECTORY_LARGE_BEAM) {
-        if (status_timer < timer.getTimer()) {
-            status_timer = timer.getTimer() + LARGE_BEAM_DELAY;
-            status++;
-            if (direction == ANIM_DIRECTION_LEFT) {
-                position.x -= frame_w;
-            }
-            if (status > RES_W/frame_w) {
-                is_finished = true;
-            }
-        }
+        move_large_beam(moved);
     } else if (_move_type == TRAJECTORY_FALL_AND_SEEK) {
-        if (status == 0) {
-            position.y += get_speed()/2;
-            // check if hit ground
-            int point_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position(position.x/TILESIZE, (position.y+TILESIZE)/TILESIZE));
-            if (point_lock != TERRAIN_WATER && point_lock != TERRAIN_UNBLOCKED) { // hit ground, lets change to explosion
-                status++;
-            }
-        } else {
-            if (direction == ANIM_DIRECTION_LEFT) {
-                position.x -= get_speed();
-            } else {
-                position.x += get_speed();
-            }
-        }
+        move_fall_and_seek(moved);
     } else if (_move_type == TRAJECTORY_DOWN) {
         position.y += get_speed();
         if (position.y > RES_H + TILESIZE) {
