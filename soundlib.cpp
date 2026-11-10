@@ -57,7 +57,20 @@ void soundLib::play_sfx(Uint8 sfx) {
 	}
 
 	if (sfx_list[sfx] != NULL) {
+#ifdef PS3
+        static unsigned int sfx_logged = 0;
+        if (sfx_logged < 300) {
+            sfx_logged++;
+            ps3_platform::log("sfx %d (flip #%u)", (int)sfx, ps3_platform::flip_number());
+        }
+        const unsigned int sfx_t0 = SDL_GetTicks();
+#endif
         SDLL_Mix_PlayChannel(-1, sfx_list[sfx], 0);
+#ifdef PS3
+        if (SDL_GetTicks() - sfx_t0 > 5) {
+            ps3_platform::log("sfx %d: PlayChannel took %u ms", (int)sfx, SDL_GetTicks() - sfx_t0);
+        }
+#endif
 	}
 }
 

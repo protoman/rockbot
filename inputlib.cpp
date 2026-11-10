@@ -207,6 +207,8 @@ void inputLib::read_ps2_pad()
 void inputLib::read_ps3_pad()
 {
 #ifdef PS3
+    // loops that wait for a button (dialogs, error screens) never flip the screen: the PS button needs this callback too
+    ps3_platform::update();
     // SDL_PSL1GHT only counts pads during SDL_Init, so poll libio directly.
     // The rest of the game expects *events* (a button sets p1_input on press and
     // clears it on release; input.clean() clears it in between so that menus move

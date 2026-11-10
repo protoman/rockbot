@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdio.h>
+#include <errno.h>
 #include <cstdlib>
 
 #include "logger.h"
@@ -44,7 +45,9 @@ extern bool GAME_FLAGS[FLAG_COUNT];
 #if defined(WII) || defined(PS3)
 void short_to_little_endian(short &s)
 {
-     s = (s>>8) | (s<<8);
+    // unsigned: shifting a negative short filled the high byte with ones, so values with a low byte >= 128 came out wrong
+    unsigned short u = (unsigned short)s;
+    s = (short)__builtin_bswap16(u);
 }
 
 void u_short_to_little_endian(unsigned short &s)
@@ -56,7 +59,9 @@ void u_short_to_little_endian(unsigned short &s)
 
 void int_to_little_endian(int &i)
 {
-    i = (i<<24)|((i<<8)&0xFF0000)|((i>>8)&0xFF00)|(i>>24);
+    // unsigned: (i>>24) of a negative int filled the upper bytes with ones (wrong for every value with a low byte >= 128,
+    // e.g. the animated tiles' frame delays, which made the light bulbs blink too fast)
+    i = (int)__builtin_bswap32((unsigned int)i);
 }
 
 void u_int_to_little_endian(unsigned int &s)
@@ -824,12 +829,34 @@ namespace format_v4 {
 
     }
 
+    // Opens a file for writing. If that fails (seen on a real PS3: a save/config file written by an earlier run could not be
+    // opened for writing again, so every save failed), the old file is removed and created anew before giving up.
+    static FILE *open_for_write_with_retry(const std::string &filename)
+    {
+        FILE *fp = fopen(filename.c_str(), "wb");
+        if (fp == NULL) {
+#ifdef PS3
+            ps3_platform::log("open for write failed: '%s' errno=%d, trying to remove and recreate it", filename.c_str(), errno);
+#endif
+            remove(filename.c_str());
+            fp = fopen(filename.c_str(), "wb");
+#ifdef PS3
+            if (fp == NULL) {
+                ps3_platform::log("open for write failed again: '%s' errno=%d", filename.c_str(), errno);
+            } else {
+                ps3_platform::log("recreated '%s'", filename.c_str());
+            }
+#endif
+        }
+        return fp;
+    }
+
     void file_io::save_config(st_game_config &config) const
     {
         FILE *fp;
         std::string filename = std::string(SAVEPATH) + CONFIG_FILENAME;
         filename = StringUtils::clean_filename(filename);
-        fp = fopen(StringUtils::clean_filename(filename).c_str(), "wb");
+        fp = open_for_write_with_retry(StringUtils::clean_filename(filename));
         if (!fp) {
             std::cout << "ERROR: Could not open config file '" << filename << "'." << std::endl;
             return;
@@ -932,16 +959,35 @@ namespace format_v4 {
 
         std::string filename = get_save_filename(save_n);
 
-        fp = fopen(StringUtils::clean_filename(filename).c_str(), "wb");
+        fp = open_for_write_with_retry(StringUtils::clean_filename(filename));
         if (!fp) {
             std::cout << "ERROR: Could not open save-file '" << filename << "'." << std::endl;
             return false;
         }
 
-        fwrite(&data_in, sizeof(struct format_v4::st_save), 1, fp);
-        fclose(fp);
+        bool written = (fwrite(&data_in, sizeof(struct format_v4::st_save), 1, fp) == 1);
+        if (fclose(fp) != 0) {
+            written = false;
+        }
+#ifdef PS3
+        // PSL1GHT's write() returns the byte count even when the lv2 write failed (the error return is missing in librt/write.c):
+        // read the size back to be sure the whole save is on the disk
+        if (written == true) {
+            FILE *check_fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
+            long check_size = -1;
+            if (check_fp != NULL) {
+                fseek(check_fp, 0, SEEK_END);
+                check_size = ftell(check_fp);
+                fclose(check_fp);
+            }
+            if (check_size != (long)sizeof(struct format_v4::st_save)) {
+                ps3_platform::log("save check failed: %ld bytes on disk, expected %d", check_size, (int)sizeof(struct format_v4::st_save));
+                written = false;
+            }
+        }
+#endif
 
-        return true;
+        return written;
     }
 
     bool file_io::save_exists(short save_n)
@@ -1064,6 +1110,17 @@ namespace format_v4 {
         for (int i=0; i<CASTLE_STAGES_MAX; i++) {
             sint16_to_little_endian(data_out.points[i].x);
             sint16_to_little_endian(data_out.points[i].y);
+        }
+        // the boss-defeated dialog holds string ids (int): they were never converted
+        for (int i=0; i<3; i++) {
+            int_to_little_endian(data_out.boss_defeated_dialog.text1_string_ids[i]);
+            int_to_little_endian(data_out.boss_defeated_dialog.text2_string_ids[i]);
+        }
+        for (int i=0; i<4; i++) {
+            for (int j=0; j<3; j++) {
+                int_to_little_endian(data_out.boss_defeated_dialog.answer1_string_ids[i][j]);
+                int_to_little_endian(data_out.boss_defeated_dialog.answer2_string_ids[i][j]);
+            }
         }
 #endif
         fp.close();

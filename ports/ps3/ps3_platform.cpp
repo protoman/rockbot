@@ -291,9 +291,24 @@ void flip_debug_dump(SDL_Surface *screen)
 #endif
 }
 
+unsigned int flip_number()
+{
+    return g_flip_counter;
+}
+
 void flip_heartbeat()
 {
     g_flip_counter++;
+#ifdef PS3
+    // frames that take much longer than the others (the stutter): when, how long
+    static unsigned int last_ms = 0, slow_logged = 0;
+    const unsigned int now_ms = SDL_GetTicks();
+    if (last_ms != 0 && now_ms - last_ms > 45 && slow_logged < 400) {
+        slow_logged++;
+        log("slow frame #%u: %u ms", g_flip_counter, now_ms - last_ms);
+    }
+    last_ms = now_ms;
+#endif
     static unsigned int flips = 0;
     flips++;
     if (flips <= 3 || (flips % 120) == 0) {

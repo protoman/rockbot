@@ -18,6 +18,7 @@ void update();
 // Keeps the RSX command buffer from filling up. Call before every video flip.
 void rsx_command_buffer_guard();
 void flip_heartbeat();
+unsigned int flip_number();
 // Console debugging of the all-white stage: R3 cycles through test variants (0 = normal), see classmap.cpp show_map().
 int debug_variant();
 // Called on every flip with the presented surface: writes screenshots (BMP) to /dev_hdd0/tmp/rockbot/

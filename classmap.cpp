@@ -253,7 +253,18 @@ void classMap::show_map()
     // redraw screen if scroll changed significantly or map was not drawn yet
     int scroll_diff = _show_map_pos_x == -1 ? TILESIZE + 1 : abs(_show_map_pos_x - scroll.x);
     if (scroll_diff > TILESIZE) {
+#ifdef PS3
+        const unsigned int tiles_t0 = SDL_GetTicks();
         draw_map_tiles();
+        const unsigned int tiles_ms = SDL_GetTicks() - tiles_t0;
+        static unsigned int tiles_logged = 0;
+        if (tiles_ms > 12 && tiles_logged < 200) {
+            tiles_logged++;
+            ps3_platform::log("tile layer redraw: %u ms (flip #%u)", tiles_ms, ps3_platform::flip_number());
+        }
+#else
+        draw_map_tiles();
+#endif
     // use memory screen
     }
     int diff_scroll_x = scroll.x - _show_map_pos_x;

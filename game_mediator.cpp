@@ -162,7 +162,9 @@ int GameMediator::get_enemy_list_size()
 #if defined(WII) || defined(PS3)
 void GameMediator::short_to_little_endian(short &s)
 {
-     s = (s>>8) | (s<<8);
+    // unsigned: shifting a negative short filled the high byte with ones, so values with a low byte >= 128 came out wrong
+    unsigned short u = (unsigned short)s;
+    s = (short)__builtin_bswap16(u);
 }
 
 void GameMediator::u_short_to_little_endian(unsigned short &s)
@@ -180,7 +182,9 @@ void GameMediator::sint16_to_little_endian(int16_t &i)
 
 void GameMediator::int_to_little_endian(int &i)
 {
-    i = (i<<24)|((i<<8)&0xFF0000)|((i>>8)&0xFF00)|(i>>24);
+    // unsigned: (i>>24) of a negative int filled the upper bytes with ones (wrong for every value with a low byte >= 128,
+    // e.g. the animated tiles' frame delays, which made the light bulbs blink too fast)
+    i = (int)__builtin_bswap32((unsigned int)i);
 }
 
 void GameMediator::uint16_to_little_endian(Uint16 &i)
