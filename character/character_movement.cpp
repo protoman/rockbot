@@ -886,34 +886,10 @@ bool character::slide(st_float_position mapScrolling)
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
-bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
+// jump button (or a forced jump, like the coil): leaves a ladder, or starts the jump / double jump / super jump.
+// Returns true when jump() must end right away (the jump from a ladder is a fall)
+bool character::start_jump(int jumpCommandStage, int water_lock)
 {
-    // @TODO - can only jump again once set foot on land
-    if (jumpCommandStage == 0 && jump_button_released == false) {
-        jump_button_released = true;
-    }
-
-    if (state.animation_type() == ANIM_TYPE_HIT) {
-        return false;
-    }
-
-    // can't jump while on air dash
-    if (state.animation_type() == ANIM_TYPE_SLIDE && hit_ground() == false) {
-        return false;
-    }
-
-    // grabbing a ladder gives the jump back
-    if (is_in_stairs_frame()) {
-        _air_dashed = false;
-    }
-
-    if (timer.getTimer() < jump_lock_timer) { // some effect blocked jumping
-        //std::cout << ">>>>>>>>>>>>>>>>> jump blocked[" << name << "]. Lock-Time: [" << jump_lock_timer << "], timer: {" << timer.getTimer() << "]" << std::endl;
-        return false;
-    }
-
-    int water_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position((position.x+frameSize.width/2)/TILESIZE, (position.y+6)/TILESIZE));
-
     if (_force_jump == true || (jumpCommandStage == 1 && jump_button_released == true)) {
 
         if (is_in_stairs_frame()) {
@@ -921,7 +897,7 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
                 set_animation_type(ANIM_TYPE_JUMP);
                 _is_falling = true;
                 _stairs_falling_timer = timer.getTimer() + STAIRS_GRAB_TIMEOUT; // avoid player entering stairs immediatlly after jumping from it
-                return false;
+                return true;
             } else {
                 _obj_jump.interrupt();
                 if (_force_jump == true) {
@@ -956,6 +932,40 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
                 jump_button_released = false;
             }
         }
+    }
+    return false;
+}
+
+bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
+{
+    // @TODO - can only jump again once set foot on land
+    if (jumpCommandStage == 0 && jump_button_released == false) {
+        jump_button_released = true;
+    }
+
+    if (state.animation_type() == ANIM_TYPE_HIT) {
+        return false;
+    }
+
+    // can't jump while on air dash
+    if (state.animation_type() == ANIM_TYPE_SLIDE && hit_ground() == false) {
+        return false;
+    }
+
+    // grabbing a ladder gives the jump back
+    if (is_in_stairs_frame()) {
+        _air_dashed = false;
+    }
+
+    if (timer.getTimer() < jump_lock_timer) { // some effect blocked jumping
+        //std::cout << ">>>>>>>>>>>>>>>>> jump blocked[" << name << "]. Lock-Time: [" << jump_lock_timer << "], timer: {" << timer.getTimer() << "]" << std::endl;
+        return false;
+    }
+
+    int water_lock = gameControl.get_current_map_obj()->getMapPointLock(st_position((position.x+frameSize.width/2)/TILESIZE, (position.y+6)/TILESIZE));
+
+    if (start_jump(jumpCommandStage, water_lock) == true) {
+        return false;
     }
 
     bool is_onquicksand = false;

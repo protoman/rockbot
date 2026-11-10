@@ -258,6 +258,7 @@ protected:
     void start_slide(bool did_hit_ground);
     bool slide_blocked_at_edge();
     bool jump(int, st_float_position);
+    bool start_jump(int jumpCommandStage, int water_lock);
     st_map_collision map_collision(const float incx, const short int incy, st_float_position mapScrolling, int hitbox_anim_type=-1);
     bool collision_with_objects(const float incx, const short incy, int &map_block);
     void player_touch_npcs(const float incx, const short incy, int py_adjust);
