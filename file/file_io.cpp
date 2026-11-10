@@ -4,6 +4,9 @@
 
 #include "logger.h"
 #include "file_io.h"
+#ifdef PS3
+#include "../ports/ps3/ps3_platform.h"
+#endif
 #ifdef PSP
 #include "../ports/psp/psp_platform.h"
 #endif
@@ -423,7 +426,7 @@ namespace format_v4 {
         std::ifstream fp;
         std::string filename = std::string(FILEPATH) + "/stages" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
-        fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
+        fp.open(filename.c_str(), std::ios::in | std::ios::binary); // read only: the append mode makes the open fail where the data folder is read-only
         if (!fp.is_open()) {
             std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
             return;
@@ -498,7 +501,7 @@ namespace format_v4 {
         std::ifstream fp;
         std::string filename = std::string(FILEPATH) + std::string("/maps.dat");
         filename = StringUtils::clean_filename(filename);
-        fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
+        fp.open(filename.c_str(), std::ios::in | std::ios::binary); // read only: the append mode makes the open fail where the data folder is read-only
         if (!fp.is_open()) {
             std::cout << "ERROR::read_all_maps - could not load file '" << filename << "'" << std::endl;
             return;
@@ -523,7 +526,7 @@ namespace format_v4 {
         std::ifstream fp;
         std::string filename = std::string(FILEPATH) + std::string("/maps_v2.dat");
         filename = StringUtils::clean_filename(filename);
-        fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
+        fp.open(filename.c_str(), std::ios::in | std::ios::binary); // read only: the append mode makes the open fail where the data folder is read-only
         if (!fp.is_open()) {
             std::cout << "ERROR::read_all_maps - could not load file '" << filename << "'" << std::endl;
             return;
@@ -558,9 +561,12 @@ namespace format_v4 {
         std::ifstream fp;
         std::string filename = std::string(FILEPATH) + std::string("/maps_v2.dat");
         filename = StringUtils::clean_filename(filename);
-        fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
+        fp.open(filename.c_str(), std::ios::in | std::ios::binary); // read only: the append mode makes the open fail where the data folder is read-only
         if (!fp.is_open()) {
             std::cout << "ERROR::read_all_maps - could not load file '" << filename << "'" << std::endl;
+#ifdef PS3
+            ps3_platform::log("read_stage_maps_v2: could not open '%s'", filename.c_str());
+#endif
             return;
         }
 
@@ -569,11 +575,22 @@ namespace format_v4 {
 
         for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
             fp.read(reinterpret_cast<char *>(&data_out[j]), sizeof(file_map_v2));
+#ifdef PS3
+            if (!fp.good() || fp.gcount() != (std::streamsize)sizeof(file_map_v2)) {
+                ps3_platform::log("read_stage_maps_v2: stage %d map %d read failed (read %d of %d bytes, state=%d)", stage_id, j, (int)fp.gcount(), (int)sizeof(file_map_v2), (int)fp.rdstate());
+                break;
+            }
+#endif
         }
 
         #if defined(WII) || defined(PS3)
         wii_convert_map_data(data_out);
         #endif
+#ifdef PS3
+        ps3_platform::log("read_stage_maps_v2: '%s' stage %d: map0 bg=%d,%d,%d tile(3,10)=%d,%d locked=%d", filename.c_str(), stage_id,
+            (int)data_out[0].background_color.r, (int)data_out[0].background_color.g, (int)data_out[0].background_color.b,
+            (int)data_out[0].tiles[3][10].tile1.x, (int)data_out[0].tiles[3][10].tile1.y, (int)data_out[0].tiles[3][10].locked);
+#endif
         fp.close();
     }
 
@@ -1037,7 +1054,7 @@ namespace format_v4 {
         std::ifstream fp;
         std::string filename = std::string(FILEPATH) + "/castle_data" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
-        fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
+        fp.open(filename.c_str(), std::ios::in | std::ios::binary); // read only: the append mode makes the open fail where the data folder is read-only
         if (!fp.is_open()) {
             std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
             return;
