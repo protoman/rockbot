@@ -200,7 +200,9 @@ projectile::projectile(Uint8 id, Uint8 set_direction, st_position set_position, 
     // for damage, use get_damage
     // for trajectory, get_trajectory
 
-    _speed_x = 8;
+    if (_move_type != TRAJECTORY_SPIRAL) { // the spiral starts at radius 0 (set above); this default used to overwrite it
+        _speed_x = 8;
+    }
     _accel_x = 0.95;
 
 
@@ -418,6 +420,9 @@ void projectile::set_target_position(st_float_position *pos)
         }
         int dist_x = _target_position->x - position.x;
         int dist_y = _target_position->y + TILESIZE - position.y;
+        if (dist_x == 0) { // target exactly above/below: dividing by zero made the shot fly off to infinity and never finish
+            dist_x = (direction == ANIM_DIRECTION_LEFT) ? -1 : 1;
+        }
 
         _diagonal_speed.y = (_diagonal_speed.x * dist_y) / dist_x;
         if (dist_x < 0) {
@@ -882,7 +887,7 @@ st_float_size projectile::move() {
         }
 
         //position.y += 0.5;
-        float rad_angle = (angle * 3.1459)/180;
+        float rad_angle = (angle * 3.14159265)/180;
         position.x = _speed_x * cos(rad_angle) + position0.x;
         position.y = _speed_x * sin(rad_angle) + position0.y;
         //std::cout << "PROJECTILE::TRAJECTORY_SPIRAL - _speed_x[" << _speed_x << "], x[" << position.x << "], y[" << position.y << "]" << std::endl;
@@ -992,7 +997,7 @@ st_float_size projectile::move() {
         }
     } else if (_move_type == TRAJECTORY_UP) {
         position.y -= get_speed();
-        if (position.y > -TILESIZE) {
+        if (position.y < -TILESIZE) { // was "> -TILESIZE": the projectile finished on its first move
             is_finished = true;
         }
     } else {
