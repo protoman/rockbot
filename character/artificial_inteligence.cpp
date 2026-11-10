@@ -2310,12 +2310,17 @@ void artificial_inteligence::execute_ai_step_jump_to_wall()
         int pos_x = find_wall(position.x, state.direction);
         if (pos_x == -1) { // no wall found to grab
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+            return; // it went on and overwrote the state, jumping towards x=-1
         }
         _dest_point.x = pos_x;
         _dest_point.y = RES_H/2;
 
         int dist_x = _dest_point.x - position.x;
         int dist_y = _dest_point.y - position.y;
+        if (dist_x == 0) { // already at the wall (the speed calculation divides by it)
+            _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
+            return;
+        }
         _diagonal_speed.x = move_speed*2;
         _diagonal_speed.y = (_diagonal_speed.x * dist_y) / dist_x;
         if (_diagonal_speed.y < 0) { // move_to_point always use positive values, and adjust depending on target itself
@@ -2344,6 +2349,9 @@ void artificial_inteligence::execute_ai_replace_itself(bool morph)
     _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
     // spawn new npc
     classnpc* npc_ref = gameControl.get_current_map_obj()->spawn_map_npc(_parameter, st_position(position.x, position.y+frameSize.height/2), state.direction, false, false);
+    if (npc_ref == NULL) { // could not create the replacement
+        return;
+    }
 
     // is executing reaction and is dying and is map-boss -> set child as new map-boss
     if (_reaction_state == 1 && _reaction_type == 2 && _is_stage_boss == true) {
