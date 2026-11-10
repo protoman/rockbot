@@ -2366,6 +2366,7 @@ void classMap::move_npcs() /// @TODO - check out of screen
                     graphLib.blink_screen(255, 255, 255);
                     continue;
                 } else {
+                    PS3_TRACE("stage boss defeated: clearing the stage");
                     gameControl.remove_all_projectiles();
                     kill_all_enemies();
                     graphLib.set_screen_adjust(st_position(0, 0));
@@ -2380,7 +2381,9 @@ void classMap::move_npcs() /// @TODO - check out of screen
                         gameControl.show_ending();
                         return;
                     } else {
+                        PS3_TRACE("stage boss defeated: explosion");
                         gameControl.draw_boss_explosion(npc_pos, true);
+                        PS3_TRACE("stage boss defeated: explosion done");
                         gameControl.got_weapon();
                     }
                 }

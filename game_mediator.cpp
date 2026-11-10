@@ -211,8 +211,13 @@ void GameMediator::wii_convert_npc_list() {
         }
         sint16_to_little_endian(enemy_list.at(i).sprites_pos_bg.x);
         sint16_to_little_endian(enemy_list.at(i).sprites_pos_bg.y);
-        sint16_to_little_endian(enemy_list.at(i).walk_range);
+        // (walk_range was converted a second time here, which undid the first conversion: the ranges were wrong)
         int_to_little_endian(enemy_list.at(i).respawn_delay);
+        // the area that can be hit was never converted: garbage values made shots hit an enemy at once
+        sint16_to_little_endian(enemy_list.at(i).vulnerable_area.x);
+        sint16_to_little_endian(enemy_list.at(i).vulnerable_area.y);
+        sint16_to_little_endian(enemy_list.at(i).vulnerable_area.w);
+        sint16_to_little_endian(enemy_list.at(i).vulnerable_area.h);
 
     }
 }

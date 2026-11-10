@@ -34,3 +34,10 @@ void set_default_input_mode(E_INPUT_TYPES *input_type, E_INPUT_MODES *input_mode
 E_PLATFORM get_platform();
 
 } // namespace ps3_platform
+
+// Progress marker in rockbot_ps3.log: the last one written shows where the game stopped (empty on other platforms).
+#ifdef PS3
+#define PS3_TRACE(...) ps3_platform::log(__VA_ARGS__)
+#else
+#define PS3_TRACE(...) ((void)0)
+#endif

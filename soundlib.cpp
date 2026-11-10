@@ -1,5 +1,8 @@
 #include <cstdlib>
 #include "soundlib.h"
+#ifdef PS3
+#include "ports/ps3/ps3_platform.h"
+#endif
 
 #ifdef ANDROID
 #include <android/log.h>
@@ -280,6 +283,7 @@ void soundLib::load_all_sfx() {
 void soundLib::load_music(std::string music_file) {
 	string filename;
 
+    PS3_TRACE("load_music: %s", music_file.c_str());
     unload_music();
     filename = FILEPATH + "music/" + music_file;
     filename = get_filename_for_music(filename);
@@ -429,7 +433,9 @@ void soundLib::stop_music() const {
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::stop_music");
 #endif
+    PS3_TRACE("stop_music: halting");
     SDLL_Mix_HaltMusic();
+    PS3_TRACE("stop_music: done");
 }
 
 void soundLib::close_audio() {
