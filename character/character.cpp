@@ -2617,7 +2617,7 @@ bool character::have_frame_graphics()
         for (int i=0; i<2; i++) {
 			for (int j=0; j<ANIM_TYPE_COUNT; j++) {
 				for (int k=0; k<ANIM_FRAMES_COUNT; k++) {
-                    if ((graphLib.character_graphics_list.find(name)->second).frames[i][k][k].frameSurface.width > 0 && (graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface.get_surface() != NULL) {
+                    if ((graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface.width > 0 && (graphLib.character_graphics_list.find(name)->second).frames[i][j][k].frameSurface.get_surface() != NULL) {
 						return true;
 					}
 				}
