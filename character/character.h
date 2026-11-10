@@ -147,6 +147,10 @@ public:
     graphicsLib_gSurface* get_char_frame(int direction, int type, int frame);
     short int get_number() const;
     void charMove();
+    bool move_horizontal_left(float temp_move_speed, bool &moved);
+    bool move_horizontal_right(float temp_move_speed, bool &moved);
+    void move_ice_inertia(bool moved, int bottom_point_lock);
+    void move_stairs_vertical(float temp_move_speed, int bottom_point_lock);
     void store_previous_position();
     void clear_move_commands();
     void reset_gravity_speed();

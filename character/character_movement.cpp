@@ -37,6 +37,269 @@ extern int freeze_weapon_id;
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
+// left key: turn, walk, slide/stairs turn. Returns false when charMove must end this frame (as it did with the old early return)
+bool character::move_horizontal_left(float temp_move_speed, bool &moved)
+{
+    int mapLock = 0;
+	if (moveCommands.left == 1 && position.x > 0 && state.animation_type() != ANIM_TYPE_SLIDE && is_in_stairs_frame() == false) {
+        // check inverting direction
+        if (state.animation_type() != ANIM_TYPE_HIT && state.direction() != ANIM_DIRECTION_LEFT) {
+            set_direction(ANIM_DIRECTION_LEFT);
+            return false;
+        }
+
+        for (float i=temp_move_speed; i>=0.1; i--) {
+            st_map_collision map_col = map_collision(-i, 0, gameControl.get_current_map_obj()->getMapScrolling());
+            mapLock = map_col.block;
+            if (state.animation_type() == ANIM_TYPE_HIT) {
+                hit_moved_back_n += temp_move_speed;
+            }
+            if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y || mapLock == BLOCK_QUICKSAND) {
+                if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_Y) {
+                    position.x -= i + gameControl.get_current_map_obj()->get_last_scrolled().x;
+                } else if (mapLock == BLOCK_WATER) {
+                    position.x -= i*WATER_SPEED_MULT + gameControl.get_current_map_obj()->get_last_scrolled().x;
+                } else if (mapLock == BLOCK_QUICKSAND) {
+                    position.x -= i*QUICKSAND_SPEED_MULT + gameControl.get_current_map_obj()->get_last_scrolled().x;
+                }
+				if (state.animation_type() != ANIM_TYPE_HIT) {
+                    if (is_player() && state.direction() == ANIM_DIRECTION_RIGHT && is_in_stairs_frame() != true) {
+                        position.x -= PLAYER_RIGHT_TO_LEFT_DIFF;
+                    }
+                    set_direction(ANIM_DIRECTION_LEFT);
+				} else {
+                    gravity(false);
+                    return false;
+				}
+                if (state.animation_type() != ANIM_TYPE_WALK && state.animation_type() != ANIM_TYPE_WALK_ATTACK) {
+					state.set_animation_timer(0);
+                }
+                if (state.animation_type() != ANIM_TYPE_WALK && state.animation_type() != ANIM_TYPE_JUMP && state.animation_type() != ANIM_TYPE_SLIDE && state.animation_type() != ANIM_TYPE_JUMP_ATTACK && state.animation_type() != ANIM_TYPE_HIT && (state.animation_type() != ANIM_TYPE_WALK_ATTACK || (state.animation_type() == ANIM_TYPE_WALK_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
+                    set_animation_type(ANIM_TYPE_WALK);
+				}
+				moved = true;
+				break;
+			}
+		}
+	}
+    if (moveCommands.right != 1 && moveCommands.left == 1 && state.direction() != ANIM_DIRECTION_LEFT && (state.animation_type() == ANIM_TYPE_SLIDE || is_in_stairs_frame() == true)) {
+        if (is_player() && state.direction() == ANIM_DIRECTION_RIGHT && is_in_stairs_frame() != true) {
+            position.x -= PLAYER_RIGHT_TO_LEFT_DIFF;
+        }
+        set_direction(ANIM_DIRECTION_LEFT);
+    }
+    return true;
+}
+
+// right key: same as the left one
+bool character::move_horizontal_right(float temp_move_speed, bool &moved)
+{
+    int mapLock = 0;
+    if (moveCommands.left != 1 && moveCommands.right == 1 && state.animation_type() != ANIM_TYPE_SLIDE && is_in_stairs_frame() == false) {
+        if (state.animation_type() != ANIM_TYPE_HIT && state.direction() != ANIM_DIRECTION_RIGHT) {
+            set_direction(ANIM_DIRECTION_RIGHT);
+            return false;
+        }
+        if (state.animation_type() == ANIM_TYPE_HIT) {
+            hit_moved_back_n += temp_move_speed;
+        }
+
+        if (is_on_quicksand()) {
+            temp_move_speed = QUICKSAND_JUMP_LIMIT/2;
+        }
+
+        for (float i=temp_move_speed; i>=0.1; i--) {
+            // (moving left has no "too small to change a pixel" skip, and this one made right-side moves under 1px,
+            // like the hit knockback, travel less than left-side ones: both sides now move the same)
+            if (is_player() == false || (realPosition.x + i + frameSize.width/2) < RES_W) {
+                st_map_collision map_col = map_collision(i, 0, gameControl.get_current_map_obj()->getMapScrolling());
+                mapLock = map_col.block;
+
+                if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y || mapLock == BLOCK_QUICKSAND) {
+                    if (mapLock == TERRAIN_UNBLOCKED || mapLock == BLOCK_Y) {
+                        position.x += i - gameControl.get_current_map_obj()->get_last_scrolled().x;
+                    } else if (mapLock == BLOCK_WATER) {
+                        position.x += i*WATER_SPEED_MULT - gameControl.get_current_map_obj()->get_last_scrolled().x;
+                    } else if (mapLock == BLOCK_QUICKSAND) {
+                        position.x += i*QUICKSAND_SPEED_MULT + gameControl.get_current_map_obj()->get_last_scrolled().x;
+                    }
+                    if (state.animation_type() != ANIM_TYPE_HIT) {
+                        if (is_player() && state.direction() == ANIM_DIRECTION_LEFT && is_in_stairs_frame() != true) {
+                            position.x += PLAYER_RIGHT_TO_LEFT_DIFF;
+                        }
+                        set_direction(ANIM_DIRECTION_RIGHT);
+                    } else {
+                        gravity(false);
+                        return false;
+                    }
+                    if (state.animation_type() != ANIM_TYPE_WALK && state.animation_type() != ANIM_TYPE_WALK_ATTACK) {
+                        state.set_animation_timer(0);
+                    }
+                    if (state.animation_type() != ANIM_TYPE_WALK && state.animation_type() != ANIM_TYPE_JUMP && state.animation_type() != ANIM_TYPE_SLIDE && state.animation_type() != ANIM_TYPE_JUMP_ATTACK && state.animation_type() != ANIM_TYPE_HIT && (state.animation_type() != ANIM_TYPE_WALK_ATTACK || (state.animation_type() == ANIM_TYPE_WALK_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
+                        set_animation_type(ANIM_TYPE_WALK);
+                    }
+                    moved = true;
+                    break;
+                } else {
+                    moved = false;
+                }
+            }
+		}
+	}
+	if (moveCommands.right == 1 && state.direction() != ANIM_DIRECTION_RIGHT && (state.animation_type() == ANIM_TYPE_SLIDE || is_in_stairs_frame() == true)) {
+        if (is_player() && state.direction() == ANIM_DIRECTION_LEFT && is_in_stairs_frame() != true) {
+            position.x += PLAYER_RIGHT_TO_LEFT_DIFF;
+        }
+        set_direction(ANIM_DIRECTION_RIGHT);
+    }
+    return true;
+}
+
+// sliding on ice / after leaving ice
+void character::move_ice_inertia(bool moved, int bottom_point_lock)
+{
+    int mapLock = 0;
+    // Ice inertia
+    if (bottom_point_lock == TERRAIN_ICE || (_inertia_obj.is_started() && (bottom_point_lock == TERRAIN_UNBLOCKED|| bottom_point_lock == TERRAIN_WATER))) {
+
+        if (moved == true) {
+            if (moveCommands.right == 1) {
+                st_map_collision map_col = map_collision(1, 0, gameControl.get_current_map_obj()->getMapScrolling());
+                mapLock = map_col.block;
+                if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
+                    position.x++;
+                }
+            } else if (moveCommands.left == 1) {
+                st_map_collision map_col = map_collision(-1, 0, gameControl.get_current_map_obj()->getMapScrolling());
+                mapLock = map_col.block;
+                if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
+                    position.x--;
+                }
+            }
+            _inertia_obj.start();
+        } else if (moveCommands.left == 0 && moveCommands.right == 0) {
+            int inertia_xinc = _inertia_obj.execute();
+            if (inertia_xinc != 0) {
+                if (state.direction() == ANIM_DIRECTION_LEFT) {
+                    if (position.x - inertia_xinc < 0) {
+                        _inertia_obj.stop();
+                    } else {
+                        st_map_collision map_col = map_collision(-inertia_xinc, 0, gameControl.get_current_map_obj()->getMapScrolling());
+                        mapLock = map_col.block;
+                        if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
+                            position.x -= inertia_xinc;
+                        }
+                    }
+                } else {
+                    if (realPosition.x+inertia_xinc > RES_W) {
+                        _inertia_obj.stop();
+                    } else {
+                        st_map_collision map_col = map_collision(inertia_xinc, 0, gameControl.get_current_map_obj()->getMapScrolling());
+                        mapLock = map_col.block;
+                        if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
+                            position.x += inertia_xinc;
+                        }
+                    }
+                }
+            }
+        }
+        if (gameControl.get_current_map_obj() != NULL) {
+            gameControl.update_stage_scrolling();
+        }
+        char_update_real_position();
+    } else if (bottom_point_lock != TERRAIN_WATER) {
+        _inertia_obj.stop();
+    }
+
+    if (_obj_jump.is_started() == true) {
+        _inertia_obj.stop();
+    }
+}
+
+// climbing/descending stairs and their animations
+void character::move_stairs_vertical(float temp_move_speed, int bottom_point_lock)
+{
+	// check if character is on stairs
+    if (moveCommands.up == 1 && state.animation_type() != ANIM_TYPE_STAIRS_ATTACK) { // check stairs on middle
+        st_position stairs_pos = is_on_stairs(st_rectangle(position.x, position.y+(frameSize.height/2)-2, frameSize.width, frameSize.height/2-2));
+        int top_terrain = gameControl.get_current_map_obj()->getMapPointLock(st_position(((stairs_pos.x * TILESIZE - 6)+frameSize.width/2)/TILESIZE, position.y/TILESIZE));
+        if (stairs_pos.x != -1) {
+            if (state.animation_type() != ANIM_TYPE_STAIRS_MOVE && _stairs_falling_timer < timer.getTimer()) {
+                set_animation_type(ANIM_TYPE_STAIRS_MOVE);
+			}
+            if (is_in_stairs_frame() && (top_terrain == TERRAIN_UNBLOCKED || top_terrain == TERRAIN_WATER || top_terrain == TERRAIN_STAIR)) {
+                position.y -= temp_move_speed * STAIRS_MOVE_MULTIPLIER;
+                position.x = stairs_pos.x * TILESIZE - (frameSize.width-TILESIZE)/2;
+            }
+		// out of stairs
+		} else {
+            int map_terrain = gameControl.get_current_map_obj()->getMapPointLock(st_position(((position.x+frameSize.width/2)/TILESIZE), ((position.y+frameSize.height-4)/TILESIZE)));
+            if (_dropped_from_stairs == false && map_terrain == TERRAIN_STAIR) { // check stairs bottom (leaving)
+                set_animation_type(ANIM_TYPE_STAIRS_SEMI);
+                position.y -= temp_move_speed * STAIRS_MOVE_MULTIPLIER;
+			} else if (state.animation_type() == ANIM_TYPE_STAIRS_SEMI) {
+                set_animation_type(ANIM_TYPE_STAND);
+                position.y -= 2;
+			}
+		}
+    }
+
+
+    if (moveCommands.down == 1 && state.animation_type() != ANIM_TYPE_SLIDE && state.animation_type() != ANIM_TYPE_STAIRS_ATTACK) {
+        st_position stairs_pos_center = is_on_stairs(st_rectangle(position.x, position.y+frameSize.height/2, frameSize.width, frameSize.height/2));
+        bool is_already_on_stairs = is_in_stairs_frame();
+        /// @TODO - check that move-speed/2 is not zero
+
+        // is on stairs
+        if (is_already_on_stairs == true) {
+            // if frame is semi, but already entered whole body, change to full-stairs frame
+            if (state.animation_type() == ANIM_TYPE_STAIRS_SEMI && stairs_pos_center.x != -1 && _stairs_falling_timer < timer.getTimer()) {
+                set_animation_type(ANIM_TYPE_STAIRS_MOVE);
+            }
+
+            // check that path is clear to move
+            if (is_in_stairs_frame() && (bottom_point_lock == TERRAIN_WATER || bottom_point_lock == TERRAIN_UNBLOCKED || bottom_point_lock == TERRAIN_STAIR)) {
+                position.y += temp_move_speed * STAIRS_MOVE_MULTIPLIER;
+            }
+
+            // if bottom point is not stairs, leave it
+            if (bottom_point_lock != TERRAIN_STAIR) {
+                if (stairs_pos_center.x == -1 && (bottom_point_lock == TERRAIN_UNBLOCKED || bottom_point_lock == TERRAIN_WATER)) {
+                    set_animation_type(ANIM_TYPE_JUMP);
+                }
+                if (bottom_point_lock != TERRAIN_UNBLOCKED && bottom_point_lock != TERRAIN_WATER) {
+                    set_animation_type(ANIM_TYPE_STAND);
+                }
+            }
+        // not in stairs, but over it
+        } else {
+            if (stairs_pos_center.x == -1 && bottom_point_lock == TERRAIN_STAIR) {
+                // over stairs, enter it
+                st_position stairs_pos_bottom = is_on_stairs(st_rectangle(position.x, position.y+frameSize.height, frameSize.width, frameSize.height/2));
+                if (stairs_pos_bottom.x != -1) {
+                    set_animation_type(ANIM_TYPE_STAIRS_SEMI);
+                    position.y += temp_move_speed * STAIRS_MOVE_MULTIPLIER;
+                    position.x = stairs_pos_bottom.x * TILESIZE - (frameSize.width-TILESIZE)/2;
+                }
+            }
+        }
+
+    }
+
+	// is on stairs without moving
+	if (moveCommands.down == 0 && moveCommands.up == 0 && state.animation_type() == ANIM_TYPE_STAIRS_MOVE) {
+        _stairs_stopped_count++;
+        if (_stairs_stopped_count > STAIR_ANIMATION_WAIT_FRAMES) {
+            set_animation_type(ANIM_TYPE_STAIRS);
+        }
+    } else if ((moveCommands.down != 0 || moveCommands.up != 0) && _stairs_falling_timer < timer.getTimer()) {
+        _stairs_stopped_count = 0;
+        if (state.animation_type() == ANIM_TYPE_STAIRS) {
+            set_animation_type(ANIM_TYPE_STAIRS_MOVE);
+        }
+    }
+}
+
 void character::charMove() {
     int mapLock = 0;
 	bool moved = false;
@@ -132,248 +395,16 @@ void character::charMove() {
 		}
 	}
 
-	if (moveCommands.left == 1 && position.x > 0 && state.animation_type() != ANIM_TYPE_SLIDE && is_in_stairs_frame() == false) {
-        // check inverting direction
-        if (state.animation_type() != ANIM_TYPE_HIT && state.direction() != ANIM_DIRECTION_LEFT) {
-            set_direction(ANIM_DIRECTION_LEFT);
-            return;
-        }
-
-        for (float i=temp_move_speed; i>=0.1; i--) {
-            st_map_collision map_col = map_collision(-i, 0, gameControl.get_current_map_obj()->getMapScrolling());
-            mapLock = map_col.block;
-            if (state.animation_type() == ANIM_TYPE_HIT) {
-                hit_moved_back_n += temp_move_speed;
-            }
-            if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y || mapLock == BLOCK_QUICKSAND) {
-                if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_Y) {
-                    position.x -= i + gameControl.get_current_map_obj()->get_last_scrolled().x;
-                } else if (mapLock == BLOCK_WATER) {
-                    position.x -= i*WATER_SPEED_MULT + gameControl.get_current_map_obj()->get_last_scrolled().x;
-                } else if (mapLock == BLOCK_QUICKSAND) {
-                    position.x -= i*QUICKSAND_SPEED_MULT + gameControl.get_current_map_obj()->get_last_scrolled().x;
-                }
-				if (state.animation_type() != ANIM_TYPE_HIT) {
-                    if (is_player() && state.direction() == ANIM_DIRECTION_RIGHT && is_in_stairs_frame() != true) {
-                        position.x -= PLAYER_RIGHT_TO_LEFT_DIFF;
-                    }
-                    set_direction(ANIM_DIRECTION_LEFT);
-				} else {
-                    gravity(false);
-                    return;
-				}
-                if (state.animation_type() != ANIM_TYPE_WALK && state.animation_type() != ANIM_TYPE_WALK_ATTACK) {
-					state.set_animation_timer(0);
-                }
-                if (state.animation_type() != ANIM_TYPE_WALK && state.animation_type() != ANIM_TYPE_JUMP && state.animation_type() != ANIM_TYPE_SLIDE && state.animation_type() != ANIM_TYPE_JUMP_ATTACK && state.animation_type() != ANIM_TYPE_HIT && (state.animation_type() != ANIM_TYPE_WALK_ATTACK || (state.animation_type() == ANIM_TYPE_WALK_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
-                    set_animation_type(ANIM_TYPE_WALK);
-				}
-				moved = true;
-				break;
-			}
-		}
-	}
-    if (moveCommands.right != 1 && moveCommands.left == 1 && state.direction() != ANIM_DIRECTION_LEFT && (state.animation_type() == ANIM_TYPE_SLIDE || is_in_stairs_frame() == true)) {
-        if (is_player() && state.direction() == ANIM_DIRECTION_RIGHT && is_in_stairs_frame() != true) {
-            position.x -= PLAYER_RIGHT_TO_LEFT_DIFF;
-        }
-        set_direction(ANIM_DIRECTION_LEFT);
+    if (move_horizontal_left(temp_move_speed, moved) == false) {
+        return;
+    }
+    if (move_horizontal_right(temp_move_speed, moved) == false) {
+        return;
     }
 
-    if (moveCommands.left != 1 && moveCommands.right == 1 && state.animation_type() != ANIM_TYPE_SLIDE && is_in_stairs_frame() == false) {
-        if (state.animation_type() != ANIM_TYPE_HIT && state.direction() != ANIM_DIRECTION_RIGHT) {
-            set_direction(ANIM_DIRECTION_RIGHT);
-            return;
-        }
-        if (state.animation_type() == ANIM_TYPE_HIT) {
-            hit_moved_back_n += temp_move_speed;
-        }
+    move_ice_inertia(moved, bottom_point_lock);
 
-        if (is_on_quicksand()) {
-            temp_move_speed = QUICKSAND_JUMP_LIMIT/2;
-        }
-
-        for (float i=temp_move_speed; i>=0.1; i--) {
-            // (moving left has no "too small to change a pixel" skip, and this one made right-side moves under 1px,
-            // like the hit knockback, travel less than left-side ones: both sides now move the same)
-            if (is_player() == false || (realPosition.x + i + frameSize.width/2) < RES_W) {
-                st_map_collision map_col = map_collision(i, 0, gameControl.get_current_map_obj()->getMapScrolling());
-                mapLock = map_col.block;
-
-                if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y || mapLock == BLOCK_QUICKSAND) {
-                    if (mapLock == TERRAIN_UNBLOCKED || mapLock == BLOCK_Y) {
-                        position.x += i - gameControl.get_current_map_obj()->get_last_scrolled().x;
-                    } else if (mapLock == BLOCK_WATER) {
-                        position.x += i*WATER_SPEED_MULT - gameControl.get_current_map_obj()->get_last_scrolled().x;
-                    } else if (mapLock == BLOCK_QUICKSAND) {
-                        position.x += i*QUICKSAND_SPEED_MULT + gameControl.get_current_map_obj()->get_last_scrolled().x;
-                    }
-                    if (state.animation_type() != ANIM_TYPE_HIT) {
-                        if (is_player() && state.direction() == ANIM_DIRECTION_LEFT && is_in_stairs_frame() != true) {
-                            position.x += PLAYER_RIGHT_TO_LEFT_DIFF;
-                        }
-                        set_direction(ANIM_DIRECTION_RIGHT);
-                    } else {
-                        gravity(false);
-                        return;
-                    }
-                    if (state.animation_type() != ANIM_TYPE_WALK && state.animation_type() != ANIM_TYPE_WALK_ATTACK) {
-                        state.set_animation_timer(0);
-                    }
-                    if (state.animation_type() != ANIM_TYPE_WALK && state.animation_type() != ANIM_TYPE_JUMP && state.animation_type() != ANIM_TYPE_SLIDE && state.animation_type() != ANIM_TYPE_JUMP_ATTACK && state.animation_type() != ANIM_TYPE_HIT && (state.animation_type() != ANIM_TYPE_WALK_ATTACK || (state.animation_type() == ANIM_TYPE_WALK_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
-                        set_animation_type(ANIM_TYPE_WALK);
-                    }
-                    moved = true;
-                    break;
-                } else {
-                    moved = false;
-                }
-            }
-		}
-	}
-	if (moveCommands.right == 1 && state.direction() != ANIM_DIRECTION_RIGHT && (state.animation_type() == ANIM_TYPE_SLIDE || is_in_stairs_frame() == true)) {
-        if (is_player() && state.direction() == ANIM_DIRECTION_LEFT && is_in_stairs_frame() != true) {
-            position.x += PLAYER_RIGHT_TO_LEFT_DIFF;
-        }
-        set_direction(ANIM_DIRECTION_RIGHT);
-    }
-
-    // Ice inertia
-    if (bottom_point_lock == TERRAIN_ICE || (_inertia_obj.is_started() && (bottom_point_lock == TERRAIN_UNBLOCKED|| bottom_point_lock == TERRAIN_WATER))) {
-
-        if (moved == true) {
-            if (moveCommands.right == 1) {
-                st_map_collision map_col = map_collision(1, 0, gameControl.get_current_map_obj()->getMapScrolling());
-                mapLock = map_col.block;
-                if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
-                    position.x++;
-                }
-            } else if (moveCommands.left == 1) {
-                st_map_collision map_col = map_collision(-1, 0, gameControl.get_current_map_obj()->getMapScrolling());
-                mapLock = map_col.block;
-                if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
-                    position.x--;
-                }
-            }
-            _inertia_obj.start();
-        } else if (moveCommands.left == 0 && moveCommands.right == 0) {
-            int inertia_xinc = _inertia_obj.execute();
-            if (inertia_xinc != 0) {
-                if (state.direction() == ANIM_DIRECTION_LEFT) {
-                    if (position.x - inertia_xinc < 0) {
-                        _inertia_obj.stop();
-                    } else {
-                        st_map_collision map_col = map_collision(-inertia_xinc, 0, gameControl.get_current_map_obj()->getMapScrolling());
-                        mapLock = map_col.block;
-                        if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
-                            position.x -= inertia_xinc;
-                        }
-                    }
-                } else {
-                    if (realPosition.x+inertia_xinc > RES_W) {
-                        _inertia_obj.stop();
-                    } else {
-                        st_map_collision map_col = map_collision(inertia_xinc, 0, gameControl.get_current_map_obj()->getMapScrolling());
-                        mapLock = map_col.block;
-                        if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y) {
-                            position.x += inertia_xinc;
-                        }
-                    }
-                }
-            }
-        }
-        if (gameControl.get_current_map_obj() != NULL) {
-            gameControl.update_stage_scrolling();
-        }
-        char_update_real_position();
-    } else if (bottom_point_lock != TERRAIN_WATER) {
-        _inertia_obj.stop();
-    }
-
-    if (_obj_jump.is_started() == true) {
-        _inertia_obj.stop();
-    }
-
-
-	// check if character is on stairs
-    if (moveCommands.up == 1 && state.animation_type() != ANIM_TYPE_STAIRS_ATTACK) { // check stairs on middle
-        st_position stairs_pos = is_on_stairs(st_rectangle(position.x, position.y+(frameSize.height/2)-2, frameSize.width, frameSize.height/2-2));
-        int top_terrain = gameControl.get_current_map_obj()->getMapPointLock(st_position(((stairs_pos.x * TILESIZE - 6)+frameSize.width/2)/TILESIZE, position.y/TILESIZE));
-        if (stairs_pos.x != -1) {
-            if (state.animation_type() != ANIM_TYPE_STAIRS_MOVE && _stairs_falling_timer < timer.getTimer()) {
-                set_animation_type(ANIM_TYPE_STAIRS_MOVE);
-			}
-            if (is_in_stairs_frame() && (top_terrain == TERRAIN_UNBLOCKED || top_terrain == TERRAIN_WATER || top_terrain == TERRAIN_STAIR)) {
-                position.y -= temp_move_speed * STAIRS_MOVE_MULTIPLIER;
-                position.x = stairs_pos.x * TILESIZE - (frameSize.width-TILESIZE)/2;
-            }
-		// out of stairs
-		} else {
-            int map_terrain = gameControl.get_current_map_obj()->getMapPointLock(st_position(((position.x+frameSize.width/2)/TILESIZE), ((position.y+frameSize.height-4)/TILESIZE)));
-            if (_dropped_from_stairs == false && map_terrain == TERRAIN_STAIR) { // check stairs bottom (leaving)
-                set_animation_type(ANIM_TYPE_STAIRS_SEMI);
-                position.y -= temp_move_speed * STAIRS_MOVE_MULTIPLIER;
-			} else if (state.animation_type() == ANIM_TYPE_STAIRS_SEMI) {
-                set_animation_type(ANIM_TYPE_STAND);
-                position.y -= 2;
-			}
-		}
-    }
-
-
-    if (moveCommands.down == 1 && state.animation_type() != ANIM_TYPE_SLIDE && state.animation_type() != ANIM_TYPE_STAIRS_ATTACK) {
-        st_position stairs_pos_center = is_on_stairs(st_rectangle(position.x, position.y+frameSize.height/2, frameSize.width, frameSize.height/2));
-        bool is_already_on_stairs = is_in_stairs_frame();
-        /// @TODO - check that move-speed/2 is not zero
-
-        // is on stairs
-        if (is_already_on_stairs == true) {
-            // if frame is semi, but already entered whole body, change to full-stairs frame
-            if (state.animation_type() == ANIM_TYPE_STAIRS_SEMI && stairs_pos_center.x != -1 && _stairs_falling_timer < timer.getTimer()) {
-                set_animation_type(ANIM_TYPE_STAIRS_MOVE);
-            }
-
-            // check that path is clear to move
-            if (is_in_stairs_frame() && (bottom_point_lock == TERRAIN_WATER || bottom_point_lock == TERRAIN_UNBLOCKED || bottom_point_lock == TERRAIN_STAIR)) {
-                position.y += temp_move_speed * STAIRS_MOVE_MULTIPLIER;
-            }
-
-            // if bottom point is not stairs, leave it
-            if (bottom_point_lock != TERRAIN_STAIR) {
-                if (stairs_pos_center.x == -1 && (bottom_point_lock == TERRAIN_UNBLOCKED || bottom_point_lock == TERRAIN_WATER)) {
-                    set_animation_type(ANIM_TYPE_JUMP);
-                }
-                if (bottom_point_lock != TERRAIN_UNBLOCKED && bottom_point_lock != TERRAIN_WATER) {
-                    set_animation_type(ANIM_TYPE_STAND);
-                }
-            }
-        // not in stairs, but over it
-        } else {
-            if (stairs_pos_center.x == -1 && bottom_point_lock == TERRAIN_STAIR) {
-                // over stairs, enter it
-                st_position stairs_pos_bottom = is_on_stairs(st_rectangle(position.x, position.y+frameSize.height, frameSize.width, frameSize.height/2));
-                if (stairs_pos_bottom.x != -1) {
-                    set_animation_type(ANIM_TYPE_STAIRS_SEMI);
-                    position.y += temp_move_speed * STAIRS_MOVE_MULTIPLIER;
-                    position.x = stairs_pos_bottom.x * TILESIZE - (frameSize.width-TILESIZE)/2;
-                }
-            }
-        }
-
-    }
-
-	// is on stairs without moving
-	if (moveCommands.down == 0 && moveCommands.up == 0 && state.animation_type() == ANIM_TYPE_STAIRS_MOVE) {
-        _stairs_stopped_count++;
-        if (_stairs_stopped_count > STAIR_ANIMATION_WAIT_FRAMES) {
-            set_animation_type(ANIM_TYPE_STAIRS);
-        }
-    } else if ((moveCommands.down != 0 || moveCommands.up != 0) && _stairs_falling_timer < timer.getTimer()) {
-        _stairs_stopped_count = 0;
-        if (state.animation_type() == ANIM_TYPE_STAIRS) {
-            set_animation_type(ANIM_TYPE_STAIRS_MOVE);
-        }
-    }
+    move_stairs_vertical(temp_move_speed, bottom_point_lock);
 
     check_reset_stand();
 
