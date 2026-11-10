@@ -276,7 +276,7 @@ void classMap::draw_map_tiles()
     struct st_position pos_origin;
     struct st_position pos_destiny;
     int n = -1;
-    for (int i=tile_x_ini; i<tile_x_ini+(RES_W/TILESIZE)+3; i++) {
+    for (int i=tile_x_ini; i<tile_x_ini+(RES_W/TILESIZE)+3 && i<MAP_W; i++) { // near the right end it read columns past the map
         int diff = scroll.x - (tile_x_ini+1)*TILESIZE;
         pos_destiny.x = n*TILESIZE - diff + TILESIZE;
         for (int j=0; j<MAP_H; j++) {
