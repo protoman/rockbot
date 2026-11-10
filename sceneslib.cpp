@@ -155,6 +155,7 @@ void scenesLib::main_screen()
     options.push_back(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_ingame_about)));
     int cheats_n = options.size();                      // the cheats entry is added at the end of the list by the cheat code
     boss_rush_selected = false;
+    bool cheats_entry_added = false;                    // the cheat code can be entered many times, but there is a single entry
 
     option_picker main_picker(false, st_position(20, (RES_H*0.5)-graphLib.RES_DIFF_H), options, false);
 
@@ -224,7 +225,10 @@ void scenesLib::main_screen()
             main_picker.draw();
         } else if (picked_n == MAIN_MENU_CHEAT_RETURN) { // LEAVING CHEATS MENU ITEM //
             picked_n = cheats_n;
-            main_picker.add_option_item(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_menu_item_CHEATS)));
+            if (cheats_entry_added == false) {
+                main_picker.add_option_item(st_menu_option(strings_map::get_instance()->get_ingame_string(strings_menu_item_CHEATS)));
+                cheats_entry_added = true;
+            }
             draw_main();
             main_picker.draw();
         }
