@@ -38,6 +38,8 @@ public:
     st_position calc_face_pos(int stage_n);
     int pick_stage(int stage_n);
     short pick_stage_classic_style(int stage_n);
+    int classic_style_start_selection(int stage_n, bool can_access_castle, int max_stage, st_position &selection_pos, int &complete_stage_n);
+    int classic_style_wrap_selection(st_position &selection_pos);
     void draw_faces_classic_style(graphicsLib_gSurface face_list[STAGE_COUNT]);
     void classic_style_castle_intro(short stage_id);
 

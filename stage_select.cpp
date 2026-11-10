@@ -354,6 +354,53 @@ int stage_select::pick_stage(int stage_n)
     return stage_n;
 }
 
+// where the cursor starts in the 3x3 grid (the castle is in the center, grid number 5) and the real stage number it means.
+// Returns the grid number (1-9) of the cursor; selection_pos and complete_stage_n are set
+int stage_select::classic_style_start_selection(int stage_n, bool can_access_castle, int max_stage, st_position &selection_pos, int &complete_stage_n)
+{
+    if (stage_n < STAGE1) {
+        // first time here: start with the cursor on the center of the 3x3 grid (the castle), not on the first boss
+        stage_n = 5;
+        selection_pos = st_position(1, 1);
+        if (can_access_castle == true) {
+            complete_stage_n = max_stage;
+        }
+    } else {
+        // stage_n is the real stage number (1-4, 5-8, castle...); the grid has 9 cells and the castle is in the center (grid number 5)
+        complete_stage_n = stage_n;
+        int grid_n;
+        if (stage_n >= CASTLE1_STAGE1) {
+            grid_n = 5;
+            if (can_access_castle == true) {
+                complete_stage_n = max_stage;
+            }
+        } else if (stage_n <= 4) {
+            grid_n = stage_n;
+        } else {
+            grid_n = stage_n + 1;
+        }
+        stage_n = grid_n;
+        selection_pos = st_position((grid_n-1) % 3, (grid_n-1) / 3);
+    }
+    return stage_n;
+}
+
+// the cursor leaves the grid on one side and comes back on the other. Returns the grid number (1-9)
+int stage_select::classic_style_wrap_selection(st_position &selection_pos)
+{
+    if (selection_pos.x < 0) {
+        selection_pos.x = 2;
+    } else if (selection_pos.x > 2) {
+        selection_pos.x = 0;
+    }
+    if (selection_pos.y < 0) {
+        selection_pos.y = 2;
+    } else if (selection_pos.y > 2) {
+        selection_pos.y = 0;
+    }
+    return selection_pos.y*3 + selection_pos.x + 1;
+}
+
 short stage_select::pick_stage_classic_style(int stage_n)
 {
     bool can_access_castle = fio.can_access_castle(game_save);
@@ -422,30 +469,7 @@ short stage_select::pick_stage_classic_style(int stage_n)
     bool cursor_opacity_inc = true;
     int complete_stage_n = STAGE1;
     st_position selection_pos;
-    if (stage_n < STAGE1) {
-        // first time here: start with the cursor on the center of the 3x3 grid (the castle), not on the first boss
-        stage_n = 5;
-        selection_pos = st_position(1, 1);
-        if (can_access_castle == true) {
-            complete_stage_n = max_stage;
-        }
-    } else {
-        // stage_n is the real stage number (1-4, 5-8, castle...); the grid has 9 cells and the castle is in the center (grid number 5)
-        complete_stage_n = stage_n;
-        int grid_n;
-        if (stage_n >= CASTLE1_STAGE1) {
-            grid_n = 5;
-            if (can_access_castle == true) {
-                complete_stage_n = max_stage;
-            }
-        } else if (stage_n <= 4) {
-            grid_n = stage_n;
-        } else {
-            grid_n = stage_n + 1;
-        }
-        stage_n = grid_n;
-        selection_pos = st_position((grid_n-1) % 3, (grid_n-1) / 3);
-    }
+    stage_n = classic_style_start_selection(stage_n, can_access_castle, max_stage, selection_pos, complete_stage_n);
 
     while (finished == false) {
         // clean cursor in old position
@@ -495,17 +519,7 @@ short stage_select::pick_stage_classic_style(int stage_n)
         }
 
         if (moved == true) {
-            if (selection_pos.x < 0) {
-                selection_pos.x = 2;
-            } else if (selection_pos.x > 2) {
-                selection_pos.x = 0;
-            }
-            if (selection_pos.y < 0) {
-                selection_pos.y = 2;
-            } else if (selection_pos.y > 2) {
-                selection_pos.y = 0;
-            }
-            stage_n = selection_pos.y*3 + selection_pos.x + 1;
+            stage_n = classic_style_wrap_selection(selection_pos);
         }
 
         if (stage_n > 5) {
