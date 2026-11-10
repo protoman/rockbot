@@ -432,7 +432,7 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(const std::string& filename)
         fflush(stdout);
         return NULL;
     }
-#ifndef SDL3
+#if !defined(SDL3) && !defined(PS3) // PS3: left out until checked on a console (the stage showed all white there)
     // Art exported with color management (gamma/sRGB chunks) can have a background that is close to the
     // colorkey but not equal (e.g. 72,126,124 instead of 75,125,125), which then shows as an opaque box.
     // If the top-left pixel is within a small distance of the key, that exact color is the key for this image.
