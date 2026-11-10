@@ -1017,9 +1017,9 @@ void object::move(bool paused)
             if (distance == 0) { // added because of initial delay
                 stop();
             } else {
-                int yinc = (speed)/2;
+                int yinc = (speed)/2; // returning goes down
                 if (yinc == 0) {
-                    yinc = -1;
+                    yinc = 1; // was -1: with speed 1 the returning platform went up instead of down
                 }
                 position.y += yinc;
                 obj_move_player(0, yinc);
@@ -1481,7 +1481,9 @@ st_position object::get_position() const
         return st_position(x, y);
     } else if (type == OBJ_DEATHRAY_VERTICAL) {
         if (_expanding == false) {
-            return st_position(position.x+TILESIZE/2, (state - MAP_H)); // TILESIZE/2 is because of lava graphic not taking the whole width
+            // retracting: the drawn column slides down, from tile (state-MAP_H) to tile state, relative to the emitter
+            // (the area used a raw tile number as the y in pixels, so it did not match the graphic)
+            return st_position(position.x+TILESIZE/2, position.y + TILESIZE*(state - MAP_H)); // TILESIZE/2 is because of lava graphic not taking the whole width
         } else {
             return st_position(position.x+TILESIZE/2, position.y); // TILESIZE/2 is because of lava graphic not taking the whole width
         }
@@ -1535,7 +1537,7 @@ st_size object::get_size()
         if (_expanding == true) {
             return st_size(framesize_w-TILESIZE, TILESIZE*state); // -TILESIZE in width is because of lava graphic not taking the whole width
         } else {
-            return st_size(framesize_w-TILESIZE, MAP_H); // -TILESIZE in width is because of lava graphic not taking the whole width
+            return st_size(framesize_w-TILESIZE, TILESIZE*MAP_H); // -TILESIZE in width is because of lava graphic not taking the whole width
         }
     } else if (type == OBJ_DEATHRAY_HORIZONTAL) {
         if (direction == ANIM_DIRECTION_LEFT) {
