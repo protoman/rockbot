@@ -88,6 +88,9 @@ void sceneShow::show_scene(int n)
             } else {
                 std::cout << "ERROR: sceneShow::show_scene - unknown scene_type[" << scene_type << "]" << std::endl;
             }
+            if (_interrupt_scene == true) { // skipped while the element was running: do not wait its "delay after" too
+                break;
+            }
             if (_skippable) {
                 if (input.wait_scape_time(scene.objects[i].delay_after) == 1) {
                     _interrupt_scene = true;
@@ -187,6 +190,10 @@ void sceneShow::run_image_scene(CURRENT_FILE_FORMAT::file_scene_show_image scene
 
     while (total_dist > 0) {
         input.read_input();
+        if (_skippable && input.start_pressed()) { // START used to be noticed only after the movement ended
+            _interrupt_scene = true;
+            break;
+        }
         timer.delay(scene_image.move_delay);
         // @TODO - copy background, but should be done in a smarter way as there can be several moving elements
         graphLib.showSurfaceAt(&bg_image, st_position(0, 0), false);
@@ -211,6 +218,10 @@ void sceneShow::run_viewpoint_scene(CURRENT_FILE_FORMAT::file_scene_show_viewpoi
 
     while (total_dist > 0) {
         input.read_input();
+        if (_skippable && input.start_pressed()) {
+            _interrupt_scene = true;
+            break;
+        }
         timer.delay(viewpoint.move_delay);
 
         graphLib.showSurfacePortion(&image, st_rectangle(x, y, viewpoint.w, viewpoint.h), st_rectangle(viewpoint.pos_x, viewpoint.pos_y, viewpoint.w, viewpoint.h));
@@ -245,8 +256,14 @@ void sceneShow::run_parallax_scene(format_v4::file_scene_show_parallax parallax)
         }
     }
     int total_time = parallax.total_duration;
-    int frames_n = total_time / parallax.frame_delay;
+    int frame_delay = (parallax.frame_delay > 0) ? parallax.frame_delay : 1; // 0 divided by zero
+    int frames_n = total_time / frame_delay;
     for (int i =0; i<frames_n; i++) {
+        input.read_input();
+        if (_skippable && input.start_pressed()) {
+            _interrupt_scene = true;
+            break;
+        }
         for (unsigned int img_n=0; img_n<run_list.size(); img_n++) {
             graphLib.showSurfaceRegionAt(&run_list.at(img_n).image, st_rectangle(0, 0, run_list.at(img_n).image.width, run_list.at(img_n).image.height), st_position(run_list.at(img_n).current_pos, run_list.at(img_n).pos_y));
             // show image-repeat, if needed
@@ -269,7 +286,7 @@ void sceneShow::run_parallax_scene(format_v4::file_scene_show_parallax parallax)
             }
         }
         graphLib.updateScreen();
-        timer.delay(parallax.frame_delay);
+        timer.delay(frame_delay);
     }
 }
 
@@ -483,6 +500,10 @@ void sceneShow::show_viewpoint(int n)
 void sceneShow::show_animation(int n, int repeat_n, int repeat_mode)
 {
     int frame_n = 0;
+    if (n < 0 || animation_list.size() <= (size_t)n) {
+        std::cout << "ERROR: Scene animation[" << n << "] invalid. List size is " << animation_list.size() << "." << std::endl;
+        return;
+    }
     CURRENT_FILE_FORMAT::file_scene_show_animation scene = animation_list.at(n);
     long frame_timer = timer.getTimer() + scene.frame_delay;
     long started_timer = timer.getTimer();
@@ -490,6 +511,10 @@ void sceneShow::show_animation(int n, int repeat_n, int repeat_mode)
 
     graphicsLib_gSurface image;
     graphLib.surfaceFromFile(FILEPATH + "images/scenes/animations/" + scene.filename, &image);
+    if (scene.frame_w <= 0 || scene.frame_h <= 0 || image.width < scene.frame_w) {
+        std::cout << "ERROR: Scene animation[" << n << "] has no valid frames ('" << scene.filename << "')." << std::endl;
+        return;
+    }
     int max_frames = image.width / scene.frame_w;
 
     graphicsLib_gSurface bg_image;
@@ -498,6 +523,10 @@ void sceneShow::show_animation(int n, int repeat_n, int repeat_mode)
 
     while (true) {
         input.read_input();
+        if (_skippable && input.start_pressed()) { // long animations could not be skipped until they ended
+            _interrupt_scene = true;
+            break;
+        }
         int x = frame_n*scene.frame_w;
 
 
