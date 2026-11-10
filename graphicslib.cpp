@@ -344,7 +344,10 @@ void graphicsLib::updateScreen()
     }
     SDLL_Flip(game_screen_scaled);
 #elif defined(PC)
-    if (SharedData::get_instance()->changed_window_size == true && !SharedData::get_instance()->game_config.video_fullscreen) {
+    // while the user drags the window border, resizing the window from here (every event) makes it jump and drops the grab:
+    // wait until no resize event came for a moment
+    bool resize_settled = (timer.getTimer() - SharedData::get_instance()->last_window_resize_ms) > 300;
+    if (SharedData::get_instance()->changed_window_size == true && resize_settled == true && !SharedData::get_instance()->game_config.video_fullscreen) {
         double scale = SharedData::get_instance()->scaleX;
         if (SharedData::get_instance()->scaleY < scale) {
             scale = SharedData::get_instance()->scaleY;

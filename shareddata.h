@@ -34,6 +34,7 @@ public:
     double scaleY;
     st_size scale_window_size;
     bool changed_window_size = false;
+    unsigned long last_window_resize_ms = 0; // when the last resize event came: the window is only snapped to the scale after the user stops dragging
     short current_language = LANGUAGE_AUTODETECT;
     bool is_showing_boss_intro = false;
     bool leave_stage_request = false;

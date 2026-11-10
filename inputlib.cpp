@@ -451,6 +451,7 @@ void inputLib::read_input(bool check_input_reset, bool must_check_input_cheat)
             data->scale_window_size.width = newWidth;
             data->scale_window_size.height = newHeight;
             data->changed_window_size = true;
+            data->last_window_resize_ms = timer.getTimer();
         }
 
         if (_show_btn_debug == false) {
