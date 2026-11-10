@@ -890,7 +890,10 @@ bool character::slide(st_float_position mapScrolling)
 // Returns true when jump() must end right away (the jump from a ladder is a fall)
 bool character::start_jump(int jumpCommandStage, int water_lock)
 {
-    if (_force_jump == true || (jumpCommandStage == 1 && jump_button_released == true)) {
+    // a forced jump (coil) only starts when the coil asked for the big jump or nothing is jumping: the flag stays on during the
+    // big jump (so releasing the button does not cut it), and a double-jump character would start a second, regular jump over it
+    bool force_starts_jump = (_force_jump == true && (_super_jump == true || _obj_jump.is_started() == false));
+    if (force_starts_jump == true || (jumpCommandStage == 1 && jump_button_released == true)) {
 
         if (is_in_stairs_frame()) {
             if (_obj_jump.is_started() == false) {

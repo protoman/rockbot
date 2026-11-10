@@ -139,6 +139,18 @@ static void replay_give_weapon(classPlayer &player)
         return;
     }
     done = true;
+    const char *abilities = getenv("ROCKBOT_REPLAY_ABILITIES"); // double jump and/or air dash for every player: "jump", "dash" or "jump,dash"
+    if (abilities != NULL) {
+        for (size_t i=0; i<GameMediator::get_instance()->player_list_v3_1.size(); i++) {
+            if (strstr(abilities, "jump") != NULL) {
+                GameMediator::get_instance()->player_list_v3_1[i].can_double_jump = true;
+            }
+            if (strstr(abilities, "dash") != NULL) {
+                GameMediator::get_instance()->player_list_v3_1[i].can_air_dash = true;
+            }
+        }
+        player.update_armor_properties();
+    }
     int weapon_n = atoi(weapon);
     if (weapon_n > 0 && weapon_n < WEAPON_COUNT) {
         game_save.items.weapons[weapon_n] = 99;

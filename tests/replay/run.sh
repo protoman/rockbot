@@ -13,5 +13,5 @@ cp "$BIN" "$WORK/run/rockbot_linux"
 for d in games fonts shared; do ln -s "$ROOT/build/$d" "$WORK/run/$d"; done
 cd "$WORK/run"
 ROCKBOT_REPLAY="$SCRIPT" ROCKBOT_TRACE="$TRACE" SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy HOME="$WORK/home" \
-    timeout -s KILL "${REPLAY_TIMEOUT:-600}" ./rockbot_linux --quickload --stage "$STAGE" --gamename "$GAME" > "$TRACE.log" 2>&1 || true
+    timeout -s KILL "${REPLAY_TIMEOUT:-600}" ./rockbot_linux --quickload --stage "$STAGE" --gamename "$GAME" ${REPLAY_EXTRA_ARGS:-} > "$TRACE.log" 2>&1 || true
 tail -1 "$TRACE" 2>/dev/null

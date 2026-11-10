@@ -1,14 +1,10 @@
-# Rockbot: with ROCKBOT_REPLAY_WEAPON=<WEAPON_ITEM_COIL number> places the frog coil and jumps onto it (the jump should be bigger than a normal one)
+# Rockbot: with ROCKBOT_REPLAY_WEAPON=9 (frog coil) the player places the coil, jumps onto it and lands on it (see coil_check.sh)
 300 +START
 500 -START
 9000 +ATTACK
 9100 -ATTACK
-12000 +RIGHT
-12400 -RIGHT
-13000 +JUMP
-13050 -JUMP
-15000 +RIGHT
-15300 +JUMP
-15400 -JUMP
-16500 -RIGHT
-18000 END
+10200 +RIGHT
+10200 +JUMP
+10350 -JUMP
+10450 -RIGHT
+14000 END

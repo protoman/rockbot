@@ -14,6 +14,7 @@ class classnpc; // advance declaration
 class classPlayer : public character
 {
 public:
+    void update_armor_properties(); // this will update certain properties of player with data of the armor pieces abilities
     /**
      * @brief constructor for player class
      * @param std::string the name of the player
@@ -166,7 +167,6 @@ private:
 
     bool can_double_jump();
 
-    void update_armor_properties(); // this will update certain properties of player with data of the armor pieces abilities
 
 
     bool can_air_dash();

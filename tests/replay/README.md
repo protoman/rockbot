@@ -44,3 +44,6 @@ every projectile type of the game for up to 200 steps (both directions, with an 
 * `ROCKBOT_REPLAY_WEAPON=<n>`: the player starts with weapon `n` selected and full energy (9 = frog coil). See `coil.replay`, which
   places the coil and jumps onto it.
 * `ROCKBOT_REPLAY_DROP=<ms>,<pixels>`: at that virtual time the player is lifted by that many pixels and falls (to test landings).
+* `ROCKBOT_REPLAY_ABILITIES=jump|dash|jump,dash`: gives every player double jump and/or air dash.
+* `coil_check.sh <binary> [game]`: lands on the frog coil and checks that the jump rises about 110 px (a regular jump rises about 55);
+  the old code printed `FAIL ... 59 px`.
