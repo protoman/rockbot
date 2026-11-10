@@ -91,6 +91,7 @@ SRC_CPP := \
 	character/character_graphics.cpp \
 	character/character_combat.cpp \
 	character/character_movement.cpp \
+	character/character_collision.cpp \
 	character/classplayer.cpp \
 	character/classplayer_attack.cpp \
 	character/classplayer_weapons.cpp \

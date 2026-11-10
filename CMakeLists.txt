@@ -329,6 +329,7 @@ set(SOURCES
     character/character_graphics.cpp
     character/character_combat.cpp
     character/character_movement.cpp
+    character/character_collision.cpp
     data/datautil.cpp
     graphicslib.cpp
     inputlib.cpp

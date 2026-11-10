@@ -29,6 +29,7 @@ main.cpp \
 ./character/character_graphics.cpp \
 ./character/character_combat.cpp \
 ./character/character_movement.cpp \
+./character/character_collision.cpp \
 ./character/movement/inertia.cpp \
 ./character/movement/jump.cpp \
 ./character/classplayer.cpp \
