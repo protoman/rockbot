@@ -38,6 +38,8 @@ public:
      * @brief move the projectiles created by this player and damage any npcs that are in it's way
      */
     void execute_projectiles();
+    void projectile_hit_npc(projectile &proj, classnpc &npc, st_rectangle npc_hitbox, st_float_size moved, bool ignore_hit_timer);
+    void projectile_hit_objects(projectile &proj);
     bool object_is_affected_by_projectile(object* temp_obj, projectile& projectile);
 
     /**

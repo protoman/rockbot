@@ -353,6 +353,104 @@ void classPlayer::damage_ground_npcs()
 	}
 }
 
+// a player shot overlapping an enemy: shield/reflect, immunity, circle weapon, damage
+void classPlayer::projectile_hit_npc(projectile &proj, classnpc &npc, st_rectangle npc_hitbox, st_float_size moved, bool ignore_hit_timer)
+{
+    // shielded NPC: reflects/finishes shot
+    if (npc.is_intangible() == true) {
+        proj.consume_projectile();
+        return;
+    } else if (npc.is_shielded(proj.get_direction()) == true && proj.get_trajectory() != TRAJECTORY_BOMB && proj.get_trajectory() != TRAJECTORY_LIGHTING && proj.get_trajectory() != TRAJECTORY_SLASH && proj.get_vanishes_on_hit() == true) {
+        if (proj.get_trajectory() == TRAJECTORY_CHAIN) {
+            proj.consume_projectile();
+        } else {
+            proj.reflect();    // SHIELD reflect
+        }
+        return;
+    }
+    if (npc.is_invisible() == true) { // invisible NPC -> ignore shot
+        return;
+    }
+    if (npc.is_teleporting() == true) { // executing AI-action TELEPORT
+        return;
+    }
+
+    // check if have hit area, and if hit it
+    st_rectangle npc_vulnerable_area = npc.get_vulnerable_area();
+
+    if (npc_vulnerable_area.is_empty() == false && npc_vulnerable_area != npc_hitbox && proj.check_collision(npc_vulnerable_area, st_position(moved.width, moved.height)) == false) { // hit body, but not the hit area -> reflect
+        proj.reflect();        // HITAREA reflect
+        return;
+    }
+
+    short wpn_id = proj.get_weapon_id();
+
+    if (wpn_id < 0) {
+        wpn_id = 0;
+    }
+
+    // NPC using cicrcle weapon, is only be destroyed by CHAIN, but NPC won't take damage
+    if (npc.is_using_circle_weapon() == true) {
+        if (proj.get_trajectory() == TRAJECTORY_CHAIN) {
+            npc.consume_projectile();
+        }
+        proj.consume_projectile();
+        return; // was "return", which skipped every other projectile (and the queued ones)
+    }
+
+    if (proj.get_damage() > 0) {
+        int multiplier = GameMediator::get_instance()->get_enemy(npc.get_number())->weakness[wpn_id].damage_multiplier;
+
+        if (multiplier <= 0) { // immune to this weapon: the shot is used up instead of flying through the enemy
+            soundManager.play_sfx(SFX_SHOT_REFLECTED); // the "no effect" sound (same as a reflected shot)
+            proj.consume_projectile();
+            return;
+        }
+        npc.damage(proj.get_damage() * multiplier, ignore_hit_timer);
+    }
+    if (proj.get_damage() > 0) {
+        if (proj.get_vanishes_on_hit() == true) {
+            proj.consume_projectile();
+        }
+        soundManager.play_sfx(SFX_NPC_HIT);
+    }
+
+}
+
+// a player shot overlapping destructible objects (blocks, items): destroys them, explosions and drops
+void classPlayer::projectile_hit_objects(projectile &proj)
+{
+    // check collision against objects
+
+    // if projectile is a bomb, check collision against objects
+    std::vector<object*> res_obj = gameControl.get_current_map_obj()->check_collision_with_objects(proj.get_area());
+    if (res_obj.size() > 0) {
+        for (unsigned int i=0; i<res_obj.size(); i++) {
+            object* temp_obj = res_obj.at(i);
+            if (object_is_affected_by_projectile(temp_obj, proj)) {
+                if (temp_obj->get_type() == OBJ_DESTRUCTIBLE_NO_DROP) {
+                    temp_obj->set_hidden(true);
+                } else if (temp_obj->get_type() == OBJ_JUMP_SHOOT_DESTRUCTIBLE_NO_DROP) {
+                    temp_obj->inc_status();
+                    continue;
+                } else {
+                    temp_obj->set_finished(true);
+                }
+                if (proj.is_explosive() == true) {
+                    proj.transform_into_explosion();
+                } else {
+                    st_float_position obj_pos(temp_obj->get_position().x, temp_obj->get_position().y);
+                    gameControl.get_current_map_obj()->add_animation(ANIMATION_STATIC, &graphLib.explosion16, obj_pos, st_position(0, 0), 80, 2, ANIM_DIRECTION_RIGHT, st_size(16, 16));
+                }
+                if (temp_obj->get_type() == OBJ_DESTRUCTIBLE_WITH_DROP) {
+                    st_position drop_pos(temp_obj->get_position().x+temp_obj->get_size().width/2, (temp_obj->get_position().y));
+                    gameControl.get_current_map_obj()->drop_random_item(drop_pos);
+                }
+            }
+        }
+    }
+}
+
 void classPlayer::execute_projectiles()
 {
     // animate projectiles
@@ -406,64 +504,7 @@ void classPlayer::execute_projectiles()
             st_rectangle npc_hitbox = gameControl.get_current_map_obj()->_npc_list.at(i).get_vulnerable_area();
 
             if ((*it).check_collision(npc_hitbox, st_position(moved.width, moved.height)) == true) {
-                // shielded NPC: reflects/finishes shot
-                if (gameControl.get_current_map_obj()->_npc_list.at(i).is_intangible() == true) {
-                    (*it).consume_projectile();
-                    continue;
-                } else if (gameControl.get_current_map_obj()->_npc_list.at(i).is_shielded((*it).get_direction()) == true && (*it).get_trajectory() != TRAJECTORY_BOMB && (*it).get_trajectory() != TRAJECTORY_LIGHTING && (*it).get_trajectory() != TRAJECTORY_SLASH && (*it).get_vanishes_on_hit() == true) {
-                    if ((*it).get_trajectory() == TRAJECTORY_CHAIN) {
-                        (*it).consume_projectile();
-                    } else {
-                        (*it).reflect();    // SHIELD reflect
-                    }
-                    continue;
-                }
-                if (gameControl.get_current_map_obj()->_npc_list.at(i).is_invisible() == true) { // invisible NPC -> ignore shot
-                    continue;
-                }
-                if (gameControl.get_current_map_obj()->_npc_list.at(i).is_teleporting() == true) { // executing AI-action TELEPORT
-                    continue;
-                }
-
-                // check if have hit area, and if hit it
-                st_rectangle npc_vulnerable_area = gameControl.get_current_map_obj()->_npc_list.at(i).get_vulnerable_area();
-
-                if (npc_vulnerable_area.is_empty() == false && npc_vulnerable_area != npc_hitbox && (*it).check_collision(npc_vulnerable_area, st_position(moved.width, moved.height)) == false) { // hit body, but not the hit area -> reflect
-                    (*it).reflect();        // HITAREA reflect
-                    continue;
-                }
-
-                short wpn_id = (*it).get_weapon_id();
-
-                if (wpn_id < 0) {
-                    wpn_id = 0;
-                }
-
-                // NPC using cicrcle weapon, is only be destroyed by CHAIN, but NPC won't take damage
-                if (gameControl.get_current_map_obj()->_npc_list.at(i).is_using_circle_weapon() == true) {
-                    if ((*it).get_trajectory() == TRAJECTORY_CHAIN) {
-                        gameControl.get_current_map_obj()->_npc_list.at(i).consume_projectile();
-                    }
-                    (*it).consume_projectile();
-                    continue; // was "return", which skipped every other projectile (and the queued ones)
-                }
-
-                if ((*it).get_damage() > 0) {
-                    int multiplier = GameMediator::get_instance()->get_enemy(gameControl.get_current_map_obj()->_npc_list.at(i).get_number())->weakness[wpn_id].damage_multiplier;
-
-                    if (multiplier <= 0) { // immune to this weapon: the shot is used up instead of flying through the enemy
-                        soundManager.play_sfx(SFX_SHOT_REFLECTED); // the "no effect" sound (same as a reflected shot)
-                        (*it).consume_projectile();
-                        continue;
-                    }
-                    gameControl.get_current_map_obj()->_npc_list.at(i).damage((*it).get_damage() * multiplier, ignore_hit_timer);
-                }
-                if ((*it).get_damage() > 0) {
-                    if ((*it).get_vanishes_on_hit() == true) {
-                        (*it).consume_projectile();
-                    }
-                    soundManager.play_sfx(SFX_NPC_HIT);
-                }
+                projectile_hit_npc((*it), gameControl.get_current_map_obj()->_npc_list.at(i), npc_hitbox, moved, ignore_hit_timer);
             }
         }
 
@@ -472,35 +513,7 @@ void classPlayer::execute_projectiles()
             continue;
         }
 
-        // check collision against objects
-
-        // if projectile is a bomb, check collision against objects
-        std::vector<object*> res_obj = gameControl.get_current_map_obj()->check_collision_with_objects((*it).get_area());
-        if (res_obj.size() > 0) {
-            for (unsigned int i=0; i<res_obj.size(); i++) {
-                object* temp_obj = res_obj.at(i);
-                if (object_is_affected_by_projectile(temp_obj, (*it))) {
-                    if (temp_obj->get_type() == OBJ_DESTRUCTIBLE_NO_DROP) {
-                        temp_obj->set_hidden(true);
-                    } else if (temp_obj->get_type() == OBJ_JUMP_SHOOT_DESTRUCTIBLE_NO_DROP) {
-                        temp_obj->inc_status();
-                        continue;
-                    } else {
-                        temp_obj->set_finished(true);
-                    }
-                    if ((*it).is_explosive() == true) {
-                        (*it).transform_into_explosion();
-                    } else {
-                        st_float_position obj_pos(temp_obj->get_position().x, temp_obj->get_position().y);
-                        gameControl.get_current_map_obj()->add_animation(ANIMATION_STATIC, &graphLib.explosion16, obj_pos, st_position(0, 0), 80, 2, ANIM_DIRECTION_RIGHT, st_size(16, 16));
-                    }
-                    if (temp_obj->get_type() == OBJ_DESTRUCTIBLE_WITH_DROP) {
-                        st_position drop_pos(temp_obj->get_position().x+temp_obj->get_size().width/2, (temp_obj->get_position().y));
-                        gameControl.get_current_map_obj()->drop_random_item(drop_pos);
-                    }
-                }
-            }
-        }
+        projectile_hit_objects((*it));
         ++it;
     }
     projectile_list.insert(projectile_list.end(), projectile_to_be_added_list.begin(), projectile_to_be_added_list.end());
