@@ -348,17 +348,7 @@ void character::charMove() {
 			state.frozen = false;
 		} else { // if is player, check collision agains NPCs to leave freeze
 			if (is_player()) {
-                classnpc* npc_touch = gameControl.get_current_map_obj()->collision_player_npcs(this, 0, 0);
-                if (npc_touch != NULL) {
-                    if (npc_touch->get_size().height > this->get_size().height) {
-                        damage(TOUCH_DAMAGE_SMALL, false);
-                    } else {
-                        damage(TOUCH_DAMAGE_BIG, false);
-                    }
-                    if (_was_hit == true) {
-                        npc_touch->hit_player();
-                    }
-                }
+                npc_touch_damage();
 			}
 		}
 		return;
@@ -480,6 +470,143 @@ void character::reset_gravity_speed()
 // ********************************************************************************************** //
 //                                                                                                //
 // ********************************************************************************************** //
+// gravity of enemies/bosses: they only fall when they cannot fly (or fly but may fall while moving)
+bool character::npc_gravity(bool boss_demo_mode, int gravity_max_speed)
+{
+    if (_ignore_gravity == true) {
+        return false;
+    }
+
+    if (can_fly == false || can_fall_during_move == true || (_is_boss && SharedData::get_instance()->is_showing_boss_intro == true)) {
+        bool is_moved = false;
+        short int limit_speed = move_speed;
+			if (boss_demo_mode == true) {
+            limit_speed = gravity_max_speed;
+			}
+        if (limit_speed < 1) {
+            limit_speed = 1;
+        }
+
+			for (int i=limit_speed; i>0; i--) {
+            bool res_test_move = test_change_position(0, i);
+            //if (i > 0) std::cout << "CHAR::GRAVITY[PLAYER] - res_test_move[" << res_test_move << "], yinc[" << i << "]" << std::endl;
+            if ((boss_demo_mode == true && position.y <= TILESIZE*2) || res_test_move == true) {
+                position.y += i;
+					is_moved = true;
+					break;
+				}
+        }
+			return is_moved;
+    }
+    reset_gravity_speed();
+    return false; // not moved because of IA type
+}
+
+// player falling: acceleration, map collision per pixel, water/quicksand, landing
+bool character::player_fall(int gravity_max_speed)
+{
+
+    // tem que inicializar essa variável sempre que for false
+    accel_speed_y = accel_speed_y + accel_speed_y*gravity_y;
+
+    if (accel_speed_y < 0.25) {
+        accel_speed_y = 0.25;
+    } else if (accel_speed_y > gravity_max_speed) {
+        accel_speed_y = gravity_max_speed;
+    }
+
+    int adjusted_speed = accel_speed_y;
+    if (adjusted_speed < 1) {
+        adjusted_speed = 1;
+    }
+
+
+
+		if (state.animation_type() == ANIM_TYPE_TELEPORT) {
+
+        if (_teleport_minimal_y - position.y > TILESIZE) {
+            adjusted_speed = gravity_max_speed;
+        } else {
+            adjusted_speed = gravity_max_speed/2;
+        }
+		}
+
+    st_map_collision map_col;
+    bool was_moved = false;
+    for (int i=adjusted_speed; i>0; i--) {
+        map_col = map_collision(0, i, gameControl.get_current_map_obj()->getMapScrolling());
+        int mapLock = map_col.block;
+
+			if (state.animation_type() == ANIM_TYPE_TELEPORT && position.y < _teleport_minimal_y-TILESIZE) {
+				mapLock = BLOCK_UNBLOCKED;
+        } else if (!is_player() && state.animation_type() == ANIM_TYPE_TELEPORT && position.y >= _teleport_minimal_y-TILESIZE) {
+            _teleport_minimal_y = frameSize.height+TILESIZE*2; // RESET MIN_Y -> remove limit for next telepor
+        } else if (position.y+frameSize.height >= RES_H) { // out of screen
+				mapLock = BLOCK_UNBLOCKED;
+			}
+
+        if (_platform == NULL || (_platform != NULL && _platform->get_type() != OBJ_MOVING_PLATFORM_UPDOWN && _platform->get_type() != OBJ_MOVING_PLATFORM_UP_LOOP && _platform->get_type() != OBJ_MOVING_PLATFORM_DOWN)) {
+            if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_STAIR_X || mapLock == BLOCK_STAIR_Y) {
+                if (mapLock != BLOCK_WATER || (mapLock == BLOCK_WATER && abs((float)i*WATER_SPEED_MULT) < 1)) {
+                    position.y += i;
+                } else {
+                    position.y += i*WATER_SPEED_MULT;
+                }
+                if (state.animation_type() != ANIM_TYPE_JUMP && state.animation_type() != ANIM_TYPE_JUMP_ATTACK && state.animation_type() != ANIM_TYPE_TELEPORT && state.animation_type() != ANIM_TYPE_SLIDE && state.animation_type() != ANIM_TYPE_HIT && (state.animation_type() != ANIM_TYPE_JUMP_ATTACK || (state.animation_type() == ANIM_TYPE_JUMP_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
+                    set_animation_type(ANIM_TYPE_JUMP);
+                }
+                was_moved = true;
+
+                if (state.animation_type() != ANIM_TYPE_TELEPORT) {
+                    _is_falling = true;
+                }
+                break;
+            } else if (map_col.terrain_type == TERRAIN_QUICKSAND) {
+                //std::cout << "CHAR::GRAVITY - over QUICKSAND" << std::endl;
+                position.y += QUICKSAND_GRAVITY;
+            }
+        }
+			if (i == 1) {
+            reset_gravity_speed();
+			}
+		}
+
+		if (was_moved == false && (state.animation_type() == ANIM_TYPE_JUMP || state.animation_type() == ANIM_TYPE_JUMP_ATTACK) && state.animation_type() != ANIM_TYPE_SLIDE) {
+        set_animation_type(ANIM_TYPE_STAND);
+			return true;
+		} else if (was_moved == false && state.animation_type() == ANIM_TYPE_TELEPORT && position.y >= RES_H/3) {
+        set_animation_type(ANIM_TYPE_STAND);
+			return true;
+		}
+    if (was_moved == false && _is_falling == true) {
+        _is_falling = false;
+        if (is_player()) {
+            set_animation_type(ANIM_TYPE_STAND);
+            soundManager.play_sfx(SFX_PLAYER_JUMP);
+        }
+    }
+
+    check_platform_move(map_col.terrain_type);
+
+    return false;
+}
+
+// touching an enemy: touch damage (small or big, by comparing heights) and the enemy knows it hit the player
+void character::npc_touch_damage()
+{
+    classnpc* npc_touch = gameControl.get_current_map_obj()->collision_player_npcs(this, 0, 0);
+    if (npc_touch != NULL) {
+        if (npc_touch->get_size().height > this->get_size().height) {
+            damage(TOUCH_DAMAGE_SMALL, false);
+        } else {
+            damage(TOUCH_DAMAGE_BIG, false);
+        }
+        if (_was_hit == true) {
+            npc_touch->hit_player();
+        }
+    }
+}
+
 bool character::gravity(bool boss_demo_mode=false)
 {
     if (_progressive_appear_pos != 0) {
@@ -531,33 +658,7 @@ bool character::gravity(bool boss_demo_mode=false)
 
 	// ------------- NPC gravity ------------------ //
 	if (!is_player()) {
-        if (_ignore_gravity == true) {
-            return false;
-        }
-
-        if (can_fly == false || can_fall_during_move == true || (_is_boss && SharedData::get_instance()->is_showing_boss_intro == true)) {
-            bool is_moved = false;
-            short int limit_speed = move_speed;
-			if (boss_demo_mode == true) {
-                limit_speed = gravity_max_speed;
-			}
-            if (limit_speed < 1) {
-                limit_speed = 1;
-            }
-
-			for (int i=limit_speed; i>0; i--) {
-                bool res_test_move = test_change_position(0, i);
-                //if (i > 0) std::cout << "CHAR::GRAVITY[PLAYER] - res_test_move[" << res_test_move << "], yinc[" << i << "]" << std::endl;
-                if ((boss_demo_mode == true && position.y <= TILESIZE*2) || res_test_move == true) {
-                    position.y += i;
-					is_moved = true;
-					break;
-				}
-            }
-			return is_moved;
-        }
-        reset_gravity_speed();
-        return false; // not moved because of IA type
+        return npc_gravity(boss_demo_mode, gravity_max_speed);
 	}
 
 
@@ -572,106 +673,14 @@ bool character::gravity(bool boss_demo_mode=false)
 
 	if (is_in_stairs_frame()) {
         //character* playerObj, const short int x_inc, const short int y_inc, short int reduce_x, short int reduce_y
-        classnpc* npc_touch = gameControl.get_current_map_obj()->collision_player_npcs(this, 0, 0);
-        if (npc_touch != NULL) {
-            if (npc_touch->get_size().height > this->get_size().height) {
-                damage(TOUCH_DAMAGE_SMALL, false);
-            } else {
-                damage(TOUCH_DAMAGE_BIG, false);
-            }
-            if (_was_hit == true) {
-                npc_touch->hit_player();
-            }
-        }
+        npc_touch_damage();
         reset_gravity_speed();
         return false;
 	}
 
     if (_obj_jump.is_started() == false && can_fly == false && position.y < RES_H+TILESIZE+1 + frameSize.height) {
-
-        // tem que inicializar essa variável sempre que for false
-        accel_speed_y = accel_speed_y + accel_speed_y*gravity_y;
-
-        if (accel_speed_y < 0.25) {
-            accel_speed_y = 0.25;
-        } else if (accel_speed_y > gravity_max_speed) {
-            accel_speed_y = gravity_max_speed;
-        }
-
-        int adjusted_speed = accel_speed_y;
-        if (adjusted_speed < 1) {
-            adjusted_speed = 1;
-        }
-
-
-
-		if (state.animation_type() == ANIM_TYPE_TELEPORT) {
-
-            if (_teleport_minimal_y - position.y > TILESIZE) {
-                adjusted_speed = gravity_max_speed;
-            } else {
-                adjusted_speed = gravity_max_speed/2;
-            }
-		}
-
-        st_map_collision map_col;
-        bool was_moved = false;
-        for (int i=adjusted_speed; i>0; i--) {
-            map_col = map_collision(0, i, gameControl.get_current_map_obj()->getMapScrolling());
-            int mapLock = map_col.block;
-
-			if (state.animation_type() == ANIM_TYPE_TELEPORT && position.y < _teleport_minimal_y-TILESIZE) {
-				mapLock = BLOCK_UNBLOCKED;
-            } else if (!is_player() && state.animation_type() == ANIM_TYPE_TELEPORT && position.y >= _teleport_minimal_y-TILESIZE) {
-                _teleport_minimal_y = frameSize.height+TILESIZE*2; // RESET MIN_Y -> remove limit for next telepor
-            } else if (position.y+frameSize.height >= RES_H) { // out of screen
-				mapLock = BLOCK_UNBLOCKED;
-			}
-
-            if (_platform == NULL || (_platform != NULL && _platform->get_type() != OBJ_MOVING_PLATFORM_UPDOWN && _platform->get_type() != OBJ_MOVING_PLATFORM_UP_LOOP && _platform->get_type() != OBJ_MOVING_PLATFORM_DOWN)) {
-                if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_STAIR_X || mapLock == BLOCK_STAIR_Y) {
-                    if (mapLock != BLOCK_WATER || (mapLock == BLOCK_WATER && abs((float)i*WATER_SPEED_MULT) < 1)) {
-                        position.y += i;
-                    } else {
-                        position.y += i*WATER_SPEED_MULT;
-                    }
-                    if (state.animation_type() != ANIM_TYPE_JUMP && state.animation_type() != ANIM_TYPE_JUMP_ATTACK && state.animation_type() != ANIM_TYPE_TELEPORT && state.animation_type() != ANIM_TYPE_SLIDE && state.animation_type() != ANIM_TYPE_HIT && (state.animation_type() != ANIM_TYPE_JUMP_ATTACK || (state.animation_type() == ANIM_TYPE_JUMP_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
-                        set_animation_type(ANIM_TYPE_JUMP);
-                    }
-                    was_moved = true;
-
-                    if (state.animation_type() != ANIM_TYPE_TELEPORT) {
-                        _is_falling = true;
-                    }
-                    break;
-                } else if (map_col.terrain_type == TERRAIN_QUICKSAND) {
-                    //std::cout << "CHAR::GRAVITY - over QUICKSAND" << std::endl;
-                    position.y += QUICKSAND_GRAVITY;
-                }
-            }
-			if (i == 1) {
-                reset_gravity_speed();
-			}
-		}
-
-		if (was_moved == false && (state.animation_type() == ANIM_TYPE_JUMP || state.animation_type() == ANIM_TYPE_JUMP_ATTACK) && state.animation_type() != ANIM_TYPE_SLIDE) {
-            set_animation_type(ANIM_TYPE_STAND);
-			return true;
-		} else if (was_moved == false && state.animation_type() == ANIM_TYPE_TELEPORT && position.y >= RES_H/3) {
-            set_animation_type(ANIM_TYPE_STAND);
-			return true;
-		}
-        if (was_moved == false && _is_falling == true) {
-            _is_falling = false;
-            if (is_player()) {
-                set_animation_type(ANIM_TYPE_STAND);
-                soundManager.play_sfx(SFX_PLAYER_JUMP);
-            }
-        }
-
-        check_platform_move(map_col.terrain_type);
+        return player_fall(gravity_max_speed);
     }
-
     return false;
 }
 

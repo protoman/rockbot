@@ -276,17 +276,7 @@ void character::player_touch_npcs(const float incx, const short incy, int py_adj
         if (have_shoryuken() == true && state.animation_type() == ANIM_TYPE_SPECIAL_ATTACK) {
             gameControl.get_current_map_obj()->collision_player_special_attack(this, incx, incy, 9, py_adjust);
         } else {
-            classnpc* npc_touch = gameControl.get_current_map_obj()->collision_player_npcs(this, 0, 0);
-            if (npc_touch != NULL) {
-                if (npc_touch->get_size().height > this->get_size().height) {
-                    damage(TOUCH_DAMAGE_SMALL, false);
-                } else {
-                    damage(TOUCH_DAMAGE_BIG, false);
-                }
-                if (_was_hit == true) {
-                    npc_touch->hit_player();
-                }
-            }
+            npc_touch_damage();
         }
 	}
 }

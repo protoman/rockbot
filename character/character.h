@@ -155,6 +155,9 @@ public:
     void clear_move_commands();
     void reset_gravity_speed();
     bool gravity(bool boss_demo_mode);							// returns true if finished (reached ground)
+    bool npc_gravity(bool boss_demo_mode, int gravity_max_speed);
+    bool player_fall(int gravity_max_speed);
+    void npc_touch_damage();
     bool hit_ground();
     /**
      * @brief
