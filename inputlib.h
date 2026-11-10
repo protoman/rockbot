@@ -56,6 +56,9 @@ public:
     void apply_replay_buttons();
     void read_ps2_pad();
     void read_ps3_pad();
+    void handle_keyboard_event();
+    void handle_joystick_button_event(bool check_input_reset);
+    void handle_joystick_axis_event();
     void read_input(bool check_input_reset, bool must_check_input_cheat);
     void check_cheat_input();
     void reset_cheat_input_sequence();
