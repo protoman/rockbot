@@ -357,6 +357,8 @@ SOURCES += main.cpp \
     file/file_io.cpp \
     graphic/animation.cpp \
     character/artificial_inteligence.cpp \
+    character/ai_movement.cpp \
+    character/ai_actions.cpp \
     options/key_map.cpp \
     graphic/draw.cpp \
     aux_tools/trajectory_parabola.cpp \
