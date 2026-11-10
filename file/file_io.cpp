@@ -840,6 +840,37 @@ namespace format_v4 {
             ps3_platform::log("open for write failed: '%s' errno=%d, trying to remove and recreate it", filename.c_str(), errno);
 #endif
 #ifdef PS3
+            // The game itself had created this file and could not open it for writing any more (errno 13). Record what the
+            // file looks like and which kinds of open work, to find out why (nothing is changed by this probe except a test file).
+            {
+                struct stat st;
+                if (stat(filename.c_str(), &st) == 0) {
+                    ps3_platform::log("save file probe: mode=%o uid=%d gid=%d size=%d", (unsigned)st.st_mode, (int)st.st_uid, (int)st.st_gid, (int)st.st_size);
+                } else {
+                    ps3_platform::log("save file probe: stat failed errno=%d", errno);
+                }
+                const char *modes[] = { "rb", "r+b", "ab", "wb" };
+                for (int m = 0; m < 4; m++) {
+                    errno = 0;
+                    FILE *probe_fp = fopen(filename.c_str(), modes[m]);
+                    ps3_platform::log("save file probe: fopen(\"%s\") -> %s (errno %d)", modes[m], probe_fp != NULL ? "ok" : "FAILED", errno);
+                    if (probe_fp != NULL) {
+                        fclose(probe_fp);
+                    }
+                }
+                // a file created now, in the same folder, written twice: does overwriting a file this process made work?
+                std::string test_name = filename + ".probe";
+                for (int round = 0; round < 2; round++) {
+                    errno = 0;
+                    FILE *test_fp = fopen(test_name.c_str(), "wb");
+                    ps3_platform::log("save file probe: test file write #%d -> %s (errno %d)", round + 1, test_fp != NULL ? "ok" : "FAILED", errno);
+                    if (test_fp != NULL) {
+                        fwrite("x", 1, 1, test_fp);
+                        fclose(test_fp);
+                    }
+                }
+                ps3_platform::log_flush();
+            }
             // permission denied (errno 13) was seen here: try to open the permissions first, and log what the system says
             int chmod_result = chmod(filename.c_str(), 0666);
             int chmod_errno = errno;
