@@ -18,6 +18,9 @@ public:
         _animation_state = 0;
         _animation_timer = 0;
         _animation_inverse = false;
+        _animation_restarted = false;
+        _on_last_frame = false;
+        _on_attack_frame = false;
         attack_timer = 0;
         slide_distance = 0;
         invisible = false;
@@ -38,6 +41,13 @@ public:
     bool animation_inverse() const { return _animation_inverse; }         // the frames go from the last to the first
     void set_animation_inverse(bool value) { _animation_inverse = value; }
 
+    bool animation_restarted() const { return _animation_restarted; }     // the animation "looped" once (went back to the first frame)
+    void set_animation_restarted(bool value) { _animation_restarted = value; }
+    bool on_last_frame() const { return _on_last_frame; }                 // reached the end of that animation loop
+    void set_on_last_frame(bool value) { _on_last_frame = value; }
+    bool on_attack_frame() const { return _on_attack_frame; }             // NPC reached the attack-frame number (it can attack now)
+    void set_on_attack_frame(bool value) { _on_attack_frame = value; }
+
     // --- other state ---
     unsigned int attack_timer; // used to control time of attack
     int slide_distance; // holds the amount of pixels character have slided
@@ -51,6 +61,9 @@ private:
     int _animation_state;
     unsigned int _animation_timer;
     bool _animation_inverse;
+    bool _animation_restarted;
+    bool _on_last_frame;
+    bool _on_attack_frame;
 };
 
 #endif // ST_CHARACTERSTATE_H

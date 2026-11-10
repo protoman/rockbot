@@ -970,7 +970,7 @@ void artificial_inteligence::execute_ai_step_walk()
         _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
     } else {
         if (move_type == AI_ACTION_WALK_OPTION_HORIZONTAL_TURN) {
-            if (_is_last_frame == true) { // finished turn animation
+            if (state.on_last_frame() == true) { // finished turn animation
                 if (state.direction() == ANIM_DIRECTION_LEFT) {
                     set_direction(ANIM_DIRECTION_RIGHT); /// @TODO - turn if not facing the given direction
                 } else {
@@ -1035,7 +1035,7 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
         _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
         _did_shot = false;
     } else {
-        if (_was_animation_reset == true && _did_shot == true) {
+        if (state.animation_restarted() == true && _did_shot == true) {
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             _did_shot = false;
             if (state.animation_type() == ANIM_TYPE_WALK_AIR || state.animation_type() == ANIM_TYPE_JUMP || state.animation_type() == ANIM_TYPE_JUMP_ATTACK) {
@@ -1043,7 +1043,7 @@ void artificial_inteligence::execute_ai_action_trow_projectile(Uint8 n, bool inv
             } else {
                 set_animation_type(ANIM_TYPE_STAND);
             }
-        } else if ((_is_attack_frame == true || _is_last_frame == true) && _did_shot == false) { // only shoot when reached the last frame in animation attack
+        } else if ((state.on_attack_frame() == true || state.on_last_frame() == true) && _did_shot == false) { // only shoot when reached the last frame in animation attack
             shot_success = throw_projectile(_parameter, invert_direction);
             _did_shot = true;
             shot_timer = timer.getTimer();
@@ -1064,7 +1064,7 @@ void artificial_inteligence::execute_shot_multiple_projectile()
         _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
         _did_shot = false;
     } else {
-        if (_was_animation_reset == true && _did_shot == true) {
+        if (state.animation_restarted() == true && _did_shot == true) {
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             _did_shot = false;
             if (state.animation_type() == ANIM_TYPE_WALK_AIR || state.animation_type() == ANIM_TYPE_JUMP || state.animation_type() == ANIM_TYPE_JUMP_ATTACK) {
@@ -1072,7 +1072,7 @@ void artificial_inteligence::execute_shot_multiple_projectile()
             } else {
                 set_animation_type(ANIM_TYPE_STAND);
             }
-        } else if ((_is_attack_frame == true || _is_last_frame == true) && _did_shot == false) { // only shoot when reached the last frame in animation attack
+        } else if ((state.on_attack_frame() == true || state.on_last_frame() == true) && _did_shot == false) { // only shoot when reached the last frame in animation attack
             if (_parameter == AI_ACTION_SHOT_MULTIPLE_PROJECTILE_5_UP) {
                 throw_direction_projectile(ANIM_DIRECTION_LEFT);
                 throw_direction_projectile(ANIM_DIRECTION_UP_LEFT);
@@ -1681,7 +1681,7 @@ void artificial_inteligence::execute_ai_step_change_animation_type()
     } else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
         // some attacks keep enemy in current animation until it's effect is finished, so we check against the next.delay
         if (started_action_timer <= timer.getTimer()) {
-            if (_is_last_frame == true) {
+            if (state.on_last_frame() == true) {
                 _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             }
         }
@@ -1693,11 +1693,11 @@ void artificial_inteligence::execute_ai_step_change_animation_type_reverse()
     if (_ai_state.sub_status == IA_ACTION_STATE_INITIAL) {
         set_animation_type(static_cast<ANIM_TYPE>(_parameter));
         state.set_animation_inverse(true);
-        advance_to_last_frame(); // always call this once setting animation_inverse to true to avoid false _was_animation_reset
-        _was_animation_reset = false;
+        advance_to_last_frame(); // always call this once setting animation_inverse to true to avoid false state.animation_restarted()
+        state.set_animation_restarted(false);
         _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
     } else if (_ai_state.sub_status == IA_ACTION_STATE_EXECUTING) {
-        if (_is_last_frame == true) {
+        if (state.on_last_frame() == true) {
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
         }
     }
@@ -2383,7 +2383,7 @@ void artificial_inteligence::ia_action_teleport()
             clean_effect_projectiles();
             set_animation_type(ANIM_TYPE_TELEPORT);
         } else {
-            if (_is_last_frame == true) { // finished teleport animation
+            if (state.on_last_frame() == true) { // finished teleport animation
                 _ai_state.sub_status = IA_ACTION_STATE_EXECUTING;
                 state.invisible = true;
 
@@ -2456,7 +2456,7 @@ void artificial_inteligence::ia_action_teleport()
                     }
                 }
                 _ai_timer = timer.getTimer() + 600;
-                _was_animation_reset = false;
+                state.set_animation_restarted(false);
                 _ignore_gravity = true;
                 state.set_animation_state(0);
             }
@@ -2467,10 +2467,10 @@ void artificial_inteligence::ia_action_teleport()
             state.invisible = false;
             state.set_animation_inverse(true);
             /// @TODO: to avoid this problem,c reate method to start inverse animation ///
-            advance_to_last_frame(); // always call this once setting animation_inverse to true to avoid false _was_animation_reset
-            _was_animation_reset = false;
+            advance_to_last_frame(); // always call this once setting animation_inverse to true to avoid false state.animation_restarted()
+            state.set_animation_restarted(false);
         }
-        if (_was_animation_reset == true) {
+        if (state.animation_restarted() == true) {
             set_animation_type(ANIM_TYPE_STAND);
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             _ignore_gravity = false;

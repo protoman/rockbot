@@ -76,14 +76,14 @@ void character::advance_frameset()
 		return;
 	}
     if (have_frame_graphic(state.direction(), state.animation_type(), state.animation_state()) == false) {
-        _was_animation_reset = true;
+        state.set_animation_restarted(true);
         state.set_animation_state(0);
-        _is_last_frame = true;
+        state.set_on_last_frame(true);
     } else {
         if (have_frame_graphic(state.direction(), state.animation_type(), state.animation_state()+1) == false) {
-            _is_last_frame = true;
+            state.set_on_last_frame(true);
         } else {
-            _is_last_frame = false;
+            state.set_on_last_frame(false);
         }
     }
 }
@@ -160,9 +160,9 @@ void character::show_at(st_position pos)
     // check attack frame
 
     if (_attack_frame_n != -1 && is_on_attack_frame() && state.animation_state() == _attack_frame_n) {
-        _is_attack_frame = true;
+        state.set_on_attack_frame(true);
     } else {
-        _is_attack_frame = false;
+        state.set_on_attack_frame(false);
     }
 
     // show background, if any
@@ -266,7 +266,7 @@ void character::show_sprite()
 				advance_to_last_frame();
             }
 
-            _was_animation_reset = true;
+            state.set_animation_restarted(true);
             // some animation types reset to stand/other
             if (state.animation_type() == ANIM_TYPE_STAIRS_ATTACK) {
                 set_animation_type(ANIM_TYPE_STAIRS);
@@ -379,11 +379,11 @@ graphicsLib_gSurface *character::get_current_frame_surface(short direction, shor
         } else {
             frame_n = 0;
             state.set_animation_state(0);
-            _was_animation_reset = true;
+            state.set_animation_restarted(true);
             return &sprites->frames[direction][type][frame_n].frameSurface;
         }
         state.set_animation_state(0);
-        _was_animation_reset = true;
+        state.set_animation_restarted(true);
 
 
         if (have_frame_graphic(direction, type, frame_n) == false) { // check if we can find the graphic with the given type
@@ -563,7 +563,7 @@ void character::advance_to_last_frame()
 
 bool character::is_on_last_animation_frame()
 {
-    bool result = (_is_last_frame && state.animation_timer() < timer.getTimer());
+    bool result = (state.on_last_frame() && state.animation_timer() < timer.getTimer());
     return result;
 }
 
@@ -595,13 +595,13 @@ bool character::is_on_attack_frame()
 
 bool character::animation_has_restarted()
 {
-    return _was_animation_reset;
+    return state.animation_restarted();
 }
 
 
 void character::set_animation_has_restarted(bool restarted)
 {
-    _was_animation_reset = restarted;
+    state.set_animation_restarted(restarted);
 }
 
 
@@ -632,7 +632,7 @@ void character::set_animation_type(ANIM_TYPE type)
         }
 
         state.set_animation_type(type);
-        _was_animation_reset = false;
+        state.set_animation_restarted(false);
 
 
         // avoids slides starting inside wall or object

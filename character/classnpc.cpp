@@ -471,7 +471,15 @@ void classnpc::copy(classnpc *from)
 	move_speed = from->move_speed;
     can_fly = from->can_fly;
     attack_state = 0;
-	state = from->state;
+	{   // the animation flags were not part of the copy (they were separate members of the character)
+		bool restarted = state.animation_restarted();
+		bool last_frame = state.on_last_frame();
+		bool attack_frame = state.on_attack_frame();
+		state = from->state;
+		state.set_animation_restarted(restarted);
+		state.set_on_last_frame(last_frame);
+		state.set_on_attack_frame(attack_frame);
+	}
 
     _has_background = from->_has_background;
 

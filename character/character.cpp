@@ -41,7 +41,7 @@ static std::map<std::string, graphicsLib_gSurface> _character_frames_surface;
 // ********************************************************************************************** //
 character::character() : hitPoints(1, 1), last_hit_time(0), is_player_type(false), _platform(NULL), hit_animation_timer(0), hit_moved_back_n(0), jump_button_released(true), attack_button_released(true), dead(false), charging_color_n(0), charging_color_timer(0), shield_type(0), _moving_platform_timer(0), position(), _number(0), _super_jump(false), _force_jump(false), _teleport_minimal_y(0), _is_falling(false), _dead_state(0), slide_type(0), _water_splash(false), _has_background(false), hit_duration(300), _is_boss(false), _is_stage_boss(false), is_ghost(false)
 {
-    _was_animation_reset = false;
+    state.set_animation_restarted(false);
     move_speed = 2.0 * SharedData::get_instance()->get_movement_multiplier();
 
     accel_speed_y = 1;
@@ -55,7 +55,7 @@ character::character() : hitPoints(1, 1), last_hit_time(0), is_player_type(false
     _stairs_stopped_count = 0;
     _charged_shot_projectile_id = -1;
     _normal_shot_projectile_id = 0;
-    _is_last_frame = false;
+    state.set_on_last_frame(false);
     _simultaneous_shots = 1;
     _ignore_gravity = false;
     _always_move_ahead = false;
@@ -74,7 +74,7 @@ character::character() : hitPoints(1, 1), last_hit_time(0), is_player_type(false
     _player_must_reset_colors = false;
     hit_animation_count = 0;
     _attack_frame_n = -1;
-    _is_attack_frame = false;
+    state.set_on_attack_frame(false);
     _stairs_falling_timer = 0;
     attack_button_pressed_timer = 0;
     attack_button_last_state = 0;
