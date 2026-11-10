@@ -20,6 +20,17 @@ fio_strings::fio_strings()
 }
 
 
+// A lone Latin-1 copyright byte (A9) is not valid UTF-8 and the font draws it as "?": make it "©" (C2 A9)
+static void fix_lone_copyright_byte(std::string &str)
+{
+    for (size_t pos = 0; pos < str.length(); pos++) {
+        if ((unsigned char)str[pos] == 0xA9 && (pos == 0 || (unsigned char)str[pos-1] != 0xC2)) {
+            str.insert(pos, 1, (char)0xC2);
+            pos++;
+        }
+    }
+}
+
 namespace format_v4 {
 
     fio_strings::fio_strings()
@@ -97,6 +108,7 @@ namespace format_v4 {
                     str.replace(str.find(str2), str2.length(),"é");
                 }
                 StringUtils::replace_all(str, "\\xC9", "é");
+                fix_lone_copyright_byte(str);
             }
             res.push_back(str);
         }
@@ -192,7 +204,7 @@ namespace format_v4 {
             snprintf(lines[strings_ingame_savegameerror1], sizeof(lines[strings_ingame_savegameerror1]), "%s", "ERRO SALVANDO JOGO,");
             snprintf(lines[strings_ingame_savegameerror2], sizeof(lines[strings_ingame_savegameerror2]), "%s", "VERIFIQUE SE DISPOSITIVO OU");
             snprintf(lines[strings_ingame_savegameerror3], sizeof(lines[strings_ingame_savegameerror3]), "%s", "ARQUIVO ESTÁ PROTEGIDO PARA GRAVACAO.");
-            snprintf(lines[strings_ingame_copyrightline], sizeof(lines[strings_ingame_copyrightline]), "%s", "\xA9 2009-2026 UPPERLAND STUDIOS");
+            snprintf(lines[strings_ingame_copyrightline], sizeof(lines[strings_ingame_copyrightline]), "%s", "\xC2\xA9 2009-2026 UPPERLAND STUDIOS");
             snprintf(lines[strings_ingame_audio], sizeof(lines[strings_ingame_audio]), "%s", "AUDIO");
             snprintf(lines[strings_ingame_input], sizeof(lines[strings_ingame_input]), "%s", "CONTROLE");
             snprintf(lines[strings_ingame_video], sizeof(lines[strings_ingame_video]), "%s", "VIDEO");
@@ -429,7 +441,7 @@ namespace format_v4 {
             snprintf(lines[strings_ingame_savegameerror1], sizeof(lines[strings_ingame_savegameerror1]), "%s", "ERROR AL GUARDAR PARTIDA,");
             snprintf(lines[strings_ingame_savegameerror2], sizeof(lines[strings_ingame_savegameerror2]), "%s", "EVISE QUE EL DISPOSITIVO O");
             snprintf(lines[strings_ingame_savegameerror3], sizeof(lines[strings_ingame_savegameerror3]), "%s", "ARCHIVO NO ESTE PROTEGIDO.");
-            snprintf(lines[strings_ingame_copyrightline], sizeof(lines[strings_ingame_copyrightline]), "%s", "\xA9 2009-2026 UPPERLAND STUDIOS");
+            snprintf(lines[strings_ingame_copyrightline], sizeof(lines[strings_ingame_copyrightline]), "%s", "\xC2\xA9 2009-2026 UPPERLAND STUDIOS");
             snprintf(lines[strings_ingame_audio], sizeof(lines[strings_ingame_audio]), "%s", "AUDIO");
             snprintf(lines[strings_ingame_input], sizeof(lines[strings_ingame_input]), "%s", "INPUT");
             snprintf(lines[strings_ingame_video], sizeof(lines[strings_ingame_video]), "%s", "VIDEO");
@@ -666,7 +678,7 @@ namespace format_v4 {
             snprintf(lines[strings_ingame_savegameerror1], sizeof(lines[strings_ingame_savegameerror1]), "%s", "ERROR WHILE SAVING GAME,");
             snprintf(lines[strings_ingame_savegameerror2], sizeof(lines[strings_ingame_savegameerror2]), "%s", "PLEASE CHECK THAT THE DEVICE OR");
             snprintf(lines[strings_ingame_savegameerror3], sizeof(lines[strings_ingame_savegameerror3]), "%s", "FILE IS NOT WRITE-PROTECTED.");
-            snprintf(lines[strings_ingame_copyrightline], sizeof(lines[strings_ingame_copyrightline]), "%s", "\xA9 2009-2026 UPPERLAND STUDIOS");
+            snprintf(lines[strings_ingame_copyrightline], sizeof(lines[strings_ingame_copyrightline]), "%s", "\xC2\xA9 2009-2026 UPPERLAND STUDIOS");
             snprintf(lines[strings_ingame_audio], sizeof(lines[strings_ingame_audio]), "%s", "AUDIO");
             snprintf(lines[strings_ingame_input], sizeof(lines[strings_ingame_input]), "%s", "INPUT");
             snprintf(lines[strings_ingame_video], sizeof(lines[strings_ingame_video]), "%s", "VIDEO");
@@ -1268,6 +1280,7 @@ namespace format_v4 {
                         str.replace(str.find(str2), str2.length(),"é");
                     }
                     StringUtils::replace_all(str, "\\xC9", "é");
+                    fix_lone_copyright_byte(str);
                 }
                 text_list.push_back(str);
             }
