@@ -27,6 +27,8 @@ void flip_debug_dump(SDL_Surface *screen);
 void pad_read(unsigned int *buttons, int *lx, int *ly);
 // printf-style debug line to the PPU TTY (RPCS3 TTY.log); no stdio involved.
 void log(const char *fmt, ...);
+// writes the buffered log lines to the log file now (progress markers do it at once)
+void log_flush();
 
 // --- Config defaults ---
 void get_default_keys(int keys_codes_copy[BTN_COUNT]);
@@ -38,7 +40,7 @@ E_PLATFORM get_platform();
 
 // Progress marker in rockbot_ps3.log: the last one written shows where the game stopped (empty on other platforms).
 #ifdef PS3
-#define PS3_TRACE(...) ps3_platform::log(__VA_ARGS__)
+#define PS3_TRACE(...) do { ps3_platform::log(__VA_ARGS__); ps3_platform::log_flush(); } while (0)
 #else
 #define PS3_TRACE(...) ((void)0)
 #endif

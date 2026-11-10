@@ -216,6 +216,9 @@ void get_savepath(std::string &savepath)
 #endif
 }
 
+static char *g_log_buffer = NULL;
+static size_t *g_log_used = NULL;
+
 void log(const char *fmt, ...)
 {
 #ifdef PS3
@@ -233,14 +236,35 @@ void log(const char *fmt, ...)
     msg[n++] = '\n';
     u32 written = 0;
     sysTtyWrite(0, msg, (u32)n, &written);
-    // also to a file, to find out where the game stops on a real console (no TTY there)
-    FILE *fp = fopen("/dev_hdd0/tmp/rockbot/rockbot_ps3.log", "ab");
-    if (fp) {
-        fwrite(msg, 1, (size_t)n, fp);
-        fclose(fp);
+    // also to a file, to find out where the game stops on a real console (no TTY there). Opening, writing and
+    // closing the file for every line stalled the frames (the stutter log was measuring itself), so the lines are
+    // collected and written together: by log_flush(), when the buffer is full and every ~60 flips.
+    static char buffer[8192];
+    static size_t used = 0;
+    if (used + (size_t)n > sizeof(buffer)) {
+        log_flush();
     }
+    memcpy(buffer + used, msg, (size_t)n);
+    used += (size_t)n;
+    g_log_buffer = buffer;
+    g_log_used = &used;
 #else
     (void)fmt;
+#endif
+}
+
+void log_flush()
+{
+#ifdef PS3
+    if (g_log_buffer == NULL || g_log_used == NULL || *g_log_used == 0) {
+        return;
+    }
+    FILE *fp = fopen("/dev_hdd0/tmp/rockbot/rockbot_ps3.log", "ab");
+    if (fp) {
+        fwrite(g_log_buffer, 1, *g_log_used, fp);
+        fclose(fp);
+    }
+    *g_log_used = 0;
 #endif
 }
 
@@ -275,7 +299,7 @@ void flip_debug_dump(SDL_Surface *screen)
     }
     // 60 frames after a variant change, and every 480 frames: a screenshot of what is presented
     bool after_change = (g_variant_changed_flip != 0 && g_flip_counter == g_variant_changed_flip + 60);
-    if (after_change || (g_flip_counter % 480) == 0) {
+    if (after_change) {
         char path[96];
         if (after_change) {
             snprintf(path, sizeof(path), "/dev_hdd0/tmp/rockbot/dump_v%d.bmp", g_debug_variant);
@@ -299,6 +323,9 @@ unsigned int flip_number()
 void flip_heartbeat()
 {
     g_flip_counter++;
+    if ((g_flip_counter % 60) == 0) {
+        log_flush();
+    }
 #ifdef PS3
     // frames that take much longer than the others (the stutter): when, how long
     static unsigned int last_ms = 0, slow_logged = 0;

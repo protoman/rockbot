@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
+#include <sys/stat.h>
 #include <cstdlib>
 
 #include "logger.h"
@@ -838,7 +839,16 @@ namespace format_v4 {
 #ifdef PS3
             ps3_platform::log("open for write failed: '%s' errno=%d, trying to remove and recreate it", filename.c_str(), errno);
 #endif
+#ifdef PS3
+            // permission denied (errno 13) was seen here: try to open the permissions first, and log what the system says
+            int chmod_result = chmod(filename.c_str(), 0666);
+            int chmod_errno = errno;
+            int remove_result = remove(filename.c_str());
+            int remove_errno = errno;
+            ps3_platform::log("open for write failed: chmod=%d (errno %d) remove=%d (errno %d)", chmod_result, chmod_errno, remove_result, remove_errno);
+#else
             remove(filename.c_str());
+#endif
             fp = fopen(filename.c_str(), "wb");
 #ifdef PS3
             if (fp == NULL) {
