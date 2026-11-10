@@ -224,9 +224,9 @@ void draw::set_gfx(Uint8 gfx, short mode)
 {
     screen_gfx = gfx;
     screen_gfx_mode = mode;
-	// free train sfx if not using it
+	// forget the train sfx if not using it. It belongs to GameMediator's sound cache: freeing it here left a dangling
+	// pointer in the cache (used again, then freed a second time, when the train effect came back)
 	if (_train_sfx != NULL && screen_gfx != SCREEN_GFX_TRAIN) {
-		SDLL_Mix_FreeChunk(_train_sfx);
 		_train_sfx = NULL;
 	}
     if (screen_gfx == SCREEN_GFX_INFERNO) {
@@ -252,8 +252,9 @@ void draw::set_flash_enabled(bool enabled)
 
 void draw::show_rain()
 {
-    for (int i=0; i<MAP_W; i++) {
-        for (int j=0; j<MAP_H; j++) {
+    // only the tiles that fit the screen: it drew MAP_W (200) columns, 3000 blits a frame of which ~300 were visible
+    for (int i=0; i<=RES_W/TILESIZE; i++) {
+        for (int j=0; j<=RES_H/TILESIZE; j++) {
             graphLib.showSurfaceRegionAt(&rain_obj, st_rectangle(_rain_pos*TILESIZE, 0, TILESIZE, TILESIZE), st_position(i*TILESIZE, j*TILESIZE));
         }
     }
@@ -1484,15 +1485,15 @@ void draw::show_lightingbolt_effect()
         if (_lightingbolt_effect_state <= 5) {
             _lightingbolt_effect_timer = timer.getTimer() + LIGHTINGBOLT_DELAY2;
             _lightingbolt_effect_state++;
+            if (_lightingbolt_effect_state == 1) { // once per flash: it was played on every frame of the first flash step
+                soundManager.play_shared_sfx("thunder.wav");
+            }
         } else {
             _lightingbolt_effect_timer = timer.getTimer() + LIGHTINGBOLT_DELAY1;
             _lightingbolt_effect_state = 0;
         }
     } else {
         if (_lightingbolt_effect_state % 2 != 0) {
-            if (_lightingbolt_effect_state == 1) {
-                soundManager.play_shared_sfx("thunder.wav");
-            }
             graphicsLib_gSurface transparent_area;
             graphLib.initSurface(st_size(RES_W, RES_H), &transparent_area);
             graphLib.clear_surface_area(0, 0, RES_W, RES_H, 250, 250, 158, transparent_area);
