@@ -2315,7 +2315,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 				if (incy < 0) {
 					soundManager.play_sfx(SFX_WATER_LEAVE);
 				} else {
-					soundManager.play_sfx(SFX_WATER_LEAVE);
+					soundManager.play_sfx(SFX_WATER_ENTER); // both branches played the "leave" sound
 				}
 				_water_splash = true;
                 gameControl.get_current_map_obj()->add_animation(ANIMATION_STATIC, &graphLib.water_splash, st_float_position(position.x, (map_y_points[2]-1)*TILESIZE-TILESIZE/3), st_position(0, -6), 100, 0, ANIM_DIRECTION_LEFT, st_size(32, 23));
