@@ -1,6 +1,6 @@
 #include "replay.h"
 
-#ifdef PC
+#if defined(PC) && !defined(WIN32) // POSIX only (signals, execinfo): Windows builds get the empty stubs
 
 #include <cstdio>
 #include <cstdlib>
@@ -222,4 +222,4 @@ void trace(const char *format, ...)
 
 } // namespace replay
 
-#endif // PC
+#endif // PC && !WIN32

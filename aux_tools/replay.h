@@ -16,7 +16,7 @@
  * SDL_AUDIODRIVER=dummy.
  */
 
-#ifdef PC
+#if defined(PC) && !defined(WIN32) // POSIX only (signals, execinfo): Windows builds get the empty stubs
 
 namespace replay {
     bool enabled();                      // true when ROCKBOT_REPLAY is set
