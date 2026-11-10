@@ -18,6 +18,10 @@ void update();
 // Keeps the RSX command buffer from filling up. Call before every video flip.
 void rsx_command_buffer_guard();
 void flip_heartbeat();
+// Console debugging of the all-white stage: R3 cycles through test variants (0 = normal), see classmap.cpp show_map().
+int debug_variant();
+// Called on every flip with the presented surface: writes screenshots (BMP) to /dev_hdd0/tmp/rockbot/
+void flip_debug_dump(SDL_Surface *screen);
 // Polls pad 0 through libio (see ps3_platform.cpp). Analog values are 0..255, centre 128.
 void pad_read(unsigned int *buttons, int *lx, int *ly);
 // printf-style debug line to the PPU TTY (RPCS3 TTY.log); no stdio involved.

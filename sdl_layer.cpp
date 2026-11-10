@@ -1155,6 +1155,7 @@ int SDLL_Flip(SDL_Surface *screen)
 	// scenes that loop on their own and never return to main_loop
 	ps3_platform::update();
 	ps3_platform::flip_heartbeat();
+	ps3_platform::flip_debug_dump(screen);
 	return SDL_Flip(screen);
 #else
 	return SDL_Flip(screen);

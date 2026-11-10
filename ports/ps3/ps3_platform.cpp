@@ -258,8 +258,42 @@ extern "C" s32 rsxContextCallback(gcmContextData *context, u32 count);
 
 // Logs every 120th flip (and the first ones), so the log file shows whether the frames stop (hang in or before
 // the flip) or keep coming (the game runs but ignores the pad).
+static int g_debug_variant = 0;
+static unsigned int g_variant_changed_flip = 0;
+static unsigned int g_flip_counter = 0;
+
+int debug_variant()
+{
+    return g_debug_variant;
+}
+
+void flip_debug_dump(SDL_Surface *screen)
+{
+#ifdef PS3
+    if (screen == NULL) {
+        return;
+    }
+    // 60 frames after a variant change, and every 480 frames: a screenshot of what is presented
+    bool after_change = (g_variant_changed_flip != 0 && g_flip_counter == g_variant_changed_flip + 60);
+    if (after_change || (g_flip_counter % 480) == 0) {
+        char path[96];
+        if (after_change) {
+            snprintf(path, sizeof(path), "/dev_hdd0/tmp/rockbot/dump_v%d.bmp", g_debug_variant);
+        } else {
+            snprintf(path, sizeof(path), "/dev_hdd0/tmp/rockbot/dump_auto.bmp");
+        }
+        int r = SDL_SaveBMP(screen, path);
+        log("rockbot: screenshot %s (flip #%u, variant %d) result=%d %dx%d bpp=%d", path, g_flip_counter, g_debug_variant, r, screen->w, screen->h,
+            screen->format != NULL ? screen->format->BitsPerPixel : -1);
+    }
+#else
+    (void)screen;
+#endif
+}
+
 void flip_heartbeat()
 {
+    g_flip_counter++;
     static unsigned int flips = 0;
     flips++;
     if (flips <= 3 || (flips % 120) == 0) {
@@ -349,6 +383,11 @@ void pad_read(unsigned int *buttons, int *lx, int *ly)
     b |= d.BTN_L2       ? (1u << 15) : 0;
     if (b != last_buttons) {
         log("rockbot: pad buttons %04x", b);
+    }
+    if ((b & (1u << 5)) && !(last_buttons & (1u << 5))) { // R3: next debug variant
+        g_debug_variant = (g_debug_variant + 1) % 5;
+        g_variant_changed_flip = g_flip_counter;
+        log("rockbot: debug variant %d", g_debug_variant);
     }
     last_buttons = b;
     last_lx = d.ANA_L_H;

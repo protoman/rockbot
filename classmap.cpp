@@ -206,37 +206,6 @@ GameMediator::get_instance()->map_data[number].backgrounds[0].speed = 0;
 }
 
 
-void classMap::show_map()
-{
-    draw_dynamic_backgrounds();
-    if (get_map_gfx_mode() == SCREEN_GFX_MODE_BACKGROUND) {
-        draw_lib.show_gfx();
-    }
-    // TODO: optimization, build a list of visible enemies and one for ghost and other for non-ghost,
-    // and use those instead in the show-loop
-    show_ghost_npcs();
-
-    // redraw screen if scroll changed significantly or map was not drawn yet
-    int scroll_diff = _show_map_pos_x == -1 ? TILESIZE + 1 : abs(_show_map_pos_x - scroll.x);
-    if (scroll_diff > TILESIZE) {
-        draw_map_tiles();
-    // use memory screen
-    }
-    int diff_scroll_x = scroll.x - _show_map_pos_x;
-    graphLib.copyArea(st_rectangle(diff_scroll_x+TILESIZE, 0, RES_W, RES_H), st_position(0, 0), &map_screen, &graphLib.gameScreen);
-
-    // draw animated tiles
-    draw_animated_tiles(graphLib.gameScreen);
-
-    if (get_map_gfx_mode() == SCREEN_GFX_MODE_FULLMAP) {
-        draw_lib.show_gfx();
-    }
-
-    show_objects();
-    show_npcs();
-
-}
-
 #ifdef PS3
 // console debugging: raw pixel of a surface (see rockbot_ps3.log)
 static unsigned int ps3_map_debug_pixel(SDL_Surface *s, int x, int y)
@@ -254,6 +223,76 @@ static unsigned int ps3_map_debug_pixel(SDL_Surface *s, int x, int y)
 }
 #endif
 
+void classMap::show_map()
+{
+#ifdef PS3
+    // R3 cycles the variants: 1 = no dynamic background, 2 = no tiles, 3 = tile layer without colour key,
+    // 4 = solid red over the map (shows whether something drawn later paints the stage white)
+    const int dbg_v = ps3_platform::debug_variant();
+    static unsigned int dbg_n = 0;
+    const bool dbg_log = ((dbg_n++ % 240) == 0);
+    if (dbg_v != 1) {
+        draw_dynamic_backgrounds();
+    }
+    if (dbg_log) {
+        ps3_platform::log("show_map: stage map=%d bg=%d,%d,%d scroll=%d perf=%d variant=%d | after dynamic bg: screen px(10,10)=%08x px(160,120)=%08x",
+            number, GameMediator::get_instance()->map_data[number].background_color.r, GameMediator::get_instance()->map_data[number].background_color.g,
+            GameMediator::get_instance()->map_data[number].background_color.b, (int)scroll.x, (int)SharedData::get_instance()->game_config.graphics_performance_mode, dbg_v,
+            ps3_map_debug_pixel(graphLib.gameScreen.get_surface(), 10, 10), ps3_map_debug_pixel(graphLib.gameScreen.get_surface(), 160, 120));
+    }
+#else
+    draw_dynamic_backgrounds();
+#endif
+    if (get_map_gfx_mode() == SCREEN_GFX_MODE_BACKGROUND) {
+        draw_lib.show_gfx();
+    }
+    // TODO: optimization, build a list of visible enemies and one for ghost and other for non-ghost,
+    // and use those instead in the show-loop
+    show_ghost_npcs();
+
+    // redraw screen if scroll changed significantly or map was not drawn yet
+    int scroll_diff = _show_map_pos_x == -1 ? TILESIZE + 1 : abs(_show_map_pos_x - scroll.x);
+    if (scroll_diff > TILESIZE) {
+        draw_map_tiles();
+    // use memory screen
+    }
+    int diff_scroll_x = scroll.x - _show_map_pos_x;
+#ifdef PS3
+    if (dbg_v == 3 && map_screen.get_surface() != NULL) {
+        SDLL_SetColorKey(map_screen.get_surface(), 0, 0);
+    }
+    if (dbg_v != 2) {
+        graphLib.copyArea(st_rectangle(diff_scroll_x+TILESIZE, 0, RES_W, RES_H), st_position(0, 0), &map_screen, &graphLib.gameScreen);
+    }
+    if (dbg_log) {
+        SDL_Surface *ms = map_screen.get_surface();
+        ps3_platform::log("show_map: map_screen %dx%d flags=%x px(100,200)=%08x px(180,200)=%08x px(20,20)=%08x | screen px(100,200)=%08x px(180,200)=%08x px(10,10)=%08x",
+            ms != NULL ? ms->w : -1, ms != NULL ? ms->h : -1, ms != NULL ? (unsigned)ms->flags : 0u,
+            ps3_map_debug_pixel(ms, 100, 200), ps3_map_debug_pixel(ms, 180, 200), ps3_map_debug_pixel(ms, 20, 20),
+            ps3_map_debug_pixel(graphLib.gameScreen.get_surface(), 100, 200), ps3_map_debug_pixel(graphLib.gameScreen.get_surface(), 180, 200),
+            ps3_map_debug_pixel(graphLib.gameScreen.get_surface(), 10, 10));
+    }
+#else
+    graphLib.copyArea(st_rectangle(diff_scroll_x+TILESIZE, 0, RES_W, RES_H), st_position(0, 0), &map_screen, &graphLib.gameScreen);
+#endif
+
+    // draw animated tiles
+    draw_animated_tiles(graphLib.gameScreen);
+
+    if (get_map_gfx_mode() == SCREEN_GFX_MODE_FULLMAP) {
+        draw_lib.show_gfx();
+    }
+
+#ifdef PS3
+    if (dbg_v == 4) {
+        SDLL_FillRect(graphLib.gameScreen.get_surface(), NULL, SDLL_MapRGB(graphLib.gameScreen.get_surface(), 255, 0, 0));
+    }
+#endif
+    show_objects();
+    show_npcs();
+
+}
+
 void classMap::get_map_area_surface(graphicsLib_gSurface& mapSurface)
 {
     graphLib.initSurface(st_size(RES_W, RES_H), &mapSurface);
@@ -266,14 +305,6 @@ void classMap::get_map_area_surface(graphicsLib_gSurface& mapSurface)
     graphLib.clear_surface_area(0, 0, RES_W, RES_H, GameMediator::get_instance()->map_data[number].background_color.r, GameMediator::get_instance()->map_data[number].background_color.g, GameMediator::get_instance()->map_data[number].background_color.b, mapSurface);
 
     draw_dynamic_backgrounds_into_surface(mapSurface);
-#ifdef PS3
-    static int ps3_dbg_n = 0;
-    if ((ps3_dbg_n++ % 240) == 0) {
-        ps3_platform::log("map %d bg=%d,%d,%d scroll=%d after bg px(10,10)=%08x", number,
-            GameMediator::get_instance()->map_data[number].background_color.r, GameMediator::get_instance()->map_data[number].background_color.g,
-            GameMediator::get_instance()->map_data[number].background_color.b, scroll.x, ps3_map_debug_pixel(mapSurface.get_surface(), 10, 10));
-    }
-#endif
 
     // redraw screen, if needed
     if (_show_map_pos_x == -1 || abs(_show_map_pos_x - scroll.x) > TILESIZE) {
@@ -282,13 +313,6 @@ void classMap::get_map_area_surface(graphicsLib_gSurface& mapSurface)
     }
     int diff_scroll_x = scroll.x - _show_map_pos_x;
     graphLib.copyArea(st_rectangle(diff_scroll_x+TILESIZE, 0, RES_W, RES_H), st_position(0, 0), &map_screen, &mapSurface);
-#ifdef PS3
-    if ((ps3_dbg_n % 240) == 1) {
-        ps3_platform::log("map_screen px(100,200)=%08x px(180,200)=%08x; mapSurface px(100,200)=%08x px(180,200)=%08x",
-            ps3_map_debug_pixel(map_screen.get_surface(), 100, 200), ps3_map_debug_pixel(map_screen.get_surface(), 180, 200),
-            ps3_map_debug_pixel(mapSurface.get_surface(), 100, 200), ps3_map_debug_pixel(mapSurface.get_surface(), 180, 200));
-    }
-#endif
 
     // draw animated tiles
     draw_animated_tiles(mapSurface);
