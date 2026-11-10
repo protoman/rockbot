@@ -93,9 +93,7 @@ public:
     // keep copy for existing call sites; surfaces still deep-copied
     character(const character&) = default;
     character& operator=(const character&) = default;
-    void setName(std::string);
     std::string get_name(void) const;
-    void set_dead();
     virtual void initFrames() = 0; // pure virtual
     virtual void execute() = 0; // pure virtual
     st_float_position getPosition() const;
@@ -134,8 +132,6 @@ public:
     st_hit_points get_hp() const;
     Uint8 get_current_hp() const;
     void set_current_hp(Uint8 value); // sets (and caps at the maximum) the current HP
-    void execute_jump();								// execute a complete jump
-    void execute_jump_up();					// execute jump until reaches the maximum height
     bool is_jumping();
     void interrupt_jump();
     void fall();								// falls until reaching ground or leaving screen /// @TODO
@@ -143,14 +139,12 @@ public:
     void initialize_npc_position_to_ground();
     bool change_position(short int xinc, short int yinc);
     void change_position_x(short int xinc);
-    int change_position_y(short int yinc);
     bool test_change_position(short int xinc, short int yinc);
     bool is_shielded(int projectile_direction) const;
     bool is_intangible();
     bool is_intangible_to_touch(); // like is_intangible, but the hit-blink does not void contact damage
     short get_anim_type() const;
     graphicsLib_gSurface* get_char_frame(int direction, int type, int frame);
-    st_color get_color_key(short int key_n) const;
     short int get_number() const;
     void charMove();
     void store_previous_position();

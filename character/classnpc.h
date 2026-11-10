@@ -58,12 +58,10 @@ public:
     bool is_subboss();
     void reset_position();
     st_position get_start_position();
-    st_position get_bg_position();
     void show();
     // those are needed for AI to use because of linker not reconizing character class
     void npc_set_hp(st_hit_points new_hp);
     void npc_set_position(st_float_position pos);
-    void npc_set_direction(short dir);
     void npc_set_initialized(short init);
     void set_parent_id(st_position parent_id);
     st_position get_parent_id();

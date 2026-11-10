@@ -615,12 +615,6 @@ graphicsLib_gSurface *character::get_char_frame(int direction, int type, int fra
 }
 
 
-st_color character::get_color_key(short key_n) const
-{
-	return color_keys[key_n];
-}
-
-
 void character::set_animation_type(ANIM_TYPE type)
 {
     // if is hit, finish jumping

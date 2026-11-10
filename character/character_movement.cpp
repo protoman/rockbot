@@ -1609,36 +1609,6 @@ object* character::get_platform()
 }
 
 
-void character::execute_jump_up()
-{
-    // fall until reaching ground
-	/// @TODO
-	for (int i=0; i<100; i++) {
-		char_update_real_position();
-		gravity();
-        gameControl.get_current_map_obj()->show_map();
-		show();
-        gameControl.get_current_map_obj()->showAbove(0);
-        draw_lib.update_screen();
-	}
-
-	// reset command jump, if any
-    jump(0, gameControl.get_current_map_obj()->getMapScrolling());
-    jump(1, gameControl.get_current_map_obj()->getMapScrolling());
-    while (_obj_jump.get_speed() < 0) {
-        input.read_input();
-        char_update_real_position();
-        jump(1, gameControl.get_current_map_obj()->getMapScrolling());
-        gameControl.get_current_map_obj()->show_map();
-		show();
-        gameControl.get_current_map_obj()->showAbove();
-        draw_lib.update_screen();
-        timer.delay(20);
-	}
-    _obj_jump.interrupt();
-}
-
-
 bool character::is_jumping()
 {
     return _obj_jump.is_started();
@@ -1650,34 +1620,6 @@ void character::interrupt_jump()
     _obj_jump.interrupt();
     _obj_jump.finish();
     set_animation_type(ANIM_TYPE_STAND);
-}
-
-
-void character::execute_jump()
-{
-	// fall until reaching ground
-	fall();
-
-	// reset command jump, if any
-    jump(0, gameControl.get_current_map_obj()->getMapScrolling());
-    int initial_y = (int)position.y;
-    jump(1, gameControl.get_current_map_obj()->getMapScrolling());
-    int max_iterations = 500;
-    int iterations = 0;
-    while (position.y != initial_y && iterations < max_iterations) {
-        input.read_input();
-		char_update_real_position();
-        bool resJump = jump(1, gameControl.get_current_map_obj()->getMapScrolling());
-        if (resJump == false) {
-			gravity();
-		}
-        gameControl.get_current_map_obj()->show_map();
-		show();
-        gameControl.get_current_map_obj()->showAbove();
-        draw_lib.update_screen();
-        timer.delay(20);
-        iterations++;
-    }
 }
 
 
@@ -1805,32 +1747,6 @@ void character::change_position_x(short xinc)
             break;
         }
     }
-}
-
-
-int character::change_position_y(short yinc)
-{
-    if (yinc == 0) { // nothing todo
-        return 0;
-    }
-    if (test_change_position(0, yinc)) { // can move max
-        return yinc;
-    } else { // check decrementing xinc
-        if (yinc > 0) {
-            for (int i=yinc; i>0; i--) {
-                if (test_change_position(0, i)) {
-                    return i;
-                }
-            }
-        } else {
-            for (int i=yinc; i<0; i++) {
-                if (test_change_position(0, i)) {
-                    return i;
-                }
-            }
-        }
-    }
-    return 0;
 }
 
 

@@ -21,8 +21,6 @@ public:
      */
     classPlayer(int playerNumber);
 
-    void set_player_name(std::string set_name);
-
     // called after game was picked and loaded, so we have player data
     void initialize();
 
@@ -80,13 +78,6 @@ public:
     void set_weapon_value(Uint8 weapon_n, Uint8 value);
 
     /**
-     * @brief returns the colors the player must show when using a given weapon
-     * @param weapon_n id of the weapon
-     * @return CURRENT_FILE_FORMAT::file_weapon_colors struct that contains the three colors player can change
-     */
-    CURRENT_FILE_FORMAT::file_weapon_colors get_weapon_colors(short int weapon_n);
-
-    /**
      * @brief return the weapon player is currently using
      * @return WEAPON_ICONS_ENUM enum for all weapons
      */
@@ -98,12 +89,6 @@ public:
      * @brief fully recharge energy value of all weapons
      */
     void refill_weapons();
-
-    /**
-     * @brief don't stop teleport because of collision before reaching this Y position (used when player is dead and returning)
-     * @param y point that indicates the minimal y position the teleport gravity will check collision
-     */
-    void set_teleport_minimal_y(int y);
 
     /**
      * @brief virtual function from character. returns always false, as a player don't fly
@@ -134,8 +119,6 @@ public:
     // to be used when game is paused
     void save_input();
     void restore_input();
-
-    Uint8 get_max_hp();
 
     void block_jump();
 
@@ -171,8 +154,6 @@ private:
      */
     int find_next_weapon(int current, int move);
 
-    void clean_move_commands();
-
     bool can_shoot_diagonal();
 
     bool can_double_jump();
@@ -201,7 +182,6 @@ private:
     CURRENT_FILE_FORMAT::file_weapon_colors weapon_colors[MAX_WEAPON_N]; /**< TODO */
     bool l_key_released; /**< avoid changing weapon continuously if L key is held */
     bool r_key_released;            // < avoid changing weapon continuously if R key is held
-    bool _weapons_array[WEAPON_COUNT];
 };
 
 #endif // CLASSPLAYER_H

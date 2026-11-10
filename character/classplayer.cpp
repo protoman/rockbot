@@ -56,10 +56,6 @@ classPlayer::classPlayer(int playerNumber) : teleporter_n(-1), selected_weapon(W
     reset_charging_shot();
 }
 
-void classPlayer::set_player_name(std::string set_name)
-{
-    name = set_name;
-}
 
 void classPlayer::initialize()
 {
@@ -275,10 +271,6 @@ void classPlayer::consume_weapon(int value)
     }
 }
 
-Uint8 classPlayer::get_max_hp()
-{
-    return fio.get_heart_pieces_number(game_save);
-}
 
 void classPlayer::block_jump()
 {
@@ -1078,13 +1070,6 @@ void classPlayer::set_weapon_value(Uint8 weapon_n, Uint8 value)
 
 
 
-CURRENT_FILE_FORMAT::file_weapon_colors classPlayer::get_weapon_colors(short int weapon_n)
-{
-	if (weapon_n < 0 || weapon_n >= MAX_WEAPON_N) {
-		weapon_n = 0;
-	}
-	return weapon_colors[weapon_n];
-}
 
 short classPlayer::get_selected_weapon()
 {
@@ -1103,10 +1088,6 @@ void classPlayer::refill_weapons()
 	}
 }
 
-void classPlayer::set_teleport_minimal_y(int y)
-{
-    _teleport_minimal_y = y-2;
-}
 
 bool classPlayer::can_fly()
 {
@@ -1183,18 +1164,6 @@ int classPlayer::find_next_weapon(int current, int move)
 
 
 
-void classPlayer::clean_move_commands()
-{
-    moveCommands.attack = 0;
-    moveCommands.dash = 0;
-    moveCommands.down = 0;
-    moveCommands.jump = 0;
-    moveCommands.left = 0;
-    moveCommands.right = 0;
-    moveCommands.shield = 0;
-    moveCommands.start = 0;
-    moveCommands.up = 0;
-}
 
 bool classPlayer::can_shoot_diagonal()
 {

@@ -155,11 +155,6 @@ protected:
     /**
      * @brief
      */
-    void ia_action_quake_attack();
-
-    /**
-     * @brief
-     */
     void ia_accelerate_up();
 
     /**
@@ -167,27 +162,6 @@ protected:
      */
     void ia_accelerate_down();
 
-
-    /**
-     * @brief
-     * @param dest_point
-     */
-    void ia_set_destiny_point(st_position dest_point);
-
-    /**
-     * @brief
-     */
-    void ia_walk_to_position();
-
-    /**
-     * @brief same as walk to position, but for floaters
-     */
-    void ia_float_to_position();
-
-    /**
-     * @brief
-     */
-    void ia_dash();
 
     /**
      * @brief
@@ -234,7 +208,6 @@ protected:
     bool always_move_ahead() const; // indicates if this NPC will always go on in AI
     bool uses_fly_fall(); // uses to respawn it inside holes
     void invert_left_right_direction();
-    void adjust_position_opposite_wall();
     void execute_play_sfx();
     void execute_shot_multiple_projectile();
     void execute_explode_itself();

@@ -307,11 +307,6 @@ st_position classnpc::get_start_position()
     return st_position(start_point.x, start_point.y);
 }
 
-st_position classnpc::get_bg_position()
-{
-    return static_bg_pos;
-}
-
 
 void classnpc::show()
 {
@@ -326,11 +321,6 @@ void classnpc::show()
 void classnpc::npc_set_position(st_float_position pos)
 {
     position = pos;
-}
-
-void classnpc::npc_set_direction(short dir)
-{
-    set_direction(dir);
 }
 
 void classnpc::npc_set_initialized(short init)
