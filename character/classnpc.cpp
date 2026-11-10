@@ -521,12 +521,12 @@ void classnpc::move_projectiles()
                 continue;
             } else if ((*it).get_move_type() == TRAJECTORY_PUSH_BACK) {
                 //@TODO
-                push_back_players(!state.direction());
+                push_back_players(opposite_direction(state.direction()));
                 ++it;
                 continue;
             } else if ((*it).get_move_type() == TRAJECTORY_PULL) {
                 //@TODO
-                pull_players(!state.direction());
+                pull_players(opposite_direction(state.direction()));
                 ++it;
                 continue;
             }

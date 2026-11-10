@@ -171,6 +171,10 @@ enum ANIM_DIRECTION {
 
 #define CHAR_ANIM_DIRECTION_COUNT 2 // characters use only left/right, not like projectiles
 
+// left <-> right (the directions characters use): the other value of the pair. Anything that is not LEFT gives LEFT,
+// like the "!direction" it replaces.
+inline unsigned char opposite_direction(int direction) { return (direction == ANIM_DIRECTION_LEFT) ? ANIM_DIRECTION_RIGHT : ANIM_DIRECTION_LEFT; }
+
 /**
  * @brief
  *

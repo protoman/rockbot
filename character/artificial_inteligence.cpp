@@ -1304,7 +1304,7 @@ bool artificial_inteligence::throw_projectile(int projectile_type, bool invert_d
 
     int proj_direction = state.direction();
     if (invert_direction == true) {
-        proj_direction = !proj_direction;
+        proj_direction = opposite_direction(proj_direction);
     }
 
     if (is_shooter) {
@@ -1484,7 +1484,7 @@ void artificial_inteligence::execute_ai_step_fly()
         //std::cout << "AI::execute_ai_step_fly::EXECUTE, param[" << _parameter << "]" << std::endl;
         if (state.animation_type() == ANIM_TYPE_TURN && have_frame_graphic(state.direction(), state.animation_type(), (state.animation_state()+1)) == false) {
             set_animation_type(ANIM_TYPE_STAND);
-            set_direction(!state.direction());
+            turn_around();
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             return;
         }
@@ -1496,7 +1496,7 @@ void artificial_inteligence::execute_ai_step_fly()
         } else if (_parameter == AI_ACTION_FLY_OPTION_HORIZONTAL_TURN) {
             if (state.animation_type() != ANIM_TYPE_TURN) {
                 if (have_frame_graphic(state.direction(), ANIM_TYPE_TURN, 0) == false) {
-                    set_direction(!state.direction());
+                    turn_around();
                     _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
                 } else {
                     set_animation_type(ANIM_TYPE_TURN);
@@ -1631,7 +1631,7 @@ void artificial_inteligence::execute_ai_step_fly()
             bool reached_point = position.x == _dest_point.x && position.y == _dest_point.y;
 
             if ((move_blocked_x_axis == true && move_blocked_y_axis == false && (res_moved == true || (move_speed != 0 && pos_x_before == position.x))) || reached_point == true) {
-                set_direction(!state.direction());
+                turn_around();
                 if (state.direction() == ANIM_DIRECTION_LEFT) {
                     _dest_point.x = position.x - frameSize.width/2 - walk_range;
                 } else {
@@ -1888,7 +1888,7 @@ void artificial_inteligence::execute_ai_wall_walk()
             if (state.animation_type() != ANIM_TYPE_TURN && have_frame_graphic(state.direction(), ANIM_TYPE_TURN, (state.animation_state()+1)) == true) {
                 set_animation_type(ANIM_TYPE_TURN);
             } else {
-                set_direction(!state.direction());
+                turn_around();
             }
         }
 
@@ -1899,7 +1899,7 @@ void artificial_inteligence::execute_ai_wall_walk()
     } else {
         if (state.animation_type() == ANIM_TYPE_TURN && have_frame_graphic(state.direction(), state.animation_type(), (state.animation_state()+1)) == false) {
             set_animation_type(ANIM_TYPE_STAND);
-            set_direction(!state.direction());
+            turn_around();
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
             return;
         }
@@ -2335,7 +2335,7 @@ void artificial_inteligence::execute_ai_step_jump_to_wall()
             state.set_animation_state(0);
             set_animation_type(ANIM_TYPE_WALK_AIR);
             _ai_state.sub_status = IA_ACTION_STATE_FINISHED;
-            set_direction(!state.direction());
+            turn_around();
         }
     }
 }

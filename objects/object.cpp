@@ -1211,7 +1211,7 @@ void object::move(bool paused)
         obj_move_player(xinc, 0);
         // next two points have a different tile than origin point -invert direction
         if (p1 != p2 && p1 != p3) {
-            direction = !direction;
+            direction = opposite_direction(direction);
             state = 0;
         } else if (p1 != p2 && p1 == p3) {
             state = 1;

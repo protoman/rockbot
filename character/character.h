@@ -122,6 +122,7 @@ public:
     void set_platform_pointer(object* obj) { _platform = obj; } // only re-points (the object moved inside its list), no state change
     int get_direction() const;
     void set_direction(int direction);
+    void turn_around() { set_direction(opposite_direction(state.direction())); } // left <-> right
     void clean_projectiles();
     void clean_effect_projectiles();
     void char_update_real_position();

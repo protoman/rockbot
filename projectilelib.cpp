@@ -348,7 +348,7 @@ void projectile::inc_zigzag_status()
         is_finished = true;
     } else {
 //        std::cout << "PROJECTILE::inc_zigzag_status - INVERT direction" << std::endl;
-        direction = !direction;
+        direction = opposite_direction(direction);
     }
 }
 
@@ -826,14 +826,14 @@ st_float_size projectile::move() {
                 _effect_n++;
                 if (status == TRAJECTORY_LINEAR) {
                     status = TRAJECTORY_DIAGONAL_UP;
-                    direction = !direction;
+                    direction = opposite_direction(direction);
                 // only change trajectory if hit on top/down, otherwise just change direction
                 } else if (status == TRAJECTORY_DIAGONAL_UP && collisionX == false) {
                     status = TRAJECTORY_DIAGONAL_DOWN;
                 } else if (status == TRAJECTORY_DIAGONAL_DOWN && collisionX == false) {
                     status = TRAJECTORY_DIAGONAL_UP;
                 } else {
-                    direction = !direction;
+                    direction = opposite_direction(direction);
                 }
             }
         }
