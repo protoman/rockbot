@@ -108,7 +108,7 @@ void classPlayer::init_weapon_colors()
 
 bool classPlayer::get_item(object_collision &obj_info)
 {
-    if (state.animation_type == ANIM_TYPE_TELEPORT) {
+    if (state.animation_type() == ANIM_TYPE_TELEPORT) {
         return false;
     }
 	if (character::get_item(obj_info)) {
@@ -218,14 +218,14 @@ void classPlayer::recharge(e_energy_types _en_type, int value)
 bool classPlayer::shouryuken()
 {
     // trying to start command (can only start if standing on the ground: against a wall the animation can fall back to STAND in the air, which allowed to chain shoryukens forever)
-    if (moveCommands.up != 0 && moveCommands.dash != 0 && state.animation_type == ANIM_TYPE_STAND && hit_ground() == true)  {
+    if (moveCommands.up != 0 && moveCommands.dash != 0 && state.animation_type() == ANIM_TYPE_STAND && hit_ground() == true)  {
         set_animation_type(ANIM_TYPE_SPECIAL_ATTACK);
         _can_execute_airdash = false;
         soundManager.play_sfx(SFX_SHORYUKEN_GIRL);
         _obj_jump.start(true, TERRAIN_UNBLOCKED);
         return true;
     // is executing
-    } else if (state.animation_type == ANIM_TYPE_SPECIAL_ATTACK) {
+    } else if (state.animation_type() == ANIM_TYPE_SPECIAL_ATTACK) {
         _obj_jump.execute(TERRAIN_UNBLOCKED);
         float jump_speed = _obj_jump.get_speed();
         bool jump_moved = false;
@@ -295,11 +295,11 @@ void classPlayer::attack(bool dont_update_colors)
     st_position proj_pos;
 
 
-    if (state.animation_type == ANIM_TYPE_HIT) { // can't fire when hit
+    if (state.animation_type() == ANIM_TYPE_HIT) { // can't fire when hit
         return;
     }
 
-    if (state.animation_type == ANIM_TYPE_SHIELD) { // can't attack when using shield
+    if (state.animation_type() == ANIM_TYPE_SHIELD) { // can't attack when using shield
         return;
     }
 
@@ -366,7 +366,7 @@ void classPlayer::attack(bool dont_update_colors)
         attack_button_released = false;
 
 
-        if (state.direction == ANIM_DIRECTION_LEFT) {
+        if (state.direction() == ANIM_DIRECTION_LEFT) {
             proj_pos = st_position(position.x, position.y+frameSize.height/2);
         } else {
             proj_pos = st_position(position.x+frameSize.width-TILESIZE*2, position.y+frameSize.height/2);
@@ -418,7 +418,7 @@ void classPlayer::attack(bool dont_update_colors)
             return;
         }
 
-        projectile_list.push_back(projectile(game_data.weapons[weapon_id].id_projectile, state.direction, get_attack_position(), is_player(), _number));
+        projectile_list.push_back(projectile(game_data.weapons[weapon_id].id_projectile, state.direction(), get_attack_position(), is_player(), _number));
         projectile &temp_proj = projectile_list.back();
         temp_proj.play_sfx(false);
         temp_proj.set_is_permanent();
@@ -428,11 +428,11 @@ void classPlayer::attack(bool dont_update_colors)
 
         int weapon_trajectory = GameMediator::get_instance()->get_projectile(game_data.weapons[weapon_id].id_projectile).trajectory;
         if (weapon_trajectory == TRAJECTORY_CENTERED || weapon_trajectory == TRAJECTORY_SLASH) {
-            temp_proj.set_owner_direction(&state.direction);
+            temp_proj.set_owner_direction(state.direction_ref());
             temp_proj.set_owner_position(&position);
         } else if (weapon_trajectory == TRAJECTORY_CHAIN) {
             temp_proj.set_owner_position(&position);
-            temp_proj.set_owner_direction(&state.direction);
+            temp_proj.set_owner_direction(state.direction_ref());
 
         } else if (weapon_trajectory == TRAJECTORY_FOLLOW) {
             st_rectangle hitbox = get_hitbox();
@@ -443,7 +443,7 @@ void classPlayer::attack(bool dont_update_colors)
         } else if (weapon_trajectory == TRAJECTORY_TARGET_DIRECTION || weapon_trajectory == TRAJECTORY_TARGET_EXACT || weapon_trajectory == TRAJECTORY_ARC_TO_TARGET) {
             st_rectangle hitbox = get_hitbox();
             st_position player_pos(hitbox.x+hitbox.w/2, hitbox.y+hitbox.h/2);
-            classnpc* temp = gameControl.get_current_map_obj()->find_nearest_npc_on_direction(player_pos, state.direction);
+            classnpc* temp = gameControl.get_current_map_obj()->find_nearest_npc_on_direction(player_pos, state.direction());
             if (temp != NULL) {
                 temp_proj.set_target_position(temp->get_position_ref());
             }
@@ -476,13 +476,13 @@ void classPlayer::attack(bool dont_update_colors)
 
         attack_state = ATTACK_START;
         state.attack_timer = timer.getTimer();
-        if (state.animation_type == ANIM_TYPE_STAND) {
+        if (state.animation_type() == ANIM_TYPE_STAND) {
             set_animation_type(ANIM_TYPE_ATTACK);
-        } else if (state.animation_type == ANIM_TYPE_JUMP) {
+        } else if (state.animation_type() == ANIM_TYPE_JUMP) {
             set_animation_type(ANIM_TYPE_JUMP_ATTACK);
-        } else if (state.animation_type == ANIM_TYPE_STAIRS || state.animation_type == ANIM_TYPE_STAIRS_SEMI || state.animation_type == ANIM_TYPE_STAIRS_MOVE) {
+        } else if (state.animation_type() == ANIM_TYPE_STAIRS || state.animation_type() == ANIM_TYPE_STAIRS_SEMI || state.animation_type() == ANIM_TYPE_STAIRS_MOVE) {
             set_animation_type(ANIM_TYPE_STAIRS_ATTACK);
-        } else if (state.animation_type == ANIM_TYPE_WALK) {
+        } else if (state.animation_type() == ANIM_TYPE_WALK) {
             set_animation_type(ANIM_TYPE_WALK_ATTACK);
         }
     }
@@ -870,8 +870,8 @@ void classPlayer::move()
     // players that shoot on diagonal can't move shile attacking
     if (can_shoot_diagonal()) {
         if (is_on_attack_frame()) {
-            if (state.animation_type != ANIM_TYPE_JUMP_ATTACK) {
-                if (state.animation_type == ANIM_TYPE_WALK_ATTACK) {
+            if (state.animation_type() != ANIM_TYPE_JUMP_ATTACK) {
+                if (state.animation_type() == ANIM_TYPE_WALK_ATTACK) {
                     set_animation_type(ANIM_TYPE_ATTACK);
                 }
                 moveCommands.left = 0;
@@ -928,13 +928,13 @@ void classPlayer::move()
 	}
 
     if (GameMediator::get_instance()->player_list_v3_1[_number].have_shield == true && moveCommands.up == 0 && moveCommands.down == 0 && moveCommands.left == 0 && moveCommands.right == 0 && moveCommands.jump == 0 && moveCommands.shield == 1) {
-		if (state.animation_type != ANIM_TYPE_SHIELD) {
+		if (state.animation_type() != ANIM_TYPE_SHIELD) {
             set_animation_type(ANIM_TYPE_SHIELD);
-			state.animation_timer = 0;
-			state.animation_state = 0;
+			state.set_animation_timer(0);
+			state.set_animation_state(0);
 		}
 		return;
-	} else if (state.animation_type == ANIM_TYPE_SHIELD) {
+	} else if (state.animation_type() == ANIM_TYPE_SHIELD) {
         set_animation_type(ANIM_TYPE_STAND);
 	}
     execute_projectiles();
@@ -1019,9 +1019,9 @@ void classPlayer::change_player_color(bool full_change)
         color_n = 0;
     }
     if (full_change == false) {
-        graphLib.change_surface_color(0, weapon_colors[color_n].color1, &(*sprite_set()).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
-        graphLib.change_surface_color(1, weapon_colors[color_n].color2, &(*sprite_set()).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
-        graphLib.change_surface_color(2, weapon_colors[color_n].color3, &(*sprite_set()).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
+        graphLib.change_surface_color(0, weapon_colors[color_n].color1, &(*sprite_set()).frames[state.direction()][state.animation_type()][state.animation_state()].frameSurface);
+        graphLib.change_surface_color(1, weapon_colors[color_n].color2, &(*sprite_set()).frames[state.direction()][state.animation_type()][state.animation_state()].frameSurface);
+        graphLib.change_surface_color(2, weapon_colors[color_n].color3, &(*sprite_set()).frames[state.direction()][state.animation_type()][state.animation_state()].frameSurface);
     } else {
         for (int i=0; i<CHAR_ANIM_DIRECTION_COUNT; i++) {
             for (int j=0; j<ANIM_TYPE_COUNT; j++) {
@@ -1058,7 +1058,7 @@ void classPlayer::set_weapon(int weapon_n, bool show_tooltip_icon)
     soundManager.stop_repeated_sfx();
     attack_button_last_state = 0;
     if (show_tooltip_icon == true) {
-        draw_lib.add_weapon_tooltip(selected_weapon, realPosition, state.direction);
+        draw_lib.add_weapon_tooltip(selected_weapon, realPosition, state.direction());
     }
     change_player_color(true);
 }
@@ -1119,7 +1119,7 @@ void classPlayer::add_coil_object()
     if (game_save.items.weapons[selected_weapon] > 0) {
 		st_position obj_pos;
         obj_pos.y = position.y;
-		if (state.direction == ANIM_DIRECTION_LEFT) {
+		if (state.direction() == ANIM_DIRECTION_LEFT) {
             obj_pos.x = position.x - 2;
 		} else {
             obj_pos.x = position.x + frameSize.width + 2;
@@ -1133,13 +1133,13 @@ void classPlayer::add_coil_object()
             return;
         }
 
-        object temp_obj(game_data.player_items[0], gameControl.get_current_map_obj(), st_position(position.x/TILESIZE, position.y/TILESIZE), st_position(-1, -1), -1, state.direction);
+        object temp_obj(game_data.player_items[0], gameControl.get_current_map_obj(), st_position(position.x/TILESIZE, position.y/TILESIZE), st_position(-1, -1), -1, state.direction());
 
         int first_unlocked_from_bottom = gameControl.get_current_map_obj()->get_first_lock_on_bottom(obj_pos.x, getPosition().y+frameSize.height+4, temp_obj.get_size().width, temp_obj.get_size().height);
 
         obj_pos.y = (first_unlocked_from_bottom+1)*TILESIZE - temp_obj.get_size().height;
 
-        temp_obj.set_precise_position(obj_pos, state.direction);
+        temp_obj.set_precise_position(obj_pos, state.direction());
 		temp_obj.set_duration(2500);
         temp_obj.enable_teleport_animation();
         temp_obj.set_collision_mode(COLlISION_MODE_Y);
@@ -1153,7 +1153,7 @@ void classPlayer::add_jet_object()
     if (game_save.items.weapons[selected_weapon] > 0) {
 		st_position obj_pos;
         obj_pos.y = position.y + TILESIZE;
-        if (state.direction == ANIM_DIRECTION_LEFT) {
+        if (state.direction() == ANIM_DIRECTION_LEFT) {
             obj_pos.x = position.x - 2;
         } else {
             obj_pos.x = position.x + frameSize.width + 2;
@@ -1166,8 +1166,8 @@ void classPlayer::add_jet_object()
             return;
         }
         
-        object temp_obj(game_data.player_items[1], gameControl.get_current_map_obj(), st_position(position.x/TILESIZE, position.y/TILESIZE), st_position(-1, -1), -1, state.direction);
-        temp_obj.set_precise_position(obj_pos, state.direction);
+        object temp_obj(game_data.player_items[1], gameControl.get_current_map_obj(), st_position(position.x/TILESIZE, position.y/TILESIZE), st_position(-1, -1), -1, state.direction());
+        temp_obj.set_precise_position(obj_pos, state.direction());
         temp_obj.enable_teleport_animation();
 		temp_obj.set_duration(4500);
         gameControl.get_current_map_obj()->add_object(temp_obj);
@@ -1322,7 +1322,7 @@ void classPlayer::reset_charging_shot()
     }
     */
     // also reset slide/dash
-    if (state.animation_type == ANIM_TYPE_SLIDE) {
+    if (state.animation_type() == ANIM_TYPE_SLIDE) {
         set_animation_type(ANIM_TYPE_WALK);
         state.slide_distance = 0;
     }
@@ -1330,7 +1330,7 @@ void classPlayer::reset_charging_shot()
 
 bool classPlayer::is_teleporting()
 {
-    if (state.animation_type == ANIM_TYPE_TELEPORT) {
+    if (state.animation_type() == ANIM_TYPE_TELEPORT) {
         return true;
     }
     return false;

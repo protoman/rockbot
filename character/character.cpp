@@ -138,7 +138,7 @@ void character::charMove() {
     bool did_hit_ground = hit_ground();
 
     if (_dashed_jump == true) {
-        if (state.animation_type == ANIM_TYPE_JUMP || state.animation_type == ANIM_TYPE_JUMP_ATTACK) {
+        if (state.animation_type() == ANIM_TYPE_JUMP || state.animation_type() == ANIM_TYPE_JUMP_ATTACK) {
             temp_move_speed = move_speed * 2;
             if (did_hit_ground == true) {
                 _dashed_jump = false;
@@ -186,16 +186,16 @@ void character::charMove() {
 		return;
 	}
 
-	if (state.animation_type == ANIM_TYPE_TELEPORT) {
+	if (state.animation_type() == ANIM_TYPE_TELEPORT) {
 		gravity(false);
 		return;
 	}
 
-    if (state.animation_type == ANIM_TYPE_HIT) {
+    if (state.animation_type() == ANIM_TYPE_HIT) {
 
         if (hit_moved_back_n < get_hit_push_back_n()) {
 
-            if (state.direction == ANIM_DIRECTION_LEFT) {
+            if (state.direction() == ANIM_DIRECTION_LEFT) {
                 moveCommands.left = 0;
                 moveCommands.right = 1;
             } else {
@@ -217,9 +217,9 @@ void character::charMove() {
 		}
 	}
 
-	if (moveCommands.left == 1 && position.x > 0 && state.animation_type != ANIM_TYPE_SLIDE && is_in_stairs_frame() == false) {
+	if (moveCommands.left == 1 && position.x > 0 && state.animation_type() != ANIM_TYPE_SLIDE && is_in_stairs_frame() == false) {
         // check inverting direction
-        if (state.animation_type != ANIM_TYPE_HIT && state.direction != ANIM_DIRECTION_LEFT) {
+        if (state.animation_type() != ANIM_TYPE_HIT && state.direction() != ANIM_DIRECTION_LEFT) {
             set_direction(ANIM_DIRECTION_LEFT);
             return;
         }
@@ -227,7 +227,7 @@ void character::charMove() {
         for (float i=temp_move_speed; i>=0.1; i--) {
             st_map_collision map_col = map_collision(-i, 0, gameControl.get_current_map_obj()->getMapScrolling());
             mapLock = map_col.block;
-            if (state.animation_type == ANIM_TYPE_HIT) {
+            if (state.animation_type() == ANIM_TYPE_HIT) {
                 hit_moved_back_n += temp_move_speed;
             }
             if (mapLock == BLOCK_UNBLOCKED || mapLock == BLOCK_WATER || mapLock == BLOCK_Y || mapLock == BLOCK_QUICKSAND) {
@@ -238,8 +238,8 @@ void character::charMove() {
                 } else if (mapLock == BLOCK_QUICKSAND) {
                     position.x -= i*QUICKSAND_SPEED_MULT + gameControl.get_current_map_obj()->get_last_scrolled().x;
                 }
-				if (state.animation_type != ANIM_TYPE_HIT) {
-                    if (is_player() && state.direction == ANIM_DIRECTION_RIGHT && is_in_stairs_frame() != true) {
+				if (state.animation_type() != ANIM_TYPE_HIT) {
+                    if (is_player() && state.direction() == ANIM_DIRECTION_RIGHT && is_in_stairs_frame() != true) {
                         position.x -= PLAYER_RIGHT_TO_LEFT_DIFF;
                     }
                     set_direction(ANIM_DIRECTION_LEFT);
@@ -247,10 +247,10 @@ void character::charMove() {
                     gravity(false);
                     return;
 				}
-                if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_WALK_ATTACK) {
-					state.animation_timer = 0;
+                if (state.animation_type() != ANIM_TYPE_WALK && state.animation_type() != ANIM_TYPE_WALK_ATTACK) {
+					state.set_animation_timer(0);
                 }
-                if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_SLIDE && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_HIT && (state.animation_type != ANIM_TYPE_WALK_ATTACK || (state.animation_type == ANIM_TYPE_WALK_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
+                if (state.animation_type() != ANIM_TYPE_WALK && state.animation_type() != ANIM_TYPE_JUMP && state.animation_type() != ANIM_TYPE_SLIDE && state.animation_type() != ANIM_TYPE_JUMP_ATTACK && state.animation_type() != ANIM_TYPE_HIT && (state.animation_type() != ANIM_TYPE_WALK_ATTACK || (state.animation_type() == ANIM_TYPE_WALK_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
                     set_animation_type(ANIM_TYPE_WALK);
 				}
 				moved = true;
@@ -258,19 +258,19 @@ void character::charMove() {
 			}
 		}
 	}
-    if (moveCommands.right != 1 && moveCommands.left == 1 && state.direction != ANIM_DIRECTION_LEFT && (state.animation_type == ANIM_TYPE_SLIDE || is_in_stairs_frame() == true)) {
-        if (is_player() && state.direction == ANIM_DIRECTION_RIGHT && is_in_stairs_frame() != true) {
+    if (moveCommands.right != 1 && moveCommands.left == 1 && state.direction() != ANIM_DIRECTION_LEFT && (state.animation_type() == ANIM_TYPE_SLIDE || is_in_stairs_frame() == true)) {
+        if (is_player() && state.direction() == ANIM_DIRECTION_RIGHT && is_in_stairs_frame() != true) {
             position.x -= PLAYER_RIGHT_TO_LEFT_DIFF;
         }
         set_direction(ANIM_DIRECTION_LEFT);
     }
 
-    if (moveCommands.left != 1 && moveCommands.right == 1 && state.animation_type != ANIM_TYPE_SLIDE && is_in_stairs_frame() == false) {
-        if (state.animation_type != ANIM_TYPE_HIT && state.direction != ANIM_DIRECTION_RIGHT) {
+    if (moveCommands.left != 1 && moveCommands.right == 1 && state.animation_type() != ANIM_TYPE_SLIDE && is_in_stairs_frame() == false) {
+        if (state.animation_type() != ANIM_TYPE_HIT && state.direction() != ANIM_DIRECTION_RIGHT) {
             set_direction(ANIM_DIRECTION_RIGHT);
             return;
         }
-        if (state.animation_type == ANIM_TYPE_HIT) {
+        if (state.animation_type() == ANIM_TYPE_HIT) {
             hit_moved_back_n += temp_move_speed;
         }
 
@@ -293,8 +293,8 @@ void character::charMove() {
                     } else if (mapLock == BLOCK_QUICKSAND) {
                         position.x += i*QUICKSAND_SPEED_MULT + gameControl.get_current_map_obj()->get_last_scrolled().x;
                     }
-                    if (state.animation_type != ANIM_TYPE_HIT) {
-                        if (is_player() && state.direction == ANIM_DIRECTION_LEFT && is_in_stairs_frame() != true) {
+                    if (state.animation_type() != ANIM_TYPE_HIT) {
+                        if (is_player() && state.direction() == ANIM_DIRECTION_LEFT && is_in_stairs_frame() != true) {
                             position.x += PLAYER_RIGHT_TO_LEFT_DIFF;
                         }
                         set_direction(ANIM_DIRECTION_RIGHT);
@@ -302,10 +302,10 @@ void character::charMove() {
                         gravity(false);
                         return;
                     }
-                    if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_WALK_ATTACK) {
-                        state.animation_timer = 0;
+                    if (state.animation_type() != ANIM_TYPE_WALK && state.animation_type() != ANIM_TYPE_WALK_ATTACK) {
+                        state.set_animation_timer(0);
                     }
-                    if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_SLIDE && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_HIT && (state.animation_type != ANIM_TYPE_WALK_ATTACK || (state.animation_type == ANIM_TYPE_WALK_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
+                    if (state.animation_type() != ANIM_TYPE_WALK && state.animation_type() != ANIM_TYPE_JUMP && state.animation_type() != ANIM_TYPE_SLIDE && state.animation_type() != ANIM_TYPE_JUMP_ATTACK && state.animation_type() != ANIM_TYPE_HIT && (state.animation_type() != ANIM_TYPE_WALK_ATTACK || (state.animation_type() == ANIM_TYPE_WALK_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
                         set_animation_type(ANIM_TYPE_WALK);
                     }
                     moved = true;
@@ -316,8 +316,8 @@ void character::charMove() {
             }
 		}
 	}
-	if (moveCommands.right == 1 && state.direction != ANIM_DIRECTION_RIGHT && (state.animation_type == ANIM_TYPE_SLIDE || is_in_stairs_frame() == true)) {
-        if (is_player() && state.direction == ANIM_DIRECTION_LEFT && is_in_stairs_frame() != true) {
+	if (moveCommands.right == 1 && state.direction() != ANIM_DIRECTION_RIGHT && (state.animation_type() == ANIM_TYPE_SLIDE || is_in_stairs_frame() == true)) {
+        if (is_player() && state.direction() == ANIM_DIRECTION_LEFT && is_in_stairs_frame() != true) {
             position.x += PLAYER_RIGHT_TO_LEFT_DIFF;
         }
         set_direction(ANIM_DIRECTION_RIGHT);
@@ -344,7 +344,7 @@ void character::charMove() {
         } else if (moveCommands.left == 0 && moveCommands.right == 0) {
             int inertia_xinc = _inertia_obj.execute();
             if (inertia_xinc != 0) {
-                if (state.direction == ANIM_DIRECTION_LEFT) {
+                if (state.direction() == ANIM_DIRECTION_LEFT) {
                     if (position.x - inertia_xinc < 0) {
                         _inertia_obj.stop();
                     } else {
@@ -381,11 +381,11 @@ void character::charMove() {
 
 
 	// check if character is on stairs
-    if (moveCommands.up == 1 && state.animation_type != ANIM_TYPE_STAIRS_ATTACK) { // check stairs on middle
+    if (moveCommands.up == 1 && state.animation_type() != ANIM_TYPE_STAIRS_ATTACK) { // check stairs on middle
         st_position stairs_pos = is_on_stairs(st_rectangle(position.x, position.y+(frameSize.height/2)-2, frameSize.width, frameSize.height/2-2));
         int top_terrain = gameControl.get_current_map_obj()->getMapPointLock(st_position(((stairs_pos.x * TILESIZE - 6)+frameSize.width/2)/TILESIZE, position.y/TILESIZE));
         if (stairs_pos.x != -1) {
-            if (state.animation_type != ANIM_TYPE_STAIRS_MOVE && _stairs_falling_timer < timer.getTimer()) {
+            if (state.animation_type() != ANIM_TYPE_STAIRS_MOVE && _stairs_falling_timer < timer.getTimer()) {
                 set_animation_type(ANIM_TYPE_STAIRS_MOVE);
 			}
             if (is_in_stairs_frame() && (top_terrain == TERRAIN_UNBLOCKED || top_terrain == TERRAIN_WATER || top_terrain == TERRAIN_STAIR)) {
@@ -398,7 +398,7 @@ void character::charMove() {
             if (_dropped_from_stairs == false && map_terrain == TERRAIN_STAIR) { // check stairs bottom (leaving)
                 set_animation_type(ANIM_TYPE_STAIRS_SEMI);
                 position.y -= temp_move_speed * STAIRS_MOVE_MULTIPLIER;
-			} else if (state.animation_type == ANIM_TYPE_STAIRS_SEMI) {
+			} else if (state.animation_type() == ANIM_TYPE_STAIRS_SEMI) {
                 set_animation_type(ANIM_TYPE_STAND);
                 position.y -= 2;
 			}
@@ -406,7 +406,7 @@ void character::charMove() {
     }
 
 
-    if (moveCommands.down == 1 && state.animation_type != ANIM_TYPE_SLIDE && state.animation_type != ANIM_TYPE_STAIRS_ATTACK) {
+    if (moveCommands.down == 1 && state.animation_type() != ANIM_TYPE_SLIDE && state.animation_type() != ANIM_TYPE_STAIRS_ATTACK) {
         st_position stairs_pos_center = is_on_stairs(st_rectangle(position.x, position.y+frameSize.height/2, frameSize.width, frameSize.height/2));
         bool is_already_on_stairs = is_in_stairs_frame();
         /// @TODO - check that move-speed/2 is not zero
@@ -414,7 +414,7 @@ void character::charMove() {
         // is on stairs
         if (is_already_on_stairs == true) {
             // if frame is semi, but already entered whole body, change to full-stairs frame
-            if (state.animation_type == ANIM_TYPE_STAIRS_SEMI && stairs_pos_center.x != -1 && _stairs_falling_timer < timer.getTimer()) {
+            if (state.animation_type() == ANIM_TYPE_STAIRS_SEMI && stairs_pos_center.x != -1 && _stairs_falling_timer < timer.getTimer()) {
                 set_animation_type(ANIM_TYPE_STAIRS_MOVE);
             }
 
@@ -448,14 +448,14 @@ void character::charMove() {
     }
 
 	// is on stairs without moving
-	if (moveCommands.down == 0 && moveCommands.up == 0 && state.animation_type == ANIM_TYPE_STAIRS_MOVE) {
+	if (moveCommands.down == 0 && moveCommands.up == 0 && state.animation_type() == ANIM_TYPE_STAIRS_MOVE) {
         _stairs_stopped_count++;
         if (_stairs_stopped_count > STAIR_ANIMATION_WAIT_FRAMES) {
             set_animation_type(ANIM_TYPE_STAIRS);
         }
     } else if ((moveCommands.down != 0 || moveCommands.up != 0) && _stairs_falling_timer < timer.getTimer()) {
         _stairs_stopped_count = 0;
-        if (state.animation_type == ANIM_TYPE_STAIRS) {
+        if (state.animation_type() == ANIM_TYPE_STAIRS) {
             set_animation_type(ANIM_TYPE_STAIRS_MOVE);
         }
     }
@@ -471,7 +471,7 @@ void character::charMove() {
     bool resJump = false;
     resJump = jump(moveCommands.jump, gameControl.get_current_map_obj()->getMapScrolling());
     if (resJump == true || res_slide == true) {
-        if (state.animation_type == ANIM_TYPE_HIT) {
+        if (state.animation_type() == ANIM_TYPE_HIT) {
             gravity(false);
         }
     /// @TODO: removed a gravity from here in an ELSE. Hope it was not necessary
@@ -479,11 +479,11 @@ void character::charMove() {
 
 
     if (is_player_type && moved == false && resJump == false && res_slide == false) {
-		//if (state.animation_type != ANIM_TYPE_WALK) {
-         if (is_in_stairs_frame() == false && state.animation_type != ANIM_TYPE_STAND && state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_TELEPORT && state.animation_type != ANIM_TYPE_SHIELD && state.animation_type != ANIM_TYPE_HIT && state.animation_type != ANIM_TYPE_SLIDE && (is_on_attack_frame() == false || (is_on_attack_frame() == true && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
+		//if (state.animation_type() != ANIM_TYPE_WALK) {
+         if (is_in_stairs_frame() == false && state.animation_type() != ANIM_TYPE_STAND && state.animation_type() != ANIM_TYPE_JUMP && state.animation_type() != ANIM_TYPE_JUMP_ATTACK && state.animation_type() != ANIM_TYPE_TELEPORT && state.animation_type() != ANIM_TYPE_SHIELD && state.animation_type() != ANIM_TYPE_HIT && state.animation_type() != ANIM_TYPE_SLIDE && (is_on_attack_frame() == false || (is_on_attack_frame() == true && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
             set_animation_type(ANIM_TYPE_STAND);
 		}
-		if (state.animation_type == ANIM_TYPE_HIT && timer.getTimer() > hit_duration/2+last_hit_time) { // finished hit time
+		if (state.animation_type() == ANIM_TYPE_HIT && timer.getTimer() > hit_duration/2+last_hit_time) { // finished hit time
             set_animation_type(ANIM_TYPE_STAND);
 		}
 	}
@@ -532,7 +532,7 @@ void character::change_char_color(Sint8 colorkey_n, st_color new_color, bool ful
         return;
     }
     if (full_change == false) {
-        graphLib.change_surface_color(colorkey_n, new_color, &(*sprite_set()).frames[state.direction][state.animation_type][state.animation_state].frameSurface);
+        graphLib.change_surface_color(colorkey_n, new_color, &(*sprite_set()).frames[state.direction()][state.animation_type()][state.animation_state()].frameSurface);
 	} else {
         for (int i=0; i<2; i++) {
 			for (int j=0; j<ANIM_TYPE_COUNT; j++) {
@@ -557,14 +557,14 @@ ATTACK_TYPES character::check_must_attack(bool always_charged)
         return ATTACK_TYPE_NOATTACK;
     }
 
-    if (state.animation_type == ANIM_TYPE_TELEPORT) {
+    if (state.animation_type() == ANIM_TYPE_TELEPORT) {
         return ATTACK_TYPE_NOATTACK;
     }
     if (sprite_set() == NULL) {
         return ATTACK_TYPE_NOATTACK;
     }
 
-    if (state.animation_type == ANIM_TYPE_SLIDE) {
+    if (state.animation_type() == ANIM_TYPE_SLIDE) {
         return ATTACK_TYPE_NOATTACK;
     }
 
@@ -676,7 +676,7 @@ void character::check_charging_colors(bool always_charged)
 
 st_position character::get_attack_position()
 {
-    return get_attack_position(state.direction);
+    return get_attack_position(state.direction());
 }
 
 
@@ -705,7 +705,7 @@ st_position character::get_attack_position(short direction)
 /// @TODO: this must be moved to player, as character attack must be very simple
 void character::attack(bool dont_update_colors, short updown_trajectory, bool always_charged)
 {
-    if (attack_state != ATTACK_NOT && (timer.getTimer()-state.attack_timer) >= (*sprite_set()).frames[state.direction][state.animation_type][state.animation_state].delay) {
+    if (attack_state != ATTACK_NOT && (timer.getTimer()-state.attack_timer) >= (*sprite_set()).frames[state.direction()][state.animation_type()][state.animation_state()].delay) {
 		attack_state = ATTACK_NOT;
 	}
 
@@ -745,7 +745,7 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool al
 
         st_position proj_pos = get_attack_position();
 
-        projectile_list.push_back(projectile(attack_id, state.direction, proj_pos, is_player(), _number));
+        projectile_list.push_back(projectile(attack_id, state.direction(), proj_pos, is_player(), _number));
         projectile &temp_proj = projectile_list.back();
         temp_proj.set_is_permanent();
         temp_proj.play_sfx(!is_player());
@@ -761,7 +761,7 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool al
             } else if (updown_trajectory == -1) {
                 temp_proj.set_trajectory(TRAJECTORY_DIAGONAL_DOWN);
                 set_animation_type(ANIM_TYPE_ATTACK_DIAGONAL_DOWN);
-            } else if (is_on_attack_frame() == true && updown_trajectory == 0 && (state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_UP || state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_DOWN)) { // not shooting diagonal, but animation is on diagonal -> reset to normal attack
+            } else if (is_on_attack_frame() == true && updown_trajectory == 0 && (state.animation_type() == ANIM_TYPE_ATTACK_DIAGONAL_UP || state.animation_type() == ANIM_TYPE_ATTACK_DIAGONAL_DOWN)) { // not shooting diagonal, but animation is on diagonal -> reset to normal attack
                 set_animation_type(ANIM_TYPE_ATTACK);
             }
 
@@ -770,7 +770,7 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool al
         int proj_trajectory = GameMediator::get_instance()->get_projectile(attack_id).trajectory;
         temp_proj.set_owner(this);
         if (proj_trajectory == TRAJECTORY_CENTERED || proj_trajectory == TRAJECTORY_SLASH) {
-            temp_proj.set_owner_direction(&state.direction);
+            temp_proj.set_owner_direction(state.direction_ref());
             temp_proj.set_owner_position(&position);
 		}
         if (proj_trajectory == TRAJECTORY_TARGET_DIRECTION || proj_trajectory == TRAJECTORY_TARGET_EXACT || proj_trajectory == TRAJECTORY_ARC_TO_TARGET || proj_trajectory == TRAJECTORY_FOLLOW) {
@@ -784,7 +784,7 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool al
                 if (proj_trajectory == TRAJECTORY_TARGET_DIRECTION || proj_trajectory == TRAJECTORY_TARGET_EXACT || proj_trajectory == TRAJECTORY_ARC_TO_TARGET) {
                     temp_npc = gameControl.get_current_map_obj()->find_nearest_npc(st_position(position.x, position.y));
                 } else {
-                    temp_npc = gameControl.get_current_map_obj()->find_nearest_npc_on_direction(st_position(position.x, position.y), state.direction);
+                    temp_npc = gameControl.get_current_map_obj()->find_nearest_npc_on_direction(st_position(position.x, position.y), state.direction());
                 }
                 if (temp_npc != NULL) {
                     temp_proj.set_target_position(temp_npc->get_position_ref());
@@ -796,10 +796,10 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool al
         // push_back can reallocate the list, which left temp_proj dangling for the code above
         if ((attack_id == 0 || attack_id == _normal_shot_projectile_id || (attack_id == game_data.semi_charged_projectile_id && always_charged == true)) && is_player() && _simultaneous_shots > 1) { /// @TODO - move number of simultaneous shots to character/data-file
             int pos_x_second = proj_pos.x+TILESIZE;
-            if (state.direction == ANIM_DIRECTION_RIGHT) {
+            if (state.direction() == ANIM_DIRECTION_RIGHT) {
                 pos_x_second = proj_pos.x-TILESIZE;
             }
-            projectile_list.push_back(projectile(attack_id, state.direction, st_position(pos_x_second, proj_pos.y+5), is_player(), _number));
+            projectile_list.push_back(projectile(attack_id, state.direction(), st_position(pos_x_second, proj_pos.y+5), is_player(), _number));
             projectile &temp_proj2 = projectile_list.back();
             temp_proj2.set_is_permanent();
             temp_proj2.set_owner(this);
@@ -807,13 +807,13 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool al
 
 		attack_state = ATTACK_START;
 		state.attack_timer = timer.getTimer();
-		if (state.animation_type == ANIM_TYPE_STAND) {
+		if (state.animation_type() == ANIM_TYPE_STAND) {
             set_animation_type(ANIM_TYPE_ATTACK);
-		} else if (state.animation_type == ANIM_TYPE_JUMP) {
+		} else if (state.animation_type() == ANIM_TYPE_JUMP) {
             set_animation_type(ANIM_TYPE_JUMP_ATTACK);
 		} else if (is_in_stairs_frame()) {
             set_animation_type(ANIM_TYPE_STAIRS_ATTACK);
-		} else if (state.animation_type == ANIM_TYPE_WALK) {
+		} else if (state.animation_type() == ANIM_TYPE_WALK) {
             set_animation_type(ANIM_TYPE_WALK_ATTACK);
 		}
     }
@@ -825,23 +825,23 @@ void character::attack(bool dont_update_colors, short updown_trajectory, bool al
 void character::advance_frameset()
 {
 
-    if (state.direction > CHAR_ANIM_DIRECTION_COUNT) {
+    if (state.direction() > CHAR_ANIM_DIRECTION_COUNT) {
         set_direction(ANIM_DIRECTION_LEFT);
 		return;
 	}
-    if (state.animation_type > ANIM_TYPE_COUNT) {
+    if (state.animation_type() > ANIM_TYPE_COUNT) {
 		return;
 	}
-    if ((is_player() && state.animation_state > MAX_PLAYER_SPRITES) || (!is_player() && state.animation_state > MAX_NPC_SPRITES)) {
-		state.animation_state = 0;
+    if ((is_player() && state.animation_state() > MAX_PLAYER_SPRITES) || (!is_player() && state.animation_state() > MAX_NPC_SPRITES)) {
+		state.set_animation_state(0);
 		return;
 	}
-    if (have_frame_graphic(state.direction, state.animation_type, state.animation_state) == false) {
+    if (have_frame_graphic(state.direction(), state.animation_type(), state.animation_state()) == false) {
         _was_animation_reset = true;
-        state.animation_state = 0;
+        state.set_animation_state(0);
         _is_last_frame = true;
     } else {
-        if (have_frame_graphic(state.direction, state.animation_type, state.animation_state+1) == false) {
+        if (have_frame_graphic(state.direction(), state.animation_type(), state.animation_state()+1) == false) {
             _is_last_frame = true;
         } else {
             _is_last_frame = false;
@@ -897,13 +897,13 @@ void character::show() {
 
 void character::show_previous_sprites()
 {
-    if (must_show_dash_effect == false && state.animation_type != ANIM_TYPE_SLIDE) {
+    if (must_show_dash_effect == false && state.animation_type() != ANIM_TYPE_SLIDE) {
         reset_dash_effect();
         return;
     }
 
     if (dash_effect_shadow_surface_frame.is_null()) {
-        graphicsLib_gSurface *surface_frame_original = get_current_frame_surface(state.direction, state.animation_type, state.animation_state);
+        graphicsLib_gSurface *surface_frame_original = get_current_frame_surface(state.direction(), state.animation_type(), state.animation_state());
         // make a copy of the frame
         graphLib.initSurface(st_size(surface_frame_original->width, surface_frame_original->height), &dash_effect_shadow_surface_frame);
         graphLib.copyArea(st_position(0, 0), surface_frame_original, &dash_effect_shadow_surface_frame);
@@ -931,7 +931,7 @@ void character::show_at(st_position pos)
 {
     // check attack frame
 
-    if (_attack_frame_n != -1 && is_on_attack_frame() && state.animation_state == _attack_frame_n) {
+    if (_attack_frame_n != -1 && is_on_attack_frame() && state.animation_state() == _attack_frame_n) {
         _is_attack_frame = true;
     } else {
         _is_attack_frame = false;
@@ -941,12 +941,12 @@ void character::show_at(st_position pos)
     if (is_player() == false && have_background_graphics() == true) {
         st_position bg_pos = st_position(pos.x-background_pos.x, pos.y-background_pos.y);
         //std::cout << "### SHOW - bg_pos.x[" << bg_pos.x << "]" << std::endl;
-        if (state.direction != ANIM_DIRECTION_LEFT) {
+        if (state.direction() != ANIM_DIRECTION_LEFT) {
             graphLib.showSurfaceAt(&(graphLib.character_graphics_background_list.find(name)->second), bg_pos, false);
         } else {
             graphLib.showSurfaceAt(&(graphLib.character_graphics_background_list_left.find(name)->second), bg_pos, false);
         }
-        if (state.direction == ANIM_DIRECTION_LEFT) {
+        if (state.direction() == ANIM_DIRECTION_LEFT) {
             // calcular distância com base largura total, pq é inverttido
             int original_pos_x = pos.x - background_pos.x;
             int graph_diff_x = graphLib.character_graphics_background_list.find(name)->second.width-background_pos.x - frameSize.width;
@@ -960,15 +960,15 @@ void character::show_at(st_position pos)
     advance_frameset();
 
     // turn is a special case, if it does not exist, we must show stand instead
-    if ((state.animation_type == ANIM_TYPE_TURN || state.animation_type == ANIM_TYPE_VERTICAL_TURN) && have_frame_graphic(state.direction, state.animation_type, state.animation_state) == false) {
-        if (have_frame_graphic(state.direction, ANIM_TYPE_WALK, state.animation_state) == true) {
-            show_sprite_graphic(state.direction, ANIM_TYPE_WALK, state.animation_state, pos);
+    if ((state.animation_type() == ANIM_TYPE_TURN || state.animation_type() == ANIM_TYPE_VERTICAL_TURN) && have_frame_graphic(state.direction(), state.animation_type(), state.animation_state()) == false) {
+        if (have_frame_graphic(state.direction(), ANIM_TYPE_WALK, state.animation_state()) == true) {
+            show_sprite_graphic(state.direction(), ANIM_TYPE_WALK, state.animation_state(), pos);
         } else {
-            show_sprite_graphic(state.direction, ANIM_TYPE_STAND, state.animation_state, pos);
+            show_sprite_graphic(state.direction(), ANIM_TYPE_STAND, state.animation_state(), pos);
         }
     // npc teleport use shows stand for now (will have a common graphic to show in the future)
     } else {
-        show_sprite_graphic(state.direction, state.animation_type, state.animation_state, pos);
+        show_sprite_graphic(state.direction(), state.animation_type(), state.animation_state(), pos);
     }
     st_rectangle hitbox = get_hitbox();
     if (gameControl.get_current_map_obj() != NULL) {
@@ -1001,37 +1001,37 @@ void character::show_at(st_position pos)
 void character::show_sprite()
 {
     unsigned int now_timer = timer.getTimer();
-    if (state.animation_timer < now_timer) { // time passed the value to advance frame
+    if (state.animation_timer() < now_timer) { // time passed the value to advance frame
 
 		// change animation state to next frame
 		int frame_inc = 1;
-		if (state.animation_inverse == true) {
+		if (state.animation_inverse() == true) {
             frame_inc = frame_inc * -1;
 		}
-        int new_frame = (state.animation_state + frame_inc);
+        int new_frame = (state.animation_state() + frame_inc);
 
 
-        if (have_frame_graphic(state.direction, state.animation_type, new_frame)) {
-			state.animation_state += frame_inc;
-            if (state.animation_state < 0) {
-                if (state.animation_inverse == true) {
+        if (have_frame_graphic(state.direction(), state.animation_type(), new_frame)) {
+			state.set_animation_state(state.animation_state() + frame_inc);
+            if (state.animation_state() < 0) {
+                if (state.animation_inverse() == true) {
                     advance_to_last_frame();
                 } else {
-                    state.animation_state = 0;
+                    state.set_animation_state(0);
                 }
             }
         } else {
-            if (state.animation_type == ANIM_TYPE_VERTICAL_TURN) {
-				if (state.direction == ANIM_DIRECTION_LEFT) {
+            if (state.animation_type() == ANIM_TYPE_VERTICAL_TURN) {
+				if (state.direction() == ANIM_DIRECTION_LEFT) {
                     set_direction(ANIM_DIRECTION_RIGHT);
 				} else {
                     set_direction(ANIM_DIRECTION_LEFT);
 				}
                 set_animation_type(ANIM_TYPE_STAND);
 			}
-			if (state.animation_inverse == false) {
-				if (state.animation_state > 0) {
-                    state.animation_state = 0;
+			if (state.animation_inverse() == false) {
+				if (state.animation_state() > 0) {
+                    state.set_animation_state(0);
 				}
 			} else {
 				advance_to_last_frame();
@@ -1039,16 +1039,16 @@ void character::show_sprite()
 
             _was_animation_reset = true;
             // some animation types reset to stand/other
-            if (state.animation_type == ANIM_TYPE_STAIRS_ATTACK) {
+            if (state.animation_type() == ANIM_TYPE_STAIRS_ATTACK) {
                 set_animation_type(ANIM_TYPE_STAIRS);
             }
         }
-		if (state.animation_type == ANIM_TYPE_WALK_ATTACK) {
-            state.animation_timer = timer.getTimer() + 180;
+		if (state.animation_type() == ANIM_TYPE_WALK_ATTACK) {
+            state.set_animation_timer(timer.getTimer() + 180);
 		} else {
             short direction = ANIM_DIRECTION_RIGHT;
-            int delay = (*sprite_set()).frames[direction][state.animation_type][state.animation_state].delay;
-            state.animation_timer = timer.getTimer() + delay;
+            int delay = (*sprite_set()).frames[direction][state.animation_type()][state.animation_state()].delay;
+            state.set_animation_timer(timer.getTimer() + delay);
         }
     }
 }
@@ -1057,22 +1057,22 @@ void character::show_sprite()
 // because otherwise, we can't animate player/enemies during a pause like transition
 void character::reset_sprite_animation_timer()
 {
-    if (state.animation_type == ANIM_TYPE_WALK_ATTACK) {
-        state.animation_timer = timer.getTimer() + 180;
+    if (state.animation_type() == ANIM_TYPE_WALK_ATTACK) {
+        state.set_animation_timer(timer.getTimer() + 180);
     } else {
         short direction = ANIM_DIRECTION_RIGHT;
 
         int delay = 100;
         if (sprite_set() != NULL) {
             if (direction < CHAR_ANIM_DIRECTION_COUNT) {
-                if (state.animation_type < ANIM_TYPE_COUNT) {
-                    if (state.animation_state < ANIM_FRAMES_COUNT) {
-                        delay = (*sprite_set()).frames[direction][state.animation_type][state.animation_state].delay;
+                if (state.animation_type() < ANIM_TYPE_COUNT) {
+                    if (state.animation_state() < ANIM_FRAMES_COUNT) {
+                        delay = (*sprite_set()).frames[direction][state.animation_type()][state.animation_state()].delay;
                     }
                 }
             }
         }
-        state.animation_timer = timer.getTimer() + delay;
+        state.set_animation_timer(timer.getTimer() + delay);
     }
 }
 
@@ -1146,11 +1146,11 @@ graphicsLib_gSurface *character::get_current_frame_surface(short direction, shor
             }
         } else {
             frame_n = 0;
-            state.animation_state = 0;
+            state.set_animation_state(0);
             _was_animation_reset = true;
             return &sprites->frames[direction][type][frame_n].frameSurface;
         }
-        state.animation_state = 0;
+        state.set_animation_state(0);
         _was_animation_reset = true;
 
 
@@ -1195,7 +1195,7 @@ bool character::gravity(bool boss_demo_mode=false)
         can_use_air_dash = can_air_dash();
     }
 
-    if (can_use_air_dash == true && state.animation_type == ANIM_TYPE_SLIDE) {
+    if (can_use_air_dash == true && state.animation_type() == ANIM_TYPE_SLIDE) {
         reset_gravity_speed();
         return false;
     }
@@ -1204,7 +1204,7 @@ bool character::gravity(bool boss_demo_mode=false)
         return false;
     }
 
-    if (is_player() && state.animation_type == ANIM_TYPE_TELEPORT) {
+    if (is_player() && state.animation_type() == ANIM_TYPE_TELEPORT) {
         return false;
     }
 
@@ -1219,9 +1219,9 @@ bool character::gravity(bool boss_demo_mode=false)
     }
 
     int gravity_max_speed = GRAVITY_MAX_SPEED * SharedData::get_instance()->get_movement_multiplier();
-    if (state.animation_type == ANIM_TYPE_TELEPORT) {
+    if (state.animation_type() == ANIM_TYPE_TELEPORT) {
         gravity_max_speed = GRAVITY_TELEPORT_MAX_SPEED * SharedData::get_instance()->get_movement_multiplier();
-    } else if (state.animation_type == ANIM_TYPE_HIT) {
+    } else if (state.animation_type() == ANIM_TYPE_HIT) {
         gravity_max_speed = 2 * SharedData::get_instance()->get_movement_multiplier();
     }
 
@@ -1301,7 +1301,7 @@ bool character::gravity(bool boss_demo_mode=false)
 
 
 
-		if (state.animation_type == ANIM_TYPE_TELEPORT) {
+		if (state.animation_type() == ANIM_TYPE_TELEPORT) {
 
             if (_teleport_minimal_y - position.y > TILESIZE) {
                 adjusted_speed = gravity_max_speed;
@@ -1316,9 +1316,9 @@ bool character::gravity(bool boss_demo_mode=false)
             map_col = map_collision(0, i, gameControl.get_current_map_obj()->getMapScrolling());
             int mapLock = map_col.block;
 
-			if (state.animation_type == ANIM_TYPE_TELEPORT && position.y < _teleport_minimal_y-TILESIZE) {
+			if (state.animation_type() == ANIM_TYPE_TELEPORT && position.y < _teleport_minimal_y-TILESIZE) {
 				mapLock = BLOCK_UNBLOCKED;
-            } else if (!is_player() && state.animation_type == ANIM_TYPE_TELEPORT && position.y >= _teleport_minimal_y-TILESIZE) {
+            } else if (!is_player() && state.animation_type() == ANIM_TYPE_TELEPORT && position.y >= _teleport_minimal_y-TILESIZE) {
                 _teleport_minimal_y = frameSize.height+TILESIZE*2; // RESET MIN_Y -> remove limit for next telepor
             } else if (position.y+frameSize.height >= RES_H) { // out of screen
 				mapLock = BLOCK_UNBLOCKED;
@@ -1331,12 +1331,12 @@ bool character::gravity(bool boss_demo_mode=false)
                     } else {
                         position.y += i*WATER_SPEED_MULT;
                     }
-                    if (state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_TELEPORT && state.animation_type != ANIM_TYPE_SLIDE && state.animation_type != ANIM_TYPE_HIT && (state.animation_type != ANIM_TYPE_JUMP_ATTACK || (state.animation_type == ANIM_TYPE_JUMP_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
+                    if (state.animation_type() != ANIM_TYPE_JUMP && state.animation_type() != ANIM_TYPE_JUMP_ATTACK && state.animation_type() != ANIM_TYPE_TELEPORT && state.animation_type() != ANIM_TYPE_SLIDE && state.animation_type() != ANIM_TYPE_HIT && (state.animation_type() != ANIM_TYPE_JUMP_ATTACK || (state.animation_type() == ANIM_TYPE_JUMP_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
                         set_animation_type(ANIM_TYPE_JUMP);
                     }
                     was_moved = true;
 
-                    if (state.animation_type != ANIM_TYPE_TELEPORT) {
+                    if (state.animation_type() != ANIM_TYPE_TELEPORT) {
                         _is_falling = true;
                     }
                     break;
@@ -1350,10 +1350,10 @@ bool character::gravity(bool boss_demo_mode=false)
 			}
 		}
 
-		if (was_moved == false && (state.animation_type == ANIM_TYPE_JUMP || state.animation_type == ANIM_TYPE_JUMP_ATTACK) && state.animation_type != ANIM_TYPE_SLIDE) {
+		if (was_moved == false && (state.animation_type() == ANIM_TYPE_JUMP || state.animation_type() == ANIM_TYPE_JUMP_ATTACK) && state.animation_type() != ANIM_TYPE_SLIDE) {
             set_animation_type(ANIM_TYPE_STAND);
 			return true;
-		} else if (was_moved == false && state.animation_type == ANIM_TYPE_TELEPORT && position.y >= RES_H/3) {
+		} else if (was_moved == false && state.animation_type() == ANIM_TYPE_TELEPORT && position.y >= RES_H/3) {
             set_animation_type(ANIM_TYPE_STAND);
 			return true;
 		}
@@ -1602,11 +1602,11 @@ bool character::slide(st_float_position mapScrolling)
     // deal with cases player should not slide
     /// @TODO: share common code between jump and slide
 
-    if (state.animation_type == ANIM_TYPE_TELEPORT || state.animation_type == ANIM_TYPE_SHIELD) {
+    if (state.animation_type() == ANIM_TYPE_TELEPORT || state.animation_type() == ANIM_TYPE_SHIELD) {
         return false;
     }
 
-    if ((state.animation_type == ANIM_TYPE_JUMP || state.animation_type == ANIM_TYPE_JUMP_ATTACK) && can_air_dash() == false) {
+    if ((state.animation_type() == ANIM_TYPE_JUMP || state.animation_type() == ANIM_TYPE_JUMP_ATTACK) && can_air_dash() == false) {
         return false;
     }
 
@@ -1616,11 +1616,11 @@ bool character::slide(st_float_position mapScrolling)
 	}
 
 	// no need to slide
-    if (state.animation_type != ANIM_TYPE_SLIDE && moveCommands.dash != 1) {
+    if (state.animation_type() != ANIM_TYPE_SLIDE && moveCommands.dash != 1) {
 		return false;
     }
 
-    if (position.x <= 0 && state.direction == ANIM_DIRECTION_LEFT) {
+    if (position.x <= 0 && state.direction() == ANIM_DIRECTION_LEFT) {
         set_animation_type(ANIM_TYPE_JUMP);
         state.slide_distance = 0;
         return false;
@@ -1650,7 +1650,7 @@ bool character::slide(st_float_position mapScrolling)
     bool is_blocked_above = !(map_lock_above == TERRAIN_UNBLOCKED || map_lock_above == TERRAIN_WATER);
 
     // releasing down (or dash button) interrupts the slide
-    if (moveCommands.dash != 1 && state.animation_type == ANIM_TYPE_SLIDE && (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER) && !is_blocked_above) {
+    if (moveCommands.dash != 1 && state.animation_type() == ANIM_TYPE_SLIDE && (map_lock == BLOCK_UNBLOCKED || map_lock == BLOCK_WATER) && !is_blocked_above) {
         if (did_hit_ground) {
             set_animation_type(ANIM_TYPE_STAND);
         } else {
@@ -1671,7 +1671,7 @@ bool character::slide(st_float_position mapScrolling)
     }
 
     // start slide
-    if (state.animation_type != ANIM_TYPE_SLIDE && _dash_button_released == true) {
+    if (state.animation_type() != ANIM_TYPE_SLIDE && _dash_button_released == true) {
         if (moveCommands.dash == 1) {
             if (did_hit_ground == true || (did_hit_ground == false && _can_execute_airdash == true && position.y >= 0)) { // no air dash above the top of the screen
                 _can_execute_airdash = false;
@@ -1680,16 +1680,16 @@ bool character::slide(st_float_position mapScrolling)
                 state.slide_distance = 0;
                 _dash_button_released = false;
                 int adjust_x = -3;
-                if (state.direction == ANIM_DIRECTION_LEFT) {
+                if (state.direction() == ANIM_DIRECTION_LEFT) {
                     adjust_x = frameSize.width+3;
                 }
                 previous_position_list.clear();
-                gameControl.get_current_map_obj()->add_animation(ANIMATION_STATIC, &graphLib.dash_dust, position, st_position(adjust_x, frameSize.height-8), 160, 0, state.direction, st_size(8, 8));
+                gameControl.get_current_map_obj()->add_animation(ANIMATION_STATIC, &graphLib.dash_dust, position, st_position(adjust_x, frameSize.height-8), 160, 0, state.direction(), st_size(8, 8));
             }
 		}
     }
 
-    if (state.animation_type != ANIM_TYPE_SLIDE) {
+    if (state.animation_type() != ANIM_TYPE_SLIDE) {
         return false;
     }
 
@@ -1704,7 +1704,7 @@ bool character::slide(st_float_position mapScrolling)
 	}
 
     // check if trying to leave screen LEFT
-    if (state.direction == ANIM_DIRECTION_LEFT && position.x <= 0) {
+    if (state.direction() == ANIM_DIRECTION_LEFT && position.x <= 0) {
         state.slide_distance = 0;
         return false;
     }
@@ -1716,7 +1716,7 @@ bool character::slide(st_float_position mapScrolling)
     }
 
     // end of map
-    if (state.direction == ANIM_DIRECTION_RIGHT && position.x + frameSize.width > MAP_W * TILESIZE) {
+    if (state.direction() == ANIM_DIRECTION_RIGHT && position.x + frameSize.width > MAP_W * TILESIZE) {
         state.slide_distance = 0;
         return false;
     }
@@ -1731,7 +1731,7 @@ bool character::slide(st_float_position mapScrolling)
     for (float i=max_speed; i>0.0; i--) {
 
         int temp_i;
-        if (state.direction == ANIM_DIRECTION_LEFT) {
+        if (state.direction() == ANIM_DIRECTION_LEFT) {
             temp_i = -i;
         } else {
             temp_i = i;
@@ -1770,12 +1770,12 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
         jump_button_released = true;
     }
 
-    if (state.animation_type == ANIM_TYPE_HIT) {
+    if (state.animation_type() == ANIM_TYPE_HIT) {
         return false;
     }
 
     // can't jump while on air dash
-    if (state.animation_type == ANIM_TYPE_SLIDE && hit_ground() == false) {
+    if (state.animation_type() == ANIM_TYPE_SLIDE && hit_ground() == false) {
         return false;
     }
 
@@ -1826,7 +1826,7 @@ bool character::jump(int jumpCommandStage, st_float_position mapScrolling)
                         _obj_jump.start(false, water_lock);
                     }
                 }
-                if (state.animation_type == ANIM_TYPE_SLIDE && slide_type == 0) {
+                if (state.animation_type() == ANIM_TYPE_SLIDE && slide_type == 0) {
                     _dashed_jump = true;
                 }
                 set_animation_type(ANIM_TYPE_JUMP);
@@ -2002,10 +2002,10 @@ bool character::process_special_map_points(int map_lock, int incx, int incy, st_
     }
     if (incx != 0 && map_lock == TERRAIN_SCROLL_LOCK) {
         //gameControl.horizontal_screen_move(direction, false, map_pos.x, map_pos.y);
-        gameControl.horizontal_screen_move(state.direction, false, map_pos.x);
+        gameControl.horizontal_screen_move(state.direction(), false, map_pos.x);
 		return true;
 	}
-    if (state.animation_type != ANIM_TYPE_TELEPORT && (map_lock == TERRAIN_SPIKE || (map_lock == TERRAIN_HARDMODEBLOCK && game_save.difficulty == 2))) {
+    if (state.animation_type() != ANIM_TYPE_TELEPORT && (map_lock == TERRAIN_SPIKE || (map_lock == TERRAIN_HARDMODEBLOCK && game_save.difficulty == 2))) {
         damage_spikes(true);
         return true;
     }
@@ -2023,7 +2023,7 @@ void character::check_platform_move(short map_lock)
         if (map_lock == TERRAIN_MOVE_LEFT) {
             move = (move_speed-0.5)*-1;
             int pos_x = (position.x + move) / TILESIZE;
-            if (is_player() && state.direction == ANIM_DIRECTION_RIGHT) { // add a few pixels because of graphic when turned right
+            if (is_player() && state.direction() == ANIM_DIRECTION_RIGHT) { // add a few pixels because of graphic when turned right
                 pos_x = (position.x + 5 + move) / TILESIZE;
             }
             int point_terrain = gameControl.getMapPointLock(st_position(pos_x, pos_y));
@@ -2058,7 +2058,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
     int terrain_type = TERRAIN_UNBLOCKED;
 
     /// @TODO: move to char hitbox
-    if (state.animation_type == ANIM_TYPE_JUMP || state.animation_type == ANIM_TYPE_JUMP_ATTACK) {
+    if (state.animation_type() == ANIM_TYPE_JUMP || state.animation_type() == ANIM_TYPE_JUMP_ATTACK) {
         py_adjust = 1;
     }
 
@@ -2080,7 +2080,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 
     if (is_player() == true && res_collision_object._block != 0 && is_on_moving_platform == false) {
         // deal with teleporter object that have special block-area and effect (9)teleporting)
-        if (state.animation_type != ANIM_TYPE_TELEPORT && res_collision_object._object != NULL) {
+        if (state.animation_type() != ANIM_TYPE_TELEPORT && res_collision_object._object != NULL) {
 
             if (res_collision_object._object->get_type() == OBJ_BOSS_TELEPORTER || (res_collision_object._object->get_type() == OBJ_FINAL_BOSS_TELEPORTER && res_collision_object._object->is_started() == true)) {
                 if (is_on_teleporter_capsulse(res_collision_object._object) == true) {
@@ -2126,7 +2126,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
 
 
 	if (is_player()) {
-        if (have_shoryuken() == true && state.animation_type == ANIM_TYPE_SPECIAL_ATTACK) {
+        if (have_shoryuken() == true && state.animation_type() == ANIM_TYPE_SPECIAL_ATTACK) {
             gameControl.get_current_map_obj()->collision_player_special_attack(this, incx, incy, 9, py_adjust);
         } else {
             classnpc* npc_touch = gameControl.get_current_map_obj()->collision_player_npcs(this, 0, 0);
@@ -2232,7 +2232,7 @@ st_map_collision character::map_collision(const float incx, const short incy, st
     // TEST X POINTS
 	if (incx != 0) {
         for (int i=0; i<3; i++) {
-            if (is_player() && (state.animation_type == ANIM_TYPE_JUMP || state.animation_type == ANIM_TYPE_JUMP_ATTACK) && i == 0) {
+            if (is_player() && (state.animation_type() == ANIM_TYPE_JUMP || state.animation_type() == ANIM_TYPE_JUMP_ATTACK) && i == 0) {
                 map_point.y = (py_top+1)/TILESIZE;
             } else {
                 map_point.y = map_y_points[i];
@@ -2487,7 +2487,7 @@ st_rectangle character::get_hitbox(int anim_type)
     float h = frameSize.height;
 
     if (anim_type == -1) {
-        anim_type = state.animation_type;
+        anim_type = state.animation_type();
     }
 
     // player hitbox is hardcoded
@@ -2502,7 +2502,7 @@ st_rectangle character::get_hitbox(int anim_type)
         }
         //std::cout << "CHAT:get_hitbox - pos.x[" << position.x << "], hit.x[" << x << "], adjust.x[" << GameMediator::get_instance()->player_list_v3_1[_number].sprite_hit_area.x << "]" << std::endl;
     } else {
-        int anim_n = state.animation_state;
+        int anim_n = state.animation_state();
 
         // prevent getting size from a frame that does not have information, use Vulnerable-area or hitbox from STAND instead
         st_rectangle col_rect;
@@ -2518,7 +2518,7 @@ st_rectangle character::get_hitbox(int anim_type)
         }
 
         if (!_has_background) {
-            if (state.direction == ANIM_DIRECTION_LEFT) {
+            if (state.direction() == ANIM_DIRECTION_LEFT) {
                 x = position.x + frameSize.width - col_rect.x - col_rect.w;
             } else {
                 x += col_rect.x;
@@ -2553,7 +2553,7 @@ st_rectangle character::get_vulnerable_area(int anim_type)
         if (have_background_graphics() == false) {
             // the area is defined for the sprite as drawn facing right: when facing left it is mirrored inside the frame
             // (same rule as get_hitbox). Before, facing right moved it by -x instead of +x, away from the boss's face.
-            if (state.direction == ANIM_DIRECTION_LEFT) {
+            if (state.direction() == ANIM_DIRECTION_LEFT) {
                 x = position.x + frameSize.width - vulnerable_area_box.x - vulnerable_area_box.w;
             } else {
                 x = position.x + vulnerable_area_box.x;
@@ -2565,14 +2565,14 @@ st_rectangle character::get_vulnerable_area(int anim_type)
             // if hitbox-area.w is smaller than the bg-width or sprite-width, we need to take it into account
             if (vulnerable_area_box.w > frameSize.width) {
                 st_position bg_pos = st_position(position.x-background_pos.x, position.y-background_pos.y);
-                if (state.direction == ANIM_DIRECTION_RIGHT) {
+                if (state.direction() == ANIM_DIRECTION_RIGHT) {
                     int bg_pos_with_w = bg_pos.x + graphLib.character_graphics_background_list.find(name)->second.width;
                     x -= (position.x + vulnerable_area_box.w) - bg_pos_with_w;
                 } else {
                     x = bg_pos.x;
                 }
             }
-            //if (!is_player()) std::cout << "### HITAREA (custom vulnerable-area, with BG) - NPC[" << name << "] - direction[" << (int)state.direction << "], x[" << x << "], y[" << y << "], pos.x[" << get_int_position().x << "], real.pos.x[" << realPosition.x << "], bg.pos.x[" << GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x << "], graph.w[" << graphLib.character_graphics_background_list.find(name)->second.width << "]" << std::endl;
+            //if (!is_player()) std::cout << "### HITAREA (custom vulnerable-area, with BG) - NPC[" << name << "] - direction[" << (int)state.direction() << "], x[" << x << "], y[" << y << "], pos.x[" << get_int_position().x << "], real.pos.x[" << realPosition.x << "], bg.pos.x[" << GameMediator::get_instance()->get_enemy(_number)->sprites_pos_bg.x << "], graph.w[" << graphLib.character_graphics_background_list.find(name)->second.width << "]" << std::endl;
         }
         //if (!is_player()) std::cout << "### HITAREA (custom vulnerable-area) - NPC[" << name << "] - x[" << x << "], y[" << y << "], graph.w[" << graphLib.character_graphics_background_list.find(name)->second.width << "]" << std::endl;
         w = vulnerable_area_box.w;
@@ -2668,7 +2668,7 @@ bool character::have_background_graphics()
 int character::frames_count()
 {
 	for (int i=0; i<ANIM_FRAMES_COUNT; i++) {
-        if ((*sprite_set()).frames[state.direction][state.animation_type][i].frameSurface.width == 0 || (*sprite_set()).frames[state.direction][state.animation_type][i].frameSurface.get_surface() == NULL) {
+        if ((*sprite_set()).frames[state.direction()][state.animation_type()][i].frameSurface.width == 0 || (*sprite_set()).frames[state.direction()][state.animation_type()][i].frameSurface.get_surface() == NULL) {
 			return i;
 		}
 	}
@@ -2679,15 +2679,15 @@ void character::advance_to_last_frame()
 {
 	int frames_n = frames_count();
 	if (frames_n > 0) {
-		state.animation_state = frames_n - 1;
+		state.set_animation_state(frames_n - 1);
 	} else {
-		state.animation_state = 0;
+		state.set_animation_state(0);
     }
 }
 
 bool character::is_on_last_animation_frame()
 {
-    bool result = (_is_last_frame && state.animation_timer < timer.getTimer());
+    bool result = (_is_last_frame && state.animation_timer() < timer.getTimer());
     return result;
 }
 
@@ -2720,7 +2720,7 @@ int character::get_teleport_state()
 
 bool character::is_in_stairs_frame() const
 {
-	if (state.animation_type == ANIM_TYPE_STAIRS || state.animation_type == ANIM_TYPE_STAIRS_MOVE || state.animation_type == ANIM_TYPE_STAIRS_SEMI || state.animation_type == ANIM_TYPE_STAIRS_ATTACK) {
+	if (state.animation_type() == ANIM_TYPE_STAIRS || state.animation_type() == ANIM_TYPE_STAIRS_MOVE || state.animation_type() == ANIM_TYPE_STAIRS_SEMI || state.animation_type() == ANIM_TYPE_STAIRS_ATTACK) {
 		return true;
 	}
     return false;
@@ -2728,17 +2728,17 @@ bool character::is_in_stairs_frame() const
 
 bool character::is_on_attack_frame()
 {
-    if (state.animation_type == ANIM_TYPE_ATTACK ||
-        state.animation_type == ANIM_TYPE_STAIRS_ATTACK ||
-        state.animation_type == ANIM_TYPE_WALK_ATTACK ||
-        state.animation_type == ANIM_TYPE_JUMP_ATTACK ||
-        state.animation_type == ANIM_TYPE_THROW ||
-        state.animation_type == ANIM_TYPE_SPECIAL_ATTACK ||
-        state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_DOWN ||
-        state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_UP ||
-        state.animation_type == ANIM_TYPE_ATTACK_DOWN ||
-        state.animation_type == ANIM_TYPE_ATTACK_UP ||
-        state.animation_type == ANIM_TYPE_ATTACK_SPECIAL) {
+    if (state.animation_type() == ANIM_TYPE_ATTACK ||
+        state.animation_type() == ANIM_TYPE_STAIRS_ATTACK ||
+        state.animation_type() == ANIM_TYPE_WALK_ATTACK ||
+        state.animation_type() == ANIM_TYPE_JUMP_ATTACK ||
+        state.animation_type() == ANIM_TYPE_THROW ||
+        state.animation_type() == ANIM_TYPE_SPECIAL_ATTACK ||
+        state.animation_type() == ANIM_TYPE_ATTACK_DIAGONAL_DOWN ||
+        state.animation_type() == ANIM_TYPE_ATTACK_DIAGONAL_UP ||
+        state.animation_type() == ANIM_TYPE_ATTACK_DOWN ||
+        state.animation_type() == ANIM_TYPE_ATTACK_UP ||
+        state.animation_type() == ANIM_TYPE_ATTACK_SPECIAL) {
         return true;
     }
     return false;
@@ -2907,15 +2907,15 @@ void character::check_reset_stand()
     }
     // is walking without moving, reset to stand
     if (moveCommands.left == 0 && moveCommands.right == 0) {
-        if (state.animation_type == ANIM_TYPE_WALK) {
+        if (state.animation_type() == ANIM_TYPE_WALK) {
             //std::cout << "CHAR - RESET STAND #1" << std::endl;
             set_animation_type(ANIM_TYPE_STAND);
-        } else if (state.animation_type == ANIM_TYPE_WALK_ATTACK) {
+        } else if (state.animation_type() == ANIM_TYPE_WALK_ATTACK) {
             set_animation_type(ANIM_TYPE_ATTACK);
         }
     }
-    if ((state.animation_type == ANIM_TYPE_ATTACK || state.animation_type == ANIM_TYPE_WALK_ATTACK || state.animation_type == ANIM_TYPE_JUMP_ATTACK || state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_DOWN || state.animation_type == ANIM_TYPE_ATTACK_DIAGONAL_UP) && timer.getTimer() > state.attack_timer+500) {
-        switch (state.animation_type) {
+    if ((state.animation_type() == ANIM_TYPE_ATTACK || state.animation_type() == ANIM_TYPE_WALK_ATTACK || state.animation_type() == ANIM_TYPE_JUMP_ATTACK || state.animation_type() == ANIM_TYPE_ATTACK_DIAGONAL_DOWN || state.animation_type() == ANIM_TYPE_ATTACK_DIAGONAL_UP) && timer.getTimer() > state.attack_timer+500) {
+        switch (state.animation_type()) {
             case ANIM_TYPE_WALK_ATTACK:
                 set_animation_type(ANIM_TYPE_WALK);
                 //std::cout << "CHAR - RESET STAND #2" << std::endl;
@@ -2957,9 +2957,9 @@ void character::set_platform(object* obj)
     _obj_jump.finish();
     if (obj != NULL) {
 //        std::cout << "### CHARACTER[" << name << "].set_platform[" << obj->get_name() << "]" << std::endl;
-		if (state.animation_type == ANIM_TYPE_JUMP) {
+		if (state.animation_type() == ANIM_TYPE_JUMP) {
             set_animation_type(ANIM_TYPE_STAND);
-        } else if (state.animation_type == ANIM_TYPE_JUMP_ATTACK) {
+        } else if (state.animation_type() == ANIM_TYPE_JUMP_ATTACK) {
             set_animation_type(ANIM_TYPE_ATTACK);
         }
         set_animation_type(ANIM_TYPE_STAND);
@@ -2974,13 +2974,13 @@ object* character::get_platform()
 
 int character::get_direction() const
 {
-	return state.direction;
+	return state.direction();
 }
 
 void character::set_direction(int direction)
 {
     int must_adjust_x = frameSize.width % TILESIZE;
-    if (!is_player() && direction != state.direction && must_adjust_x != 0) {
+    if (!is_player() && direction != state.direction() && must_adjust_x != 0) {
         // fix to avoid getting stuck into a wall //
         if (direction == ANIM_DIRECTION_LEFT) {
             position.x -= TILESIZE/3;
@@ -2988,10 +2988,10 @@ void character::set_direction(int direction)
             position.x += TILESIZE/3;
         }
     }
-    if (direction != state.direction) {
+    if (direction != state.direction()) {
         reset_dash_effect();
     }
-    state.direction = direction;
+    state.set_direction(direction);
 }
 
 void character::clean_projectiles()
@@ -3071,7 +3071,7 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
     }
 
 
-    if (is_player() == true && state.animation_type != ANIM_TYPE_HIT) {
+    if (is_player() == true && state.animation_type() != ANIM_TYPE_HIT) {
         soundManager.play_sfx(SFX_PLAYER_HIT);
         set_animation_type(ANIM_TYPE_HIT);
         if (_obj_jump.is_started() == true) {
@@ -3083,7 +3083,7 @@ void character::damage(unsigned int damage_points, bool ignore_hit_timer = false
         jump_button_released = false;
         if (gameControl.get_current_map_obj() != NULL) {
             int hit_anim_x = 0;
-            if (state.direction == ANIM_DIRECTION_LEFT) {
+            if (state.direction() == ANIM_DIRECTION_LEFT) {
                 hit_anim_x = 3;
             }
         }
@@ -3218,7 +3218,7 @@ void character::fall()
     for (int i=0; i<RES_H; i++) {
 		char_update_real_position();
 		gravity(false);
-		if (hit_ground() == true && state.animation_type == ANIM_TYPE_STAND) {
+		if (hit_ground() == true && state.animation_type() == ANIM_TYPE_STAND) {
             gameControl.get_current_map_obj()->show_map();
 			show();
             gameControl.get_current_map_obj()->showAbove();
@@ -3294,7 +3294,7 @@ void character::change_position_x(short xinc)
         return;
     }
     for (int i=xinc; i>=0.1; i--) {
-        if (state.animation_type == ANIM_TYPE_HIT && hit_ground() == true) {
+        if (state.animation_type() == ANIM_TYPE_HIT && hit_ground() == true) {
             hit_moved_back_n += xinc;
         }
 
@@ -3307,16 +3307,16 @@ void character::change_position_x(short xinc)
             } else {
                 position.x += i*WATER_SPEED_MULT - gameControl.get_current_map_obj()->get_last_scrolled().x;
             }
-            if (state.animation_type != ANIM_TYPE_HIT) {
+            if (state.animation_type() != ANIM_TYPE_HIT) {
                 set_direction(ANIM_DIRECTION_RIGHT);
             } else {
                 gravity(false);
                 return;
             }
-            if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_WALK_ATTACK) {
-                state.animation_timer = 0;
+            if (state.animation_type() != ANIM_TYPE_WALK && state.animation_type() != ANIM_TYPE_WALK_ATTACK) {
+                state.set_animation_timer(0);
             }
-            if (state.animation_type != ANIM_TYPE_WALK && state.animation_type != ANIM_TYPE_JUMP && state.animation_type != ANIM_TYPE_SLIDE && state.animation_type != ANIM_TYPE_JUMP_ATTACK && state.animation_type != ANIM_TYPE_HIT && (state.animation_type != ANIM_TYPE_WALK_ATTACK || (state.animation_type == ANIM_TYPE_WALK_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
+            if (state.animation_type() != ANIM_TYPE_WALK && state.animation_type() != ANIM_TYPE_JUMP && state.animation_type() != ANIM_TYPE_SLIDE && state.animation_type() != ANIM_TYPE_JUMP_ATTACK && state.animation_type() != ANIM_TYPE_HIT && (state.animation_type() != ANIM_TYPE_WALK_ATTACK || (state.animation_type() == ANIM_TYPE_WALK_ATTACK && state.attack_timer+ATTACK_DELAY < timer.getTimer()))) {
                 set_animation_type(ANIM_TYPE_WALK);
             }
             position.x += xinc;
@@ -3399,27 +3399,27 @@ bool character::test_change_position(short xinc, short yinc)
 bool character::is_shielded(int projectile_direction) const
 {
 	if (is_player()) {
-        if (input.p1_input[BTN_SHIELD] == 1 && state.animation_type == ANIM_TYPE_SHIELD) { // player is on SHIELD animation and is keeping the shield button pressed
+        if (input.p1_input[BTN_SHIELD] == 1 && state.animation_type() == ANIM_TYPE_SHIELD) { // player is on SHIELD animation and is keeping the shield button pressed
             if (shield_type == SHIELD_FULL || shield_type == SHIELD_FRONT) { // player can use shield
                 return true;
             }
         }
 		return false;
 	} else {
-        //std::cout << "NPC[" << name << "], shield_type[" << shield_type << "], SHIELD_BACK[" << (int)SHIELD_BACK << "], anim-type[" << state.animation_type << "], ANIM_TYPE_SHIELD[" << ANIM_TYPE_SHIELD << "]" << std::endl;
-        if (shield_type == SHIELD_FULL || (shield_type == SHIELD_FRONT && projectile_direction != state.direction && (state.animation_type == ANIM_TYPE_STAND || state.animation_type == ANIM_TYPE_WALK  || state.animation_type == ANIM_TYPE_WALK_AIR)) || (shield_type == SHIELD_STAND && state.animation_type == ANIM_TYPE_STAND)) {
+        //std::cout << "NPC[" << name << "], shield_type[" << shield_type << "], SHIELD_BACK[" << (int)SHIELD_BACK << "], anim-type[" << state.animation_type() << "], ANIM_TYPE_SHIELD[" << ANIM_TYPE_SHIELD << "]" << std::endl;
+        if (shield_type == SHIELD_FULL || (shield_type == SHIELD_FRONT && projectile_direction != state.direction() && (state.animation_type() == ANIM_TYPE_STAND || state.animation_type() == ANIM_TYPE_WALK  || state.animation_type() == ANIM_TYPE_WALK_AIR)) || (shield_type == SHIELD_STAND && state.animation_type() == ANIM_TYPE_STAND)) {
 			return true;
 		}
-        if (shield_type == SHIELD_STAND_AND_WALK && projectile_direction != state.direction && (state.animation_type == ANIM_TYPE_STAND || state.animation_type == ANIM_TYPE_WALK)) {
+        if (shield_type == SHIELD_STAND_AND_WALK && projectile_direction != state.direction() && (state.animation_type() == ANIM_TYPE_STAND || state.animation_type() == ANIM_TYPE_WALK)) {
             return true;
         }
-        if (shield_type == SHIELD_STAND_FRONT && projectile_direction != state.direction && state.animation_type == ANIM_TYPE_STAND) {
+        if (shield_type == SHIELD_STAND_FRONT && projectile_direction != state.direction() && state.animation_type() == ANIM_TYPE_STAND) {
             return true;
         }
-        if (shield_type == SHIELD_BACK && projectile_direction == state.direction) {
+        if (shield_type == SHIELD_BACK && projectile_direction == state.direction()) {
             return true;
         }
-        if (shield_type == SHIELD_USING_SHIELD && state.animation_type == ANIM_TYPE_SHIELD) {
+        if (shield_type == SHIELD_USING_SHIELD && state.animation_type() == ANIM_TYPE_SHIELD) {
             return true;
         }
         return false;
@@ -3432,7 +3432,7 @@ bool character::is_intangible_to_touch()
     if (is_player()) {
         return false;
     }
-    return (state.animation_type == ANIM_TYPE_STAND && shield_type == SHIELD_DISGUISE);
+    return (state.animation_type() == ANIM_TYPE_STAND && shield_type == SHIELD_DISGUISE);
 }
 
 bool character::is_intangible()
@@ -3440,7 +3440,7 @@ bool character::is_intangible()
     if (is_player()) {
         return false;
     }
-    if (state.animation_type == ANIM_TYPE_STAND && shield_type == SHIELD_DISGUISE) {
+    if (state.animation_type() == ANIM_TYPE_STAND && shield_type == SHIELD_DISGUISE) {
         return true;
     }
     if (timer.getTimer() < hit_duration+last_hit_time) { // is still intangible from last hit
@@ -3453,7 +3453,7 @@ bool character::is_intangible()
 
 short character::get_anim_type() const
 {
-	return state.animation_type;
+	return state.animation_type();
 }
 
 graphicsLib_gSurface *character::get_char_frame(int direction, int type, int frame)
@@ -3499,26 +3499,26 @@ void character::inc_effect_weapon_status()
 void character::set_animation_type(ANIM_TYPE type)
 {
     // if is hit, finish jumping
-    if (state.animation_type != type && type == ANIM_TYPE_HIT) {
+    if (state.animation_type() != type && type == ANIM_TYPE_HIT) {
         _obj_jump.finish();
     }
 
-    if (type != state.animation_type) {
-        state.animation_state = 0;
+    if (type != state.animation_type()) {
+        state.set_animation_state(0);
 
         if (is_in_stairs_frame() && type == ANIM_TYPE_HIT) {
-            if (state.direction == ANIM_DIRECTION_RIGHT) {
+            if (state.direction() == ANIM_DIRECTION_RIGHT) {
                 position.x += 2;
             }
         }
 
-        state.animation_type = type;
+        state.set_animation_type(type);
         _was_animation_reset = false;
 
 
         // avoids slides starting inside wall or object
         if (type == ANIM_TYPE_SLIDE) {
-            if (state.direction == ANIM_DIRECTION_LEFT) {
+            if (state.direction() == ANIM_DIRECTION_LEFT) {
                 position.x += 6;
             } else {
                 position.x -= 6;
@@ -3527,25 +3527,25 @@ void character::set_animation_type(ANIM_TYPE type)
     }
     int frame_delay = 20;
     if (sprite_set() != NULL) {
-        if (state.direction >= CHAR_ANIM_DIRECTION_COUNT) {
+        if (state.direction() >= CHAR_ANIM_DIRECTION_COUNT) {
             set_direction(0);
         }
-        if (state.animation_type >= ANIM_TYPE_COUNT) {
+        if (state.animation_type() >= ANIM_TYPE_COUNT) {
             set_animation_type(ANIM_TYPE_STAND);
         }
-        if (state.animation_state >= ANIM_FRAMES_COUNT) {
-            state.animation_state = 0;
+        if (state.animation_state() >= ANIM_FRAMES_COUNT) {
+            state.set_animation_state(0);
         }
 
-        frame_delay = (*sprite_set()).frames[state.direction][state.animation_type][state.animation_state].delay;
+        frame_delay = (*sprite_set()).frames[state.direction()][state.animation_type()][state.animation_state()].delay;
     }
-    state.animation_timer = timer.getTimer() + frame_delay;
-    animation_obj.set_type(static_cast<ANIM_TYPE>(state.animation_type));
+    state.set_animation_timer(timer.getTimer() + frame_delay);
+    animation_obj.set_type(static_cast<ANIM_TYPE>(state.animation_type()));
 }
 
 void character::set_animation_frame(unsigned int frame)
 {
-    state.animation_state = frame;
+    state.set_animation_state(frame);
 }
 
 
@@ -3594,7 +3594,7 @@ bool character::can_air_dash()
 void character::cancel_slide()
 {
     state.slide_distance = 999;
-    if (state.animation_type == ANIM_TYPE_SLIDE) {
+    if (state.animation_type() == ANIM_TYPE_SLIDE) {
         if (hit_ground() == true) {
             set_animation_type(ANIM_TYPE_STAND);
         } else {
@@ -3623,8 +3623,8 @@ std::string character::replay_trace()
 {
     char buffer[256];
     snprintf(buffer, sizeof(buffer), "%s pos=%.3f,%.3f anim=%d/%d dir=%d hp=%d jump=%d fall=%d platform=%d inv=%d shots=%u",
-             name.c_str(), (double)position.x, (double)position.y, (int)state.animation_type, (int)state.animation_state,
-             (int)state.direction, (int)hitPoints.current, (int)_obj_jump.is_started(), (int)_is_falling,
+             name.c_str(), (double)position.x, (double)position.y, (int)state.animation_type(), (int)state.animation_state(),
+             (int)state.direction(), (int)hitPoints.current, (int)_obj_jump.is_started(), (int)_is_falling,
              (int)(_platform != NULL), (int)state.invisible, get_projectile_count());
     return std::string(buffer);
 }
