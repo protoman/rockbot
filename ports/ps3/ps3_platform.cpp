@@ -262,6 +262,10 @@ void log_flush()
     FILE *fp = fopen("/dev_hdd0/tmp/rockbot/rockbot_ps3.log", "ab");
     if (fp) {
         fwrite(g_log_buffer, 1, *g_log_used, fp);
+        fflush(fp);
+        // force it to the disk: after the console lost power (the last test) the lines written by that run were missing from
+        // the log, they were only in the file system's cache
+        fsync(fileno(fp));
         fclose(fp);
     }
     *g_log_used = 0;
@@ -443,6 +447,13 @@ void pad_read(unsigned int *buttons, int *lx, int *ly)
 void update()
 {
 #ifdef PS3
+    // every pad poll calls this (waiting loops poll about 1000 times a second): at most every 8 ms is plenty
+    static u64 last_ms = 0;
+    const u64 now_ms = (u64)SDL_GetTicks();
+    if (now_ms - last_ms < 8) {
+        return;
+    }
+    last_ms = now_ms;
     sysUtilCheckCallback();
 #endif
 }
