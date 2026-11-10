@@ -1,6 +1,9 @@
 #include <cstring>
 #include <cstdlib>
 #include "game.h"
+#ifdef PS3
+#include "ports/ps3/ps3_platform.h"
+#endif
 #include "aux_tools/replay.h"
 #ifdef PSP
 #include "ports/psp/psp_platform.h"
@@ -107,6 +110,9 @@ game::~game()
 // ********************************************************************************************** //
 void game::initGame()
 {
+#ifdef PS3
+    ps3_platform::log("initGame: begin");
+#endif
 #ifdef PSP
     psp_platform::log("initGame: begin");
 #endif
@@ -348,6 +354,9 @@ st_float_position game::checkScrolling()
 // ********************************************************************************************** //
 void game::start_stage()
 {
+#ifdef PS3
+    ps3_platform::log("start_stage: begin");
+#endif
 #ifdef PSP
     psp_platform::log("start_stage: begin");
 #endif

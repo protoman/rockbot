@@ -1,4 +1,7 @@
 #include "stage_select.h"
+#ifdef PS3
+#include "ports/ps3/ps3_platform.h"
+#endif
 
 
 #include "file/format.h"
@@ -206,6 +209,9 @@ st_position stage_select::calc_face_pos(int stage_n)
 
 int stage_select::pick_stage(int stage_n)
 {
+#ifdef PS3
+    ps3_platform::log("pick_stage: begin");
+#endif
     if (game_data.game_style == GAME_STYLE_VINTAGE) {
         return pick_stage_classic_style(stage_n);
     }

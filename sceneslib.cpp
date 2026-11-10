@@ -1,5 +1,8 @@
 #include <cstdlib>
 #include "sceneslib.h"
+#ifdef PS3
+#include "ports/ps3/ps3_platform.h"
+#endif
 #include "soundlib.h"
 #include "file/fio_scenes.h"
 #include "strings_map.h"
@@ -199,6 +202,9 @@ void scenesLib::main_screen()
             if (selected_save != -1) {
                 gameControl.set_current_save_slot(selected_save);
                 if (have_save == true) {
+#ifdef PS3
+    ps3_platform::log("load game: reading the save");
+#endif
                     if (fio.read_save(game_save, gameControl.get_current_save_slot()) == true) {
                         repeat_menu = false;
                     } else {
@@ -240,6 +246,9 @@ void scenesLib::main_screen()
         }
 	}
     draw_lib.update_screen();
+#ifdef PS3
+    ps3_platform::log("main menu: left the menu");
+#endif
 
     if (picked_n == 0) { // NEW GAME //
         game_save.difficulty = select_difficulty();
@@ -781,6 +790,9 @@ Uint8 scenesLib::select_difficulty()
 
 short scenesLib::select_save(bool is_new_game)
 {
+#ifdef PS3
+    ps3_platform::log("select_save: begin");
+#endif
     int selected = 0;
     bool finished = false;
 
@@ -810,6 +822,9 @@ short scenesLib::select_save(bool is_new_game)
 
 
     strings_map::get_instance()->get_ingame_string(strings_menu_pick_save_slot_PICK_OPTION);
+#ifdef PS3
+    ps3_platform::log("select_save: saves read");
+#endif
     if (is_new_game == true) {
         graphLib.draw_text(10, 10, strings_map::get_instance()->get_ingame_string(strings_menu_pick_save_slot_NEW_GAME));
     } else {
@@ -868,6 +883,10 @@ short scenesLib::select_save(bool is_new_game)
         timer.delay(10);
     }
 
+
+#ifdef PS3
+    ps3_platform::log("select_save: slot picked");
+#endif
     return selected;
 
 }
