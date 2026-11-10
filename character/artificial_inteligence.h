@@ -174,6 +174,8 @@ protected:
     void execute_ai_circle_player();
     void ia_action_teleport();
     void check_ai_reaction();
+    void continue_ai_reaction();
+    void show_death_reaction_explosions();
     void define_ai_next_step();
     void execute_ai_step();
     void execute_ai_step_walk();

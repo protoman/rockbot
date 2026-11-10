@@ -116,48 +116,69 @@ void artificial_inteligence::hit_player()
 }
 
 
+// a reaction is running: when its action ended, goes to the next state of the chain (or back to the normal AI)
+void artificial_inteligence::continue_ai_reaction()
+{
+    if (_ai_state.sub_status == IA_ACTION_STATE_FINISHED) {
+        int reaction_goto = GameMediator::get_instance()->ai_list.at(_number).reactions[_reaction_type].go_to;
+        if (reaction_goto == AI_ACTION_GOTO_CHANCE) {
+            //std::cout << "AI::execute_ai::check_ai_reaction - EXIT" << std::endl;
+            _reaction_state = 0;
+            _reaction_type = 0;
+            reaction_loop_check.clear();
+        } else {
+            //std::cout << "AI::execute_ai::check_ai_reaction - CONTINUE" << std::endl;
+            if (reaction_loop_check.size() == 0) {
+                _ai_chain_n = reaction_goto-1;
+                _current_ai_type = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].action;
+                _parameter = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].extra_parameter;
+                reaction_loop_check.push_back(_current_ai_type);
+                //std::cout << "AI::execute_ai::check_ai_reaction - FIRST, reaction_goto[" << reaction_goto << "], _current_ai_type[" << _current_ai_type << "], _parameter[" << _parameter << "]" << std::endl;
+            } else {
+                int next_item = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to;
+                //std::cout << "AI::execute_ai::check_ai_reaction - CHECK - next_item[" << next_item << "], ai_chain_n[" << _ai_chain_n << "], current_ai_type[" << _current_ai_type << "], param[" << _parameter << "]" << std::endl;
+                if (next_item != AI_ACTION_GOTO_CHANCE) {
+                    _ai_chain_n = next_item-1;
+                    _current_ai_type = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].action;
+                    _parameter = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].extra_parameter;
+                    reaction_loop_check.push_back(_current_ai_type);
+                    _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
+                    //std::cout << "AI::execute_ai::check_ai_reaction - NEXT - next_item[" << next_item << "], ai_chain_n[" << _ai_chain_n << "], current_ai_type[" << _current_ai_type << "], param[" << _parameter << "]" << std::endl;
+                    execute_ai();
+                } else {
+                    //std::cout << "AI::execute_ai::check_ai_reaction - ENDED - _ai_chain_n[" << _ai_chain_n << "], _current_ai_type[" << _current_ai_type << "]" << std::endl;
+                    _reaction_state = 0;
+                    _reaction_type = 0;
+                    reaction_loop_check.clear();
+                    define_ai_next_step();
+                }
+            }
+            _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
+            execute_ai_step();
+        }
+    }
+}
+
+// dead-reaction that is not a sub-boss (it already has an explosion): two explosions while the next enemy spawns
+void artificial_inteligence::show_death_reaction_explosions()
+{
+    // if not sub-boss (that already have explosion), and dead-reaction is spawn npc, show explosions
+    soundManager.play_repeated_sfx(SFX_BIG_EXPLOSION, 1);
+    st_float_position pos1(position.x+2, position.y+20);
+    animation anim1(ANIMATION_STATIC, &graphLib.bomb_explosion_surface, pos1, st_position(-8, -8), 80, 2, state.direction(), st_size(56, 56), gameControl.get_current_map_obj()->get_map_scrolling_ref());
+    gameControl.get_current_map_obj()->add_animation(anim1);
+
+    st_float_position pos2(pos1.x+10, pos1.y-30);
+    animation anim2(ANIMATION_STATIC, &graphLib.bomb_explosion_surface, pos2, st_position(-8, -8), 80, 2, state.direction(), st_size(56, 56), gameControl.get_current_map_obj()->get_map_scrolling_ref());
+    anim2.set_initial_delay(500);
+    gameControl.get_current_map_obj()->add_animation(anim2);
+}
+
 void artificial_inteligence::check_ai_reaction()
 {
     // check and reset state if needed
     if (_reaction_state == 1) {
-        if (_ai_state.sub_status == IA_ACTION_STATE_FINISHED) {
-            int reaction_goto = GameMediator::get_instance()->ai_list.at(_number).reactions[_reaction_type].go_to;
-            if (reaction_goto == AI_ACTION_GOTO_CHANCE) {
-                //std::cout << "AI::execute_ai::check_ai_reaction - EXIT" << std::endl;
-                _reaction_state = 0;
-                _reaction_type = 0;
-                reaction_loop_check.clear();
-            } else {
-                //std::cout << "AI::execute_ai::check_ai_reaction - CONTINUE" << std::endl;
-                if (reaction_loop_check.size() == 0) {
-                    _ai_chain_n = reaction_goto-1;
-                    _current_ai_type = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].action;
-                    _parameter = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].extra_parameter;
-                    reaction_loop_check.push_back(_current_ai_type);
-                    //std::cout << "AI::execute_ai::check_ai_reaction - FIRST, reaction_goto[" << reaction_goto << "], _current_ai_type[" << _current_ai_type << "], _parameter[" << _parameter << "]" << std::endl;
-                } else {
-                    int next_item = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].go_to;
-                    //std::cout << "AI::execute_ai::check_ai_reaction - CHECK - next_item[" << next_item << "], ai_chain_n[" << _ai_chain_n << "], current_ai_type[" << _current_ai_type << "], param[" << _parameter << "]" << std::endl;
-                    if (next_item != AI_ACTION_GOTO_CHANCE) {
-                        _ai_chain_n = next_item-1;
-                        _current_ai_type = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].action;
-                        _parameter = GameMediator::get_instance()->ai_list.at(_number).states[_ai_chain_n].extra_parameter;
-                        reaction_loop_check.push_back(_current_ai_type);
-                        _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
-                        //std::cout << "AI::execute_ai::check_ai_reaction - NEXT - next_item[" << next_item << "], ai_chain_n[" << _ai_chain_n << "], current_ai_type[" << _current_ai_type << "], param[" << _parameter << "]" << std::endl;
-                        execute_ai();
-                    } else {
-                        //std::cout << "AI::execute_ai::check_ai_reaction - ENDED - _ai_chain_n[" << _ai_chain_n << "], _current_ai_type[" << _current_ai_type << "]" << std::endl;
-                        _reaction_state = 0;
-                        _reaction_type = 0;
-                        reaction_loop_check.clear();
-                        define_ai_next_step();
-                    }
-                }
-                _ai_state.sub_status = IA_ACTION_STATE_INITIAL;
-                execute_ai_step();
-            }
-        }
+        continue_ai_reaction();
         return; // do not check again if already executing
     }
 
@@ -186,16 +207,7 @@ void artificial_inteligence::check_ai_reaction()
         _reaction_type = AI_REACTION_DEAD;
         start_reaction = true;
 
-        // if not sub-boss (that already have explosion), and dead-reaction is spawn npc, show explosions
-        soundManager.play_repeated_sfx(SFX_BIG_EXPLOSION, 1);
-        st_float_position pos1(position.x+2, position.y+20);
-        animation anim1(ANIMATION_STATIC, &graphLib.bomb_explosion_surface, pos1, st_position(-8, -8), 80, 2, state.direction(), st_size(56, 56), gameControl.get_current_map_obj()->get_map_scrolling_ref());
-        gameControl.get_current_map_obj()->add_animation(anim1);
-
-        st_float_position pos2(pos1.x+10, pos1.y-30);
-        animation anim2(ANIMATION_STATIC, &graphLib.bomb_explosion_surface, pos2, st_position(-8, -8), 80, 2, state.direction(), st_size(56, 56), gameControl.get_current_map_obj()->get_map_scrolling_ref());
-        anim2.set_initial_delay(500);
-        gameControl.get_current_map_obj()->add_animation(anim2);
+        show_death_reaction_explosions();
     // hit (comes after death to avoid not firing that reaction that has priority)
     } else if (_was_hit == true && GameMediator::get_instance()->ai_list.at(_number).reactions[AI_REACTION_HIT].action >= 0) {
 //        std::cout << "AI::execute_ai::check_ai_reaction::AI_REACTION_HIT" << std::endl;
