@@ -8,6 +8,8 @@
 
 using namespace std;
 
+#include <algorithm>
+#include <cmath>
 #include "classmap.h"
 #include "objects/object.h"
 #include "character/character.h"
@@ -355,7 +357,17 @@ void classMap::showAbove(int scroll_y, int temp_scroll_x, bool show_fg)
 
 	// draw 3rd tile level - only draw tiles within visible screen range
     std::vector<st_level3_tile>::iterator tile3_it;
-    for (tile3_it = _level3_tiles.begin(); tile3_it != _level3_tiles.end(); tile3_it++) {
+    // the list is filled column by column when the map loads, so it is sorted by map x: start at the first visible
+    // column and stop after the last one, instead of testing every tile of the map each frame
+    const int first_visible_x = (int)floor((scroll_x - TILESIZE) / (float)TILESIZE);
+    const int last_visible_x = (int)floor((scroll_x + RES_W + TILESIZE) / (float)TILESIZE);
+    tile3_it = std::lower_bound(_level3_tiles.begin(), _level3_tiles.end(), first_visible_x, [](const st_level3_tile &tile, int x) {
+        return tile.map_position.x < x;
+    });
+    for (; tile3_it != _level3_tiles.end(); tile3_it++) {
+        if ((*tile3_it).map_position.x > last_visible_x) {
+            break;
+        }
         // Filter out off-screen tiles early
         int screen_x = ((*tile3_it).map_position.x * TILESIZE) - scroll_x;
         if (screen_x < -TILESIZE || screen_x > RES_W + TILESIZE) {
