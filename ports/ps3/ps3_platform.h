@@ -33,6 +33,12 @@ void pad_read(unsigned int *buttons, int *lx, int *ly);
 void log(const char *fmt, ...);
 // writes the buffered log lines to the log file now (progress markers do it at once)
 void log_flush();
+// writes the pending lines from the calling thread (only right before the process exits)
+void log_flush_now();
+// The "STUCK" report of the helper thread says which file operation the game thread was in: set around every file
+// operation (file/fio_diag.h). Both are no-ops on other platforms.
+void mark_file(const char *op, const char *path);
+void mark_file_done();
 
 // --- Config defaults ---
 void get_default_keys(int keys_codes_copy[BTN_COUNT]);

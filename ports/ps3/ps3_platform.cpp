@@ -19,6 +19,8 @@
 #include <sys/tty.h>
 #include <lv2/mutex.h>
 #include <lv2/process.h>
+#include <sys/file.h>
+#include <sys/systime.h>
 #include <io/pad.h>
 #include <rsx/rsx.h>
 #include <rsx/commands.h>
@@ -202,7 +204,7 @@ void fatal_exit(const char *reason)
 {
 #ifdef PS3
     log("FATAL: %s - closing the game", reason != NULL ? reason : "unknown");
-    log_flush();
+    log_flush_now();
     sysProcessExit(1);
 #else
     (void)reason;
@@ -210,10 +212,15 @@ void fatal_exit(const char *reason)
 #endif
 }
 
+#ifdef PS3
+static void start_support_threads();
+#endif
+
 void setup(const char *argv0)
 {
 #ifdef PS3
     sysUtilRegisterCallback(SYSUTIL_EVENT_SLOT1, exit_request_callback, NULL);
+    start_support_threads();
 #endif
     if (argv0 != NULL && argv0[0] == '/') {
         g_app_path = dirname_of(std::string(argv0));
@@ -259,8 +266,161 @@ void get_savepath(std::string &savepath)
 #endif
 }
 
-static char *g_log_buffer = NULL;
-static size_t *g_log_used = NULL;
+#ifdef PS3
+// ---- the log, and two helper threads that keep working when the game thread is stuck -----------------------------------
+// A freeze used to leave nothing to look at: the game thread wrote the log itself (open, write, fsync, close), so it could
+// be the thing that was blocked, and its buffered lines were lost with it. Now:
+//  - log() only copies the line into a ring buffer (never blocks, drops the line when the ring is full or another thread
+//    is logging at that very moment);
+//  - the "support" thread writes the ring to the log file every 20 ms with raw lv2 calls (no libc, so no libc lock can
+//    block it); if the file system blocks, only that thread waits;
+//  - it also watches the game thread's heartbeat (update() is called by every pad poll and flip): silent for 3 s it logs
+//    "STUCK" with the last log line and the file operation in progress; and when the PS button was pressed while the game
+//    thread is silent for 1.5 s it quits the process;
+//  - the "watcher" thread serves the system callbacks while the game thread is silent (that is how the PS button press
+//    arrives), it may block there without blocking the support thread.
+// The helper threads use no libc function (only system calls and the little helpers below).
+static const char RB_LOG_PATH[] = "/dev_hdd0/tmp/rockbot/rockbot_ps3.log";
+static const u32 RB_RING_SIZE = 32768; // power of 2
+static char g_ring[RB_RING_SIZE];
+static volatile u32 g_ring_head = 0;      // bytes ever written (producer)
+static volatile u32 g_ring_tail = 0;      // bytes ever consumed (support thread)
+static volatile int g_producer_busy = 0;
+static volatile u32 g_ring_dropped = 0;
+static volatile int g_drain_busy = 0;
+static volatile u32 g_heartbeat = 0;      // incremented by update()
+static volatile u32 g_main_stale_ticks = 0; // 100 ms ticks without a heartbeat, set by the support thread
+static char g_last_line[160];
+static char g_file_op[220];
+
+static void raw_append(const char *data, u32 len)
+{
+    s32 fd = -1;
+    if (sysLv2FsOpen(RB_LOG_PATH, SYS_O_WRONLY | SYS_O_CREAT | SYS_O_APPEND, &fd, 0666, NULL, 0) != 0) {
+        return;
+    }
+    u64 written = 0;
+    sysLv2FsWrite(fd, data, len, &written);
+    sysLv2FsFsync(fd);
+    sysLv2FsClose(fd);
+}
+
+// writes what is in the ring to the file (any thread; one at a time)
+static void drain_ring()
+{
+    if (__sync_lock_test_and_set(&g_drain_busy, 1) != 0) {
+        return;
+    }
+    static char out[RB_RING_SIZE + 64];
+    const u32 head = g_ring_head;
+    __sync_synchronize();
+    u32 tail = g_ring_tail;
+    u32 n = 0;
+    while (tail != head && n < RB_RING_SIZE) {
+        out[n++] = g_ring[tail & (RB_RING_SIZE - 1)];
+        tail++;
+    }
+    const u32 dropped = g_ring_dropped;
+    if (dropped != 0) {
+        g_ring_dropped = 0;
+        const char *msg = "[some log lines were dropped]\n";
+        for (u32 i = 0; msg[i] != 0; i++) {
+            out[n++] = msg[i];
+        }
+    }
+    if (n > 0) {
+        g_ring_tail = tail; // consumed before the write: a blocked write must not make the ring look full forever
+        raw_append(out, n);
+    }
+    __sync_lock_release(&g_drain_busy);
+}
+
+static void put_str(char *dst, u32 &n, u32 cap, const char *s)
+{
+    while (*s != 0 && n + 1 < cap) {
+        dst[n++] = *s++;
+    }
+}
+
+static void put_num(char *dst, u32 &n, u32 cap, u32 v)
+{
+    char t[12];
+    int k = 0;
+    if (v == 0) {
+        t[k++] = '0';
+    }
+    while (v > 0 && k < 11) {
+        t[k++] = (char)('0' + (v % 10));
+        v /= 10;
+    }
+    while (k > 0 && n + 1 < cap) {
+        dst[n++] = t[--k];
+    }
+}
+
+static void raw_log_line(const char *a, u32 number, const char *b, const char *c)
+{
+    char line[600];
+    u32 n = 0;
+    put_str(line, n, sizeof(line), a);
+    put_num(line, n, sizeof(line), number);
+    put_str(line, n, sizeof(line), b);
+    put_str(line, n, sizeof(line), c);
+    put_str(line, n, sizeof(line), "\n");
+    raw_append(line, n);
+}
+
+static void support_thread(void *arg)
+{
+    (void)arg;
+    u32 last_heartbeat = g_heartbeat;
+    u32 stale = 0;
+    u32 tick = 0;
+    for (;;) {
+        sysUsleep(20000);
+        drain_ring();
+        tick++;
+        if ((tick % 5) != 0) {
+            continue;
+        }
+        const u32 hb = g_heartbeat;
+        if (hb != last_heartbeat) {
+            last_heartbeat = hb;
+            stale = 0;
+        } else if (stale < 100000000) {
+            stale++;
+        }
+        g_main_stale_ticks = stale;
+        if (stale >= 15 && g_exit_requested == true) {
+            raw_log_line("PS button pressed while the game thread was silent for ", stale * 100, " ms: quitting. file operation in progress: ", g_file_op[0] != 0 ? g_file_op : "none");
+            raw_log_line("last log line: ", 0, "", g_last_line);
+            sysProcessExit(0);
+        }
+        if (stale == 30 || (stale > 30 && (stale % 100) == 0)) {
+            raw_log_line("STUCK: the game thread has been silent for ", stale * 100, " ms. file operation in progress: ", g_file_op[0] != 0 ? g_file_op : "none");
+            raw_log_line("STUCK: last log line: ", 0, "", g_last_line);
+        }
+    }
+}
+
+static void watcher_thread(void *arg)
+{
+    (void)arg;
+    for (;;) {
+        sysUsleep(100000);
+        if (g_main_stale_ticks >= 15) {
+            sysUtilCheckCallback(); // delivers the PS button press to exit_request_callback (and to SDL)
+        }
+    }
+}
+
+static void start_support_threads()
+{
+    static sys_ppu_thread_t support_id, watcher_id;
+    sysThreadCreate(&support_id, support_thread, NULL, 800, 0x10000, THREAD_JOINABLE, (char *)"rb_support");
+    sysThreadCreate(&watcher_id, watcher_thread, NULL, 850, 0x10000, THREAD_JOINABLE, (char *)"rb_watcher");
+}
+#endif
 
 void log(const char *fmt, ...)
 {
@@ -279,39 +439,65 @@ void log(const char *fmt, ...)
     msg[n++] = '\n';
     u32 written = 0;
     sysTtyWrite(0, msg, (u32)n, &written);
-    // also to a file, to find out where the game stops on a real console (no TTY there). Opening, writing and
-    // closing the file for every line stalled the frames (the stutter log was measuring itself), so the lines are
-    // collected and written together: by log_flush(), when the buffer is full and every ~60 flips.
-    static char buffer[8192];
-    static size_t used = 0;
-    if (used + (size_t)n > sizeof(buffer)) {
-        log_flush();
+    // for the "STUCK" report: the last line logged, even if it was not written yet
+    const int keep = (n - 1 < (int)sizeof(g_last_line) - 1) ? (n - 1) : (int)sizeof(g_last_line) - 1;
+    memcpy(g_last_line, msg, (size_t)keep);
+    g_last_line[keep] = 0;
+    // into the ring; never waits (see above)
+    if (__sync_lock_test_and_set(&g_producer_busy, 1) != 0) {
+        return;
     }
-    memcpy(buffer + used, msg, (size_t)n);
-    used += (size_t)n;
-    g_log_buffer = buffer;
-    g_log_used = &used;
+    const u32 head = g_ring_head;
+    if (head - g_ring_tail + (u32)n > RB_RING_SIZE) {
+        g_ring_dropped = g_ring_dropped + 1;
+    } else {
+        for (int i = 0; i < n; i++) {
+            g_ring[(head + (u32)i) & (RB_RING_SIZE - 1)] = msg[i];
+        }
+        __sync_synchronize();
+        g_ring_head = head + (u32)n;
+    }
+    __sync_lock_release(&g_producer_busy);
 #else
     (void)fmt;
 #endif
 }
 
+// The support thread writes the ring every 20 ms; this only makes sure it is written when the caller is about to leave.
 void log_flush()
 {
 #ifdef PS3
-    if (g_log_buffer == NULL || g_log_used == NULL || *g_log_used == 0) {
-        return;
-    }
-    FILE *fp = fopen("/dev_hdd0/tmp/rockbot/rockbot_ps3.log", "ab");
-    if (fp) {
-        fwrite(g_log_buffer, 1, *g_log_used, fp);
-        fflush(fp);
-        // force it to the disk: after the console lost power (the last test) the lines written by that run were missing from
-        // the log, they were only in the file system's cache
-        fsync(fileno(fp));
-        fclose(fp);
-    }
-    *g_log_used = 0;
+    // nothing to wait for: a blocked file system must never block the game thread
+#endif
+}
+
+void log_flush_now()
+{
+#ifdef PS3
+    drain_ring(); // from the calling thread, for the moments right before the process exits
+    sysUsleep(50000);
+    drain_ring();
+#endif
+}
+
+void mark_file(const char *op, const char *path)
+{
+#ifdef PS3
+    u32 n = 0;
+    put_str(g_file_op, n, sizeof(g_file_op), op);
+    put_str(g_file_op, n, sizeof(g_file_op), " ");
+    put_str(g_file_op, n, sizeof(g_file_op), path);
+    g_file_op[n] = 0;
+#else
+    (void)op;
+    (void)path;
+#endif
+}
+
+void mark_file_done()
+{
+#ifdef PS3
+    g_file_op[0] = 0;
 #endif
 }
 
@@ -486,6 +672,7 @@ void pad_read(unsigned int *buttons, int *lx, int *ly)
 void update()
 {
 #ifdef PS3
+    g_heartbeat++;
     // every pad poll calls this (waiting loops poll about 1000 times a second): at most every 8 ms is plenty
     static u64 last_ms = 0;
     const u64 now_ms = (u64)SDL_GetTicks();
@@ -506,7 +693,7 @@ void update()
         // the game is alive (it keeps polling) but ignores the request: stuck in a loop that does not check for it
         if (now_ms - first_seen_ms >= 3000 && polls_since >= 50) {
             log("exit requested %d ms ago and the game is still running: quitting now", (int)(now_ms - first_seen_ms));
-            log_flush();
+            log_flush_now();
             sysProcessExit(0);
         }
     }

@@ -5,6 +5,9 @@ using namespace std;
 #include "file/file_io.h"
 #include "stage.h"
 #include "game_mediator.h"
+#ifdef PS3
+#include "ports/ps3/ps3_platform.h"
+#endif
 
 extern CURRENT_FILE_FORMAT::file_game game_data;
 extern CURRENT_FILE_FORMAT::file_stage stage_data;
@@ -23,16 +26,22 @@ stage::stage(int setStageN, classPlayer* set_player_ref) : stage_is_loaded(false
     number = -1;
     set_current_map(0);
     setNumber(setStageN);
+    PS3_TRACE("stage %d: read_stage", setStageN);
     fio.read_stage(stage_data, setStageN);
+    PS3_TRACE("stage %d: read maps", setStageN);
     fio.read_stage_maps_v2(setStageN, GameMediator::get_instance()->map_data);
 
     // TODO: read only data from current stage //
+    PS3_TRACE("stage %d: read enemy list", setStageN);
     GameMediator::get_instance()->map_npc_data = fio.read_map_enemy_list(setStageN);
+    PS3_TRACE("stage %d: read object list", setStageN);
     GameMediator::get_instance()->map_object_data = fio.read_map_object_list(setStageN);
 
 
     std::string tileset_name(stage_data.tileset_filename);
+    PS3_TRACE("stage %d: tileset", setStageN);
     graphLib.loadTileset(tileset_name);
+    PS3_TRACE("stage %d: constructed", setStageN);
 
     autoscroll_timer = 0;
 

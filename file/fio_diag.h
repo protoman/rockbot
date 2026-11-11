@@ -68,6 +68,25 @@ inline void say(const char *fmt, ...)
 #endif
 }
 
+// Tells the PS3 helper thread which file operation the game thread is in (shown in its "STUCK" report).
+struct OpMark {
+    OpMark(const char *op, const std::string &path)
+    {
+#ifdef PS3
+        ps3_platform::mark_file(op, path.c_str());
+#else
+        (void)op;
+        (void)path;
+#endif
+    }
+    ~OpMark()
+    {
+#ifdef PS3
+        ps3_platform::mark_file_done();
+#endif
+    }
+};
+
 // Waits between two attempts. On the PS3 the system callbacks keep being served meanwhile, so the PS button works.
 inline void pause_ms(int ms)
 {
@@ -208,6 +227,7 @@ inline void report_open_failed(const char *where, const std::string &path, const
 // fopen that retries and explains its failure. optional: a missing file is normal here (it is logged as a note).
 inline FILE *fopen_logged(const char *where, const std::string &path, const char *mode, bool optional = false)
 {
+    OpMark mark_op("fopen", path);
     int first_err = 0;
     for (int attempt = 1; attempt <= RETRY_ATTEMPTS; attempt++) {
         errno = 0;
@@ -235,6 +255,7 @@ inline FILE *fopen_logged(const char *where, const std::string &path, const char
 // ifstream open that retries and explains its failure
 inline bool open_in(std::ifstream &fp, const char *where, const std::string &path, bool optional = false)
 {
+    OpMark mark_op("open (read stream)", path);
     int first_err = 0;
     for (int attempt = 1; attempt <= RETRY_ATTEMPTS; attempt++) {
         errno = 0;
@@ -264,6 +285,7 @@ inline bool open_in(std::ifstream &fp, const char *where, const std::string &pat
 // ofstream open that retries and explains its failure
 inline bool open_out(std::ofstream &fp, const char *where, const std::string &path)
 {
+    OpMark mark_op("open (write stream)", path);
     for (int attempt = 1; attempt <= RETRY_ATTEMPTS; attempt++) {
         errno = 0;
         fp.clear();
@@ -314,6 +336,7 @@ inline bool write_ok(const char *where, const std::string &path, size_t got, siz
 // retried from the same position.
 inline size_t fread_logged(const char *where, const std::string &path, void *buffer, size_t size, size_t count, FILE *fp)
 {
+    OpMark mark_op("fread", path);
     long start = ftell(fp);
     size_t got = 0;
     for (int attempt = 1; attempt <= RETRY_ATTEMPTS; attempt++) {
@@ -335,6 +358,7 @@ inline size_t fread_logged(const char *where, const std::string &path, void *buf
 // fwrite with the result check built in
 inline size_t fwrite_logged(const char *where, const std::string &path, const void *buffer, size_t size, size_t count, FILE *fp)
 {
+    OpMark mark_op("fwrite", path);
     errno = 0;
     size_t got = fwrite(buffer, size, count, fp);
     write_ok(where, path, got, count);
@@ -383,6 +407,7 @@ inline bool stream_write_ok(const char *where, const std::string &path, std::ofs
 // fclose check: with PSL1GHT a failed lv2 write only shows up here or in the size on disk
 inline bool fclose_logged(const char *where, const std::string &path, FILE *fp)
 {
+    OpMark mark_op("fclose", path);
     errno = 0;
     if (fclose(fp) == 0) {
         return true;

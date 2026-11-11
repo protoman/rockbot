@@ -111,17 +111,21 @@ game::~game()
 void game::initGame()
 {
 #ifdef PS3
-    ps3_platform::log("initGame: begin");
+    PS3_TRACE("initGame: begin");
 #endif
 #ifdef PSP
     psp_platform::log("initGame: begin");
 #endif
+    PS3_TRACE("initGame: player initialize");
     player1.initialize();
+    PS3_TRACE("initGame: building stage %d", (int)currentStage);
     loaded_stage = stage(currentStage, &player1);
+    PS3_TRACE("initGame: stage built, player frames");
     player1.initFrames();
     player1.set_is_player(true);
     player1.reset_hp();
     config_manager.set_player_ref(&player1);
+    PS3_TRACE("initGame: player ready");
 
     invencible_old_value = GAME_FLAGS[FLAG_INVINCIBLE];
 
@@ -575,7 +579,9 @@ bool game::show_game_intro()
 #ifdef PSP
     psp_platform::log("intro: before main_screen");
 #endif
+    PS3_TRACE("intro: main_screen");
     scenes.main_screen();
+    PS3_TRACE("intro: main_screen done");
     checkpoint.reset(); // a new (or loaded) game never starts from the checkpoint of a previous one
 
     // Pick stage before loading maps — avoids constructing two full stages
@@ -587,8 +593,11 @@ bool game::show_game_intro()
         start_boss_rush();
         return true;
     }
+    PS3_TRACE("intro: pick_stage");
     currentStage = scenes.pick_stage(INTRO_STAGE);
+    PS3_TRACE("intro: stage %d picked", (int)currentStage);
     initGame();
+    PS3_TRACE("intro: initGame done");
 
     // show boss intro with stars, if needed
     soundManager.stop_music();

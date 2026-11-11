@@ -243,7 +243,7 @@ namespace format_v4 {
         // Sint8 player_items[FS_PLATER_ITEMS_N];
         // char stage_face_filename[MAX_STAGES][FS_FACE_FILENAME_MAX]
         filename = std::string(FILEPATH) + "/game_properties" + sufix + ".dat";
-        fp = fio_diag::fopen_logged(__func__, StringUtils::clean_filename(filename), "rb");
+        fp = fio_diag::fopen_required(__func__, StringUtils::clean_filename(filename), "rb");
         if (!fp) {
             std::cout << "ERROR: file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
@@ -339,7 +339,7 @@ namespace format_v4 {
         // file_weapon weapons[FS_MAX_WEAPONS]
         filename = std::string(FILEPATH) + "/game_weapons" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
-        fp = fio_diag::fopen_logged(__func__, StringUtils::clean_filename(filename), "rb");
+        fp = fio_diag::fopen_required(__func__, StringUtils::clean_filename(filename), "rb");
         if (!fp) {
             std::cout << "ERROR: file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
@@ -814,6 +814,7 @@ namespace format_v4 {
     // Every method checks fwrite/fclose and the size on disk. Other platforms use method 1 only, as before.
     static long size_on_disk(const std::string &path)
     {
+        fio_diag::OpMark mark_op("size check", path);
         FILE *fp = fopen(path.c_str(), "rb");
         if (fp == NULL) {
             return -1;
