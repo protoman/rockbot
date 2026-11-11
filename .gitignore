@@ -56,7 +56,7 @@ build/packages/switch_dist/
 build/packages/linux/
 build/packages/pocketgo/
 build/packages/Rockbot1/
-build/packages/RockBot_Android*.apk.idsig
+build/packages/*_Android*.apk.idsig
 build/packages/rockbot1/
 build/games/MM GV/
 build/games/RockMix/
