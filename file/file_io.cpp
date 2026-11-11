@@ -8,6 +8,7 @@
 #include "file_io.h"
 #ifdef PS3
 #include "../ports/ps3/ps3_platform.h"
+#include <sys/file.h>
 #endif
 #ifdef PSP
 #include "../ports/psp/psp_platform.h"
@@ -826,6 +827,25 @@ namespace format_v4 {
         return size;
     }
 
+    // PSL1GHT's open() chmods every file it creates to 0644 and the game's own process is not allowed to open such a file for
+    // writing again (errno 13: the saves the game created itself could never be overwritten, only an FTP client could).
+    // Making the file writable for everybody after it is created, and before a failed overwrite is tried again, fixes that
+    // if the chmod is allowed; the raw lv2 result is logged (0 = done) to find out when it is not.
+    static void make_writable(const std::string &path, const char *why)
+    {
+#ifdef PS3
+        const s32 r = sysLv2FsChmod(path.c_str(), 0666);
+        static unsigned int logged = 0;
+        if (logged < 20 || r != 0) {
+            logged++;
+            fio_diag::say("%s: chmod 0666 of '%s' (%s) -> 0x%08X (0 = done)", r == 0 ? "NOTE" : "ERROR", path.c_str(), why, (unsigned)r);
+        }
+#else
+        (void)path;
+        (void)why;
+#endif
+    }
+
     static bool write_file_with_mode(const std::string &path, const void *data, size_t size, const char *mode)
     {
         FILE *fp = fio_diag::fopen_logged("write_file", path, mode);
@@ -840,6 +860,9 @@ namespace format_v4 {
         }
         if (fio_diag::fclose_logged("write_file", path, fp) == false) {
             ok = false;
+        }
+        if (ok == true) {
+            make_writable(path, "after writing");
         }
 #ifdef PS3
         // PSL1GHT's write() returns the byte count even when the lv2 write failed: read the size back
@@ -857,6 +880,12 @@ namespace format_v4 {
             return true;
         }
 #ifdef PS3
+        // the file exists but the game may not write it: open the permissions and try the plain overwrite again
+        make_writable(path, "after a refused overwrite");
+        if (write_file_with_mode(path, data, size, "wb") == true) {
+            fio_diag::say("NOTE: write_file: '%s' written after the chmod", path.c_str());
+            return true;
+        }
         static unsigned int fallbacks_logged = 0;
         const bool log_it = (fallbacks_logged < 12);
         fallbacks_logged++;
