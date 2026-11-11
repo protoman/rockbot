@@ -1137,6 +1137,16 @@ void SDLL_WM_SetCaption(const char *title, const char *icon)
 
 SDL_Surface *SDLL_DisplayFormatAlpha(SDL_Surface *surface)
 {
+#ifdef PS3
+	// Like SDL_DisplayFormat above: the snapshot's SDL_DisplayFormatAlpha() is SDL_ConvertSurface(.., ARGB8888, SDL_RLEACCEL), which
+	// RLE-encodes the result (no pixel data until locked, wrong blits on this build). Same conversion without RLE.
+	SDL_Surface *format_holder = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, 1, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
+	if (format_holder != NULL) {
+		SDL_Surface *converted = SDL_ConvertSurface(surface, format_holder->format, SDL_SWSURFACE | SDL_SRCALPHA);
+		SDL_FreeSurface(format_holder);
+		return converted;
+	}
+#endif
 	return SDL_DisplayFormatAlpha(surface);
 }
 

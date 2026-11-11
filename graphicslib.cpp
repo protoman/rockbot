@@ -2597,16 +2597,76 @@ void graphicsLib::place_water_tile(st_position dest)
     }
 }
 
+#if !defined(SDL3)
+// A 16-bit sprite (screen format, transparency by colour key) as a 32-bit ARGB surface: the colour key pixels get alpha 0, the
+// rest alpha 255. SDL_gfx (zoomSurface/rotozoomSurface) always returns a NEW 32-bit surface that does not inherit the key, and
+// setting the key on it with MapRGB(game_screen, ..) (a 16-bit RGB565/1555 number) never matches a 32-bit pixel, so on 16-bit
+// screens the key colour stayed visible (the rotated missile, the zoomed picture). On the PS3 there is more:
+// SDL_DisplayFormatAlpha() of the SDL 1.3 snapshot is SDL_ConvertSurface(.., ARGB8888, SDL_RLEACCEL) (src/SDL_compat.c), the RLE
+// encoding sdl_layer.cpp already avoids for SDL_DisplayFormat. Returns NULL for any other surface (32-bit screens keep their
+// old path); the caller frees the result.
+static SDL_Surface *argb_from_keyed_16bit_surface(SDL_Surface *src)
+{
+    if (src == NULL || src->format == NULL || src->format->BytesPerPixel != 2) {
+        return NULL;
+    }
+    SDL_Surface *argb = SDLL_CreateRGBSurface(SDL_SWSURFACE, src->w, src->h, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
+    if (argb == NULL) {
+        return NULL;
+    }
+    // compared without the alpha bit of formats like ABGR1555
+    const Uint32 rgb_mask = src->format->Rmask | src->format->Gmask | src->format->Bmask;
+    const Uint32 key = SDLL_MapRGB(src, COLORKEY_R, COLORKEY_G, COLORKEY_B) & rgb_mask;
+    SDLL_LockSurface(src);
+    SDLL_LockSurface(argb);
+    const bool have_pixels = (src->pixels != NULL && argb->pixels != NULL);
+    if (have_pixels) {
+        for (int y = 0; y < src->h; y++) {
+            const Uint16 *row_in = (const Uint16 *)((const Uint8 *)src->pixels + y * src->pitch);
+            Uint32 *row_out = (Uint32 *)((Uint8 *)argb->pixels + y * argb->pitch);
+            for (int x = 0; x < src->w; x++) {
+                const Uint16 pixel = row_in[x];
+                if (((Uint32)pixel & rgb_mask) == key) {
+                    row_out[x] = 0;
+                } else {
+                    Uint8 r = 0, g = 0, b = 0;
+                    SDLL_GetRGB(pixel, src, &r, &g, &b);
+                    row_out[x] = 0xff000000u | ((Uint32)r << 16) | ((Uint32)g << 8) | (Uint32)b;
+                }
+            }
+        }
+    }
+    SDLL_UnlockSurface(argb);
+    SDLL_UnlockSurface(src);
+    if (have_pixels == false) {
+        SDLL_FreeSurface(argb);
+        return NULL;
+    }
+    SDLL_SetAlpha(argb, SDL_SRCALPHA, 255);
+    return argb;
+}
+#endif
+
 // zoom from a small size to the picture size
 void graphicsLib::zoom_image(st_position dest, const graphicsLib_gSurface &picture, int smooth)
 {
     SDL_Surface *rotozoom_picture;
     st_position center(dest.x+picture.width/2, dest.y+picture.height/2);
 
+#if !defined(SDL3)
+    // 16-bit screens: zoom a 32-bit copy whose transparent pixels have alpha 0 (see argb_from_keyed_16bit_surface)
+    SDL_Surface *argb_source = argb_from_keyed_16bit_surface(picture.get_surface());
+#else
+    SDL_Surface *argb_source = NULL;
+#endif
     for (float i=0.1; i<1.0; i+=0.03) {
-        if ((rotozoom_picture = SDLL_zoomSurface(picture.get_surface(), i, i, smooth)) != NULL) {
+        if ((rotozoom_picture = SDLL_zoomSurface(argb_source != NULL ? argb_source : picture.get_surface(), i, i, smooth)) != NULL) {
             // the zoom creates a new surface that does not inherit the colorkey: without this the key colour is drawn as a solid box
-            SDLL_SetColorKey(rotozoom_picture, SDL_SRCCOLORKEY, SDLL_MapRGB(game_screen, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+            if (argb_source == NULL) {
+                SDLL_SetColorKey(rotozoom_picture, SDL_SRCCOLORKEY, SDLL_MapRGB(game_screen, COLORKEY_R, COLORKEY_G, COLORKEY_B));
+            } else {
+                SDLL_SetAlpha(rotozoom_picture, SDL_SRCALPHA, 255);
+            }
             struct st_rectangle origin_rectangle(0, 0, rotozoom_picture->w, rotozoom_picture->h);
 
             st_position dest_zoom(center.x-rotozoom_picture->w/2, center.y-rotozoom_picture->h/2);
@@ -2622,6 +2682,9 @@ void graphicsLib::zoom_image(st_position dest, const graphicsLib_gSurface &pictu
             std::cout << "Error creating zoomed surface" << std::endl;
         }
     }
+    if (argb_source != NULL) {
+        SDLL_FreeSurface(argb_source);
+    }
 
     /* Pause for a sec */
     SDLL_Delay(100);
@@ -2636,47 +2699,16 @@ SDL_Surface* graphicsLib::zoom_screen(int scale, SDL_Surface *origin)
 void graphicsLib::rotate_image(graphicsLib_gSurface &picture, double angle)
 {
 #if !defined(SDL3)
-    // The rotated missile came out opaque on 16-bit screens (seen on the PS3, expected on the PSP and the other 16-bit ports).
-    // The colour key was set on the 32-bit result with the value MapRGB(game_screen) gives, a 16-bit number (RGB565/1555)
-    // that never matches a 32-bit pixel, so the key colour stayed visible; only the corners added by the rotation were
-    // transparent. On the PS3 there is more: SDL_DisplayFormatAlpha() of the SDL 1.3 snapshot is
-    // SDL_ConvertSurface(.., ARGB8888, SDL_RLEACCEL) (src/SDL_compat.c), the RLE encoding sdl_layer.cpp already avoids for
-    // SDL_DisplayFormat. Here, for a 16-bit sprite, the colour key pixels are given alpha 0 by hand and the rest alpha 255,
-    // the ARGB surface is rotated as it is and used with per-pixel alpha. 32-bit screens keep the old path.
-    SDL_Surface *src = picture.get_surface();
-    if (src != NULL && src->format != NULL && src->format->BytesPerPixel == 2) {
-        SDL_Surface *argb = SDLL_CreateRGBSurface(SDL_SWSURFACE, src->w, src->h, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
-        if (argb != NULL) {
-            // compared without the alpha bit of formats like ABGR1555
-            const Uint32 rgb_mask = src->format->Rmask | src->format->Gmask | src->format->Bmask;
-            const Uint32 key = SDLL_MapRGB(src, COLORKEY_R, COLORKEY_G, COLORKEY_B) & rgb_mask;
-            SDLL_LockSurface(src);
-            SDLL_LockSurface(argb);
-            if (src->pixels != NULL && argb->pixels != NULL) {
-                for (int y = 0; y < src->h; y++) {
-                    const Uint16 *row_in = (const Uint16 *)((const Uint8 *)src->pixels + y * src->pitch);
-                    Uint32 *row_out = (Uint32 *)((Uint8 *)argb->pixels + y * argb->pitch);
-                    for (int x = 0; x < src->w; x++) {
-                        const Uint16 pixel = row_in[x];
-                        if (((Uint32)pixel & rgb_mask) == key) {
-                            row_out[x] = 0;
-                        } else {
-                            Uint8 r = 0, g = 0, b = 0;
-                            SDLL_GetRGB(pixel, src, &r, &g, &b);
-                            row_out[x] = 0xff000000u | ((Uint32)r << 16) | ((Uint32)g << 8) | (Uint32)b;
-                        }
-                    }
-                }
-            }
-            SDLL_UnlockSurface(argb);
-            SDLL_UnlockSurface(src);
-            SDL_Surface *rotated = SDLL_rotozoomSurface(argb, angle, 1.0, true);
-            SDLL_FreeSurface(argb);
-            if (rotated != NULL) {
-                SDLL_SetAlpha(rotated, SDL_SRCALPHA, 255);
-                picture.set_surface(rotated);
-                return;
-            }
+    // 16-bit screens: rotate the 32-bit copy with alpha 0 for the colour key (see argb_from_keyed_16bit_surface); the old path
+    // below set the key of the 32-bit result with a 16-bit value, so the missile kept its background
+    SDL_Surface *argb = argb_from_keyed_16bit_surface(picture.get_surface());
+    if (argb != NULL) {
+        SDL_Surface *rotated = SDLL_rotozoomSurface(argb, angle, 1.0, true);
+        SDLL_FreeSurface(argb);
+        if (rotated != NULL) {
+            SDLL_SetAlpha(rotated, SDL_SRCALPHA, 255);
+            picture.set_surface(rotated);
+            return;
         }
     }
 #endif
