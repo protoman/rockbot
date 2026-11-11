@@ -2635,18 +2635,21 @@ SDL_Surface* graphicsLib::zoom_screen(int scale, SDL_Surface *origin)
 
 void graphicsLib::rotate_image(graphicsLib_gSurface &picture, double angle)
 {
-#ifdef PS3
-    // On the PS3 this function left the rotated missile opaque. SDL_DisplayFormatAlpha() of the SDL 1.3 snapshot is
-    // SDL_ConvertSurface(.., ARGB8888, SDL_RLEACCEL) (src/SDL_compat.c): the same RLE encoding as SDL_DisplayFormat, which
-    // sdl_layer.cpp already replaces because RLE surfaces have no pixel data and blit wrongly on this build. Also, the
-    // colour key was set on the 32-bit result with the value MapRGB(game_screen) gives, a 16-bit RGB565 number that never
-    // matches a 32-bit pixel, so the key colour stayed visible. Here the transparent (colour key) pixels of the 16-bit
-    // sprite are given alpha 0 by hand, the rest alpha 255, the result is rotated as it is and used with per-pixel alpha.
+#if !defined(SDL3)
+    // The rotated missile came out opaque on 16-bit screens (seen on the PS3, expected on the PSP and the other 16-bit ports).
+    // The colour key was set on the 32-bit result with the value MapRGB(game_screen) gives, a 16-bit number (RGB565/1555)
+    // that never matches a 32-bit pixel, so the key colour stayed visible; only the corners added by the rotation were
+    // transparent. On the PS3 there is more: SDL_DisplayFormatAlpha() of the SDL 1.3 snapshot is
+    // SDL_ConvertSurface(.., ARGB8888, SDL_RLEACCEL) (src/SDL_compat.c), the RLE encoding sdl_layer.cpp already avoids for
+    // SDL_DisplayFormat. Here, for a 16-bit sprite, the colour key pixels are given alpha 0 by hand and the rest alpha 255,
+    // the ARGB surface is rotated as it is and used with per-pixel alpha. 32-bit screens keep the old path.
     SDL_Surface *src = picture.get_surface();
     if (src != NULL && src->format != NULL && src->format->BytesPerPixel == 2) {
         SDL_Surface *argb = SDLL_CreateRGBSurface(SDL_SWSURFACE, src->w, src->h, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
         if (argb != NULL) {
-            const Uint32 key = SDLL_MapRGB(src, COLORKEY_R, COLORKEY_G, COLORKEY_B) & 0xffff;
+            // compared without the alpha bit of formats like ABGR1555
+            const Uint32 rgb_mask = src->format->Rmask | src->format->Gmask | src->format->Bmask;
+            const Uint32 key = SDLL_MapRGB(src, COLORKEY_R, COLORKEY_G, COLORKEY_B) & rgb_mask;
             SDLL_LockSurface(src);
             SDLL_LockSurface(argb);
             if (src->pixels != NULL && argb->pixels != NULL) {
@@ -2655,7 +2658,7 @@ void graphicsLib::rotate_image(graphicsLib_gSurface &picture, double angle)
                     Uint32 *row_out = (Uint32 *)((Uint8 *)argb->pixels + y * argb->pitch);
                     for (int x = 0; x < src->w; x++) {
                         const Uint16 pixel = row_in[x];
-                        if (pixel == key) {
+                        if (((Uint32)pixel & rgb_mask) == key) {
                             row_out[x] = 0;
                         } else {
                             Uint8 r = 0, g = 0, b = 0;
