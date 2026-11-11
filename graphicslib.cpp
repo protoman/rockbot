@@ -56,6 +56,7 @@ extern CURRENT_FILE_FORMAT::file_io fio;
 #include "class_config.h"
 #include "strings_map.h"
 #include "aux_tools/exception_manager.h"
+#include "file/fio_diag.h"
 
 #ifdef ANDROID
 #include <android/log.h>
@@ -415,11 +416,13 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(const std::string& filename)
 
     if (!rwop) {
         std::cout << "ERROR::SDLSurfaceFromFile - Error in graphicsLib::SDLSurfaceFromFile - file '" << clean_filename << "' not found\n";
+        fio_diag::report_open_failed("SDLSurfaceFromFile", clean_filename, "rb", 0, true, false);
         return NULL;
     }
     spriteCopy = SDLL_IMG_Load_RW(rwop, 1);
     if (spriteCopy == NULL) {
         std::cout << "ERROR::::SDLSurfaceFromFile - Error on SDLL_IMG_Load_RW, could not load image '" << clean_filename << "'. Details: " << SDLL_IMG_GetError() << std::endl;
+        fio_diag::say("ERROR: SDLSurfaceFromFile: '%s' opens but is not a readable image: %s", clean_filename.c_str(), SDLL_IMG_GetError());
         fflush(stdout);
         return NULL;
     }

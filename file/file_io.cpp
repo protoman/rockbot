@@ -12,6 +12,7 @@
 #ifdef PSP
 #include "../ports/psp/psp_platform.h"
 #endif
+#include "fio_diag.h"
 #include "convert.h"
 #include "../aux_tools/stringutils.h"
 #include "../aux_tools/exception_manager.h"
@@ -132,11 +133,7 @@ namespace format_v4 {
 
 // -------------------------------------- GAME -------------------------------------- //
         filename = std::string(FILEPATH) + "/game_properties" + sufix + ".dat";
-        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
-            fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
-        }
+        fio_diag::open_out(fp, __func__, filename);
 
 
 
@@ -158,6 +155,7 @@ namespace format_v4 {
         fp.write(reinterpret_cast<char *>(&data_in.game_style), sizeof(Uint8));
         fp.write(reinterpret_cast<char *>(&data_in.final_boss_id), sizeof(Uint8));
 
+        fio_diag::stream_write_ok(__func__, filename, fp);
         fp.close();
 
 
@@ -165,48 +163,36 @@ namespace format_v4 {
 // -------------------------------------- WEAPONS -------------------------------------- //
         // file_weapon weapons[FS_MAX_WEAPONS]
         filename = std::string(FILEPATH) + "/game_weapons" + sufix + ".dat";
-        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
-            fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
-        }
+        fio_diag::open_out(fp, __func__, filename);
         fp.write(reinterpret_cast<char *>(&data_in.weapons), sizeof(file_weapon) * FS_MAX_WEAPONS);
+        fio_diag::stream_write_ok(__func__, filename, fp);
         fp.close();
 
 
 // -------------------------------------- TROPHIES -------------------------------------- //
         // st_file_trophy trophies[TROPHIES_MAX]
         filename = std::string(FILEPATH) + "/game_trophies" + sufix + ".dat";
-        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
-            fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
-        }
+        fio_diag::open_out(fp, __func__, filename);
         fp.write(reinterpret_cast<char *>(&data_in.trophies), sizeof(st_file_trophy) * TROPHIES_MAX);
+        fio_diag::stream_write_ok(__func__, filename, fp);
         fp.close();
 
 
 // -------------------------------------- ARMOR PIECES -------------------------------------- //
         // st_armor_piece armor_pieces[FS_PLAYER_ARMOR_PIECES_MAX]
         filename = std::string(FILEPATH) + "/game_armorPieces" + sufix + ".dat";
-        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
-            fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
-        }
+        fio_diag::open_out(fp, __func__, filename);
         fp.write(reinterpret_cast<char *>(&data_in.armor_pieces), sizeof(st_armor_piece) * FS_PLAYER_ARMOR_PIECES_MAX);
+        fio_diag::stream_write_ok(__func__, filename, fp);
         fp.close();
 
 
 // -------------------------------------- WEAPON MENU COLORS -------------------------------------- //
         // st_color weapon_menu_colors[MAX_WEAPON_N];
         filename = std::string(FILEPATH) + "/game_weaponMenuColors" + sufix + ".dat";
-        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::write_game - could not write to file '" << filename << "'. Will create new one." << std::endl;
-            fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
-        }
+        fio_diag::open_out(fp, __func__, filename);
         fp.write(reinterpret_cast<char *>(&data_in.weapon_menu_colors), sizeof(st_color) * MAX_WEAPON_N);
+        fio_diag::stream_write_ok(__func__, filename, fp);
         fp.close();
 
     }
@@ -218,12 +204,9 @@ namespace format_v4 {
     {
         std::ofstream fp;
         std::string filename = std::string(FILEPATH) + "/stages" + sufix + ".dat";
-        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::write_all_stages - could not write to file '" << filename << "'. Will create new one." << std::endl;
-            fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
-        }
+        fio_diag::open_out(fp, __func__, filename);
         fp.write(reinterpret_cast<char *>(&stages_data_in), sizeof(struct format_v4::file_stages));
+        fio_diag::stream_write_ok(__func__, filename, fp);
         fp.close();
     }
 
@@ -237,13 +220,13 @@ namespace format_v4 {
         bool USE_NEW_READ = true;
         if (USE_NEW_READ == false) {
             filename = std::string(FILEPATH) + "/game" + sufix + ".dat";
-            fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
+            fp = fio_diag::fopen_logged(__func__, StringUtils::clean_filename(filename), "rb");
             if (!fp) {
                 std::cout << "ERROR: file_io::read_game - file '" << filename << "' not found." << std::endl;
                 fflush(stdout);
                 return;
             }
-            int read_result = fread(&data_out, sizeof(struct format_v4::file_game), 1, fp);
+            int read_result = fio_diag::fread_logged(__func__, filename, &data_out, sizeof(struct format_v4::file_game), 1, fp);
             if (read_result < 1) {
                 std::cout << "ERROR: file_io::read_game - Error reading struct data from game file '" << filename << "'." << std::endl;
                 fflush(stdout);
@@ -260,7 +243,7 @@ namespace format_v4 {
         // Sint8 player_items[FS_PLATER_ITEMS_N];
         // char stage_face_filename[MAX_STAGES][FS_FACE_FILENAME_MAX]
         filename = std::string(FILEPATH) + "/game_properties" + sufix + ".dat";
-        fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
+        fp = fio_diag::fopen_logged(__func__, StringUtils::clean_filename(filename), "rb");
         if (!fp) {
             std::cout << "ERROR: file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
@@ -268,82 +251,82 @@ namespace format_v4 {
 
 
         unsigned int res;
-        res = fread(&data_out.version, sizeof(float), 1, fp);
+        res = fio_diag::fread_logged(__func__, filename, &data_out.version, sizeof(float), 1, fp);
         if (res != 1) {
             std::cout << "ERROR: file_io::read_game - res: " << res << ", sizeof(float): " << sizeof(float) << ", Error reading struct data [version2] from game file '" << filename << "'." << std::endl;
             fclose(fp);
             return;
         }
-        res = fread(&data_out.name, sizeof(char), FS_CHAR_NAME_SIZE, fp);
+        res = fio_diag::fread_logged(__func__, filename, &data_out.name, sizeof(char), FS_CHAR_NAME_SIZE, fp);
         if (res != FS_CHAR_NAME_SIZE) {
             std::cout << "ERROR: file_io::read_game - res: " << res << ", sizeof(char): " << sizeof(char) << ", Error reading struct data from [name] game file '" << filename << "'." << std::endl;
             fclose(fp);
             return;
         }
-        if (fread(&data_out.semi_charged_projectile_id, sizeof(Sint8), 1, fp) != 1) {
+        if (fio_diag::fread_logged(__func__, filename, &data_out.semi_charged_projectile_id, sizeof(Sint8), 1, fp) != 1) {
             std::cout << "ERROR: file_io::read_game - Error reading struct data [semi_charged_projectile_id] from game file '" << filename << "'." << std::endl;
             fclose(fp);
             return;
         }
-        if (fread(&data_out.player_items, sizeof(Sint8), FS_PLATER_ITEMS_N, fp) != FS_PLATER_ITEMS_N) {
+        if (fio_diag::fread_logged(__func__, filename, &data_out.player_items, sizeof(Sint8), FS_PLATER_ITEMS_N, fp) != FS_PLATER_ITEMS_N) {
             std::cout << "ERROR: file_io::read_game - Error reading struct data [player_items] from game file '" << filename << "'." << std::endl;
             fclose(fp);
             return;
         }
-        if (fread(&data_out.stage_face_filename, sizeof(char), (MAX_STAGES*FS_FACE_FILENAME_MAX), fp) != MAX_STAGES*FS_FACE_FILENAME_MAX) {
+        if (fio_diag::fread_logged(__func__, filename, &data_out.stage_face_filename, sizeof(char), (MAX_STAGES*FS_FACE_FILENAME_MAX), fp) != MAX_STAGES*FS_FACE_FILENAME_MAX) {
             std::cout << "ERROR: file_io::read_game res: - Error reading struct data [stage_face_filename] from game file '" << filename << "'." << std::endl;
             fclose(fp);
             return;
         }
-        if (fread(&data_out.stages_face_name, sizeof(char), (MAX_STAGES*FS_CHAR8_NAME_SIZE), fp) != MAX_STAGES*FS_CHAR8_NAME_SIZE) {
+        if (fio_diag::fread_logged(__func__, filename, &data_out.stages_face_name, sizeof(char), (MAX_STAGES*FS_CHAR8_NAME_SIZE), fp) != MAX_STAGES*FS_CHAR8_NAME_SIZE) {
             std::cout << "ERROR: file_io::read_game res: - Error reading struct data [stages_face_name] from game file '" << filename << "'." << std::endl;
             fclose(fp);
             return;
         }
 
-        if (fread(&data_out.boss_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
+        if (fio_diag::fread_logged(__func__, filename, &data_out.boss_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
             std::cout << "ERROR: file_io::read_game res: - Error reading struct data [boss_music_filename] from game file '" << filename << "'." << std::endl;
             fclose(fp);
             return;
         }
-        if (fread(&data_out.final_boss_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
+        if (fio_diag::fread_logged(__func__, filename, &data_out.final_boss_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
             std::cout << "ERROR: file_io::read_game res: - Error reading struct data [final_boss_music_filename] from game file '" << filename << "'." << std::endl;
             fclose(fp);
             return;
         }
-        if (fread(&data_out.got_weapon_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
+        if (fio_diag::fread_logged(__func__, filename, &data_out.got_weapon_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
             std::cout << "ERROR: file_io::read_game res: - Error reading struct data [got_weapon_music_filename] from game file '" << filename << "'." << std::endl;
             fclose(fp);
             return;
         }
-        if (fread(&data_out.game_over_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
+        if (fio_diag::fread_logged(__func__, filename, &data_out.game_over_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
             std::cout << "ERROR: file_io::read_game res: - Error reading struct data [game_over_music_filename] from game file '" << filename << "'." << std::endl;
             fclose(fp);
             return;
         }
-        if (fread(&data_out.stage_select_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
+        if (fio_diag::fread_logged(__func__, filename, &data_out.stage_select_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
             std::cout << "ERROR: file_io::read_game res: - Error reading struct data [stage_select_music_filename] from game file '" << filename << "'." << std::endl;
             fclose(fp);
             return;
         }
 
-        if (fread(&data_out.game_start_screen_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
+        if (fio_diag::fread_logged(__func__, filename, &data_out.game_start_screen_music_filename, sizeof(char), (FS_CHAR_NAME_SIZE), fp) != FS_CHAR_NAME_SIZE) {
             std::cout << "ERROR: file_io::read_game res: - Error reading struct data [stage_select_music_filename] from game file '" << filename << "'." << std::endl;
             fclose(fp);
             return;
         }
 
-        if (fread(&data_out.use_second_castle, sizeof(bool), 1, fp) != 1) {
+        if (fio_diag::fread_logged(__func__, filename, &data_out.use_second_castle, sizeof(bool), 1, fp) != 1) {
             std::cout << "ERROR: file_io::read_game res: - Error reading struct data [use_second_castle] from game file '" << filename << "'." << std::endl;
             fclose(fp);
             return;
         }
-        if (fread(&data_out.game_style, sizeof(Uint8), 1, fp) != 1) {
+        if (fio_diag::fread_logged(__func__, filename, &data_out.game_style, sizeof(Uint8), 1, fp) != 1) {
             std::cout << "ERROR: file_io::read_game res: - Error reading struct data [game_style] from game file '" << filename << "'." << std::endl;
             fclose(fp);
             return;
         }
-        if (fread(&data_out.final_boss_id, sizeof(Uint8), 1, fp) != 1) {
+        if (fio_diag::fread_logged(__func__, filename, &data_out.final_boss_id, sizeof(Uint8), 1, fp) != 1) {
             std::cout << "ERROR: file_io::read_game res: - Error reading struct data [final_boss_id] from game file '" << filename << "'." << std::endl;
             fclose(fp);
             return;
@@ -356,12 +339,12 @@ namespace format_v4 {
         // file_weapon weapons[FS_MAX_WEAPONS]
         filename = std::string(FILEPATH) + "/game_weapons" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
-        fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
+        fp = fio_diag::fopen_logged(__func__, StringUtils::clean_filename(filename), "rb");
         if (!fp) {
             std::cout << "ERROR: file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
         }
-        if (fread(&data_out.weapons, sizeof(file_weapon), FS_MAX_WEAPONS, fp) != FS_MAX_WEAPONS) {
+        if (fio_diag::fread_logged(__func__, filename, &data_out.weapons, sizeof(file_weapon), FS_MAX_WEAPONS, fp) != FS_MAX_WEAPONS) {
             std::cout << "ERROR: file_io::read_game[weapons] - Error reading data from game file '" << filename << "'." << std::endl;
             fclose(fp);
             return;
@@ -373,12 +356,12 @@ namespace format_v4 {
         // st_file_trophy trophies[TROPHIES_MAX]
         filename = std::string(FILEPATH) + "/game_trophies" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
-        fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
+        fp = fio_diag::fopen_logged(__func__, StringUtils::clean_filename(filename), "rb");
         if (!fp) {
             std::cout << "ERROR: file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
         }
-        if (fread(&data_out.trophies, sizeof(st_file_trophy), TROPHIES_MAX, fp) != TROPHIES_MAX) {
+        if (fio_diag::fread_logged(__func__, filename, &data_out.trophies, sizeof(st_file_trophy), TROPHIES_MAX, fp) != TROPHIES_MAX) {
             std::cout << "ERROR: file_io::read_game[trophies] - Error reading data from game file '" << filename << "'." << std::endl;
             fclose(fp);
             return;
@@ -390,12 +373,12 @@ namespace format_v4 {
         // st_armor_piece armor_pieces[FS_PLAYER_ARMOR_PIECES_MAX]
         filename = std::string(FILEPATH) + "/game_armorPieces" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
-        fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
+        fp = fio_diag::fopen_logged(__func__, StringUtils::clean_filename(filename), "rb");
         if (!fp) {
             std::cout << "ERROR: file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
         }
-        if (fread(&data_out.armor_pieces, sizeof(st_armor_piece), FS_PLAYER_ARMOR_PIECES_MAX, fp) != FS_PLAYER_ARMOR_PIECES_MAX) {
+        if (fio_diag::fread_logged(__func__, filename, &data_out.armor_pieces, sizeof(st_armor_piece), FS_PLAYER_ARMOR_PIECES_MAX, fp) != FS_PLAYER_ARMOR_PIECES_MAX) {
             std::cout << "ERROR: file_io::read_game[armor_pieces] - Error reading data from game file '" << filename << "'." << std::endl;
             fclose(fp);
             return;
@@ -409,12 +392,12 @@ namespace format_v4 {
         filename = std::string(FILEPATH) + "/game_weaponMenuColors" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
 
-        fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
+        fp = fio_diag::fopen_logged(__func__, StringUtils::clean_filename(filename), "rb");
         if (!fp) {
             std::cout << "ERROR: file_io::read_game - file '" << filename << "' not found." << std::endl;
             return;
         }
-        if (fread(&data_out.weapon_menu_colors, sizeof(st_color), MAX_WEAPON_N, fp) != MAX_WEAPON_N) {
+        if (fio_diag::fread_logged(__func__, filename, &data_out.weapon_menu_colors, sizeof(st_color), MAX_WEAPON_N, fp) != MAX_WEAPON_N) {
             std::cout << "ERROR: file_io::read_game[armor_pieces] - Error reading data from game file '" << filename << "'." << std::endl;
             fclose(fp);
             return;
@@ -432,12 +415,11 @@ namespace format_v4 {
         std::ifstream fp;
         std::string filename = std::string(FILEPATH) + "/stages" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
-        fp.open(filename.c_str(), std::ios::in | std::ios::binary); // read only: the append mode makes the open fail where the data folder is read-only
-        if (!fp.is_open()) {
-            std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
+        if (fio_diag::open_in(fp, __func__, filename) == false) {
             return;
         }
         fp.read(reinterpret_cast<char *>(&stages_data_out), sizeof(struct format_v4::file_stages));
+        fio_diag::stream_read_ok(__func__, filename, fp, sizeof(struct format_v4::file_stages));
         fp.close();
     }
 
@@ -458,7 +440,7 @@ namespace format_v4 {
             FILE *cfp = fopen(filename.c_str(), "rb");
             if (cfp) {
                 format_v4::file_stage one;
-                while (fread(&one, sizeof(format_v4::file_stage), 1, cfp) == 1) {
+                while (fread(&one, sizeof(format_v4::file_stage), 1, cfp) == 1) /*EOF ends the loop*/ {
                     cached_stages.push_back(one);
                 }
                 fclose(cfp);
@@ -472,7 +454,7 @@ namespace format_v4 {
             return;
         }
 
-        fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
+        fp = fio_diag::fopen_logged(__func__, StringUtils::clean_filename(filename), "rb");
         if (!fp) {
             printf("ERROR.read_stage: Could not read stage '%s'\n", filename.c_str());
 #ifdef ANDROID
@@ -489,7 +471,7 @@ namespace format_v4 {
 
 
         fseek(fp, sizeof(format_v4::file_stage) * stage_n, SEEK_SET);
-        size_t read_result = fread(&stages_data_out, sizeof(struct format_v4::file_stage), 1, fp);
+        size_t read_result = fio_diag::fread_logged(__func__, filename, &stages_data_out, sizeof(struct format_v4::file_stage), 1, fp);
         if (read_result != 1) {
             std::cout << "ERROR: file_io::read_game - Error reading struct data from stage file, read_result[" << read_result << "], expected[" << sizeof(struct format_v4::file_stage) << "]" << std::endl;
 #ifdef ANDROID
@@ -507,9 +489,7 @@ namespace format_v4 {
         std::ifstream fp;
         std::string filename = std::string(FILEPATH) + std::string("/maps.dat");
         filename = StringUtils::clean_filename(filename);
-        fp.open(filename.c_str(), std::ios::in | std::ios::binary); // read only: the append mode makes the open fail where the data folder is read-only
-        if (!fp.is_open()) {
-            std::cout << "ERROR::read_all_maps - could not load file '" << filename << "'" << std::endl;
+        if (fio_diag::open_in(fp, __func__, filename) == false) {
             return;
         }
         // SWOKE //
@@ -519,6 +499,7 @@ namespace format_v4 {
                 if (j >= 3) {
                     file_map temp_map;
                     fp.read(reinterpret_cast<char *>(&temp_map), sizeof(file_map));
+                    fio_diag::stream_read_ok(__func__, filename, fp, sizeof(file_map));
                 }
             }
         }
@@ -532,14 +513,16 @@ namespace format_v4 {
         std::ifstream fp;
         std::string filename = std::string(FILEPATH) + std::string("/maps_v2.dat");
         filename = StringUtils::clean_filename(filename);
-        fp.open(filename.c_str(), std::ios::in | std::ios::binary); // read only: the append mode makes the open fail where the data folder is read-only
-        if (!fp.is_open()) {
-            std::cout << "ERROR::read_all_maps - could not load file '" << filename << "'" << std::endl;
+        if (fio_diag::open_in(fp, __func__, filename) == false) {
             return;
         }
         for (int i=0; i<FS_MAX_STAGES; i++) {
             for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
                 fp.read(reinterpret_cast<char *>(&data_out[i][j]), sizeof(file_map_v2));
+                if (fio_diag::stream_read_ok(__func__, filename, fp, sizeof(file_map_v2)) == false) {
+                    fp.close();
+                    return;
+                }
             }
         }
         fp.close();
@@ -549,16 +532,13 @@ namespace format_v4 {
     {
         std::string filename = std::string(FILEPATH) + "/maps_v2.dat";
         std::ofstream fp;
-        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::write_all_maps - could not write to file '" << filename << "'. Will create new one." << std::endl;
-            fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
-        }
+        fio_diag::open_out(fp, __func__, filename);
         for (int i=0; i<FS_MAX_STAGES; i++) {
             for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
                 fp.write(reinterpret_cast<char *>(&data_in[i][j]), sizeof(file_map_v2));
             }
         }
+        fio_diag::stream_write_ok(__func__, filename, fp);
         fp.close();
     }
 
@@ -567,12 +547,7 @@ namespace format_v4 {
         std::ifstream fp;
         std::string filename = std::string(FILEPATH) + std::string("/maps_v2.dat");
         filename = StringUtils::clean_filename(filename);
-        fp.open(filename.c_str(), std::ios::in | std::ios::binary); // read only: the append mode makes the open fail where the data folder is read-only
-        if (!fp.is_open()) {
-            std::cout << "ERROR::read_all_maps - could not load file '" << filename << "'" << std::endl;
-#ifdef PS3
-            ps3_platform::log("read_stage_maps_v2: could not open '%s'", filename.c_str());
-#endif
+        if (fio_diag::open_in(fp, __func__, filename) == false) {
             return;
         }
 
@@ -581,12 +556,9 @@ namespace format_v4 {
 
         for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
             fp.read(reinterpret_cast<char *>(&data_out[j]), sizeof(file_map_v2));
-#ifdef PS3
-            if (!fp.good() || fp.gcount() != (std::streamsize)sizeof(file_map_v2)) {
-                ps3_platform::log("read_stage_maps_v2: stage %d map %d read failed (read %d of %d bytes, state=%d)", stage_id, j, (int)fp.gcount(), (int)sizeof(file_map_v2), (int)fp.rdstate());
+            if (fio_diag::stream_read_ok(__func__, filename, fp, sizeof(file_map_v2)) == false) {
                 break;
             }
-#endif
         }
 
         #if defined(WII) || defined(PS3)
@@ -674,7 +646,7 @@ namespace format_v4 {
         //log::get_instance()->write(std::string("file_io::file_exists.filename[").append(filename).append(std::string("]")));
         bool res = false;
         FILE *fp;
-        fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
+        fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb"); // an existence probe: a missing file is a normal answer, so no log
         if (fp) {
             res = true;
             fclose(fp);
@@ -778,12 +750,12 @@ namespace format_v4 {
 
 
         if (!file_exists(filename) && file_exists(filename_old)) {
-            FILE *fp_old = fopen(StringUtils::clean_filename(filename_old).c_str(), "rb");
+            FILE *fp_old = fio_diag::fopen_logged(__func__, StringUtils::clean_filename(filename_old), "rb");
             if (!fp_old) {
                 std::cout << "WARNING: Could not read config file '" << filename.c_str() << "'." << std::endl;
             } else {
                 format_v4_old::st_game_config config_old;
-                int read_result = fread(&config_old, sizeof(struct format_v4_old::st_game_config), 1, fp_old);
+                int read_result = fio_diag::fread_logged(__func__, filename_old, &config_old, sizeof(struct format_v4_old::st_game_config), 1, fp_old);
                 if (read_result < 1) {
                     printf("ERROR: file_io::read_game - Error reading struct data from game file '%s'.\n", filename.c_str());
                     fflush(stdout);
@@ -794,11 +766,12 @@ namespace format_v4 {
                 config = config_old;
             }
         } else {
-            FILE *fp = fopen(newest_variant(StringUtils::clean_filename(filename)).c_str(), "rb");
+            const std::string config_path = newest_variant(StringUtils::clean_filename(filename));
+            FILE *fp = fio_diag::fopen_logged(__func__, config_path, "rb", true);
             if (!fp) {
                 std::cout << "WARNING: Could not read config file '" << filename.c_str() << "'." << std::endl;
             } else {
-                int read_result = fread(&config, sizeof(struct format_v4::st_game_config), 1, fp);
+                int read_result = fio_diag::fread_logged(__func__, config_path, &config, sizeof(struct format_v4::st_game_config), 1, fp);
                 if (read_result < 1) {
                     printf("ERROR: file_io::read_game - Error reading struct data from game file '%s'.\n", filename.c_str());
                     fflush(stdout);
@@ -853,25 +826,23 @@ namespace format_v4 {
 
     static bool write_file_with_mode(const std::string &path, const void *data, size_t size, const char *mode)
     {
-        errno = 0;
-        FILE *fp = fopen(path.c_str(), mode);
+        FILE *fp = fio_diag::fopen_logged("write_file", path, mode);
         if (fp == NULL) {
-#ifdef PS3
-            ps3_platform::log("write '%s' with \"%s\": open failed, errno %d", path.c_str(), mode, errno);
-#endif
             return false;
         }
-        bool ok = (fwrite(data, 1, size, fp) == size);
+        bool ok = (fio_diag::fwrite_logged("write_file", path, data, 1, size, fp) == size);
+        errno = 0;
         if (fflush(fp) != 0) {
+            fio_diag::say("ERROR: write_file: fflush of '%s' failed: errno %d (%s)", path.c_str(), errno, strerror(errno));
             ok = false;
         }
-        if (fclose(fp) != 0) {
+        if (fio_diag::fclose_logged("write_file", path, fp) == false) {
             ok = false;
         }
 #ifdef PS3
         // PSL1GHT's write() returns the byte count even when the lv2 write failed: read the size back
         if (ok == true && size_on_disk(path) != (long)size) {
-            ps3_platform::log("write '%s' with \"%s\": size on disk is %ld, expected %d", path.c_str(), mode, size_on_disk(path), (int)size);
+            fio_diag::say("ERROR: write_file: '%s' written with \"%s\" but the size on disk is %ld, expected %d", path.c_str(), mode, size_on_disk(path), (int)size);
             ok = false;
         }
 #endif
@@ -967,12 +938,12 @@ namespace format_v4 {
 
         std::string filename = newest_variant(StringUtils::clean_filename(get_save_filename(save_n)));
 
-        fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
+        fp = fio_diag::fopen_logged(__func__, StringUtils::clean_filename(filename), "rb");
         if (!fp) {
             std::cout << "ERROR: Could not read save" << std::endl;
             return false;
         }
-        int read_result = fread(&data_out, sizeof(struct format_v4::st_save), 1, fp);
+        int read_result = fio_diag::fread_logged(__func__, filename, &data_out, sizeof(struct format_v4::st_save), 1, fp);
         if (read_result < 1) {
             printf("ERROR: file_io::read_game - Error reading struct data from game file '%s'.\n", filename.c_str());
             fflush(stdout);
@@ -1052,7 +1023,7 @@ namespace format_v4 {
         FILE *fp;
         std::string filename = newest_variant(StringUtils::clean_filename(get_save_filename(save_n)));
 
-        fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
+        fp = fio_diag::fopen_logged(__func__, StringUtils::clean_filename(filename), "rb", true); // a slot without a save is normal
         if (fp) {
             fclose(fp);
             return true;
@@ -1076,11 +1047,11 @@ namespace format_v4 {
         std::string filename = std::string(SAVEPATH) + std::string("/") + GAMENAME + std::string(".sav");
         filename = StringUtils::clean_filename(filename);
         FILE* old_format_fp;
-        old_format_fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
+        old_format_fp = fio_diag::fopen_logged(__func__, StringUtils::clean_filename(filename), "rb", true);
         if (old_format_fp) {
              // convert v301 save to CURRENT_FORMAT save
              CURRENT_FILE_FORMAT::st_save old_format_save;
-             int read_result = fread(&old_format_save, sizeof(struct CURRENT_FILE_FORMAT::st_save), 1, old_format_fp);
+             int read_result = fio_diag::fread_logged(__func__, filename, &old_format_save, sizeof(struct CURRENT_FILE_FORMAT::st_save), 1, old_format_fp);
              if (read_result < 1) { // could not read v1 save
                  fclose(old_format_fp);
                  return false;
@@ -1108,14 +1079,14 @@ namespace format_v4 {
         std::string filename = std::string(FILEPATH) + "/stages" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
 
-        fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
+        fp = fio_diag::fopen_logged(__func__, StringUtils::clean_filename(filename), "rb");
         if (!fp) {
             printf("ERROR.read_stage: Could not read stage '%s'\n", filename.c_str());
             fflush(stdout);
             return -1;
         }
         fseek(fp, sizeof(format_v4::file_stage) * stage_n, SEEK_SET);
-        int read_result = fread(&stages_data_out, sizeof(struct format_v4::file_stage), 1, fp);
+        int read_result = fio_diag::fread_logged(__func__, filename, &stages_data_out, sizeof(struct format_v4::file_stage), 1, fp);
         if (read_result < 1) {
             printf("ERROR: reading struct data from stage file.\n");
             fflush(stdout);
@@ -1157,12 +1128,11 @@ namespace format_v4 {
         std::ifstream fp;
         std::string filename = std::string(FILEPATH) + "/castle_data" + sufix + ".dat";
         filename = StringUtils::clean_filename(filename);
-        fp.open(filename.c_str(), std::ios::in | std::ios::binary); // read only: the append mode makes the open fail where the data folder is read-only
-        if (!fp.is_open()) {
-            std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
+        if (fio_diag::open_in(fp, __func__, filename) == false) {
             return;
         }
         fp.read(reinterpret_cast<char *>(&data_out), sizeof(struct format_v4::file_castle));
+        fio_diag::stream_read_ok(__func__, filename, fp, sizeof(struct format_v4::file_castle));
 #if defined(WII) || defined(PS3)
         for (int i=0; i<CASTLE_STAGES_MAX; i++) {
             sint16_to_little_endian(data_out.points[i].x);
@@ -1187,12 +1157,9 @@ namespace format_v4 {
     {
         std::ofstream fp;
         std::string filename = std::string(FILEPATH) + "/castle_data" + sufix + ".dat";
-        fp.open(filename.c_str(), std::ios::out | std::ios::binary | std::ios::ate);
-        if (!fp.is_open()) {
-            std::cout << "ERROR::write_all_stages - could not write to file '" << filename << "'. Will create new one." << std::endl;
-            fp.open(filename.c_str(), std::ios_base::in | std::ios_base::out | std::ios_base::trunc);
-        }
+        fio_diag::open_out(fp, __func__, filename);
         fp.write(reinterpret_cast<char *>(&data_in), sizeof(struct format_v4::file_castle));
+        fio_diag::stream_write_ok(__func__, filename, fp);
         fp.close();
     }
 

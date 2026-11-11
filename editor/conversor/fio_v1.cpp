@@ -219,7 +219,7 @@ void fio_v1::read_all_stages(v1_file_stages& stages_data_out)
 {
     std::ifstream fp;
     std::string filename = std::string(FILEPATH) + "data/stages" + sufix + ".dat";
-    fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
+    fp.open(filename.c_str(), std::ios::in | std::ios::binary);
     if (!fp.is_open()) {
         std::cout << "ERROR::read_game - could not load file '" << filename << "'" << std::endl;
         return;

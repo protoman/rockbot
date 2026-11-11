@@ -174,11 +174,12 @@ int current_stage = -1;
 
 #ifdef PLAYSTATION2
     #include "ports/ps2/modules.h"
+    #include "file/fio_diag.h"
 
 
 void PS2_copy_to_memorycard(std::string file_in, std::string file_out)
 {
-    FILE *fp_read = fopen(file_in.c_str(), "rb");
+    FILE *fp_read = fio_diag::fopen_logged(__func__, file_in, "rb");
     if (!fp_read) {
         std::cout << "ERROR: Could not open read file '" << file_in << "'" << std::endl;
         graphLib.show_debug_msg("ERROR #1");
@@ -188,7 +189,7 @@ void PS2_copy_to_memorycard(std::string file_in, std::string file_out)
 //        std::cout << "WARNING: Opened file '" << file_in << "'" << std::endl;
     }
     file_out = SAVEPATH + "/" + file_out;
-    FILE *fp_write = fopen(file_out.c_str(), "wb");
+    FILE *fp_write = fio_diag::fopen_logged(__func__, file_out, "wb");
     if (!fp_write) {
         std::cout << "ERROR: Could not open write file '" << file_out << "'" << std::endl;
         graphLib.show_debug_msg("ERROR #2");
@@ -211,7 +212,7 @@ void PS2_copy_to_memorycard(std::string file_in, std::string file_out)
     }
 
     fclose(fp_read);
-    fclose(fp_write);
+    fio_diag::fclose_logged(__func__, file_out, fp_write);
 
 }
 
@@ -219,7 +220,7 @@ void PS2_create_save_icons()
 {
     // copy save icon files, if they do not exist
     std::string filename = SAVEPATH + "/icon.sys";
-    FILE *fp = fopen(filename.c_str(), "rb");
+    FILE *fp = fio_diag::fopen_logged(__func__, filename, "rb", true);
     if (fp == NULL) {
         std::string filename = GAMEPATH + "/shared/images/icon.sys";
         PS2_copy_to_memorycard(filename, "icon.sys");

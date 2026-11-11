@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "fio_scenes.h"
+#include "fio_diag.h"
 #include "../aux_tools/exception_manager.h"
 #include "../aux_tools/stringutils.h"
 
@@ -203,9 +204,8 @@ namespace format_v4 {
         if (FILEPATH.length() == 0) {
             return res;
         }
-        FILE *fp = fopen(StringUtils::clean_filename(filename).c_str(), "rb");
+        FILE *fp = fio_diag::fopen_logged(__func__, StringUtils::clean_filename(filename), "rb", true);
         if (!fp) {
-            std::cout << "ERROR: file_io::load_from_disk - file '" << filename << "' not found." << std::endl;
             return res;
         }
 
@@ -225,18 +225,17 @@ namespace format_v4 {
     template <class T> void fio_scenes::save_data_to_disk(std::string file, std::vector<T> data)
     {
         std::string filename = std::string(FILEPATH) + "scenes/" + file;
-        FILE *fp = fopen(StringUtils::clean_filename(filename).c_str(), "wb");
+        FILE *fp = fio_diag::fopen_logged(__func__, StringUtils::clean_filename(filename), "wb");
         if (!fp) {
-            std::cout << "ERROR: file_io::save_data_to_disk - file '" << filename << "' not found." << std::endl;
             return;
         }
 
         for (size_t i=0; i<data.size(); i++) {
             int block_size = sizeof(T);
             T data_in = data.at(i);
-            fwrite(&data_in, block_size, 1, fp);
+            fio_diag::fwrite_logged(__func__, filename, &data_in, block_size, 1, fp);
         }
-        fclose(fp);
+        fio_diag::fclose_logged(__func__, filename, fp);
     }
 
 }

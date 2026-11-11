@@ -8,6 +8,7 @@
 #include "../defines.h"
 #include "../aux_tools/stringutils.h"
 #include "fio_common.h"
+#include "fio_diag.h"
 #include "shareddata.h"
 #include "strings_map.h"
 
@@ -86,16 +87,16 @@ namespace format_v4 {
     {
         std::vector<std::string> res;
         filename = StringUtils::clean_filename(filename);
-        std::ifstream fp(StringUtils::clean_filename(filename).c_str());
+        std::ifstream fp;
 
-        if (!fp.is_open()) {
-            std::cout << "ERROR: fio_strings::load_game_strings_from_file[" << filename << "] could not be opened" << std::endl;
+        if (fio_diag::open_in(fp, __func__, filename) == false) {
             if (filename == get_game_strings_filename(language)) {
                 create_default_ingame_strings();
             } else if (filename == get_common_strings_filename(language)) {
                 create_default_common_strings();
             }
-            fp.open(filename.c_str(), std::ios::in | std::ios::binary | std::ios::app);
+            fp.clear();
+            fio_diag::open_in(fp, __func__, filename); // the defaults were just written: reads them back
         }
 
         std::string str;
@@ -141,8 +142,8 @@ namespace format_v4 {
 
     void fio_strings::save_game_strings(std::vector<std::string> list, std::string filename)
     {
-        std::ofstream fp(filename.c_str());
-        if (!fp.is_open()) {
+        std::ofstream fp;
+        if (fio_diag::open_out(fp, __func__, filename) == false) {
             return;
         }
 
@@ -156,6 +157,7 @@ namespace format_v4 {
             line += std::string("\n");
             fp << line.c_str();
         }
+        fio_diag::stream_write_ok(__func__, filename, fp);
         fp.close();
     }
 
@@ -1218,9 +1220,9 @@ namespace format_v4 {
     {
         std::vector<std::string> res;
         filename = StringUtils::clean_filename(filename);
-        std::ifstream fp(StringUtils::clean_filename(filename).c_str());
+        std::ifstream fp;
 
-        if (!fp.is_open()) {
+        if (fio_diag::open_in(fp, __func__, filename, true) == false) {
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### ERROR.fio_strings::get_string_list_from_file file [%s] not found. ###", filename.c_str());
 #endif
@@ -1269,7 +1271,8 @@ namespace format_v4 {
             filename = StringUtils::clean_filename(filename);
         }
         if (file_exists(filename)) {
-            std::ifstream fp(StringUtils::clean_filename(filename).c_str());
+            std::ifstream fp;
+            fio_diag::open_in(fp, __func__, filename);
             std::string str;
             while (getline(fp, str)) {
                 if (str.length() > 0) {

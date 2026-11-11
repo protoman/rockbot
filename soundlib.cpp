@@ -14,6 +14,7 @@ extern string GAMEPATH;
 
 #include "file/format.h"
 #include "aux_tools/stringutils.h"
+#include "file/fio_diag.h"
 
 soundLib::soundLib() : _repeated_sfx_channel(-1), _repeated_sfx(-1)
 {
@@ -138,6 +139,24 @@ void soundLib::play_timed_sfx(Uint8 sfx, int time) {
 	}
 }
 
+
+// Mix_LoadWAV / Mix_LoadMUS with the reason in the log when a file cannot be loaded (see file/fio_diag.h)
+static SoundChunk *load_wav_logged(const std::string &filename)
+{
+    SoundChunk *chunk = SDLL_Mix_LoadWAV(filename.c_str());
+    if (chunk == NULL) {
+        fio_diag::report_open_failed("load_all_sfx", filename, "rb", 0, true, false);
+        fio_diag::say("ERROR: load_all_sfx: '%s' not loaded: %s", filename.c_str(), SDLL_Mix_GetError());
+    }
+    return chunk;
+}
+
+static void report_music_failed(const char *where, const std::string &filename)
+{
+    fio_diag::report_open_failed(where, filename, "rb", 0, true, false);
+    fio_diag::say("ERROR: %s: '%s' not loaded: %s", where, filename.c_str(), SDLL_Mix_GetError());
+}
+
 // must follow the oders defined in enum SFX_LIST (types.h)
 void soundLib::load_all_sfx() {
 	int i = 0;
@@ -145,148 +164,148 @@ void soundLib::load_all_sfx() {
 
     filename = FILEPATH + "sfx/npc_hit.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = load_wav_logged(filename);
 	}
 	i++;
 
     filename = FILEPATH + "sfx/npc_killed.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = load_wav_logged(filename);
 	}
 	i++;
 
     filename = FILEPATH + "sfx/player_hit.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = load_wav_logged(filename);
 	}
 	i++;
 
     filename = FILEPATH + "sfx/player_shot.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = load_wav_logged(filename);
 	}
 	i++;
 
     filename = FILEPATH + "sfx/player_jump.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = load_wav_logged(filename);
 	}
 	i++;
 
     filename = FILEPATH + "sfx/cursor.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = load_wav_logged(filename);
 	}
 	i++;
 
     filename = FILEPATH + "sfx/stage_selected.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = load_wav_logged(filename);
 	}
 	i++;
 
     filename = FILEPATH + "sfx/got_energy_pill.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = load_wav_logged(filename);
 	}
 	i++;
 
     filename = FILEPATH + "sfx/got_item.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = load_wav_logged(filename);
 	}
 	i++;
 
     filename = FILEPATH + "sfx/shot_reflected.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = load_wav_logged(filename);
 	}
 	i++;
 
     filename = FILEPATH + "sfx/door_open.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = load_wav_logged(filename);
 	}
 	i++;
 
     filename = FILEPATH + "sfx/got_weapon.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = load_wav_logged(filename);
 	}
 	i++;
 
     filename = FILEPATH + "sfx/teleport.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = load_wav_logged(filename);
 	}
 	i++;
 
     filename = FILEPATH + "sfx/implosion.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = load_wav_logged(filename);
 	}
 	i++;
 
     filename = FILEPATH + "sfx/player_death.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = load_wav_logged(filename);
 	}
 	i++;
 
     filename = FILEPATH + "sfx/destrin_ship.wav";
 	if (i < SFX_COUNT) {
-		sfx_list[i] = SDLL_Mix_LoadWAV(filename.c_str());
+		sfx_list[i] = load_wav_logged(filename);
 	}
 	i++;
 
     filename = FILEPATH + "sfx/charged_shot.wav";
-	sfx_list[SFX_PLAYER_CHARGED_SHOT] = SDLL_Mix_LoadWAV(filename.c_str());
+	sfx_list[SFX_PLAYER_CHARGED_SHOT] = load_wav_logged(filename);
 	i++;
 
     filename = FILEPATH + "sfx/charging1.wav";
-	sfx_list[SFX_CHARGING1] = SDLL_Mix_LoadWAV(filename.c_str());
+	sfx_list[SFX_CHARGING1] = load_wav_logged(filename);
 	i++;
 
     filename = FILEPATH + "sfx/charging2.wav";
-	sfx_list[SFX_CHARGING2] = SDLL_Mix_LoadWAV(filename.c_str());
+	sfx_list[SFX_CHARGING2] = load_wav_logged(filename);
 	i++;
 
     filename = FILEPATH + "sfx/big_explosion.wav";
-	sfx_list[SFX_BIG_EXPLOSION] = SDLL_Mix_LoadWAV(filename.c_str());
+	sfx_list[SFX_BIG_EXPLOSION] = load_wav_logged(filename);
 	i++;
 
     filename = FILEPATH + "sfx/water_enter.wav";
-	sfx_list[SFX_WATER_ENTER] = SDLL_Mix_LoadWAV(filename.c_str());
+	sfx_list[SFX_WATER_ENTER] = load_wav_logged(filename);
 	i++;
 
     filename = FILEPATH + "sfx/water_leave.wav";
-	sfx_list[SFX_WATER_LEAVE] = SDLL_Mix_LoadWAV(filename.c_str());
+	sfx_list[SFX_WATER_LEAVE] = load_wav_logged(filename);
 	i++;
 
 
     filename = FILEPATH + "sfx/disappearning_block.wav";
-    sfx_list[SFX_DISAPPEARING_BLOCK] = SDLL_Mix_LoadWAV(filename.c_str());
+    sfx_list[SFX_DISAPPEARING_BLOCK] = load_wav_logged(filename);
     i++;
 
     filename = FILEPATH + "sfx/shoryuken_girl.wav";
-    sfx_list[SFX_SHORYUKEN_GIRL] = SDLL_Mix_LoadWAV(filename.c_str());
+    sfx_list[SFX_SHORYUKEN_GIRL] = load_wav_logged(filename);
     i++;
 
     filename = FILEPATH + "sfx/beam.wav";
-    sfx_list[SFX_BEAM] = SDLL_Mix_LoadWAV(filename.c_str());
+    sfx_list[SFX_BEAM] = load_wav_logged(filename);
     i++;
 
 
     filename = FILEPATH + "sfx/recharge.wav";
-    sfx_list[SFX_GOT_ENERGY_BIG] = SDLL_Mix_LoadWAV(filename.c_str());
+    sfx_list[SFX_GOT_ENERGY_BIG] = load_wav_logged(filename);
     i++;
 
     filename = FILEPATH + "sfx/timed_bomb_count.wav";
-    sfx_list[SFX_TIMED_BOMB_TICK] = SDLL_Mix_LoadWAV(filename.c_str());
+    sfx_list[SFX_TIMED_BOMB_TICK] = load_wav_logged(filename);
     i++;
 
     filename = FILEPATH + "sfx/object_break.wav";
-    sfx_list[SFX_OBJECT_BREAK] = SDLL_Mix_LoadWAV(filename.c_str());
+    sfx_list[SFX_OBJECT_BREAK] = load_wav_logged(filename);
     i++;
 
 }
@@ -302,6 +321,7 @@ void soundLib::load_music(std::string music_file) {
     filename = get_filename_for_music(filename);
 	music = SDLL_Mix_LoadMUS(filename.c_str());
 	if (!music) {
+        report_music_failed("load_music", filename);
         std::cout << "Error in soundLib::load_music::SDLL_Mix_LoadMUS('" << filename << "': '" << SDLL_Mix_GetError() << "'\n";
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::load_music - not found[%s] ###", music_file.c_str());
@@ -318,6 +338,7 @@ void soundLib::load_shared_music(string music_file)
     filename = get_filename_for_music(filename);
     music = SDLL_Mix_LoadMUS(filename.c_str());
     if (!music) {
+        report_music_failed("load_shared_music", filename);
         std::cout << "Error in soundLib::load_music::SDLL_Mix_LoadMUS('" << filename << "': '" << SDLL_Mix_GetError() << "'\n";
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::load_music - not found[%s] ###", music_file.c_str());
@@ -337,6 +358,7 @@ void soundLib::load_boss_music(string music_file) {
     filename = get_filename_for_music(filename);
 	boss_music = SDLL_Mix_LoadMUS(filename.c_str());
 	if (!boss_music) {
+        report_music_failed("load_boss_music", filename);
         std::cout << "Error in soundLib::load_boss_music::SDLL_Mix_LoadMUS('" << filename << "': '" << SDLL_Mix_GetError() << "'\n";
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::load_boss_music - not found[%s] ###", music_file.c_str());
@@ -554,6 +576,7 @@ SoundChunk *soundLib::load_sfx_from_file(string filename)
     SoundChunk *sfx = SDLL_Mix_LoadWAV(filename.c_str());
     if (sfx == NULL) {
         std::cout << "WARNING: soundLib::load_sfx_from_file - could not load '" << filename << "': " << SDLL_Mix_GetError() << std::endl;
+        fio_diag::report_open_failed("load_sfx_from_file", filename, "rb", 0, true, false);
     }
     return sfx;
 }
@@ -568,6 +591,7 @@ SoundChunk *soundLib::load_shared_sfx_from_file(string filename)
     SoundChunk *sfx = SDLL_Mix_LoadWAV(filename.c_str());
     if (sfx == NULL) {
         std::cout << "WARNING: soundLib::load_shared_sfx_from_file - could not load '" << filename << "': " << SDLL_Mix_GetError() << std::endl;
+        fio_diag::report_open_failed("load_shared_sfx_from_file", filename, "rb", 0, true, false);
     }
     return sfx;
 }
