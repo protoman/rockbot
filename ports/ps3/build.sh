@@ -113,13 +113,22 @@ open(dst, "w").write(s)
 PYEOF
 "$PS3DEV/bin/sfo" -f "$SFO_XML" --title="$TITLE" --appid="$APPID" "$STAGE/PARAM.SFO"
 
-# XMB icon (320x176). Built from the game logo when ImageMagick is available.
-if command -v convert >/dev/null 2>&1 && [ -f "$GAME_DATA/images/logo.png" ]; then
+# XMB icon (320x176) and background (PIC1.PNG, 1920x1080): build/packages/files/ps3_icon<N>.png and
+# ps3_background<N>.png for game N. Without the icon the game logo is used (ImageMagick) or the SDK's default icon;
+# without the background the XMB shows none.
+PKG_FILES="$ROOT/build/packages/files"
+if [ -f "$PKG_FILES/ps3_icon${GAME_NUMBER}.png" ]; then
+    cp "$PKG_FILES/ps3_icon${GAME_NUMBER}.png" "$STAGE/ICON0.PNG"
+elif command -v convert >/dev/null 2>&1 && [ -f "$GAME_DATA/images/logo.png" ]; then
     convert "$GAME_DATA/images/logo.png" -background '#001533' -resize 320x176 \
         -gravity center -extent 320x176 "PNG24:$STAGE/ICON0.PNG" 2>/dev/null \
         || cp "$PS3DEV/bin/ICON0.PNG" "$STAGE/ICON0.PNG"
 else
     cp "$PS3DEV/bin/ICON0.PNG" "$STAGE/ICON0.PNG"
+fi
+rm -f "$STAGE/PIC1.PNG"
+if [ -f "$PKG_FILES/ps3_background${GAME_NUMBER}.png" ]; then
+    cp "$PKG_FILES/ps3_background${GAME_NUMBER}.png" "$STAGE/PIC1.PNG"
 fi
 
 echo "PS3 package folder: $STAGE"
@@ -135,6 +144,7 @@ if [ "$MAKE_PKG" = 1 ]; then
     mkdir -p "$PKGROOT/USRDIR"
     cp -r "$STAGE/USRDIR/." "$PKGROOT/USRDIR/"
     cp "$STAGE/PARAM.SFO" "$STAGE/ICON0.PNG" "$PKGROOT/"
+    if [ -f "$STAGE/PIC1.PNG" ]; then cp "$STAGE/PIC1.PNG" "$PKGROOT/"; fi
 
     # The ps3dev `pkg` tool silently drops everything past 1024 entries.
     PKG_ENTRIES="$(find "$PKGROOT" -mindepth 1 | wc -l)"
