@@ -560,10 +560,11 @@ short stage_select::pick_stage_classic_style(int stage_n)
             graphLib.draw_text(20, 223, complete_stage_name, graphLib.gameScreen);
         }
 
+        // pulse speed: 8 opacity steps per frame (it was 4, too slow to notice)
         if (cursor_opacity_inc == true) {
-            cursor_opacity += 4;
+            cursor_opacity += 8;
         } else {
-            cursor_opacity -= 4;
+            cursor_opacity -= 8;
         }
         if (cursor_opacity_inc == true && cursor_opacity >= 255) {
             cursor_opacity = 255;
