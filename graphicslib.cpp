@@ -2635,6 +2635,48 @@ SDL_Surface* graphicsLib::zoom_screen(int scale, SDL_Surface *origin)
 
 void graphicsLib::rotate_image(graphicsLib_gSurface &picture, double angle)
 {
+#ifdef PS3
+    // On the PS3 this function left the rotated missile opaque. SDL_DisplayFormatAlpha() of the SDL 1.3 snapshot is
+    // SDL_ConvertSurface(.., ARGB8888, SDL_RLEACCEL) (src/SDL_compat.c): the same RLE encoding as SDL_DisplayFormat, which
+    // sdl_layer.cpp already replaces because RLE surfaces have no pixel data and blit wrongly on this build. Also, the
+    // colour key was set on the 32-bit result with the value MapRGB(game_screen) gives, a 16-bit RGB565 number that never
+    // matches a 32-bit pixel, so the key colour stayed visible. Here the transparent (colour key) pixels of the 16-bit
+    // sprite are given alpha 0 by hand, the rest alpha 255, the result is rotated as it is and used with per-pixel alpha.
+    SDL_Surface *src = picture.get_surface();
+    if (src != NULL && src->format != NULL && src->format->BytesPerPixel == 2) {
+        SDL_Surface *argb = SDLL_CreateRGBSurface(SDL_SWSURFACE, src->w, src->h, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
+        if (argb != NULL) {
+            const Uint32 key = SDLL_MapRGB(src, COLORKEY_R, COLORKEY_G, COLORKEY_B) & 0xffff;
+            SDLL_LockSurface(src);
+            SDLL_LockSurface(argb);
+            if (src->pixels != NULL && argb->pixels != NULL) {
+                for (int y = 0; y < src->h; y++) {
+                    const Uint16 *row_in = (const Uint16 *)((const Uint8 *)src->pixels + y * src->pitch);
+                    Uint32 *row_out = (Uint32 *)((Uint8 *)argb->pixels + y * argb->pitch);
+                    for (int x = 0; x < src->w; x++) {
+                        const Uint16 pixel = row_in[x];
+                        if (pixel == key) {
+                            row_out[x] = 0;
+                        } else {
+                            Uint8 r = 0, g = 0, b = 0;
+                            SDLL_GetRGB(pixel, src, &r, &g, &b);
+                            row_out[x] = 0xff000000u | ((Uint32)r << 16) | ((Uint32)g << 8) | (Uint32)b;
+                        }
+                    }
+                }
+            }
+            SDLL_UnlockSurface(argb);
+            SDLL_UnlockSurface(src);
+            SDL_Surface *rotated = SDLL_rotozoomSurface(argb, angle, 1.0, true);
+            SDLL_FreeSurface(argb);
+            if (rotated != NULL) {
+                SDLL_SetAlpha(rotated, SDL_SRCALPHA, 255);
+                picture.set_surface(rotated);
+                return;
+            }
+        }
+    }
+#endif
     SDL_Surface *rotozoom_picture;
 
     SDL_Surface *alpha_surface = SDLL_DisplayFormatAlpha(picture.get_surface());
