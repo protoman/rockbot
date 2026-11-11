@@ -1477,6 +1477,8 @@ enum e_INPUT_IMAGES {
 // progress marker in the PS3 log file (ports/ps3/ps3_platform.h defines the real one); nothing on the other platforms
 #if !defined(PS3) && !defined(PS3_TRACE)
 #define PS3_TRACE(...) ((void)0)
+#define PS3_STEP(what, detail) ((void)0)
+#define PS3_VITALS(where) ((void)0)
 #endif
 #endif // DEFINES_H
 

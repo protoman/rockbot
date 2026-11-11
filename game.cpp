@@ -112,6 +112,7 @@ void game::initGame()
 {
 #ifdef PS3
     PS3_TRACE("initGame: begin");
+    PS3_VITALS("initGame begin");
 #endif
 #ifdef PSP
     psp_platform::log("initGame: begin");
@@ -121,6 +122,7 @@ void game::initGame()
     PS3_TRACE("initGame: building stage %d", (int)currentStage);
     loaded_stage = stage(currentStage, &player1);
     PS3_TRACE("initGame: stage built, player frames");
+    PS3_VITALS("stage built");
     player1.initFrames();
     player1.set_is_player(true);
     player1.reset_hp();
@@ -582,6 +584,7 @@ bool game::show_game_intro()
     PS3_TRACE("intro: main_screen");
     scenes.main_screen();
     PS3_TRACE("intro: main_screen done");
+    PS3_VITALS("main_screen done");
     checkpoint.reset(); // a new (or loaded) game never starts from the checkpoint of a previous one
 
     // Pick stage before loading maps — avoids constructing two full stages

@@ -39,6 +39,12 @@ void log_flush_now();
 // operation (file/fio_diag.h). Both are no-ops on other platforms.
 void mark_file(const char *op, const char *path);
 void mark_file_done();
+// one step into the flight recorder (the last 32 are printed in the STUCK report); what/detail are copied
+void trail(const char *what, const char *detail);
+// logs the game thread's stack size and usage and the heap numbers
+void vitals(const char *where);
+// which part of the screen flip the game thread is in (NULL = not in a flip); printed in the STUCK report
+void flip_phase(const char *phase);
 
 // --- Config defaults ---
 void get_default_keys(int keys_codes_copy[BTN_COUNT]);
@@ -51,6 +57,10 @@ E_PLATFORM get_platform();
 // Progress marker in rockbot_ps3.log: the last one written shows where the game stopped (empty on other platforms).
 #ifdef PS3
 #define PS3_TRACE(...) do { ps3_platform::log(__VA_ARGS__); ps3_platform::log_flush(); } while (0)
+#define PS3_STEP(what, detail) ps3_platform::trail((what), (detail))
+#define PS3_VITALS(where) ps3_platform::vitals(where)
 #else
 #define PS3_TRACE(...) ((void)0)
+#define PS3_STEP(what, detail) ((void)0)
+#define PS3_VITALS(where) ((void)0)
 #endif

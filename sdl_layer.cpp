@@ -1150,13 +1150,19 @@ int SDLL_Flip(SDL_Surface *screen)
 #ifdef PS3
 	// SDL_PSL1GHT's 64 KB RSX command buffer fills up after 256 flips and the
 	// game then hangs; wrap it before that happens (see ports/ps3/ps3_platform.cpp).
+	ps3_platform::flip_phase("rsx command buffer guard");
 	ps3_platform::rsx_command_buffer_guard();
 	// the system callback (PS button / XMB, exit requests) must run every frame, also inside menus and
 	// scenes that loop on their own and never return to main_loop
+	ps3_platform::flip_phase("system callbacks");
 	ps3_platform::update();
+	ps3_platform::flip_phase("flip heartbeat / debug dump");
 	ps3_platform::flip_heartbeat();
 	ps3_platform::flip_debug_dump(screen);
-	return SDL_Flip(screen);
+	ps3_platform::flip_phase("SDL_Flip (surface copy to the RSX, wait for the flip)");
+	const int flip_result = SDL_Flip(screen);
+	ps3_platform::flip_phase(NULL);
+	return flip_result;
 #else
 	return SDL_Flip(screen);
 #endif

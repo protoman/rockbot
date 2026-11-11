@@ -412,6 +412,7 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(const std::string& filename)
 	SDL_Surface *spriteCopy;
 
     std::string clean_filename = StringUtils::clean_filename(filename);
+    PS3_STEP("image", clean_filename.c_str());
     rwop = SDLL_RWFromFile(clean_filename.c_str(), "rb");
 
     if (!rwop) {
@@ -431,8 +432,10 @@ SDL_Surface *graphicsLib::SDLSurfaceFromFile(const std::string& filename)
         return NULL;
     }
 
+    PS3_STEP("   image decoded, converting to the screen format", NULL);
     SDL_Surface *res_surface = SDLL_DisplayFormat(spriteCopy);
     SDLL_FreeSurface(spriteCopy);
+    PS3_STEP("   image ready", NULL);
     if (res_surface == NULL) {
         std::cout << "ERROR::::SDLSurfaceFromFile - DisplayFormat failed for '" << clean_filename << "'\n";
         fflush(stdout);
@@ -505,6 +508,7 @@ void graphicsLib::surfaceFromFile(const std::string& filename, struct graphicsLi
 
 void graphicsLib::loadTileset(std::string file)
 {
+    PS3_STEP("loadTileset", file.c_str());
     string filename = FILEPATH + "images/tilesets/" + file;
 
     if (tileset != NULL) {

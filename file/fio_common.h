@@ -101,6 +101,9 @@ template <class T> std::vector<T> fio_common::load_from_disk(std::string file)
     }
 
     int n = 0;
+#ifdef PS3
+    ps3_platform::trail("load_from_disk: reading records", filename.c_str());
+#endif
     while (!feof(fp) && !ferror(fp)) {
         T out;
         size_t res_read = fread(&out, sizeof(T), 1, fp);
@@ -114,6 +117,9 @@ template <class T> std::vector<T> fio_common::load_from_disk(std::string file)
 
         n++;
     }
+#ifdef PS3
+    ps3_platform::trail("load_from_disk: records read", filename.c_str());
+#endif
     fclose(fp);
     return res;
 }

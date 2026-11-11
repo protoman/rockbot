@@ -555,6 +555,7 @@ namespace format_v4 {
         fp.seekg(fpos, std::ios::beg);
 
         for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
+            PS3_TRACE("read_stage_maps_v2: stage %d map %d", stage_id, j);
             fp.read(reinterpret_cast<char *>(&data_out[j]), sizeof(file_map_v2));
             if (fio_diag::stream_read_ok(__func__, filename, fp, sizeof(file_map_v2)) == false) {
                 break;

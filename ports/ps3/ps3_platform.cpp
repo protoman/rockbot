@@ -21,6 +21,9 @@
 #include <lv2/process.h>
 #include <sys/file.h>
 #include <sys/systime.h>
+#include <malloc.h>
+#include <exception>
+#include <new>
 #include <io/pad.h>
 #include <rsx/rsx.h>
 #include <rsx/commands.h>
@@ -140,10 +143,61 @@ extern "C" int __libc_lock_init_recursive(__libc_lock_t *lock)
     return 0;
 }
 
+// A library lock that is already taken is recorded (flight recorder + the info the STUCK report prints), and the wait is
+// done in 2 s slices so a deadlock shows who owns the lock ("owner" is the lwmutex lock_var, its upper half is the id of
+// the thread that holds it) instead of silently waiting for ever.
+static volatile u32 g_lock_wait_seconds = 0;
+static char g_lock_wait_info[96];
+
+static void rb_hex(char *dst, unsigned int &n, u64 v)
+{
+    static const char digits[] = "0123456789abcdef";
+    for (int shift = 60; shift >= 0; shift -= 4) {
+        dst[n++] = digits[(v >> shift) & 15];
+    }
+}
+
+static void rb_note_lock_wait(sys_lwmutex_t *m)
+{
+    unsigned int n = 0;
+    const char *t = "lock 0x";
+    while (*t != 0) {
+        g_lock_wait_info[n++] = *t++;
+    }
+    rb_hex(g_lock_wait_info, n, (u64)(unsigned long)m);
+    t = " lock_var 0x";
+    while (*t != 0) {
+        g_lock_wait_info[n++] = *t++;
+    }
+    rb_hex(g_lock_wait_info, n, *(volatile u64 *)&m->lock_var);
+    g_lock_wait_info[n] = 0;
+    ps3_platform::trail("LIBRARY LOCK TAKEN, WAITING:", g_lock_wait_info);
+}
+
 extern "C" int __libc_lock_acquire_recursive(__libc_lock_t *lock)
 {
     sys_lwmutex_t *m = ensure_lock(lock);
-    return m ? sysLwMutexLock(m, 0) : 0;
+    if (m == NULL) {
+        return 0;
+    }
+    if (sysLwMutexTryLock(m) == 0) {
+        return 0;
+    }
+    rb_note_lock_wait(m);
+    int r;
+    u32 waited = 0;
+    for (;;) {
+        r = sysLwMutexLock(m, 2000000); // 2 s
+        if ((u32)r != 0x8001000B) { // not ETIMEDOUT
+            break;
+        }
+        waited += 2;
+        g_lock_wait_seconds = waited;
+        ps3_platform::trail("   still waiting for the library lock", g_lock_wait_info);
+    }
+    g_lock_wait_seconds = 0;
+    ps3_platform::trail("   library lock acquired", NULL);
+    return r;
 }
 
 extern "C" int __libc_lock_try_acquire_recursive(__libc_lock_t *lock)
@@ -292,6 +346,16 @@ static volatile u32 g_heartbeat = 0;      // incremented by update()
 static volatile u32 g_main_stale_ticks = 0; // 100 ms ticks without a heartbeat, set by the support thread
 static char g_last_line[160];
 static char g_file_op[220];
+static const char *volatile g_flip_phase = NULL; // set while the game thread is inside the screen flip
+
+// Flight recorder: the last 32 steps of the game thread (log lines, file operations and their end, image loads...). The
+// game thread writes it, the support thread prints it in the STUCK report, so one freeze shows the sequence that led to it.
+static const u32 RB_TRAIL_N = 32;
+static const u32 RB_TRAIL_LEN = 120;
+static char g_trail[RB_TRAIL_N][RB_TRAIL_LEN];
+static volatile u32 g_trail_count = 0;
+
+static void put_str(char *dst, u32 &n, u32 cap, const char *s);
 
 static void raw_append(const char *data, u32 len)
 {
@@ -370,9 +434,71 @@ static void raw_log_line(const char *a, u32 number, const char *b, const char *c
     raw_append(line, n);
 }
 
+static void dump_trail()
+{
+    const u32 count = g_trail_count;
+    const u32 first = count > RB_TRAIL_N ? count - RB_TRAIL_N : 0;
+    for (u32 i = first; i < count; i++) {
+        char line[RB_TRAIL_LEN + 40];
+        u32 n = 0;
+        put_str(line, n, sizeof(line), "  step ");
+        put_num(line, n, sizeof(line), i);
+        put_str(line, n, sizeof(line), ": ");
+        put_str(line, n, sizeof(line), g_trail[i % RB_TRAIL_N]);
+        put_str(line, n, sizeof(line), "\n");
+        raw_append(line, n);
+    }
+}
+
+// stack and heap numbers captured by the game thread (vitals()), printed in the STUCK report: the support thread must not
+// call mallinfo itself, it takes the malloc lock
+static volatile u32 g_vitals_stack_used = 0;
+static volatile u32 g_vitals_stack_size = 0;
+static volatile u32 g_vitals_heap_used = 0;
+static volatile u32 g_vitals_heap_free = 0;
+
+static void dump_vitals_and_trail(const char *why)
+{
+    raw_log_line(why, 0, "", "");
+    raw_log_line("   last vitals: stack bytes used: ", g_vitals_stack_used, "", "");
+    raw_log_line("   last vitals: stack size: ", g_vitals_stack_size, "", "");
+    raw_log_line("   last vitals: heap bytes in use: ", g_vitals_heap_used, "", "");
+    raw_log_line("   last vitals: heap bytes free: ", g_vitals_heap_free, "", "");
+    dump_trail();
+}
+
+static void rb_terminate_handler()
+{
+    char what[160];
+    what[0] = 0;
+#if defined(__cpp_exceptions) || defined(__EXCEPTIONS)
+    try {
+        throw;
+    } catch (const std::exception &e) {
+        u32 n = 0;
+        put_str(what, n, sizeof(what), e.what());
+        what[n] = 0;
+    } catch (...) {
+        u32 n = 0;
+        put_str(what, n, sizeof(what), "(not a std::exception)");
+        what[n] = 0;
+    }
+#endif
+    raw_log_line("TERMINATE: an uncaught exception or abort(): ", 0, "", what);
+    dump_vitals_and_trail("TERMINATE: the last steps:");
+    sysProcessExit(1);
+}
+
+static void rb_new_handler()
+{
+    dump_vitals_and_trail("OUT OF MEMORY: operator new failed. The last steps:");
+    sysProcessExit(1);
+}
+
 static void support_thread(void *arg)
 {
     (void)arg;
+    raw_log_line("support thread running", 0, "", "");
     u32 last_heartbeat = g_heartbeat;
     u32 stale = 0;
     u32 tick = 0;
@@ -394,11 +520,21 @@ static void support_thread(void *arg)
         if (stale >= 15 && g_exit_requested == true) {
             raw_log_line("PS button pressed while the game thread was silent for ", stale * 100, " ms: quitting. file operation in progress: ", g_file_op[0] != 0 ? g_file_op : "none");
             raw_log_line("last log line: ", 0, "", g_last_line);
+            dump_vitals_and_trail("the last steps of the game thread:");
             sysProcessExit(0);
         }
         if (stale == 30 || (stale > 30 && (stale % 100) == 0)) {
             raw_log_line("STUCK: the game thread has been silent for ", stale * 100, " ms. file operation in progress: ", g_file_op[0] != 0 ? g_file_op : "none");
             raw_log_line("STUCK: last log line: ", 0, "", g_last_line);
+            if (g_flip_phase != NULL) {
+                raw_log_line("STUCK: the game thread is inside the screen flip, phase: ", 0, "", g_flip_phase);
+            }
+            if (g_lock_wait_seconds != 0) {
+                raw_log_line("STUCK: the game thread waits for a library lock (seconds): ", g_lock_wait_seconds, " ", g_lock_wait_info);
+            }
+            if (stale == 30 || stale == 200) {
+                dump_vitals_and_trail("STUCK: vitals and the last steps of the game thread, oldest first:");
+            }
         }
     }
 }
@@ -417,8 +553,11 @@ static void watcher_thread(void *arg)
 static void start_support_threads()
 {
     static sys_ppu_thread_t support_id, watcher_id;
-    sysThreadCreate(&support_id, support_thread, NULL, 800, 0x10000, THREAD_JOINABLE, (char *)"rb_support");
-    sysThreadCreate(&watcher_id, watcher_thread, NULL, 850, 0x10000, THREAD_JOINABLE, (char *)"rb_watcher");
+    const s32 r1 = sysThreadCreate(&support_id, support_thread, NULL, 800, 0x10000, THREAD_JOINABLE, (char *)"rb_support");
+    const s32 r2 = sysThreadCreate(&watcher_id, watcher_thread, NULL, 850, 0x10000, THREAD_JOINABLE, (char *)"rb_watcher");
+    std::set_terminate(rb_terminate_handler);
+    std::set_new_handler(rb_new_handler);
+    log("helper threads: support=%d (id %u) watcher=%d (id %u), terminate and out-of-memory handlers set", (int)r1, (unsigned)support_id, (int)r2, (unsigned)watcher_id);
 }
 #endif
 
@@ -443,6 +582,7 @@ void log(const char *fmt, ...)
     const int keep = (n - 1 < (int)sizeof(g_last_line) - 1) ? (n - 1) : (int)sizeof(g_last_line) - 1;
     memcpy(g_last_line, msg, (size_t)keep);
     g_last_line[keep] = 0;
+    trail("log:", g_last_line);
     // into the ring; never waits (see above)
     if (__sync_lock_test_and_set(&g_producer_busy, 1) != 0) {
         return;
@@ -480,9 +620,59 @@ void log_flush_now()
 #endif
 }
 
+void vitals(const char *where)
+{
+#ifdef PS3
+    sys_ppu_thread_stack_t st;
+    st.addr = NULL;
+    st.size = 0;
+    sysThreadGetStackInformation(&st);
+    const char *sp = (const char *)__builtin_frame_address(0);
+    const u32 used = (st.addr != NULL) ? (u32)(((const char *)st.addr + st.size) - sp) : 0;
+    const struct mallinfo mi = mallinfo();
+    g_vitals_stack_used = used;
+    g_vitals_stack_size = st.size;
+    g_vitals_heap_used = (u32)mi.uordblks;
+    g_vitals_heap_free = (u32)mi.fordblks;
+    log("vitals %s: stack %u of %u bytes used; heap in use %d, free %d, arena %d", where, (unsigned)used, (unsigned)st.size, mi.uordblks, mi.fordblks, mi.arena);
+#else
+    (void)where;
+#endif
+}
+
+void flip_phase(const char *phase)
+{
+#ifdef PS3
+    g_flip_phase = phase;
+#else
+    (void)phase;
+#endif
+}
+
+void trail(const char *what, const char *detail)
+{
+#ifdef PS3
+    const u32 i = g_trail_count;
+    char *d = g_trail[i % RB_TRAIL_N];
+    u32 n = 0;
+    put_str(d, n, RB_TRAIL_LEN, what);
+    if (detail != NULL) {
+        put_str(d, n, RB_TRAIL_LEN, " ");
+        put_str(d, n, RB_TRAIL_LEN, detail);
+    }
+    d[n] = 0;
+    __sync_synchronize();
+    g_trail_count = i + 1;
+#else
+    (void)what;
+    (void)detail;
+#endif
+}
+
 void mark_file(const char *op, const char *path)
 {
 #ifdef PS3
+    trail(op, path);
     u32 n = 0;
     put_str(g_file_op, n, sizeof(g_file_op), op);
     put_str(g_file_op, n, sizeof(g_file_op), " ");
@@ -497,6 +687,7 @@ void mark_file(const char *op, const char *path)
 void mark_file_done()
 {
 #ifdef PS3
+    trail("   ... done", NULL);
     g_file_op[0] = 0;
 #endif
 }
