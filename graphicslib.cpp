@@ -521,9 +521,6 @@ void graphicsLib::loadTileset(std::string file)
         show_debug_msg("EXIT #06");
         exception_manager::throw_file_not_found_exception(std::string("graphicsLib::loadTileset"), filename);
 	}
-#ifdef PS3
-    ps3_platform::log("loadTileset %s: %dx%d bpp=%d flags=%x", file.c_str(), tileset->w, tileset->h, tileset->format->BytesPerPixel, (unsigned)tileset->flags);
-#endif
 }
 
 

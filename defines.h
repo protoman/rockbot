@@ -1478,7 +1478,6 @@ enum e_INPUT_IMAGES {
 #if !defined(PS3) && !defined(PS3_TRACE)
 #define PS3_TRACE(...) ((void)0)
 #define PS3_STEP(what, detail) ((void)0)
-#define PS3_VITALS(where) ((void)0)
 #endif
 #endif // DEFINES_H
 

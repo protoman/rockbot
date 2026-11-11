@@ -21,7 +21,6 @@
 #include <lv2/process.h>
 #include <sys/file.h>
 #include <sys/systime.h>
-#include <malloc.h>
 #include <exception>
 #include <new>
 #include <io/pad.h>
@@ -450,20 +449,9 @@ static void dump_trail()
     }
 }
 
-// stack and heap numbers captured by the game thread (vitals()), printed in the STUCK report: the support thread must not
-// call mallinfo itself, it takes the malloc lock
-static volatile u32 g_vitals_stack_used = 0;
-static volatile u32 g_vitals_stack_size = 0;
-static volatile u32 g_vitals_heap_used = 0;
-static volatile u32 g_vitals_heap_free = 0;
-
-static void dump_vitals_and_trail(const char *why)
+static void dump_why_and_trail(const char *why)
 {
     raw_log_line(why, 0, "", "");
-    raw_log_line("   last vitals: stack bytes used: ", g_vitals_stack_used, "", "");
-    raw_log_line("   last vitals: stack size: ", g_vitals_stack_size, "", "");
-    raw_log_line("   last vitals: heap bytes in use: ", g_vitals_heap_used, "", "");
-    raw_log_line("   last vitals: heap bytes free: ", g_vitals_heap_free, "", "");
     dump_trail();
 }
 
@@ -485,13 +473,13 @@ static void rb_terminate_handler()
     }
 #endif
     raw_log_line("TERMINATE: an uncaught exception or abort(): ", 0, "", what);
-    dump_vitals_and_trail("TERMINATE: the last steps:");
+    dump_why_and_trail("TERMINATE: the last steps:");
     sysProcessExit(1);
 }
 
 static void rb_new_handler()
 {
-    dump_vitals_and_trail("OUT OF MEMORY: operator new failed. The last steps:");
+    dump_why_and_trail("OUT OF MEMORY: operator new failed. The last steps:");
     sysProcessExit(1);
 }
 
@@ -520,7 +508,7 @@ static void support_thread(void *arg)
         if (stale >= 15 && g_exit_requested == true) {
             raw_log_line("PS button pressed while the game thread was silent for ", stale * 100, " ms: quitting. file operation in progress: ", g_file_op[0] != 0 ? g_file_op : "none");
             raw_log_line("last log line: ", 0, "", g_last_line);
-            dump_vitals_and_trail("the last steps of the game thread:");
+            dump_why_and_trail("the last steps of the game thread:");
             sysProcessExit(0);
         }
         if (stale == 30 || (stale > 30 && (stale % 100) == 0)) {
@@ -533,7 +521,7 @@ static void support_thread(void *arg)
                 raw_log_line("STUCK: the game thread waits for a library lock (seconds): ", g_lock_wait_seconds, " ", g_lock_wait_info);
             }
             if (stale == 30 || stale == 200) {
-                dump_vitals_and_trail("STUCK: vitals and the last steps of the game thread, oldest first:");
+                dump_why_and_trail("STUCK: the last steps of the game thread, oldest first:");
             }
         }
     }
@@ -557,7 +545,9 @@ static void start_support_threads()
     const s32 r2 = sysThreadCreate(&watcher_id, watcher_thread, NULL, 850, 0x10000, THREAD_JOINABLE, (char *)"rb_watcher");
     std::set_terminate(rb_terminate_handler);
     std::set_new_handler(rb_new_handler);
-    log("helper threads: support=%d (id %u) watcher=%d (id %u), terminate and out-of-memory handlers set", (int)r1, (unsigned)support_id, (int)r2, (unsigned)watcher_id);
+    if (r1 != 0 || r2 != 0) {
+        log("ERROR: helper threads could not be created: support=0x%08X watcher=0x%08X (no PS button handling when the game is stuck)", (unsigned)r1, (unsigned)r2);
+    }
 }
 #endif
 
@@ -617,26 +607,6 @@ void log_flush_now()
     drain_ring(); // from the calling thread, for the moments right before the process exits
     sysUsleep(50000);
     drain_ring();
-#endif
-}
-
-void vitals(const char *where)
-{
-#ifdef PS3
-    sys_ppu_thread_stack_t st;
-    st.addr = NULL;
-    st.size = 0;
-    sysThreadGetStackInformation(&st);
-    const char *sp = (const char *)__builtin_frame_address(0);
-    const u32 used = (st.addr != NULL) ? (u32)(((const char *)st.addr + st.size) - sp) : 0;
-    const struct mallinfo mi = mallinfo();
-    g_vitals_stack_used = used;
-    g_vitals_stack_size = st.size;
-    g_vitals_heap_used = (u32)mi.uordblks;
-    g_vitals_heap_free = (u32)mi.fordblks;
-    log("vitals %s: stack %u of %u bytes used; heap in use %d, free %d, arena %d", where, (unsigned)used, (unsigned)st.size, mi.uordblks, mi.fordblks, mi.arena);
-#else
-    (void)where;
 #endif
 }
 
@@ -704,70 +674,6 @@ void mark_file_done()
 extern "C" s32 rsxContextCallback(gcmContextData *context, u32 count);
 #endif
 
-// Logs every 120th flip (and the first ones), so the log file shows whether the frames stop (hang in or before
-// the flip) or keep coming (the game runs but ignores the pad).
-static int g_debug_variant = 0;
-static unsigned int g_variant_changed_flip = 0;
-static unsigned int g_flip_counter = 0;
-
-int debug_variant()
-{
-    return g_debug_variant;
-}
-
-void flip_debug_dump(SDL_Surface *screen)
-{
-#ifdef PS3
-    if (screen == NULL) {
-        return;
-    }
-    // 60 frames after a variant change, and every 480 frames: a screenshot of what is presented
-    bool after_change = (g_variant_changed_flip != 0 && g_flip_counter == g_variant_changed_flip + 60);
-    if (after_change) {
-        char path[96];
-        if (after_change) {
-            snprintf(path, sizeof(path), "/dev_hdd0/tmp/rockbot/dump_v%d.bmp", g_debug_variant);
-        } else {
-            snprintf(path, sizeof(path), "/dev_hdd0/tmp/rockbot/dump_auto.bmp");
-        }
-        int r = SDL_SaveBMP(screen, path);
-        sysLv2FsChmod(path, 0666); // the game cannot overwrite a 0644 file it created itself, see file/fio_diag.h
-        log("rockbot: screenshot %s (flip #%u, variant %d) result=%d %dx%d bpp=%d", path, g_flip_counter, g_debug_variant, r, screen->w, screen->h,
-            screen->format != NULL ? screen->format->BitsPerPixel : -1);
-    }
-#else
-    (void)screen;
-#endif
-}
-
-unsigned int flip_number()
-{
-    return g_flip_counter;
-}
-
-void flip_heartbeat()
-{
-    g_flip_counter++;
-    if ((g_flip_counter % 60) == 0) {
-        log_flush();
-    }
-#ifdef PS3
-    // frames that take much longer than the others (the stutter): when, how long
-    static unsigned int last_ms = 0, slow_logged = 0;
-    const unsigned int now_ms = SDL_GetTicks();
-    if (last_ms != 0 && now_ms - last_ms > 45 && slow_logged < 400) {
-        slow_logged++;
-        log("slow frame #%u: %u ms", g_flip_counter, now_ms - last_ms);
-    }
-    last_ms = now_ms;
-#endif
-    static unsigned int flips = 0;
-    flips++;
-    if (flips <= 3 || (flips % 120) == 0) {
-        log("rockbot: flip #%u", flips);
-    }
-}
-
 void rsx_command_buffer_guard()
 {
 #ifdef PS3
@@ -775,20 +681,12 @@ void rsx_command_buffer_guard()
     if (ctx == NULL) {
         return;
     }
-    gcmControlRegister volatile *ctrl = gcmGetControlRegister();
     const u32 remaining = (u32)(ctx->end - ctx->current);
     if (remaining >= RB_RSX_MIN_FREE_WORDS) {
         return;
     }
-    static unsigned int wraps = 0;
-    wraps++;
-    const s32 r = rsxContextCallback(ctx, 4);
+    rsxContextCallback(ctx, 4);
     rsxFlushBuffer(ctx);
-    if (wraps <= 5 || (wraps % 50) == 0) {
-        log("rockbot: RSX wrap #%u (callback=%d): %u words left before; now begin=%08x end=%08x current=%08x put=%x get=%x",
-            wraps, (int)r, remaining, (unsigned)(u64)ctx->begin, (unsigned)(u64)ctx->end,
-            (unsigned)(u64)ctx->current, (unsigned)ctrl->put, (unsigned)ctrl->get);
-    }
 #endif
 }
 
@@ -848,10 +746,6 @@ void pad_read(unsigned int *buttons, int *lx, int *ly)
     b |= d.BTN_L1       ? (1u << 13) : 0;
     b |= d.BTN_R2       ? (1u << 14) : 0;
     b |= d.BTN_L2       ? (1u << 15) : 0;
-    if (b != last_buttons) {
-        log("rockbot: pad buttons %04x", b);
-    }
-    // (R3 used to cycle the stage-drawing debug variants; removed, the variants stay at 0)
     last_buttons = b;
     last_lx = d.ANA_L_H;
     last_ly = d.ANA_L_V;

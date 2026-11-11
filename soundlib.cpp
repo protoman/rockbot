@@ -58,20 +58,7 @@ void soundLib::play_sfx(Uint8 sfx) {
 	}
 
 	if (sfx_list[sfx] != NULL) {
-#ifdef PS3
-        static unsigned int sfx_logged = 0;
-        if (sfx_logged < 300) {
-            sfx_logged++;
-            ps3_platform::log("sfx %d (flip #%u)", (int)sfx, ps3_platform::flip_number());
-        }
-        const unsigned int sfx_t0 = SDL_GetTicks();
-#endif
         SDLL_Mix_PlayChannel(-1, sfx_list[sfx], 0);
-#ifdef PS3
-        if (SDL_GetTicks() - sfx_t0 > 5) {
-            ps3_platform::log("sfx %d: PlayChannel took %u ms", (int)sfx, SDL_GetTicks() - sfx_t0);
-        }
-#endif
 	}
 }
 
@@ -315,7 +302,6 @@ void soundLib::load_all_sfx() {
 void soundLib::load_music(std::string music_file) {
 	string filename;
 
-    PS3_TRACE("load_music: %s", music_file.c_str());
     unload_music();
     filename = FILEPATH + "music/" + music_file;
     filename = get_filename_for_music(filename);
@@ -468,9 +454,7 @@ void soundLib::stop_music() const {
 #ifdef ANDROID
         __android_log_print(ANDROID_LOG_INFO, "###ROCKBOT###", "### SOUNDLIB::stop_music");
 #endif
-    PS3_TRACE("stop_music: halting");
     SDLL_Mix_HaltMusic();
-    PS3_TRACE("stop_music: done");
 }
 
 void soundLib::close_audio() {

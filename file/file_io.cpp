@@ -556,7 +556,6 @@ namespace format_v4 {
         fp.seekg(fpos, std::ios::beg);
 
         for (int j=0; j<FS_STAGE_MAX_MAPS; j++) {
-            PS3_TRACE("read_stage_maps_v2: stage %d map %d", stage_id, j);
             fp.read(reinterpret_cast<char *>(&data_out[j]), sizeof(file_map_v2));
             if (fio_diag::stream_read_ok(__func__, filename, fp, sizeof(file_map_v2)) == false) {
                 break;
@@ -566,11 +565,6 @@ namespace format_v4 {
         #if defined(WII) || defined(PS3)
         wii_convert_map_data(data_out);
         #endif
-#ifdef PS3
-        ps3_platform::log("read_stage_maps_v2: '%s' stage %d: map0 bg=%d,%d,%d tile(3,10)=%d,%d locked=%d", filename.c_str(), stage_id,
-            (int)data_out[0].background_color.r, (int)data_out[0].background_color.g, (int)data_out[0].background_color.b,
-            (int)data_out[0].tiles[3][10].tile1.x, (int)data_out[0].tiles[3][10].tile1.y, (int)data_out[0].tiles[3][10].locked);
-#endif
         fp.close();
     }
 
@@ -889,15 +883,6 @@ namespace format_v4 {
         static unsigned int fallbacks_logged = 0;
         const bool log_it = (fallbacks_logged < 12);
         fallbacks_logged++;
-        if (log_it) {
-            struct stat st;
-            if (stat(path.c_str(), &st) == 0) {
-                ps3_platform::log("save probe: '%s' mode=%o uid=%d gid=%d size=%d", path.c_str(), (unsigned)st.st_mode, (int)st.st_uid, (int)st.st_gid, (int)st.st_size);
-            } else {
-                ps3_platform::log("save probe: stat of '%s' failed, errno %d", path.c_str(), errno);
-            }
-            ps3_platform::log_flush();
-        }
         // 2. rewrite in place (only when the file already has the right size)
         if (size_on_disk(path) == (long)size && write_file_with_mode(path, data, size, "r+b") == true) {
             if (log_it) { ps3_platform::log("save: written in place (r+b)"); }

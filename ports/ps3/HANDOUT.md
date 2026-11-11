@@ -152,3 +152,26 @@ What was wrong on a real PS3 (all fine in RPCS3), and what was done:
 
 Do **not** commit or revert the owner's modified files (`game.cpp`,
 `build/games/...`, `mega_drive/...`, `docs/RoadMap.txt`, `scripts/ps2run.sh`).
+
+## Diagnostics that stay in the code (2026-11-11)
+
+The progress traces, screenshots, per-flip/slow-frame/pad/sfx/RSX-wrap logs and the stage-drawing probes used to find the console
+bugs were removed. What stays, and what to read in `/dev_hdd0/tmp/rockbot/rockbot_ps3.log` (FTP, works while a game runs):
+
+* **File errors** (`file/fio_diag.h`): every failed open/read/write/close logs the operation, the file, the mode, errno, stat of the
+  file and its folder, and the raw lv2 code (PSL1GHT turns unknown lv2 codes into EINVAL). Opens are retried 3 times (not for a
+  missing file). The save writer logs its fallbacks (`.tmp` rename, `.new` file).
+* **Permissions**: PSL1GHT's `open()` chmods every created file to 0644 and the game's own process then cannot open it for writing
+  again (errno 13). `fio_diag::make_world_writable()` (called by `fopen_logged` and `open_out`) and `make_writable()` in
+  `file/file_io.cpp` (after a save is written, and before a refused overwrite is tried again) chmod 0666. FTP: `SITE CHMOD 666 <path>`.
+* **Helper threads** (`ports/ps3/ps3_platform.cpp`): the log is a ring buffer written by a support thread with raw lv2 calls, so a
+  blocked file system cannot freeze the game. When the game thread is silent for 3 s the log gets `STUCK:` lines (file operation
+  in progress, last log line, screen flip phase, library lock and its owner thread, and the last 32 steps of a flight recorder);
+  `TERMINATE:` / `OUT OF MEMORY:` do the same for an uncaught exception or a failed allocation. A PS button press while the game
+  thread is silent for 1.5 s quits the game (the watcher thread serves the system callbacks); `exit requested` lines show the
+  slower path when the game keeps polling but ignores the quit.
+* `PS3_TRACE(...)` (log line, written within 20 ms), `PS3_STEP(what, detail)` (silent flight-recorder entry) and
+  `fio_diag::OpMark` are there for new investigations. Required game files that cannot be opened after the retries log `FATAL:` and
+  close the game.
+* Stack and heap: the main thread has a 1 MB stack and uses about 4 KB around the stage start; the heap was ~28 MB in use (measured
+  on the console, no pressure).

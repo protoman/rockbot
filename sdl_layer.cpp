@@ -1166,9 +1166,6 @@ int SDLL_Flip(SDL_Surface *screen)
 	// scenes that loop on their own and never return to main_loop
 	ps3_platform::flip_phase("system callbacks");
 	ps3_platform::update();
-	ps3_platform::flip_phase("flip heartbeat / debug dump");
-	ps3_platform::flip_heartbeat();
-	ps3_platform::flip_debug_dump(screen);
 	ps3_platform::flip_phase("SDL_Flip (surface copy to the RSX, wait for the flip)");
 	const int flip_result = SDL_Flip(screen);
 	ps3_platform::flip_phase(NULL);

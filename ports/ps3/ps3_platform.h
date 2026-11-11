@@ -21,12 +21,6 @@ bool exit_requested();
 void fatal_exit(const char *reason);
 // Keeps the RSX command buffer from filling up. Call before every video flip.
 void rsx_command_buffer_guard();
-void flip_heartbeat();
-unsigned int flip_number();
-// Console debugging of the all-white stage: R3 cycles through test variants (0 = normal), see classmap.cpp show_map().
-int debug_variant();
-// Called on every flip with the presented surface: writes screenshots (BMP) to /dev_hdd0/tmp/rockbot/
-void flip_debug_dump(SDL_Surface *screen);
 // Polls pad 0 through libio (see ps3_platform.cpp). Analog values are 0..255, centre 128.
 void pad_read(unsigned int *buttons, int *lx, int *ly);
 // printf-style debug line to the PPU TTY (RPCS3 TTY.log); no stdio involved.
@@ -41,8 +35,6 @@ void mark_file(const char *op, const char *path);
 void mark_file_done();
 // one step into the flight recorder (the last 32 are printed in the STUCK report); what/detail are copied
 void trail(const char *what, const char *detail);
-// logs the game thread's stack size and usage and the heap numbers
-void vitals(const char *where);
 // which part of the screen flip the game thread is in (NULL = not in a flip); printed in the STUCK report
 void flip_phase(const char *phase);
 
@@ -58,9 +50,7 @@ E_PLATFORM get_platform();
 #ifdef PS3
 #define PS3_TRACE(...) do { ps3_platform::log(__VA_ARGS__); ps3_platform::log_flush(); } while (0)
 #define PS3_STEP(what, detail) ps3_platform::trail((what), (detail))
-#define PS3_VITALS(where) ps3_platform::vitals(where)
 #else
 #define PS3_TRACE(...) ((void)0)
 #define PS3_STEP(what, detail) ((void)0)
-#define PS3_VITALS(where) ((void)0)
 #endif

@@ -110,24 +110,15 @@ game::~game()
 // ********************************************************************************************** //
 void game::initGame()
 {
-#ifdef PS3
-    PS3_TRACE("initGame: begin");
-    PS3_VITALS("initGame begin");
-#endif
 #ifdef PSP
     psp_platform::log("initGame: begin");
 #endif
-    PS3_TRACE("initGame: player initialize");
     player1.initialize();
-    PS3_TRACE("initGame: building stage %d", (int)currentStage);
     loaded_stage = stage(currentStage, &player1);
-    PS3_TRACE("initGame: stage built, player frames");
-    PS3_VITALS("stage built");
     player1.initFrames();
     player1.set_is_player(true);
     player1.reset_hp();
     config_manager.set_player_ref(&player1);
-    PS3_TRACE("initGame: player ready");
 
     invencible_old_value = GAME_FLAGS[FLAG_INVINCIBLE];
 
@@ -360,9 +351,6 @@ st_float_position game::checkScrolling()
 // ********************************************************************************************** //
 void game::start_stage()
 {
-#ifdef PS3
-    ps3_platform::log("start_stage: begin");
-#endif
 #ifdef PSP
     psp_platform::log("start_stage: begin");
 #endif
@@ -581,10 +569,7 @@ bool game::show_game_intro()
 #ifdef PSP
     psp_platform::log("intro: before main_screen");
 #endif
-    PS3_TRACE("intro: main_screen");
     scenes.main_screen();
-    PS3_TRACE("intro: main_screen done");
-    PS3_VITALS("main_screen done");
     checkpoint.reset(); // a new (or loaded) game never starts from the checkpoint of a previous one
 
     // Pick stage before loading maps — avoids constructing two full stages
@@ -596,11 +581,8 @@ bool game::show_game_intro()
         start_boss_rush();
         return true;
     }
-    PS3_TRACE("intro: pick_stage");
     currentStage = scenes.pick_stage(INTRO_STAGE);
-    PS3_TRACE("intro: stage %d picked", (int)currentStage);
     initGame();
-    PS3_TRACE("intro: initGame done");
 
     // show boss intro with stars, if needed
     soundManager.stop_music();
@@ -1616,13 +1598,10 @@ void game::player_victory()
     player1.clean_projectiles();
     player1.clear_move_commands();
 
-    PS3_TRACE("player_victory: begin");
     soundManager.stop_music();
     // fall to ground
     soundManager.play_sfx(SFX_BIG_EXPLOSION);
-    PS3_TRACE("player_victory: fall");
     player1.fall();
-    PS3_TRACE("player_victory: fell");
     player1.set_animation_type(ANIM_TYPE_GOT_WEAPON);
 
     std::vector<st_color> color_list;
@@ -1631,9 +1610,7 @@ void game::player_victory()
     color_list.push_back(st_color(112, 251, 101));
     color_list.push_back(st_color(251, 101, 101));
     soundManager.load_music(game_data.got_weapon_music_filename);
-    PS3_TRACE("player_victory: music loaded");
     soundManager.play_music();
-    PS3_TRACE("player_victory: music playing");
 
     for (int i=0; i<2; i++) {
         for (unsigned int j=0; j<color_list.size(); j++) {
@@ -1643,7 +1620,6 @@ void game::player_victory()
             timer.delay(300);
         }
     }
-    PS3_TRACE("player_victory: colour flashes done");
     unsigned long end_timer = timer.getTimer() + 3500;
     while (timer.getTimer() < end_timer) {
         loaded_stage.show_stage();
@@ -1652,7 +1628,6 @@ void game::player_victory()
         draw_lib.update_screen();
         timer.delay(250);
     }
-    PS3_TRACE("player_victory: end");
 }
 
 
@@ -1660,7 +1635,6 @@ void game::player_victory()
 
 void game::got_weapon()
 {
-    PS3_TRACE("got_weapon: begin stage=%d", (int)currentStage);
     if (_boss_rush_active == true) {
         boss_rush_boss_defeated();
         return;
@@ -1687,7 +1661,6 @@ void game::got_weapon()
 //        std::cout << "GAME::got_weapon::must_show_got_weapon - Ignored" << std::endl;
     }
     game_save.stages[currentStage] = 1;
-    PS3_TRACE("got_weapon: leaving the stage");
     leave_stage();
 }
 
@@ -1795,9 +1768,7 @@ void game::leave_stage()
         boss_rush_exit(false);
         return;
     }
-    PS3_TRACE("leave_stage: saving");
     save_game();
-    PS3_TRACE("leave_stage: saved");
     draw_lib.set_flash_enabled(false);
     freeze_weapon_effect = FREEZE_EFFECT_NONE;
     GAME_FLAGS[FLAG_INVINCIBLE] = invencible_old_value;
@@ -1811,16 +1782,12 @@ void game::leave_stage()
     // @TODO: last stage must be set by game_data.final_boss_id //
 
     //currentStage = get_next_stage();
-    PS3_TRACE("leave_stage: stage select");
     currentStage = scenes.pick_stage(currentStage);
-    PS3_TRACE("leave_stage: picked stage %d", (int)currentStage);
 
     loaded_stage = stage(currentStage, &player1);
-    PS3_TRACE("leave_stage: stage loaded");
     // show boss intro with stars, if needed
     soundManager.stop_music();
     scenes.boss_intro(currentStage);
-    PS3_TRACE("leave_stage: boss intro done");
     checkpoint.map = 0;
     checkpoint.map_scroll_x = 0;
     checkpoint.reset();
@@ -2381,13 +2348,11 @@ void game::save_game()
     if (_boss_rush_active == true) { // boss rush never changes the save files
         return;
     }
-    PS3_TRACE("save_game: writing slot %d", (int)current_save_slot);
     if (fio.write_save(game_save, current_save_slot) == false) {
         PS3_TRACE("save_game: write failed");
         show_savegame_error();
         return;
     }
-    PS3_TRACE("save_game: written");
 #ifdef ANDROID
     // if config is set to use cloud
     /*
