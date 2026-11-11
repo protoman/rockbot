@@ -862,7 +862,7 @@ namespace format_v4 {
             ok = false;
         }
         if (ok == true) {
-            make_writable(path, "after writing");
+            make_writable(path, "after writing"); // the call verified on the console; fio_diag also does it at open time
         }
 #ifdef PS3
         // PSL1GHT's write() returns the byte count even when the lv2 write failed: read the size back

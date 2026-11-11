@@ -731,6 +731,7 @@ void flip_debug_dump(SDL_Surface *screen)
             snprintf(path, sizeof(path), "/dev_hdd0/tmp/rockbot/dump_auto.bmp");
         }
         int r = SDL_SaveBMP(screen, path);
+        sysLv2FsChmod(path, 0666); // the game cannot overwrite a 0644 file it created itself, see file/fio_diag.h
         log("rockbot: screenshot %s (flip #%u, variant %d) result=%d %dx%d bpp=%d", path, g_flip_counter, g_debug_variant, r, screen->w, screen->h,
             screen->format != NULL ? screen->format->BitsPerPixel : -1);
     }

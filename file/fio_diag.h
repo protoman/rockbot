@@ -224,6 +224,22 @@ inline void report_open_failed(const char *where, const std::string &path, const
     }
 }
 
+// PS3: PSL1GHT's open() chmods every file it creates to 0644, and the game's own process cannot open such a file for writing
+// again (errno 13, seen on the console for every save the game created itself). Every file opened for writing through these
+// helpers is made readable and writable for everybody right after it is opened, so a later overwrite works. Failures are logged
+// once per file (raw lv2 result, 0 = done). Nothing happens on the other platforms.
+inline void make_world_writable(const std::string &path)
+{
+#ifdef PS3
+    const s32 r = sysLv2FsChmod(path.c_str(), 0666);
+    if (r != 0 && first_time("make_world_writable", path, "chmod")) {
+        say("ERROR: chmod 0666 of '%s' failed: 0x%08X", path.c_str(), (unsigned)r);
+    }
+#else
+    (void)path;
+#endif
+}
+
 // fopen that retries and explains its failure. optional: a missing file is normal here (it is logged as a note).
 inline FILE *fopen_logged(const char *where, const std::string &path, const char *mode, bool optional = false)
 {
@@ -236,6 +252,9 @@ inline FILE *fopen_logged(const char *where, const std::string &path, const char
         if (fp != NULL) {
             if (attempt > 1) {
                 say("NOTE: %s: '%s' (mode %s) opened on attempt %d, the first failed with errno %d (%s)", where, path.c_str(), mode, attempt, first_err, strerror(first_err));
+            }
+            if (mode_writes(mode)) {
+                make_world_writable(path);
             }
             return fp;
         }
@@ -295,6 +314,7 @@ inline bool open_out(std::ofstream &fp, const char *where, const std::string &pa
             if (attempt > 1) {
                 say("NOTE: %s: '%s' opened for writing on attempt %d", where, path.c_str(), attempt);
             }
+            make_world_writable(path);
             return true;
         }
         if (attempt == RETRY_ATTEMPTS) {
