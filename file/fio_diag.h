@@ -22,6 +22,11 @@
 #include <fstream>
 #include <string>
 #include <set>
+#ifdef _WIN32
+extern "C" __declspec(dllimport) void __stdcall Sleep(unsigned long ms);
+#else
+#include <unistd.h>
+#endif
 
 #ifdef PS3
 #include "../ports/ps3/ps3_platform.h"
@@ -62,6 +67,30 @@ inline void say(const char *fmt, ...)
     __android_log_print(ANDROID_LOG_ERROR, "Rockbot", "%s", buffer);
 #endif
 }
+
+// Waits between two attempts. On the PS3 the system callbacks keep being served meanwhile, so the PS button works.
+inline void pause_ms(int ms)
+{
+#ifdef PS3
+    for (int waited = 0; waited < ms; waited += 10) {
+        ps3_platform::update();
+        usleep(10 * 1000);
+    }
+#elif defined(_WIN32)
+    Sleep((unsigned long)ms);
+#else
+    usleep((useconds_t)ms * 1000);
+#endif
+}
+
+// A failed open/read/write is tried again (a console file system can fail once and work on the next call):
+// 3 attempts, 60 ms and 150 ms apart. A file that does not exist is not retried, that answer will not change.
+const int RETRY_ATTEMPTS = 3;
+inline int retry_delay_ms(int attempt) { return attempt == 1 ? 60 : 150; }
+inline bool worth_retrying(int err) { return err != ENOENT && err != ENOTDIR; }
+
+// Set by the game at startup. The tools (editor, converters) leave it off, they must survive a missing file.
+inline bool &fatal_enabled() { static bool enabled = false; return enabled; }
 
 // true the first time (where, path, what) is seen, and only for the first 300 distinct failures
 inline bool first_time(const char *where, const std::string &path, const char *what)
@@ -176,43 +205,83 @@ inline void report_open_failed(const char *where, const std::string &path, const
     }
 }
 
-// fopen that explains its failure. optional: a missing file is normal here (it is logged as a note).
+// fopen that retries and explains its failure. optional: a missing file is normal here (it is logged as a note).
 inline FILE *fopen_logged(const char *where, const std::string &path, const char *mode, bool optional = false)
 {
-    errno = 0;
-    FILE *fp = fopen(path.c_str(), mode);
-    int err = errno;
-    if (fp == NULL) {
-        report_open_failed(where, path, mode, err, false, optional);
-        errno = err;
+    int first_err = 0;
+    for (int attempt = 1; attempt <= RETRY_ATTEMPTS; attempt++) {
+        errno = 0;
+        FILE *fp = fopen(path.c_str(), mode);
+        int err = errno;
+        if (fp != NULL) {
+            if (attempt > 1) {
+                say("NOTE: %s: '%s' (mode %s) opened on attempt %d, the first failed with errno %d (%s)", where, path.c_str(), mode, attempt, first_err, strerror(first_err));
+            }
+            return fp;
+        }
+        if (attempt == 1) {
+            first_err = err;
+        }
+        if (attempt == RETRY_ATTEMPTS || worth_retrying(err) == false) {
+            report_open_failed(where, path, mode, err, false, optional);
+            errno = err;
+            return NULL;
+        }
+        pause_ms(retry_delay_ms(attempt));
     }
-    return fp;
+    return NULL;
 }
 
-// ifstream open that explains its failure
+// ifstream open that retries and explains its failure
 inline bool open_in(std::ifstream &fp, const char *where, const std::string &path, bool optional = false)
 {
-    errno = 0;
-    fp.open(path.c_str(), std::ios::in | std::ios::binary);
-    int err = errno;
-    if (fp.is_open() == false) {
-        report_open_failed(where, path, "rb", err, true, optional);
-        return false;
+    int first_err = 0;
+    for (int attempt = 1; attempt <= RETRY_ATTEMPTS; attempt++) {
+        errno = 0;
+        fp.clear();
+        fp.open(path.c_str(), std::ios::in | std::ios::binary);
+        int err = errno;
+        if (fp.is_open() == true) {
+            if (attempt > 1) {
+                say("NOTE: %s: '%s' opened on attempt %d", where, path.c_str(), attempt);
+            }
+            return true;
+        }
+        if (attempt == 1) {
+            first_err = err;
+        }
+        struct stat st;
+        bool missing = (stat(path.c_str(), &st) != 0 && (errno == ENOENT || errno == ENOTDIR)); // a stream gives no errno of its own
+        if (attempt == RETRY_ATTEMPTS || missing == true) {
+            report_open_failed(where, path, "rb", first_err, true, optional);
+            return false;
+        }
+        pause_ms(retry_delay_ms(attempt));
     }
-    return true;
+    return false;
 }
 
-// ofstream open that explains its failure
+// ofstream open that retries and explains its failure
 inline bool open_out(std::ofstream &fp, const char *where, const std::string &path)
 {
-    errno = 0;
-    fp.open(path.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
-    int err = errno;
-    if (fp.is_open() == false) {
-        report_open_failed(where, path, "wb", err, true, false);
-        return false;
+    for (int attempt = 1; attempt <= RETRY_ATTEMPTS; attempt++) {
+        errno = 0;
+        fp.clear();
+        fp.open(path.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
+        int err = errno;
+        if (fp.is_open() == true) {
+            if (attempt > 1) {
+                say("NOTE: %s: '%s' opened for writing on attempt %d", where, path.c_str(), attempt);
+            }
+            return true;
+        }
+        if (attempt == RETRY_ATTEMPTS) {
+            report_open_failed(where, path, "wb", err, true, false);
+            return false;
+        }
+        pause_ms(retry_delay_ms(attempt));
     }
-    return true;
+    return false;
 }
 
 // fread result check: got and expected are item counts. A short read says if it was the end of the file or an error.
@@ -241,11 +310,24 @@ inline bool read_ok(const char *where, const std::string &path, size_t got, size
 
 inline bool write_ok(const char *where, const std::string &path, size_t got, size_t expected);
 
-// fread with the result check built in (returns the item count like fread)
+// fread with the result check built in (returns the item count like fread). A read error (not the end of the file) is
+// retried from the same position.
 inline size_t fread_logged(const char *where, const std::string &path, void *buffer, size_t size, size_t count, FILE *fp)
 {
-    errno = 0;
-    size_t got = fread(buffer, size, count, fp);
+    long start = ftell(fp);
+    size_t got = 0;
+    for (int attempt = 1; attempt <= RETRY_ATTEMPTS; attempt++) {
+        errno = 0;
+        got = fread(buffer, size, count, fp);
+        if (got == count || ferror(fp) == 0 || start < 0 || attempt == RETRY_ATTEMPTS) {
+            break;
+        }
+        clearerr(fp);
+        if (fseek(fp, start, SEEK_SET) != 0) {
+            break;
+        }
+        pause_ms(retry_delay_ms(attempt));
+    }
     read_ok(where, path, got, count, fp);
     return got;
 }
@@ -310,6 +392,40 @@ inline bool fclose_logged(const char *where, const std::string &path, FILE *fp)
         say("ERROR: %s: fclose of '%s' failed: errno %d (%s)", where, path.c_str(), err, strerror(err));
     }
     return false;
+}
+
+// A file the game cannot run without could not be opened even after the retries: say so and close the game
+// (only when the game enabled it, see fatal_enabled). Without it the game went on with empty data (a white stage).
+inline void fatal(const char *where, const std::string &path)
+{
+    say("FATAL: %s: the required file '%s' cannot be opened", where, path.c_str());
+    if (fatal_enabled() == false) {
+        return;
+    }
+#ifdef PS3
+    ps3_platform::fatal_exit("a required game file cannot be opened");
+#else
+    std::cout.flush();
+    exit(1);
+#endif
+}
+
+inline FILE *fopen_required(const char *where, const std::string &path, const char *mode)
+{
+    FILE *fp = fopen_logged(where, path, mode);
+    if (fp == NULL) {
+        fatal(where, path);
+    }
+    return fp;
+}
+
+inline bool open_in_required(std::ifstream &fp, const char *where, const std::string &path)
+{
+    bool ok = open_in(fp, where, path);
+    if (ok == false) {
+        fatal(where, path);
+    }
+    return ok;
 }
 
 } // namespace fio_diag

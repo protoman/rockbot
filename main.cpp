@@ -158,6 +158,7 @@ int default_button_codes[BTN_COUNT]; // number indicator for the keyboard-keys
 bool leave_game = false;
 
 #include "file/file_io.h"
+#include "file/fio_diag.h"
 CURRENT_FILE_FORMAT::file_io fio;
 CURRENT_FILE_FORMAT::file_game game_data;
 CURRENT_FILE_FORMAT::file_stage stage_data;
@@ -376,6 +377,8 @@ int main(int argc, char *argv[])
 #ifdef PS3
     ps3_platform::setup(argc > 0 ? argv[0] : NULL);
 #endif
+    // a required game file that cannot be opened after the retries closes the game (see file/fio_diag.h)
+    fio_diag::fatal_enabled() = true;
 #ifdef SWITCH
     switch_platform::setup();
     switch_platform::log("main: argc=%d argv0='%s'", argc, argc > 0 && argv[0] ? argv[0] : "(none)");

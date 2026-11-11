@@ -3,6 +3,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
+#include <cstdlib>
 #include <string>
 #include <vector>
 
@@ -17,6 +18,7 @@
 #include <sys/thread.h>
 #include <sys/tty.h>
 #include <lv2/mutex.h>
+#include <lv2/process.h>
 #include <io/pad.h>
 #include <rsx/rsx.h>
 #include <rsx/commands.h>
@@ -170,8 +172,49 @@ extern "C" int __libc_lock_close_recursive(__libc_lock_t *lock)
 
 namespace ps3_platform {
 
+#ifdef PS3
+// The PS button (and "quit game" in the XMB) arrives as SYSUTIL_EXIT_GAME. SDL turns it into a quit event, but only a
+// screen that polls events acts on it: a waiting loop that does not (an error screen waiting for a button, a stuck file
+// operation) used to leave the console frozen with the PS button dead. This second callback (slot 1; SDL has its own)
+// only records the request; update() quits the process when the game keeps running 3 seconds after it.
+static volatile bool g_exit_requested = false;
+
+static void exit_request_callback(u64 status, u64 param, void *usrdata)
+{
+    (void)param;
+    (void)usrdata;
+    if (status == SYSUTIL_EXIT_GAME) {
+        g_exit_requested = true;
+    }
+}
+#endif
+
+bool exit_requested()
+{
+#ifdef PS3
+    return g_exit_requested;
+#else
+    return false;
+#endif
+}
+
+void fatal_exit(const char *reason)
+{
+#ifdef PS3
+    log("FATAL: %s - closing the game", reason != NULL ? reason : "unknown");
+    log_flush();
+    sysProcessExit(1);
+#else
+    (void)reason;
+    exit(1);
+#endif
+}
+
 void setup(const char *argv0)
 {
+#ifdef PS3
+    sysUtilRegisterCallback(SYSUTIL_EVENT_SLOT1, exit_request_callback, NULL);
+#endif
     if (argv0 != NULL && argv0[0] == '/') {
         g_app_path = dirname_of(std::string(argv0));
     }
@@ -451,6 +494,22 @@ void update()
     }
     last_ms = now_ms;
     sysUtilCheckCallback();
+    if (g_exit_requested == true) {
+        static u64 first_seen_ms = 0;
+        static unsigned int polls_since = 0;
+        if (first_seen_ms == 0) {
+            first_seen_ms = now_ms == 0 ? 1 : now_ms;
+            log("exit requested (PS button): waiting for the game to quit by itself");
+            log_flush();
+        }
+        polls_since++;
+        // the game is alive (it keeps polling) but ignores the request: stuck in a loop that does not check for it
+        if (now_ms - first_seen_ms >= 3000 && polls_since >= 50) {
+            log("exit requested %d ms ago and the game is still running: quitting now", (int)(now_ms - first_seen_ms));
+            log_flush();
+            sysProcessExit(0);
+        }
+    }
 #endif
 }
 

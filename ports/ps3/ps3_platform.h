@@ -15,6 +15,10 @@ void setup(const char *argv0);
 void get_filepath(std::string &filepath, int maxpathlen);
 void get_savepath(std::string &savepath);
 void update();
+// true once the PS button / XMB asked the game to quit (the game quits by itself; update() forces it after 3 s)
+bool exit_requested();
+// logs the reason and closes the game at once (a file the game cannot run without could not be read)
+void fatal_exit(const char *reason);
 // Keeps the RSX command buffer from filling up. Call before every video flip.
 void rsx_command_buffer_guard();
 void flip_heartbeat();

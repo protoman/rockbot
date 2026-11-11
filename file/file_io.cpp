@@ -454,7 +454,7 @@ namespace format_v4 {
             return;
         }
 
-        fp = fio_diag::fopen_logged(__func__, StringUtils::clean_filename(filename), "rb");
+        fp = fio_diag::fopen_required(__func__, StringUtils::clean_filename(filename), "rb");
         if (!fp) {
             printf("ERROR.read_stage: Could not read stage '%s'\n", filename.c_str());
 #ifdef ANDROID
@@ -547,7 +547,7 @@ namespace format_v4 {
         std::ifstream fp;
         std::string filename = std::string(FILEPATH) + std::string("/maps_v2.dat");
         filename = StringUtils::clean_filename(filename);
-        if (fio_diag::open_in(fp, __func__, filename) == false) {
+        if (fio_diag::open_in_required(fp, __func__, filename) == false) {
             return;
         }
 
@@ -849,7 +849,7 @@ namespace format_v4 {
         return ok;
     }
 
-    static bool write_file_with_fallbacks(const std::string &path, const void *data, size_t size)
+    static bool write_file_with_fallbacks_once(const std::string &path, const void *data, size_t size)
     {
         if (write_file_with_mode(path, data, size, "wb") == true) {
             return true;
@@ -892,6 +892,24 @@ namespace format_v4 {
         ps3_platform::log("save: all write methods failed for '%s'", path.c_str());
         ps3_platform::log_flush();
 #endif
+        return false;
+    }
+
+    // the whole sequence above is tried up to 3 times (the file system may fail once and work on the next call)
+    static bool write_file_with_fallbacks(const std::string &path, const void *data, size_t size)
+    {
+        for (int attempt = 1; attempt <= fio_diag::RETRY_ATTEMPTS; attempt++) {
+            if (write_file_with_fallbacks_once(path, data, size) == true) {
+                if (attempt > 1) {
+                    fio_diag::say("NOTE: write_file: '%s' written on attempt %d", path.c_str(), attempt);
+                }
+                return true;
+            }
+            if (attempt < fio_diag::RETRY_ATTEMPTS) {
+                fio_diag::pause_ms(fio_diag::retry_delay_ms(attempt));
+            }
+        }
+        fio_diag::say("ERROR: write_file: '%s' could not be written after %d attempts", path.c_str(), fio_diag::RETRY_ATTEMPTS);
         return false;
     }
 
