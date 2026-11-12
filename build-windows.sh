@@ -15,7 +15,8 @@ set -o pipefail
 #   ./build-windows.sh sdl2 x86_64 2   → also zip the Rockbot2 package
 #
 # The Windows SDK lives next to the other platform SDKs:
-#   $WINDOWS_SDK (default /mnt/ExtraData/Devel/SDK/Windows)
+#   $WINDOWS_SDK (default /mnt/ExtraData/Devel/SDK/Windows if /mnt/ExtraData/Devel/SDK exists,
+#                 otherwise ~/.cache/rockbot-sdk/Windows)
 #     llvm-mingw-<date>-ucrt-<host>/   cross toolchain (clang/LLD + MinGW-w64 UCRT);
 #                                      downloaded automatically when missing
 #     deps/mingw-<arch>-sdl<N>/        SDL, SDL_image, SDL_mixer, SDL_ttf, SDL_gfx
@@ -44,7 +45,7 @@ for arg in "$@"; do
         i686|i386|win32|x86) ARCH="i686" ;;
         1|2) PACKAGE_VERSION="$arg" ;;
         -h|--help)
-            sed -n '4,28p' "$0" | sed 's/^# \{0,1\}//'
+            sed -n '7,29p' "$0" | sed 's/^# \{0,1\}//'
             exit 0
             ;;
         *)
@@ -58,7 +59,15 @@ done
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
-WINDOWS_SDK="${WINDOWS_SDK:-/mnt/ExtraData/Devel/SDK/Windows}"
+# Default SDK folder: the shared SDK disk when this machine has it, otherwise a folder in the home
+# directory (CI runners and other machines cannot create /mnt/ExtraData).
+if [[ -z "${WINDOWS_SDK:-}" ]]; then
+    if [[ -d /mnt/ExtraData/Devel/SDK ]]; then
+        WINDOWS_SDK="/mnt/ExtraData/Devel/SDK/Windows"
+    else
+        WINDOWS_SDK="${XDG_CACHE_HOME:-$HOME/.cache}/rockbot-sdk/Windows"
+    fi
+fi
 LLVM_MINGW_VERSION="20261020"
 HOST_ARCH="$(uname -m)"
 case "$HOST_ARCH" in
