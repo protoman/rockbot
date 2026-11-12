@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Linux x86_64 AppImage: builds natively (CMake, SDL2), assembles an AppDir with the game, its
 # data and the SDL libraries it needs, and packs it with appimagetool into
-# Rockbot<N>-<version>-x86_64.AppImage   (no 'Linux' in the name: appimage.github.io rejects it)
+# Rockbot<N>-<version>-x86_64.AppImage + .zsync (update information for AppImageUpdate)   (no 'Linux' in the name: appimage.github.io rejects it)
 # Usage: ./appimage.sh [1|2]     (asks which game if omitted)
 #
 # appimagetool is kept in $LINUX_SDK (default /mnt/ExtraData/Devel/SDK/Linux) and downloaded
@@ -95,6 +95,11 @@ if [ ! -x "$TOOL" ]; then
     chmod +x "$TOOL"
 fi
 rm -f "$OUT"
-ARCH=x86_64 APPIMAGE_EXTRACT_AND_RUN=1 "$TOOL" "$APPDIR" "$OUT"
+# Update information (AppImageUpdate): the newest GitHub release's file of the same game. appimagetool also
+# writes <AppImage>.zsync next to the AppImage (needs zsyncmake): upload it to the release together with it.
+UPDATE_INFO="gh-releases-zsync|protoman|rockbot|latest|Rockbot${version_number}-*-x86_64.AppImage.zsync"
+rm -f "$OUT.zsync"
+ARCH=x86_64 APPIMAGE_EXTRACT_AND_RUN=1 "$TOOL" -u "$UPDATE_INFO" "$APPDIR" "$OUT"
 chmod +x "$OUT"
+[ -f "$OUT.zsync" ] || echo "Warning: $OUT.zsync was not created (install zsync)" >&2
 echo "Package: $OUT"
