@@ -56,7 +56,7 @@ jobs:
       - name: Compress
         run: |
           ARCH=$(uname -m)
-          zip -9 -r rockbox-linux-${SDL_VERSION}-${ARCH}.zip build
+          zip -9 -r rockbot-linux-${SDL_VERSION}-${ARCH}.zip build
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
@@ -84,7 +84,7 @@ jobs:
       - name: Compress
         run: |
           ARCH=$(uname -m)
-          zip -9 -r rockbox-osx-${{ matrix.runner }}-${SDL_VERSION}-${ARCH}.zip build
+          zip -9 -r rockbot-osx-${{ matrix.runner }}-${SDL_VERSION}-${ARCH}.zip build
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
@@ -108,7 +108,7 @@ jobs:
 
       - name: Compress
         run: |
-          zip -9 -r rockbox-windows-${SDL_VERSION}-x86_64.zip build
+          zip -9 -r rockbot-windows-${SDL_VERSION}-x86_64.zip build
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
