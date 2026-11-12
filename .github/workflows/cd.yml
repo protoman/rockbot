@@ -156,35 +156,48 @@ jobs:
             build/packages/RockBot_Android_*.apk
 
   PSP:
-    # Uses official pspdev/pspdev Docker image; SDL is always SDL2 for PSP.
+    # Builds with the prebuilt pspdev release (same SDK as ports/psp/build.sh); SDL is always SDL2 for PSP.
     if: ${{ (github.event.inputs.platform || 'all') == 'all' || (github.event.inputs.platform || 'all') == 'psp' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 120
+    env:
+      PSPDEV_RELEASE: v20261101
+      PSPDEV: ${{ runner.temp }}/sdk/pspdev
     steps:
       - uses: actions/checkout@v5
 
-      - name: Free disk space
+      - name: Cache pspdev
+        id: pspdev-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/sdk/pspdev
+          key: pspdev-${{ env.PSPDEV_RELEASE }}
+
+      - name: Install pspdev
+        if: steps.pspdev-cache.outputs.cache-hit != 'true'
         run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
-            /opt/hostedtoolcache/CodeQL /usr/local/share/boost || true
-          docker system prune -af || true
-          df -h
+          curl -fL --retry 3 -o pspdev.tar.gz \
+            "https://github.com/pspdev/pspdev/releases/download/${PSPDEV_RELEASE}/pspdev-ubuntu-latest-x86_64.tar.gz"
+          mkdir -p "$(dirname "${PSPDEV}")"
+          tar -xzf pspdev.tar.gz -C "$(dirname "${PSPDEV}")"
+          rm pspdev.tar.gz
+          ls "${PSPDEV}/bin" | head
 
-      - name: Build Rockbot 1 EBOOT
+      - name: Build Rockbot 1 package
         env:
           NCPU: 2
-        run: ./build-psp.sh 1 --pull
+        run: ./build/packages/PSP.sh 1
 
-      - name: Build Rockbot 2 EBOOT
+      - name: Build Rockbot 2 package
         env:
           NCPU: 2
-        run: ./build-psp.sh 2 --pull
+        run: ./build/packages/PSP.sh 2
 
       - name: Upload PSP packages
         uses: actions/upload-artifact@v4
         with:
           name: rockbot-psp
-          path: build/packages/RockBot_PSP_*.zip
+          path: build/packages/Rockbot*_PSP_*.zip
           if-no-files-found: error
 
       - name: Create GitHub Release
@@ -194,7 +207,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           files: |
-            build/packages/RockBot_PSP_*.zip
+            build/packages/Rockbot*_PSP_*.zip
 
   Switch:
     # Uses official devkitpro/devkita64 Docker image; SDL is always SDL2 for Switch.
