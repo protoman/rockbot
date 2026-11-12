@@ -26,6 +26,36 @@ if(USE_SDL_VERSION STREQUAL "2" OR USE_SDL_VERSION STREQUAL "3")
     add_compile_definitions(SDL${USE_SDL_VERSION})
 endif()
 
+# The sources include <SDL2/SDL.h> & co. (sdl_layer.h), headers only: the editor does not link SDL.
+# Linux finds them in /usr/include; Homebrew on macOS keeps them in <prefix>/include/SDL2, outside the
+# compiler's default search path, so ask pkg-config and add both the SDL include dir and its parent
+# (the sources use the <SDL2/SDL.h> form).
+set(EDITOR_SDL_INCLUDE_DIRS "")
+find_package(PkgConfig QUIET)
+if(PkgConfig_FOUND)
+    if(USE_SDL_VERSION STREQUAL "3")
+        set(EDITOR_SDL_MODULES sdl3 sdl3-image sdl3-ttf sdl3-mixer)
+    else()
+        set(EDITOR_SDL_MODULES sdl2 SDL2_image SDL2_ttf SDL2_mixer SDL2_gfx)
+    endif()
+    foreach(mod ${EDITOR_SDL_MODULES})
+        pkg_check_modules(EDITOR_${mod} QUIET ${mod})
+        foreach(dir ${EDITOR_${mod}_INCLUDE_DIRS})
+            list(APPEND EDITOR_SDL_INCLUDE_DIRS ${dir})
+            get_filename_component(leaf ${dir} NAME)
+            if(leaf MATCHES "^SDL[23]?$")
+                get_filename_component(parent ${dir} DIRECTORY)
+                list(APPEND EDITOR_SDL_INCLUDE_DIRS ${parent})
+            endif()
+        endforeach()
+    endforeach()
+endif()
+if(APPLE)
+    # Homebrew prefixes (Apple Silicon / Intel) in case pkg-config is missing or found nothing
+    list(APPEND EDITOR_SDL_INCLUDE_DIRS /opt/homebrew/include /usr/local/include)
+endif()
+list(REMOVE_DUPLICATES EDITOR_SDL_INCLUDE_DIRS)
+
 # the sources need -fpermissive (as in the qmake project)
 add_compile_options(-fpermissive -g)
 if(WIN32)
@@ -248,6 +278,7 @@ target_include_directories(rockbot_editor PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/../common
     ${CMAKE_CURRENT_SOURCE_DIR}/..
     ${CMAKE_CURRENT_SOURCE_DIR}/mainwindow_tab
+    ${EDITOR_SDL_INCLUDE_DIRS}
 )
 target_link_libraries(rockbot_editor PRIVATE Qt${ROCKBOT_EDITOR_QT}::Widgets)
 if(APPLE)
