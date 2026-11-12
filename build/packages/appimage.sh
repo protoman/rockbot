@@ -72,16 +72,60 @@ ICON_SRC="$PWD/../games/Rockbot$version_number/images/icon_android.png"
 [ -f "$ICON_SRC" ] || ICON_SRC="$PWD/../games/Rockbot$version_number/images/icon_32px.png"
 cp "$ICON_SRC" "$APPDIR/$NAME.png"
 cp "$ICON_SRC" "$APPDIR/.DirIcon"
-cat > "$APPDIR/$NAME.desktop" <<DESKTOP
+APP_ID="io.github.protoman.$NAME"
+cat > "$APPDIR/$APP_ID.desktop" <<DESKTOP
 [Desktop Entry]
 Type=Application
 Name=Rockbot $version_number
 Comment=Classic action-platformer engine and game
-Exec=rockbot
+Exec=rockbot_linux
 Icon=$NAME
 Terminal=false
 Categories=Game;ActionGame;
 DESKTOP
+
+# AppStream metadata (shown by software catalogs such as appimage.github.io)
+mkdir -p "$APPDIR/usr/share/metainfo"
+cat > "$APPDIR/usr/share/metainfo/$APP_ID.appdata.xml" <<APPSTREAM
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>$APP_ID</id>
+  <name>Rockbot $version_number</name>
+  <summary>Classic NES-style action-platformer in the spirit of Mega Man</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-2.0-only</project_license>
+  <developer id="io.github.protoman">
+    <name>Iuri Fiedoruk</name>
+  </developer>
+  <description>
+    <p>Rockbot is an open-source 2D action-platformer engine in the spirit of the classic NES Mega Man games, and this is Rockbot $version_number, one of the two games that come with it.</p>
+    <p>Run, jump, slide and use the charged shot through eight stages, beat the bosses to get their weapons, and collect E, W and S tanks and armor pieces. The game has cutscenes, an intro and an ending, several difficulty levels, and keyboard and gamepad support.</p>
+    <p>All the content (stages, enemies, weapons, scenes, graphics) is data made with the Rockbot editor, so anyone can create and distribute a game for the engine.</p>
+  </description>
+  <launchable type="desktop-id">$APP_ID.desktop</launchable>
+  <url type="homepage">https://github.com/protoman/rockbot</url>
+  <url type="bugtracker">https://github.com/protoman/rockbot/issues</url>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/protoman/rockbot/master/docs/screenshot-game.png</image>
+    </screenshot>
+  </screenshots>
+  <categories>
+    <category>Game</category>
+    <category>ActionGame</category>
+  </categories>
+  <content_rating type="oars-1.1">
+    <content_attribute id="violence-cartoon">mild</content_attribute>
+  </content_rating>
+  <provides>
+    <binary>rockbot_linux</binary>
+  </provides>
+  <releases>
+    <release version="$VERSIONNAME" date="$(date +%F)"/>
+  </releases>
+</component>
+APPSTREAM
+chmod 644 "$APPDIR/usr/share/metainfo/$APP_ID.appdata.xml"
 
 # --- pack with appimagetool ---------------------------------------------------------------
 LINUX_SDK="${LINUX_SDK:-/mnt/ExtraData/Devel/SDK/Linux}"
