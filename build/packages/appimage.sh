@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Linux x86_64 AppImage: builds natively (CMake, SDL2), assembles an AppDir with the game, its
 # data and the SDL libraries it needs, and packs it with appimagetool into
-# Rockbot<N>_Linux_x64_<version>.AppImage
+# Rockbot<N>-<version>-x86_64.AppImage   (no 'Linux' in the name: appimage.github.io rejects it)
 # Usage: ./appimage.sh [1|2]     (asks which game if omitted)
 #
 # appimagetool is kept in $LINUX_SDK (default /mnt/ExtraData/Devel/SDK/Linux) and downloaded
@@ -14,7 +14,7 @@ source "$SCRIPT_DIR/common.sh"
 choose_game "${1:-}" || exit 1
 
 NAME="rockbot$version_number"
-OUT="$PWD/Rockbot${version_number}_Linux_x64_$VERSIONNAME.AppImage"
+OUT="$PWD/Rockbot${version_number}-$VERSIONNAME-x86_64.AppImage"
 APPDIR="$PWD/appimage/Rockbot$version_number.AppDir"
 
 ../../build-linux.sh sdl2
@@ -25,13 +25,15 @@ cp ../rockbot_linux "$APPDIR/usr/bin/rockbot_linux"
 stage_game_data "$APPDIR/usr/share/$NAME"
 
 # --- bundle the shared libraries the game needs, except the ones every system provides ---
-# (glibc, GL/EGL/X11/Wayland, ALSA/Pulse, fontconfig... must come from the host.)
+# Only glibc, the graphics stack (GL/EGL/Vulkan/DRM/GBM, X11/xcb, Wayland, xkbcommon), udev and fontconfig
+# come from the host. Everything else is bundled, the audio libraries too: SDL2_mixer links libfluidsynth,
+# which needs libpipewire, libjack, libpulse, libasound and libdbus at load time, and a minimal system
+# (the appimage.github.io test machine) has none of them ("error while loading shared libraries").
 is_system_lib() {
     case "$(basename "$1")" in
         ld-linux*|libc.so*|libm.so*|libdl.so*|libpthread.so*|librt.so*|libutil.so*|libresolv.so*|libnsl.so*|libcrypt.so*|\
         libgcc_s.so*|libstdc++.so*|libGL.so*|libGLX*|libGLdispatch*|libEGL*|libOpenGL*|libGLESv*|libdrm*|libgbm*|libvulkan*|\
-        libX*|libxcb*|libwayland*|libxkbcommon*|libasound*|libpulse*|libjack*|libpipewire*|libudev*|libdbus*|libsystemd*|\
-        libfontconfig*|libfreetype*|libharfbuzz*|libglib-2*|libgobject*|libgio*|libz.so*|libselinux*|libffi*|libbsd*|libmd.so*|\
+        libX*|libxcb*|libwayland*|libxkbcommon*|libudev*|libfontconfig*|\
         linux-vdso*|libnvidia*|libcuda*) return 0 ;;
     esac
     return 1
@@ -42,6 +44,20 @@ ldd "$APPDIR/usr/bin/rockbot_linux" | awk '/=> \// {print $3}' | while read -r l
     fi
 done
 echo "Bundled libraries: $(ls "$APPDIR/usr/lib" | tr '\n' ' ')"
+
+# Every library the game and the bundled libraries need must be bundled or be one of the host ones above.
+missing=""
+for f in "$APPDIR/usr/bin/rockbot_linux" "$APPDIR"/usr/lib/*.so*; do
+    for need in $(readelf -d "$f" 2>/dev/null | sed -n 's/.*(NEEDED).*\[\(.*\)\]/\1/p'); do
+        [ -e "$APPDIR/usr/lib/$need" ] && continue
+        is_system_lib "$need" && continue
+        missing="$missing $need"
+    done
+done
+if [ -n "$missing" ]; then
+    echo "Error: libraries needed but neither bundled nor provided by the host:$missing" >&2
+    exit 1
+fi
 
 cat > "$APPDIR/AppRun" <<APPRUN
 #!/bin/sh
