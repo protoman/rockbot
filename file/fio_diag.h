@@ -231,7 +231,7 @@ inline void report_open_failed(const char *where, const std::string &path, const
 inline void make_world_writable(const std::string &path)
 {
 #ifdef PS3
-    const s32 r = sysLv2FsChmod(path.c_str(), 0666);
+    const s32 r = sysLv2FsChmod(path.c_str(), ease);
     if (r != 0 && first_time("make_world_writable", path, "chmod")) {
         say("ERROR: chmod 0666 of '%s' failed: 0x%08X", path.c_str(), (unsigned)r);
     }
