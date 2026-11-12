@@ -162,9 +162,12 @@ jobs:
     timeout-minutes: 120
     env:
       PSPDEV_RELEASE: v20261101
-      PSPDEV: ${{ runner.temp }}/sdk/pspdev
     steps:
       - uses: actions/checkout@v5
+
+      - name: Set PSPDEV
+        # the runner context is not available in the job-level env
+        run: echo "PSPDEV=${RUNNER_TEMP}/sdk/pspdev" >> "$GITHUB_ENV"
 
       - name: Cache pspdev
         id: pspdev-cache
