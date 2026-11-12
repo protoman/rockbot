@@ -16,6 +16,7 @@
 #   --list                         list the targets and exit
 #   --docker                       run each platform's build inside its Docker image (build/docker/run.sh;
 #                                  same as ROCKBOT_DOCKER=1). Images: see docs/Docker.md
+#   --no-tag                       do not create the git tag v<version> at the end
 #   --dry-run                      show what would run, change nothing
 #   -h, --help
 #
@@ -52,7 +53,7 @@ TARGETS=(
     "raspberry-arm64|./Raspberry.sh @GAME@ arm64"
 )
 
-BUMP=""; GAMES=""; ONLY=""; SKIP=""; DRY=0; DOCKER="${ROCKBOT_DOCKER:-0}"
+BUMP=""; GAMES=""; ONLY=""; SKIP=""; DRY=0; TAG=1; DOCKER="${ROCKBOT_DOCKER:-0}"
 while [ $# -gt 0 ]; do
     case "$1" in
         --bump) BUMP="${2:-}"; shift 2 ;;
@@ -60,9 +61,10 @@ while [ $# -gt 0 ]; do
         --only) ONLY="${2:-}"; shift 2 ;;
         --skip) SKIP="${2:-}"; shift 2 ;;
         --docker) DOCKER=1; shift ;;
+        --no-tag) TAG=0; shift ;;
         --dry-run) DRY=1; shift ;;
         --list) for t in "${TARGETS[@]}"; do echo "${t%%|*}"; done; exit 0 ;;
-        -h|--help) sed -n '2,26p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+        -h|--help) sed -n '2,27p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
         *) echo "Unknown option: $1 (see --help)" >&2; exit 1 ;;
     esac
 done
@@ -182,3 +184,19 @@ if [ "$failed" -gt 0 ]; then
     exit 1
 fi
 echo "All builds succeeded."
+
+# --- git tag -----------------------------------------------------------------------------------
+# Tags the current commit as v<version> (annotated, not pushed: use "git push origin v<version>").
+if [ "$TAG" = 1 ]; then
+    tag="v$VERSION"
+    if git rev-parse -q --verify "refs/tags/$tag" > /dev/null; then
+        echo "Git tag $tag already exists, not touching it."
+    elif git tag -a "$tag" -m "Rockbot release $VERSION"; then
+        echo "Created git tag $tag on $(git rev-parse --short HEAD) (push it with: git push origin $tag)"
+        if ! git diff --quiet HEAD -- "$VERSION_FILE" "$SCRIPT_DIR/../../file/version.h"; then
+            echo "Warning: the version files have uncommitted changes; commit them (the tag stays on the old commit)."
+        fi
+    else
+        echo "Could not create git tag $tag" >&2
+    fi
+fi
