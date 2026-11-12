@@ -23,7 +23,7 @@
 #include <string>
 #include <set>
 #ifdef __SWITCH__
-#include <switch/kernel/svc.h>
+#include <switch.h>   // libnx, with its extern "C" guards (svc.h alone gives C++ linkage and fails to link)
 #endif
 #ifdef _WIN32
 extern "C" __declspec(dllimport) void __stdcall Sleep(unsigned long ms);
