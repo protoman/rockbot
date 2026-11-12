@@ -22,6 +22,9 @@
 #include <fstream>
 #include <string>
 #include <set>
+#ifdef __SWITCH__
+#include <switch/kernel/svc.h>
+#endif
 #ifdef _WIN32
 extern "C" __declspec(dllimport) void __stdcall Sleep(unsigned long ms);
 #else
@@ -97,6 +100,9 @@ inline void pause_ms(int ms)
     }
 #elif defined(_WIN32)
     Sleep((unsigned long)ms);
+#elif defined(__SWITCH__)
+    // Makefile.switch builds with strict -std=c++11, which hides usleep in newlib's headers
+    svcSleepThread((int64_t)ms * 1000000);
 #else
     usleep((useconds_t)ms * 1000);
 #endif
